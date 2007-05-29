@@ -61,7 +61,8 @@ import org.dspace.content.Community;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.ItemComparator;
-import org.dspace.content.ItemIterator;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.storage.rdbms.DatabaseManager;
@@ -89,6 +90,7 @@ public class Browse
 
     static final int ITEMS_BY_SUBJECT_BROWSE = 5;
 
+    private static ItemDAO itemDAO;
     
     /** Log4j log */
     private static Logger log = Logger.getLogger(Browse.class);
@@ -595,18 +597,17 @@ public class Browse
      */
     public static int indexAll(Context context) throws SQLException
     {
+        itemDAO = ItemDAOFactory.getInstance(context);
+
         indexRemoveAll(context);
 
-        int count = 0;
-        ItemIterator iterator = Item.findAll(context);
-
-        while (iterator.hasNext())
+        List<Item> items = itemDAO.getItems();
+        for (Item item : items)
         {
-            itemAdded(context, iterator.next());
-            count++;
+            itemAdded(context, item);
         }
 
-        return count;
+        return items.size();
     }
 
     /**

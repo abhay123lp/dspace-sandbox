@@ -44,7 +44,7 @@
   - Attributes:
   -    item        - item to edit
   -    collections - collections the item is in, if any
-  -    handle      - item's Handle, if any (String)
+  -    uri         - item's URI, if any (canonical form -- String)
   -    dc.types    - MetadataField[] - all metadata fields in the registry
   --%>
 
@@ -76,7 +76,7 @@
 
 <%
     Item item = (Item) request.getAttribute("item");
-    String handle = (String) request.getAttribute("handle");
+    String uri = (String) request.getAttribute("uri");
     Collection[] collections = (Collection[]) request.getAttribute("collections");
     MetadataField[] dcTypes = (MetadataField[])  request.getAttribute("dc.types");
     HashMap metadataFields = (HashMap) request.getAttribute("metadataFields");
@@ -143,9 +143,8 @@
                 </td>
             </tr>
             <tr>
-                <%-- <td class="submitFormLabel">Handle:</td> --%>
-				<td class="submitFormLabel"><fmt:message key="jsp.tools.edit-item-form.handle"/></td>
-                <td class="standard"><%= (handle == null ? "None" : handle) %></td>
+				<td class="submitFormLabel"><fmt:message key="jsp.tools.edit-item-form.uri"/></td>
+                <td class="standard"><%= (uri == null ? "None" : uri) %></td>
             </tr>
             <tr>
                 <%-- <td class="submitFormLabel">Last modified:</td> --%>
@@ -166,23 +165,27 @@
                 <%-- <td class="submitFormLabel">Item page:</td> --%>
 				<td class="submitFormLabel"><fmt:message key="jsp.tools.edit-item-form.itempage"/></td>
                 <td class="standard">
-<%  if (handle == null) { %>
+<%  if (uri == null) { %>
                     <em><fmt:message key="jsp.tools.edit-item-form.na"/></em>
 <%  } else {
-    String url = ConfigurationManager.getProperty("dspace.url") + "/handle/" + handle; %>
+    String url = ConfigurationManager.getProperty("dspace.url") + "/uri/" + uri; %>
                     <a target="_blank" href="<%= url %>"><%= url %></a>
 <%  } %>
                 </td>
             </tr>
 <%-- ===========================================================
      Edit item's policies
+     
+     FIXME: This needs to be refactored to use the supported
+     persistent identifier mechanisms from dspace.cfg, not just
+     assuming Handles.
      =========================================================== --%>
             <tr>
                 <%-- <td class="submitFormLabel">Item's Authorizations:</td> --%>
 				<td class="submitFormLabel"><fmt:message key="jsp.tools.edit-item-form.item"/></td>
                 <td>
                     <form method="post" action="<%= request.getContextPath() %>/dspace-admin/authorize">
-                        <input type="hidden" name="handle" value="<%= ConfigurationManager.getProperty("handle.prefix") %>" />
+                        <input type="hidden" name="uri" value="hdl:<%= ConfigurationManager.getProperty("handle.prefix") %>" />
                         <input type="hidden" name="item_id" value="<%= item.getID() %>" />
                         <%-- <input type="submit" name="submit_item_select" value="Edit..."> --%>
 						<input type="submit" name="submit_item_select" value="<fmt:message key="jsp.tools.general.edit"/>"/>
@@ -406,7 +409,7 @@
 				s = ccBundle.length > 0 ? LocaleSupport.getLocalizedMessage(pageContext, "jsp.tools.edit-item-form.replacecc.button") : LocaleSupport.getLocalizedMessage(pageContext, "jsp.tools.edit-item-form.addcc.button");
 		%>
                     <input type="submit" name="submit_addcc" value="<%= s %>" />
-                    <input type="hidden" name="handle" value="<%= ConfigurationManager.getProperty("handle.prefix") %>"/>
+                    <input type="hidden" name="uri" value="hdl:<%= ConfigurationManager.getProperty("handle.prefix") %>"/>
                     <input type="hidden" name="item_id" value="<%= item.getID() %>"/>
        <%
 			}

@@ -1046,11 +1046,6 @@ public class Group extends DSpaceObject
         return Constants.GROUP;
     }
 
-    public String getHandle()
-    {
-        return null;
-    }
-
     /**
      * Regenerate the group cache AKA the group2groupcache table in the database -
      * meant to be called when a group is added or removed from another group

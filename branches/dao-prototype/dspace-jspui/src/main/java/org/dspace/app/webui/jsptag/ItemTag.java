@@ -39,23 +39,8 @@
  */
 package org.dspace.app.webui.jsptag;
 
-import org.apache.log4j.Logger;
-import org.dspace.app.webui.util.UIUtil;
-
-import org.dspace.content.Bitstream;
-import org.dspace.content.Bundle;
-import org.dspace.content.Collection;
-import org.dspace.content.DCDate;
-import org.dspace.content.DCValue;
-import org.dspace.content.Item;
-
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Constants;
-import org.dspace.core.Utils;
-
 import java.io.IOException;
 import java.net.URLEncoder;
-
 import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -67,6 +52,19 @@ import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.jstl.fmt.LocaleSupport;
 import javax.servlet.jsp.tagext.TagSupport;
+
+import org.apache.log4j.Logger;
+
+import org.dspace.app.webui.util.UIUtil;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
+import org.dspace.content.Collection;
+import org.dspace.content.DCDate;
+import org.dspace.content.DCValue;
+import org.dspace.content.Item;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Constants;
+import org.dspace.core.Utils;
 
 /**
  * <P>
@@ -118,7 +116,7 @@ import javax.servlet.jsp.tagext.TagSupport;
  * 
  * <PRE>
  * 
- * webui.itemdisplay.&lt;style&gt;.collections = &lt;collection handle&gt;, ...
+ * webui.itemdisplay.&lt;style&gt;.collections = &lt;collection uri&gt;, ...
  * 
  * </PRE>
  * 
@@ -149,7 +147,7 @@ public class ItemTag extends TagSupport
     /** Whether to show preview thumbs on the item page */
     private boolean showThumbs;
 
-    /** Hashmap of collection Handles to styles to use, from dspace.cfg */
+    /** Hashmap of collection URIs to styles to use, from dspace.cfg */
     private static Map collectionStyles;
 
     /** Default DC fields to display, in absence of configuration */
@@ -192,10 +190,6 @@ public class ItemTag extends TagSupport
             {
                 render();
             }
-        }
-        catch (SQLException sqle)
-        {
-            throw new JspException(sqle);
         }
         catch (IOException ie)
         {
@@ -499,7 +493,7 @@ public class ItemTag extends TagSupport
         if (collections != null)
         {
             out.print("<tr><td class=\"metadataFieldLabel\">");
-            if (item.getHandle()==null)  // assume workspace item
+            if (item.getPersistentIdentifier().getCanonicalForm() == null)
             {
                 out.print(LocaleSupport.getLocalizedMessage(pageContext,
                         "org.dspace.app.webui.jsptag.ItemTag.submitted"));
@@ -515,8 +509,8 @@ public class ItemTag extends TagSupport
             {
                 out.print("<a href=\"");
                 out.print(request.getContextPath());
-                out.print("/handle/");
-                out.print(collections[i].getHandle());
+                out.print("/uri/");
+                out.print(collections[i].getPersistentIdentifier().getCanonicalForm());
                 out.print("\">");
                 out.print(collections[i].getMetadata("name"));
                 out.print("</a><br/>");
@@ -555,7 +549,7 @@ public class ItemTag extends TagSupport
         	else
         	{
         		boolean html = false;
-        		String handle = item.getHandle();
+        		String uri = item.getPersistentIdentifier().getCanonicalForm();
         		Bitstream primaryBitstream = null;
 
         		Bundle[] bunds = item.getBundles("ORIGINAL");
@@ -618,19 +612,20 @@ public class ItemTag extends TagSupport
             	// HTMLServlet
             	if (html)
             	{
-            		// If no real Handle yet (e.g. because Item is in workflow)
-            		// we use the 'fake' Handle db-id/1234 where 1234 is the
-            		// database ID of the item.
-            		if (handle == null)
+                    // If no real persistent identifier yet (e.g. because Item
+                    // is in workflow) we use the identifier db-id/1234 where
+                    // 1234 is the database ID of the item.
+                    if (uri == null)
             		{
-            			handle = "db-id/" + item.getID();
+            			// FIXME: We should probably use the dsi:x/y format
+            			uri = "db-id/" + item.getID();
             		}
 
             		out.print("<tr><td headers=\"t1\" class=\"standard\">");
                     out.print("<a target=\"_blank\" href=\"");
                     out.print(request.getContextPath());
                     out.print("/html/");
-                    out.print(handle + "/");
+                    out.print(uri + "/");
                     out
                         .print(UIUtil.encodeBitstreamName(primaryBitstream
                                 .getName(), Constants.DEFAULT_ENCODING));
@@ -655,7 +650,7 @@ public class ItemTag extends TagSupport
                         .print("</td><td class=\"standard\"><a target=\"_blank\" href=\"");
             		out.print(request.getContextPath());
             		out.print("/html/");
-            		out.print(handle + "/");
+            		out.print(uri + "/");
             		out
                         .print(UIUtil.encodeBitstreamName(primaryBitstream
                                 .getName(), Constants.DEFAULT_ENCODING));
@@ -677,16 +672,15 @@ public class ItemTag extends TagSupport
             				{
 
                                 // Work out what the bitstream link should be
-                                // (persistent
-                                // ID if item has Handle)
+                                // (persistent ID if item has URI)
                                 String bsLink = "<a target=\"_blank\" href=\""
                                         + request.getContextPath();
 
-                                if ((handle != null)
+                                if ((uri != null)
                                         && (bitstreams[k].getSequenceID() > 0))
                                 {
                                     bsLink = bsLink + "/bitstream/"
-                                            + item.getHandle() + "/"
+                                            + item.getPersistentIdentifier().getCanonicalForm() + "/"
                                             + bitstreams[k].getSequenceID() + "/";
                                 }
                                 else
@@ -840,7 +834,8 @@ public class ItemTag extends TagSupport
             readCollectionStyleConfig();
         }
 
-        String collStyle = (String) collectionStyles.get(c.getHandle());
+        String collStyle = (String) collectionStyles.get(
+                c.getPersistentIdentifier().getCanonicalForm());
 
         if (collStyle == null)
         {
@@ -856,7 +851,7 @@ public class ItemTag extends TagSupport
                     .warn("dspace.cfg specifies undefined item metadata display style '"
                             + collStyle
                             + "' for collection "
-                            + c.getHandle()
+                            + c.getPersistentIdentifier().getCanonicalForm()
                             + ".  Using default");
             style = "default";
             return;

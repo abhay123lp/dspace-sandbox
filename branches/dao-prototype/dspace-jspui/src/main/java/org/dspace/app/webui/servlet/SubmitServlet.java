@@ -811,10 +811,10 @@ public class SubmitServlet extends DSpaceServlet
         }
 
         Item item = subInfo.submission.getItem();
-        
+
         // lookup applicable inputs
         Collection c = subInfo.submission.getCollection();
-        DCInput[] inputs = inputsReader.getInputs(c.getHandle()).getPageRows(curStep - EDIT_METADATA_1,
+        DCInput[] inputs = inputsReader.getInputs(c.getPersistentIdentifier().getCanonicalForm()).getPageRows(curStep - EDIT_METADATA_1,
 									 subInfo.submission.hasMultipleTitles(),
 									 subInfo.submission.isPublishedBefore());
  
@@ -940,6 +940,12 @@ public class SubmitServlet extends DSpaceServlet
                 String schema = inputs[i].getSchema();
                 log.info("  inner "+schema);
         	    DCValue[] valArray = item.getMetadata(schema, element, qual, Item.ANY);
+
+                for (int x = 0; x < valArray.length; x++)
+                {
+                    log.info(valArray[x].toString());
+                }
+
         	    boolean isEmpty = (valArray.length == 0);
         	    if (inputs[i].isRequired() && isEmpty)
         	    {
@@ -963,7 +969,7 @@ public class SubmitServlet extends DSpaceServlet
         	else
         	{
         		// determine next step - skipping unused MD pages
-        		int lastMDPage = EDIT_METADATA_1 + inputsReader.getNumberInputPages(c.getHandle()) - 1;
+        		int lastMDPage = EDIT_METADATA_1 + inputsReader.getNumberInputPages(c.getPersistentIdentifier().getCanonicalForm()) - 1;
         		if ( curStep == lastMDPage )
         		{
         		    curStep = EDIT_METADATA_2;
@@ -1128,7 +1134,7 @@ public class SubmitServlet extends DSpaceServlet
                 // No files, go back to last edit metadata page
             	Collection c = subInfo.submission.getCollection();
             	int lastPage = EDIT_METADATA_1 + 
-				               inputsReader.getNumberInputPages( c.getHandle() ) - 1;
+				               inputsReader.getNumberInputPages( c.getPersistentIdentifier().getCanonicalForm() ) - 1;
                 doStep(context, request, response, subInfo, lastPage);
             }
         }
@@ -1260,7 +1266,7 @@ public class SubmitServlet extends DSpaceServlet
             // a great deal of sense, so go back to last edit metadata page.
         	Collection c = subInfo.submission.getCollection();
         	int lastPage = EDIT_METADATA_1 + 
-			               inputsReader.getNumberInputPages( c.getHandle() ) - 1;
+			               inputsReader.getNumberInputPages( c.getPersistentIdentifier().getCanonicalForm() ) - 1;
             doStep(context, request, response, subInfo, lastPage);
         }
         else if (buttonPressed.equals("submit_next"))
@@ -1826,7 +1832,7 @@ public class SubmitServlet extends DSpaceServlet
         if ( step >= EDIT_METADATA_1 && step <= EDIT_METADATA_2 )
         {
         	// requires configurable form info per collection
-        	request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getHandle()));
+        	request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getPersistentIdentifier().getCanonicalForm()));
         	// also indicate page
            	request.setAttribute( "submission.page", new Integer(step) );
 		showProgressAwareJSP(request, response, subInfo,
@@ -1838,7 +1844,7 @@ public class SubmitServlet extends DSpaceServlet
         {
         case INITIAL_QUESTIONS:
             // requires configurable form info per collection
-            request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getHandle()));
+            request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getPersistentIdentifier().getCanonicalForm()));
             showProgressAwareJSP(request, response, subInfo,
                 		 "/submit/initial-questions.jsp");
             break;
@@ -1861,7 +1867,7 @@ public class SubmitServlet extends DSpaceServlet
 
         case REVIEW_SUBMISSION:
             // requires configurable form info per collection
-            request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getHandle()));
+            request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getPersistentIdentifier().getCanonicalForm()));
             showProgressAwareJSP(request, response, subInfo,
             		         "/submit/review.jsp");
             break;
@@ -2055,7 +2061,7 @@ public class SubmitServlet extends DSpaceServlet
      	// all JSPs displaying the progress bar need to know the
      	// number of metadata edit pages
         subInfo.numMetadataPages =
-        	inputsReader.getNumberInputPages(subInfo.submission.getCollection().getHandle());
+        	inputsReader.getNumberInputPages(subInfo.submission.getCollection().getPersistentIdentifier().getCanonicalForm());
         request.setAttribute("submission.info", subInfo);
         
         JSPManager.showJSP(request, response, jspPath);

@@ -43,9 +43,13 @@ import java.io.IOException;
 import java.sql.SQLException;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.handle.HandleManager;
 import org.dspace.search.DSIndexer;
 
 /**
@@ -79,17 +83,22 @@ public class InstallItem
      * @param c  current context
      * @param is
      *            submission to install
-     * @param suppliedHandle
-     *            the existing Handle to give the installed item
+     * @param value
+     *            the existing identifier to give the installed item in
+     *            canonical form
      * 
      * @return the fully archived Item
      */
     public static Item installItem(Context c, InProgressSubmission is,
-            String suppliedHandle) throws SQLException,
+            String value) throws SQLException,
             IOException, AuthorizeException
     {
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
+        PersistentIdentifierDAO identifierDAO =
+            PersistentIdentifierDAOFactory.getInstance(c);
+
         Item item = is.getItem();
-        String handle;
+        PersistentIdentifier identifier;
 
         // create accession date
         DCDate now = DCDate.getCurrent();
@@ -104,21 +113,23 @@ public class InstallItem
             item.addDC("date", "issued", null, now.toString());
         }
 
-        // if no previous handle supplied, create one
-        if (suppliedHandle == null)
+        // if no previous identifier supplied, create one
+        if (value == null)
         {
-            // create handle
-            handle = HandleManager.createHandle(c, item);
+            // Create persistent identifier. Note that this will create an
+            // identifier of the default type (as specified in the
+            // configuration).
+            identifier = identifierDAO.create(item);
         }
         else
         {
-            handle = HandleManager.createHandle(c, item, suppliedHandle);
+            identifier = identifierDAO.create(item, value);
         }
 
-        String handleref = HandleManager.getCanonicalForm(handle);
+        String uri = identifier.getURI().toString();
 
-        // Add handle as identifier.uri DC value
-        item.addDC("identifier", "uri", null, handleref);
+        // Add uri as identifier.uri DC value
+        item.addDC("identifier", "uri", null, uri);
 
         String provDescription = "Made available in DSpace on " + now
                 + " (GMT). " + getBitstreamProvenanceMessage(item);
@@ -143,7 +154,7 @@ public class InstallItem
         item.setArchived(true);
 
         // save changes ;-)
-        item.update();
+        itemDAO.update(item);
 
         // add item to search and browse indices
         DSIndexer.indexContent(c, item);

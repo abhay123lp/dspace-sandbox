@@ -191,7 +191,7 @@ Common usage:
       </fileset>
     </copy>
   	<!-- Build DSpace Web UI .war -->
-    <war destfile="build/dspace.war"
+    <war destfile="build/dspace-dao.war"
          webxml="build/dspace-web.xml">
        <fileset dir="build/jsp" />
        <lib dir="lib">
@@ -206,7 +206,7 @@ Common usage:
     <replace file="build/oai-web.xml"
              token="@@dspace.dir@@"
              value="${dspace.dir}" />
-    <war destfile="build/dspace-oai.war"
+    <war destfile="build/dspace-dao-oai.war"
          webxml="build/oai-web.xml">
        <lib dir="lib">
          <exclude name="servlet.jar" />

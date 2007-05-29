@@ -40,6 +40,7 @@
 package org.dspace.handle;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -55,6 +56,10 @@ import net.handle.hdllib.Util;
 import net.handle.util.StreamTable;
 
 import org.apache.log4j.Logger;
+
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 
@@ -62,9 +67,9 @@ import org.dspace.core.Context;
  * Extension to the CNRI Handle Server that translates requests to resolve
  * handles into DSpace API calls. The implementation simply stubs out most of
  * the methods, and delegates the rest to the
- * {@link org.dspace.handle.HandleManager}. This only provides some of the
- * functionality (namely, the resolving of handles to URLs) of the CNRI
- * HandleStorage interface.
+ * {@link org.dspace.content.uri.PersistentIdentifierDAO}. This only provides
+ * some of the functionality (namely, the resolving of handles to URLs) of the
+ * CNRI HandleStorage interface.
  * 
  * <p>
  * This class is intended to be embedded in the CNRI Handle Server. It conforms
@@ -256,7 +261,11 @@ public class HandlePlugin implements HandleStorage
 
             context = new Context();
 
-            String url = HandleManager.resolveToURL(context, handle);
+            PersistentIdentifierDAO identifierDAO =
+                PersistentIdentifierDAOFactory.getInstance(context);
+            PersistentIdentifier identifier = identifierDAO.retrieve(handle);
+
+            String url = identifier.getURI().toString();
 
             if (url == null)
             {
@@ -387,7 +396,19 @@ public class HandlePlugin implements HandleStorage
         {
             context = new Context();
 
-            List handles = HandleManager.getHandlesForPrefix(context, naHandle);
+            PersistentIdentifierDAO identifierDAO =
+                PersistentIdentifierDAOFactory.getInstance(context);
+
+            PersistentIdentifier.Type type = PersistentIdentifier.Type.HANDLE;
+
+            List<String> handles = new ArrayList<String>();
+
+            for(PersistentIdentifier identifier :
+                    identifierDAO.getPersistentIdentifiers(type, naHandle))
+            {
+                handles.add(identifier.getValue());
+            }
+
             List results = new LinkedList();
 
             for (Iterator iterator = handles.iterator(); iterator.hasNext();)

@@ -54,12 +54,15 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
-import org.dspace.handle.HandleManager;
 
 /**
  * Servlet for HTML bitstream support.
@@ -146,13 +149,16 @@ public class HTMLServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        PersistentIdentifierDAO identifierDAO =
+            PersistentIdentifierDAOFactory.getInstance(context);
+
         Item item = null;
         Bitstream bitstream = null;
 
         String idString = request.getPathInfo();
         String filenameNoPath = null;
         String fullpath = null;
-        String handle = null;
+        String uri = null;
 
         // Parse URL
         if (idString != null)
@@ -163,14 +169,14 @@ public class HTMLServlet extends DSpaceServlet
                 idString = idString.substring(1);
             }
 
-            // Get handle and full file path
+            // Get uri and full file path
             int slashIndex = idString.indexOf('/');
             if (slashIndex != -1)
             {
                 slashIndex = idString.indexOf('/', slashIndex + 1);
                 if (slashIndex != -1)
                 {
-                    handle = idString.substring(0, slashIndex);
+                    uri = idString.substring(0, slashIndex);
                     fullpath = URLDecoder.decode(idString
                             .substring(slashIndex + 1),
                             Constants.DEFAULT_ENCODING);
@@ -189,28 +195,31 @@ public class HTMLServlet extends DSpaceServlet
             }
         }
 
-        if (handle != null && fullpath != null)
+        if (uri != null && fullpath != null)
         {
             // Find the item
             try
             {
                 /*
-                 * If the original item doesn't have a Handle yet (because it's
-                 * in the workflow) what we actually have is a fake Handle in
-                 * the form: db-id/1234 where 1234 is the database ID of the
-                 * item.
-                 */
-                if (handle.startsWith("db-id"))
+                 * If the original item doesn't have a persistent identifier
+                 * yet (because it's in the workflow) what we actually have is
+                 * a URL of the form: db-id/1234 where 1234 is the database ID
+                 * of the item.
+                 *
+                 * FIXME: This first part could be totally omitted now that we
+                 * have the dsi:x/y format of identification.
+                */
+                if (uri.startsWith("db-id"))
                 {
-                    String dbIDString = handle
-                            .substring(handle.indexOf('/') + 1);
+                    String dbIDString = uri
+                            .substring(uri.indexOf('/') + 1);
                     int dbID = Integer.parseInt(dbIDString);
                     item = Item.find(context, dbID);
                 }
                 else
                 {
-                    item = (Item) HandleManager
-                            .resolveToObject(context, handle);
+                    PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+                    item = (Item) ArchiveManager.getObject(context, identifier);
                 }
             }
             catch (NumberFormatException nfe)
@@ -235,8 +244,8 @@ public class HTMLServlet extends DSpaceServlet
         // Did we get a bitstream?
         if (bitstream != null)
         {
-            log.info(LogManager.getHeader(context, "view_html", "handle="
-                    + handle + ",bitstream_id=" + bitstream.getID()));
+            log.info(LogManager.getHeader(context, "view_html", "uri="
+                    + uri + ",bitstream_id=" + bitstream.getID()));
 
             // Set the response MIME type
             response.setContentType(bitstream.getFormat().getMIMEType());

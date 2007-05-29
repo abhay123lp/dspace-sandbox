@@ -50,13 +50,21 @@ import java.util.List;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
+import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.handle.HandleManager;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -105,7 +113,7 @@ public class Harvest
      *            if <code>true</code> the <code>item</code> field of each
      *            <code>HarvestedItemInfo</code> object is filled out
      * @param collections
-     *            if <code>true</code> the <code>collectionHandles</code>
+     *            if <code>true</code> the <code>collectionIdentifiers</code>
      *            field of each <code>HarvestedItemInfo</code> object is
      *            filled out
      * @param withdrawn
@@ -120,11 +128,18 @@ public class Harvest
             boolean items, boolean collections, boolean withdrawn)
             throws SQLException, ParseException
     {
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+        PersistentIdentifierDAO identifierDAO =
+            PersistentIdentifierDAOFactory.getInstance(context);
+        PersistentIdentifier identifier = null;
 
         // Put together our query. Note there is no need for an
-        // "in_archive=true" condition, we are using the existence of
-        // Handles as our 'existence criterion'.
-        String query = "SELECT handle.handle, handle.resource_id, item.withdrawn, item.last_modified FROM handle, item";
+        // "in_archive=true" condition, we are using the existence of a
+        // persistent identifier as our 'existence criterion'.
+        String query =
+            "SELECT p.value, p.type_id, p.resource_id, " +
+            "i.withdrawn, i.last_modified " +
+            "FROM persistentidentifier p, item i";
         
         
         // We are building a complex query that may contain a variable 
@@ -137,35 +152,36 @@ public class Harvest
         {
         	if (scope.getType() == Constants.COLLECTION)
         	{
-        		query += ", collection2item";
+        		query += ", collection2item cl2i";
         	}
         	else if (scope.getType() == Constants.COMMUNITY)
         	{
-        		query += ", community2item";
+        		query += ", community2item cm2i";
         	}
         }       
 
-        query += " WHERE handle.resource_type_id=" + Constants.ITEM + " AND handle.resource_id=item.item_id ";
+        query += " WHERE p.resource_type_id=" + Constants.ITEM +
+            " AND p.resource_id = i.item_id ";
 
         if (scope != null)
         {
         	if (scope.getType() == Constants.COLLECTION)
         	{
-        		query += " AND collection2item.collection_id= ? " +
-        	             " AND collection2item.item_id=handle.resource_id ";
+        		query += " AND cl2i.collection_id= ? " +
+        	             " AND cl2i.item_id = p.resource_id ";
         		parameters.add(new Integer(scope.getID()));
         	}
         	else if (scope.getType() == Constants.COMMUNITY)
         	{
-        		query += " AND community2item.community_id= ? " +
-						 " AND community2item.item_id=handle.resource_id";
+        		query += " AND cm2i.community_id= ? " +
+						 " AND cm2i.item_id = p.resource_id";
         		parameters.add(new Integer(scope.getID()));
         	}
         }      
                 
         if (startDate != null)
         {
-        	query = query + " AND item.last_modified >= ? ";
+        	query = query + " AND i.last_modified >= ? ";
         	parameters.add(toTimestamp(startDate, false));
         }
 
@@ -196,7 +212,7 @@ public class Harvest
                 selfGenerated = true;
             }
 
-        	query += " AND item.last_modified <= ? ";
+        	query += " AND i.last_modified <= ? ";
             parameters.add(toTimestamp(endDate, selfGenerated));
         }
         
@@ -217,7 +233,7 @@ public class Harvest
         // Order by item ID, so that for a given harvest the order will be
         // consistent. This is so that big harvests can be broken up into
         // several smaller operations (e.g. for OAI resumption tokens.)
-        query += " ORDER BY handle.resource_id";
+        query += " ORDER BY p.resource_id";
 
         log.debug(LogManager.getHeader(context, "harvest SQL", query));
         
@@ -241,8 +257,30 @@ public class Harvest
             {
                 HarvestedItemInfo itemInfo = new HarvestedItemInfo();
                 
+                String value = row.getStringColumn("value");
+                int typeID = row.getIntColumn("type_id");
+
+                PersistentIdentifier.Type type = null;
+
+                for (PersistentIdentifier.Type t : PersistentIdentifier.Type.values())
+                {
+                    if (t.getID() == typeID)
+                    {
+                        type = t;
+                        break;
+                    }
+                }
+
+                if (type == null)
+                {
+                    throw new RuntimeException(value + " not supported.");
+                }
+
+                identifier =
+                    identifierDAO.retrieve(type.getNamespace() + ":" + value);
+
                 itemInfo.context = context;
-                itemInfo.handle = row.getStringColumn("handle");
+                itemInfo.identifier = identifier;
                 itemInfo.itemID = row.getIntColumn("resource_id");
                 itemInfo.datestamp = row.getDateColumn("last_modified");
                 itemInfo.withdrawn = row.getBooleanColumn("withdrawn");
@@ -254,8 +292,7 @@ public class Harvest
 
                 if (items)
                 {
-                    // Get the item
-                    itemInfo.item = Item.find(context, itemInfo.itemID);
+                    itemInfo.item = itemDAO.retrieve(itemInfo.itemID);
                 }
 
                 infoObjects.add(itemInfo);
@@ -274,10 +311,10 @@ public class Harvest
      * 
      * @param context
      *            DSpace context
-     * @param handle
-     *            Prefix-less Handle of item
+     * @param identifier
+     *            A persistent identifier.
      * @param collections
-     *            if <code>true</code> the <code>collectionHandles</code>
+     *            if <code>true</code> the <code>collectionIdentifiers</code>
      *            field of the <code>HarvestedItemInfo</code> object is filled
      *            out
      * 
@@ -285,11 +322,12 @@ public class Harvest
      *         <code>null</code>
      * @throws SQLException
      */
-    public static HarvestedItemInfo getSingle(Context context, String handle,
-            boolean collections) throws SQLException
+    public static HarvestedItemInfo getSingle(Context context,
+            PersistentIdentifier identifier, boolean collections)
+        throws SQLException
     {
-        // FIXME: Assume Handle is item
-        Item i = (Item) HandleManager.resolveToObject(context, handle);
+        // FIXME: Assume identifier is item
+        Item i = (Item) ArchiveManager.getObject(context, identifier);
 
         if (i == null)
         {
@@ -301,7 +339,7 @@ public class Harvest
 
         itemInfo.context = context;
         itemInfo.item = i;
-        itemInfo.handle = handle;
+        itemInfo.identifier = identifier;
         itemInfo.withdrawn = i.isWithdrawn();
         itemInfo.datestamp = i.getLastModified();
         itemInfo.itemID = i.getID();
@@ -327,20 +365,21 @@ public class Harvest
     private static void fillCollections(Context context,
             HarvestedItemInfo itemInfo) throws SQLException
     {
-        // Get the collection Handles from DB
-        TableRowIterator colRows = DatabaseManager.query(context,
-                        "SELECT handle.handle FROM handle, collection2item WHERE handle.resource_type_id= ? " + 
-                        "AND collection2item.collection_id=handle.resource_id AND collection2item.item_id = ? ",
-                        Constants.COLLECTION, itemInfo.itemID);
+        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
 
-        // Chuck 'em in the itemInfo object
-        itemInfo.collectionHandles = new LinkedList();
+        Item item = (Item) ArchiveManager.getObject(
+                context, itemInfo.itemID, Constants.ITEM);
+        List<Collection> parents = collectionDAO.getParentCollections(item);
 
-        while (colRows.hasNext())
+        List<PersistentIdentifier> identifiers =
+            new LinkedList<PersistentIdentifier>();
+
+        for (Collection parent : parents)
         {
-            TableRow r = colRows.next();
-            itemInfo.collectionHandles.add(r.getStringColumn("handle"));
+            identifiers.add(parent.getPersistentIdentifier());
         }
+
+        itemInfo.collectionIdentifiers = identifiers;
     }
 
     

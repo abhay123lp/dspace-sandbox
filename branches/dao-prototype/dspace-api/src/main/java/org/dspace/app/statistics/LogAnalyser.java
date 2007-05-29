@@ -170,8 +170,8 @@ public class LogAnalyser
    /** Exclude characters regular expression pattern */
    private static Pattern excludeCharRX = null;
    
-   /** handle indicator string regular expression pattern */
-   private static Pattern handleRX = null;
+   /** URI indicator string regular expression pattern */
+   private static Pattern uriRX = null;
    
    /** item id indicator string regular expression pattern */
    private static Pattern itemRX = null;
@@ -495,21 +495,21 @@ public class LogAnalyser
                         // is the action an item view?
                         if (logLine.isAction("view_item"))
                         {
-                            String handle = logLine.getParams();
+                            String uri = logLine.getParams();
 
-                            // strip the handle string
-                            Matcher matchHandle = handleRX.matcher(handle);
-                            handle = matchHandle.replaceAll("");
+                            // strip the uri string
+                            Matcher matchURI = uriRX.matcher(uri);
+                            uri = matchURI.replaceAll("");
                             
                             // strip the item id string
-                            Matcher matchItem = itemRX.matcher(handle);
-                            handle = matchItem.replaceAll("");
+                            Matcher matchItem = itemRX.matcher(uri);
+                            uri = matchItem.replaceAll("");
 
-                            handle.trim();
+                            uri.trim();
 
-                            // either add the handle to the aggregator or
+                            // either add the uri to the aggregator or
                             // increment its counter
-                            itemAggregator.put(handle, increment(itemAggregator, handle));
+                            itemAggregator.put(uri, increment(itemAggregator, uri));
                         }
 
                         // log all the activity
@@ -824,8 +824,8 @@ public class LogAnalyser
         charRegEx.append("]");
         excludeCharRX = Pattern.compile(charRegEx.toString());
         
-        // regular expression to find handle indicators in strings
-        handleRX = Pattern.compile("handle=");
+        // regular expression to find URI indicators in strings
+        uriRX = Pattern.compile("uri=");
         
         // regular expression to find item_id indicators in strings
         itemRX = Pattern.compile(",item_id=.*$");

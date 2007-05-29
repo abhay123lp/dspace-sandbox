@@ -57,10 +57,13 @@ import org.dspace.browse.BrowseScope;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.handle.HandleManager;
 
 /**
  * Servlet for browsing through indices. This can be used to browse authors,
@@ -115,6 +118,9 @@ public class BrowseServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        PersistentIdentifierDAO identifierDAO =
+            PersistentIdentifierDAOFactory.getInstance(context);
+
         // We will resolve the HTTP request parameters into a scope
         BrowseScope scope = new BrowseScope(context);
 
@@ -183,13 +189,13 @@ public class BrowseServlet extends DSpaceServlet
             }
             else
             {
-                // For browsing items by title or date, focus is a Handle
-                Item item = (Item) HandleManager
-                        .resolveToObject(context, focus);
+                // For browsing items by title or date, focus is a URI
+                PersistentIdentifier identifier = identifierDAO.retrieve(focus);
+                Item item = (Item) ArchiveManager.getObject(context, identifier);
 
                 if (item == null)
                 {
-                    // Handle is invalid one. Show an error.
+                    // URI is invalid one. Show an error.
                     JSPManager.showInvalidIDError(request, response, focus,
                             Constants.ITEM);
 
@@ -278,12 +284,13 @@ public class BrowseServlet extends DSpaceServlet
             }
             else
             {
-                // Value is Handle if we're browsing items by title or date
-                Item item = (Item) HandleManager.resolveToObject(context, val);
+                // Value is URI if we're browsing items by title or date
+                PersistentIdentifier identifier = identifierDAO.retrieve(val);
+                Item item = (Item) ArchiveManager.getObject(context, identifier);
 
                 if (item == null)
                 {
-                    // Handle is invalid one. Show an error.
+                    // URI is invalid one. Show an error.
                     JSPManager.showInvalidIDError(request, response, focus,
                             Constants.ITEM);
 
@@ -413,7 +420,7 @@ public class BrowseServlet extends DSpaceServlet
                 else
                 {
                     Item firstItem = (browseInfo.getItemResults())[0];
-                    s = firstItem.getHandle();
+                    s = firstItem.getPersistentIdentifier().getCanonicalForm();
                 }
 
                 if (browseDates && oldestFirst)
@@ -453,7 +460,7 @@ public class BrowseServlet extends DSpaceServlet
                 {
                     Item[] items = browseInfo.getItemResults();
                     Item lastItem = items[items.length - 1];
-                    s = lastItem.getHandle();
+                    s = lastItem.getPersistentIdentifier().getCanonicalForm();
                 }
 
                 if (browseDates && oldestFirst)

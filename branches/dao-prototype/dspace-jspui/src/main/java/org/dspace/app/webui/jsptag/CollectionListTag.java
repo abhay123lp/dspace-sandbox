@@ -93,8 +93,8 @@ public class CollectionListTag extends TagSupport
 
                 HttpServletRequest hrq = (HttpServletRequest) pageContext
                         .getRequest();
-                out.print(hrq.getContextPath() + "/handle/");
-                out.print(collections[i].getHandle());
+                out.print(hrq.getContextPath() + "/uri/");
+                out.print(collections[i].getPersistentIdentifier().getCanonicalForm());
                 out.print("\">");
                 out.print(name);
                 out.print("</a>");

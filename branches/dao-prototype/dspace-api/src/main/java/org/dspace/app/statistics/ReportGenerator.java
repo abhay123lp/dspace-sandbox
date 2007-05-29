@@ -65,9 +65,12 @@ import java.util.regex.Pattern;
 
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.handle.HandleManager;
 
 /**
  * This class performs the action of coordinating a usage report being
@@ -319,7 +322,7 @@ public class ReportGenerator
         // process the items in preparation to be displayed.  This includes sorting
         // by view number, building the links, and getting further info where
         // necessary
-        Statistics viewedItems = new Statistics("Item/Handle", "Number of views", itemFloor);
+        Statistics viewedItems = new Statistics("Item/URI", "Number of views", itemFloor);
         viewedItems.setSectionHeader("Items Viewed");
         
         Stat[] items = new Stat[itemAggregator.size()];
@@ -329,7 +332,7 @@ public class ReportGenerator
         while (keys.hasNext())
         {
             String key = (String) keys.next();
-            String link = url + "handle/" + key;
+            String link = url + "uri/" + key;
             value = Integer.parseInt((String) itemAggregator.get(key));
             items[i] = new Stat(key, value, link);
             i++;
@@ -803,31 +806,34 @@ public class ReportGenerator
     }
     
     /**
-     * get the information for the item with the given handle
+     * get the information for the item with the given URI
      *
      * @param   context     the DSpace context we are operating under
-     * @param   handle      the handle of the item being looked up, in the form
-     *                      1234/567 and so forth
+     * @param   uri         the uri of the item being looked up, in the form
+     *                      xyz:1234/567 and so forth
      *
      * @return      a string containing a reference (almost citation) to the
      *              article
      */
-    public static String getItemInfo(Context context, String handle)
+    public static String getItemInfo(Context context, String uri)
         throws SQLException
     {
         Item item = null;
         
-        // ensure that the handle exists
+        // ensure that the URI exists
         try 
         {
-            item = (Item) HandleManager.resolveToObject(context, handle);
+            PersistentIdentifierDAO identifierDAO =
+                PersistentIdentifierDAOFactory.getInstance(context);
+            PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+            item = (Item) ArchiveManager.getObject(context, identifier);
         } 
         catch (Exception e)
         {
             return null;
         }
         
-        // if no handle that matches is found then also return null
+        // if no URI that matches is found then also return null
         if (item == null)
         {
             return null;

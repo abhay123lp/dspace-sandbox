@@ -96,8 +96,6 @@
 
 <dspace:layout titlekey="jsp.search.results.title">
 
-    <%-- <h1>Search Results</h1> --%>
-    
 <h1><fmt:message key="jsp.search.results.title"/></h1>
     
   
@@ -111,38 +109,33 @@
 else if( qResults.getHitCount() == 0 )
 {
  %>
-    <%-- <p align="center">Search produced no results.</p> --%>
     <p align="center"><fmt:message key="jsp.search.general.noresults"/></p>
 <%
 }
 else
 {
 %>
-    <%-- <p align="center">Results <//%=qResults.getStart()+1%>-<//%=qResults.getStart()+qResults.getHitHandles().size()%> of --%>
 	<p align="center"><fmt:message key="jsp.search.results.results">
         <fmt:param><%=qResults.getStart()+1%></fmt:param>
-        <fmt:param><%=qResults.getStart()+qResults.getHitHandles().size()%></fmt:param>
+        <fmt:param><%=qResults.getStart()+qResults.getHitURIs().size()%></fmt:param>
         <fmt:param><%=qResults.getHitCount()%></fmt:param>
     </fmt:message></p>
 
 <% } %>
 
 <% if (communities.length > 0 ) { %>
-    <%-- <h3>Community Hits:</h3> --%>
     <h3><fmt:message key="jsp.search.results.comhits"/></h3>
     <dspace:communitylist  communities="<%= communities %>" />
 <% } %>
 
 <% if (collections.length > 0 ) { %>   
     <br/>
-    <%-- <h3>Collection hits:</h3> --%>
     <h3><fmt:message key="jsp.search.results.colhits"/></h3>
     <dspace:collectionlist collections="<%= collections %>" />
 <% } %>
 
 <% if (items.length > 0) { %>
     <br/>
-    <%-- <h3>Item hits:</h3> --%>
     <h3><fmt:message key="jsp.search.results.itemhits"/></h3>
     <dspace:itemlist items="<%= items %>" />
 <% } %>
@@ -155,9 +148,9 @@ else
     if (community == null && collection == null) {
 	searchScope = "";
     } else if (collection == null) {
-	searchScope = "/handle/" + community.getHandle();
+	searchScope = "/uri/" + community.getPersistentIdentifier().getCanonicalForm();
     } else {
-	searchScope = "/handle/" + collection.getHandle();
+	searchScope = "/uri/" + collection.getPersistentIdentifier().getCanonicalForm();
     } 
 
     // create the URLs accessing the previous and next search result pages

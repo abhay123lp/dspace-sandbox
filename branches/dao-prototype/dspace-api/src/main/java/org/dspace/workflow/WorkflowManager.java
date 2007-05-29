@@ -67,7 +67,6 @@ import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.handle.HandleManager;
 import org.dspace.history.HistoryManager;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
@@ -652,11 +651,12 @@ public class WorkflowManager
                 + wfi.getID() + "item_id=" + item.getID() + "collection_id="
                 + collection.getID()));
 
-        InstallItem.installItem(c, wfi);
+        item = InstallItem.installItem(c, wfi);
+        String uri = item.getPersistentIdentifier().getCanonicalForm();
 
         // Log the event
         log.info(LogManager.getHeader(c, "install_item", "workflow_id="
-                + wfi.getID() + ", item_id=" + item.getID() + "handle=FIXME"));
+                + wfi.getID() + ", item_id=" + item.getID() + "uri=" + uri));
 
         return item;
     }
@@ -676,8 +676,8 @@ public class WorkflowManager
             Locale supportedLocale = I18nUtil.getSupportedLocale(epLocale);
             Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(supportedLocale, "submit_archive"));
             
-            // Get the item handle to email to user
-            String handle = HandleManager.findHandle(c, i);
+            // Get the item persistent identifier to email to user
+            String uri = i.getPersistentIdentifier().getCanonicalForm();
 
             // Get title
             DCValue[] titles = i.getDC("title", null, Item.ANY);
@@ -698,7 +698,7 @@ public class WorkflowManager
             email.addRecipient(ep.getEmail());
             email.addArgument(title);
             email.addArgument(coll.getMetadata("name"));
-            email.addArgument(HandleManager.getCanonicalForm(handle));
+            email.addArgument(uri);
 
             email.send();
         }

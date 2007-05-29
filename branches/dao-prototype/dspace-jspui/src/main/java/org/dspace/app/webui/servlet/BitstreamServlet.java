@@ -60,18 +60,20 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
-import org.dspace.handle.HandleManager;
 
 /**
  * Servlet for retrieving bitstreams. The bits are simply piped to the user. If
  * there is an <code>If-Modified-Since</code> header, only a 304 status code
  * is returned if the containing item has not been modified since that date.
  * <P>
- * <code>/bitstream/handle/sequence_id/filename</code>
+ * <code>/bitstream/uri/sequence_id/filename</code>
  * 
  * @author Robert Tansley
  * @version $Revision$
@@ -81,26 +83,30 @@ public class BitstreamServlet extends DSpaceServlet
     /** log4j category */
     private static Logger log = Logger.getLogger(BitstreamServlet.class);
 
+    private PersistentIdentifierDAO identifierDAO;
+
     protected void doDSGet(Context context, HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        identifierDAO = PersistentIdentifierDAOFactory.getInstance(context);
+
     	Item item = null;
     	Bitstream bitstream = null;
 
         // Get the ID from the URL
         String idString = request.getPathInfo();
-        String handle = "";
+        String uri = "";
         String sequenceText = "";
         String filename = null;
         int sequenceID;
 
-        // Parse 'handle' and 'sequence' (bitstream seq. number) out
+        // Parse 'uri' and 'sequence' (bitstream seq. number) out
         // of remaining URL path, which is typically of the format:
-        // {handle}/{sequence}/{bitstream-name}
+        // {uri}/{sequence}/{bitstream-name}
         // But since the bitstream name MAY have any number of "/"s in
-        // it, and the handle is guaranteed to have one slash, we
-        // scan from the start to pick out handle and sequence:
+        // it, and the uri is guaranteed to have one slash (LIES!!), we
+        // scan from the start to pick out uri and sequence:
 
         // Remove leading slash if any:
         if (idString.startsWith("/"))
@@ -108,14 +114,14 @@ public class BitstreamServlet extends DSpaceServlet
             idString = idString.substring(1);
         }
 
-        // skip first slash within handle
+        // skip first slash within uri
         int slashIndex = idString.indexOf('/');
         if (slashIndex != -1)
         {
             slashIndex = idString.indexOf('/', slashIndex + 1);
             if (slashIndex != -1)
             {
-                handle = idString.substring(0, slashIndex);
+                uri = idString.substring(0, slashIndex);
                 int slash2 = idString.indexOf('/', slashIndex + 1);
                 if (slash2 != -1)
                 {
@@ -135,7 +141,8 @@ public class BitstreamServlet extends DSpaceServlet
         }
         
         // Now try and retrieve the item
-        DSpaceObject dso = HandleManager.resolveToObject(context, handle);
+        PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+        DSpaceObject dso = identifier.getObject();
         
         // Make sure we have valid item and sequence number
         if (dso != null && dso.getType() == Constants.ITEM && sequenceID >= 0)
@@ -145,7 +152,7 @@ public class BitstreamServlet extends DSpaceServlet
             if (item.isWithdrawn())
             {
                 log.info(LogManager.getHeader(context, "view_bitstream",
-                        "handle=" + handle + ",withdrawn=true"));
+                        "uri=" + uri + ",withdrawn=true"));
                 JSPManager.showJSP(request, response, "/tombstone.jsp");
                 return;
             }

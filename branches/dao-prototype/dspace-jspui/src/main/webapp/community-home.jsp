@@ -139,12 +139,12 @@
                 <small><label for="tlocation"><strong><fmt:message key="jsp.general.location"/></strong></label></small>&nbsp;<select name="location" id="tlocation"> 
                  <%--<option value="/">All of DSpace</option>--%>
 				 <option value="/"><fmt:message key="jsp.general.genericScope"/></option>
-                 <option selected="selected" value="<%= community.getHandle() %>"><%= name %></option>
+                 <option selected="selected" value="<%= community.getPersistentIdentifier().getCanonicalForm() %>"><%= name %></option>
 <%
     for (int i = 0; i < collections.length; i++)
     {
 %>    
-                  <option value="<%= collections[i].getHandle() %>"><%= collections[i].getMetadata("name") %></option>
+                  <option value="<%= collections[i].getPersistentIdentifier().getCanonicalForm() %>"><%= collections[i].getMetadata("name") %></option>
 <%
     }
 %>
@@ -152,7 +152,7 @@
     for (int j = 0; j < subcommunities.length; j++)
     {
 %>    
-                  <option value="<%= subcommunities[j].getHandle() %>"><%= subcommunities[j].getMetadata("name") %></option>
+                  <option value="<%= subcommunities[j].getPersistentIdentifier().getCanonicalForm() %>"><%= subcommunities[j].getMetadata("name") %></option>
 <%
     }
 %>
@@ -193,7 +193,7 @@
 	    <table>
 	    <tr>
 	    <td>
-	      <a href="<%= request.getContextPath() %>/handle/<%= collections[i].getHandle() %>">
+	      <a href="<%= request.getContextPath() %>/uri/<%= collections[i].getPersistentIdentifier().getCanonicalForm() %>">
 	      <%= collections[i].getMetadata("name") %></a>
 <%
             if(ConfigurationManager.getBooleanProperty("webui.strengths.show"))
@@ -243,7 +243,7 @@
 			    <table>
 			    <tr>
 			    <td>
-	                <a href="<%= request.getContextPath() %>/handle/<%= subcommunities[j].getHandle() %>">
+	                <a href="<%= request.getContextPath() %>/uri/<%= subcommunities[j].getPersistentIdentifier().getCanonicalForm() %>">
 	                <%= subcommunities[j].getMetadata("name") %></a>
 <%
                 if (ConfigurationManager.getBooleanProperty("webui.strengths.show"))
@@ -369,7 +369,7 @@
     	       width = 36;
     	    }
 %>
-    <a href="<%= request.getContextPath() %>/feed/<%= fmts[j] %>/<%= community.getHandle() %>"><img src="<%= request.getContextPath() %>/image/<%= icon %>" alt="RSS Feed" width="<%= width %>" height="15" vspace="3" border="0" /></a>
+    <a href="<%= request.getContextPath() %>/feed/<%= fmts[j] %>/<%= community.getPersistentIdentifier().getCanonicalForm() %>"><img src="<%= request.getContextPath() %>/image/<%= icon %>" alt="RSS Feed" width="<%= width %>" height="15" vspace="3" border="0" /></a>
 <%
     	}
 %>

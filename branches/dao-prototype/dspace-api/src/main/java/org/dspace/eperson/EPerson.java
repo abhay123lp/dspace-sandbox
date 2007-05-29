@@ -40,6 +40,7 @@
 package org.dspace.eperson;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
@@ -518,12 +519,6 @@ public class EPerson extends DSpaceObject
   
 
 
-
-    public String getHandle()
-    {
-        // No Handles for e-people
-        return null;
-    }
 
     /**
      * Get the e-person's email address

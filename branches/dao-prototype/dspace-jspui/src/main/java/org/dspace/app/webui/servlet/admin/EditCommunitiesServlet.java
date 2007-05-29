@@ -251,7 +251,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             {
                 response.sendRedirect(response.encodeRedirectURL(request
                         .getContextPath()
-                        + "/handle/" + parent.getHandle()));
+                        + "/uri/" + parent.getPersistentIdentifier().getCanonicalForm()));
             }
 
             // Show main control page
@@ -314,7 +314,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         {
             response.sendRedirect(response.encodeRedirectURL(request
                     .getContextPath()
-                    + "/handle/" + community.getHandle()));
+                    + "/uri/" + community.getPersistentIdentifier().getCanonicalForm()));
         }
         else
         {
@@ -325,7 +325,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             {
                 response.sendRedirect(response.encodeRedirectURL(request
                         .getContextPath()
-                        + "/handle/" + parent.getHandle()));
+                        + "/uri/" + parent.getPersistentIdentifier().getCanonicalForm()));
             }
             else
             {

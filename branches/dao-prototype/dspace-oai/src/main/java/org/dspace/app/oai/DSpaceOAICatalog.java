@@ -53,12 +53,17 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
-import org.dspace.handle.HandleManager;
 import org.dspace.search.Harvest;
 import org.dspace.search.HarvestedItemInfo;
 
@@ -76,10 +81,8 @@ import ORG.oclc.oai.server.verb.OAIInternalServerError;
  * This is class extends OAICat's AbstractCatalog base class to allow metadata
  * harvesting of the metadata in DSpace via OAI-PMH 2.0.
  * 
- * FIXME: Some CNRI Handle-specific stuff in here. Anyone wanting to use
- * something else will need to update this code too. Sorry about that.
- * 
  * @author Robert Tansley
+ * @author James Rutherford
  * @version $Revision$
  */
 public class DSpaceOAICatalog extends AbstractCatalog
@@ -103,7 +106,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
      * Retrieve a list of schemaLocation values associated with the specified
      * identifier.
      * 
-     * @param identifier
+     * @param oaiIdentifier
      *            the OAI identifier
      * @return a Vector containing schemaLocation Strings
      * @exception OAIInternalServerError
@@ -115,13 +118,13 @@ public class DSpaceOAICatalog extends AbstractCatalog
      *                as deleted and thus no schemaLocations (i.e.
      *                metadataFormats) can be produced.
      */
-    public Vector getSchemaLocations(String identifier)
+    public Vector getSchemaLocations(String oaiIdentifier)
             throws OAIInternalServerError, IdDoesNotExistException,
             NoMetadataFormatsException
     {
         log.info(LogManager.getHeader(null, "oai_request",
                 "verb=getSchemaLocations,identifier="
-                        + ((identifier == null) ? "null" : identifier)));
+                        + ((oaiIdentifier == null) ? "null" : oaiIdentifier)));
 
         HarvestedItemInfo itemInfo = null;
         Context context = null;
@@ -132,12 +135,16 @@ public class DSpaceOAICatalog extends AbstractCatalog
             context = new Context();
 
             // Valid identifiers all have prefix "oai:hostname:"
-            if (identifier.startsWith(OAI_ID_PREFIX))
+            if (oaiIdentifier.startsWith(OAI_ID_PREFIX))
             {
-                itemInfo = Harvest.getSingle(context, identifier
-                        .substring(OAI_ID_PREFIX.length()), // Strip prefix to
-                                                            // get raw handle
-                        false);
+                String canonicalForm =
+                    oaiIdentifier.substring(OAI_ID_PREFIX.length());
+                PersistentIdentifierDAO identifierDAO =
+                    PersistentIdentifierDAOFactory.getInstance(context);
+                PersistentIdentifier identifier =
+                    identifierDAO.retrieve(canonicalForm);
+
+                itemInfo = Harvest.getSingle(context, identifier, false);
             }
         }
         catch (SQLException se)
@@ -157,7 +164,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
 
         if (itemInfo == null)
         {
-            throw new IdDoesNotExistException(identifier);
+            throw new IdDoesNotExistException(oaiIdentifier);
         }
         else
         {
@@ -313,7 +320,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
     /**
      * Retrieve the specified metadata for the specified identifier
      * 
-     * @param identifier
+     * @param oaiIdentifier
      *            the OAI identifier
      * @param metadataPrefix
      *            the OAI metadataPrefix
@@ -325,17 +332,15 @@ public class DSpaceOAICatalog extends AbstractCatalog
      * @exception IdDoesNotExistException
      *                the identifier wasn't found
      */
-    public String getRecord(String identifier, String metadataPrefix)
+    public String getRecord(String oaiIdentifier, String metadataPrefix)
             throws OAIInternalServerError, CannotDisseminateFormatException,
             IdDoesNotExistException
     {
-        log
-                .info(LogManager.getHeader(null, "oai_request",
-                        "verb=getRecord,identifier="
-                                + ((identifier == null) ? "null" : identifier)
-                                + ",metadataPrefix="
-                                + ((metadataPrefix == null) ? "null"
-                                        : metadataPrefix)));
+        log.info(LogManager.getHeader(null, "oai_request",
+                "verb=getRecord,identifier="
+                + ((oaiIdentifier == null) ? "null" : oaiIdentifier)
+                + ",metadataPrefix="
+                + ((metadataPrefix == null) ? "null" : metadataPrefix)));
 
         Context context = null;
         String record = null;
@@ -345,23 +350,25 @@ public class DSpaceOAICatalog extends AbstractCatalog
         try
         {
             // Valid IDs start with oai:hostname:
-            if (identifier.startsWith(OAI_ID_PREFIX))
+            if (oaiIdentifier.startsWith(OAI_ID_PREFIX))
             {
                 context = new Context();
 
-                /*
-                 * Try and get the item. the .substring() is to strip the
-                 * oai:(hostname): prefix to get the raw handle
-                 */
-                itemInfo = Harvest.getSingle(context, identifier
-                        .substring(OAI_ID_PREFIX.length()), true);
+                String canonicalForm =
+                    oaiIdentifier.substring(OAI_ID_PREFIX.length());
+                PersistentIdentifierDAO identifierDAO =
+                    PersistentIdentifierDAOFactory.getInstance(context);
+                PersistentIdentifier identifier =
+                    identifierDAO.retrieve(canonicalForm);
+
+                itemInfo = Harvest.getSingle(context, identifier, true);
             }
 
             if (itemInfo == null)
             {
                 log.info(LogManager.getHeader(null, "oai_error",
                         "id_does_not_exist"));
-                throw new IdDoesNotExistException(identifier);
+                throw new IdDoesNotExistException(oaiIdentifier);
             }
 
             String schemaURL;
@@ -589,7 +596,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
                     {
                         log.debug(LogManager.getHeader(context, "oai_warning",
                                 "Couldn't disseminate " + metadataPrefix
-                                        + " for " + itemInfo.handle));
+                                + " for " + itemInfo.identifier.getCanonicalForm()));
                     }
                 }
             }
@@ -664,15 +671,19 @@ public class DSpaceOAICatalog extends AbstractCatalog
         try
         {
             context = new Context();
+            CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
+            List<Collection> allCollections = collectionDAO.getCollections();
 
-            Collection[] allCols = Collection.findAll(context);
             StringBuffer spec = null;
-            for (int i = 0; i < allCols.length; i++)
+            for (Collection collection : allCollections)
             {
-                spec = new StringBuffer("<set><setSpec>hdl_");
-                spec.append(allCols[i].getHandle().replace('/', '_'));
+                String uri =
+                    collection.getPersistentIdentifier().getCanonicalForm();
+
+                spec = new StringBuffer("<set><setSpec>");
+                spec.append(uri.replace(':', '_').replace('/', '_'));
                 spec.append("</setSpec>");
-                String collName = allCols[i].getMetadata("name");
+                String collName = collection.getMetadata("name");
                 if(collName != null)
                 {
                 	spec.append("<setName>");
@@ -684,7 +695,8 @@ public class DSpaceOAICatalog extends AbstractCatalog
                 	spec.append("<setName />");
                     // Warn that there is an error of a null set name
                 	log.info(LogManager.getHeader(null, "oai_error",
-                			       "null_set_name_for_set_id_" + allCols[i].getHandle()));
+                       "null_set_name_for_set_id_" +
+                       collection.getPersistentIdentifier().getCanonicalForm()));
                 }
                 spec.append("</set>");
                 sets.add(spec.toString());
@@ -744,7 +756,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
     // ******************************************
 
     /**
-     * Get the community or collection signified by a set spec
+     * Get the community or collection signified by a set spec.
      * 
      * @param context
      *            DSpace context object
@@ -764,14 +776,23 @@ public class DSpaceOAICatalog extends AbstractCatalog
         DSpaceObject o = null;
 
         /*
-         * set specs are in form hdl_123.456_789 corresponding to
-         * hdl:123.456/789
+         * set specs are in form xyz_123.456_789 corresponding to
+         * xyz:123.456/789
          */
-        if (set.startsWith("hdl_"))
+        for (PersistentIdentifier.Type type : PersistentIdentifier.Type.values())
         {
-            // Looks OK so far... turn second _ into /
-            String handle = set.substring(4).replace('_', '/');
-            o = HandleManager.resolveToObject(context, handle);
+            if (set.startsWith(type.getNamespace() + "_"))
+            {
+                // Bit of a hax. Basically, turns the first underscore into a
+                // colon, and all subsequent underscores into forward slashes.
+                String uri = set.replaceFirst("_", ":").replace('_', '/');
+
+                PersistentIdentifierDAO identifierDAO =
+                    PersistentIdentifierDAOFactory.getInstance(context);
+                PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+
+                o = ArchiveManager.getObject(context, identifier);
+            }
         }
 
         // If it corresponds to a collection, that's the set we want
@@ -780,7 +801,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
             return (Collection) o;
         }
 
-        // Handle is either non-existent, or corresponds to a non-collection
+        // URI is either non-existent, or corresponds to a non-collection
         // Either way, a bad set spec, ergo a bad argument
         throw new BadArgumentException();
     }

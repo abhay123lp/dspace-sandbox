@@ -96,8 +96,6 @@
 
 <dspace:layout titlekey="jsp.search.results.title">
 
-    <%-- <h1>Search Results</h1> --%>
-
 <h1><fmt:message key="jsp.search.results.title"/></h1>
 
     <%-- Controls for a repeat search --%>
@@ -108,7 +106,6 @@
                     <table>
                         <tr>
                             <td>
-                                <%-- <strong>Search:</strong>&nbsp;<select name="location"> --%>
                                 <label for="tlocation"><strong><fmt:message key="jsp.search.results.searchin"/></strong></label>&nbsp;<select name="location" id="tlocation">
 <%
     if (community == null && collection == null)
@@ -116,13 +113,12 @@
         // Scope of the search was all of DSpace.  The scope control will list
         // "all of DSpace" and the communities.
 %>
-                                    <%-- <option selected value="/">All of DSpace</option> --%>
                                     <option selected="selected" value="/"><fmt:message key="jsp.general.genericScope"/></option>
 <%
         for (int i = 0; i < communityArray.length; i++)
         {
 %>
-                                    <option value="<%= communityArray[i].getHandle() %>"><%= communityArray[i].getMetadata("name") %></option>
+                                    <option value="<%= communityArray[i].getPersistentIdentifier().getCanonicalForm() %>"><%= communityArray[i].getMetadata("name") %></option>
 <%
         }
     }
@@ -131,14 +127,13 @@
         // Scope of the search was within a community.  Scope control will list
         // "all of DSpace", the community, and the collections within the community.
 %>
-                                    <%-- <option value="/">All of DSpace</option> --%>
                                     <option value="/"><fmt:message key="jsp.general.genericScope"/></option>
-                                    <option selected="selected" value="<%= community.getHandle() %>"><%= community.getMetadata("name") %></option>
+                                    <option selected="selected" value="<%= community.getPersistentIdentifier().getCanonicalForm() %>"><%= community.getMetadata("name") %></option>
 <%
         for (int i = 0; i < collectionArray.length; i++)
         {
 %>
-                                    <option value="<%= collectionArray[i].getHandle() %>"><%= collectionArray[i].getMetadata("name") %></option>
+                                    <option value="<%= collectionArray[i].getPersistentIdentifier().getCanonicalForm() %>"><%= collectionArray[i].getMetadata("name") %></option>
 <%
         }
     }
@@ -146,10 +141,9 @@
     {
         // Scope of the search is a specific collection
 %>
-                                    <%-- <option value="/">All of DSpace</option> --%>
                                     <option value="/"><fmt:message key="jsp.general.genericScope"/></option>
-                                    <option value="<%= community.getHandle() %>"><%= community.getMetadata("name") %></option>
-                                    <option selected="selected" value="<%= collection.getHandle() %>"><%= collection.getMetadata("name") %></option>
+                                    <option value="<%= community.getPersistentIdentifier().getCanonicalForm() %>"><%= community.getMetadata("name") %></option>
+                                    <option selected="selected" value="<%= collection.getPersistentIdentifier().getCanonicalForm() %>"><%= collection.getMetadata("name") %></option>
 <%
     }
 %>
@@ -176,38 +170,33 @@
 else if( qResults.getHitCount() == 0 )
 {
  %>
-    <%-- <p align="center">Search produced no results.</p> --%>
     <p align="center"><fmt:message key="jsp.search.general.noresults"/></p>
 <%
 }
 else
 {
 %>
-    <%-- <p align="center">Results <//%=qResults.getStart()+1%>-<//%=qResults.getStart()+qResults.getHitHandles().size()%> of --%>
 	<p align="center"><fmt:message key="jsp.search.results.results">
         <fmt:param><%=qResults.getStart()+1%></fmt:param>
-        <fmt:param><%=qResults.getStart()+qResults.getHitHandles().size()%></fmt:param>
+        <fmt:param><%=qResults.getStart()+qResults.getHitURIs().size()%></fmt:param>
         <fmt:param><%=qResults.getHitCount()%></fmt:param>
     </fmt:message></p>
 
 <% } %>
 
 <% if (communities.length > 0 ) { %>
-    <%-- <h3>Community Hits:</h3> --%>
     <h3><fmt:message key="jsp.search.results.comhits"/></h3>
     <dspace:communitylist  communities="<%= communities %>" />
 <% } %>
 
 <% if (collections.length > 0 ) { %>
     <br/>
-    <%-- <h3>Collection hits:</h3> --%>
     <h3><fmt:message key="jsp.search.results.colhits"/></h3>
     <dspace:collectionlist collections="<%= collections %>" />
 <% } %>
 
 <% if (items.length > 0) { %>
     <br/>
-    <%-- <h3>Item hits:</h3> --%>
     <h3><fmt:message key="jsp.search.results.itemhits"/></h3>
     <dspace:itemlist items="<%= items %>" />
 <% } %>
@@ -220,9 +209,9 @@ else
     if (community == null && collection == null) {
 	searchScope = "";
     } else if (collection == null) {
-	searchScope = "/handle/" + community.getHandle();
+	searchScope = "/uri/" + community.getPersistentIdentifier().getCanonicalForm();
     } else {
-	searchScope = "/handle/" + collection.getHandle();
+	searchScope = "/uri/" + collection.getPersistentIdentifier().getCanonicalForm();
     }
 
     // create the URLs accessing the previous and next search result pages

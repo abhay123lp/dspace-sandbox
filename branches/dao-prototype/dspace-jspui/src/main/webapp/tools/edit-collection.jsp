@@ -152,7 +152,7 @@
     <h1><fmt:message key="jsp.tools.edit-collection.heading1"/></h1>
 <% } else { %>
     <h1><fmt:message key="jsp.tools.edit-collection.heading2">
-        <fmt:param><%= collection.getHandle() %></fmt:param>
+        <fmt:param><%= collection.getPersistentIdentifier().getCanonicalForm() %></fmt:param>
         </fmt:message>
     </h1>
     <% if(admin_button ) { %>

@@ -58,12 +58,16 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.content.ItemIterator;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
-import org.dspace.handle.HandleManager;
 import org.dspace.search.DSIndexer;
 
 /**
@@ -92,6 +96,8 @@ public class MediaFilterManager
     private static MediaFilter[] filterClasses = null;
     
     private static Map filterFormats = new HashMap();
+
+    private static ItemDAO itemDAO;
     
     public static void main(String[] argv) throws Exception
     {
@@ -143,6 +149,11 @@ public class MediaFilterManager
         if (line.hasOption('i'))
         {
         	identifier = line.getOptionValue('i');
+            if (identifier.indexOf(":") == -1)
+            {
+                identifier = "hdl:" + identifier;
+                System.out.println("no namespace provided. assuming handles.");
+            }
         }
         
         if (line.hasOption('m'))
@@ -175,6 +186,8 @@ public class MediaFilterManager
         try
         {
             c = new Context();
+            PersistentIdentifierDAO identifierDAO =
+                PersistentIdentifierDAOFactory.getInstance(c);
 
             // have to be super-user to do the filtering
             c.setIgnoreAuthorization(true);
@@ -186,7 +199,10 @@ public class MediaFilterManager
             }
             else  // restrict application scope to identifier
             {
-            	DSpaceObject dso = HandleManager.resolveToObject(c, identifier);
+                PersistentIdentifier pid =
+                    identifierDAO.retrieve(identifier);
+            	DSpaceObject dso = ArchiveManager.getObject(c, pid);
+
             	if (dso == null)
             	{
             		throw new IllegalArgumentException("Cannot resolve "
@@ -228,15 +244,22 @@ public class MediaFilterManager
 
     public static void applyFiltersAllItems(Context c) throws Exception
     {
-        ItemIterator i = Item.findAll(c);
-        while (i.hasNext() && processed < max2Process)
+        itemDAO = ItemDAOFactory.getInstance(c);
+        for (Item item : itemDAO.getItems())
         {
-        	applyFiltersItem(c, i.next());
+            if (processed < max2Process)
+            {
+        	    applyFiltersItem(c, item);
+            }
+            else
+            {
+                break;
+            }
         }
     }
     
     public static void applyFiltersCommunity(Context c, Community community)
-                                             throws Exception
+        throws Exception
     {
        	Community[] subcommunities = community.getSubcommunities();
        	for (int i = 0; i < subcommunities.length; i++)
@@ -252,12 +275,19 @@ public class MediaFilterManager
     }
         
     public static void applyFiltersCollection(Context c, Collection collection)
-                                              throws Exception
+          throws Exception
     {
-        ItemIterator i = collection.getItems();
-        while (i.hasNext() && processed < max2Process)
+        itemDAO = ItemDAOFactory.getInstance(c);
+        for (Item item : itemDAO.getItemsByCollection(collection))
         {
-        	applyFiltersItem(c, i.next());
+            if (processed < max2Process)
+            {
+        	    applyFiltersItem(c, item);
+            }
+            else
+            {
+                break;
+            }
         }
     }
        

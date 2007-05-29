@@ -57,12 +57,14 @@ import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
-import org.dspace.handle.HandleManager;
 import org.dspace.search.Harvest;
 import org.dspace.search.HarvestedItemInfo;
 import org.dspace.storage.rdbms.DatabaseManager;
@@ -326,6 +328,8 @@ public class Subscribe
             List collections) throws IOException, MessagingException,
             SQLException
     {
+        PersistentIdentifier identifier = null;
+
         // Get a resource bundle according to the eperson language preferences
         Locale epersonLocale = new Locale(eperson.getLanguage());
         Locale supportedLocale = I18nUtil.getSupportedLocale(epersonLocale);
@@ -412,8 +416,10 @@ public class Subscribe
                             }
                         }
     
+                        identifier = hii.identifier;
+
                         emailText.append("\n         ").append(labels.getString("org.dspace.eperson.Subscribe.id")).append(
-                                HandleManager.getCanonicalForm(hii.handle)).append(
+                                identifier.getURI().toString()).append(
                                 "\n\n");
                     }
                 }

@@ -88,7 +88,7 @@
     void showCommunity(Community c) throws IOException, SQLException
     {
         out.println( "<li class=\"communityLink\">" );
-        out.println( "<strong><a href=\"" + request.getContextPath() + "/handle/" + c.getHandle() + "\">" + c.getMetadata("name") + "</a></strong>");
+        out.println( "<strong><a href=\"" + request.getContextPath() + "/uri/" + c.getPersistentIdentifier().getCanonicalForm() + "\">" + c.getMetadata("name") + "</a></strong>");
 
         // Get the collections in this community
         Collection[] cols = c.getCollections();
@@ -98,7 +98,7 @@
             for (int j = 0; j < cols.length; j++)
             {
                 out.println("<li class=\"collectionListItem\">");
-                out.println("<a href=\"" + request.getContextPath() + "/handle/" + cols[j].getHandle() + "\">" + cols[j].getMetadata("name") +"</a>");
+                out.println("<a href=\"" + request.getContextPath() + "/uri/" + cols[j].getPersistentIdentifier().getCanonicalForm() + "\">" + cols[j].getMetadata("name") +"</a>");
 				if(ConfigurationManager.getBooleanProperty("webui.strengths.show"))
                 {
                     out.println(" [" + cols[j].countItems() + "]");
@@ -200,7 +200,7 @@
 %>		
             <li class="communityLink">
             <%-- HACK: <strong> tags here for broken Netscape 4.x CSS support --%>
-            <strong><a href="<%= request.getContextPath() %>/handle/<%= communities[i].getHandle() %>"><%= communities[i].getMetadata("name") %></a></strong>
+            <strong><a href="<%= request.getContextPath() %>/uri/<%= communities[i].getPersistentIdentifier().getCanonicalForm() %>"><%= communities[i].getMetadata("name") %></a></strong>
 	    <ul>
 <%
             // Get the collections in this community from the map
@@ -211,7 +211,7 @@
             {
 %>
                 <li class="collectionListItem">
-                <a href="<%= request.getContextPath() %>/handle/<%= cols[j].getHandle() %>"><%= cols[j].getMetadata("name") %></a>
+                <a href="<%= request.getContextPath() %>/uri/<%= cols[j].getPersistentIdentifier().getCanonicalForm() %>"><%= cols[j].getMetadata("name") %></a>
 <%
                 if (ConfigurationManager.getBooleanProperty("webui.strengths.show"))
                 {
@@ -236,7 +236,7 @@
             {
 %>
                 <li class="communityLink">
-                <a href="<%= request.getContextPath() %>/handle/<%= comms[k].getHandle() %>"><%= comms[k].getMetadata("name") %></a>
+                <a href="<%= request.getContextPath() %>/uri/<%= comms[k].getPersistentIdentifier().getCanonicalForm() %>"><%= comms[k].getMetadata("name") %></a>
 <%
                 if (ConfigurationManager.getBooleanProperty("webui.strengths.show"))
                 {

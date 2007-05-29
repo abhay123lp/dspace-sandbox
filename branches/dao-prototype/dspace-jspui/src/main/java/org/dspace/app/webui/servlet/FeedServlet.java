@@ -69,6 +69,8 @@ import com.sun.syndication.io.FeedException;
 
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.browse.Browse;
+import org.dspace.browse.BrowseScope;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -76,21 +78,22 @@ import org.dspace.content.Item;
 import org.dspace.content.Bitstream;
 import org.dspace.content.DCValue;
 import org.dspace.content.DCDate;
-import org.dspace.core.LogManager;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.browse.Browse;
-import org.dspace.browse.BrowseScope;
-import org.dspace.handle.HandleManager;
+import org.dspace.core.LogManager;
 import org.dspace.search.Harvest;
 
 /**
- * Servlet for handling requests for a syndication feed. The Handle of the collection
- * or community is extracted from the URL, e.g: <code>/feed/rss_1.0/1234/5678</code>.
+ * Servlet for handling requests for a syndication feed. The URI of the collection
+ * or community is extracted from the URL, e.g: <code>/feed/rss_1.0/xyz:1234/5678</code>.
  * Currently supports only RSS feed formats.
  * 
- * @author Ben Bosman, Richard Rodgers
+ * @author Ben Bosman, Richard Rodgers, James Rutherford
  * @version $Revision$
  */
 public class FeedServlet extends DSpaceServlet
@@ -161,7 +164,7 @@ public class FeedServlet extends DSpaceServlet
 	{
         String path = request.getPathInfo();
         String feedType = null;
-        String handle = null;
+        String uri = null;
 
         if(labels==null)
         {    
@@ -178,7 +181,7 @@ public class FeedServlet extends DSpaceServlet
             if (split != -1)
             {
             	feedType = path.substring(0,split);
-            	handle = path.substring(split+1);
+            	uri = path.substring(split+1);
             }
         }
 
@@ -186,10 +189,11 @@ public class FeedServlet extends DSpaceServlet
         
         //as long as this is not a site wide feed, 
         //attempt to retrieve the Collection or Community object
-        if(!handle.equals(SITE_FEED_KEY))
+        if(!uri.equals(SITE_FEED_KEY))
         { 	
-        	// Determine if handle is a valid reference
-        	dso = HandleManager.resolveToObject(context, handle);
+        	// Determine if the URI is a valid reference
+            PersistentIdentifierDAO dao = PersistentIdentifierDAOFactory.getInstance(context);
+            dso = ArchiveManager.getObject(context, dao.retrieve(uri));
         }
         
         if (! enabled || (dso != null && 
@@ -212,8 +216,8 @@ public class FeedServlet extends DSpaceServlet
         Channel channel = null;
         if (feedCache != null)
         {
-            // Cache key is handle
-        	CacheFeed cFeed = (CacheFeed)feedCache.get(handle);
+            // Cache key is URI
+        	CacheFeed cFeed = (CacheFeed)feedCache.get(uri);
         	if (cFeed != null)  // cache hit, but...
         	{
         		// Is the feed current?
@@ -242,7 +246,7 @@ public class FeedServlet extends DSpaceServlet
         	channel = generateFeed(context, dso);
         	if (feedCache != null)
         	{
-        		cache(handle, new CacheFeed(channel));
+        		cache(uri, new CacheFeed(channel));
         	}
         }
         
@@ -337,8 +341,8 @@ public class FeedServlet extends DSpaceServlet
 	    	}
 	    	
     		String objectUrl = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
-    			? HandleManager.resolveToURL(context, dso.getHandle())
-    			: HandleManager.getCanonicalForm(dso.getHandle()); 
+    			? dso.getPersistentIdentifier().getLocalURI().toString()
+    			: dso.getPersistentIdentifier().getURI().toString();
     		
 			// put in container-level data
 	        channel.setDescription(description);
@@ -428,12 +432,12 @@ public class FeedServlet extends DSpaceServlet
             dateField = "dc.date.issued";
         }   
         
-        //Set item handle
-    	String itHandle = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
-		? HandleManager.resolveToURL(context, dspaceItem.getHandle())
-		: HandleManager.getCanonicalForm(dspaceItem.getHandle());
+        //Set item URI
+    	String link = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
+            ? dspaceItem.getPersistentIdentifier().getLocalURI().toString()
+            : dspaceItem.getPersistentIdentifier().getURI().toString();
 
-        rssItem.setLink(itHandle);
+        rssItem.setLink(link);
         
         //get first title
         String title = null;

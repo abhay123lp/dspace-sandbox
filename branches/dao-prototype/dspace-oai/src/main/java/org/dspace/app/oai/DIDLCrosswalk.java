@@ -36,12 +36,13 @@ package org.dspace.app.oai;
 
 import java.util.Properties;
 import java.util.Date;
-import java.io.*;
-import java.lang.*;
+import java.io.BufferedInputStream;
 import java.sql.SQLException;
+
 import ORG.oclc.oai.server.crosswalk.Crosswalk;
 import ORG.oclc.oai.server.verb.CannotDisseminateFormatException;
 import ORG.oclc.oai.server.verb.ServerVerb;
+
 import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
@@ -52,8 +53,9 @@ import org.dspace.storage.bitstore.BitstreamStorageManager;
 import org.dspace.app.didl.UUIDFactory;
 import org.dspace.core.Utils;
 import org.dspace.search.HarvestedItemInfo;
-import sun.misc.BASE64Encoder;
 import org.dspace.core.*;
+
+import sun.misc.BASE64Encoder;
 
 /**
  * DSpace Item DIDL crosswalk.
@@ -93,7 +95,7 @@ public class DIDLCrosswalk extends Crosswalk
         
         StringBuffer metadata = new StringBuffer();
         StringBuffer metadata1 = new StringBuffer();
-        String itemhandle=item.getHandle();
+        String itemURI=item.getPersistentIdentifier().getCanonicalForm();
         int maxsize=  Integer.parseInt(ConfigurationManager.getProperty("oai.didl.maxresponse")); 
         String currdate=ServerVerb.createResponseDate(new Date());
         
@@ -110,7 +112,7 @@ public class DIDLCrosswalk extends Crosswalk
         metadata.append("<didl:Descriptor>")
             .append("<didl:Statement mimeType=\"application/xml; charset=utf-8\">")
             .append("<dii:Identifier xmlns:dii=\"urn:mpeg:mpeg21:2002:01-DII-NS\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"urn:mpeg:mpeg21:2002:01-DII-NS http://standards.iso.org/ittf/PubliclyAvailableStandards/MPEG-21_schema_files/dii/dii.xsd\">")
-            .append("urn:hdl:" + itemhandle)
+            .append("urn:" + itemURI)
             .append("</dii:Identifier>")
             .append("</didl:Statement>")
             .append("</didl:Descriptor>");
@@ -207,7 +209,7 @@ public class DIDLCrosswalk extends Crosswalk
                            
                            if (bitstreams[k].getSize()> maxsize) 
                            {
-                               metadata.append("<didl:Resource ref=\""+ConfigurationManager.getProperty("dspace.url")+"/bitstream/"+itemhandle+"/"+bitstreams[k].getSequenceID()+"/"+bitstreams[k].getName() );
+                               metadata.append("<didl:Resource ref=\""+ConfigurationManager.getProperty("dspace.url")+"/bitstream/"+itemURI+"/"+bitstreams[k].getSequenceID()+"/"+bitstreams[k].getName() );
                                metadata.append("\" mimeType=\"");
                                metadata.append(bitstreams[k].getFormat().getMIMEType());
                                metadata.append("\">");
@@ -243,7 +245,7 @@ public class DIDLCrosswalk extends Crosswalk
                                 {
                                     ex.printStackTrace();                       
                                     
-                                    metadata.append("<didl:Resource ref=\""+ConfigurationManager.getProperty("dspace.url")+"/bitstream/"+itemhandle+"/"+bitstreams[k].getSequenceID()+"/"+bitstreams[k].getName() );
+                                    metadata.append("<didl:Resource ref=\""+ConfigurationManager.getProperty("dspace.url")+"/bitstream/"+itemURI+"/"+bitstreams[k].getSequenceID()+"/"+bitstreams[k].getName() );
                                     metadata.append("\" mimeType=\"");
                                     metadata.append(bitstreams[k].getFormat().getMIMEType());
                                     metadata.append("\">");

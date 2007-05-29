@@ -39,39 +39,34 @@
  */
 package org.dspace.app.webui.jsptag;
 
-import org.dspace.app.webui.util.UIUtil;
-
-import org.dspace.authorize.AuthorizeManager;
-
-import org.dspace.content.Bitstream;
-import org.dspace.content.Bundle;
-import org.dspace.content.DCDate;
-import org.dspace.content.DCValue;
-import org.dspace.content.Item;
-
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Constants;
-import org.dspace.core.Context;
-import org.dspace.core.Utils;
-
-import org.dspace.storage.bitstore.BitstreamStorageManager;
-
 import java.awt.image.BufferedImage;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
-
 import java.sql.SQLException;
 import java.util.StringTokenizer;
 
 import javax.imageio.ImageIO;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.jsp.JspException;
 import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.jstl.fmt.LocaleSupport;
 import javax.servlet.jsp.tagext.TagSupport;
+
+import org.apache.log4j.Logger;
+
+import org.dspace.app.webui.util.UIUtil;
+import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
+import org.dspace.content.DCDate;
+import org.dspace.content.DCValue;
+import org.dspace.content.Item;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Constants;
+import org.dspace.core.Context;
+import org.dspace.core.Utils;
+import org.dspace.storage.bitstore.BitstreamStorageManager;
 
 /**
  * Tag for display a list of items
@@ -253,8 +248,8 @@ public class ItemListTag extends TagSupport
                         // format the title field correctly                        
                         else if (field.equals(titleField))
                         {
-                            metadata = "<a href=\"" + hrq.getContextPath() + "/handle/" 
-                            + items[i].getHandle() + "\">" 
+                            metadata = "<a href=\"" + hrq.getContextPath() + "/uri/" 
+                            + items[i].getPersistentIdentifier().getCanonicalForm() + "\">" 
                             + Utils.addEntities(metadataArray[0].value)
                             + "</a>";
                         }
@@ -590,38 +585,34 @@ public class ItemListTag extends TagSupport
                         && (AuthorizeManager.authorizeActionBoolean(c,
                                 thumbnailBitstream, Constants.READ)))
                 {
-                    StringBuffer thumbLink;
+                    String thumbLink;
 
                     if (linkToBitstream)
                     {
-                        thumbLink = new StringBuffer(
-                                "<br/><a target=\"_blank\" href=\"").append(
-                                hrq.getContextPath()).append("/bitstream/")
-                                .append(item.getHandle()).append("/").append(
-                                        originalBitstream.getSequenceID())
-                                .append("/").append(
-                                		UIUtil.encodeBitstreamName(originalBitstream
-                                                .getName(),
-                                                Constants.DEFAULT_ENCODING));
+                        thumbLink = "<br/><a target=\"_blank\" href=\"" +
+                            hrq.getContextPath() + "/bitstream/" +
+                            item.getPersistentIdentifier().getCanonicalForm() +
+                            "/" + originalBitstream.getSequenceID() + "/" +
+                            UIUtil.encodeBitstreamName(originalBitstream.getName(),
+                                    Constants.DEFAULT_ENCODING);
                     }
                     else
                     {
-                        thumbLink = new StringBuffer("<br/><a href=\"").append(
-                                hrq.getContextPath()).append("/handle/")
-                                .append(item.getHandle());
+                        thumbLink = "<br/><a href=\"" +
+                            hrq.getContextPath() + "/uri/" +
+                            item.getPersistentIdentifier().getCanonicalForm();
                     }
 
-                    thumbLink.append("\"><img src=\"").append(
-                            hrq.getContextPath()).append("/retrieve/").append(
-                            thumbnailBitstream.getID()).append("/").append(
-                            		UIUtil.encodeBitstreamName(thumbnailBitstream.getName(),
-                                    Constants.DEFAULT_ENCODING)).append(
-                            "\" alt=\"").append(thumbnailBitstream.getName())
-                            .append("\" ").append(
-                                    getScalingAttr(hrq, thumbnailBitstream))
-                            .append("/></a>");
+                    thumbLink = thumbLink + "\"><img src=\"" +
+                            hrq.getContextPath() + "/retrieve/" +
+                            thumbnailBitstream.getID() + "/" +
+                            UIUtil.encodeBitstreamName(thumbnailBitstream.getName(),
+                                Constants.DEFAULT_ENCODING) +
+                            "\" alt=\"" + thumbnailBitstream.getName() +
+                            "\" " + getScalingAttr(hrq, thumbnailBitstream) +
+                            "/></a>";
 
-                    return thumbLink.toString();
+                    return thumbLink;
                 }
             }
         }

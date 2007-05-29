@@ -111,6 +111,7 @@ public class ConfigurationManager
         if (properties == null)
         {
             loadConfig(null);
+//            loadConfig("/opt/dspace-dao/config/dspace.cfg");
         }
 
         return properties.getProperty(property);

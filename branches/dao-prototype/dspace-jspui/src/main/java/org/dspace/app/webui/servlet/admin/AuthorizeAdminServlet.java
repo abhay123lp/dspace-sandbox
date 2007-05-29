@@ -62,11 +62,14 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.handle.HandleManager;
 
 /**
  * Servlet for editing permissions
@@ -91,6 +94,9 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        PersistentIdentifierDAO identifierDAO =
+            PersistentIdentifierDAOFactory.getInstance(c);
+
         String button = UIUtil.getSubmitButton(request, "submit");
 
         if (button.equals("submit_collection"))
@@ -135,17 +141,18 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             Item item = null;
 
             int item_id = UIUtil.getIntParameter(request, "item_id");
-            String handle = request.getParameter("handle");
+            String uri = request.getParameter("uri");
 
             // if id is set, use it
             if (item_id > 0)
             {
                 item = Item.find(c, item_id);
             }
-            else if ((handle != null) && !handle.equals(""))
+            else if ((uri != null) && !uri.equals(""))
             {
-                // otherwise, attempt to resolve handle
-                DSpaceObject dso = HandleManager.resolveToObject(c, handle);
+                // otherwise, attempt to resolve uri
+                PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+                DSpaceObject dso = ArchiveManager.getObject(c, identifier);
 
                 // make sure it's an item
                 if ((dso != null) && (dso.getType() == Constants.ITEM))
@@ -154,7 +161,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
                 }
             }
 
-            // no item set yet, failed ID & handle, ask user to try again
+            // no item set yet, failed ID & uri, ask user to try again
             if (item == null)
             {
                 request.setAttribute("invalid.id", new Boolean(true));

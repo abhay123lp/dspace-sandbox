@@ -47,6 +47,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -90,12 +94,16 @@ public class WorkspaceItem implements InProgressSubmission
      */
     WorkspaceItem(Context context, TableRow row) throws SQLException
     {
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+        CollectionDAO collectionDAO =
+            CollectionDAOFactory.getInstance(context);
+
         ourContext = context;
         wiRow = row;
 
-        item = Item.find(context, wiRow.getIntColumn("item_id"));
-        collection = Collection.find(context, wiRow
-                .getIntColumn("collection_id"));
+        item = itemDAO.retrieve(wiRow.getIntColumn("item_id"));
+        collection =
+            collectionDAO.retrieve(wiRow.getIntColumn("collection_id"));
 
         // Cache ourselves
         context.cache(this, row.getIntColumn("workspace_item_id"));

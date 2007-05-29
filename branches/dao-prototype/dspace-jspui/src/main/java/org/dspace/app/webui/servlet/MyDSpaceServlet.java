@@ -56,12 +56,12 @@ import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.SupervisedItem;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.handle.HandleManager;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowManager;
 
@@ -439,16 +439,16 @@ public class MyDSpaceServlet extends DSpaceServlet
                     .getCurrentUser());
 
             // FIXME: This should be a return value from advance()
-            // See if that gave the item a Handle. If it did,
-            // the item made it into the archive, so we
-            // should display a suitable page.
-            String handle = HandleManager.findHandle(context, item);
+            // See if that gave the item a persistent identifier. If it did,
+            // the item made it into the archive, so we should display a
+            // suitable page.
+            PersistentIdentifier identifier = item.getPersistentIdentifier();
 
-            if (handle != null)
+            if (identifier != null)
             {
-                String displayHandle = HandleManager.getCanonicalForm(handle);
+                String displayIdentifier = identifier.getURI().toString();
 
-                request.setAttribute("handle", displayHandle);
+                request.setAttribute("identifier", displayIdentifier);
                 JSPManager.showJSP(request, response,
                         "/mydspace/in-archive.jsp");
             }

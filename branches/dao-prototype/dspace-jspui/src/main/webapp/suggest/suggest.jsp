@@ -78,10 +78,10 @@
 		sender_name = "";
 	}
 
-    String handle = request.getParameter("handle");
-    if (handle == null || handle.equals(""))
+    String uri = request.getParameter("uri");
+    if (uri == null || uri.equals(""))
     {
-        handle = "";
+        uri = "";
     }
 
 	String title = (String) request.getAttribute("suggest.title");
@@ -113,7 +113,7 @@
 
 <br/>
 <h1><fmt:message key="jsp.suggest.heading"/>
-    <a href="<%= request.getContextPath() %>/handle/<%= handle %>"><%= title %></a>
+    <a href="<%= request.getContextPath() %>/uri/<%= uri %>"><%= title %></a>
 </h1>
 <p><fmt:message key="jsp.suggest.invitation"/></p>
 
@@ -153,7 +153,7 @@
 
                 <tr>
                     <td colspan="2" align="center">
-                    <input type="hidden" name="handle" value='<%= handle %>'/>
+                    <input type="hidden" name="uri" value='<%= uri %>'/>
                     <input type="submit" name="submit" value="<fmt:message key="jsp.suggest.button.send"/>" />
                     <input type="button" name="cancel" onclick="window.close();" value="<fmt:message key="jsp.suggest.button.cancel"/>" />
                     </td>

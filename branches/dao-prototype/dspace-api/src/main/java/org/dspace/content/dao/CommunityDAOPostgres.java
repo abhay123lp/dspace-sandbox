@@ -1,0 +1,769 @@
+/*
+ * CommunityDAOPostgres.java
+ *
+ * Version: $Revision: 1727 $
+ *
+ * Date: $Date: 2007-01-19 10:52:10 +0000 (Fri, 19 Jan 2007) $
+ *
+ * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
+ * Institute of Technology.  All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are
+ * met:
+ *
+ * - Redistributions of source code must retain the above copyright
+ * notice, this list of conditions and the following disclaimer.
+ *
+ * - Redistributions in binary form must reproduce the above copyright
+ * notice, this list of conditions and the following disclaimer in the
+ * documentation and/or other materials provided with the distribution.
+ *
+ * - Neither the name of the Hewlett-Packard Company nor the name of the
+ * Massachusetts Institute of Technology nor the names of their
+ * contributors may be used to endorse or promote products derived from
+ * this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+ * OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+ * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ */
+package org.dspace.content.dao;
+
+import java.io.IOException;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.log4j.Logger;
+
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.ResourcePolicy;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Collection;
+import org.dspace.content.DSpaceObject;
+import org.dspace.content.Community;
+import org.dspace.content.Item;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
+import org.dspace.core.Constants;
+import org.dspace.core.Context;
+import org.dspace.core.LogManager;
+import org.dspace.eperson.Group;
+import org.dspace.history.HistoryManager;
+import org.dspace.search.DSIndexer;
+import org.dspace.storage.rdbms.DatabaseManager;
+import org.dspace.storage.rdbms.TableRow;
+import org.dspace.storage.rdbms.TableRowIterator;
+
+public class CommunityDAOPostgres extends ContentDAO implements CommunityDAO
+{
+    private static Logger log = Logger.getLogger(CommunityDAOPostgres.class);
+
+    private Context context;
+    private CollectionDAO collectionDAO;
+    private PersistentIdentifierDAO identifierDAO;
+
+    /**
+     * The allowed metadata fields for Communities are defined in the following
+     * enum. This should make reading / writing all metadatafields a lot less
+     * error-prone, not to mention concise and tidy!
+     *
+     * FIXME: Do we want this exposed anywhere else? Probably not...
+     */
+    private enum CommunityMetadataField
+    {
+        NAME	            ("name"),
+        SHORT_DESCRIPTION	("short_description"),
+        INTRODUCTORY_TEXT	("introductory_text"),
+        COPYRIGHT_TEXT	    ("copyright_text"),
+        SIDE_BAR_TEXT	    ("side_bar_text");
+
+        private String name;
+
+        CommunityMetadataField(String name)
+        {
+            this.name = name;
+        }
+
+        public String toString()
+        {
+            return this.name;
+        }
+    }
+
+    public CommunityDAOPostgres(Context context)
+    {
+        if (context != null)
+        {
+            this.context = context;
+            this.collectionDAO = CollectionDAOFactory.getInstance(context);
+            this.identifierDAO =
+                PersistentIdentifierDAOFactory.getInstance(context);
+        }
+    }
+
+    public Community create() throws AuthorizeException
+    {
+        try
+        {
+            // Only administrators and adders can create communities
+            if (!(AuthorizeManager.isAdmin(context)))
+            {
+                throw new AuthorizeException(
+                        "Only administrators can create communities");
+            }
+
+            Community community = null;
+            TableRow row = DatabaseManager.create(context, "community");
+            int id = row.getIntColumn("community_id");
+            community = new Community(context, id);
+
+            // Create a default persistent identifier for this Community, and
+            // add it to the in-memory Community object.
+            PersistentIdentifier identifier = identifierDAO.create(community);
+            community.addPersistentIdentifier(identifier);
+
+            // create the default authorization policy for communities
+            // of 'anonymous' READ
+            Group anonymousGroup = Group.find(context, 0);
+
+            ResourcePolicy policy = ResourcePolicy.create(context);
+            policy.setResource(community);
+            policy.setAction(Constants.READ);
+            policy.setGroup(anonymousGroup);
+            policy.update();
+
+            update(community);
+
+            HistoryManager.saveHistory(context, community,
+                    HistoryManager.CREATE, context.getCurrentUser(),
+                    context.getExtraLogInfo());
+
+            log.info(LogManager.getHeader(context, "create_community",
+                    "community_id=" + row.getIntColumn("community_id")) +
+                    ",uri=" + community.getPersistentIdentifier().getCanonicalForm());
+
+            return community;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public Community retrieve(int id)
+    {
+        // First check the cache
+        Community fromCache =
+            (Community) context.fromCache(Community.class, id);
+
+        if (fromCache != null)
+        {
+            return fromCache;
+        }
+
+        try
+        {
+            TableRow row = DatabaseManager.find(context, "community", id);
+
+            if (row == null)
+            {
+                return null;
+            }
+
+            Community community = new Community(context, id);
+            populateCommunityFromTableRow(community, row);
+
+            List<PersistentIdentifier> identifiers =
+                identifierDAO.getPersistentIdentifiers(community);
+            community.setPersistentIdentifiers(identifiers);
+
+            context.cache(community, id);
+
+            return community;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public void update(Community community) throws AuthorizeException
+    {
+        try
+        {
+            TableRow row =
+                DatabaseManager.find(context, "community", community.getID());
+
+            if (row != null)
+            {
+                update(community, row);
+            }
+            else
+            {
+                throw new RuntimeException("Didn't find community " +
+                        community.getID());
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private void update(Community community, TableRow row)
+        throws AuthorizeException
+    {
+        try
+        {
+            // Check authorization
+            community.canEdit();
+
+            HistoryManager.saveHistory(context, this, HistoryManager.MODIFY,
+                    context.getCurrentUser(), context.getExtraLogInfo());
+
+            log.info(LogManager.getHeader(context, "update_community",
+                    "community_id=" + community.getID()));
+
+            populateTableRowFromCommunity(community, row);
+
+            DatabaseManager.update(context, row);
+
+            DSIndexer.reIndexContent(context, community);
+
+            // FIXME: Do we need to iterate through child Communities /
+            // Collecitons to update / re-index? Probably not.
+        }
+        catch (IOException ioe)
+        {
+            throw new RuntimeException(ioe);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public void delete(int id) throws AuthorizeException
+    {
+        try
+        {
+            Community community = retrieve(id);
+            this.update(community); // Sync in-memory object before removal
+
+            // Check authorisation
+            // FIXME: If this was a subcommunity, it is first removed from it's
+            // parent.
+            // This means the parentCommunity == null
+            // But since this is also the case for top-level communities, we would
+            // give everyone rights to remove the top-level communities.
+            // The same problem occurs in removing the logo
+            for (Community parent : getParentCommunities(community))
+            {
+                if (!AuthorizeManager.authorizeActionBoolean(context, parent,
+                            Constants.REMOVE))
+                {
+                    AuthorizeManager.authorizeAction(context, community,
+                            Constants.DELETE);
+                }
+            }
+
+            // If not a top-level community, have parent remove me; this
+            // will call delete() after removing the linkage
+            // FIXME: Maybe it shouldn't though.
+            // FIXME: This is totally broken.
+            for (Community parent : getParentCommunities(community))
+            {
+                unlink(parent, community);
+            }
+
+            HistoryManager.saveHistory(context, community, HistoryManager.REMOVE,
+                    context.getCurrentUser(), context.getExtraLogInfo());
+
+            log.info(LogManager.getHeader(context, "delete_community",
+                    "community_id=" + community.getID()));
+
+            // remove from the search index
+            DSIndexer.unIndexContent(context, community);
+
+            // Remove from cache
+            context.removeCached(community, community.getID());
+
+            // Remove collections
+            for (Collection child :
+                    collectionDAO.getChildCollections(community))
+            {
+                unlink(community, child);
+            }
+
+            // Remove subcommunities
+            for (Community child : getChildCommunities(community))
+            {
+                unlink(community, child);
+            }
+
+            // FIXME: This won't delete the logo. Needs more
+            // bitstreamDAO.delete(logoId)
+            community.setLogo(null);
+
+            // Remove all authorization policies
+            AuthorizeManager.removeAllPolicies(context, community);
+
+            // Delete community row
+            DatabaseManager.delete(context, "community", id);
+        }
+        catch (IOException ioe)
+        {
+            throw new RuntimeException(ioe);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public List<Community> getCommunities()
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "community",
+                    "SELECT community_id FROM community ORDER BY name");
+
+            List<Community> communities = new ArrayList<Community>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("community_id");
+                communities.add(retrieve(id));
+            }
+
+            return communities;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public List<Community> getTopLevelCommunities()
+    {
+        try
+        {
+            // Get all communities that are not children
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "community",
+                    "SELECT community_id FROM community " +
+                    "WHERE NOT community_id IN " +
+                    "(SELECT child_comm_id FROM community2community) " +
+                    "ORDER BY name");
+
+            List<Community> communities = new ArrayList<Community>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("community_id");
+                communities.add(retrieve(id));
+            }
+
+            return communities;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    /**
+     * Get the communities the given community or collection appears in. Note
+     * that this only returns the immediate parents.
+     */
+    public List<Community> getParentCommunities(DSpaceObject dso)
+    {
+        assert((dso instanceof Item) ||
+               (dso instanceof Collection) ||
+               (dso instanceof Community));
+
+        try
+        {
+            TableRowIterator tri = null;
+            if (dso instanceof Item)
+            {
+                 tri = DatabaseManager.queryTable(context,
+                        "community",
+                        "SELECT c.community_id " +
+                        "FROM community c, community2item c2i " +
+                        "WHERE c2i.community_id = c.community_id " +
+                        "AND c2i.item_id = ? ",
+                        dso.getID());
+            }
+            else if (dso instanceof Collection)
+            {
+                tri = DatabaseManager.queryTable(context, "community",
+                        "SELECT c.community_id " +
+                        "FROM community c, community2collection c2c " +
+                        "WHERE c.community_id = c2c.community_id " +
+                        "AND c2c.collection_id = ? ",
+                        dso.getID());
+            }
+            else if (dso instanceof Community)
+            {
+                tri = DatabaseManager.queryTable(context, "community",
+                        "SELECT c.community_id " +
+                        "FROM community c, community2community c2c " +
+                        "WHERE c2c.parent_comm_id = c.community_id " +
+                        "AND c2c.child_comm_id = ? ",
+                        dso.getID());
+            }
+
+            List<Community> parents = new ArrayList<Community>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("community_id");
+                parents.add(retrieve(id));
+            }
+
+            return parents;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public List<Community> getAllParentCommunities(DSpaceObject dso)
+    {
+        List<Community> parents = getParentCommunities(dso);
+        for (Community parent : parents)
+        {
+            parents.addAll(getParentCommunities(parent));
+        }
+        return parents;
+    }
+
+    public List<Community> getChildCommunities(Community community)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "community",
+                    "SELECT c.community_id, c.name " +
+                    "FROM community c, community2community c2c " +
+                    "WHERE c2c.child_comm_id = c.community_id " +
+                    "AND c2c.parent_comm_id = ? " +
+                    "ORDER BY c.name",
+                    community.getID());
+
+            List<Community> communities = new ArrayList<Community>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("community_id");
+                communities.add(retrieve(id));
+            }
+
+            return communities;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    /**
+     * Straightforward utility method for counting the number of Items in the
+     * given Community. There is probably a way to be smart about this. Also,
+     * this strikes me as the kind of method that shouldn't really be in here.
+     */
+    public int itemCount(Community community)
+    {
+    	int total = 0;
+
+        for (Collection collection :
+                collectionDAO.getChildCollections(community))
+        {
+        	total += collectionDAO.itemCount(collection);
+        }
+
+        for (Community child : getChildCommunities(community))
+        {
+        	total += itemCount(child);
+        }
+
+        return total;
+    }
+
+    /**
+     * Create a database layer association between the given Community and
+     * Collection.
+     */
+    public void link(DSpaceObject parent, DSpaceObject child)
+        throws AuthorizeException
+    {
+        assert(parent instanceof Community);
+        assert((child instanceof Community) || (child instanceof Collection));
+
+        if (!linked(parent, child))
+        {
+            try
+            {
+                if ((parent instanceof Community) &&
+                    (child instanceof Collection))
+                {
+                    AuthorizeManager.authorizeAction(context,
+                            (Community) parent, Constants.ADD);
+
+                    log.info(LogManager.getHeader(context, "add_collection",
+                                "community_id=" + parent.getID() +
+                                ",collection_id=" + child.getID()));
+
+                    TableRow row =
+                        DatabaseManager.create(context, "community2collection");
+
+                    row.setColumn("community_id", parent.getID());
+                    row.setColumn("collection_id", child.getID());
+
+                    DatabaseManager.update(context, row);
+                }
+                else if ((parent instanceof Community) &&
+                    (child instanceof Community))
+                {
+                    AuthorizeManager.authorizeAction(context, parent,
+                            Constants.ADD);
+
+                    log.info(LogManager.getHeader(context, "add_subcommunity",
+                            "parent_comm_id=" + parent.getID() +
+                            ",child_comm_id=" + child.getID()));
+
+                    // Find out if mapping exists
+                    TableRowIterator tri = DatabaseManager.queryTable(context,
+                            "community2community",
+                            "SELECT * FROM community2community " +
+                            "WHERE parent_comm_id= ? "+
+                            "AND child_comm_id= ? ",
+                            parent.getID(), child.getID());
+
+                    if (!tri.hasNext())
+                    {
+                        // No existing mapping, so add one
+                        TableRow mappingRow = DatabaseManager.create(context,
+                                "community2community");
+
+                        mappingRow.setColumn("parent_comm_id", parent.getID());
+                        mappingRow.setColumn("child_comm_id", child.getID());
+
+                        DatabaseManager.update(context, mappingRow);
+                    }
+                }
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    /**
+     * Remove any existing database layer association between the given Item
+     * and Collection.
+     */
+    public void unlink(DSpaceObject parent, DSpaceObject child)
+        throws AuthorizeException
+    {
+        assert(parent instanceof Community);
+        assert((child instanceof Community) || (child instanceof Collection));
+
+        if (linked(parent, child))
+        {
+            try
+            {
+                if ((parent instanceof Community) &&
+                    (child instanceof Collection))
+                {
+                    AuthorizeManager.authorizeAction(context, child,
+                            Constants.REMOVE);
+
+                    log.info(LogManager.getHeader(context, "remove_collection",
+                            "collection_id = " + parent.getID() +
+                            ",item_id = " + child.getID()));
+
+                    DatabaseManager.updateQuery(context,
+                            "DELETE FROM community2collection " +
+                            "WHERE community_id = ? AND collection_id = ? ",
+                            parent.getID(), child.getID());
+                }
+                else if ((parent instanceof Community) &&
+                    (child instanceof Community))
+                {
+                    AuthorizeManager.authorizeAction(context, child,
+                            Constants.REMOVE);
+
+                    log.info(LogManager.getHeader(context,
+                            "remove_subcommunity",
+                            "parent_comm_id = " + parent.getID() +
+                            ",child_comm_id = " + child.getID()));
+
+                    DatabaseManager.updateQuery(context,
+                            "DELETE FROM community2community " +
+                            "WHERE parent_comm_id = ? AND child_comm_id = ? ",
+                            parent.getID(), child.getID());
+                }
+                else
+                {
+                    throw new RuntimeException("Not allowed!");
+                }
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    /**
+     * Determine whether or not there is an established link between the given
+     * Community and Collection in the database.
+     */
+    private boolean linked(DSpaceObject parent, DSpaceObject child)
+    {
+        try
+        {
+            TableRowIterator tri = null;
+
+            if ((parent instanceof Community) &&
+                (child instanceof Collection))
+            {
+                tri = DatabaseManager.query(context,
+                        "SELECT * FROM community2collection " +
+                        "WHERE community_id = ? AND collection_id = ? ",
+                        parent.getID(), child.getID());
+            }
+            else if ((parent instanceof Community) &&
+                (child instanceof Community))
+            {
+                tri = DatabaseManager.query(context,
+                        "SELECT * FROM community2community " +
+                        "WHERE parent_comm_id = ? AND child_comm_id = ? ",
+                        parent.getID(), child.getID());
+            }
+            else
+            {
+                throw new RuntimeException("Not allowed!");
+            }
+
+            return tri.hasNext();
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private void populateTableRowFromCommunity(Community community,
+            TableRow row)
+    {
+        int id = community.getID();
+        Bitstream logo = community.getLogo();
+
+        if (logo == null)
+        {
+            row.setColumnNull("logo_bitstream_id");
+        }
+        else
+        {
+            row.setColumn("logo_bitstream_id", logo.getID());
+        }
+
+        // Now loop over all allowed metadata fields and set the value into the
+        // TableRow.
+        for (CommunityMetadataField field : CommunityMetadataField.values())
+        {
+            String value = community.getMetadata(field.toString());
+            if (value == null)
+            {
+                row.setColumnNull(field.toString());
+            }
+            else
+            {
+                row.setColumn(field.toString(), value);
+            }
+        }
+    }
+
+    private void populateCommunityFromTableRow(Community c, TableRow row)
+    {
+        Bitstream logo = null;
+
+        // Get the logo bitstream
+        if (!row.isColumnNull("logo_bitstream_id"))
+        {
+            try
+            {
+                logo = Bitstream.find(context,
+                        row.getIntColumn("logo_bitstream_id"));
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+
+        c.setLogoBitstream(logo);
+
+        for (CommunityMetadataField field : CommunityMetadataField.values())
+        {
+            String value = row.getStringColumn(field.toString());
+            if (value == null)
+            {
+                c.setMetadata(field.toString(), "");
+            }
+            else
+            {
+                c.setMetadata(field.toString(), value);
+            }
+        }
+    }
+
+    @Deprecated public void populate(Community community, TableRow row)
+    {
+        if (row == null)
+        {
+            try
+            {
+                row = DatabaseManager.find(context, "community",
+                        community.getID());
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+        if (row == null)
+        {
+            throw new RuntimeException("Couldn't find community with id " +
+                    community.getID());
+        }
+        populateCommunityFromTableRow(community, row);
+    }
+}

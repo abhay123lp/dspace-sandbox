@@ -60,6 +60,7 @@ import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.CrosswalkObjectNotSupported;
 import org.dspace.content.crosswalk.MetadataValidationException;
 import org.dspace.content.crosswalk.IngestionCrosswalk;
+import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -850,25 +851,30 @@ public class METSManifest
     }
 
     /**
-     * Find Handle (if any) identifier labelling this manifest.
-     * @return handle (never null)
-     * @throws MetadataValidationException if no handle available.
+     * Find URI (if any) identifier labelling this manifest.
+     *
+     * @return uri (never null)
+     * @throws MetadataValidationException if no uri available.
      */
-    public String getHandle()
-        throws MetadataValidationException
+    public String getURI() throws MetadataValidationException
     {
-        // TODO: XXX Make configurable? Handle optionally passed in?
+        // TODO: XXX Make configurable? URI optionally passed in?
         // FIXME: Not sure if OBJID is really the right place
 
-        String handle = mets.getAttributeValue("OBJID");
+        String uri = mets.getAttributeValue("OBJID");
 
-        if (handle != null && handle.startsWith("hdl:"))
+        if (uri != null)
         {
-            return handle.substring(4);
+            for (PersistentIdentifier.Type t : PersistentIdentifier.Type.values())
+            {
+                if (uri.startsWith(t.getNamespace() + ":"))
+                {
+                    // It's something we understand.
+                    return uri;
+                }
+            }
         }
-        else
-        {
-            throw new MetadataValidationException("Item has no valid Handle (OBJID)");
-        }
+
+        throw new MetadataValidationException("Item has no valid URI (OBJID)");
     }
 }

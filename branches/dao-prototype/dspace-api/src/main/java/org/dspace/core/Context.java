@@ -51,7 +51,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.storage.rdbms.DatabaseManager;
+
+import org.dspace.storage.dao.GlobalDAO;
+import org.dspace.storage.dao.GlobalDAOFactory;
 
 /**
  * Class representing the context of a particular DSpace operation. This stores
@@ -69,14 +71,15 @@ import org.dspace.storage.rdbms.DatabaseManager;
  * 
  * 
  * @author Robert Tansley
+ * @author James Rutherford
  * @version $Revision$
  */
 public class Context
 {
     private static final Logger log = Logger.getLogger(Context.class);
 
-    /** Database connection */
-    private Connection connection;
+    /** Global DAO object */
+    private GlobalDAO dao;
 
     /** Current user - null means anonymous access */
     private EPerson currentUser;
@@ -105,9 +108,7 @@ public class Context
      */
     public Context() throws SQLException
     {
-        // Obtain a non-auto-committing connection
-        connection = DatabaseManager.getConnection();
-        connection.setAutoCommit(false);
+        dao = GlobalDAOFactory.getInstance();
 
         currentUser = null;
         currentLocale = I18nUtil.DEFAULTLOCALE;
@@ -119,13 +120,24 @@ public class Context
     }
 
     /**
+     * Get the top-level DAO associated with the context
+     * 
+     * @return the dao
+     */
+    public GlobalDAO getGlobalDAO()
+    {
+        return dao;
+    }
+
+    /**
      * Get the database connection associated with the context
      * 
      * @return the database connection
      */
+    @Deprecated
     public Connection getDBConnection()
     {
-        return connection;
+        return dao.getConnection();
     }
 
     /**
@@ -236,19 +248,7 @@ public class Context
      */
     public void complete() throws SQLException
     {
-        // FIXME: Might be good not to do a commit() if nothing has actually
-        // been written using this connection
-        try
-        {
-            // Commit any changes made as part of the transaction
-            connection.commit();
-        }
-        finally
-        {
-            // Free the connection
-            DatabaseManager.freeConnection(connection);
-            connection = null;
-        }
+        dao.endTransaction();
     }
 
     /**
@@ -262,7 +262,7 @@ public class Context
     public void commit() throws SQLException
     {
         // Commit any changes made as part of the transaction
-        connection.commit();
+        dao.saveTransaction();
     }
 
     /**
@@ -274,20 +274,7 @@ public class Context
      */
     public void abort()
     {
-        try
-        {
-            connection.rollback();
-        }
-        catch (SQLException se)
-        {
-            log.error(se.getMessage());
-            se.printStackTrace();
-        }
-        finally
-        {
-            DatabaseManager.freeConnection(connection);
-            connection = null;
-        }
+        dao.abortTransaction();
     }
 
     /**
@@ -300,7 +287,7 @@ public class Context
     public boolean isValid()
     {
         // Only return true if our DB connection is live
-        return (connection != null);
+        return dao.transactionOpen();
     }
 
     /**
@@ -354,7 +341,7 @@ public class Context
      */
     public void clearCache()
     {
-    	objectCache.clear();
+        objectCache.clear();
     }
     
     /**
@@ -415,7 +402,7 @@ public class Context
          * If a context is garbage-collected, we roll back and free up the
          * database connection if there is one.
          */
-        if (connection != null)
+        if (dao.transactionOpen())
         {
             abort();
         }

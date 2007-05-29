@@ -73,10 +73,13 @@ import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.handle.HandleManager;
 import org.dspace.search.DSIndexer;
 import org.dspace.license.CreativeCommons;
 
@@ -109,22 +112,26 @@ public class EditItemServlet extends DSpaceServlet
     /** Logger */
     private static Logger log = Logger.getLogger(EditCommunitiesServlet.class);
 
+    private PersistentIdentifierDAO identifierDAO = null;
+
     protected void doDSGet(Context context, HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        identifierDAO = PersistentIdentifierDAOFactory.getInstance(context);
+
         /*
-         * GET with no parameters displays "find by handle/id" form parameter
+         * GET with no parameters displays "find by URI/id" form parameter
          * item_id -> find and edit item with internal ID item_id parameter
-         * handle -> find and edit corresponding item if internal ID or Handle
-         * are invalid, "find by handle/id" form is displayed again with error
+         * URI -> find and edit corresponding item if internal ID or URI
+         * are invalid, "find by URI/id" form is displayed again with error
          * message
          */
         int internalID = UIUtil.getIntParameter(request, "item_id");
-        String handle = request.getParameter("handle");
+        String uri = request.getParameter("uri");
         boolean showError = false;
 
-        // See if an item ID or Handle was passed in
+        // See if an item ID or URI was passed in
         Item itemToEdit = null;
 
         if (internalID > 0)
@@ -133,10 +140,11 @@ public class EditItemServlet extends DSpaceServlet
 
             showError = (itemToEdit == null);
         }
-        else if ((handle != null) && !handle.equals(""))
+        else if ((uri != null) && !uri.equals(""))
         {
-            // resolve handle
-            DSpaceObject dso = HandleManager.resolveToObject(context, handle.trim());
+            // resolve uri
+            PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+            DSpaceObject dso = ArchiveManager.getObject(context, identifier);
 
             // make sure it's an ITEM
             if ((dso != null) && (dso.getType() == Constants.ITEM))
@@ -172,6 +180,8 @@ public class EditItemServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        identifierDAO = PersistentIdentifierDAOFactory.getInstance(context);
+
         // First, see if we have a multipart request (uploading a new bitstream)
         String contentType = request.getContentType();
 
@@ -186,7 +196,7 @@ public class EditItemServlet extends DSpaceServlet
 
         /*
          * Then we check for a "cancel" button - if it's been pressed, we simply
-         * return to the "find by handle/id" page
+         * return to the "find by URI/id" page
          */
         if (request.getParameter("submit_cancel") != null)
         {
@@ -204,13 +214,13 @@ public class EditItemServlet extends DSpaceServlet
         Item item = Item.find(context, UIUtil.getIntParameter(request,
                 "item_id"));
  
-        String handle = HandleManager.findHandle(context, item);
+        String uri = item.getPersistentIdentifier().getCanonicalForm();
 
         // now check to see if person can edit item
         checkEditAuthorization(context, item);
 
         request.setAttribute("item", item);
-        request.setAttribute("handle", handle);
+        request.setAttribute("uri", uri);
 
         switch (action)
         {
@@ -226,7 +236,7 @@ public class EditItemServlet extends DSpaceServlet
 
             // Delete the item - if "cancel" was pressed this would be
             // picked up above
-            // FIXME: Don't know if this does all it should - remove Handle?
+            // FIXME: Don't know if this does all it should - remove URI?
             Collection[] collections = item.getCollections();
 
             // Remove item from all the collections it's in
@@ -327,8 +337,8 @@ public class EditItemServlet extends DSpaceServlet
         	context.commit();
         }
   
-        // Get the handle, if any
-        String handle = HandleManager.findHandle(context, item);
+        // Get the URI, if any
+        String uri = item.getPersistentIdentifier().getCanonicalForm();
 
         // Collections
         Collection[] collections = item.getCollections();
@@ -356,7 +366,7 @@ public class EditItemServlet extends DSpaceServlet
         }
 
         request.setAttribute("item", item);
-        request.setAttribute("handle", handle);
+        request.setAttribute("uri", uri);
         request.setAttribute("collections", collections);
         request.setAttribute("dc.types", types);
         request.setAttribute("metadataFields", metadataFields);

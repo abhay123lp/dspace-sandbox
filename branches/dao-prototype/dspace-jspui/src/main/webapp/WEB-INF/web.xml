@@ -265,8 +265,8 @@
   </servlet>
 
   <servlet>
-    <servlet-name>handle</servlet-name>
-    <servlet-class>org.dspace.app.webui.servlet.HandleServlet</servlet-class>
+    <servlet-name>uri</servlet-name>
+    <servlet-class>org.dspace.app.webui.servlet.URIServlet</servlet-class>
   </servlet>
 
   <servlet>
@@ -535,8 +535,8 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>handle</servlet-name>
-    <url-pattern>/handle/*</url-pattern>
+    <servlet-name>uri</servlet-name>
+    <url-pattern>/uri/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
