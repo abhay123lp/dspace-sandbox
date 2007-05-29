@@ -2615,7 +2615,8 @@ public class SubmitServlet extends DSpaceServlet
      public String getLicense(Collection c, Context context)
      {
          // FIXME: attributes of collections are not yet i18n
-         String license = c.getLicenseCollection();
+//         String license = c.getLicenseCollection();
+         String license = c.getLicense();
 
          if ((license == null) || license.equals(""))
          {
