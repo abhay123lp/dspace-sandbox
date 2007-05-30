@@ -73,9 +73,6 @@ import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.eperson.Group;
 import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 import org.dspace.workflow.WorkflowItem;
 
 /**
@@ -183,21 +180,28 @@ public class Collection extends DSpaceObject
         this.submitters = submitters;
     }
 
-    public Group createSubmitters() throws SQLException, AuthorizeException
+    public Group createSubmitters() throws AuthorizeException
     {
         // Check authorisation
         AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
 
-        if (submitters == null)
+        try
         {
-            submitters = Group.create(context); // I'd rather do it with DAOs
-            submitters.setName("COLLECTION_" + getID() + "_SUBMIT");
-            submitters.update();
+            if (submitters == null)
+            {
+                submitters = Group.create(context); // I'd rather do it with DAOs
+                submitters.setName("COLLECTION_" + getID() + "_SUBMIT");
+                submitters.update();
+            }
+
+            setSubmitters(submitters);
+
+            AuthorizeManager.addPolicy(context, this, Constants.ADD, submitters);
         }
-
-        setSubmitters(submitters);
-
-        AuthorizeManager.addPolicy(context, this, Constants.ADD, submitters);
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
 
         return submitters;
     }
@@ -230,9 +234,8 @@ public class Collection extends DSpaceObject
      * Get all the items in this collection. The order is indeterminate.
      *
      * @return an iterator over the items in the collection.
-     * @throws SQLException
      */
-    public ItemIterator getAllItems() throws SQLException
+    public ItemIterator getAllItems()
     {
         List<Integer> items = new ArrayList<Integer>();
 
@@ -304,10 +307,9 @@ public class Collection extends DSpaceObject
      *           logo (<code>null</code> was passed in)
      * @throws AuthorizeException
      * @throws IOException
-     * @throws SQLException
      */
     public Bitstream setLogo(InputStream is) throws AuthorizeException,
-            IOException, SQLException
+            IOException
     {
         // Check authorisation
         // authorized to remove the logo when DELETE rights
@@ -318,34 +320,41 @@ public class Collection extends DSpaceObject
             canEdit();
         }
 
-        // First, delete any existing logo
-        if (logo != null)
+        try
         {
-            log.info(LogManager.getHeader(context, "remove_logo",
-                    "collection_id=" + getID()));
-            logo.delete();
-            logo = null;
+            // First, delete any existing logo
+            if (logo != null)
+            {
+                log.info(LogManager.getHeader(context, "remove_logo",
+                        "collection_id=" + getID()));
+                logo.delete();
+                logo = null;
+            }
+
+            if (is == null)
+            {
+                log.info(LogManager.getHeader(context, "remove_logo",
+                        "collection_id=" + getID()));
+                logo = null;
+            }
+            else
+            {
+                logo = Bitstream.create(context, is);
+
+                // now create policy for logo bitstream
+                // to match our READ policy
+                List policies = AuthorizeManager.getPoliciesActionFilter(
+                        context, this, Constants.READ);
+                AuthorizeManager.addPolicies(context, policies, logo);
+
+                log.info(LogManager.getHeader(context, "set_logo",
+                        "collection_id=" + getID() +
+                        ",logo_bitstream_id=" + logo.getID()));
+            }
         }
-
-        if (is == null)
+        catch (SQLException sqle)
         {
-            log.info(LogManager.getHeader(context, "remove_logo",
-                    "collection_id=" + getID()));
-            logo = null;
-        }
-        else
-        {
-            logo = Bitstream.create(context, is);
-
-            // now create policy for logo bitstream
-            // to match our READ policy
-            List policies = AuthorizeManager.getPoliciesActionFilter(
-                    context, this, Constants.READ);
-            AuthorizeManager.addPolicies(context, policies, logo);
-
-            log.info(LogManager.getHeader(context, "set_logo",
-                    "collection_id=" + getID() +
-                    ",logo_bitstream_id=" + logo.getID()));
+            throw new RuntimeException(sqle);
         }
 
         return logo;
@@ -402,23 +411,29 @@ public class Collection extends DSpaceObject
      *            the step (1-3) of the workflow to create or get the group for
      *
      * @return the workflow group associated with this collection
-     * @throws SQLException
      * @throws AuthorizeException
      */
-    public Group createWorkflowGroup(int step) throws SQLException,
-            AuthorizeException
+    public Group createWorkflowGroup(int step) throws AuthorizeException
     {
         // Check authorisation
         AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
 
         if (workflowGroups[step - 1] == null)
         {
-            Group g = Group.create(context);
-            g.setName("COLLECTION_" + getID() + "_WORKFLOW_STEP_" + step);
-            g.update();
-            setWorkflowGroup(step, g);
+            Group g = null;
+            try
+            {
+                g = Group.create(context);
+                g.setName("COLLECTION_" + getID() + "_WORKFLOW_STEP_" + step);
+                g.update();
+                setWorkflowGroup(step, g);
 
-            AuthorizeManager.addPolicy(context, this, Constants.ADD, g);
+                AuthorizeManager.addPolicy(context, this, Constants.ADD, g);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
         }
         return workflowGroups[step - 1];
     }
@@ -439,36 +454,41 @@ public class Collection extends DSpaceObject
      * Note that other groups may also be administrators.
      *
      * @return the default group of editors associated with this collection
-     * @throws SQLException
      * @throws AuthorizeException
      */
     // FIXME: Need to do this cleanly without interrogating the data layer
     // directly. We need DAOs for Groups too!
-    public Group createAdministrators() throws SQLException, AuthorizeException
+    public Group createAdministrators() throws AuthorizeException
     {
         // Check authorisation
         AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
 
-        if (admins == null)
+        try
         {
-            admins = Group.create(context);
-            admins.setName("COLLECTION_" + getID() + "_ADMIN");
-            admins.update();
-        }
+            if (admins == null)
+            {
+                admins = Group.create(context);
+                admins.setName("COLLECTION_" + getID() + "_ADMIN");
+                admins.update();
+            }
 
-        AuthorizeManager.addPolicy(context, this,
-                Constants.COLLECTION_ADMIN, admins);
+            AuthorizeManager.addPolicy(context, this,
+                    Constants.COLLECTION_ADMIN, admins);
+
+            // administrators also get ADD on the submitter group
+            if (submitters != null)
+            {
+                AuthorizeManager.addPolicy(context, submitters, Constants.ADD,
+                        admins);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
 
         // register this as the admin group
-//        this.adminsId = admins.getID());
         this.admins = admins;
-
-        // administrators also get ADD on the submitter group
-        if (submitters != null)
-        {
-            AuthorizeManager.addPolicy(context, submitters, Constants.ADD,
-                    admins);
-        }
 
         return admins;
     }
@@ -528,10 +548,9 @@ public class Collection extends DSpaceObject
      * the collection after doing this, or the item will have been created but
      * the collection record will not refer to it.
      *
-     * @throws SQLException
      * @throws AuthorizeException
      */
-    public void createTemplateItem() throws SQLException, AuthorizeException
+    public void createTemplateItem() throws AuthorizeException
     {
         // Check authorisation
         canEdit();
@@ -553,12 +572,10 @@ public class Collection extends DSpaceObject
      * any other changes made; in other words, this method does an
      * <code>update</code>.
      *
-     * @throws SQLException
      * @throws AuthorizeException
      * @throws IOException
      */
-    public void removeTemplateItem() throws SQLException, AuthorizeException,
-            IOException
+    public void removeTemplateItem() throws AuthorizeException, IOException
     {
         // Check authorisation
         canEdit();
@@ -578,7 +595,7 @@ public class Collection extends DSpaceObject
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
-    public boolean canEditBoolean() throws java.sql.SQLException
+    public boolean canEditBoolean()
     {
         try
         {
@@ -592,7 +609,7 @@ public class Collection extends DSpaceObject
         }
     }
 
-    public void canEdit() throws AuthorizeException, SQLException
+    public void canEdit() throws AuthorizeException
     {
         Community[] parents = getCommunities();
 
@@ -625,26 +642,25 @@ public class Collection extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
 
     @Deprecated
-    Collection(Context context, TableRow row) throws SQLException
+    Collection(Context context, org.dspace.storage.rdbms.TableRow row)
     {
         this(context, row.getIntColumn("collection_id"));
     }
 
     @Deprecated
-    static Collection create(Context context)
-        throws SQLException, AuthorizeException
+    static Collection create(Context context) throws AuthorizeException
     {
         return CollectionDAOFactory.getInstance(context).create();
     }
 
     @Deprecated
-    public static Collection find(Context context, int id) throws SQLException
+    public static Collection find(Context context, int id)
     {
         return CollectionDAOFactory.getInstance(context).retrieve(id);
     }
 
     @Deprecated
-    public static Collection[] findAll(Context context) throws SQLException
+    public static Collection[] findAll(Context context)
     {
         CollectionDAO dao = CollectionDAOFactory.getInstance(context);
         List<Collection> collections = dao.getCollections();
@@ -665,14 +681,13 @@ public class Collection extends DSpaceObject
     }
 
     @Deprecated
-    public void addItem(Item item) throws SQLException, AuthorizeException
+    public void addItem(Item item) throws AuthorizeException
     {
         ArchiveManager.move(context, item, null, this);
     }
 
     @Deprecated
-    public void removeItem(Item item)
-        throws SQLException, AuthorizeException, IOException
+    public void removeItem(Item item) throws AuthorizeException, IOException
     {
         ArchiveManager.move(context, item, this, null);
     }
@@ -686,7 +701,7 @@ public class Collection extends DSpaceObject
 
     @Deprecated
     public static Collection[] findAuthorized(Context context, Community parent,
-            int actionID) throws SQLException
+            int actionID)
     {
         CollectionDAO dao = CollectionDAOFactory.getInstance(context);
         List<Collection> collections =
@@ -696,7 +711,7 @@ public class Collection extends DSpaceObject
     }
 
     @Deprecated
-    public int countItems() throws SQLException
+    public int countItems()
     {
         return dao.itemCount(this);
     }

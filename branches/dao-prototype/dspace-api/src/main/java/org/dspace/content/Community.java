@@ -66,9 +66,6 @@ import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.eperson.Group;
 import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class representing a community
@@ -319,19 +316,19 @@ public class Community extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
 
     @Deprecated
-    public int countItems() throws SQLException
+    public int countItems()
     {
         return dao.itemCount(this);
     }
 
     @Deprecated
-    Community(Context context, TableRow row) throws SQLException
+    Community(Context context, org.dspace.storage.rdbms.TableRow row)
     {
         this(context, row.getIntColumn("community_id"));
     }
 
     @Deprecated
-    public static Community find(Context context, int id) throws SQLException
+    public static Community find(Context context, int id)
     {
         return CommunityDAOFactory.getInstance(context).retrieve(id);
     }
@@ -344,7 +341,7 @@ public class Community extends DSpaceObject
     }
 
     @Deprecated
-    public static Community[] findAll(Context context) throws SQLException
+    public static Community[] findAll(Context context)
     {
         CommunityDAO dao = CommunityDAOFactory.getInstance(context);
         List<Community> communities = dao.getCommunities();
@@ -353,7 +350,7 @@ public class Community extends DSpaceObject
     }
 
     @Deprecated
-    public static Community[] findAllTop(Context context) throws SQLException
+    public static Community[] findAllTop(Context context)
     {
         CommunityDAO dao = CommunityDAOFactory.getInstance(context);
         List<Community> communities = dao.getTopLevelCommunities();

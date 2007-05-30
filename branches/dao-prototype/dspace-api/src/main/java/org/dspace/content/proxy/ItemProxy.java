@@ -82,16 +82,12 @@ public class ItemProxy extends Item
 {
     private static Logger log = Logger.getLogger(ItemProxy.class);
 
-    private BundleDAO bundleDAO;
-
     private boolean bundlesLoaded = false;
     private boolean metadataLoaded = false;
 
     public ItemProxy(Context context, int id)
     {
         super(context, id);
-
-        this.bundleDAO = BundleDAOFactory.getInstance(context);
     }
 
     @Override

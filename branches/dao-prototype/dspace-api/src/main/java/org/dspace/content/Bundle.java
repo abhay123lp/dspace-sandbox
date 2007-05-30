@@ -58,9 +58,6 @@ import org.dspace.content.dao.BundleDAO;        // Naughty!
 import org.dspace.content.dao.BundleDAOFactory; // Naughty!
 import org.dspace.content.dao.ItemDAO;          // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;   // Naughty!
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class representing bundles of bitstreams stored in the DSpace system
@@ -244,7 +241,7 @@ public class Bundle extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
 
     @Deprecated
-    Bundle(Context context, TableRow row) throws SQLException
+    Bundle(Context context, org.dspace.storage.rdbms.TableRow row)
     {
         this(context, row.getIntColumn("bundle_id"));
     }
@@ -268,13 +265,13 @@ public class Bundle extends DSpaceObject
     }
 
     @Deprecated
-    void delete() throws SQLException, AuthorizeException, IOException
+    void delete() throws AuthorizeException, IOException
     {
         dao.delete(this.getID());
     }
 
     @Deprecated
-    public Item[] getItems() throws SQLException
+    public Item[] getItems()
     {
         List<Item> items = itemDAO.getParentItems(this);
         return (Item[]) items.toArray(new Item[0]);

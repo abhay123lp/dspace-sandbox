@@ -86,7 +86,7 @@ public class Item extends DSpaceObject
 
     protected Context context;
     protected ItemDAO dao;
-    private BundleDAO bundleDAO;
+    protected BundleDAO bundleDAO;
     protected CollectionDAO collectionDAO;
     private CommunityDAO communityDAO;
 
@@ -1014,7 +1014,7 @@ public class Item extends DSpaceObject
      * @return boolean true = current user can edit item
      * @throws SQLException
      */
-    public boolean canEdit() throws java.sql.SQLException
+    public boolean canEdit()
     {
         // can this person write to the item?
         if (AuthorizeManager.authorizeActionBoolean(context, this,

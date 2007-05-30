@@ -279,7 +279,7 @@ public class ArchiveManager
      */
     public static void move(Context context,
             DSpaceObject dso, DSpaceObject source, DSpaceObject dest)
-        throws AuthorizeException, SQLException
+        throws AuthorizeException
     {
         assert((dso instanceof Item) ||
                (dso instanceof Collection) ||
@@ -341,7 +341,7 @@ public class ArchiveManager
      */
     private static void addItemToCollection(Context context,
             Item item, Collection collection)
-        throws AuthorizeException, SQLException
+        throws AuthorizeException
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
@@ -351,7 +351,7 @@ public class ArchiveManager
 
     private static void removeItemFromCollection(Context context,
             Item item, Collection collection)
-        throws AuthorizeException, SQLException
+        throws AuthorizeException
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
@@ -366,10 +366,17 @@ public class ArchiveManager
             // currentUser because he started the removal process and he will
             // end it too. also add right to remove from the item to remove
             // it's bundles.
-            AuthorizeManager.addPolicy(context, item, Constants.DELETE,
-                    context.getCurrentUser());
-            AuthorizeManager.addPolicy(context, item, Constants.REMOVE,
-                    context.getCurrentUser());
+            try
+            {
+                AuthorizeManager.addPolicy(context, item, Constants.DELETE,
+                        context.getCurrentUser());
+                AuthorizeManager.addPolicy(context, item, Constants.REMOVE,
+                        context.getCurrentUser());
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
 
             itemDAO.delete(item.getID());
         }
@@ -377,7 +384,7 @@ public class ArchiveManager
 
     private static void addCollectionToCommunity(Context context,
             Collection child, Community parent)
-        throws AuthorizeException, SQLException
+        throws AuthorizeException
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
 
@@ -386,7 +393,7 @@ public class ArchiveManager
 
     private static void removeCollectionFromCommunity(Context context,
             Collection child, Community parent)
-        throws AuthorizeException, SQLException
+        throws AuthorizeException
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
@@ -400,10 +407,17 @@ public class ArchiveManager
             // currentUser because he started the removal process and he will
             // end it too. also add right to remove from the child to
             // remove it's items.
-            AuthorizeManager.addPolicy(context, child, Constants.DELETE,
-                    context.getCurrentUser());
-            AuthorizeManager.addPolicy(context, child, Constants.REMOVE,
-                    context.getCurrentUser());
+            try
+            {
+                AuthorizeManager.addPolicy(context, child, Constants.DELETE,
+                        context.getCurrentUser());
+                AuthorizeManager.addPolicy(context, child, Constants.REMOVE,
+                        context.getCurrentUser());
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
 
             // Orphan; delete it
             collectionDAO.delete(child.getID());
@@ -412,7 +426,7 @@ public class ArchiveManager
 
     private static void addCommunityToCommunity(Context context,
             Community child, Community parent)
-        throws AuthorizeException, SQLException
+        throws AuthorizeException
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
 
@@ -421,7 +435,7 @@ public class ArchiveManager
 
     private static void removeCommunityFromCommunity(Context context,
             Community child, Community parent)
-        throws AuthorizeException, SQLException
+        throws AuthorizeException
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
 
@@ -434,10 +448,17 @@ public class ArchiveManager
             // currentUser because he started the removal process and he will
             // end it too. also add right to remove from the collection to
             // remove it's items.
-            AuthorizeManager.addPolicy(context, child, Constants.DELETE,
-                    context.getCurrentUser());
-            AuthorizeManager.addPolicy(context, child, Constants.REMOVE,
-                    context.getCurrentUser());
+            try
+            {
+                AuthorizeManager.addPolicy(context, child, Constants.DELETE,
+                        context.getCurrentUser());
+                AuthorizeManager.addPolicy(context, child, Constants.REMOVE,
+                        context.getCurrentUser());
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
 
             communityDAO.delete(child.getID());
         }
