@@ -85,11 +85,9 @@ public class AuthorizeManager
      * @throws AuthorizeException
      *             if any one of the specified actions cannot be performed by
      *             the current user on the given object.
-     * @throws SQLException
-     *             if there's a database problem
      */
     public static void authorizeAnyOf(Context c, DSpaceObject o, int[] actions)
-            throws AuthorizeException, SQLException
+            throws AuthorizeException
     {
         AuthorizeException ex = null;
 
@@ -129,7 +127,7 @@ public class AuthorizeManager
      *             if the user is denied
      */
     public static void authorizeAction(Context c, DSpaceObject o, int action)
-            throws AuthorizeException, SQLException
+            throws AuthorizeException
     {
         if (o == null)
         {
@@ -215,7 +213,7 @@ public class AuthorizeManager
      *         authorized to perform the given action on the given object
      */
     public static boolean authorizeActionBoolean(Context c, DSpaceObject o,
-            int a) throws SQLException
+            int a)
     {
         boolean isAuthorized = true;
 
@@ -253,10 +251,9 @@ public class AuthorizeManager
      *            user attempting action
      * @return <code>true</code> if user is authorized to perform the given
      *         action, <code>false</code> otherwise
-     * @throws SQLException
      */
     private static boolean authorize(Context c, DSpaceObject o, int action,
-            EPerson e) throws SQLException
+            EPerson e)
     {
         int userid;
 
@@ -289,29 +286,36 @@ public class AuthorizeManager
             }
         }
 
-        List policies = getPoliciesActionFilter(c, o, action);
-        Iterator i = policies.iterator();
-
-        while (i.hasNext())
+        try
         {
-            ResourcePolicy rp = (ResourcePolicy) i.next();
+            List policies = getPoliciesActionFilter(c, o, action);
+            Iterator i = policies.iterator();
 
-            // check policies for date validity
-            if (rp.isDateValid())
+            while (i.hasNext())
             {
-                if ((rp.getEPersonID() != -1) && (rp.getEPersonID() == userid))
-                {
-                    return true; // match
-                }
+                ResourcePolicy rp = (ResourcePolicy) i.next();
 
-                if ((rp.getGroupID() != -1)
-                        && (Group.isMember(c, rp.getGroupID())))
+                // check policies for date validity
+                if (rp.isDateValid())
                 {
-                    // group was set, and eperson is a member
-                    // of that group
-                    return true;
+                    if ((rp.getEPersonID() != -1) && (rp.getEPersonID() == userid))
+                    {
+                        return true; // match
+                    }
+
+                    if ((rp.getGroupID() != -1)
+                            && (Group.isMember(c, rp.getGroupID())))
+                    {
+                        // group was set, and eperson is a member
+                        // of that group
+                        return true;
+                    }
                 }
             }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
         }
 
         // default authorization is denial
@@ -333,7 +337,7 @@ public class AuthorizeManager
      * @return <code>true</code> if user is an admin or ignore authorization
      *         flag set
      */
-    public static boolean isAdmin(Context c) throws SQLException
+    public static boolean isAdmin(Context c)
     {
         // if we're ignoring authorization, user is member of admin
         if (c.ignoreAuthorization())
@@ -349,7 +353,14 @@ public class AuthorizeManager
         }
         else
         {
-            return Group.isMember(c, 1);
+            try
+            {
+                return Group.isMember(c, 1);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
         }
     }
 
@@ -563,16 +574,20 @@ public class AuthorizeManager
      *            DSpace context
      * @param o
      *            object to remove policies for
-     * @throws SQLException
-     *             if there's a database problem
      */
     public static void removeAllPolicies(Context c, DSpaceObject o)
-            throws SQLException
     {
         // FIXME: authorization check?
-    	 DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy WHERE "
-                 + "resource_type_id= ? AND resource_id= ? ",
-                 o.getType(), o.getID());
+        try
+        {
+    	    DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy " +
+                    "WHERE resource_type_id= ? AND resource_id= ? ",
+                    o.getType(), o.getID());
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     /**
@@ -586,11 +601,9 @@ public class AuthorizeManager
      * @param actionID
      *            ID of action to match from
      *            <code>org.dspace.core.Constants</code>, or -1=all
-     * @throws SQLException
-     *             if there's a database problem
      */
     public static void removePoliciesActionFilter(Context context,
-            DSpaceObject dso, int actionID) throws SQLException
+            DSpaceObject dso, int actionID)
     {
         if (actionID == -1)
         {
@@ -599,10 +612,18 @@ public class AuthorizeManager
         }
         else
         {
-        	DatabaseManager.updateQuery(context,
-                    "DELETE FROM resourcepolicy WHERE resource_type_id= ? AND "+
-                    "resource_id= ? AND action_id= ? ",
-                    dso.getType(), dso.getID(), actionID);
+            try
+            {
+        	    DatabaseManager.updateQuery(context,
+                        "DELETE FROM resourcepolicy " +
+                        "WHERE resource_type_id= ? AND "+
+                        "resource_id= ? AND action_id= ? ",
+                        dso.getType(), dso.getID(), actionID);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
         }
     }
 
@@ -618,10 +639,16 @@ public class AuthorizeManager
      *             if there's a database problem
      */
     public static void removeGroupPolicies(Context c, int groupID)
-            throws SQLException
     {
-        DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy WHERE "
-                + "epersongroup_id= ? ", groupID);
+        try
+        {
+            DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy WHERE "
+                    + "epersongroup_id= ? ", groupID);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     /**
@@ -638,11 +665,17 @@ public class AuthorizeManager
      *             if there's a database problem
      */
     public static void removeGroupPolicies(Context c, DSpaceObject o, Group g)
-            throws SQLException
     {
-        DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy WHERE "
-                + "resource_type_id= ? AND resource_id= ? AND epersongroup_id= ? ",
-                o.getType(), o.getID(), g.getID());
+        try
+        {
+            DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy WHERE "
+                    + "resource_type_id= ? AND resource_id= ? AND epersongroup_id= ? ",
+                    o.getType(), o.getID(), g.getID());
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     /**
@@ -661,43 +694,52 @@ public class AuthorizeManager
      *             if there's a database problem
      */
     public static Group[] getAuthorizedGroups(Context c, DSpaceObject o,
-            int actionID) throws java.sql.SQLException
+            int actionID)
     {
-        // do query matching groups, actions, and objects
-        TableRowIterator tri = DatabaseManager.queryTable(c, "resourcepolicy",
-                "SELECT * FROM resourcepolicy WHERE resource_type_id= ? "+
-                "AND resource_id= ? AND action_id= ? ",o.getType(),o.getID(),actionID);
-    	
         List groups = new ArrayList();
 
-        while (tri.hasNext())
+        try
         {
-            TableRow row = tri.next();
-
-            // first check the cache (FIXME: is this right?)
-            ResourcePolicy cachepolicy = (ResourcePolicy) c.fromCache(
-                    ResourcePolicy.class, row.getIntColumn("policy_id"));
-
-            ResourcePolicy myPolicy = null;
-
-            if (cachepolicy != null)
+            // do query matching groups, actions, and objects
+            TableRowIterator tri = DatabaseManager.queryTable(c,
+                    "resourcepolicy",
+                    "SELECT * FROM resourcepolicy WHERE resource_type_id= ? "+
+                    "AND resource_id= ? AND action_id= ? ",
+                    o.getType(),o.getID(),actionID);
+            
+            while (tri.hasNext())
             {
-                myPolicy = cachepolicy;
-            }
-            else
-            {
-                myPolicy = new ResourcePolicy(c, row);
-            }
+                TableRow row = tri.next();
 
-            // now do we have a group?
-            Group myGroup = myPolicy.getGroup();
+                // first check the cache (FIXME: is this right?)
+                ResourcePolicy cachepolicy = (ResourcePolicy) c.fromCache(
+                        ResourcePolicy.class, row.getIntColumn("policy_id"));
 
-            if (myGroup != null)
-            {
-                groups.add(myGroup);
+                ResourcePolicy myPolicy = null;
+
+                if (cachepolicy != null)
+                {
+                    myPolicy = cachepolicy;
+                }
+                else
+                {
+                    myPolicy = new ResourcePolicy(c, row);
+                }
+
+                // now do we have a group?
+                Group myGroup = myPolicy.getGroup();
+
+                if (myGroup != null)
+                {
+                    groups.add(myGroup);
+                }
             }
+            tri.close();
         }
-        tri.close();
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
 
         Group[] groupArray = new Group[groups.size()];
         groupArray = (Group[]) groups.toArray(groupArray);

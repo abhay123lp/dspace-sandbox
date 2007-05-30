@@ -42,15 +42,14 @@ package org.dspace.content.dao;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.core.Context;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.storage.rdbms.TableRow;
 
 /**
  * @author James Rutherford
@@ -75,6 +74,4 @@ public interface ItemDAO
     public void loadMetadata(Item item);
     public List<DCValue> getMetadata(Item item, String schema, String element,
             String qualifier, String lang);
-
-    @Deprecated public void populate(Item item, TableRow row);
 }

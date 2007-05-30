@@ -41,13 +41,11 @@ package org.dspace.content.dao;
 
 import java.util.List;
 
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
-import org.dspace.storage.rdbms.TableRow;
 
 /**
  * @author James Rutherford
@@ -73,7 +71,5 @@ public interface CommunityDAO
         throws AuthorizeException;
     public void unlink(DSpaceObject parent, DSpaceObject child)
         throws AuthorizeException;
-
-    @Deprecated public void populate(Community community, TableRow row);
 }
 

@@ -444,37 +444,30 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
     public List<Collection> getCollectionsByAuthority(Community parent,
             int actionID)
     {
-        try
+        List<Collection> results = new ArrayList<Collection>();
+
+        Collection[] collections = null;
+
+        if (parent != null)
         {
-            List<Collection> results = new ArrayList<Collection>();
-
-            Collection[] collections = null;
-
-            if (parent != null)
-            {
-                collections = parent.getCollections();
-            }
-            else
-            {
-                collections =
-                    (Collection[]) getCollections().toArray(new Collection[0]);
-            }
-
-            for (int i = 0; i < collections.length; i++)
-            {
-                if (AuthorizeManager.authorizeActionBoolean(context,
-                        collections[i], actionID))
-                {
-                    results.add(collections[i]);
-                }
-            }
-
-            return results;
+            collections = parent.getCollections();
         }
-        catch (SQLException sqle)
+        else
         {
-            throw new RuntimeException(sqle);
+            collections =
+                (Collection[]) getCollections().toArray(new Collection[0]);
         }
+
+        for (int i = 0; i < collections.length; i++)
+        {
+            if (AuthorizeManager.authorizeActionBoolean(context,
+                    collections[i], actionID))
+            {
+                results.add(collections[i]);
+            }
+        }
+
+        return results;
     }
 
     public List<Collection> getParentCollections(Item item)
@@ -788,32 +781,5 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    /**
-     * This should only be called from the old Collection constructor that took
-     * a Context and a TableRow.
-     */
-    @Deprecated
-    public void populate(Collection collection, TableRow row)
-    {
-        if (row == null)
-        {
-            try
-            {
-                row = DatabaseManager.find(context, "collection",
-                        collection.getID());
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
-        }
-        if (row == null)
-        {
-            throw new RuntimeException("Couldn't find collection with id " +
-                    collection.getID());
-        }
-        populateCollectionFromTableRow(collection, row);
     }
 }

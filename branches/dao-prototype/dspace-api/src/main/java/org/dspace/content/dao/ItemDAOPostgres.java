@@ -856,29 +856,4 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
             bundleDAO.delete(bundle.getID());
         }
     }
-
-    /**
-     * This should only be called from the old Item constructor that took a
-     * Context and a TableRow.
-     */
-    @Deprecated
-    public void populate(Item item, TableRow row)
-    {
-        if (row == null)
-        {
-            try
-            {
-                row = DatabaseManager.find(context, "item", item.getID());
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
-        }
-        if (row == null)
-        {
-            throw new RuntimeException("Couldn't find item with id " + item.getID());
-        }
-        populateItemFromTableRow(item, row);
-    }
 }

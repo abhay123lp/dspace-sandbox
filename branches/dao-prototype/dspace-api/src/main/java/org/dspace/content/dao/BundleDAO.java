@@ -45,7 +45,6 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
-import org.dspace.storage.rdbms.TableRow;
 
 /**
  * @author James Rutherford

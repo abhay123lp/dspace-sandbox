@@ -519,16 +519,7 @@ public class ItemListTag extends TagSupport
     private String getThumbMarkup(HttpServletRequest hrq, Item item)
             throws JspException
     {
-        Bundle[] original = null;
-        
-        try
-        {
-        	original = item.getBundles("ORIGINAL");
-        }
-        catch(SQLException sqle)
-        {
-        	throw new JspException(sqle.getMessage());       	
-        }
+        Bundle[] original = item.getBundles("ORIGINAL");
 
         if (original.length == 0)
         {

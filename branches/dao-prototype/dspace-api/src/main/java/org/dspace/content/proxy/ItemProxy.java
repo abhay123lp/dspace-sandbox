@@ -97,26 +97,19 @@ public class ItemProxy extends Item
     @Override
     public Collection getOwningCollection()
     {
-        try
+        if (owningCollection != null)
         {
-            if (owningCollection != null)
-            {
-                return owningCollection;
-            }
-            else if (owningCollectionId != -1)
-            {
-                owningCollection = Collection.find(context, owningCollectionId);
-                return owningCollection;
-            }
-            else
-            {
-                log.warn("No owning collection information available!");
-                return null;
-            }
+            return owningCollection;
         }
-        catch (SQLException sqle)
+        else if (owningCollectionId != -1)
         {
-            throw new RuntimeException(sqle);
+            owningCollection = collectionDAO.retrieve(owningCollectionId);
+            return owningCollection;
+        }
+        else
+        {
+            log.warn("No owning collection information available!");
+            return null;
         }
     }
 
@@ -160,7 +153,7 @@ public class ItemProxy extends Item
     }
 
     @Override
-    public void addBundle(Bundle b) throws AuthorizeException, SQLException
+    public void addBundle(Bundle b) throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
@@ -189,7 +182,7 @@ public class ItemProxy extends Item
     }
 
     @Override
-    public void removeBundle(Bundle b) throws AuthorizeException, SQLException
+    public void removeBundle(Bundle b) throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, this, Constants.REMOVE);
 

@@ -41,13 +41,11 @@ package org.dspace.content.dao;
 
 import java.util.List;
 
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
-import org.dspace.storage.rdbms.TableRow;
 
 /**
  * @author James Rutherford
@@ -72,7 +70,5 @@ public interface CollectionDAO
         throws AuthorizeException;
     public void unlink(Collection collection, Item item)
         throws AuthorizeException;
-
-    @Deprecated public void populate(Collection collection, TableRow row);
 }
 

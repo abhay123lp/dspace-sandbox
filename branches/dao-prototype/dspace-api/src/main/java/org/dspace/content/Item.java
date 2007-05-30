@@ -59,8 +59,8 @@ import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.content.dao.BundleDAO;        // Naughty!
-import org.dspace.content.dao.BundleDAOFactory; // Naughty!
+import org.dspace.content.dao.BundleDAO;            // Naughty!
+import org.dspace.content.dao.BundleDAOFactory;     // Naughty!
 import org.dspace.content.dao.CollectionDAO;        // Naughty!
 import org.dspace.content.dao.CollectionDAOFactory; // Naughty!
 import org.dspace.content.dao.CommunityDAO;         // Naughty!
@@ -70,11 +70,6 @@ import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.history.HistoryManager;
-import org.dspace.search.DSIndexer;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class representing an item in DSpace. Note that everything is held in memory
@@ -92,7 +87,7 @@ public class Item extends DSpaceObject
     protected Context context;
     protected ItemDAO dao;
     private BundleDAO bundleDAO;
-    private CollectionDAO collectionDAO;
+    protected CollectionDAO collectionDAO;
     private CommunityDAO communityDAO;
 
     protected int id;
@@ -540,7 +535,7 @@ public class Item extends DSpaceObject
      * 
      * @return the bundles in an unordered array
      */
-    public Bundle[] getBundles(String name) throws SQLException
+    public Bundle[] getBundles(String name)
     {
         List<Bundle> tmp = new ArrayList<Bundle>();
         for (Bundle bundle : getBundles())
@@ -559,11 +554,9 @@ public class Item extends DSpaceObject
      * @param name
      *            bundle name (ORIGINAL/TEXT/THUMBNAIL)
      * @return the newly created bundle
-     * @throws SQLException
      * @throws AuthorizeException
      */
-    public Bundle createBundle(String name)
-        throws AuthorizeException, SQLException
+    public Bundle createBundle(String name) throws AuthorizeException
     {
         if ((name == null) || "".equals(name))
         {
@@ -587,8 +580,7 @@ public class Item extends DSpaceObject
      * @param b
      *            the bundle to add
      */
-    public void addBundle(Bundle b)
-        throws AuthorizeException, SQLException
+    public void addBundle(Bundle b) throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
@@ -619,8 +611,7 @@ public class Item extends DSpaceObject
      * @param b
      *            the bundle to remove
      */
-    public void removeBundle(Bundle b)
-        throws AuthorizeException, SQLException
+    public void removeBundle(Bundle b) throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, this, Constants.REMOVE);
 
@@ -791,12 +782,11 @@ public class Item extends DSpaceObject
      * Withdraw the item from the archive. It is kept in place, and the content
      * and metadata are not deleted, but it is not publicly accessible.
      * 
-     * @throws SQLException
      * @throws AuthorizeException
      * @throws IOException
      */
     @Deprecated
-    public void withdraw() throws SQLException, AuthorizeException, IOException
+    public void withdraw() throws AuthorizeException, IOException
     {
         ArchiveManager.withdrawItem(context, this);
     }
@@ -804,13 +794,11 @@ public class Item extends DSpaceObject
     /**
      * Reinstate a withdrawn item
      * 
-     * @throws SQLException
      * @throws AuthorizeException
      * @throws IOException
      */
     @Deprecated
-    public void reinstate() throws SQLException, AuthorizeException,
-            IOException
+    public void reinstate() throws AuthorizeException, IOException
     {
         ArchiveManager.reinstateItem(context, this);
     }
@@ -1142,25 +1130,25 @@ public class Item extends DSpaceObject
 
     /** Deprecated by the introduction of DAOs */
     @Deprecated
-    Item(Context context, TableRow row) throws SQLException
+    Item(Context context, org.dspace.storage.rdbms.TableRow row)
     {
         this(context, row.getIntColumn("item_id"));
     }
 
     @Deprecated
-    public static Item find(Context context, int id) throws SQLException
+    public static Item find(Context context, int id)
     {
         return ItemDAOFactory.getInstance(context).retrieve(id);
     }
 
     @Deprecated
-    static Item create(Context context) throws SQLException, AuthorizeException
+    static Item create(Context context) throws AuthorizeException
     {
         return ItemDAOFactory.getInstance(context).create();
     }
 
     @Deprecated
-    public static ItemIterator findAll(Context context) throws SQLException
+    public static ItemIterator findAll(Context context)
     {
         ItemDAO dao = ItemDAOFactory.getInstance(context);
         List<Item> items = dao.getItems();
@@ -1170,7 +1158,7 @@ public class Item extends DSpaceObject
 
     @Deprecated
     public static ItemIterator findBySubmitter(Context context,
-            EPerson eperson) throws SQLException
+            EPerson eperson)
     {
         ItemDAO dao = ItemDAOFactory.getInstance(context);
         List<Item> items = dao.getItemsBySubmitter(eperson);
@@ -1198,19 +1186,19 @@ public class Item extends DSpaceObject
     }
 
     @Deprecated
-    public void decache() throws SQLException
+    public void decache()
     {
         dao.decache(this);
     }
 
     @Deprecated
-    public void update() throws SQLException, AuthorizeException
+    public void update() throws AuthorizeException
     {
         dao.update(this);
     }
 
     @Deprecated
-    void delete() throws SQLException, AuthorizeException, IOException
+    void delete() throws AuthorizeException, IOException
     {
         dao.delete(this.getID());
     }

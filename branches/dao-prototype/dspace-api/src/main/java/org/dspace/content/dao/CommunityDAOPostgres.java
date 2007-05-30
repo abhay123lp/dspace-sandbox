@@ -744,26 +744,4 @@ public class CommunityDAOPostgres extends ContentDAO implements CommunityDAO
             }
         }
     }
-
-    @Deprecated public void populate(Community community, TableRow row)
-    {
-        if (row == null)
-        {
-            try
-            {
-                row = DatabaseManager.find(context, "community",
-                        community.getID());
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
-        }
-        if (row == null)
-        {
-            throw new RuntimeException("Couldn't find community with id " +
-                    community.getID());
-        }
-        populateCommunityFromTableRow(community, row);
-    }
 }

@@ -123,7 +123,7 @@ public class ArchiveManager
      * and metadata are not deleted, but it is not publicly accessible.
      */
     public static void withdrawItem(Context context, Item item)
-        throws SQLException, AuthorizeException, IOException
+        throws AuthorizeException, IOException
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
 
@@ -154,27 +154,34 @@ public class ArchiveManager
         item.setWithdrawn(true);
         item.setArchived(false);
 
-        // Add suitable provenance - includes user, date, collections +
-        // bitstream checksums
         EPerson e = context.getCurrentUser();
-        String prov = "Item withdrawn by " + e.getFullName() + " ("
-                + e.getEmail() + ") on " + timestamp + "\n"
-                + "Item was in collections:\n" + collectionProv
-                + InstallItem.getBitstreamProvenanceMessage(item);
+        try
+        {
+            // Add suitable provenance - includes user, date, collections +
+            // bitstream checksums
+            String prov = "Item withdrawn by " + e.getFullName() + " ("
+                    + e.getEmail() + ") on " + timestamp + "\n"
+                    + "Item was in collections:\n" + collectionProv
+                    + InstallItem.getBitstreamProvenanceMessage(item);
 
-        item.addMetadata(MetadataSchema.DC_SCHEMA, "description", "provenance",
-                "en", prov);
+            item.addMetadata(MetadataSchema.DC_SCHEMA, "description", "provenance",
+                    "en", prov);
 
-        // Update item in DB
-        itemDAO.update(item);
+            // Update item in DB
+            itemDAO.update(item);
 
-        // Invoke History system
-        HistoryManager.saveHistory(context, item, HistoryManager.MODIFY, e,
-                context.getExtraLogInfo());
+            // Invoke History system
+            HistoryManager.saveHistory(context, item, HistoryManager.MODIFY, e,
+                    context.getExtraLogInfo());
 
-        // Remove from indicies
-        Browse.itemRemoved(context, item.getID());
-        DSIndexer.unIndexContent(context, item);
+            // Remove from indicies
+            Browse.itemRemoved(context, item.getID());
+            DSIndexer.unIndexContent(context, item);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
 
         // and all of our authorization policies
         // FIXME: not very "multiple-inclusion" friendly
@@ -188,7 +195,7 @@ public class ArchiveManager
      * Reinstate a withdrawn item.
      */
     public static void reinstateItem(Context context, Item item)
-        throws SQLException, AuthorizeException, IOException
+        throws AuthorizeException, IOException
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
 
@@ -213,34 +220,41 @@ public class ArchiveManager
         // Add suitable provenance - includes user, date, collections +
         // bitstream checksums
         EPerson e = context.getCurrentUser();
-        String prov = "Item reinstated by " + e.getFullName() + " ("
-                + e.getEmail() + ") on " + timestamp + "\n"
-                + "Item was in collections:\n" + collectionProv
-                + InstallItem.getBitstreamProvenanceMessage(item);
-
-        item.addMetadata(MetadataSchema.DC_SCHEMA, "description", "provenance",
-                "en", prov);
-
-        // Update item in DB
-        itemDAO.update(item);
-
-        // Invoke History system
-        HistoryManager.saveHistory(context, item, HistoryManager.MODIFY, e,
-                context.getExtraLogInfo());
-
-        // Add to indicies
-        // Remove - update() already performs this
-        // Browse.itemAdded(context, this);
-        DSIndexer.indexContent(context, item);
-
-        // authorization policies
-        if (colls.length > 0)
+        try
         {
-            // FIXME: not multiple inclusion friendly - just apply access
-            // policies from first collection
-            // remove the item's policies and replace them with
-            // the defaults from the collection
-            item.inheritCollectionDefaultPolicies(colls[0]);
+            String prov = "Item reinstated by " + e.getFullName() + " ("
+                    + e.getEmail() + ") on " + timestamp + "\n"
+                    + "Item was in collections:\n" + collectionProv
+                    + InstallItem.getBitstreamProvenanceMessage(item);
+
+            item.addMetadata(MetadataSchema.DC_SCHEMA, "description", "provenance",
+                    "en", prov);
+
+            // Update item in DB
+            itemDAO.update(item);
+
+            // Invoke History system
+            HistoryManager.saveHistory(context, item, HistoryManager.MODIFY, e,
+                    context.getExtraLogInfo());
+
+            // Add to indicies
+            // Remove - update() already performs this
+            // Browse.itemAdded(context, this);
+            DSIndexer.indexContent(context, item);
+
+            // authorization policies
+            if (colls.length > 0)
+            {
+                // FIXME: not multiple inclusion friendly - just apply access
+                // policies from first collection
+                // remove the item's policies and replace them with
+                // the defaults from the collection
+                item.inheritCollectionDefaultPolicies(colls[0]);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
         }
 
         log.info(LogManager.getHeader(context, "reinstate_item", "user="
