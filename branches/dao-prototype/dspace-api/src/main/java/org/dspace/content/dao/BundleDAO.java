@@ -59,8 +59,8 @@ import org.dspace.content.Item;
 public abstract class BundleDAO extends ContentDAO
 {
     protected Logger log = Logger.getLogger(BundleDAO.class);
-    protected Context context;
 
+    protected Context context;
     public abstract Bundle create() throws AuthorizeException;
 
     // FIXME: This should be called something else, but I can't think of

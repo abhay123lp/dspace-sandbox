@@ -69,8 +69,8 @@ import org.dspace.search.DSIndexer;
 public abstract class ItemDAO extends ContentDAO
 {
     protected Logger log = Logger.getLogger(ItemDAO.class);
-    protected Context context;
 
+    protected Context context;
     protected BundleDAO bundleDAO;
 
     public abstract Item create() throws AuthorizeException;

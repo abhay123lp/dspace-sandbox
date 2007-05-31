@@ -185,41 +185,52 @@ public class Community extends DSpaceObject
      * @return   the new logo bitstream, or <code>null</code> if there is no
      *           logo (<code>null</code> was passed in)
      */
-    public Bitstream setLogo(InputStream is) throws AuthorizeException,
-            IOException, SQLException
+    public Bitstream setLogo(InputStream is) throws AuthorizeException
     {
-        // Check authorisation
-        // authorized to remove the logo when DELETE rights
-        // authorized when canEdit
-        if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
-                context, this, Constants.DELETE)))
+        try
         {
-            canEdit();
+            // Check authorisation
+            // authorized to remove the logo when DELETE rights
+            // authorized when canEdit
+            if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
+                    context, this, Constants.DELETE)))
+            {
+                canEdit();
+            }
+
+            // First, delete any existing logo
+            if (logo != null)
+            {
+                log.info(LogManager.getHeader(context, "remove_logo",
+                        "community_id=" + getID()));
+
+                logo.delete();
+                logo = null;
+            }
+
+            if (is != null)
+            {
+                Bitstream newLogo = Bitstream.create(context, is);
+                logo = newLogo;
+
+                // now create policy for logo bitstream
+                // to match our READ policy
+                List policies = AuthorizeManager.getPoliciesActionFilter(
+                        context, this, Constants.READ);
+                AuthorizeManager.addPolicies(context, policies, newLogo);
+
+                log.info(LogManager.getHeader(context, "set_logo",
+                        "community_id=" + getID() + "logo_bitstream_id="
+                                + newLogo.getID()));
+            }
         }
-
-        // First, delete any existing logo
-        if (logo != null)
+        catch (IOException ioe)
         {
-            log.info(LogManager.getHeader(context, "remove_logo",
-                    "community_id=" + getID()));
-            logo.delete();
-            logo = null;
+            throw new RuntimeException(ioe);
         }
-
-        if (is != null)
+        catch (SQLException sqle)
         {
-            Bitstream newLogo = Bitstream.create(context, is);
-            logo = newLogo;
-
-            // now create policy for logo bitstream
-            // to match our READ policy
-            List policies = AuthorizeManager.getPoliciesActionFilter(
-                    context, this, Constants.READ);
-            AuthorizeManager.addPolicies(context, policies, newLogo);
-
-            log.info(LogManager.getHeader(context, "set_logo",
-                    "community_id=" + getID() + "logo_bitstream_id="
-                            + newLogo.getID()));
+            throw new RuntimeException(sqle);
         }
 
         return logo;
@@ -236,8 +247,7 @@ public class Community extends DSpaceObject
      *
      * @return the new collection
      */
-    public Collection createCollection()
-        throws AuthorizeException, SQLException
+    public Collection createCollection() throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
@@ -253,8 +263,7 @@ public class Community extends DSpaceObject
      *
      * @return the new community
      */
-    public Community createSubcommunity() throws SQLException,
-            AuthorizeException
+    public Community createSubcommunity() throws AuthorizeException
     {
         // Check authorisation
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
@@ -270,7 +279,7 @@ public class Community extends DSpaceObject
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
-    public boolean canEditBoolean() throws java.sql.SQLException
+    public boolean canEditBoolean()
     {
         try
         {
@@ -284,7 +293,7 @@ public class Community extends DSpaceObject
         }
     }
 
-    public void canEdit() throws AuthorizeException, SQLException
+    public void canEdit() throws AuthorizeException
     {
         List<Community> parents = dao.getParentCommunities(this);
 
@@ -335,7 +344,7 @@ public class Community extends DSpaceObject
 
     @Deprecated
     public static Community create(Community parent, Context context)
-            throws SQLException, AuthorizeException
+            throws AuthorizeException
     {
         return CommunityDAOFactory.getInstance(context).create();
     }
@@ -394,40 +403,39 @@ public class Community extends DSpaceObject
 
     @Deprecated
     public void addCollection(Collection collection)
-        throws AuthorizeException,SQLException
+        throws AuthorizeException
     {
         ArchiveManager.move(context, collection, null, this);
     }
 
     @Deprecated
     public void removeCollection(Collection collection)
-        throws AuthorizeException, IOException, SQLException
+        throws AuthorizeException
     {
         ArchiveManager.move(context, collection, this, null);
     }
 
     @Deprecated
-    public void addSubcommunity(Community community) throws SQLException,
-            AuthorizeException
+    public void addSubcommunity(Community community) throws AuthorizeException
     {
         ArchiveManager.move(context, community, null, this);
     }
 
     @Deprecated
     public void removeSubcommunity(Community community)
-        throws AuthorizeException, IOException, SQLException
+        throws AuthorizeException
     {
         ArchiveManager.move(context, community, this, null);
     }
 
     @Deprecated
-    public void update() throws SQLException, IOException, AuthorizeException
+    public void update() throws AuthorizeException
     {
         dao.update(this);
     }
 
     @Deprecated
-    public void delete() throws SQLException, AuthorizeException, IOException
+    public void delete() throws AuthorizeException
     {
         dao.delete(this.getID());
     }

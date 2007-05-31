@@ -133,7 +133,8 @@ public class BundleDAOPostgres extends BundleDAO
             }
             else
             {
-                throw new RuntimeException("Didn't find bundle " + bundle.getID());
+                throw new RuntimeException("Didn't find bundle " +
+                        bundle.getID());
             }
 
             /*

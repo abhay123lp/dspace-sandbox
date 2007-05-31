@@ -46,41 +46,23 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
-import org.dspace.browse.Browse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
-import org.dspace.content.ItemIterator;
-import org.dspace.content.WorkspaceItem;
 import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
-import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
-import org.dspace.history.HistoryManager;
-import org.dspace.search.DSIndexer;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
-import org.dspace.workflow.WorkflowItem;
 
-public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
+public class CollectionDAOPostgres extends CollectionDAO
 {
-    private static Logger log = Logger.getLogger(CollectionDAOPostgres.class);
-
-    private Context context;
-    private ItemDAO itemDAO;
-    private PersistentIdentifierDAO identifierDAO;
-
     /**
      * The allowed metadata fields for Collections are defined in the following
      * enum. This should make reading / writing all metadatafields a lot less
@@ -121,54 +103,15 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
         }
     }
 
+    @Override
     public Collection create() throws AuthorizeException
     {
         try
         {
-            Collection collection = null;
             TableRow row = DatabaseManager.create(context, "collection");
             int id = row.getIntColumn("collection_id");
-            collection = new Collection(context, id);
-
-            // Create a default persistent identifier for this Collection, and
-            // add it to the in-memory Colleciton object.
-            PersistentIdentifier identifier = identifierDAO.create(collection);
-            collection.addPersistentIdentifier(identifier);
-
-            // create the default authorization policy for collections
-            // of 'anonymous' READ
-            Group anonymousGroup = Group.find(context, 0);
-
-            ResourcePolicy policy = ResourcePolicy.create(context);
-            policy.setResource(collection);
-            policy.setAction(Constants.READ);
-            policy.setGroup(anonymousGroup);
-            policy.update();
-
-            // now create the default policies for submitted items
-            policy = ResourcePolicy.create(context);
-            policy.setResource(collection);
-            policy.setAction(Constants.DEFAULT_ITEM_READ);
-            policy.setGroup(anonymousGroup);
-            policy.update();
-
-            policy = ResourcePolicy.create(context);
-            policy.setResource(collection);
-            policy.setAction(Constants.DEFAULT_BITSTREAM_READ);
-            policy.setGroup(anonymousGroup);
-            policy.update();
-
-            update(collection);
-
-            HistoryManager.saveHistory(context, collection,
-                    HistoryManager.CREATE, context.getCurrentUser(),
-                    context.getExtraLogInfo());
-
-            log.info(LogManager.getHeader(context, "create_collection",
-                    "collection_id=" + collection.getID())
-                    + ",uri=" + collection.getPersistentIdentifier().getCanonicalForm());
             
-            return collection;
+            return super.create(id);
         }
         catch (SQLException sqle)
         {
@@ -180,15 +123,14 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
      * Retrieve the Collection with the given ID from the database (or from the
      * Context cache, if it's there).
      */
+    @Override
     public Collection retrieve(int id)
     {
-        // First check the cache
-        Collection fromCache =
-            (Collection) context.fromCache(Collection.class, id);
+        Collection collection = super.retrieve(id);
 
-        if (fromCache != null)
+        if (collection != null)
         {
-            return fromCache;
+            return collection;
         }
 
         try
@@ -201,9 +143,12 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
                 return null;
             }
 
-            Collection collection = new Collection(context, id);
+            collection = new Collection(context, id);
             populateCollectionFromTableRow(collection, row);
 
+            // FIXME: I'd like to bump the rest of this up into the superclass
+            // so we don't have to do it for every implementation, but I can't
+            // figure out a clean way of doing this yet.
             List<PersistentIdentifier> identifiers =
                 identifierDAO.getPersistentIdentifiers(collection);
             collection.setPersistentIdentifiers(identifiers);
@@ -218,8 +163,11 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
         }
     }
 
+    @Override
     public void update(Collection collection) throws AuthorizeException
     {
+        super.update(collection);
+
         try
         {
             TableRow row =
@@ -246,32 +194,9 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
     {
         try
         {
-            // Check authorisation
-            collection.canEdit();
-
-            HistoryManager.saveHistory(context, this, HistoryManager.MODIFY,
-                    context.getCurrentUser(), context.getExtraLogInfo());
-
-            log.info(LogManager.getHeader(context, "update_collection",
-                    "collection_id=" + collection.getID()));
-
             populateTableRowFromCollection(collection, row);
 
             DatabaseManager.update(context, row);
-
-            DSIndexer.reIndexContent(context, collection);
-
-            ItemIterator iterator = collection.getItems();
-            while (iterator.hasNext())
-            {
-                Item item = iterator.next();
-                link(collection, item); // create mapping row in the db
-                itemDAO.update(item);   // save changes to item
-            }
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
         }
         catch (SQLException sqle)
         {
@@ -284,112 +209,19 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
      * then orphans are deleted. Groups associated with this collection
      * (workflow participants and submitters) are NOT deleted.
      */
+    @Override
     public void delete(int id) throws AuthorizeException
     {
+        super.delete(id);
+
         try
         {
-            Collection collection = retrieve(id);
-            this.update(collection); // Sync in-memory object before removal
-
-            log.info(LogManager.getHeader(context, "delete_collection",
-                    "collection_id=" + collection.getID()));
-
-            // remove from index
-            DSIndexer.unIndexContent(context, collection);
-
-            // Remove from cache
-            context.removeCached(collection, collection.getID());
-
-            HistoryManager.saveHistory(context, collection,
-                    HistoryManager.REMOVE, context.getCurrentUser(),
-                    context.getExtraLogInfo());
-
             // remove subscriptions - hmm, should this be in Subscription.java?
             DatabaseManager.updateQuery(context,
-                    "DELETE FROM subscription WHERE collection_id= ? ", 
-                    collection.getID());
-
-            // Remove Template Item
-            collection.removeTemplateItem();
-            
-            // Remove items
-            ItemIterator items = collection.getAllItems();
-
-            while (items.hasNext())
-            {
-                Item item = items.next();
-                
-                if (item.isOwningCollection(collection))
-                {
-                    // the collection to be deletd is the owning collection,
-                    // thus remove the item from all collections it belongs to
-                    int itemId = item.getID();
-                    Collection[] collections = item.getCollections();
-                    for (int i = 0; i < collections.length; i++)
-                    {
-                        ArchiveManager.move(context, item, collections[i],
-                                null);
-
-                        //notify Browse of removing item.
-                        Browse.itemRemoved(context, itemId);
-                    }
-                } 
-                else
-                {
-                    // the item was only mapped to this collection, so just
-                    // remove it
-                    ArchiveManager.move(context, item, collection, null);
-
-                    //notify Browse of removing item mapping. 
-                    Browse.itemChanged(context, item);
-                }
-            }
-
-            // Delete bitstream logo
-            collection.setLogo(null);
-
-            // Remove all authorization policies
-            AuthorizeManager.removeAllPolicies(context, collection);
-
-            // Remove any WorkflowItems
-            for (WorkflowItem wfi :
-                    WorkflowItem.findByCollection(context, collection))
-            {
-                // remove the workflowitem first, then the item
-                wfi.deleteWrapper();
-                itemDAO.delete(wfi.getItem().getID());
-            }
-
-            // Remove any WorkspaceItems
-            for (WorkspaceItem wsi :
-                    WorkspaceItem.findByCollection(context, collection))
-            {
-                wsi.deleteAll();
-            }
+                    "DELETE FROM subscription WHERE collection_id= ? ", id);
 
             // Delete collection row
             DatabaseManager.delete(context, "collection", id);
-
-            // Remove any associated groups - must happen after deleting
-            List<Group> groups = new ArrayList<Group>();
-            for (Group g : collection.getWorkflowGroups())
-            {
-                groups.add(g);
-            }
-            groups.add(collection.getAdministrators());
-            groups.add(collection.getSubmitters());
-
-            for (Group g : groups)
-            {
-                if (g != null)
-                {
-                    g.delete();
-                }
-            }
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
         }
         catch (SQLException sqle)
         {
@@ -400,6 +232,7 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
     /**
      * Returns a List containing all the Collections.
      */
+    @Override
     public List<Collection> getCollections()
     {
         try
@@ -441,6 +274,7 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
      * Useful for trimming 'select to collection' list, or figuring out which
      * collections a person is an editor for.
      */
+    @Override
     public List<Collection> getCollectionsByAuthority(Community parent,
             int actionID)
     {
@@ -470,6 +304,7 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
         return results;
     }
 
+    @Override
     public List<Collection> getParentCollections(Item item)
     {
         try
@@ -498,6 +333,7 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
         }
     }
 
+    @Override
     public List<Collection> getChildCollections(Community community)
     {
         try
@@ -532,6 +368,7 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
      * given Collection. There is probably a way to be smart about this. Also,
      * this strikes me as the kind of method that shouldn't really be in here.
      */
+    @Override
     public int itemCount(Collection collection)
     {
         try
@@ -564,20 +401,16 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
      * Create a database layer association between the given Item and
      * Collection.
      */
+    @Override
     public void link(Collection collection, Item item)
         throws AuthorizeException
     {
         if (!linked(collection, item))
         {
+            super.link(collection, item);
+
             try
             {
-                AuthorizeManager.authorizeAction(context, collection,
-                        Constants.ADD);
-
-                log.info(LogManager.getHeader(context, "add_item",
-                            "collection_id=" + collection.getID() +
-                            ",item_id=" + item.getID()));
-
                 TableRow row =
                     DatabaseManager.create(context, "collection2item");
 
@@ -585,10 +418,6 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
                 row.setColumn("item_id", item.getID());
 
                 DatabaseManager.update(context, row);
-
-                // If we're adding the Item to the Collection, we bequeath the
-                // policies unto it.
-                AuthorizeManager.inheritPolicies(context, collection, item);
             }
             catch (SQLException sqle)
             {
@@ -601,20 +430,16 @@ public class CollectionDAOPostgres extends ContentDAO implements CollectionDAO
      * Remove any existing database layer association between the given Item
      * and Collection.
      */
+    @Override
     public void unlink(Collection collection, Item item)
         throws AuthorizeException
     {
         if (linked(collection, item))
         {
+            super.unlink(collection, item);
+
             try
             {
-                AuthorizeManager.authorizeAction(context, collection,
-                        Constants.REMOVE);
-
-                log.info(LogManager.getHeader(context, "remove_item",
-                        "collection_id=" + collection.getID() + 
-                        ",item_id=" + item.getID()));
-
                 DatabaseManager.updateQuery(context,
                         "DELETE FROM collection2item WHERE collection_id= ? " +
                         "AND item_id= ? ",
