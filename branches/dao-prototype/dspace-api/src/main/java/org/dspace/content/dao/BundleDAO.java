@@ -39,22 +39,163 @@
  */
 package org.dspace.content.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.AuthorizeManager;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.LogManager;
+import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 
 /**
  * @author James Rutherford
  */
-public interface BundleDAO
+public abstract class BundleDAO extends ContentDAO
 {
-    public Bundle create() throws AuthorizeException;
-    public Bundle retrieve(int id);
-    public void update(Bundle bundle) throws AuthorizeException;
-    public void delete(int id) throws AuthorizeException;
+    protected Logger log = Logger.getLogger(BundleDAO.class);
+    protected Context context;
 
-    public List<Bundle> getBundles(Item item);
+    public abstract Bundle create() throws AuthorizeException;
+
+    // FIXME: This should be called something else, but I can't think of
+    // anything suitable. The reason this can't go in create() is because we
+    // need access to the item that was created, but we can't reach into the
+    // subclass to get it (storing it as a protected member variable would be
+    // even more filthy).
+    public Bundle create(int id) throws AuthorizeException
+    {
+        Bundle bundle = new Bundle(context, id);
+
+        log.info(LogManager.getHeader(context, "create_bundle", "bundle_id="
+                + bundle.getID()));
+
+        update(bundle);
+
+        return bundle;
+    }
+
+    public Bundle retrieve(int id)
+    {
+        return (Bundle) context.fromCache(Bundle.class, id);
+    }
+
+    // FIXME: Check authorization? Or do we count on this only ever happening
+    // via an Item?
+    public void update(Bundle bundle) throws AuthorizeException
+    {
+        Bitstream[] bitstreams = bundle.getBitstreams();
+
+        // Delete any Bitstreams that were removed from the in-memory list
+        for (Bitstream dbBitstream : getBitstreams(bundle))
+        {
+            boolean deleted = true;
+
+            for (Bitstream bitstream : bitstreams)
+            {
+                if (bitstream.getID() == dbBitstream.getID())
+                {
+                    // If the bitstream still exists in memory, don't delete
+                    deleted = false;
+                    break;
+                }
+            }
+
+            if (deleted)
+            {
+                removeBitstreamFromBundle(bundle, dbBitstream);
+            }
+        }
+
+        // Now that we've cleared up the db, we make the Bundle <->
+        // Bitstream link concrete.
+        for (Bitstream bitstream : bitstreams)
+        {
+            link(bundle, bitstream);
+        }
+    }
+
+    public void delete(int id) throws AuthorizeException
+    {
+        Bundle bundle = retrieve(id);
+        this.update(bundle); // Sync in-memory object with db before removal
+
+        // Remove from cache
+        context.removeCached(bundle, id);
+
+        log.info(LogManager.getHeader(context, "delete_bundle", "bundle_id="
+                    + id));
+
+        for (Bitstream bitstream : bundle.getBitstreams())
+        {
+            removeBitstreamFromBundle(bundle, bitstream);
+        }
+
+        // remove our authorization policies
+        AuthorizeManager.removeAllPolicies(context, bundle);
+    }
+
+    public abstract List<Bundle> getBundles(Item item);
+
+    // FIXME: This should really be in BitstreamDAO, but that hasn't been
+    // implemented yet.
+    public abstract List<Bitstream> getBitstreams(Bundle bundle);
+
+    // FIXME: I'm not sure if i want this exposed, but we need it accessible in
+    // here and in subclasses.
+    protected void removeBitstreamFromBundle(Bundle bundle,
+            Bitstream bitstream) throws AuthorizeException
+    {
+        try
+        {
+            unlink(bundle, bitstream);
+
+            // In the event that the bitstream to remove is actually
+            // the primary bitstream, be sure to unset the primary
+            // bitstream.
+            if (bitstream.getID() == bundle.getPrimaryBitstreamID())
+            {
+                bundle.unsetPrimaryBitstreamID();
+            }
+
+            // FIXME: This is slightly inconsistent with the other DAOs
+            if (bitstream.getBundles().length == 0)
+            {
+                // The bitstream is an orphan, delete it
+                bitstream.delete();
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public void link(Bundle bundle, Bitstream bitstream) throws AuthorizeException
+    {
+        AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
+        try
+        {
+            AuthorizeManager.inheritPolicies(context, bundle, bitstream);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public void unlink(Bundle bundle, Bitstream bitstream) throws AuthorizeException
+    {
+        AuthorizeManager.authorizeAction(context, bundle,
+                Constants.REMOVE);
+
+        log.info(LogManager.getHeader(context, "remove_bitstream",
+                    "bundle_id=" + bundle.getID() +
+                    ",bitstream_id=" + bitstream.getID()));
+    }
 }

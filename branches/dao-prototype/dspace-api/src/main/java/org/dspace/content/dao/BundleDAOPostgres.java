@@ -43,13 +43,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
 import org.dspace.core.Constants;
-import org.dspace.core.LogManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
@@ -60,11 +57,8 @@ import org.dspace.storage.rdbms.TableRowIterator;
 /**
  * @author James Rutherford
  */
-public class BundleDAOPostgres extends ContentDAO implements BundleDAO
+public class BundleDAOPostgres extends BundleDAO
 {
-    private Logger log = Logger.getLogger(BundleDAOPostgres.class);
-    private Context context;
-
     public BundleDAOPostgres(Context context)
     {
         if (context != null)
@@ -73,20 +67,15 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
         }
     }
 
+    @Override
     public Bundle create() throws AuthorizeException
     {
         try
         {
             TableRow row = DatabaseManager.create(context, "bundle");
             int id = row.getIntColumn("bundle_id");
-            Bundle bundle = new Bundle(context, id);
 
-            update(bundle, row);
-
-            log.info(LogManager.getHeader(context, "create_bundle", "bundle_id="
-                    + id));
-
-            return bundle;
+            return super.create(id);
         }
         catch (SQLException sqle)
         {
@@ -94,14 +83,15 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
         }
     }
 
+    @Override
     public Bundle retrieve(int id)
     {
         // First check the cache
-        Bundle fromCache = (Bundle) context.fromCache(Bundle.class, id);
+        Bundle bundle = super.retrieve(id);
 
-        if (fromCache != null)
+        if (bundle != null)
         {
-            return fromCache;
+            return bundle;
         }
 
         try
@@ -110,23 +100,12 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
 
             if (row == null)
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug(LogManager.getHeader(context, "find_bundle",
-                            "not_found,bundle_id=" + id));
-                }
-
+                log.warn("bundle " + id + " not found");
                 return null;
             }
             else
             {
-                if (log.isDebugEnabled())
-                {
-                    log.debug(LogManager.getHeader(context, "find_bundle",
-                            "bundle_id=" + id));
-                }
-
-                Bundle bundle = new Bundle(context, id);
+                bundle = new Bundle(context, id);
                 populateBundleFromTableRow(bundle, row);
 
                 context.cache(bundle, id);
@@ -140,6 +119,7 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
         }
     }
 
+    @Override
     public void update(Bundle bundle) throws AuthorizeException
     {
         try
@@ -147,6 +127,17 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
             TableRow row =
                 DatabaseManager.find(context, "bundle", bundle.getID());
 
+            if (row != null)
+            {
+                update(bundle, row);
+            }
+            else
+            {
+                throw new RuntimeException("Didn't find bundle " + bundle.getID());
+            }
+
+            /*
+             * FIXME: Why would we want this to happen?
             if (row == null)
             {
                 row = DatabaseManager.create(context, "bundle");
@@ -161,6 +152,7 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
             }
 
             update(bundle, row);
+            */
         }
         catch (SQLException sqle)
         {
@@ -173,36 +165,6 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
     {
         try
         {
-            Bitstream[] bitstreams = bundle.getBitstreams();
-
-            // Delete any Bitstreams that were removed from the in-memory list
-            for (Bitstream dbBitstream : getBitstreams(bundle))
-            {
-                boolean deleted = true;
-
-                for (Bitstream bitstream : bitstreams)
-                {
-                    if (bitstream.getID() == dbBitstream.getID())
-                    {
-                        // If the bitstream still exists in memory, don't delete
-                        deleted = false;
-                        break;
-                    }
-                }
-
-                if (deleted)
-                {
-                    removeBitstreamFromBundle(bundle, dbBitstream);
-                }
-            }
-
-            // Now that we've cleared up the db, we make the Bundle <->
-            // Bitstream link concrete.
-            for (Bitstream bitstream : bitstreams)
-            {
-                link(bundle, bitstream);
-            }
-
             bundleRow.setColumn("name", bundle.getName());
 
             if (bundle.getPrimaryBitstreamID() > 0)
@@ -223,26 +185,13 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
         }
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
+        super.delete(id);
+
         try
         {
-            Bundle bundle = retrieve(id);
-            this.update(bundle); // Sync in-memory object with db before removal
-
-            log.info(LogManager.getHeader(context, "delete_bundle", "bundle_id="
-                    + id));
-
-            context.removeCached(bundle, id);
-
-            for (Bitstream bitstream : bundle.getBitstreams())
-            {
-                removeBitstreamFromBundle(bundle, bitstream);
-            }
-
-            // remove our authorization policies
-            AuthorizeManager.removeAllPolicies(context, bundle);
-
             DatabaseManager.delete(context, "bundle", id);
         }
         catch (SQLException sqle)
@@ -251,6 +200,7 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
         }
     }
 
+    @Override
     public List<Bundle> getBundles(Item item)
     {
         try
@@ -268,6 +218,95 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
             }
 
             return bundles;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public void link(Bundle bundle, Bitstream bitstream)
+        throws AuthorizeException
+    {
+        if (!linked(bundle, bitstream))
+        {
+            super.link(bundle, bitstream);
+
+            try
+            {
+                TableRow row = DatabaseManager.create(context,
+                        "bundle2bitstream");
+                row.setColumn("bundle_id", bundle.getID());
+                row.setColumn("bitstream_id", bitstream.getID());
+                DatabaseManager.update(context, row);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    @Override
+    public void unlink(Bundle bundle, Bitstream bitstream)
+        throws AuthorizeException
+    {
+        if (linked(bundle, bitstream))
+        {
+            super.unlink(bundle, bitstream);
+
+            try
+            {
+                // Delete the mapping row
+                DatabaseManager.updateQuery(context,
+                        "DELETE FROM bundle2bitstream " +
+                        "WHERE bundle_id = ? AND bitstream_id = ? ",
+                        bundle.getID(), bitstream.getID());
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    private boolean linked(Bundle bundle, Bitstream bitstream)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT id FROM bundle2bitstream " +
+                    "WHERE bundle_id = ? " + 
+                    "AND bitstream_id = ? ",
+                    bundle.getID(), bitstream.getID());
+
+            return tri.hasNext();
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public List<Bitstream> getBitstreams(Bundle bundle)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context, 
+                    "SELECT bitstream_id FROM bundle2bitstream " +
+                    " WHERE bundle_id = " + bundle.getID());
+
+            List<Bitstream> bitstreams = new ArrayList<Bitstream>();
+
+            // FIXME: This is slightly inconsistent with the other DAOs
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("bitstream_id");
+                bitstreams.add(Bitstream.find(context, id));
+            }
+
+            return bitstreams;
         }
         catch (SQLException sqle)
         {
@@ -312,129 +351,6 @@ public class BundleDAOPostgres extends ContentDAO implements BundleDAO
             bundle.setID(bundleRow.getIntColumn("bundle_id"));
             bundle.setName(bundleRow.getStringColumn("name"));
             bundle.setBitstreams(bitstreams);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private List<Bitstream> getBitstreams(Bundle bundle)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.query(context, 
-                    "SELECT bitstream_id FROM bundle2bitstream " +
-                    " WHERE bundle_id = " + bundle.getID());
-
-            List<Bitstream> bitstreams = new ArrayList<Bitstream>();
-
-            // FIXME: This is slightly inconsistent with the other DAOs
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("bitstream_id");
-                bitstreams.add(Bitstream.find(context, id));
-            }
-
-            return bitstreams;
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private void link(Bundle bundle, Bitstream bitstream)
-        throws AuthorizeException
-    {
-        if (!linked(bundle, bitstream))
-        {
-            try
-            {
-                AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
-
-                TableRow row = DatabaseManager.create(context,
-                        "bundle2bitstream");
-                row.setColumn("bundle_id", bundle.getID());
-                row.setColumn("bitstream_id", bitstream.getID());
-                DatabaseManager.update(context, row);
-
-                AuthorizeManager.inheritPolicies(context, bundle, bitstream);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
-        }
-    }
-
-    private void unlink(Bundle bundle, Bitstream bitstream)
-        throws AuthorizeException
-    {
-        if (linked(bundle, bitstream))
-        {
-            try
-            {
-                // Check authorisation
-                AuthorizeManager.authorizeAction(context, bundle,
-                        Constants.REMOVE);
-
-                log.info(LogManager.getHeader(context, "remove_bitstream",
-                            "bundle_id=" + bundle.getID() +
-                            ",bitstream_id=" + bitstream.getID()));
-
-                // Delete the mapping row
-                DatabaseManager.updateQuery(context,
-                        "DELETE FROM bundle2bitstream " +
-                        "WHERE bundle_id = ? AND bitstream_id = ? ",
-                        bundle.getID(), bitstream.getID());
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
-        }
-    }
-
-    private boolean linked(Bundle bundle, Bitstream bitstream)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.query(context,
-                    "SELECT id FROM bundle2bitstream " +
-                    "WHERE bundle_id = ? " + 
-                    "AND bitstream_id = ? ",
-                    bundle.getID(), bitstream.getID());
-
-            return tri.hasNext();
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private void removeBitstreamFromBundle(Bundle bundle,
-            Bitstream bitstream) throws AuthorizeException
-    {
-        try
-        {
-            unlink(bundle, bitstream);
-
-            // In the event that the bitstream to remove is actually
-            // the primary bitstream, be sure to unset the primary
-            // bitstream.
-            if (bitstream.getID() == bundle.getPrimaryBitstreamID())
-            {
-                bundle.unsetPrimaryBitstreamID();
-            }
-
-            // FIXME: This is slightly inconsistent with the other DAOs
-            if (bitstream.getBundles().length == 0)
-            {
-                // The bitstream is an orphan, delete it
-                bitstream.delete();
-            }
         }
         catch (SQLException sqle)
         {

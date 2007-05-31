@@ -48,8 +48,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.Browse;
@@ -72,8 +70,6 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.history.HistoryManager;
-import org.dspace.search.DSIndexer;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -82,12 +78,8 @@ import org.dspace.storage.rdbms.TableRowIterator;
  * @author James Rutherford
  * @author Richard Jones
  */
-public class ItemDAOPostgres extends ContentDAO implements ItemDAO
+public class ItemDAOPostgres extends ItemDAO
 {
-    private Logger log = Logger.getLogger(ItemDAOPostgres.class);
-
-    private Context context;
-    private BundleDAO bundleDAO;
     private PersistentIdentifierDAO identifierDAO;
 
     /** query to obtain all the items from the database */
@@ -145,25 +137,15 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         }
     }
 
+    @Override
     public Item create() throws AuthorizeException
     {
         try
         {
-            Item proxy = null;
             TableRow row = DatabaseManager.create(context, "item");
             int id = row.getIntColumn("item_id");
-            proxy = new ItemProxy(context, id);
 
-            proxy.setLastModified(new Date());
-
-            update(proxy);
-
-            HistoryManager.saveHistory(context, proxy, HistoryManager.CREATE, context
-                    .getCurrentUser(), context.getExtraLogInfo());
-
-            log.info(LogManager.getHeader(context, "create_item", "item_id=" + id));
-
-            return proxy;
+            return super.create(id);
         }
         catch (SQLException sqle)
         {
@@ -171,14 +153,14 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         }
     }
 
+    @Override
     public Item retrieve(int id)
     {
-        // First check the cache
-        Item fromCache = (Item) context.fromCache(Item.class, id);
+        Item item = super.retrieve(id);
 
-        if (fromCache != null)
+        if (item != null)
         {
-            return fromCache;
+            return item;
         }
 
         try
@@ -191,9 +173,12 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
                 return null;
             }
 
-            Item item = new ItemProxy(context, id);
+            item = new ItemProxy(context, id);
             populateItemFromTableRow(item, row);
 
+            // FIXME: I'd like to bump the rest of this up into the superclass
+            // so we don't have to do it for every implementation, but I can't
+            // figure out a clean way of doing this yet.
             List<PersistentIdentifier> identifiers =
                 identifierDAO.getPersistentIdentifiers(item);
             item.setPersistentIdentifiers(identifiers);
@@ -208,8 +193,11 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         }
     }
 
+    @Override
     public void update(Item item) throws AuthorizeException
     {
+        super.update(item);
+
         try
         {
             TableRow row = DatabaseManager.find(context, "item", item.getID());
@@ -236,90 +224,10 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
     {
         try
         {
-            // Check authorisation. We only do write authorization if user is
-            // not an editor
-            if (!item.canEdit())
-            {
-                AuthorizeManager.authorizeAction(context, item, Constants.WRITE);
-            }
-
-            HistoryManager.saveHistory(context, item, HistoryManager.MODIFY,
-                    context.getCurrentUser(), context.getExtraLogInfo());
-
-            log.info(LogManager.getHeader(context, "update_item", "item_id="
-                    + item.getID()));
-
             // Fill out the TableRow and save it
             populateTableRowFromItem(item, itemRow);
             itemRow.setColumn("last_modified", new Date());
             DatabaseManager.update(context, itemRow);
-
-            Bundle[] bundles = item.getBundles();
-
-            // Delete any Bundles that were removed from the in-memory list
-            for (Bundle dBbundle : bundleDAO.getBundles(item))
-            {
-                boolean deleted = true;
-                for (Bundle bundle : bundles)
-                {
-                    if (bundle.getID() == dBbundle.getID())
-                    {
-                        // If the bundle still exists in memory, don't delete
-                        deleted = false;
-                        break;
-                    }
-                }
-
-                if (deleted)
-                {
-                    removeBundleFromItem(item, dBbundle);
-                }
-            }
-
-            // Now that we've cleared up the db, we make the Item <-> Bundle
-            // link concrete.
-            for (Bundle bundle : bundles)
-            {
-                link(item, bundle);
-                bundleDAO.update(bundle);
-            }
-
-            // Set sequence IDs for bitstreams in item
-            int sequence = 0;
-
-            // find the highest current sequence number
-            for (int i = 0; i < bundles.length; i++)
-            {
-                Bitstream[] bitstreams = bundles[i].getBitstreams();
-
-                for (int k = 0; k < bitstreams.length; k++)
-                {
-                    if (bitstreams[k].getSequenceID() > sequence)
-                    {
-                        sequence = bitstreams[k].getSequenceID();
-                    }
-                }
-            }
-
-            // start sequencing bitstreams without sequence IDs
-            sequence++;
-
-            for (int i = 0; i < bundles.length; i++)
-            {
-                Bitstream[] bitstreams = bundles[i].getBitstreams();
-
-                for (int k = 0; k < bitstreams.length; k++)
-                {
-                    if (bitstreams[k].getSequenceID() < 0)
-                    {
-                        bitstreams[k].setSequenceID(sequence);
-                        sequence++;
-                        bitstreams[k].update();
-                    }
-                }
-
-                bundleDAO.update(bundles[i]);
-            }
 
             // Map counting number of values for each element/qualifier.
             // Keys are Strings: "element" or "element.qualifier"
@@ -405,68 +313,22 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
             // Update browse indices
             Browse.itemChanged(context, item);
         }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
+        super.delete(id);
+
         try
         {
-            Item item = retrieve(id);
-            this.update(item); // Sync in-memory object with db before removal
-
-            HistoryManager.saveHistory(context, this, HistoryManager.REMOVE,
-                    context.getCurrentUser(), context.getExtraLogInfo());
-
-            log.info(LogManager.getHeader(context, "delete_item", "item_id=" + id));
-
-            // Remove from cache
-            context.removeCached(item, id);
-
-            // Remove from indices, if appropriate
-            if (item.isArchived())
-            {
-                // Remove from Browse indices
-                Browse.itemRemoved(context, id);
-                DSIndexer.unIndexContent(context, item);
-            }
-
-            // Delete the metadata
             removeMetadataFromDatabase(id);
 
-            // Remove bundles
-            Bundle[] bundles = item.getBundles();
-            for (int i = 0; i < bundles.length; i++)
-            {
-                item.removeBundle(bundles[i]);
-                removeBundleFromItem(item, bundles[i]);
-            }
-
-            // remove all of our authorization policies
-            AuthorizeManager.removeAllPolicies(context, item);
-
-            // Handles need to resolve to something; even if it's a tombstone
-            // page saying "whoops".
-            /*
-            DatabaseManager.updateQuery(context,
-                    "DELETE FROM handle WHERE resource_type_id = ? " +
-                    "AND resource_id = ? ",
-                    Constants.ITEM, id);
-            */
-
-            // Finally remove item row
             DatabaseManager.delete(context, "item", id);
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
         }
         catch (SQLException sqle)
         {
@@ -474,6 +336,7 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         }
     }
 
+    @Override
     public List<Item> getItems()
     {
         try
@@ -497,6 +360,7 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         }
     }
 
+    @Override
     public List<Item> getItemsByCollection(Collection collection)
     {
         try
@@ -525,6 +389,7 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         }
     }
 
+    @Override
     public List<Item> getItemsBySubmitter(EPerson eperson)
     {
         try
@@ -551,6 +416,7 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         }
     }
 
+    @Override
     public List<Item> getParentItems(Bundle bundle)
     {
         try
@@ -578,26 +444,67 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         }
     }
 
-    public void decache(Item item)
+    @Override
+    public void link(Item item, Bundle bundle) throws AuthorizeException
     {
-        // Remove item and it's submitter from cache
-        context.removeCached(item, item.getID());
-        EPerson submitter = item.getSubmitter();
-
-        // FIXME: I don't think we necessarily want to do this.
-        if (submitter != null)
+        if (!linked(item, bundle))
         {
-            context.removeCached(submitter, submitter.getID());
-        }
+            super.link(item, bundle);
 
-        // Remove bundles & bitstreams from cache if they have been loaded
-        for (Bundle bundle : item.getBundles())
-        {
-            context.removeCached(bundle, bundle.getID());
-            for (Bitstream bitstream : bundle.getBitstreams())
+            try
             {
-                context.removeCached(bitstream, bitstream.getID());
+                TableRow row = DatabaseManager.create(context, "item2bundle");
+                row.setColumn("item_id", item.getID());
+                row.setColumn("bundle_id", bundle.getID());
+                DatabaseManager.update(context, row);
+
+                // If we're adding the Bundle to the Item, we bequeath our
+                // policies unto it.
+                AuthorizeManager.inheritPolicies(context, item, bundle);
             }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    @Override
+    public void unlink(Item item, Bundle bundle) throws AuthorizeException
+    {
+        if (linked(item, bundle))
+        {
+            super.unlink(item, bundle);
+
+            try
+            {
+                // Remove bundle mappings from DB
+                DatabaseManager.updateQuery(context,
+                        "DELETE FROM item2bundle WHERE item_id= ? " +
+                        "AND bundle_id= ? ",
+                        item.getID(), bundle.getID());
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    private boolean linked(Item item, Bundle bundle)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT id FROM item2bundle " +
+                    " WHERE item_id=" + item.getID() +
+                    " AND bundle_id=" + bundle.getID());
+
+            return tri.hasNext();
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
         }
     }
 
@@ -648,6 +555,7 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         item.setLastModified(lastModified);
     }
 
+    @Override
     public void loadMetadata(Item item)
     {
         try
@@ -713,6 +621,7 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
      * @param qualifier
      * @param lang
      */
+    @Override
     public List<DCValue> getMetadata(Item item, String schema, String element,
             String qualifier, String lang)
     {
@@ -758,102 +667,10 @@ public class ItemDAOPostgres extends ContentDAO implements ItemDAO
         return metadata;
     }
 
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
     private void removeMetadataFromDatabase(int itemId) throws SQLException
     {
         DatabaseManager.updateQuery(context,
                 "DELETE FROM MetadataValue WHERE item_id= ? ",
                 itemId);
-    }
-
-    private void link(Item item, Bundle bundle) throws AuthorizeException
-    {
-        if (!linked(item, bundle))
-        {
-            try
-            {
-                TableRow row = DatabaseManager.create(context, "item2bundle");
-                row.setColumn("item_id", item.getID());
-                row.setColumn("bundle_id", bundle.getID());
-                DatabaseManager.update(context, row);
-
-                // If we're adding the Bundle to the Item, we bequeath our
-                // policies unto it.
-                AuthorizeManager.inheritPolicies(context, item, bundle);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
-        }
-    }
-
-    private void unlink(Item item, Bundle bundle) throws AuthorizeException
-    {
-        if (linked(item, bundle))
-        {
-            try
-            {
-                // First, check to make sure we're allowed to do this
-                AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
-
-                // Remove bundle mappings from DB
-                DatabaseManager.updateQuery(context,
-                        "DELETE FROM item2bundle WHERE item_id= ? " +
-                        "AND bundle_id= ? ",
-                        item.getID(), bundle.getID());
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
-        }
-    }
-
-    private boolean linked(Item item, Bundle bundle)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.query(context,
-                    "SELECT id FROM item2bundle " +
-                    " WHERE item_id=" + item.getID() +
-                    " AND bundle_id=" + bundle.getID());
-
-            return tri.hasNext();
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    // FIXME: This is so similar to the usage of ArchiveManager.move() that it
-    // would be pretty silly not to use it. The only issue with that is that we
-    // don't generally want to expose via the API the ability to move Bundles
-    // between Items (or do we? I doubt it).
-    private void removeBundleFromItem(Item item, Bundle bundle)
-        throws AuthorizeException, IOException, SQLException
-    {
-        unlink(item, bundle);
-
-        // If the bundle is now orphaned, delete it.
-        if (getParentItems(bundle).size() == 0)
-        {
-            // make the right to remove the bundle explicit because the
-            // implicit relation has been removed. This only has to concern the
-            // currentUser because he started the removal process and he will
-            // end it too. also add right to remove from the bundle to remove
-            // it's bitstreams.
-            AuthorizeManager.addPolicy(context, bundle, Constants.DELETE,
-                    context.getCurrentUser());
-            AuthorizeManager.addPolicy(context, bundle, Constants.REMOVE,
-                    context.getCurrentUser());
-
-            // The bundle is an orphan, delete it
-            bundleDAO.delete(bundle.getID());
-        }
     }
 }
