@@ -672,6 +672,7 @@ public class ItemTag extends TagSupport
                             // (persistent ID if item has URI)
                             String bsLink = "<a target=\"_blank\" href=\""
                                     + request.getContextPath();
+                            // FIXME: Ideally, we'd do something like this:
 //                                    + bitstreams[k].getPersistentIdentifier().getLocalURI().toString()
 //                                    + "\">";
 

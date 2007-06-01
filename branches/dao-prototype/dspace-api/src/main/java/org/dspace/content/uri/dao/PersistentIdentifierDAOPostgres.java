@@ -39,20 +39,15 @@
  */
 package org.dspace.content.uri.dao;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.log4j.Logger;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Constants;
-import org.dspace.core.PluginManager;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -62,15 +57,8 @@ import org.dspace.content.uri.PersistentIdentifier;
 /**
  * @author James Rutherford
  */
-public class PersistentIdentifierDAOPostgres implements PersistentIdentifierDAO
+public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
 {
-    private Logger log = Logger.getLogger(PersistentIdentifierDAOPostgres.class);
-
-    private PersistentIdentifier[] pids = (PersistentIdentifier[])
-            PluginManager.getPluginSequence(PersistentIdentifier.class);
-
-    private Context context;
-
     public PersistentIdentifierDAOPostgres(Context context)
     {
         this.context = context;
@@ -292,95 +280,5 @@ public class PersistentIdentifierDAOPostgres implements PersistentIdentifierDAO
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
-    /**
-     * Returns an instantiated PersistentIdentifier of the desired type that
-     * references the desired DSpaceObject.
-     */
-    private PersistentIdentifier getInstance(DSpaceObject dso, String value,
-            PersistentIdentifier.Type type)
-    {
-        try
-        {
-            PersistentIdentifier identifier = null;
-
-            if (type.equals(PersistentIdentifier.Type.NULL))
-            {
-                identifier = new PersistentIdentifier(context, dso, value);
-            }
-            else
-            {
-                for (PersistentIdentifier pid : pids)
-                {
-                    if (type.equals(pid.getType()))
-                    {
-                        Class pidClass = pid.getClass();
-                        Constructor c = pidClass.getDeclaredConstructor(
-                                Context.class, DSpaceObject.class, String.class);
-                        identifier = (PersistentIdentifier)
-                            c.newInstance(context, dso, value);
-                        break;
-                    }
-                }
-            }
-
-            return identifier;
-        }
-        catch (NoSuchMethodException nsme)
-        {
-            throw new RuntimeException(nsme);
-        }
-        catch (InstantiationException ie)
-        {
-            throw new RuntimeException(ie);
-        }
-        catch (IllegalAccessException iae)
-        {
-            throw new RuntimeException(iae);
-        }
-        catch (InvocationTargetException ite)
-        {
-            throw new RuntimeException(ite);
-        }
-    }
-
-    private Object[] parseCanonicalForm(String canonicalForm)
-    {
-        canonicalForm = canonicalForm.trim();
-
-        int pos = canonicalForm.indexOf(":");
-        if (pos == -1)
-        {
-            throw new RuntimeException(canonicalForm + " isn't canonical form!");
-        }
-
-        PersistentIdentifier.Type type = null;
-        String namespace = canonicalForm.substring(0, pos);
-        String value = canonicalForm.substring(pos + 1);
-
-        for (PersistentIdentifier.Type t : PersistentIdentifier.Type.values())
-        {
-            if (t.getNamespace().equals(namespace))
-            {
-                type = t;
-                break;
-            }
-        }
-
-        if (type == null)
-        {
-            throw new RuntimeException(namespace + " not supported");
-        }
-
-        // FIXME: This is filthy and horrid, but since java doesn't have
-        // tuples, what's a guy to do?
-        Object[] array = {type, value}; // Nooooooooooo!
-
-        return array;
     }
 }

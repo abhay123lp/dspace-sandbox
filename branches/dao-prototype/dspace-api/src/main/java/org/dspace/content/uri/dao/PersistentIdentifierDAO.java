@@ -39,27 +39,149 @@
  */
 package org.dspace.content.uri.dao;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.log4j.Logger;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
+import org.dspace.core.PluginManager;
 import org.dspace.content.uri.PersistentIdentifier;
 
 /**
  * @author James Rutherford
  */
-public interface PersistentIdentifierDAO
+public abstract class PersistentIdentifierDAO
 {
-    public PersistentIdentifier create(DSpaceObject dso);
-    public PersistentIdentifier create(DSpaceObject dso, String canonicalForm);
-    public PersistentIdentifier create(DSpaceObject dso, String value,
+    protected Logger log = Logger.getLogger(PersistentIdentifierDAOPostgres.class);
+
+    protected Context context;
+
+    protected PersistentIdentifier[] pids = (PersistentIdentifier[])
+            PluginManager.getPluginSequence(PersistentIdentifier.class);
+
+    public abstract PersistentIdentifier create(DSpaceObject dso);
+    public abstract PersistentIdentifier create(DSpaceObject dso, String canonicalForm);
+    public abstract PersistentIdentifier create(DSpaceObject dso, String value,
             PersistentIdentifier.Type type);
 
-    public PersistentIdentifier retrieve(String canonicalForm);
+    public abstract PersistentIdentifier retrieve(String canonicalForm);
 
-    public List<PersistentIdentifier> getPersistentIdentifiers(DSpaceObject dso);
-    public List<PersistentIdentifier>
+    public abstract List<PersistentIdentifier> getPersistentIdentifiers(DSpaceObject dso);
+    public abstract List<PersistentIdentifier>
         getPersistentIdentifiers(PersistentIdentifier.Type type);
-    public List<PersistentIdentifier>
+    public abstract List<PersistentIdentifier>
         getPersistentIdentifiers(PersistentIdentifier.Type type, String prefix);
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    /**
+     * Returns an instantiated PersistentIdentifier of the desired type that
+     * references the desired DSpaceObject.
+     */
+    protected PersistentIdentifier getInstance(DSpaceObject dso, String value,
+            PersistentIdentifier.Type type)
+    {
+        try
+        {
+            PersistentIdentifier identifier = null;
+
+            if (type.equals(PersistentIdentifier.Type.NULL))
+            {
+                identifier = new PersistentIdentifier(context, dso, value);
+            }
+            else
+            {
+                for (PersistentIdentifier pid : pids)
+                {
+                    if (type.equals(pid.getType()))
+                    {
+                        Class pidClass = pid.getClass();
+                        Constructor c = pidClass.getDeclaredConstructor(
+                                Context.class, DSpaceObject.class, String.class);
+                        identifier = (PersistentIdentifier)
+                            c.newInstance(context, dso, value);
+                        break;
+                    }
+                }
+            }
+
+            return identifier;
+        }
+        catch (NoSuchMethodException nsme)
+        {
+            throw new RuntimeException(nsme);
+        }
+        catch (InstantiationException ie)
+        {
+            throw new RuntimeException(ie);
+        }
+        catch (IllegalAccessException iae)
+        {
+            throw new RuntimeException(iae);
+        }
+        catch (InvocationTargetException ite)
+        {
+            throw new RuntimeException(ite);
+        }
+    }
+
+    protected Object[] parseCanonicalForm(String canonicalForm)
+    {
+        canonicalForm = canonicalForm.trim();
+
+        int pos = canonicalForm.indexOf(":");
+        if (pos == -1)
+        {
+            throw new RuntimeException(canonicalForm + " isn't canonical form!");
+        }
+
+        PersistentIdentifier.Type type = null;
+        String namespace = canonicalForm.substring(0, pos);
+        String value = canonicalForm.substring(pos + 1);
+
+        for (PersistentIdentifier.Type t : PersistentIdentifier.Type.values())
+        {
+            if (t.getNamespace().equals(namespace))
+            {
+                type = t;
+                break;
+            }
+        }
+
+        if (type == null)
+        {
+            throw new RuntimeException(namespace + " not supported");
+        }
+
+        // FIXME: This is filthy and horrid, but since java doesn't have
+        // tuples, what's a guy to do?
+        Object[] array = {type, value}; // Nooooooooooo!
+
+        return array;
+    }
+
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    public boolean equals(Object o)
+    {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 }
