@@ -507,9 +507,7 @@ public class ItemTag extends TagSupport
             for (int i = 0; i < collections.length; i++)
             {
                 out.print("<a href=\"");
-                out.print(request.getContextPath());
-                out.print("/uri/");
-                out.print(collections[i].getPersistentIdentifier().getCanonicalForm());
+                out.print(collections[i].getPersistentIdentifier().getLocalURI().toString());
                 out.print("\">");
                 out.print(collections[i].getMetadata("name"));
                 out.print("</a><br/>");
@@ -546,6 +544,8 @@ public class ItemTag extends TagSupport
         else
         {
             boolean html = false;
+            // FIXME: This is inconsistent with other URLs, and will leave
+            // commas in the URL :(
             String uri = item.getPersistentIdentifier().getCanonicalForm();
             Bitstream primaryBitstream = null;
 
@@ -622,7 +622,7 @@ public class ItemTag extends TagSupport
                 out.print("<a target=\"_blank\" href=\"");
                 out.print(request.getContextPath());
                 out.print("/html/");
-                out.print(uri + "/");
+                out.print(uri + "/"); // FIXME: BROKEN
                 out
                     .print(UIUtil.encodeBitstreamName(primaryBitstream
                             .getName(), Constants.DEFAULT_ENCODING));
@@ -647,7 +647,7 @@ public class ItemTag extends TagSupport
                     .print("</td><td class=\"standard\"><a target=\"_blank\" href=\"");
                 out.print(request.getContextPath());
                 out.print("/html/");
-                out.print(uri + "/");
+                out.print(uri + "/"); // FIXME: BROKEN
                 out
                     .print(UIUtil.encodeBitstreamName(primaryBitstream
                             .getName(), Constants.DEFAULT_ENCODING));
@@ -672,6 +672,8 @@ public class ItemTag extends TagSupport
                             // (persistent ID if item has URI)
                             String bsLink = "<a target=\"_blank\" href=\""
                                     + request.getContextPath();
+//                                    + bitstreams[k].getPersistentIdentifier().getLocalURI().toString()
+//                                    + "\">";
 
                             if ((uri != null)
                                     && (bitstreams[k].getSequenceID() > 0))
@@ -691,8 +693,7 @@ public class ItemTag extends TagSupport
                                         .getName(),
                                         Constants.DEFAULT_ENCODING) + "\">";
 
-                            out
-                                .print("<tr><td headers=\"t1\" class=\"standard\">");
+                            out.print("<tr><td headers=\"t1\" class=\"standard\">");
                             out.print(bsLink);
                             out.print(bitstreams[k].getName());
                             out.print("</a>");

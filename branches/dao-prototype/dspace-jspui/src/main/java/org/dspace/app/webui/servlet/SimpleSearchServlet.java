@@ -149,8 +149,8 @@ public class SimpleSearchServlet extends DSpaceServlet
 
             if (!location.equals("/"))
             {
-                // Location is a URI
-                url = "/uri/" + location;
+                // Location points to a resource
+                url = "/resource/" + location;
             }
 
             // Encode the query

@@ -193,7 +193,7 @@
 	    <table>
 	    <tr>
 	    <td>
-	      <a href="<%= request.getContextPath() %>/uri/<%= collections[i].getPersistentIdentifier().getCanonicalForm() %>">
+	      <a href="<%= collections[i].getPersistentIdentifier().getLocalURI().toString() %>">
 	      <%= collections[i].getMetadata("name") %></a>
 <%
             if(ConfigurationManager.getBooleanProperty("webui.strengths.show"))
@@ -243,7 +243,7 @@
 			    <table>
 			    <tr>
 			    <td>
-	                <a href="<%= request.getContextPath() %>/uri/<%= subcommunities[j].getPersistentIdentifier().getCanonicalForm() %>">
+	                <a href="<%= subcommunities[j].getPersistentIdentifier().getLocalURI().toString() %>">
 	                <%= subcommunities[j].getMetadata("name") %></a>
 <%
                 if (ConfigurationManager.getBooleanProperty("webui.strengths.show"))
@@ -336,7 +336,7 @@
     		: Utils.addEntities(lastSubmittedTitles[i]));
     		
 %>
-    <p class="recentItem"><a href="<%= request.getContextPath() %><%= lastSubmittedURLs[i] %>"><%= displayTitle %></a></p>
+    <p class="recentItem"><a href="<%= lastSubmittedURLs[i] %>"><%= displayTitle %></a></p>
 <%
   }
 %>

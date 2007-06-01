@@ -213,7 +213,8 @@ public class LayoutTag extends TagSupport
                     for (int i = 0; i < comms.length; i++)
                     {
                         parents.add(comms[i].getMetadata("name"));
-                        parentLinks.add("/uri/" + comms[i].getPersistentIdentifier().getCanonicalForm());
+                        parentLinks.add(
+                                comms[i].getPersistentIdentifier().getLocalURI().toString());
                     }
                 }
             }
@@ -241,13 +242,15 @@ public class LayoutTag extends TagSupport
                     for (int i = 0; i < comms.length; i++)
                     {
                         parents.add(comms[i].getMetadata("name"));
-                        parentLinks.add("/uri/" + comms[i].getPersistentIdentifier().getCanonicalForm());
+                        parentLinks.add(
+                                comms[i].getPersistentIdentifier().getLocalURI().toString());
                     }
 
                     if (col != null)
                     {
                         parents.add(col.getMetadata("name"));
-                        parentLinks.add("/uri/" + col.getPersistentIdentifier().getCanonicalForm());
+                        parentLinks.add(
+                                col.getPersistentIdentifier().getLocalURI().toString());
                     }
                 }
             }

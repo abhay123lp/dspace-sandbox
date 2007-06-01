@@ -48,6 +48,9 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -86,6 +89,9 @@ public class Bitstream extends DSpaceObject
     /** The bitstream format corresponding to this bitstream */
     private BitstreamFormat bitstreamFormat;
 
+    /** Experimental persistent identifier stuff */
+    private List<PersistentIdentifier> identifiers;
+
     /**
      * Private constructor for creating a Bitstream object based on the contents
      * of a DB table row.
@@ -120,6 +126,11 @@ public class Bitstream extends DSpaceObject
 
         // Cache ourselves
         context.cache(this, row.getIntColumn("bitstream_id"));
+
+        // Experimental persistent identifier stuff
+        PersistentIdentifierDAO identifierDAO =
+                PersistentIdentifierDAOFactory.getInstance(context);
+        this.identifiers = identifierDAO.getPersistentIdentifiers(this);
     }
 
     /**
@@ -626,5 +637,47 @@ public class Bitstream extends DSpaceObject
     public int hashCode()
     {
         return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Experimental persistent identifier stuff
+    ////////////////////////////////////////////////////////////////////
+
+    /**
+     * For those cases where you only want one, and you don't care what sort.
+     */
+    public PersistentIdentifier getPersistentIdentifier()
+    {
+        if (identifiers.size() > 0)
+        {
+            for (PersistentIdentifier pid : identifiers)
+            {
+                // For now, this will be a "null" identifier.
+                return pid;
+            }
+            return null;
+        }
+        else
+        {
+            // Because Items don't necessarily have persistent identifiers
+            // until they hit the archive.
+            log.warn("I don't have any persistent identifiers.\n" + this);
+            return null;
+        }
+    }
+
+    public List<PersistentIdentifier> getPersistentIdentifiers()
+    {
+        return identifiers;
+    }
+
+    public void addPersistentIdentifier(PersistentIdentifier identifier)
+    {
+        this.identifiers.add(identifier);
+    }
+
+    public void setPersistentIdentifiers(List<PersistentIdentifier> identifiers)
+    {
+        this.identifiers = identifiers;
     }
 }

@@ -69,12 +69,12 @@
     if(collection != null)
     {
         linkText = collection.getMetadata("name");
-        linkBack = "/uri/" + collection.getPersistentIdentifier().getCanonicalForm();
+        linkBack = collection.getLocalURI().toString();
     }
     else if(community != null)
     {
         linkText = community.getMetadata("name");
-        linkBack = "/uri/" + community.getPersistentIdentifier().getCanonicalForm();
+        linkBack = community.getLocalURI().toString();
     }
 %>
 

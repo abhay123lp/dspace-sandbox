@@ -106,12 +106,12 @@ public class PersistentIdentifier
 
     public int getResourceID()
     {
-        return this.resourceID;
+        return resourceID;
     }
 
     public int getResourceTypeID()
     {
-        return this.resourceTypeID;
+        return resourceTypeID;
     }
 
     public URI getURI()
@@ -119,7 +119,7 @@ public class PersistentIdentifier
         try
         {
             // eg: http + :// + hdl.handle.net + / + 1234/56
-            return new URI(PROTOCOL + "://" + BASE_URI + "/" + this.value);
+            return new URI(PROTOCOL + "://" + BASE_URI + "/" + value);
         }
         catch (URISyntaxException urise)
         {
@@ -132,7 +132,7 @@ public class PersistentIdentifier
         try
         {
             String base = ConfigurationManager.getProperty("dspace.url");
-            return new URI(base + "/uri/" + getCanonicalForm());
+            return new URI(base + "/resource/" + NS + "/" + value);
         }
         catch (URISyntaxException urise)
         {
@@ -143,18 +143,18 @@ public class PersistentIdentifier
     public String getCanonicalForm()
     {
         // eg: hdl:1234/56
-        return NS + ":" + this.value;
+        return NS + ":" + value;
     }
 
     public DSpaceObject getObject()
     {
-        return ArchiveManager.getObject(this.context, this);
+        return ArchiveManager.getObject(context, this);
     }
 
     @Deprecated
     public String getValue()
     {
-        return this.value;
+        return value;
     }
 
     /**

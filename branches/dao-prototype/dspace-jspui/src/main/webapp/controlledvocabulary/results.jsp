@@ -148,9 +148,9 @@ else
     if (community == null && collection == null) {
 	searchScope = "";
     } else if (collection == null) {
-	searchScope = "/uri/" + community.getPersistentIdentifier().getCanonicalForm();
+	searchScope = community.getLocalURI().toString();
     } else {
-	searchScope = "/uri/" + collection.getPersistentIdentifier().getCanonicalForm();
+	searchScope = collection.getLocalURI().toString();
     } 
 
     // create the URLs accessing the previous and next search result pages

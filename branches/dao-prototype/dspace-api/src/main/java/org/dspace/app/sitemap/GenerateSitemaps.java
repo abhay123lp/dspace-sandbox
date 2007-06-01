@@ -183,8 +183,6 @@ public class GenerateSitemaps
                 + "/sitemap";
         String htmlMapStem = ConfigurationManager.getProperty("dspace.url")
                 + "/htmlmap";
-        String identifierURLStem = ConfigurationManager.getProperty("dspace.url")
-                + "/uri/";
 
         File outputDir = new File(ConfigurationManager
                 .getProperty("dspace.dir"), "sitemaps");
@@ -210,7 +208,7 @@ public class GenerateSitemaps
 
         for (int i = 0; i < comms.length; i++)
         {
-            String url = identifierURLStem + comms[i].getPersistentIdentifier().getCanonicalForm();
+            String url = comms[i].getPersistentIdentifier().getLocalURI().toString();
 
             if (makeHTMLMap)
                 html.addURL(url, null);
@@ -222,7 +220,7 @@ public class GenerateSitemaps
 
         for (int i = 0; i < colls.length; i++)
         {
-            String url = identifierURLStem + colls[i].getPersistentIdentifier().getCanonicalForm();
+            String url = colls[i].getPersistentIdentifier().getLocalURI().toString();
 
             if (makeHTMLMap)
                 html.addURL(url, null);
@@ -236,7 +234,7 @@ public class GenerateSitemaps
         while (allItems.hasNext())
         {
             Item i = allItems.next();
-            String url = identifierURLStem + i.getPersistentIdentifier().getCanonicalForm();
+            String url = i.getPersistentIdentifier().getLocalURI().toString();
             Date lastMod = i.getLastModified();
 
             if (makeHTMLMap)

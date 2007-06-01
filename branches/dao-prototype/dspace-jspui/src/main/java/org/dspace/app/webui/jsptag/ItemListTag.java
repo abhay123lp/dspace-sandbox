@@ -248,8 +248,8 @@ public class ItemListTag extends TagSupport
                         // format the title field correctly                        
                         else if (field.equals(titleField))
                         {
-                            metadata = "<a href=\"" + hrq.getContextPath() + "/uri/" 
-                            + items[i].getPersistentIdentifier().getCanonicalForm() + "\">" 
+                            metadata = "<a href=\"" 
+                            + items[i].getPersistentIdentifier().getLocalURI().toString() + "\">" 
                             + Utils.addEntities(metadataArray[0].value)
                             + "</a>";
                         }
@@ -590,8 +590,7 @@ public class ItemListTag extends TagSupport
                     else
                     {
                         thumbLink = "<br/><a href=\"" +
-                            hrq.getContextPath() + "/uri/" +
-                            item.getPersistentIdentifier().getCanonicalForm();
+                            item.getPersistentIdentifier().getLocalURI().toString();
                     }
 
                     thumbLink = thumbLink + "\"><img src=\"" +

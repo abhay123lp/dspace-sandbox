@@ -214,13 +214,10 @@ public class EditItemServlet extends DSpaceServlet
         Item item = Item.find(context, UIUtil.getIntParameter(request,
                 "item_id"));
  
-        String uri = item.getPersistentIdentifier().getCanonicalForm();
-
         // now check to see if person can edit item
         checkEditAuthorization(context, item);
 
         request.setAttribute("item", item);
-        request.setAttribute("uri", uri);
 
         switch (action)
         {
@@ -336,9 +333,6 @@ public class EditItemServlet extends DSpaceServlet
                    request.getParameter("cc_license_url") );
         	context.commit();
         }
-  
-        // Get the URI, if any
-        String uri = item.getPersistentIdentifier().getCanonicalForm();
 
         // Collections
         Collection[] collections = item.getCollections();
@@ -366,7 +360,6 @@ public class EditItemServlet extends DSpaceServlet
         }
 
         request.setAttribute("item", item);
-        request.setAttribute("uri", uri);
         request.setAttribute("collections", collections);
         request.setAttribute("dc.types", types);
         request.setAttribute("metadataFields", metadataFields);

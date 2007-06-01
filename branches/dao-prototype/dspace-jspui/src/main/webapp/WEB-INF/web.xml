@@ -536,7 +536,7 @@
 
   <servlet-mapping>
     <servlet-name>uri</servlet-name>
-    <url-pattern>/uri/*</url-pattern>
+    <url-pattern>/resource/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

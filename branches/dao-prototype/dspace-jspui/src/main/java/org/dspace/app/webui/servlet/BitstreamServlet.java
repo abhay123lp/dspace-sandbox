@@ -118,7 +118,7 @@ public class BitstreamServlet extends DSpaceServlet
         int slashIndex = idString.indexOf('/');
         if (slashIndex != -1)
         {
-            slashIndex = idString.indexOf('/', slashIndex + 1);
+            slashIndex = idString.indexOf('/', slashIndex + 1); // first / after uri
             if (slashIndex != -1)
             {
                 uri = idString.substring(0, slashIndex);

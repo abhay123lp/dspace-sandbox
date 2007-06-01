@@ -103,12 +103,19 @@ public class URIServlet extends DSpaceServlet
             try
             {
                 // Extract the URI
+                path = path.replaceFirst("/", ":");
                 int firstSlash = path.indexOf('/');
                 int secondSlash = path.indexOf('/', firstSlash + 1);
 
                 if (secondSlash != -1)
                 {
                     // We have extra path info
+                    // FIXME: this is shouldn't exist. if we have extra
+                    // information in the url, it should be parameterised, not
+                    // separated by a slash. If we escaped slashes in
+                    // identifiers to %2F this wouldn't be such an issue, but
+                    // we don't and as such are making assumptions about the
+                    // form of the identifiers.
                     uri = path.substring(0, secondSlash);
                     extraPathInfo = path.substring(secondSlash);
                 }
@@ -159,7 +166,7 @@ public class URIServlet extends DSpaceServlet
             else
             {
                 // Display the item page
-                displayItem(context, request, response, item, uri);
+                displayItem(context, request, response, item);
             }
         }
         else if (dso.getType() == Constants.COLLECTION)
@@ -188,7 +195,11 @@ public class URIServlet extends DSpaceServlet
             // home page, or forward to another page?
             if ((extraPathInfo == null) || (extraPathInfo.equals("/")))
             {
-                collectionHome(context, request, response, parents[0], c, uri);
+                // Note that we pass the identifier as well as the object
+                // because the identifier formed part of the url, and if there
+                // are multiple identifiers, we need a guarantee that we're
+                // referring to the same one throughout.
+                collectionHome(context, request, response, parents[0], c, identifier);
             }
             else
             {
@@ -212,7 +223,11 @@ public class URIServlet extends DSpaceServlet
             // home page, or forward to another page?
             if ((extraPathInfo == null) || (extraPathInfo.equals("/")))
             {
-                communityHome(context, request, response, c, uri);
+                // Note that we pass the identifier as well as the object
+                // because the identifier formed part of the url, and if there
+                // are multiple identifiers, we need a guarantee that we're
+                // referring to the same one throughout.
+                communityHome(context, request, response, c, identifier);
             }
             else
             {
@@ -244,13 +259,13 @@ public class URIServlet extends DSpaceServlet
      *            the HTTP response
      * @param item
      *            the item
-     * @param uri
-     *            the item's URI in canonical form (eg: xyz:1234/56)
+     * @param identifier
+     *            a persistent identifier that belongs to the item
      */
     private void displayItem(Context context, HttpServletRequest request,
-            HttpServletResponse response, Item item, String uri)
+            HttpServletResponse response, Item item)
             throws ServletException, IOException, SQLException,
-            AuthorizeException
+                              AuthorizeException
     {
         // Tombstone?
         if (item.isWithdrawn())
@@ -263,7 +278,8 @@ public class URIServlet extends DSpaceServlet
         // Ensure the user has authorisation
         AuthorizeManager.authorizeAction(context, item, Constants.READ);
 
-        log.info(LogManager.getHeader(context, "view_item", "uri=" + uri));
+        log.info(LogManager.getHeader(context, "view_item", "uri=" +
+                    item.getPersistentIdentifier().getCanonicalForm()));
 
         // show edit link
         if (item.canEdit())
@@ -341,11 +357,12 @@ public class URIServlet extends DSpaceServlet
      *            the community
      */
     private void communityHome(Context context, HttpServletRequest request,
-            HttpServletResponse response, Community community, String uri)
+            HttpServletResponse response, Community community,
+            PersistentIdentifier identifier)
             throws ServletException, IOException, SQLException
     {
         // Handle click on a browse or search button
-        if (!handleButton(request, response, uri))
+        if (!handleButton(request, response, identifier))
         {
             // No button pressed, display community home page
             log.info(LogManager.getHeader(context, "view_community",
@@ -417,11 +434,11 @@ public class URIServlet extends DSpaceServlet
      */
     private void collectionHome(Context context, HttpServletRequest request,
             HttpServletResponse response, Community community,
-            Collection collection, String uri)
+            Collection collection, PersistentIdentifier identifier)
         throws ServletException, IOException, SQLException, AuthorizeException
     {
         // Handle click on a browse or search button
-        if (!handleButton(request, response, uri))
+        if (!handleButton(request, response, identifier))
         {
             // Will need to know whether to commit to DB
             boolean updated = false;
@@ -536,14 +553,15 @@ public class URIServlet extends DSpaceServlet
      *            HTTP request
      * @param response
      *            HTTP response
-     * @param uri
-     *            URI of the community/collection home page in canonical form
+     * @param identifier
+     *            persistent identifier that belongs to the community / collection
      * 
      * @return true if a browse/search button was pressed and the user was
      *         redirected
      */
     private boolean handleButton(HttpServletRequest request,
-            HttpServletResponse response, String uri) throws IOException
+            HttpServletResponse response, PersistentIdentifier identifier)
+        throws IOException
     {
         String button = UIUtil.getSubmitButton(request, "");
         String location = request.getParameter("location");
@@ -558,46 +576,44 @@ public class URIServlet extends DSpaceServlet
         /*
          * Work out the "prefix" to which to redirect If "/", scope is all of
          * DSpace, so prefix is "/" If prefix is a URI, scope is a community
-         * or collection, so "/uri/xyz:1234/56/" is the prefix.
+         * or collection, so "/resource/xyz/1234/56/" is the prefix.
          */
         if (!location.equals("/"))
         {
-            prefix = "/uri/" + uri + "/";
+            prefix = identifier.getLocalURI().toString();
         }
 
         if (button.equals("submit_titles"))
         {
             // Redirect to browse by title
-            url = request.getContextPath() + prefix + "browse-title";
+            url = prefix + "browse-title";
         }
         else if (button.equals("submit_authors"))
         {
             // Redirect to browse authors
-            url = request.getContextPath() + prefix + "browse-author";
+            url = prefix + "browse-author";
         }
         else if (button.equals("submit_subjects"))
         {
             // Redirect to browse by date
-            url = request.getContextPath() + prefix + "browse-subject";
+            url = prefix + "browse-subject";
         }
         else if (button.equals("submit_dates"))
         {
             // Redirect to browse by date
-            url = request.getContextPath() + prefix + "browse-date";
+            url = prefix + "browse-date";
         }
-        else if (button.equals("submit_search")
-                || (request.getParameter("query") != null))
+        else if (button.equals("submit_search") ||
+                (request.getParameter("query") != null))
         {
             /*
              * Have to check for search button and query - in some browsers,
              * typing a query into the box and hitting return doesn't produce a
              * submit button parameter. Redirect to appropriate search page
              */
-            url = request.getContextPath()
-                    + prefix
-                    + "simple-search?query="
-                    + URLEncoder.encode(request.getParameter("query"),
-                            Constants.DEFAULT_ENCODING);
+            url = prefix + "simple-search?query=" +
+                URLEncoder.encode(request.getParameter("query"),
+                        Constants.DEFAULT_ENCODING);
         }
 
         // If a button was pressed, redirect to appropriate page
@@ -662,8 +678,7 @@ public class URIServlet extends DSpaceServlet
         for (int i = 0; i < items.size(); i++)
         {
             Item item = (Item) items.get(i);
-            urls[i] =
-                "/uri/" + item.getPersistentIdentifier().getCanonicalForm();
+            urls[i] = item.getPersistentIdentifier().getLocalURI().toString();
         }
 
         return urls;

@@ -116,7 +116,7 @@
 <dspace:layout title="<%= title %>">
 
 <%
-    if (uri != null)
+    if (identifier != null)
     {
 %>
 
@@ -149,7 +149,7 @@
     <dspace:item item="<%= item %>" collections="<%= collections %>" style="<%= displayStyle %>" />
 
 <%
-    String locationLink = request.getContextPath() + "/uri/" + uri;
+    String locationLink = identifier.getLocalURI().toString();
 
     if (displayAll)
     {
@@ -205,6 +205,7 @@
         if (suggestLink)
         {
 %>
+    <%-- FIXME: This really ought to be escaped --%>
     <a href="<%= request.getContextPath() %>/suggest?uri=<%= uri %>" target="new_window">
        <fmt:message key="jsp.display-item.suggest"/></a>
 <%

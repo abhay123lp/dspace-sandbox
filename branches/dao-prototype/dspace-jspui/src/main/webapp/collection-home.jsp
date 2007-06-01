@@ -63,9 +63,9 @@
 <%@ page import="org.dspace.content.Bitstream" %>
 <%@ page import="org.dspace.content.Community" %>
 <%@ page import="org.dspace.content.Collection"%>
-<%@ page import="org.dspace.core.Utils"%>
-<%@ page import="org.dspace.core.ConfigurationManager"%>
-<%@ page import="org.dspace.eperson.Group"     %>
+<%@ page import="org.dspace.core.Utils" %>
+<%@ page import="org.dspace.core.ConfigurationManager" %>
+<%@ page import="org.dspace.eperson.Group" %>
 
 
 
@@ -113,7 +113,7 @@
     }
 
     String communityName = community.getMetadata("name");
-    String communityLink = "/uri/" + community.getPersistentIdentifier().getCanonicalForm();
+    String communityLink = community.getPersistentIdentifier().getLocalURI().toString();
 
     Bitstream logo = collection.getLogo();
     
@@ -296,7 +296,7 @@
     		: Utils.addEntities(lastSubmittedTitles[i]));
     		
 %>
-    <p class="recentItem"><a href="<%= request.getContextPath() %><%= lastSubmittedURLs[i] %>"><%= displayTitle %></a></p>
+    <p class="recentItem"><a href="<%= lastSubmittedURLs[i] %>"><%= displayTitle %></a></p>
 <%
   }
 %>

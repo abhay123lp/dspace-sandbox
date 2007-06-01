@@ -53,6 +53,12 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
+<%@ page import="java.sql.SQLException "%>
+<%@ page import="org.dspace.core.Context "%>
+<%@ page import="org.dspace.content.uri.PersistentIdentifier "%>
+<%@ page import="org.dspace.content.uri.dao.PersistentIdentifierDAO "%>
+<%@ page import="org.dspace.content.uri.dao.PersistentIdentifierDAOFactory "%>
+
 <%
 	request.setCharacterEncoding("UTF-8");
 
@@ -78,10 +84,34 @@
 		sender_name = "";
 	}
 
+    // FIXME: This is broken and inconsistent and will leave commas and slashes
+    // in the GET parameter
     String uri = request.getParameter("uri");
+    PersistentIdentifier identifier = null;
     if (uri == null || uri.equals(""))
     {
+        // FIXME: This should throw an error.
         uri = "";
+    }
+    else
+    {
+        Context context = null;
+        // FIXME: this is horrid
+        try
+        {
+            context = new Context();
+            PersistentIdentifierDAO identifierDAO =
+                PersistentIdentifierDAOFactory.getInstance(context);
+            identifier = identifierDAO.retrieve(uri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+        finally
+        {
+            context.abort();
+        }
     }
 
 	String title = (String) request.getAttribute("suggest.title");
@@ -113,7 +143,7 @@
 
 <br/>
 <h1><fmt:message key="jsp.suggest.heading"/>
-    <a href="<%= request.getContextPath() %>/uri/<%= uri %>"><%= title %></a>
+    <a href="<%= identifier.getLocalURI().toString() %>"><%= title %></a>
 </h1>
 <p><fmt:message key="jsp.suggest.invitation"/></p>
 

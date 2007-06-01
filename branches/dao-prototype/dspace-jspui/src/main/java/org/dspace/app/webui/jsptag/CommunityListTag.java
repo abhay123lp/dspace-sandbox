@@ -93,8 +93,7 @@ public class CommunityListTag extends TagSupport
 
                 HttpServletRequest hrq = (HttpServletRequest) pageContext
                         .getRequest();
-                out.print(hrq.getContextPath() + "/uri/");
-                out.print(communities[i].getPersistentIdentifier().getCanonicalForm());
+                out.print(communities[i].getPersistentIdentifier().getLocalURI().toString());
                 out.print("\">");
                 out.print(name);
                 out.print("</a>");
