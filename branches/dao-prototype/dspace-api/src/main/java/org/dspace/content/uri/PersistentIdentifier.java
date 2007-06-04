@@ -51,7 +51,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import org.dspace.content.DSpaceObject;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Context;
 import org.dspace.core.ConfigurationManager;
 

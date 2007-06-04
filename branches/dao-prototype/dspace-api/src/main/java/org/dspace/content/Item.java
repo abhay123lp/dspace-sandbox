@@ -147,10 +147,7 @@ public class Item extends DSpaceObject
         {
             for (PersistentIdentifier pid : identifiers)
             {
-                if (!pid.getType().equals(PersistentIdentifier.Type.NULL))
-                {
-                    return pid;
-                }
+                return pid;
             }
             return null;
         }

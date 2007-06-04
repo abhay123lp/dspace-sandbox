@@ -221,10 +221,6 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                 }
             }
 
-            // Add a NULL identifier to the list
-            value = dso.getType() + "/" + dso.getID();
-            list.add(getInstance(dso, PersistentIdentifier.Type.NULL, value));
-
             return list;
         }
         catch (SQLException sqle)
