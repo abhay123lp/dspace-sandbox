@@ -65,6 +65,7 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.eperson.EPerson;
 import org.dspace.history.HistoryManager;
@@ -77,45 +78,17 @@ public class ArchiveManager
 {
     private static Logger log = Logger.getLogger(ArchiveManager.class);
 
-    /**
-     * Given a PersistentIdentifier, this method will return the DSpaceObject
-     * that it points to.
-     */
     public static DSpaceObject getObject(Context context,
             PersistentIdentifier identifier)
     {
-        return getObject(context, identifier.getResourceID(),
-                identifier.getResourceTypeID());
+        ObjectIdentifier oi = new ObjectIdentifier(context, identifier);
+        return oi.getObject();
     }
 
-    /**
-     * Given an ID and a type ID, this method will return the corresponding
-     * DSpaceObject.
-     */
     public static DSpaceObject getObject(Context context, int id, int type)
     {
-        switch(type)
-        {
-            case (Constants.BITSTREAM):
-                try
-                {
-                    return Bitstream.find(context, id);
-                }
-                catch (SQLException sqle)
-                {
-                    throw new RuntimeException(sqle);
-                }
-            case (Constants.BUNDLE):
-                return BundleDAOFactory.getInstance(context).retrieve(id);
-            case (Constants.ITEM):
-                return ItemDAOFactory.getInstance(context).retrieve(id);
-            case (Constants.COLLECTION):
-                return CollectionDAOFactory.getInstance(context).retrieve(id);
-            case (Constants.COMMUNITY):
-                return CommunityDAOFactory.getInstance(context).retrieve(id);
-            default:
-                throw new RuntimeException("Not a valid DSpaceObject type");
-        }
+        ObjectIdentifier oi = new ObjectIdentifier(context, id, type);
+        return oi.getObject();
     }
 
     /**

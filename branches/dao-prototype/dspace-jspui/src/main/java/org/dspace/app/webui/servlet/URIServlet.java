@@ -62,9 +62,11 @@ import org.dspace.content.Community;
 import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -134,7 +136,7 @@ public class URIServlet extends DSpaceServlet
             // The value of URI will be the persistent identifier in canonical
             // form, eg: xyz:1234/56
             identifier = identifierDAO.retrieve(uri);
-            dso = identifier.getObject();
+            dso = ArchiveManager.getObject(context, identifier);
         }
 
         if (dso == null)
@@ -195,11 +197,7 @@ public class URIServlet extends DSpaceServlet
             // home page, or forward to another page?
             if ((extraPathInfo == null) || (extraPathInfo.equals("/")))
             {
-                // Note that we pass the identifier as well as the object
-                // because the identifier formed part of the url, and if there
-                // are multiple identifiers, we need a guarantee that we're
-                // referring to the same one throughout.
-                collectionHome(context, request, response, parents[0], c, identifier);
+                collectionHome(context, request, response, parents[0], c);
             }
             else
             {
@@ -223,11 +221,7 @@ public class URIServlet extends DSpaceServlet
             // home page, or forward to another page?
             if ((extraPathInfo == null) || (extraPathInfo.equals("/")))
             {
-                // Note that we pass the identifier as well as the object
-                // because the identifier formed part of the url, and if there
-                // are multiple identifiers, we need a guarantee that we're
-                // referring to the same one throughout.
-                communityHome(context, request, response, c, identifier);
+                communityHome(context, request, response, c);
             }
             else
             {
@@ -357,12 +351,11 @@ public class URIServlet extends DSpaceServlet
      *            the community
      */
     private void communityHome(Context context, HttpServletRequest request,
-            HttpServletResponse response, Community community,
-            PersistentIdentifier identifier)
+            HttpServletResponse response, Community community)
             throws ServletException, IOException, SQLException
     {
         // Handle click on a browse or search button
-        if (!handleButton(request, response, identifier))
+        if (!handleButton(request, response, community.getIdentifier()))
         {
             // No button pressed, display community home page
             log.info(LogManager.getHeader(context, "view_community",
@@ -434,11 +427,11 @@ public class URIServlet extends DSpaceServlet
      */
     private void collectionHome(Context context, HttpServletRequest request,
             HttpServletResponse response, Community community,
-            Collection collection, PersistentIdentifier identifier)
+            Collection collection)
         throws ServletException, IOException, SQLException, AuthorizeException
     {
         // Handle click on a browse or search button
-        if (!handleButton(request, response, identifier))
+        if (!handleButton(request, response, community.getIdentifier()))
         {
             // Will need to know whether to commit to DB
             boolean updated = false;
@@ -554,13 +547,13 @@ public class URIServlet extends DSpaceServlet
      * @param response
      *            HTTP response
      * @param identifier
-     *            persistent identifier that belongs to the community / collection
+     *            object identifier that points to the collection / community
      * 
      * @return true if a browse/search button was pressed and the user was
      *         redirected
      */
     private boolean handleButton(HttpServletRequest request,
-            HttpServletResponse response, PersistentIdentifier identifier)
+            HttpServletResponse response, ObjectIdentifier identifier)
         throws IOException
     {
         String button = UIUtil.getSubmitButton(request, "");
@@ -580,7 +573,7 @@ public class URIServlet extends DSpaceServlet
          */
         if (!location.equals("/"))
         {
-            prefix = identifier.getLocalURI().toString();
+            prefix = identifier.getURL().toString();
         }
 
         if (button.equals("submit_titles"))
@@ -678,7 +671,7 @@ public class URIServlet extends DSpaceServlet
         for (int i = 0; i < items.size(); i++)
         {
             Item item = (Item) items.get(i);
-            urls[i] = item.getPersistentIdentifier().getLocalURI().toString();
+            urls[i] = item.getIdentifier().getURL().toString();
         }
 
         return urls;

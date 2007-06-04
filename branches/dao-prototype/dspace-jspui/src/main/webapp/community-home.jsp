@@ -193,7 +193,7 @@
 	    <table>
 	    <tr>
 	    <td>
-	      <a href="<%= collections[i].getPersistentIdentifier().getLocalURI().toString() %>">
+	      <a href="<%= collections[i].getIdentifier().getURL().toString() %>">
 	      <%= collections[i].getMetadata("name") %></a>
 <%
             if(ConfigurationManager.getBooleanProperty("webui.strengths.show"))
@@ -243,7 +243,7 @@
 			    <table>
 			    <tr>
 			    <td>
-	                <a href="<%= subcommunities[j].getPersistentIdentifier().getLocalURI().toString() %>">
+	                <a href="<%= subcommunities[j].getIdentifier().getURL().toString() %>">
 	                <%= subcommunities[j].getMetadata("name") %></a>
 <%
                 if (ConfigurationManager.getBooleanProperty("webui.strengths.show"))

@@ -62,36 +62,39 @@ public class PersistentIdentifier
 {
     private static Logger log = Logger.getLogger(PersistentIdentifier.class);
 
+    protected Context context;
+    protected String value;
+    @Deprecated protected ObjectIdentifier identifier;
+    protected int resourceID;
+    protected int resourceTypeID;
+
     private final String PROTOCOL;
     private final String NS;
     private final String BASE_URI;
     private final Type TYPE;
 
-    protected Context context;
-    protected String value;
-    protected int resourceID;
-    protected int resourceTypeID;
-
     public PersistentIdentifier()
     {
-        this(Type.NULL);
+        this(PersistentIdentifier.Type.NULL);
     }
 
-    public PersistentIdentifier(Context context, DSpaceObject dso, String value)
+    public PersistentIdentifier(PersistentIdentifier.Type type)
     {
-        this();
+        this.TYPE = type;
+        this.PROTOCOL = type.getProtocol();
+        this.NS = type.getNamespace();
+        this.BASE_URI = type.getBaseURI();
+    }
+
+    public PersistentIdentifier(Context context, DSpaceObject dso,
+            PersistentIdentifier.Type type, String value)
+    {
+        this(type);
         this.context = context;
         this.value = value;
         this.resourceID = dso.getID();
         this.resourceTypeID = dso.getType();
-    }
-
-    public PersistentIdentifier(Type t)
-    {
-        this.TYPE = t;
-        this.PROTOCOL = t.getProtocol();
-        this.NS = t.getNamespace();
-        this.BASE_URI = t.getBaseURI();
+        this.identifier = new ObjectIdentifier(context, dso);
     }
 
     public int getTypeID()
@@ -127,25 +130,13 @@ public class PersistentIdentifier
         }
     }
 
-    public URI getLocalURI()
-    {
-        try
-        {
-            String base = ConfigurationManager.getProperty("dspace.url");
-            return new URI(base + "/resource/" + NS + "/" + value);
-        }
-        catch (URISyntaxException urise)
-        {
-            throw new RuntimeException(urise);
-        }
-    }
-
     public String getCanonicalForm()
     {
         // eg: hdl:1234/56
         return NS + ":" + value;
     }
 
+    @Deprecated
     public DSpaceObject getObject()
     {
         return ArchiveManager.getObject(context, this);

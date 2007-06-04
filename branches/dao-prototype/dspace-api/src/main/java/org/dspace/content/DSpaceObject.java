@@ -42,6 +42,8 @@ package org.dspace.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dspace.core.Context;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 
 import org.apache.commons.lang.builder.EqualsBuilder;

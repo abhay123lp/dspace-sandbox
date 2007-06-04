@@ -87,6 +87,7 @@
     // get the persistent identifier if the item has one yet
     PersistentIdentifier identifier = item.getPersistentIdentifier();
     String uri = identifier.getCanonicalForm();
+    String link = item.getIdentifier().getURL().toString();
     String citationLink = identifier.getURI().toString();
 
     // CC URL & RDF
@@ -149,8 +150,6 @@
     <dspace:item item="<%= item %>" collections="<%= collections %>" style="<%= displayStyle %>" />
 
 <%
-    String locationLink = identifier.getLocalURI().toString();
-
     if (displayAll)
     {
 %>
@@ -169,7 +168,7 @@
         else
         {
 %>
-    <form method="get" action="<%=locationLink %>">
+    <form method="get" action="<%= link %>">
         <input type="hidden" name="mode" value="simple"/>
         <input type="submit" name="submit_simple" value="<fmt:message key="jsp.display-item.text1"/>" />
     </form>
@@ -196,7 +195,7 @@
         else
         {
 %>
-    <form method="get" action="<%=locationLink %>">
+    <form method="get" action="<%= link %>">
         <input type="hidden" name="mode" value="full"/>
         <input type="submit" name="submit_simple" value="<fmt:message key="jsp.display-item.text2"/>" />
     </form>

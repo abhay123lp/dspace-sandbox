@@ -103,7 +103,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                     throw new RuntimeException(":(");
             }
 
-            PersistentIdentifier identifier = getInstance(dso, value, type);
+            PersistentIdentifier identifier = getInstance(dso, type, value);
 
             row.setColumn("handle", value);
             row.setColumn("resource_type_id", dso.getType());
@@ -149,7 +149,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
             dso =
                 ArchiveManager.getObject(context, resourceID, resourceTypeID);
 
-            return getInstance(dso, value, type);
+            return getInstance(dso, type, value);
         }
 
         if (type == null)
@@ -185,7 +185,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
 
         dso = ArchiveManager.getObject(context, resourceID, resourceTypeID);
 
-        return getInstance(dso, value, type);
+        return getInstance(dso, type, value);
     }
 
     public List<PersistentIdentifier> getPersistentIdentifiers(DSpaceObject dso)
@@ -215,7 +215,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                 {
                     if (pid.getTypeID() == id)
                     {
-                        list.add(getInstance(dso, value, pid.getType()));
+                        list.add(getInstance(dso, pid.getType(), value));
                         break;
                     }
                 }
@@ -223,7 +223,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
 
             // Add a NULL identifier to the list
             value = dso.getType() + "/" + dso.getID();
-            list.add(getInstance(dso, value, PersistentIdentifier.Type.NULL));
+            list.add(getInstance(dso, PersistentIdentifier.Type.NULL, value));
 
             return list;
         }
@@ -268,7 +268,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                 {
                     if (type.equals(pid.getType()))
                     {
-                        list.add(getInstance(dso, value, pid.getType()));
+                        list.add(getInstance(dso, pid.getType(), value));
                         break;
                     }
                 }

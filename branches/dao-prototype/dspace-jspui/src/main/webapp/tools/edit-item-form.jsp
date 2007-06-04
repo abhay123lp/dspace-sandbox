@@ -72,13 +72,12 @@
 <%@ page import="org.dspace.content.DCDate" %>
 <%@ page import="org.dspace.content.DCValue" %>
 <%@ page import="org.dspace.content.Item" %>
-<%@ page import="org.dspace.content.uri.PersistentIdentifier" %>
 <%@ page import="org.dspace.core.ConfigurationManager" %>
 
 <%
     Item item = (Item) request.getAttribute("item");
-    PersistentIdentifier identifier = item.getPersistentIdentifier();
-    String uri = identifier.getCanonicalForm();
+    String uri = item.getPersistentIdentifier().getCanonicalForm();
+    String link = item.getIdentifier().getURL().toString();
     Collection[] collections = (Collection[]) request.getAttribute("collections");
     MetadataField[] dcTypes = (MetadataField[])  request.getAttribute("dc.types");
     HashMap metadataFields = (HashMap) request.getAttribute("metadataFields");
@@ -167,11 +166,10 @@
                 <%-- <td class="submitFormLabel">Item page:</td> --%>
 				<td class="submitFormLabel"><fmt:message key="jsp.tools.edit-item-form.itempage"/></td>
                 <td class="standard">
-<%  if (identifier == null) { %>
+<%  if (link == null) { %>
                     <em><fmt:message key="jsp.tools.edit-item-form.na"/></em>
-<%  } else {
-    String url = identifier.getLocalURI().toString()i; %>
-                    <a target="_blank" href="<%= url %>"><%= url %></a>
+<%  } else { %>
+                    <a target="_blank" href="<%= link %>"><%= link %></a>
 <%  } %>
                 </td>
             </tr>

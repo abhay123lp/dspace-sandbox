@@ -63,6 +63,7 @@ import org.dspace.content.Item;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -142,7 +143,7 @@ public class BitstreamServlet extends DSpaceServlet
         
         // Now try and retrieve the item
         PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-        DSpaceObject dso = identifier.getObject();
+        DSpaceObject dso = ArchiveManager.getObject(context, identifier);
         
         // Make sure we have valid item and sequence number
         if (dso != null && dso.getType() == Constants.ITEM && sequenceID >= 0)

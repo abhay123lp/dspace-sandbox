@@ -55,14 +55,10 @@ public class Handle extends PersistentIdentifier
         super(PersistentIdentifier.Type.HANDLE);
     }
 
-    public Handle(Context context, DSpaceObject dso, String value)
+    public Handle(Context context, DSpaceObject dso,
+            PersistentIdentifier.Type type, String value)
     {
-//        super(context, dso, value);
-        this();
-        this.context = context;
-        this.value = value;
-        this.resourceID = dso.getID();
-        this.resourceTypeID = dso.getType();
+        super(context, dso, type, value);
     }
 
     @Override

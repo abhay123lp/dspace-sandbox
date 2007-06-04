@@ -63,6 +63,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -250,7 +251,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             // redirect to parent community page
             {
                 response.sendRedirect(response.encodeRedirectURL(
-                        parent.getPersistentIdentifier().getLocalURI().toString()));
+                        new ObjectIdentifier(context, parent).getURL().toString()));
             }
 
             // Show main control page
@@ -312,7 +313,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         if (community != null)
         {
             response.sendRedirect(response.encodeRedirectURL(
-                    community.getPersistentIdentifier().getLocalURI().toString()));
+                    new ObjectIdentifier(context, community).getURL().toString()));
         }
         else
         {
@@ -322,7 +323,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             if (parent != null)
             {
                 response.sendRedirect(response.encodeRedirectURL(
-                        parent.getPersistentIdentifier().getLocalURI().toString()));
+                        new ObjectIdentifier(context, parent).getURL().toString()));
             }
             else
             {

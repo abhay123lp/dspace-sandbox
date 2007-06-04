@@ -92,11 +92,15 @@ public class SuggestServlet extends DSpaceServlet
         PersistentIdentifier identifier = identifierDAO.retrieve(uri);
         
         // Lookup Item title & collection
+        Item item = null;
+        String link = "";
         String title = null;
         String collName = null;
         if (identifier != null)
         {
-            Item item = (Item) ArchiveManager.getObject(context, identifier);
+            item = (Item) ArchiveManager.getObject(context, identifier);
+            link = item.getIdentifier().getURL().toString();
+            request.setAttribute("link", link);
 
             if (item != null)
             {   
@@ -193,7 +197,6 @@ public class SuggestServlet extends DSpaceServlet
             	}
             }
             String itemUri = identifier.getURI().toString();
-            String itemUrl = identifier.getLocalURI().toString();
             String message = request.getParameter("message");          
             String siteName = ConfigurationManager.getProperty("dspace.name");
 
@@ -207,7 +210,7 @@ public class SuggestServlet extends DSpaceServlet
                 email.addArgument(siteName);     // 3rd arg - repository name
                 email.addArgument(title);        // 4th arg - item title
                 email.addArgument(itemUri);      // 5th arg - item identifier URI
-                email.addArgument(itemUrl);      // 6th arg - item local URL
+                email.addArgument(link);         // 6th arg - item local URL
                 email.addArgument(collName);     // 7th arg - collection name
                 email.addArgument(message);      // 8th arg - user comments     
                 

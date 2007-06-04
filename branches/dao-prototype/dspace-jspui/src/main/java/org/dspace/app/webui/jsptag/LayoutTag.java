@@ -214,7 +214,7 @@ public class LayoutTag extends TagSupport
                     {
                         parents.add(comms[i].getMetadata("name"));
                         parentLinks.add(
-                                comms[i].getPersistentIdentifier().getLocalURI().toString());
+                                comms[i].getIdentifier().getURL().toString());
                     }
                 }
             }
@@ -243,14 +243,14 @@ public class LayoutTag extends TagSupport
                     {
                         parents.add(comms[i].getMetadata("name"));
                         parentLinks.add(
-                                comms[i].getPersistentIdentifier().getLocalURI().toString());
+                                comms[i].getIdentifier().getURL().toString());
                     }
 
                     if (col != null)
                     {
                         parents.add(col.getMetadata("name"));
                         parentLinks.add(
-                                col.getPersistentIdentifier().getLocalURI().toString());
+                                col.getIdentifier().getURL().toString());
                     }
                 }
             }

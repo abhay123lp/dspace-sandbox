@@ -63,7 +63,7 @@ public abstract class PersistentIdentifierDAO
 
     protected Context context;
 
-    protected PersistentIdentifier[] pids = (PersistentIdentifier[])
+    protected final PersistentIdentifier[] pids = (PersistentIdentifier[])
             PluginManager.getPluginSequence(PersistentIdentifier.class);
 
     public abstract PersistentIdentifier create(DSpaceObject dso);
@@ -87,8 +87,8 @@ public abstract class PersistentIdentifierDAO
      * Returns an instantiated PersistentIdentifier of the desired type that
      * references the desired DSpaceObject.
      */
-    protected PersistentIdentifier getInstance(DSpaceObject dso, String value,
-            PersistentIdentifier.Type type)
+    protected PersistentIdentifier getInstance(DSpaceObject dso,
+            PersistentIdentifier.Type type, String value)
     {
         try
         {
@@ -96,7 +96,8 @@ public abstract class PersistentIdentifierDAO
 
             if (type.equals(PersistentIdentifier.Type.NULL))
             {
-                identifier = new PersistentIdentifier(context, dso, value);
+                identifier =
+                    new PersistentIdentifier(context, dso, type, value);
             }
             else
             {
@@ -106,12 +107,18 @@ public abstract class PersistentIdentifierDAO
                     {
                         Class pidClass = pid.getClass();
                         Constructor c = pidClass.getDeclaredConstructor(
-                                Context.class, DSpaceObject.class, String.class);
+                                Context.class, DSpaceObject.class,
+                                PersistentIdentifier.Type.class, String.class);
                         identifier = (PersistentIdentifier)
-                            c.newInstance(context, dso, value);
+                            c.newInstance(context, dso, type, value);
                         break;
                     }
                 }
+            }
+
+            if (identifier == null)
+            {
+                throw new RuntimeException("Not a valid identifier type.");
             }
 
             return identifier;

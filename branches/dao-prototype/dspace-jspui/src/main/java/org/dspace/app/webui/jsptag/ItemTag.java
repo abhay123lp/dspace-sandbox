@@ -507,7 +507,7 @@ public class ItemTag extends TagSupport
             for (int i = 0; i < collections.length; i++)
             {
                 out.print("<a href=\"");
-                out.print(collections[i].getPersistentIdentifier().getLocalURI().toString());
+                out.print(collections[i].getIdentifier().getURL().toString());
                 out.print("\">");
                 out.print(collections[i].getMetadata("name"));
                 out.print("</a><br/>");
@@ -673,7 +673,7 @@ public class ItemTag extends TagSupport
                             String bsLink = "<a target=\"_blank\" href=\""
                                     + request.getContextPath();
                             // FIXME: Ideally, we'd do something like this:
-//                                    + bitstreams[k].getPersistentIdentifier().getLocalURI().toString()
+//                                    + bitstreams[k].getIdentifier().getURL().toString()
 //                                    + "\">";
 
                             if ((uri != null)
