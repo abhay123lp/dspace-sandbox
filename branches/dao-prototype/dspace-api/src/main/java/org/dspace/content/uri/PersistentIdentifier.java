@@ -64,7 +64,6 @@ public class PersistentIdentifier
 
     protected Context context;
     protected String value;
-    @Deprecated protected ObjectIdentifier identifier;
     protected int resourceID;
     protected int resourceTypeID;
 
@@ -94,7 +93,6 @@ public class PersistentIdentifier
         this.value = value;
         this.resourceID = dso.getID();
         this.resourceTypeID = dso.getType();
-        this.identifier = new ObjectIdentifier(context, dso);
     }
 
     public int getTypeID()
