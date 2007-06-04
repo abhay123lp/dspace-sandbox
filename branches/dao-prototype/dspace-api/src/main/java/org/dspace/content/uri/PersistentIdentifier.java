@@ -137,12 +137,6 @@ public class PersistentIdentifier
     }
 
     @Deprecated
-    public DSpaceObject getObject()
-    {
-        return ArchiveManager.getObject(context, this);
-    }
-
-    @Deprecated
     public String getValue()
     {
         return value;
