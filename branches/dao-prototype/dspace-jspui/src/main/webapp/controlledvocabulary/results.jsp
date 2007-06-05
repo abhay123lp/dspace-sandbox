@@ -157,11 +157,11 @@ if (collections.length > 0)
     }
     else if (collection == null)
     {
-	    searchScope = community.getIdentifier().getURL().toString();
+	    searchScope = community.getURL().toString();
     }
     else
     {
-	    searchScope = collection.getIdentifier().getURL().toString();
+	    searchScope = collection.getURL().toString();
     } 
 
     // create the URLs accessing the previous and next search result pages

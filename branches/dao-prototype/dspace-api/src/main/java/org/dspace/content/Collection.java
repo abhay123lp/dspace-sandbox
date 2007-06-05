@@ -69,7 +69,6 @@ import org.dspace.content.dao.CommunityDAO;         // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
 import org.dspace.content.dao.ItemDAO;              // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
-import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.eperson.Group;
 import org.dspace.history.HistoryManager;
@@ -138,11 +137,6 @@ public class Collection extends DSpaceObject
     public void setID(int id)
     {
         this.id = id;
-    }
-
-    public ObjectIdentifier getIdentifier()
-    {
-        return new ObjectIdentifier(context, this);
     }
 
     /**

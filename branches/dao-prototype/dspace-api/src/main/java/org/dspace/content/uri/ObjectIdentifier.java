@@ -39,101 +39,48 @@
  */
 package org.dspace.content.uri;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.log4j.Logger;
 
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.Bitstream;
-import org.dspace.content.dao.BundleDAOFactory;
-import org.dspace.content.dao.ItemDAO;
-import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.content.dao.CollectionDAO;
-import org.dspace.content.dao.CollectionDAOFactory;
-import org.dspace.content.dao.CommunityDAO;
-import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.ConfigurationManager;
 
 /**
  * @author James Rutherford
  */
 public class ObjectIdentifier
 {
-    private static Logger log = Logger.getLogger(ObjectIdentifier.class);
+    private int resourceID;
+    private int resourceTypeID;
 
-    protected Context context;
-    protected String value;
-    protected int resourceID;
-    protected int resourceTypeID;
-
-    public ObjectIdentifier(Context context, int resourceID, int resourceTypeID)
+    public ObjectIdentifier(int resourceID, int resourceTypeID)
     {
-        this.context = context;
         this.resourceID = resourceID;
         this.resourceTypeID = resourceTypeID;
     }
 
-    public ObjectIdentifier(Context context, DSpaceObject dso)
+    public ObjectIdentifier(DSpaceObject dso)
     {
-        this(context, dso.getID(), dso.getType());
+        this(dso.getID(), dso.getType());
     }
 
-    public ObjectIdentifier(Context context, PersistentIdentifier pid)
+    public ObjectIdentifier(PersistentIdentifier pid)
     {
-        this(context, pid.getResourceID(), pid.getResourceTypeID());
+        this(pid.getResourceID(), pid.getResourceTypeID());
     }
 
-    // FIXME: URI or URL? I suppose this will always give a locator, so it
-    // should be URL.
-    public URL getURL()
+    public int getResourceID()
     {
-        String base = ConfigurationManager.getProperty("dspace.url");
-        String value = resourceTypeID + "/" + resourceID;
-
-        try
-        {
-            return new URL(base + "/resource/dsi/" + value);
-        }
-        catch (MalformedURLException murle)
-        {
-            throw new RuntimeException(murle);
-        }
+        return resourceID;
     }
 
-    public DSpaceObject getObject()
+    public int getResourceTypeID()
     {
-        switch(resourceTypeID)
-        {
-            case (Constants.BITSTREAM):
-                try
-                {
-                    return Bitstream.find(context, resourceID);
-                }
-                catch (SQLException sqle)
-                {
-                    throw new RuntimeException(sqle);
-                }
-            case (Constants.BUNDLE):
-                return BundleDAOFactory.getInstance(context).retrieve(resourceID);
-            case (Constants.ITEM):
-                return ItemDAOFactory.getInstance(context).retrieve(resourceID);
-            case (Constants.COLLECTION):
-                return CollectionDAOFactory.getInstance(context).retrieve(resourceID);
-            case (Constants.COMMUNITY):
-                return CommunityDAOFactory.getInstance(context).retrieve(resourceID);
-            default:
-                throw new RuntimeException("Not a valid DSpaceObject type");
-        }
+        return resourceTypeID;
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -142,8 +89,7 @@ public class ObjectIdentifier
 
     public String toString()
     {
-        return ToStringBuilder.reflectionToString(this,
-                ToStringStyle.MULTI_LINE_STYLE);
+        return resourceTypeID + "/" + resourceID;
     }
 
     public boolean equals(Object o)

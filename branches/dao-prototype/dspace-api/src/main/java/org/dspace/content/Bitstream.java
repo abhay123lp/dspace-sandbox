@@ -48,7 +48,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
@@ -92,11 +91,6 @@ public class Bitstream extends DSpaceObject
 
     /** Experimental persistent identifier stuff */
     private List<PersistentIdentifier> identifiers;
-
-    public ObjectIdentifier getIdentifier()
-    {
-        return new ObjectIdentifier(bContext, this);
-    }
 
     /**
      * Private constructor for creating a Bitstream object based on the contents

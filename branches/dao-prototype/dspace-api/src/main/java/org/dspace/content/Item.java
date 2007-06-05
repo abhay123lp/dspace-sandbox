@@ -67,7 +67,6 @@ import org.dspace.content.dao.CommunityDAO;         // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
 import org.dspace.content.dao.ItemDAO;              // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
-import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -131,11 +130,6 @@ public class Item extends DSpaceObject
     public void setID(int id)
     {
         this.id = id;
-    }
-
-    public ObjectIdentifier getIdentifier()
-    {
-        return new ObjectIdentifier(context, this);
     }
 
     /**

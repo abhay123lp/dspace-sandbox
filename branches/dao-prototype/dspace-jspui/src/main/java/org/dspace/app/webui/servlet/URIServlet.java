@@ -40,6 +40,7 @@
 package org.dspace.app.webui.servlet;
 
 import java.io.IOException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.List;
@@ -355,7 +356,7 @@ public class URIServlet extends DSpaceServlet
             throws ServletException, IOException, SQLException
     {
         // Handle click on a browse or search button
-        if (!handleButton(request, response, community.getIdentifier()))
+        if (!handleButton(request, response, community.getURL()))
         {
             // No button pressed, display community home page
             log.info(LogManager.getHeader(context, "view_community",
@@ -431,7 +432,7 @@ public class URIServlet extends DSpaceServlet
         throws ServletException, IOException, SQLException, AuthorizeException
     {
         // Handle click on a browse or search button
-        if (!handleButton(request, response, community.getIdentifier()))
+        if (!handleButton(request, response, community.getURL()))
         {
             // Will need to know whether to commit to DB
             boolean updated = false;
@@ -553,7 +554,7 @@ public class URIServlet extends DSpaceServlet
      *         redirected
      */
     private boolean handleButton(HttpServletRequest request,
-            HttpServletResponse response, ObjectIdentifier identifier)
+            HttpServletResponse response, URL prefixURL)
         throws IOException
     {
         String button = UIUtil.getSubmitButton(request, "");
@@ -573,7 +574,7 @@ public class URIServlet extends DSpaceServlet
          */
         if (!location.equals("/"))
         {
-            prefix = identifier.getURL().toString();
+            prefix = prefixURL.toString();
         }
 
         if (button.equals("submit_titles"))
@@ -671,7 +672,7 @@ public class URIServlet extends DSpaceServlet
         for (int i = 0; i < items.size(); i++)
         {
             Item item = (Item) items.get(i);
-            urls[i] = item.getIdentifier().getURL().toString();
+            urls[i] = item.getURL().toString();
         }
 
         return urls;

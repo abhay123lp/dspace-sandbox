@@ -58,7 +58,6 @@ import org.dspace.content.dao.BundleDAO;        // Naughty!
 import org.dspace.content.dao.BundleDAOFactory; // Naughty!
 import org.dspace.content.dao.ItemDAO;          // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;   // Naughty!
-import org.dspace.content.uri.ObjectIdentifier;
 
 /**
  * Class representing bundles of bitstreams stored in the DSpace system
@@ -109,11 +108,6 @@ public class Bundle extends DSpaceObject
     public void setID(int id)
     {
         this.id = id;
-    }
-
-    public ObjectIdentifier getIdentifier()
-    {
-        return new ObjectIdentifier(context, this);
     }
 
     public String getName()

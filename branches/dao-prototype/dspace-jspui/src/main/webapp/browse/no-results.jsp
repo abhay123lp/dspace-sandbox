@@ -69,12 +69,12 @@
     if(collection != null)
     {
         linkText = collection.getMetadata("name");
-        linkBack = collection.getIdentifier().getURL().toString();
+        linkBack = collection.getURL().toString();
     }
     else if(community != null)
     {
         linkText = community.getMetadata("name");
-        linkBack = community.getIdentifier().getURL().toString();
+        linkBack = community.getURL().toString();
     }
 %>
 

@@ -78,8 +78,6 @@ import org.dspace.content.Item;
 import org.dspace.content.Bitstream;
 import org.dspace.content.DCValue;
 import org.dspace.content.DCDate;
-import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
 import org.dspace.core.ArchiveManager;
@@ -342,7 +340,7 @@ public class FeedServlet extends DSpaceServlet
 	    	}
 	    	
     		String objectUrl = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
-    			? new ObjectIdentifier(context, dso).getURL().toString()
+    			? dso.getURL().toString()
     			: dso.getPersistentIdentifier().getURI().toString();
     		
 			// put in container-level data
@@ -435,7 +433,7 @@ public class FeedServlet extends DSpaceServlet
         
         //Set item URI
     	String link = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
-            ? new ObjectIdentifier(context, dspaceItem).getURL().toString()
+            ? dspaceItem.getURL().toString()
             : dspaceItem.getPersistentIdentifier().getURI().toString();
 
         rssItem.setLink(link);

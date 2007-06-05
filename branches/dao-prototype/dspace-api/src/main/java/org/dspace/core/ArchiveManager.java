@@ -81,14 +81,34 @@ public class ArchiveManager
     public static DSpaceObject getObject(Context context,
             PersistentIdentifier identifier)
     {
-        ObjectIdentifier oi = new ObjectIdentifier(context, identifier);
-        return oi.getObject();
+        ObjectIdentifier oi = new ObjectIdentifier(identifier);
+        return getObject(context, oi.getResourceID(), oi.getResourceTypeID());
     }
 
     public static DSpaceObject getObject(Context context, int id, int type)
     {
-        ObjectIdentifier oi = new ObjectIdentifier(context, id, type);
-        return oi.getObject();
+        switch(type)
+        {
+            case (Constants.BITSTREAM):
+                try
+                {
+                    return Bitstream.find(context, id);
+                }
+                catch (SQLException sqle)
+                {
+                    throw new RuntimeException(sqle);
+                }
+            case (Constants.BUNDLE):
+                return BundleDAOFactory.getInstance(context).retrieve(id);
+            case (Constants.ITEM):
+                return ItemDAOFactory.getInstance(context).retrieve(id);
+            case (Constants.COLLECTION):
+                return CollectionDAOFactory.getInstance(context).retrieve(id);
+            case (Constants.COMMUNITY):
+                return CommunityDAOFactory.getInstance(context).retrieve(id);
+            default:
+                throw new RuntimeException("Not a valid DSpaceObject type");
+        }
     }
 
     /**

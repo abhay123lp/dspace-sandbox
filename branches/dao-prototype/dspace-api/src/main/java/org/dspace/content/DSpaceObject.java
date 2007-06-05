@@ -39,9 +39,12 @@
  */
 package org.dspace.content;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
@@ -70,6 +73,26 @@ public abstract class DSpaceObject
      */
     public abstract int getID();
 
+    public ObjectIdentifier getIdentifier()
+    {
+        return new ObjectIdentifier(this);
+    }
+
+    public URL getURL()
+    {
+        String base = ConfigurationManager.getProperty("dspace.url");
+        String value = getIdentifier().toString();
+
+        try
+        {
+            return new URL(base + "/resource/dsi/" + value);
+        }
+        catch (MalformedURLException murle)
+        {
+            throw new RuntimeException(murle);
+        }
+    }
+
     public PersistentIdentifier getPersistentIdentifier()
     {
         return null;
@@ -82,6 +105,10 @@ public abstract class DSpaceObject
 
     public void addPersistentIdentifier(PersistentIdentifier pid) { }
     public void setPersistentIdentifiers(List<PersistentIdentifier> pids) { }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
 
     public String toString()
     {

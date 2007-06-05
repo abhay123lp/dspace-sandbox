@@ -99,7 +99,7 @@ public class SuggestServlet extends DSpaceServlet
         if (identifier != null)
         {
             item = (Item) ArchiveManager.getObject(context, identifier);
-            link = item.getIdentifier().getURL().toString();
+            link = item.getURL().toString();
             request.setAttribute("link", link);
 
             if (item != null)

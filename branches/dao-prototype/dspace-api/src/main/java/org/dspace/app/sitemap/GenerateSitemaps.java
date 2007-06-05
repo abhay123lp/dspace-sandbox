@@ -62,7 +62,6 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
-import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -209,7 +208,7 @@ public class GenerateSitemaps
 
         for (int i = 0; i < comms.length; i++)
         {
-            String url = new ObjectIdentifier(c, comms[i]).getURL().toString();
+            String url = comms[i].getURL().toString();
 
             if (makeHTMLMap)
                 html.addURL(url, null);
@@ -221,7 +220,7 @@ public class GenerateSitemaps
 
         for (int i = 0; i < colls.length; i++)
         {
-            String url = new ObjectIdentifier(c, colls[i]).getURL().toString();
+            String url = colls[i].getURL().toString();
 
             if (makeHTMLMap)
                 html.addURL(url, null);
@@ -235,7 +234,7 @@ public class GenerateSitemaps
         while (allItems.hasNext())
         {
             Item i = allItems.next();
-            String url = new ObjectIdentifier(c, i).getURL().toString();
+            String url = i.getURL().toString();
             Date lastMod = i.getLastModified();
 
             if (makeHTMLMap)
