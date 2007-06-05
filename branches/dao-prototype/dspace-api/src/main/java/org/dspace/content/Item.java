@@ -562,7 +562,10 @@ public class Item extends DSpaceObject
 
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
-        Bundle b = new Bundle(context);
+        // FIXME: Ideally, we wouldn't reach into the DAO layer here, we'd just
+        // let everything fall into place when item.update() is called, but I
+        // haven't quite worked out the logistics of that yet.
+        Bundle b = bundleDAO.create();
         b.setName(name);
         bundleDAO.update(b);
 

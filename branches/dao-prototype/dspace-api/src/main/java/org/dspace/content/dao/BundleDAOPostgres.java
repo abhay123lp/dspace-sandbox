@@ -122,6 +122,10 @@ public class BundleDAOPostgres extends BundleDAO
     @Override
     public void update(Bundle bundle) throws AuthorizeException
     {
+        super.update(bundle);
+
+        super.update(bundle);
+
         try
         {
             TableRow row =
@@ -136,24 +140,6 @@ public class BundleDAOPostgres extends BundleDAO
                 throw new RuntimeException("Didn't find bundle " +
                         bundle.getID());
             }
-
-            /*
-             * FIXME: Why would we want this to happen?
-            if (row == null)
-            {
-                row = DatabaseManager.create(context, "bundle");
-                int id = row.getIntColumn("bundle_id");
-                bundle.setID(id);
-
-                log.warn("Didn't find bundle with id " + bundle.getID() +
-                        " so I made one with id " + id);
-
-                log.info(LogManager.getHeader(context, "create_bundle",
-                        "bundle_id=" + id));
-            }
-
-            update(bundle, row);
-            */
         }
         catch (SQLException sqle)
         {
