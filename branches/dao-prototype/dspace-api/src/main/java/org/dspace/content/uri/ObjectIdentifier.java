@@ -73,16 +73,6 @@ public class ObjectIdentifier
         this(pid.getResourceID(), pid.getResourceTypeID());
     }
 
-    public int getResourceID()
-    {
-        return resourceID;
-    }
-
-    public int getResourceTypeID()
-    {
-        return resourceTypeID;
-    }
-
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////

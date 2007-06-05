@@ -81,8 +81,8 @@ public class ArchiveManager
     public static DSpaceObject getObject(Context context,
             PersistentIdentifier identifier)
     {
-        ObjectIdentifier oi = new ObjectIdentifier(identifier);
-        return getObject(context, oi.getResourceID(), oi.getResourceTypeID());
+        return getObject(context, identifier.getResourceID(),
+                identifier.getResourceTypeID());
     }
 
     public static DSpaceObject getObject(Context context, int id, int type)
