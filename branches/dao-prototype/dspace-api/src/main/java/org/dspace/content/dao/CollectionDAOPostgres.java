@@ -483,6 +483,7 @@ public class CollectionDAOPostgres extends CollectionDAO
         int id = collection.getID();
         Bitstream logo = collection.getLogo();
         Item templateItem = collection.getTemplateItem();
+        Group admins = collection.getAdministrators();
         Group[] workflowGroups = collection.getWorkflowGroups();
 
         if (logo == null)
@@ -501,6 +502,15 @@ public class CollectionDAOPostgres extends CollectionDAO
         else
         {
             row.setColumn("template_item_id", templateItem.getID());
+        }
+
+        if (admins == null)
+        {
+            row.setColumnNull("admin");
+        }
+        else
+        {
+            row.setColumn("admin", admins.getID());
         }
 
         for (int i = 1; i <= workflowGroups.length; i++)
