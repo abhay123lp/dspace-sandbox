@@ -208,7 +208,7 @@ public class GenerateSitemaps
 
         for (int i = 0; i < comms.length; i++)
         {
-            String url = comms[i].getURL().toString();
+            String url = comms[i].getIdentifier().getURL().toString();
 
             if (makeHTMLMap)
                 html.addURL(url, null);
@@ -220,7 +220,7 @@ public class GenerateSitemaps
 
         for (int i = 0; i < colls.length; i++)
         {
-            String url = colls[i].getURL().toString();
+            String url = colls[i].getIdentifier().getURL().toString();
 
             if (makeHTMLMap)
                 html.addURL(url, null);
@@ -234,7 +234,7 @@ public class GenerateSitemaps
         while (allItems.hasNext())
         {
             Item i = allItems.next();
-            String url = i.getURL().toString();
+            String url = i.getIdentifier().getURL().toString();
             Date lastMod = i.getLastModified();
 
             if (makeHTMLMap)

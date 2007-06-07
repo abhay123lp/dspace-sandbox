@@ -39,13 +39,18 @@
  */
 package org.dspace.content.uri;
 
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 
@@ -70,7 +75,32 @@ public class ObjectIdentifier
 
     public ObjectIdentifier(PersistentIdentifier pid)
     {
-        this(pid.getResourceID(), pid.getResourceTypeID());
+        this(pid.getObject());
+    }
+
+    public int getResourceID()
+    {
+        return resourceID;
+    }
+
+    public int getResourceTypeID()
+    {
+        return resourceTypeID;
+    }
+
+    public URL getURL()
+    {
+        String base = ConfigurationManager.getProperty("dspace.url");
+        String value = resourceTypeID + "/" + resourceID;
+
+        try
+        {
+            return new URL(base + "/resource/dsi/" + value);
+        }
+        catch (MalformedURLException murle)
+        {
+            throw new RuntimeException(murle);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -79,7 +109,8 @@ public class ObjectIdentifier
 
     public String toString()
     {
-        return resourceTypeID + "/" + resourceID;
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
     }
 
     public boolean equals(Object o)

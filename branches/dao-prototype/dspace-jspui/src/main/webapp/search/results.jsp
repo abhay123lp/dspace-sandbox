@@ -224,11 +224,11 @@ if (items.length > 0)
     }
     else if (collection == null)
     {
-	    searchScope = community.getURL().toString();
+	    searchScope = community.getIdentifier().getURL().toString();
     }
     else
     {
-	    searchScope = collection.getURL().toString();
+	    searchScope = collection.getIdentifier().getURL().toString();
     }
 
     // create the URLs accessing the previous and next search result pages

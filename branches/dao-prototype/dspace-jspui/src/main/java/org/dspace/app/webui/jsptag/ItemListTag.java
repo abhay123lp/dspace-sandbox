@@ -249,7 +249,7 @@ public class ItemListTag extends TagSupport
                         else if (field.equals(titleField))
                         {
                             metadata = "<a href=\"" 
-                            + items[i].getURL().toString() + "\">" 
+                            + items[i].getIdentifier().getURL().toString() + "\">" 
                             + Utils.addEntities(metadataArray[0].value)
                             + "</a>";
                         }
@@ -590,7 +590,7 @@ public class ItemListTag extends TagSupport
                     else
                     {
                         thumbLink = "<br/><a href=\"" +
-                            item.getURL().toString();
+                            item.getIdentifier().getURL().toString();
                     }
 
                     thumbLink = thumbLink + "\"><img src=\"" +

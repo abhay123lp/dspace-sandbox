@@ -63,8 +63,7 @@ public class PersistentIdentifier
 
     protected Context context;
     protected String value;
-    protected int resourceID;
-    protected int resourceTypeID;
+    protected DSpaceObject dso; // FIXME: I don't like this
 
     private final String PROTOCOL;
     private final String NS;
@@ -90,8 +89,12 @@ public class PersistentIdentifier
         this(type);
         this.context = context;
         this.value = value;
-        this.resourceID = dso.getID();
-        this.resourceTypeID = dso.getType();
+        this.dso = dso;
+    }
+
+    public DSpaceObject getObject()
+    {
+        return dso;
     }
 
     public int getTypeID()
@@ -102,16 +105,6 @@ public class PersistentIdentifier
     public Type getType()
     {
         return TYPE;
-    }
-
-    public int getResourceID()
-    {
-        return resourceID;
-    }
-
-    public int getResourceTypeID()
-    {
-        return resourceTypeID;
     }
 
     public URI getURI()

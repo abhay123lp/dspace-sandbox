@@ -87,7 +87,7 @@
     // get the persistent identifier if the item has one yet
     PersistentIdentifier identifier = item.getPersistentIdentifier();
     String uri = identifier.getCanonicalForm();
-    String link = item.getURL().toString();
+    String link = item.getIdentifier().getURL().toString();
     String citationLink = identifier.getURI().toString();
 
     // CC URL & RDF

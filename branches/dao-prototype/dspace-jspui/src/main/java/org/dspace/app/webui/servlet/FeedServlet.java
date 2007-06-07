@@ -340,7 +340,7 @@ public class FeedServlet extends DSpaceServlet
 	    	}
 	    	
     		String objectUrl = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
-    			? dso.getURL().toString()
+    			? dso.getIdentifier().getURL().toString()
     			: dso.getPersistentIdentifier().getURI().toString();
     		
 			// put in container-level data
@@ -433,7 +433,7 @@ public class FeedServlet extends DSpaceServlet
         
         //Set item URI
     	String link = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
-            ? dspaceItem.getURL().toString()
+            ? dspaceItem.getIdentifier().getURL().toString()
             : dspaceItem.getPersistentIdentifier().getURI().toString();
 
         rssItem.setLink(link);

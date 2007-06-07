@@ -113,7 +113,7 @@
     }
 
     String communityName = community.getMetadata("name");
-    String communityLink = community.getURL().toString();
+    String communityLink = community.getIdentifier().getURL().toString();
 
     Bitstream logo = collection.getLogo();
     

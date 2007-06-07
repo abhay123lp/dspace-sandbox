@@ -250,7 +250,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             // redirect to parent community page
             {
                 response.sendRedirect(response.encodeRedirectURL(
-                            parent.getURL().toString()));
+                            parent.getIdentifier().getURL().toString()));
             }
 
             // Show main control page
@@ -312,7 +312,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         if (community != null)
         {
             response.sendRedirect(response.encodeRedirectURL(
-                        community.getURL().toString()));
+                        community.getIdentifier().getURL().toString()));
         }
         else
         {
@@ -322,7 +322,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             if (parent != null)
             {
                 response.sendRedirect(response.encodeRedirectURL(
-                            parent.getURL().toString()));
+                            parent.getIdentifier().getURL().toString()));
             }
             else
             {

@@ -78,11 +78,16 @@ public class ArchiveManager
 {
     private static Logger log = Logger.getLogger(ArchiveManager.class);
 
+    // FIXME: I don't like either of these methods. The point of
+    // ObjectIdentifiers is so we don't have to know about other forms. Really,
+    // there should be one method that takes an ObjectIdentifier, rather than
+    // these two.
     public static DSpaceObject getObject(Context context,
             PersistentIdentifier identifier)
     {
-        return getObject(context, identifier.getResourceID(),
-                identifier.getResourceTypeID());
+        ObjectIdentifier oid = new ObjectIdentifier(identifier);
+        return getObject(context, oid.getResourceID(),
+                oid.getResourceTypeID());
     }
 
     public static DSpaceObject getObject(Context context, int id, int type)
