@@ -564,7 +564,17 @@ public class Item extends DSpaceObject
 
         // FIXME: Ideally, we wouldn't reach into the DAO layer here, we'd just
         // let everything fall into place when item.update() is called, but I
-        // haven't quite worked out the logistics of that yet.
+        // haven't quite worked out the logistics of that yet. Basically, we
+        // need the behaviour to propogate downwards (ie: through bundles into
+        // bitstreams) because bitstreams don't yet use DAOs, they do the
+        // creation immediately. Once Bitstreams use DAOs, we *should* be able
+        // to replace this code with the following:
+        /*
+        Bundle b = new Bundle();
+        b.setName(name);
+        addBundle(b);
+        return b;
+        */
         Bundle b = bundleDAO.create();
         b.setName(name);
         bundleDAO.update(b);

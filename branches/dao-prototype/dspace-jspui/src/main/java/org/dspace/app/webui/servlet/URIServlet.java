@@ -574,7 +574,7 @@ public class URIServlet extends DSpaceServlet
          */
         if (!location.equals("/"))
         {
-            prefix = prefixURL.toString();
+            prefix = prefixURL.toString() + "/";
         }
 
         if (button.equals("submit_titles"))
