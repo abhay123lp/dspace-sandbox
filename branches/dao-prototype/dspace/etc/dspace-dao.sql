@@ -11,3 +11,9 @@ create view persistentidentifier as
 	from handle
 	order by handle_id
 );
+
+alter table bitstream add column uuid varchar(36);
+alter table bundle add column uuid varchar(36);
+alter table item add column uuid varchar(36);
+alter table collection add column uuid varchar(36);
+alter table community add column uuid varchar(36);

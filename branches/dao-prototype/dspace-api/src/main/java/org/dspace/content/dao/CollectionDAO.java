@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -139,6 +140,11 @@ public abstract class CollectionDAO extends ContentDAO
     public Collection retrieve(int id)
     {
         return (Collection) context.fromCache(Collection.class, id);
+    }
+
+    public Collection retrieve(UUID uuid)
+    {
+        return null;
     }
 
     public void update(Collection collection) throws AuthorizeException

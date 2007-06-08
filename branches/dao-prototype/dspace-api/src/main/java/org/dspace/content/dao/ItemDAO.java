@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -101,6 +102,11 @@ public abstract class ItemDAO extends ContentDAO
     {
         // Check the cache
         return (Item) context.fromCache(Item.class, id);
+    }
+
+    public Item retrieve(UUID uuid)
+    {
+        return null;
     }
 
     public void update(Item item) throws AuthorizeException

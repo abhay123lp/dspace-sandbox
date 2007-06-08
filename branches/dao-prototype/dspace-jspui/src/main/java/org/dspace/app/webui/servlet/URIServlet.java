@@ -80,22 +80,18 @@ public class URIServlet extends DSpaceServlet
     /** log4j category */
     private static Logger log = Logger.getLogger(DSpaceServlet.class);
 
-    private PersistentIdentifierDAO identifierDAO;
-
     protected void doDSGet(Context context, HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
-        identifierDAO = PersistentIdentifierDAOFactory.getInstance(context);
-
         String uri = null;
         String extraPathInfo = null;
         PersistentIdentifier identifier = null;
         ObjectIdentifier oi = null;
         DSpaceObject dso = null;
 
-        // Original path info, of the form "xyz:1234/56"
-        // or "xyz:1234/56/extra/stuff"
+        // Original path info, of the form "/xyz/1234/56"
+        // or "/xyz/1234/56/extra/stuff"
         String path = request.getPathInfo();
 
         if (path != null)
@@ -110,6 +106,8 @@ public class URIServlet extends DSpaceServlet
                 // space is tidied up.
                 if (path.indexOf(':') == -1)
                 {
+                    // After this, the path will be of the form xyz:1234/56 or
+                    // xyz:1234/56/other/stuff
                     path = path.replaceFirst("/", ":");
                 }
                 int firstSlash = path.indexOf('/');
@@ -141,8 +139,12 @@ public class URIServlet extends DSpaceServlet
         {
             // The value of URI will be the persistent identifier in canonical
             // form, eg: xyz:1234/56
+            PersistentIdentifierDAO identifierDAO =
+                PersistentIdentifierDAOFactory.getInstance(context);
             identifier = identifierDAO.retrieve(uri);
+
             oi = identifier.getObjectIdentifier();
+
             dso = oi.getObject(context);
         }
 

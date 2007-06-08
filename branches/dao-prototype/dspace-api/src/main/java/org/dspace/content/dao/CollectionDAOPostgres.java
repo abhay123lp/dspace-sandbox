@@ -45,6 +45,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
@@ -109,6 +110,9 @@ public class CollectionDAOPostgres extends CollectionDAO
         try
         {
             TableRow row = DatabaseManager.create(context, "collection");
+            row.setColumn("uuid", UUID.randomUUID().toString());
+            DatabaseManager.update(context, row);
+
             int id = row.getIntColumn("collection_id");
             
             return super.create(id);
@@ -144,6 +148,41 @@ public class CollectionDAOPostgres extends CollectionDAO
             }
 
             collection = new Collection(context, id);
+            populateCollectionFromTableRow(collection, row);
+
+            // FIXME: I'd like to bump the rest of this up into the superclass
+            // so we don't have to do it for every implementation, but I can't
+            // figure out a clean way of doing this yet.
+            List<PersistentIdentifier> identifiers =
+                identifierDAO.getPersistentIdentifiers(collection);
+            collection.setPersistentIdentifiers(identifiers);
+
+            context.cache(collection, id);
+
+            return collection;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public Collection retrieve(UUID uuid)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context, "collection",
+                    "uuid", uuid.toString());
+
+            if (row == null)
+            {
+                log.warn("collection " + uuid + " not found");
+                return null;
+            }
+
+            int id = row.getIntColumn("collection_id");
+            Collection collection = new Collection(context, id);
             populateCollectionFromTableRow(collection, row);
 
             // FIXME: I'd like to bump the rest of this up into the superclass

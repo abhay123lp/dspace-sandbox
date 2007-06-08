@@ -42,6 +42,7 @@ package org.dspace.content.dao;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -122,6 +123,11 @@ public abstract class CommunityDAO extends ContentDAO
     public Community retrieve(int id)
     {
         return (Community) context.fromCache(Community.class, id);
+    }
+
+    public Community retrieve(UUID uuid)
+    {
+        return null;
     }
 
     public void update(Community community) throws AuthorizeException

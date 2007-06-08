@@ -49,6 +49,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.dspace.checker.BitstreamInfoDAO;
@@ -293,6 +294,7 @@ public class BitstreamStorageManager
             tempContext = new Context();
 
             bitstream = DatabaseManager.create(tempContext, "Bitstream");
+            bitstream.setColumn("uuid", UUID.randomUUID().toString());
             bitstream.setColumn("deleted", true);
             bitstream.setColumn("internal_id", id);
 

@@ -159,8 +159,9 @@ public class PersistentIdentifier
         // getID() method which is far better than ordinal(). Also, this
         // information will eventually live in the database (probably), and
         // when that happens, ordinal() will become useless.
-        NULL (0, "http", "dsi", ConfigurationManager.getProperty("dspace.url")),
-        HANDLE (1, "http", "hdl", "hdl.handle.net");
+        NULL (0, "", "dsi", ""),    // Internal type
+        HANDLE (1, "http", "hdl", "hdl.handle.net"),
+        UUID (2, "", "uuid", "");   // Internal type
 
         private final int id;
         private final String protocol;

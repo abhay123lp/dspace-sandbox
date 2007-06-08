@@ -41,6 +41,7 @@ package org.dspace.content.dao;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -83,6 +84,11 @@ public abstract class BundleDAO extends ContentDAO
     public Bundle retrieve(int id)
     {
         return (Bundle) context.fromCache(Bundle.class, id);
+    }
+
+    public Bundle retrieve(UUID uuid)
+    {
+        return null;
     }
 
     // FIXME: Check authorization? Or do we count on this only ever happening

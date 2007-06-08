@@ -42,6 +42,7 @@ package org.dspace.content.uri.dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ConfigurationManager;
@@ -147,6 +148,13 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                 Integer.parseInt(value.substring(value.indexOf("/") + 1));
 
             ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
+            dso = oi.getObject(context);
+
+            return getInstance(dso, type, value);
+        }
+        else if (type.equals(PersistentIdentifier.Type.UUID))
+        {
+            ObjectIdentifier oi = new ObjectIdentifier(UUID.fromString(value));
             dso = oi.getObject(context);
 
             return getInstance(dso, type, value);

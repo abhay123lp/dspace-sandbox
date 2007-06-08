@@ -47,6 +47,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
@@ -143,6 +144,9 @@ public class ItemDAOPostgres extends ItemDAO
         try
         {
             TableRow row = DatabaseManager.create(context, "item");
+            row.setColumn("uuid", UUID.randomUUID().toString());
+            DatabaseManager.update(context, row);
+
             int id = row.getIntColumn("item_id");
 
             return super.create(id);
@@ -174,6 +178,41 @@ public class ItemDAOPostgres extends ItemDAO
             }
 
             item = new ItemProxy(context, id);
+            populateItemFromTableRow(item, row);
+
+            // FIXME: I'd like to bump the rest of this up into the superclass
+            // so we don't have to do it for every implementation, but I can't
+            // figure out a clean way of doing this yet.
+            List<PersistentIdentifier> identifiers =
+                identifierDAO.getPersistentIdentifiers(item);
+            item.setPersistentIdentifiers(identifiers);
+
+            context.cache(item, id);
+
+            return item;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public Item retrieve(UUID uuid)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context, "item",
+                    "uuid", uuid.toString());
+
+            if (row == null)
+            {
+                log.warn("item " + uuid + " not found");
+                return null;
+            }
+
+            int id = row.getIntColumn("item_id");
+            Item item = new ItemProxy(context, id);
             populateItemFromTableRow(item, row);
 
             // FIXME: I'd like to bump the rest of this up into the superclass

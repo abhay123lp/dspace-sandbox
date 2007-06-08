@@ -44,6 +44,7 @@ import java.net.MalformedURLException;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -51,7 +52,12 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
 import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
+import org.dspace.content.Item;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.dao.BundleDAO;
 import org.dspace.content.dao.BundleDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
@@ -70,6 +76,7 @@ public class ObjectIdentifier
 {
     private int resourceID;
     private int resourceTypeID;
+    private UUID uuid;
 
     public ObjectIdentifier(int resourceID, int resourceTypeID)
     {
@@ -82,40 +89,102 @@ public class ObjectIdentifier
         this(dso.getID(), dso.getType());
     }
 
+    public ObjectIdentifier(UUID uuid)
+    {
+        this.uuid = uuid;
+    }
+
     public DSpaceObject getObject(Context context)
     {
-        switch(resourceTypeID)
+        CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
+        CollectionDAO collectionDAO =
+            CollectionDAOFactory.getInstance(context);
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+        BundleDAO bundleDAO = BundleDAOFactory.getInstance(context);
+
+        if (uuid == null)
         {
-            case (Constants.BITSTREAM):
-                try
-                {
-                    return Bitstream.find(context, resourceID);
-                }
-                catch (SQLException sqle)
-                {
-                    throw new RuntimeException(sqle);
-                }
-            case (Constants.BUNDLE):
-                return BundleDAOFactory.getInstance(context).retrieve(resourceID);
-            case (Constants.ITEM):
-                return ItemDAOFactory.getInstance(context).retrieve(resourceID);
-            case (Constants.COLLECTION):
-                return CollectionDAOFactory.getInstance(context).retrieve(resourceID);
-            case (Constants.COMMUNITY):
-                return CommunityDAOFactory.getInstance(context).retrieve(resourceID);
-            default:
-                throw new RuntimeException("Not a valid DSpaceObject type");
+            switch(resourceTypeID)
+            {
+                case (Constants.BITSTREAM):
+                    try
+                    {
+                        return Bitstream.find(context, resourceID);
+                    }
+                    catch (SQLException sqle)
+                    {
+                        throw new RuntimeException(sqle);
+                    }
+                case (Constants.BUNDLE):
+                    return bundleDAO.retrieve(resourceID);
+                case (Constants.ITEM):
+                    return itemDAO.retrieve(resourceID);
+                case (Constants.COLLECTION):
+                    return collectionDAO.retrieve(resourceID);
+                case (Constants.COMMUNITY):
+                    return communityDAO.retrieve(resourceID);
+                default:
+                    throw new RuntimeException("Not a valid DSpaceObject type");
+            }
+        }
+        else
+        {
+            DSpaceObject dso = null;
+
+            try
+            {
+                dso = (Bitstream) Bitstream.find(context, uuid);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+
+            if (dso == null)
+            {
+                dso = (Bundle) bundleDAO.retrieve(uuid);
+            }
+            if (dso == null)
+            {
+                dso = (Item) itemDAO.retrieve(uuid);
+            }
+            if (dso == null)
+            {
+                dso = (Collection) collectionDAO.retrieve(uuid);
+            }
+            if (dso == null)
+            {
+                dso = (Community) communityDAO.retrieve(uuid);
+            }
+
+            if (dso == null)
+            {
+                throw new RuntimeException("Couldn't find " + uuid);
+            }
+            else
+            {
+                return dso;
+            }
         }
     }
 
     public URL getURL()
     {
         String base = ConfigurationManager.getProperty("dspace.url");
-        String value = resourceTypeID + "/" + resourceID;
+        String value = null;
+        
+        if (uuid == null)
+        {
+            value = "dsi/" + resourceTypeID + "/" + resourceID;
+        }
+        else
+        {
+            value = "uuid/" + uuid.toString();
+        }
 
         try
         {
-            return new URL(base + "/resource/dsi/" + value);
+            return new URL(base + "/resource/" + value);
         }
         catch (MalformedURLException murle)
         {

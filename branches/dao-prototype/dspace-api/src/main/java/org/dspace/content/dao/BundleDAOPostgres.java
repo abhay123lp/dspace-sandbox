@@ -42,6 +42,7 @@ package org.dspace.content.dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
@@ -73,6 +74,9 @@ public class BundleDAOPostgres extends BundleDAO
         try
         {
             TableRow row = DatabaseManager.create(context, "bundle");
+            row.setColumn("uuid", UUID.randomUUID().toString());
+            DatabaseManager.update(context, row);
+
             int id = row.getIntColumn("bundle_id");
 
             return super.create(id);
@@ -106,6 +110,36 @@ public class BundleDAOPostgres extends BundleDAO
             else
             {
                 bundle = new Bundle(context, id);
+                populateBundleFromTableRow(bundle, row);
+
+                context.cache(bundle, id);
+
+                return bundle;
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public Bundle retrieve(UUID uuid)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context, "bundle",
+                    "uuid", uuid.toString());
+
+            if (row == null)
+            {
+                log.warn("bundle " + uuid + " not found");
+                return null;
+            }
+            else
+            {
+                int id = row.getIntColumn("bundle_id");
+                Bundle bundle = new Bundle(context, id);
                 populateBundleFromTableRow(bundle, row);
 
                 context.cache(bundle, id);

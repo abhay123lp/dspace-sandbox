@@ -42,6 +42,7 @@ package org.dspace.content.dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
@@ -105,6 +106,9 @@ public class CommunityDAOPostgres extends CommunityDAO
         try
         {
             TableRow row = DatabaseManager.create(context, "community");
+            row.setColumn("uuid", UUID.randomUUID().toString());
+            DatabaseManager.update(context, row);
+
             int id = row.getIntColumn("community_id");
 
             return super.create(id);
@@ -135,6 +139,40 @@ public class CommunityDAOPostgres extends CommunityDAO
             }
 
             community = new Community(context, id);
+            populateCommunityFromTableRow(community, row);
+
+            // FIXME: I'd like to bump the rest of this up into the superclass
+            // so we don't have to do it for every implementation, but I can't
+            // figure out a clean way of doing this yet.
+            List<PersistentIdentifier> identifiers =
+                identifierDAO.getPersistentIdentifiers(community);
+            community.setPersistentIdentifiers(identifiers);
+
+            context.cache(community, id);
+
+            return community;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public Community retrieve(UUID uuid)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context, "community",
+                    "uuid", uuid.toString());
+
+            if (row == null)
+            {
+                return null;
+            }
+
+            int id = row.getIntColumn("community_id");
+            Community community = new Community(context, id);
             populateCommunityFromTableRow(community, row);
 
             // FIXME: I'd like to bump the rest of this up into the superclass

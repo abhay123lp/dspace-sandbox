@@ -44,6 +44,7 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
@@ -174,6 +175,32 @@ public class Bitstream extends DSpaceObject
         {
             log.debug(LogManager.getHeader(context, "find_bitstream",
                     "bitstream_id=" + id));
+        }
+
+        return new Bitstream(context, row);
+    }
+
+    public static Bitstream find(Context context, UUID uuid) throws SQLException
+    {
+        TableRow row = DatabaseManager.findByUnique(context, "bitstream",
+                "uuid", uuid.toString());
+
+        if (row == null)
+        {
+            if (log.isDebugEnabled())
+            {
+                log.debug(LogManager.getHeader(context, "find_bitstream",
+                        "not_found,uuid=" + uuid));
+            }
+
+            return null;
+        }
+
+        // not null, return Bitstream
+        if (log.isDebugEnabled())
+        {
+            log.debug(LogManager.getHeader(context, "find_bitstream",
+                    "uuid=" + uuid));
         }
 
         return new Bitstream(context, row);
