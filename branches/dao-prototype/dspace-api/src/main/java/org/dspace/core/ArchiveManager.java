@@ -50,7 +50,6 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.Browse;
-import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCDate;
@@ -58,7 +57,6 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.InstallItem;
 import org.dspace.content.MetadataSchema;
-import org.dspace.content.dao.BundleDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.CollectionDAO;
@@ -82,38 +80,19 @@ public class ArchiveManager
     // ObjectIdentifiers is so we don't have to know about other forms. Really,
     // there should be one method that takes an ObjectIdentifier, rather than
     // these two.
+    @Deprecated
     public static DSpaceObject getObject(Context context,
             PersistentIdentifier identifier)
     {
-        ObjectIdentifier oid = new ObjectIdentifier(identifier);
-        return getObject(context, oid.getResourceID(),
-                oid.getResourceTypeID());
+        ObjectIdentifier oid = identifier.getObjectIdentifier();
+        return oid.getObject(context);
     }
 
+    @Deprecated
     public static DSpaceObject getObject(Context context, int id, int type)
     {
-        switch(type)
-        {
-            case (Constants.BITSTREAM):
-                try
-                {
-                    return Bitstream.find(context, id);
-                }
-                catch (SQLException sqle)
-                {
-                    throw new RuntimeException(sqle);
-                }
-            case (Constants.BUNDLE):
-                return BundleDAOFactory.getInstance(context).retrieve(id);
-            case (Constants.ITEM):
-                return ItemDAOFactory.getInstance(context).retrieve(id);
-            case (Constants.COLLECTION):
-                return CollectionDAOFactory.getInstance(context).retrieve(id);
-            case (Constants.COMMUNITY):
-                return CommunityDAOFactory.getInstance(context).retrieve(id);
-            default:
-                throw new RuntimeException("Not a valid DSpaceObject type");
-        }
+        ObjectIdentifier oid = new ObjectIdentifier(id, type);
+        return oid.getObject(context);
     }
 
     /**

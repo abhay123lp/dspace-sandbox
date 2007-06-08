@@ -63,7 +63,7 @@ public class PersistentIdentifier
 
     protected Context context;
     protected String value;
-    protected DSpaceObject dso; // FIXME: I don't like this
+    protected ObjectIdentifier oid;
 
     private final String PROTOCOL;
     private final String NS;
@@ -89,12 +89,12 @@ public class PersistentIdentifier
         this(type);
         this.context = context;
         this.value = value;
-        this.dso = dso;
+        this.oid = new ObjectIdentifier(dso);
     }
 
-    public DSpaceObject getObject()
+    public ObjectIdentifier getObjectIdentifier()
     {
-        return dso;
+        return oid;
     }
 
     public int getTypeID()

@@ -41,6 +41,7 @@ package org.dspace.content.uri;
 
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +50,15 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import org.dspace.content.Bitstream;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.dao.BundleDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.CommunityDAO;
+import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -73,19 +82,30 @@ public class ObjectIdentifier
         this(dso.getID(), dso.getType());
     }
 
-    public ObjectIdentifier(PersistentIdentifier pid)
+    public DSpaceObject getObject(Context context)
     {
-        this(pid.getObject());
-    }
-
-    public int getResourceID()
-    {
-        return resourceID;
-    }
-
-    public int getResourceTypeID()
-    {
-        return resourceTypeID;
+        switch(resourceTypeID)
+        {
+            case (Constants.BITSTREAM):
+                try
+                {
+                    return Bitstream.find(context, resourceID);
+                }
+                catch (SQLException sqle)
+                {
+                    throw new RuntimeException(sqle);
+                }
+            case (Constants.BUNDLE):
+                return BundleDAOFactory.getInstance(context).retrieve(resourceID);
+            case (Constants.ITEM):
+                return ItemDAOFactory.getInstance(context).retrieve(resourceID);
+            case (Constants.COLLECTION):
+                return CollectionDAOFactory.getInstance(context).retrieve(resourceID);
+            case (Constants.COMMUNITY):
+                return CommunityDAOFactory.getInstance(context).retrieve(resourceID);
+            default:
+                throw new RuntimeException("Not a valid DSpaceObject type");
+        }
     }
 
     public URL getURL()
