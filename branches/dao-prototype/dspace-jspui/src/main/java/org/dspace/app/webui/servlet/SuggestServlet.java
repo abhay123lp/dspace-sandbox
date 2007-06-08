@@ -57,10 +57,10 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
@@ -90,6 +90,7 @@ public class SuggestServlet extends DSpaceServlet
         // Obtain information from request
         String uri = request.getParameter("uri");
         PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+        ObjectIdentifier oi = identifier.getObjectIdentifier();
         
         // Lookup Item title & collection
         Item item = null;
@@ -98,7 +99,7 @@ public class SuggestServlet extends DSpaceServlet
         String collName = null;
         if (identifier != null)
         {
-            item = (Item) ArchiveManager.getObject(context, identifier);
+            item = (Item) oi.getObject(context);
             link = item.getIdentifier().getURL().toString();
             request.setAttribute("link", link);
 

@@ -67,7 +67,6 @@ import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -92,6 +91,7 @@ public class URIServlet extends DSpaceServlet
         String uri = null;
         String extraPathInfo = null;
         PersistentIdentifier identifier = null;
+        ObjectIdentifier oi = null;
         DSpaceObject dso = null;
 
         // Original path info, of the form "xyz:1234/56"
@@ -106,7 +106,12 @@ public class URIServlet extends DSpaceServlet
             try
             {
                 // Extract the URI
-                path = path.replaceFirst("/", ":");
+                // FIXME: Hack-attack! This will be much cleaner once the URL
+                // space is tidied up.
+                if (path.indexOf(':') == -1)
+                {
+                    path = path.replaceFirst("/", ":");
+                }
                 int firstSlash = path.indexOf('/');
                 int secondSlash = path.indexOf('/', firstSlash + 1);
 
@@ -137,7 +142,8 @@ public class URIServlet extends DSpaceServlet
             // The value of URI will be the persistent identifier in canonical
             // form, eg: xyz:1234/56
             identifier = identifierDAO.retrieve(uri);
-            dso = ArchiveManager.getObject(context, identifier);
+            oi = identifier.getObjectIdentifier();
+            dso = oi.getObject(context);
         }
 
         if (dso == null)

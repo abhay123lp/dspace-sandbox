@@ -58,10 +58,10 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -254,7 +254,8 @@ public class SimpleSearchServlet extends DSpaceServlet
             String uri = (String) itemIdentifiers.get(i);
 
             PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-            Item item = (Item) ArchiveManager.getObject(context, identifier);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            Item item = (Item) oi.getObject(context);
 
             resultsItems[i] = item;
 
@@ -270,8 +271,8 @@ public class SimpleSearchServlet extends DSpaceServlet
             String uri = (String) collectionIdentifiers.get(i);
 
             PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-            Collection c =
-                (Collection) ArchiveManager.getObject(context, identifier);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            Collection c = (Collection) oi.getObject(context);
 
             resultsCollections[i] = c;
 
@@ -287,8 +288,8 @@ public class SimpleSearchServlet extends DSpaceServlet
             String uri = (String) communityIdentifiers.get(i);
 
             PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-            Community c =
-                (Community) ArchiveManager.getObject(context, identifier);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            Community c = (Community) oi.getObject(context);
 
             resultsCommunities[i] = c;
 

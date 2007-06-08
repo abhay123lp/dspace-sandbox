@@ -73,10 +73,10 @@ import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -144,7 +144,8 @@ public class EditItemServlet extends DSpaceServlet
         {
             // resolve uri
             PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-            DSpaceObject dso = ArchiveManager.getObject(context, identifier);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            DSpaceObject dso = oi.getObject(context);
 
             // make sure it's an ITEM
             if ((dso != null) && (dso.getType() == Constants.ITEM))

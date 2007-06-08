@@ -76,25 +76,6 @@ public class ArchiveManager
 {
     private static Logger log = Logger.getLogger(ArchiveManager.class);
 
-    // FIXME: I don't like either of these methods. The point of
-    // ObjectIdentifiers is so we don't have to know about other forms. Really,
-    // there should be one method that takes an ObjectIdentifier, rather than
-    // these two.
-    @Deprecated
-    public static DSpaceObject getObject(Context context,
-            PersistentIdentifier identifier)
-    {
-        ObjectIdentifier oid = identifier.getObjectIdentifier();
-        return oid.getObject(context);
-    }
-
-    @Deprecated
-    public static DSpaceObject getObject(Context context, int id, int type)
-    {
-        ObjectIdentifier oid = new ObjectIdentifier(id, type);
-        return oid.getObject(context);
-    }
-
     /**
      * Withdraw the item from the archive. It is kept in place, and the content
      * and metadata are not deleted, but it is not publicly accessible.

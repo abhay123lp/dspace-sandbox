@@ -62,10 +62,10 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -152,7 +152,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             {
                 // otherwise, attempt to resolve uri
                 PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-                DSpaceObject dso = ArchiveManager.getObject(c, identifier);
+                ObjectIdentifier oi = identifier.getObjectIdentifier();
+                DSpaceObject dso = oi.getObject(c);
 
                 // make sure it's an item
                 if ((dso != null) && (dso.getType() == Constants.ITEM))

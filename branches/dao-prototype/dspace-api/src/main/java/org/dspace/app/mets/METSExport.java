@@ -65,10 +65,10 @@ import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -181,7 +181,8 @@ public class METSExport
             }
 
             PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-            DSpaceObject o = ArchiveManager.getObject(context, identifier);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            DSpaceObject o = oi.getObject(context);
 
             if ((o != null) && o instanceof Item)
             {
@@ -210,7 +211,8 @@ public class METSExport
             }
 
             PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-            DSpaceObject o = ArchiveManager.getObject(context, identifier);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            DSpaceObject o = oi.getObject(context);
 
             if ((o != null) && o instanceof Collection)
             {

@@ -78,9 +78,10 @@ import org.dspace.content.Item;
 import org.dspace.content.Bitstream;
 import org.dspace.content.DCValue;
 import org.dspace.content.DCDate;
+import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -192,7 +193,9 @@ public class FeedServlet extends DSpaceServlet
         { 	
         	// Determine if the URI is a valid reference
             PersistentIdentifierDAO dao = PersistentIdentifierDAOFactory.getInstance(context);
-            dso = ArchiveManager.getObject(context, dao.retrieve(uri));
+            PersistentIdentifier identifier = dao.retrieve(uri);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            dso = oi.getObject(context);
         }
         
         if (! enabled || (dso != null && 

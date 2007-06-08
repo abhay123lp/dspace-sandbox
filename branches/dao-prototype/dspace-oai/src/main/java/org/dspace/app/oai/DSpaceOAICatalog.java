@@ -56,10 +56,10 @@ import org.dspace.content.Collection;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -791,7 +791,8 @@ public class DSpaceOAICatalog extends AbstractCatalog
                     PersistentIdentifierDAOFactory.getInstance(context);
                 PersistentIdentifier identifier = identifierDAO.retrieve(uri);
 
-                o = ArchiveManager.getObject(context, identifier);
+                ObjectIdentifier oi = identifier.getObjectIdentifier();
+                o = oi.getObject(context);
             }
         }
 

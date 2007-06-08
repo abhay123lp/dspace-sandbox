@@ -65,6 +65,7 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
@@ -219,13 +220,14 @@ public class ItemExport
         }
 
         PersistentIdentifier identifier = identifierDAO.retrieve(myIDString);
+        ObjectIdentifier oi = identifier.getObjectIdentifier();
 
         if (myType == Constants.ITEM)
         {
             // first, do we have a persistent identifier for the item?
             if (identifier != null)
             {
-                myItem = (Item) ArchiveManager.getObject(c, identifier);
+                myItem = (Item) oi.getObject(c);
 
                 if ((myItem == null) || (myItem.getType() != Constants.ITEM))
                 {
@@ -247,7 +249,7 @@ public class ItemExport
         {
             if (myIDString.indexOf('/') != -1)
             {
-                mycollection = (Collection) ArchiveManager.getObject(c, identifier);
+                mycollection = (Collection) oi.getObject(c);
 
                 // ensure it's a collection
                 if ((mycollection == null)

@@ -39,10 +39,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 
@@ -116,7 +116,8 @@ public class URIDispatcher implements BitstreamDispatcher
                 PersistentIdentifierDAOFactory.getInstance(context);
 
             PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-            DSpaceObject dso = ArchiveManager.getObject(context, identifier);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            DSpaceObject dso = oi.getObject(context);
 
             id = dso.getID();
             dsoType = dso.getType();

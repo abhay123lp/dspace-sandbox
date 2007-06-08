@@ -80,10 +80,10 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -393,8 +393,8 @@ public class ItemImport
                     // canonical form - try to resolve it
                     PersistentIdentifier identifier =
                         identifierDAO.retrieve(collections[i]);
-                    mycollections[i] =
-                        (Collection) ArchiveManager.getObject(c, identifier);
+                    ObjectIdentifier oi = identifier.getObjectIdentifier();
+                    mycollections[i] = (Collection) oi.getObject(c);
 
                     // resolved, now make sure it's a collection
                     if ((mycollections[i] == null)
@@ -578,7 +578,8 @@ public class ItemImport
                 // add new item, locate old one
                 PersistentIdentifier identifier =
                     identifierDAO.retrieve(oldURI);
-                oldItem = (Item) ArchiveManager.getObject(c, identifier);
+                ObjectIdentifier oi = identifier.getObjectIdentifier();
+                oldItem = (Item) oi.getObject(c);
             }
             else
             {
@@ -759,7 +760,8 @@ public class ItemImport
         // bit of a hack - to remove an item, you must remove it
         // from all collections it's a part of, then it will be removed
         PersistentIdentifier identifier = identifierDAO.retrieve(uri);
-        Item myitem = (Item) ArchiveManager.getObject(c, identifier);
+        ObjectIdentifier oi = identifier.getObjectIdentifier();
+        Item myitem = (Item) oi.getObject(c);
 
         if (myitem == null)
         {

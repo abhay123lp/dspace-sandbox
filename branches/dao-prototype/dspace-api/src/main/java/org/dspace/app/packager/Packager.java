@@ -58,10 +58,10 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.content.packager.PackageDisseminator;
 import org.dspace.content.packager.PackageParameters;
 import org.dspace.content.packager.PackageIngester;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
@@ -266,10 +266,11 @@ public class Packager
 
                 PersistentIdentifier identifier =
                     identifierDAO.retrieve(collections[i]);
+                ObjectIdentifier oi = identifier.getObjectIdentifier();
 
                 // sanity check: did uri resolve, and to a collection?
-                DSpaceObject dso =
-                    ArchiveManager.getObject(context, identifier);
+                DSpaceObject dso = oi.getObject(context);
+
                 if (dso == null)
                     throw new IllegalArgumentException(
                             "Bad collection list -- "
@@ -350,9 +351,10 @@ public class Packager
             }
 
             PersistentIdentifier identifier = identifierDAO.retrieve(itemUri);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
 
             // sanity check: did uri resolve, and to a collection?
-            DSpaceObject dso = ArchiveManager.getObject(context, identifier);
+            DSpaceObject dso = oi.getObject(context);
 
             if (dso == null)
             {

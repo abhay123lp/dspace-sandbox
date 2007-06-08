@@ -60,10 +60,10 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -201,7 +201,9 @@ public class MediaFilterManager
             {
                 PersistentIdentifier pid =
                     identifierDAO.retrieve(identifier);
-            	DSpaceObject dso = ArchiveManager.getObject(c, pid);
+                ObjectIdentifier oi = pid.getObjectIdentifier();
+
+                DSpaceObject dso = oi.getObject(c);
 
             	if (dso == null)
             	{

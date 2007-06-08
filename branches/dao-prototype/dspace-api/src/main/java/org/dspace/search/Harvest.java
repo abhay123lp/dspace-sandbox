@@ -57,10 +57,10 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -327,7 +327,10 @@ public class Harvest
         throws SQLException
     {
         // FIXME: Assume identifier is item
-        Item i = (Item) ArchiveManager.getObject(context, identifier);
+        // FIXME: We should be passing an ObjectIdentifier in here, not a
+        // PersistentIdentifier
+        ObjectIdentifier oi = identifier.getObjectIdentifier();
+        Item i = (Item) oi.getObject(context);
 
         if (i == null)
         {
@@ -367,8 +370,9 @@ public class Harvest
     {
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
 
-        Item item = (Item) ArchiveManager.getObject(
-                context, itemInfo.itemID, Constants.ITEM);
+        ObjectIdentifier oi = new ObjectIdentifier(itemInfo.itemID, Constants.ITEM);
+        Item item = (Item) oi.getObject(context);
+
         List<Collection> parents = collectionDAO.getParentCollections(item);
 
         List<PersistentIdentifier> identifiers =

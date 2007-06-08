@@ -44,7 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dspace.content.DSpaceObject;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Constants;
@@ -52,6 +51,7 @@ import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
 import org.dspace.content.uri.Handle;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 
 /**
@@ -146,8 +146,8 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
             resourceID =
                 Integer.parseInt(value.substring(value.indexOf("/") + 1));
 
-            dso =
-                ArchiveManager.getObject(context, resourceID, resourceTypeID);
+            ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
+            dso = oi.getObject(context);
 
             return getInstance(dso, type, value);
         }
@@ -183,7 +183,8 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
             throw new RuntimeException(sqle);
         }
 
-        dso = ArchiveManager.getObject(context, resourceID, resourceTypeID);
+        ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
+        dso = oi.getObject(context);
 
         return getInstance(dso, type, value);
     }
@@ -257,8 +258,8 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                 int resourceID = row.getIntColumn("resource_id");
                 int resourceTypeID = row.getIntColumn("resource_type_id");
 
-                DSpaceObject dso =
-                    ArchiveManager.getObject(context, resourceID, resourceTypeID);
+                ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
+                DSpaceObject dso = oi.getObject(context);
 
                 for (PersistentIdentifier pid : pids)
                 {

@@ -57,10 +57,10 @@ import org.dspace.browse.BrowseScope;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -191,7 +191,8 @@ public class BrowseServlet extends DSpaceServlet
             {
                 // For browsing items by title or date, focus is a URI
                 PersistentIdentifier identifier = identifierDAO.retrieve(focus);
-                Item item = (Item) ArchiveManager.getObject(context, identifier);
+                ObjectIdentifier oi = identifier.getObjectIdentifier();
+                Item item = (Item) oi.getObject(context);
 
                 if (item == null)
                 {
@@ -286,7 +287,8 @@ public class BrowseServlet extends DSpaceServlet
             {
                 // Value is URI if we're browsing items by title or date
                 PersistentIdentifier identifier = identifierDAO.retrieve(val);
-                Item item = (Item) ArchiveManager.getObject(context, identifier);
+                ObjectIdentifier oi = identifier.getObjectIdentifier();
+                Item item = (Item) oi.getObject(context);
 
                 if (item == null)
                 {

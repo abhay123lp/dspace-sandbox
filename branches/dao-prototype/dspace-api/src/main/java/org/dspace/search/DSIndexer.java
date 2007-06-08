@@ -70,10 +70,10 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -603,6 +603,7 @@ public class DSIndexer
         PersistentIdentifierDAO identifierDAO =
             PersistentIdentifierDAOFactory.getInstance(context);
         PersistentIdentifier identifier = null;
+        ObjectIdentifier oi = null;
 
     	IndexReader reader = DSQuery.getIndexReader();
     	
@@ -614,7 +615,8 @@ public class DSIndexer
         		String uri = doc.get("uri");
         		
                 identifier = identifierDAO.retrieve(uri);
-        		DSpaceObject o = ArchiveManager.getObject(context, identifier);
+                oi = identifier.getObjectIdentifier();
+        		DSpaceObject o = oi.getObject(context);
 
                 if (o == null)
                 {
