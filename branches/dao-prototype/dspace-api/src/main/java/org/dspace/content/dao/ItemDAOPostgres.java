@@ -63,6 +63,7 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.proxy.ItemProxy;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
@@ -579,14 +580,14 @@ public class ItemDAOPostgres extends ItemDAO
 
     private void populateItemFromTableRow(Item item, TableRow row)
     {
-        int id = row.getIntColumn("item_id");
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
         int submitterId = row.getIntColumn("submitter_id");
         int owningCollectionId = row.getIntColumn("owning_collection");
         boolean inArchive = row.getBooleanColumn("in_archive");
         boolean withdrawn = row.getBooleanColumn("withdrawn");
         Date lastModified = row.getDateColumn("last_modified");
 
-        item.setID(id);
+        item.setIdentifier(new ObjectIdentifier(uuid));
         item.setSubmitter(submitterId);
         item.setOwningCollectionId(owningCollectionId);
         item.setArchived(inArchive);

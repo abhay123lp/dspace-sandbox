@@ -74,7 +74,6 @@ public class Bundle extends DSpaceObject
 {
     private static Logger log = Logger.getLogger(Bundle.class);
 
-    private int id;
     private String name;
     private int primaryBitstreamId;
     private List<Bitstream> bitstreams;
@@ -98,16 +97,6 @@ public class Bundle extends DSpaceObject
         this.name = "";
         this.primaryBitstreamId = -1;
         this.bitstreams = new ArrayList<Bitstream>();
-    }
-
-    public int getID()
-    {
-        return id;
-    }
-
-    public void setID(int id)
-    {
-        this.id = id;
     }
 
     public String getName()

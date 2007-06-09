@@ -51,6 +51,7 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
@@ -610,6 +611,9 @@ public class CommunityDAOPostgres extends CommunityDAO
                 throw new RuntimeException(sqle);
             }
         }
+
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+        c.setIdentifier(new ObjectIdentifier(uuid));
 
         c.setLogoBitstream(logo);
 

@@ -51,6 +51,7 @@ import org.dspace.core.Constants;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -339,7 +340,7 @@ public class BundleDAOPostgres extends BundleDAO
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
-    private void populateBundleFromTableRow(Bundle bundle, TableRow bundleRow)
+    private void populateBundleFromTableRow(Bundle bundle, TableRow row)
     {
         try
         {
@@ -353,11 +354,11 @@ public class BundleDAOPostgres extends BundleDAO
 
             List <Bitstream> bitstreams = new ArrayList<Bitstream>();
 
-            for (TableRow row : tri.toList())
+            for (TableRow bsRow : tri.toList())
             {
                 // FIXME: I'd like to do BitstreamDAO.retrieve(id);
                 Bitstream fromCache = (Bitstream) context.fromCache(
-                        Bitstream.class, row.getIntColumn("bitstream_id"));
+                        Bitstream.class, bsRow.getIntColumn("bitstream_id"));
 
                 if (fromCache != null)
                 {
@@ -365,12 +366,14 @@ public class BundleDAOPostgres extends BundleDAO
                 }
                 else
                 {
-                    bitstreams.add(new Bitstream(context, row));
+                    bitstreams.add(new Bitstream(context, bsRow));
                 }
             }
 
-            bundle.setID(bundleRow.getIntColumn("bundle_id"));
-            bundle.setName(bundleRow.getStringColumn("name"));
+            UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+
+            bundle.setIdentifier(new ObjectIdentifier(uuid));
+            bundle.setName(row.getStringColumn("name"));
             bundle.setBitstreams(bitstreams);
         }
         catch (SQLException sqle)

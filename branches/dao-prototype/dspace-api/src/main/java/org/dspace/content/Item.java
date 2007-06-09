@@ -48,6 +48,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
@@ -90,9 +91,7 @@ public class Item extends DSpaceObject
     protected CollectionDAO collectionDAO;
     private CommunityDAO communityDAO;
 
-    protected int id;
     protected String identifier;
-    protected List<PersistentIdentifier> identifiers;
     protected boolean inArchive;
     protected boolean withdrawn;
     protected Date lastModified;
@@ -120,53 +119,6 @@ public class Item extends DSpaceObject
         this.bundles = new ArrayList<Bundle>();
         this.metadata = new ArrayList<DCValue>();
         this.metadataChanged = false;
-    }
-
-    public int getID()
-    {
-        return id;
-    }
-
-    public void setID(int id)
-    {
-        this.id = id;
-    }
-
-    /**
-     * For those cases where you only want one, and you don't care what sort.
-     */
-    public PersistentIdentifier getPersistentIdentifier()
-    {
-        if (identifiers.size() > 0)
-        {
-            for (PersistentIdentifier pid : identifiers)
-            {
-                return pid;
-            }
-            return null;
-        }
-        else
-        {
-            // Because Items don't necessarily have persistent identifiers
-            // until they hit the archive.
-            log.warn("I don't have any persistent identifiers.\n" + this);
-            return null;
-        }
-    }
-
-    public List<PersistentIdentifier> getPersistentIdentifiers()
-    {
-        return identifiers;
-    }
-
-    public void addPersistentIdentifier(PersistentIdentifier identifier)
-    {
-        this.identifiers.add(identifier);
-    }
-
-    public void setPersistentIdentifiers(List<PersistentIdentifier> identifiers)
-    {
-        this.identifiers = identifiers;
     }
 
     /**

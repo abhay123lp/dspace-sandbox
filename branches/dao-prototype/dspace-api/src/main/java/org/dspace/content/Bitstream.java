@@ -49,6 +49,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
@@ -82,16 +83,13 @@ public class Bitstream extends DSpaceObject
     private static Logger log = Logger.getLogger(Bitstream.class);
 
     /** Our context */
-    private Context bContext;
+    private Context context;
 
     /** The row in the table representing this bitstream */
     private TableRow bRow;
 
     /** The bitstream format corresponding to this bitstream */
     private BitstreamFormat bitstreamFormat;
-
-    /** Experimental persistent identifier stuff */
-    private List<PersistentIdentifier> identifiers;
 
     /**
      * Private constructor for creating a Bitstream object based on the contents
@@ -106,7 +104,7 @@ public class Bitstream extends DSpaceObject
 //    Bitstream(Context context, TableRow row) throws SQLException
     public Bitstream(Context context, TableRow row) throws SQLException
     {
-        bContext = context;
+        this.context = context;
         bRow = row;
 
         // Get the bitstream format
@@ -132,6 +130,9 @@ public class Bitstream extends DSpaceObject
         PersistentIdentifierDAO identifierDAO =
                 PersistentIdentifierDAOFactory.getInstance(context);
         this.identifiers = identifierDAO.getPersistentIdentifiers(this);
+
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+        setIdentifier(new ObjectIdentifier(uuid));
     }
 
     /**
@@ -275,6 +276,7 @@ public class Bitstream extends DSpaceObject
      * 
      * @return the internal identifier
      */
+    @Override
     public int getID()
     {
         return bRow.getIntColumn("bitstream_id");
@@ -477,7 +479,7 @@ public class Bitstream extends DSpaceObject
         if (f == null)
         {
             // Use "Unknown" format
-            bitstreamFormat = BitstreamFormat.findUnknown(bContext);
+            bitstreamFormat = BitstreamFormat.findUnknown(context);
         }
         else
         {
@@ -501,12 +503,12 @@ public class Bitstream extends DSpaceObject
     public void update() throws SQLException, AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(bContext, this, Constants.WRITE);
+        AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
 
-        log.info(LogManager.getHeader(bContext, "update_bitstream",
+        log.info(LogManager.getHeader(context, "update_bitstream",
                 "bitstream_id=" + getID()));
 
-        DatabaseManager.update(bContext, bRow);
+        DatabaseManager.update(context, bRow);
     }
 
     /**
@@ -525,24 +527,24 @@ public class Bitstream extends DSpaceObject
 
         // changed to a check on remove
         // Check authorisation
-        //AuthorizeManager.authorizeAction(bContext, this, Constants.DELETE);
-        log.info(LogManager.getHeader(bContext, "delete_bitstream",
+        //AuthorizeManager.authorizeAction(context, this, Constants.DELETE);
+        log.info(LogManager.getHeader(context, "delete_bitstream",
                 "bitstream_id=" + getID()));
 
         // Remove from cache
-        bContext.removeCached(this, getID());
+        context.removeCached(this, getID());
 
         // Remove policies
-        AuthorizeManager.removeAllPolicies(bContext, this);
+        AuthorizeManager.removeAllPolicies(context, this);
 
         // Remove references to primary bitstreams in bundle
         String query = "update bundle set primary_bitstream_id = ";
         query += (oracle ? "''" : "Null") + " where primary_bitstream_id = ? ";
-        DatabaseManager.updateQuery(bContext,
+        DatabaseManager.updateQuery(context,
                 query, bRow.getIntColumn("bitstream_id"));
 
         // Remove bitstream itself
-        BitstreamStorageManager.delete(bContext, bRow
+        BitstreamStorageManager.delete(context, bRow
                 .getIntColumn("bitstream_id"));
     }
 
@@ -558,9 +560,9 @@ public class Bitstream extends DSpaceObject
             AuthorizeException
     {
         // Maybe should return AuthorizeException??
-        AuthorizeManager.authorizeAction(bContext, this, Constants.READ);
+        AuthorizeManager.authorizeAction(context, this, Constants.READ);
 
-        return BitstreamStorageManager.retrieve(bContext, bRow
+        return BitstreamStorageManager.retrieve(context, bRow
                 .getIntColumn("bitstream_id"));
     }
 
@@ -573,7 +575,7 @@ public class Bitstream extends DSpaceObject
     public Bundle[] getBundles() throws SQLException
     {
         // Get the bundle table rows
-        TableRowIterator tri = DatabaseManager.queryTable(bContext, "bundle",
+        TableRowIterator tri = DatabaseManager.queryTable(context, "bundle",
                 "SELECT bundle.* FROM bundle, bundle2bitstream WHERE " + 
                 "bundle.bundle_id=bundle2bitstream.bundle_id AND " +
                 "bundle2bitstream.bitstream_id= ? ",
@@ -587,7 +589,7 @@ public class Bitstream extends DSpaceObject
             TableRow r = tri.next();
 
             // First check the cache
-            Bundle fromCache = (Bundle) bContext.fromCache(Bundle.class, r
+            Bundle fromCache = (Bundle) context.fromCache(Bundle.class, r
                     .getIntColumn("bundle_id"));
 
             if (fromCache != null)
@@ -596,7 +598,7 @@ public class Bitstream extends DSpaceObject
             }
             else
             {
-                bundles.add(new Bundle(bContext, r));
+                bundles.add(new Bundle(context, r));
             }
         }
 
@@ -664,47 +666,5 @@ public class Bitstream extends DSpaceObject
     public int hashCode()
     {
         return HashCodeBuilder.reflectionHashCode(this);
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Experimental persistent identifier stuff
-    ////////////////////////////////////////////////////////////////////
-
-    /**
-     * For those cases where you only want one, and you don't care what sort.
-     */
-    public PersistentIdentifier getPersistentIdentifier()
-    {
-        if (identifiers.size() > 0)
-        {
-            for (PersistentIdentifier pid : identifiers)
-            {
-                // For now, this will be a "null" identifier.
-                return pid;
-            }
-            return null;
-        }
-        else
-        {
-            // Because Items don't necessarily have persistent identifiers
-            // until they hit the archive.
-            log.warn("I don't have any persistent identifiers.\n" + this);
-            return null;
-        }
-    }
-
-    public List<PersistentIdentifier> getPersistentIdentifiers()
-    {
-        return identifiers;
-    }
-
-    public void addPersistentIdentifier(PersistentIdentifier identifier)
-    {
-        this.identifiers.add(identifier);
-    }
-
-    public void setPersistentIdentifiers(List<PersistentIdentifier> identifiers)
-    {
-        this.identifiers = identifiers;
     }
 }

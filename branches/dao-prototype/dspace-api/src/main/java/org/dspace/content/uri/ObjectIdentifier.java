@@ -84,11 +84,6 @@ public class ObjectIdentifier
         this.resourceTypeID = resourceTypeID;
     }
 
-    public ObjectIdentifier(DSpaceObject dso)
-    {
-        this(dso.getID(), dso.getType());
-    }
-
     public ObjectIdentifier(UUID uuid)
     {
         this.uuid = uuid;

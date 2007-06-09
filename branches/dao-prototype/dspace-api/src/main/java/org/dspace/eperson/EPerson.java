@@ -486,6 +486,7 @@ public class EPerson extends DSpaceObject
      * 
      * @return the internal identifier
      */
+    @Override
     public int getID()
     {
         return myRow.getIntColumn("eperson_id");

@@ -56,6 +56,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
  */
 public abstract class DSpaceObject
 {
+    protected int id;
+    protected ObjectIdentifier oid;
+    protected List<PersistentIdentifier> identifiers;
+
     /**
      * Get the type of this object, found in Constants
      * 
@@ -68,25 +72,56 @@ public abstract class DSpaceObject
      * 
      * @return internal ID of object
      */
-    public abstract int getID();
+    public int getID()
+    {
+        return id;
+    }
 
     public ObjectIdentifier getIdentifier()
     {
-        return new ObjectIdentifier(this);
+        return oid;
     }
 
+    public void setIdentifier(ObjectIdentifier oid)
+    {
+        this.oid = oid;
+    }
+
+    /**
+     * For those cases where you only want one, and you don't care what sort.
+     */
     public PersistentIdentifier getPersistentIdentifier()
     {
-        return null;
+        if ((identifiers != null) && (identifiers.size() > 0))
+        {
+            return identifiers.get(0);
+        }
+        else
+        {
+            throw new RuntimeException(
+                    "I don't have any persistent identifiers.\n" + this);
+        }
     }
 
     public List<PersistentIdentifier> getPersistentIdentifiers()
     {
-        return new ArrayList<PersistentIdentifier>();
+        if (identifiers == null)
+        {
+            identifiers = new ArrayList<PersistentIdentifier>();
+        }
+
+        return identifiers;
     }
 
-    public void addPersistentIdentifier(PersistentIdentifier pid) { }
-    public void setPersistentIdentifiers(List<PersistentIdentifier> pids) { }
+    public void addPersistentIdentifier(PersistentIdentifier identifier)
+    {
+        this.identifiers.add(identifier);
+    }
+
+    public void setPersistentIdentifiers(List<PersistentIdentifier> identifiers)
+    {
+        this.identifiers = identifiers;
+    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods

@@ -86,9 +86,7 @@ public class Community extends DSpaceObject
     private CommunityDAO dao;
     private CollectionDAO collectionDAO;
 
-    private int id;
     private String identifier;
-    private List<PersistentIdentifier> identifiers;
     private int logoID;
     private Bitstream logo;
 
@@ -103,47 +101,6 @@ public class Community extends DSpaceObject
 
         this.identifiers = new ArrayList<PersistentIdentifier>();
         this.metadata = new TreeMap<String, String>();
-    }
-
-    public int getID()
-    {
-        return id;
-    }
-
-    public void setID(int id)
-    {
-        this.id = id;
-    }
-
-    /**
-     * For those cases where you only want one, and you don't care what sort.
-     */
-    public PersistentIdentifier getPersistentIdentifier()
-    {
-        if (identifiers.size() > 0)
-        {
-            return identifiers.get(0);
-        }
-        else
-        {
-            throw new RuntimeException(
-                    "I don't have any persistent identifiers.\n" + this);
-        }
-    }
-
-    public List<PersistentIdentifier> getPersistentIdentifiers()
-    {
-        return identifiers;
-    }
-
-    public void addPersistentIdentifier(PersistentIdentifier identifier)
-    {
-        this.identifiers.add(identifier);
-    }
-
-    public void setPersistentIdentifiers(List<PersistentIdentifier> identifiers)
-    {
-        this.identifiers = identifiers;
     }
 
     public String getMetadata(String field)

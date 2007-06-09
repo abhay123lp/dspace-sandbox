@@ -54,6 +54,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
 import org.dspace.core.Context;
@@ -606,6 +607,9 @@ public class CollectionDAOPostgres extends CollectionDAO
             templateItem =
                 itemDAO.retrieve(row.getIntColumn("template_item_id"));
         }
+
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+        c.setIdentifier(new ObjectIdentifier(uuid));
 
         c.setLogoBitstream(logo);
         c.setTemplateItem(templateItem);

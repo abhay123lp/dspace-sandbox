@@ -89,7 +89,7 @@ public class PersistentIdentifier
         this(type);
         this.context = context;
         this.value = value;
-        this.oid = new ObjectIdentifier(dso);
+        this.oid = dso.getIdentifier();
     }
 
     public ObjectIdentifier getObjectIdentifier()

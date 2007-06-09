@@ -221,6 +221,7 @@ public class Group extends DSpaceObject
      * 
      * @return id
      */
+    @Override
     public int getID()
     {
         return myRow.getIntColumn("eperson_group_id");
