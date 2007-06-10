@@ -156,7 +156,18 @@ public class URIServlet extends DSpaceServlet
 
             return;
         }
+        else
+        {
+            processDSpaceObject(context, request, response, dso,
+                    extraPathInfo);
+        }
+    }
 
+    protected void processDSpaceObject(Context context, HttpServletRequest
+            request, HttpServletResponse response, DSpaceObject dso,
+            String extraPathInfo)
+        throws ServletException, IOException, SQLException, AuthorizeException
+    {
         // OK, we have a valid URI. What is it?
         if (dso.getType() == Constants.ITEM)
         {
@@ -243,9 +254,10 @@ public class URIServlet extends DSpaceServlet
         {
             // Shouldn't happen. Log and treat as invalid ID
             log.info(LogManager.getHeader(context,
-                    "URI not an item, collection or community", "uri="
-                            + uri));
-            JSPManager.showInvalidIDError(request, response, path, -1);
+                    "URI not an item, collection or community", "identifier="
+                            + dso.getIdentifier().toString()));
+            JSPManager.showInvalidIDError(request, response,
+                    request.getPathInfo(), -1);
 
             return;
         }

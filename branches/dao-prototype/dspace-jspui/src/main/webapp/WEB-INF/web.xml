@@ -587,6 +587,7 @@
   <servlet-mapping>
     <servlet-name>openURL</servlet-name>
     <url-pattern>/openURL</url-pattern>
+    <url-pattern>/openurl</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

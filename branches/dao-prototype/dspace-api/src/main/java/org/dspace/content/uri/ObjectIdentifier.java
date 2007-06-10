@@ -165,21 +165,24 @@ public class ObjectIdentifier
 
     public URL getURL()
     {
-        String base = ConfigurationManager.getProperty("dspace.url");
-        String value = null;
+        boolean openURL = true;
+
+        String base = ConfigurationManager.getProperty("dspace.url") + "/";
+        String value = (openURL ? "uri=" : "");
         
         if (uuid == null)
         {
-            value = "dsi/" + resourceTypeID + "/" + resourceID;
+            value += "dsi" + (openURL ? ":" : "/" ) + 
+                resourceTypeID + "/" + resourceID;
         }
         else
         {
-            value = "uuid/" + uuid.toString();
+            value += "uuid" + (openURL ? ":" : "/" ) + uuid.toString();
         }
 
         try
         {
-            return new URL(base + "/resource/" + value);
+            return new URL(base + (openURL ? "openurl?" : "resource/") + value);
         }
         catch (MalformedURLException murle)
         {
