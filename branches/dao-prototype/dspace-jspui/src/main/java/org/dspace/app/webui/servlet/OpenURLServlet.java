@@ -80,11 +80,11 @@ public class OpenURLServlet extends URIServlet
             HttpServletResponse response)
         throws ServletException, IOException, SQLException, AuthorizeException
     {
-        String uri = request.getParameter("uri");
+        String id = request.getParameter("id");
 
-        if (uri != null)
+        if (id != null)
         {
-            processURI(context, request, response, uri);
+            processURI(context, request, response);
         }
         else
         {
@@ -134,11 +134,12 @@ public class OpenURLServlet extends URIServlet
         doDSGet(context, request, response);
     }
 
-    @Override
-    protected void processURI(Context context, HttpServletRequest request,
-            HttpServletResponse response, String uri)
+    private void processURI(Context context, HttpServletRequest request,
+            HttpServletResponse response)
         throws ServletException, IOException, SQLException, AuthorizeException
     {
+        String id = request.getParameter("id");
+
         PersistentIdentifier identifier = null;
         ObjectIdentifier oi = null;
         DSpaceObject dso = null;
@@ -147,7 +148,7 @@ public class OpenURLServlet extends URIServlet
         // form, eg: xyz:1234/56
         PersistentIdentifierDAO identifierDAO =
             PersistentIdentifierDAOFactory.getInstance(context);
-        identifier = identifierDAO.retrieve(uri);
+        identifier = identifierDAO.retrieve(id);
 
         oi = identifier.getObjectIdentifier();
 
@@ -156,8 +157,8 @@ public class OpenURLServlet extends URIServlet
         if (dso == null)
         {
             log.info(LogManager.getHeader(
-                        context, "invalid_uri", "uri=" + uri));
-            JSPManager.showInvalidIDError(request, response, uri, -1);
+                        context, "invalid_id", "id=" + id));
+            JSPManager.showInvalidIDError(request, response, id, -1);
 
             return;
         }

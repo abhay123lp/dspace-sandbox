@@ -40,7 +40,9 @@
 package org.dspace.app.webui.servlet;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.List;
@@ -84,6 +86,7 @@ public class URIServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        log.info("doDSGet()");
         String uri = null;
         String extraPathInfo = null;
         PersistentIdentifier identifier = null;
@@ -102,28 +105,19 @@ public class URIServlet extends DSpaceServlet
             try
             {
                 // Extract the URI
-                // FIXME: Hack-attack! This will be much cleaner once the URL
-                // space is tidied up.
-                if (path.indexOf(':') == -1)
-                {
-                    // After this, the path will be of the form xyz:1234/56 or
-                    // xyz:1234/56/other/stuff
-                    path = path.replaceFirst("/", ":");
-                }
                 int firstSlash = path.indexOf('/');
-                int secondSlash = path.indexOf('/', firstSlash + 1);
 
-                if (secondSlash != -1)
+                if (firstSlash != -1)
                 {
                     // We have extra path info
-                    // FIXME: this is shouldn't exist. if we have extra
+                    // FIXME: this shouldn't exist. if we have extra
                     // information in the url, it should be parameterised, not
                     // separated by a slash. If we escaped slashes in
                     // identifiers to %2F this wouldn't be such an issue, but
                     // we don't and as such are making assumptions about the
                     // form of the identifiers.
-                    uri = path.substring(0, secondSlash);
-                    extraPathInfo = path.substring(secondSlash);
+                    uri = path.substring(0, firstSlash);
+                    extraPathInfo = path.substring(firstSlash);
                 }
                 else
                 {
@@ -131,20 +125,26 @@ public class URIServlet extends DSpaceServlet
                     uri = path;
                 }
             }
-            catch (NumberFormatException nfe) { }
+            catch (NumberFormatException nfe)
+            {
+                throw new RuntimeException(nfe);
+            }
+        }
+
+        try
+        {
+            log.info(uri);
+            uri = URLDecoder.decode(uri, "UTF-8");
+            log.info(uri);
+        }
+        catch (UnsupportedEncodingException uee)
+        {
+            throw new RuntimeException(uee);
         }
 
         // Find out what the value points to
         if (uri != null)
         {
-            processURI(context, request, response, uri);
-        }
-    }
-    
-    protected void processURI(Context context, HttpServletRequest request,
-            HttpServletResponse response, String uri)
-        throws ServletException, IOException, SQLException, AuthorizeException
-    {
             // The value of URI will be the persistent identifier in canonical
             // form, eg: xyz:1234/56
             PersistentIdentifierDAO identifierDAO =
@@ -585,6 +585,7 @@ public class URIServlet extends DSpaceServlet
             HttpServletResponse response, URL prefixURL)
         throws IOException
     {
+        log.info(prefixURL.toString());
         String button = UIUtil.getSubmitButton(request, "");
         String location = request.getParameter("location");
         String prefix = "/";

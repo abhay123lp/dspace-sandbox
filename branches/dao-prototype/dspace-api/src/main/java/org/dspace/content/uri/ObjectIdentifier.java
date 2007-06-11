@@ -39,8 +39,10 @@
  */
 package org.dspace.content.uri;
 
-import java.net.URL;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +52,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.log4j.Logger;
 
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
@@ -74,6 +77,8 @@ import org.dspace.core.Context;
  */
 public class ObjectIdentifier
 {
+    private static Logger log = Logger.getLogger(ObjectIdentifier.class);
+
     private int resourceID;
     private int resourceTypeID;
     private UUID uuid;
@@ -165,24 +170,28 @@ public class ObjectIdentifier
 
     public URL getURL()
     {
-        boolean openURL = true;
+        boolean openURL = false;
 
         String base = ConfigurationManager.getProperty("dspace.url") + "/";
-        String value = (openURL ? "uri=" : "");
+        String value = (openURL ? "id=" : "");
         
         if (uuid == null)
         {
-            value += "dsi" + (openURL ? ":" : "/" ) + 
-                resourceTypeID + "/" + resourceID;
+            value += "dsi:" + resourceTypeID + "/" + resourceID;
         }
         else
         {
-            value += "uuid" + (openURL ? ":" : "/" ) + uuid.toString();
+            value += "uuid:" + uuid.toString();
         }
 
         try
         {
-            return new URL(base + (openURL ? "openurl?" : "resource/") + value);
+            return new URL(base + (openURL ? "openurl?" : "resource/") +
+                    URLEncoder.encode(value, "UTF-8"));
+        }
+        catch (UnsupportedEncodingException uee)
+        {
+            throw new RuntimeException(uee);
         }
         catch (MalformedURLException murle)
         {
