@@ -137,6 +137,14 @@ public class URIServlet extends DSpaceServlet
         // Find out what the value points to
         if (uri != null)
         {
+            processURI(context, request, response, uri);
+        }
+    }
+    
+    protected void processURI(Context context, HttpServletRequest request,
+            HttpServletResponse response, String uri)
+        throws ServletException, IOException, SQLException, AuthorizeException
+    {
             // The value of URI will be the persistent identifier in canonical
             // form, eg: xyz:1234/56
             PersistentIdentifierDAO identifierDAO =

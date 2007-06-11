@@ -75,6 +75,7 @@ public class OpenURLServlet extends URIServlet
     /** Logger */
     private static Logger log = Logger.getLogger(OpenURLServlet.class);
 
+    @Override
     protected void doDSGet(Context context, HttpServletRequest request,
             HttpServletResponse response)
         throws ServletException, IOException, SQLException, AuthorizeException
@@ -124,6 +125,7 @@ public class OpenURLServlet extends URIServlet
         }
     }
 
+    @Override
     protected void doDSPost(Context context, HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
@@ -132,7 +134,8 @@ public class OpenURLServlet extends URIServlet
         doDSGet(context, request, response);
     }
 
-    private void processURI(Context context, HttpServletRequest request,
+    @Override
+    protected void processURI(Context context, HttpServletRequest request,
             HttpServletResponse response, String uri)
         throws ServletException, IOException, SQLException, AuthorizeException
     {
@@ -152,8 +155,8 @@ public class OpenURLServlet extends URIServlet
 
         if (dso == null)
         {
-            log.info(LogManager
-                    .getHeader(context, "invalid_id", "uri=" + uri));
+            log.info(LogManager.getHeader(
+                        context, "invalid_uri", "uri=" + uri));
             JSPManager.showInvalidIDError(request, response, uri, -1);
 
             return;
