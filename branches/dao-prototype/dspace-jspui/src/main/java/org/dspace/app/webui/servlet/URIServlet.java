@@ -97,6 +97,17 @@ public class URIServlet extends DSpaceServlet
         // or "/xyz/1234/56/extra/stuff"
         String path = request.getPathInfo();
 
+        try
+        {
+            log.info(path);
+            path = URLDecoder.decode(path, "UTF-8");
+            log.info(path);
+        }
+        catch (UnsupportedEncodingException uee)
+        {
+            throw new RuntimeException(uee);
+        }
+
         if (path != null)
         {
             // substring(1) is to remove initial '/'
@@ -104,6 +115,10 @@ public class URIServlet extends DSpaceServlet
 
             try
             {
+                path = path.substring(new String("info:dspace/").length());
+                path = path.replaceFirst("/", ":");
+                log.info(path);
+
                 // Extract the URI
                 int firstSlash = path.indexOf('/');
 
@@ -129,17 +144,6 @@ public class URIServlet extends DSpaceServlet
             {
                 throw new RuntimeException(nfe);
             }
-        }
-
-        try
-        {
-            log.info(uri);
-            uri = URLDecoder.decode(uri, "UTF-8");
-            log.info(uri);
-        }
-        catch (UnsupportedEncodingException uee)
-        {
-            throw new RuntimeException(uee);
         }
 
         // Find out what the value points to
