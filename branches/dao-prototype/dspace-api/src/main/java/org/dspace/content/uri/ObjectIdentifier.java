@@ -187,11 +187,12 @@ public class ObjectIdentifier
         try
         {
             return new URL(base + (openURL ? "openurl?" : "resource/") +
-                    URLEncoder.encode(value, "UTF-8"));
-        }
-        catch (UnsupportedEncodingException uee)
-        {
-            throw new RuntimeException(uee);
+                    value);
+//                    URLEncoder.encode(value, "UTF-8"));
+//        }
+//        catch (UnsupportedEncodingException uee)
+//        {
+//            throw new RuntimeException(uee);
         }
         catch (MalformedURLException murle)
         {

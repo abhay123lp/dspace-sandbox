@@ -140,6 +140,12 @@ public class OpenURLServlet extends URIServlet
     {
         String id = request.getParameter("id");
 
+        if (id.startsWith("info:dspace/"))
+        {
+            id = id.substring(new String("info:dspace/").length());
+            id = id.replaceFirst("/", ":");
+        }
+
         PersistentIdentifier identifier = null;
         ObjectIdentifier oi = null;
         DSpaceObject dso = null;
