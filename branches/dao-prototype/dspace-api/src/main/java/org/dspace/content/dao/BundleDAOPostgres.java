@@ -159,8 +159,6 @@ public class BundleDAOPostgres extends BundleDAO
     {
         super.update(bundle);
 
-        super.update(bundle);
-
         try
         {
             TableRow row =

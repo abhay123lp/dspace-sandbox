@@ -104,10 +104,7 @@ public abstract class ItemDAO extends ContentDAO
         return (Item) context.fromCache(Item.class, id);
     }
 
-    public Item retrieve(UUID uuid)
-    {
-        return null;
-    }
+    public abstract Item retrieve(UUID uuid);
 
     public void update(Item item) throws AuthorizeException
     {

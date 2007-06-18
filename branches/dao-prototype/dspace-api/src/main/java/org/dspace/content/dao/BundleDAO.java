@@ -147,6 +147,7 @@ public abstract class BundleDAO extends ContentDAO
     }
 
     public abstract List<Bundle> getBundles(Item item);
+    public abstract List<Bundle> getBundlesByBitstream(Bitstream bitstream);
 
     // FIXME: This should really be in BitstreamDAO, but that hasn't been
     // implemented yet.
