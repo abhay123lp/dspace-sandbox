@@ -188,28 +188,12 @@ public class URIServlet extends DSpaceServlet
         // OK, we have a valid URI. What is it?
         if (dso.getType() == Constants.BITSTREAM)
         {
+            // FIXME: Check for if-modified-since header
             Bitstream bitstream = (Bitstream) dso;
 
             log.info(LogManager.getHeader(context, "view_bitstream",
                     "bitstream_id=" + bitstream.getID()));
 
-            // Modification date
-            // TODO: Currently the date of the item, since we don't have dates
-            // for files
-            response.setDateHeader("Last-Modified", item.getLastModified()
-                    .getTime());
-            
-            // Check for if-modified-since header
-            long modSince = request.getDateHeader("If-Modified-Since");
-
-            if (modSince != -1 && item.getLastModified().getTime() < modSince)
-            {
-                // Item has not been modified since requested date,
-                // hence bitstream has not; return 304
-                response.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
-                return;
-            }
-            
             // Pipe the bits
             InputStream is = bitstream.retrieve();
          
