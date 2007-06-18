@@ -671,11 +671,11 @@ public class ItemTag extends TagSupport
                             // Work out what the bitstream link should be
                             // (persistent ID if item has URI)
                             String bsLink = "<a target=\"_blank\" href=\""
-                                    + request.getContextPath();
-                            // FIXME: Ideally, we'd do something like this:
-//                                    + bitstreams[k].getIdentifier().getURL().toString()
-//                                    + "\">";
+//                                    + request.getContextPath();
+                                    + bitstreams[k].getIdentifier().getURL().toString()
+                                    + "\">";
 
+                            /*
                             if ((uri != null)
                                     && (bitstreams[k].getSequenceID() > 0))
                             {
@@ -693,6 +693,7 @@ public class ItemTag extends TagSupport
                                     + UIUtil.encodeBitstreamName(bitstreams[k]
                                         .getName(),
                                         Constants.DEFAULT_ENCODING) + "\">";
+                            */
 
                             out.print("<tr><td headers=\"t1\" class=\"standard\">");
                             out.print(bsLink);

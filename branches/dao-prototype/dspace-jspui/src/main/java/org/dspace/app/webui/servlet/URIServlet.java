@@ -39,6 +39,7 @@
  */
 package org.dspace.app.webui.servlet;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -60,6 +61,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.Browse;
 import org.dspace.browse.BrowseScope;
+import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCValue;
@@ -73,6 +75,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.core.Utils;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.Subscribe;
@@ -183,7 +186,26 @@ public class URIServlet extends DSpaceServlet
         throws ServletException, IOException, SQLException, AuthorizeException
     {
         // OK, we have a valid URI. What is it?
-        if (dso.getType() == Constants.ITEM)
+        if (dso.getType() == Constants.BITSTREAM)
+        {
+            Bitstream bitstream = (Bitstream) dso;
+            
+            // Pipe the bits
+            InputStream is = bitstream.retrieve();
+         
+                    // Set the response MIME type
+            response.setContentType(bitstream.getFormat().getMIMEType());
+
+            response.setHeader("Content-Length", String
+                    .valueOf(bitstream.getSize()));
+            response.setHeader("Content-disposition", "inline; filename=" +
+                    bitstream.getName());
+
+            Utils.bufferedCopy(is, response.getOutputStream());
+            is.close();
+            response.getOutputStream().flush();
+        }
+        else if (dso.getType() == Constants.ITEM)
         {
             Item item = (Item) dso;
             
