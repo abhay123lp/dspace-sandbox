@@ -357,19 +357,22 @@ public class ItemTag extends TagSupport
                         DCDate dd = new DCDate(values[j].value);
 
                         // Parse the date
-                        out.print(UIUtil.displayDate(dd, false, false, (HttpServletRequest)pageContext.getRequest()));
+                        out.print(UIUtil.displayDate(dd, false, false,
+                                    (HttpServletRequest)pageContext.getRequest()));
                     }
                     else if (isAuthor)
                     {
-                        out.print("<a href=\"" + request.getContextPath() + "/items-by-author?author="
-                            + URLEncoder.encode(values[j].value, "UTF-8") + "\">" + values[j].value
-                            + "</a>");
+                        out.print("<a href=\"" + request.getContextPath() +
+                                "/items-by-author?author=" +
+                                URLEncoder.encode(values[j].value, "UTF-8") +
+                                "\">" + values[j].value + "</a>");
                     }
                     else if (isSubject)
                     {
-                        out.print("<a href=\"" + request.getContextPath() + "/items-by-subject?subject="
-                            + URLEncoder.encode(values[j].value, "UTF-8") + "\">" + values[j].value
-                            + "</a>");
+                        out.print("<a href=\"" + request.getContextPath() +
+                                "/items-by-subject?subject=" +
+                                URLEncoder.encode(values[j].value, "UTF-8") +
+                                "\">" + values[j].value + "</a>");
                     }
                     else
                     {
@@ -437,8 +440,7 @@ public class ItemTag extends TagSupport
 
             if (!hidden)
             {
-                out
-                        .print("<tr><td headers=\"s1\" class=\"metadataFieldLabel\">");
+                out.print("<tr><td headers=\"s1\" class=\"metadataFieldLabel\">");
                 out.print(values[i].schema);
                 out.print("." + values[i].element);
 
@@ -447,11 +449,9 @@ public class ItemTag extends TagSupport
                     out.print("." + values[i].qualifier);
                 }
 
-                out
-                        .print("</td><td headers=\"s2\" class=\"metadataFieldValue\">");
+                out.print("</td><td headers=\"s2\" class=\"metadataFieldValue\">");
                 out.print(Utils.addEntities(values[i].value));
-                out
-                        .print("</td><td headers=\"s3\" class=\"metadataFieldValue\">");
+                out.print("</td><td headers=\"s3\" class=\"metadataFieldValue\">");
 
                 if (values[i].language == null)
                 {
@@ -523,8 +523,8 @@ public class ItemTag extends TagSupport
     private void listBitstreams() throws IOException
     {
         JspWriter out = pageContext.getOut();
-        HttpServletRequest request = (HttpServletRequest) pageContext
-                .getRequest();
+        HttpServletRequest request =
+            (HttpServletRequest) pageContext.getRequest();
 
         out.print("<table align=\"center\" class=\"miscTable\"><tr>");
         out.println("<td class=\"evenRowEvenCol\"><p><strong>"
@@ -536,10 +536,10 @@ public class ItemTag extends TagSupport
 
         if (bundles.length == 0)
         {
-            out.println("<p>"
-                    + LocaleSupport.getLocalizedMessage(pageContext,
-                        "org.dspace.app.webui.jsptag.ItemTag.files.no")
-                        + "</p>");
+            out.println("<p>" +
+                    LocaleSupport.getLocalizedMessage(pageContext,
+                        "org.dspace.app.webui.jsptag.ItemTag.files.no") +
+                    "</p>");
         }
         else
         {
@@ -580,8 +580,7 @@ public class ItemTag extends TagSupport
                 }
             }
 
-            out
-                .println("<table cellpadding=\"6\"><tr><th id=\"t1\" class=\"standard\">"
+            out.println("<table cellpadding=\"6\"><tr><th id=\"t1\" class=\"standard\">"
                         + LocaleSupport.getLocalizedMessage(pageContext,
                                 "org.dspace.app.webui.jsptag.ItemTag.file")
                         + "</th>");
@@ -589,11 +588,9 @@ public class ItemTag extends TagSupport
             if (multiFile)
             {
 
-                out
-                    .println("<th id=\"t2\" class=\"standard\">"
-                            + LocaleSupport
-                                    .getLocalizedMessage(pageContext,
-                                            "org.dspace.app.webui.jsptag.ItemTag.description")
+                out.println("<th id=\"t2\" class=\"standard\">"
+                            + LocaleSupport.getLocalizedMessage(pageContext,
+                                "org.dspace.app.webui.jsptag.ItemTag.description")
                             + "</th>");
             }
 
@@ -623,9 +620,9 @@ public class ItemTag extends TagSupport
                 out.print(request.getContextPath());
                 out.print("/html/");
                 out.print(uri + "/"); // FIXME: BROKEN
-                out
-                    .print(UIUtil.encodeBitstreamName(primaryBitstream
-                            .getName(), Constants.DEFAULT_ENCODING));
+                out.print(UIUtil.encodeBitstreamName(
+                            primaryBitstream.getName(),
+                            Constants.DEFAULT_ENCODING));
                 out.print("\">");
                 out.print(primaryBitstream.getName());
                 out.print("</a>");
@@ -648,9 +645,9 @@ public class ItemTag extends TagSupport
                 out.print(request.getContextPath());
                 out.print("/html/");
                 out.print(uri + "/"); // FIXME: BROKEN
-                out
-                    .print(UIUtil.encodeBitstreamName(primaryBitstream
-                            .getName(), Constants.DEFAULT_ENCODING));
+                out.print(UIUtil.encodeBitstreamName(
+                            primaryBitstream.getName(),
+                            Constants.DEFAULT_ENCODING));
                 out.print("\">"
                     + LocaleSupport.getLocalizedMessage(pageContext,
                             "org.dspace.app.webui.jsptag.ItemTag.view")
@@ -670,30 +667,9 @@ public class ItemTag extends TagSupport
 
                             // Work out what the bitstream link should be
                             // (persistent ID if item has URI)
-                            String bsLink = "<a target=\"_blank\" href=\""
-//                                    + request.getContextPath();
+                            String bsLink = "<a href=\""
                                     + bitstreams[k].getIdentifier().getURL().toString()
                                     + "\">";
-
-                            /*
-                            if ((uri != null)
-                                    && (bitstreams[k].getSequenceID() > 0))
-                            {
-                                bsLink = bsLink + "/bitstream/"
-                                        + item.getPersistentIdentifier().getCanonicalForm() + "/"
-                                        + bitstreams[k].getSequenceID() + "/";
-                            }
-                            else
-                            {
-                                bsLink = bsLink + "/retrieve/"
-                                        + bitstreams[k].getID() + "/";
-                            }
-
-                            bsLink = bsLink
-                                    + UIUtil.encodeBitstreamName(bitstreams[k]
-                                        .getName(),
-                                        Constants.DEFAULT_ENCODING) + "\">";
-                            */
 
                             out.print("<tr><td headers=\"t1\" class=\"standard\">");
                             out.print(bsLink);
@@ -710,33 +686,26 @@ public class ItemTag extends TagSupport
                                 out.print((desc != null) ? desc : "");
                             }
 
-                            out
-                                .print("</td><td headers=\"t3\" class=\"standard\">");
+                            out.print("</td><td headers=\"t3\" class=\"standard\">");
                             out.print(UIUtil.formatFileSize(bitstreams[k].getSize()));
-                            out
-                            .print("</td><td headers=\"t4\" class=\"standard\">");
+                            out.print("</td><td headers=\"t4\" class=\"standard\">");
                             out.print(bitstreams[k].getFormatDescription());
-                            out
-                                .print("</td><td class=\"standard\" align=\"center\">");
+                            out.print("</td><td class=\"standard\" align=\"center\">");
 
                             // is there a thumbnail bundle?
                             if ((thumbs.length > 0) && showThumbs)
                             {
                                 String tName = bitstreams[k].getName() + ".jpg";
-                                String tAltText = LocaleSupport.getLocalizedMessage(pageContext, "org.dspace.app.webui.jsptag.ItemTag.thumbnail");
-                                Bitstream tb = thumbs[0]
-                                    .	getBitstreamByName(tName);
+                                String tAltText =
+                                    LocaleSupport.getLocalizedMessage(pageContext,
+                                            "org.dspace.app.webui.jsptag.ItemTag.thumbnail");
+                                Bitstream tb =
+                                    thumbs[0].getBitstreamByName(tName);
 
                                 if (tb != null)
                                 {
-                                    String myPath = request.getContextPath()
-                                            + "/retrieve/"
-                                            + tb.getID()
-                                            + "/"
-                                            + UIUtil.encodeBitstreamName(tb
-                                                    .getName(),
-                                                    Constants.DEFAULT_ENCODING);
-
+                                    String myPath =
+                                        tb.getIdentifier().getURL().toString();
                                     out.print(bsLink);
                                     out.print("<img src=\"" + myPath + "\" ");
                                     out.print("alt=\"" + tAltText
@@ -744,12 +713,10 @@ public class ItemTag extends TagSupport
                                 }
                             }
 
-                            out
-                                .print(bsLink
-                                        + LocaleSupport
-                                                .getLocalizedMessage(
-                                                        pageContext,
-                                                        "org.dspace.app.webui.jsptag.ItemTag.view")
+                            // This is totally pointless
+                            out.print(bsLink + LocaleSupport.getLocalizedMessage(
+                                        pageContext,
+                                        "org.dspace.app.webui.jsptag.ItemTag.view")
                                         + "</a></td></tr>");
                         }
                     }
@@ -795,17 +762,11 @@ public class ItemTag extends TagSupport
             {
                 out.print("<div align=\"center\" class=\"standard\">");
                 out.print("<strong><a target=\"_blank\" href=\"");
-                out.print(request.getContextPath());
-                out.print("/retrieve/");
-                out.print(bitstreams[k].getID() + "/");
-                out.print(UIUtil.encodeBitstreamName(bitstreams[k].getName(),
-                        Constants.DEFAULT_ENCODING));
-                out
-                        .print("\">"
-                                + LocaleSupport
-                                        .getLocalizedMessage(pageContext,
-                                                "org.dspace.app.webui.jsptag.ItemTag.viewlicence")
-                                + "</a></strong></div>");
+                out.print(bitstreams[k].getIdentifier().getURL().toString());
+                out.print("\">" +
+                        LocaleSupport.getLocalizedMessage(pageContext,
+                            "org.dspace.app.webui.jsptag.ItemTag.viewlicence")
+                            + "</a></strong></div>");
             }
         }
 

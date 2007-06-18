@@ -150,11 +150,6 @@
   </servlet>
 
   <servlet>
-    <servlet-name>bitstream</servlet-name>
-    <servlet-class>org.dspace.app.webui.servlet.BitstreamServlet</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>browse-author</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.BrowseServlet</servlet-class>
     <init-param>
@@ -427,11 +422,6 @@
   <servlet-mapping>
     <servlet-name>advanced-search</servlet-name>
     <url-pattern>/advanced-search</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>bitstream</servlet-name>
-    <url-pattern>/bitstream/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
