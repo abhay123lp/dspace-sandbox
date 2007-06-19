@@ -46,11 +46,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 
 public abstract class ContentDAO
 {
-    public void decache(DSpaceObject dso)
-    {
-        context.removeCached(dso, dso.getID());
-    }
-
     public String toString()
     {
         return ToStringBuilder.reflectionToString(this,

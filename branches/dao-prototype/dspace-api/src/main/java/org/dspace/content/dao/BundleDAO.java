@@ -147,7 +147,7 @@ public abstract class BundleDAO extends ContentDAO
     }
 
     @Deprecated
-    public abstract List<Bundle> getBundles(Item item)
+    public List<Bundle> getBundles(Item item)
     {
         return getBundlesByItem(item);
     }

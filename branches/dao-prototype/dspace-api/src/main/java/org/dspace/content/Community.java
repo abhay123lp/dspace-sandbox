@@ -181,10 +181,6 @@ public class Community extends DSpaceObject
                                 + newLogo.getID()));
             }
         }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);

@@ -62,9 +62,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -98,6 +95,7 @@ public class Bitstream extends DSpaceObject
     private String checksumAlgorithm;
     private Long sizeBytes;
     private String userFormatDescription;
+    private int bitstreamFormatID;
     private BitstreamFormat bitstreamFormat;
     private int storeNumber;
     private int internalID;
@@ -118,6 +116,18 @@ public class Bitstream extends DSpaceObject
     public void setSequenceID(int sequenceID)
     {
         this.sequenceID = sequenceID;
+    }
+
+    // FIXME: Do we even want this exposed?
+    public int getInternalID()
+    {
+        return internalID;
+    }
+
+    // FIXME: Do we even want this exposed?
+    public void setInternalID(int internalID)
+    {
+        this.internalID = internalID;
     }
 
     public String getName()
@@ -167,6 +177,12 @@ public class Bitstream extends DSpaceObject
         return checksum;
     }
 
+    // FIXME: Do we even want this exposed?
+    public void setChecksum(String checksum)
+    {
+        this.checksum = checksum;
+    }
+
     /**
      * Get the algorithm used to calculate the checksum
      * 
@@ -177,6 +193,12 @@ public class Bitstream extends DSpaceObject
         return checksumAlgorithm;
     }
 
+    // FIXME: Do we even want this exposed?
+    public void setChecksumAlgorithm(String checksumAlgorithm)
+    {
+        this.checksumAlgorithm = checksumAlgorithm;
+    }
+
     /**
      * Get the size of the bitstream
      * 
@@ -185,6 +207,12 @@ public class Bitstream extends DSpaceObject
     public long getSize()
     {
         return sizeBytes;
+    }
+
+    // FIXME: Do we even want this exposed?
+    public void setSize(Long sizeBytes)
+    {
+        this.sizeBytes = sizeBytes;
     }
 
     /**
@@ -254,14 +282,21 @@ public class Bitstream extends DSpaceObject
      *            unknown
      * @throws SQLException
      */
-    public void setFormat(BitstreamFormat f) throws SQLException
+    public void setFormat(BitstreamFormat f)
     {
         // FIXME: Would be better if this didn't throw an SQLException,
         // but we need to find the unknown format!
         if (f == null)
         {
             // Use "Unknown" format
-            bitstreamFormat = BitstreamFormat.findUnknown(context);
+            try
+            {
+                bitstreamFormat = BitstreamFormat.findUnknown(context);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
         }
         else
         {
@@ -299,7 +334,7 @@ public class Bitstream extends DSpaceObject
      */
     public boolean isRegisteredBitstream()
     {
-        return BitstreamStorageManager.isRegisteredBitstream(internalID);
+        return BitstreamStorageManager.isRegisteredBitstream(internalID + "");
     }
     
     /**
@@ -310,6 +345,12 @@ public class Bitstream extends DSpaceObject
     public int getStoreNumber()
     {
         return storeNumber;
+    }
+
+    // FIXME: Do we even want this exposed?
+    public void setStoreNumber(int storeNumber)
+    {
+        this.storeNumber = storeNumber;
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -323,7 +364,8 @@ public class Bitstream extends DSpaceObject
 
     /** Deprecated by the introduction of DAOs */
     @Deprecated
-    public Bitstream(Context context, TableRow row) throws SQLException
+    public Bitstream(Context context, org.dspace.storage.rdbms.TableRow row)
+        throws SQLException
     {
         this(context, row.getIntColumn("bitstream_id"));
     }
@@ -344,33 +386,33 @@ public class Bitstream extends DSpaceObject
     public Bundle[] getBundles() throws SQLException
     {
         List<Bundle> bundles = bundleDAO.getBundlesByBitstream(this);
-        return (Bundle[]) bundles.toArray(new Bundle[0]);;
+        return (Bundle[]) bundles.toArray(new Bundle[0]);
     }
 
     @Deprecated
     static Bitstream create(Context context, InputStream is)
-            throws IOException, SQLException
+            throws AuthorizeException
     {
-        return BitstreamDAOFactory.getInstance(context).create();
+        return BitstreamDAOFactory.getInstance(context).create(is);
     }
 
     @Deprecated
     static Bitstream register(Context context, int assetstore,
-            String bitstreamPath) throws IOException, SQLException
+            String bitstreamPath) throws AuthorizeException
     {
         return BitstreamDAOFactory.getInstance(context).register(assetstore,
                 bitstreamPath);
     }
 
     @Deprecated
-    public void update() throws SQLException, AuthorizeException
+    public void update() throws AuthorizeException
     {
         dao.update(this);
     }
 
     @Deprecated
 //    void delete() throws SQLException
-    public void delete() throws SQLException
+    public void delete() throws AuthorizeException
     {
         dao.delete(this.getID());
     }

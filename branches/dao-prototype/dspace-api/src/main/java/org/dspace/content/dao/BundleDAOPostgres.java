@@ -91,7 +91,6 @@ public class BundleDAOPostgres extends BundleDAO
     @Override
     public Bundle retrieve(int id)
     {
-        // First check the cache
         Bundle bundle = super.retrieve(id);
 
         if (bundle != null)
@@ -127,6 +126,13 @@ public class BundleDAOPostgres extends BundleDAO
     @Override
     public Bundle retrieve(UUID uuid)
     {
+        Bundle bundle = super.retrieve(uuid);
+
+        if (bundle != null)
+        {
+            return bundle;
+        }
+
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "bundle",
@@ -140,7 +146,7 @@ public class BundleDAOPostgres extends BundleDAO
             else
             {
                 int id = row.getIntColumn("bundle_id");
-                Bundle bundle = new Bundle(context, id);
+                bundle = new Bundle(context, id);
                 populateBundleFromTableRow(bundle, row);
 
                 context.cache(bundle, id);

@@ -73,6 +73,7 @@ public abstract class ItemDAO extends ContentDAO
 
     protected Context context;
     protected BundleDAO bundleDAO;
+    protected BitstreamDAO bitstreamDAO;
 
     public abstract Item create() throws AuthorizeException;
 
@@ -104,7 +105,10 @@ public abstract class ItemDAO extends ContentDAO
         return (Item) context.fromCache(Item.class, id);
     }
 
-    public abstract Item retrieve(UUID uuid);
+    public Item retrieve(UUID uuid)
+    {
+        return null;
+    }
 
     public void update(Item item) throws AuthorizeException
     {
@@ -182,14 +186,7 @@ public abstract class ItemDAO extends ContentDAO
                 {
                     bitstreams[k].setSequenceID(sequence);
                     sequence++;
-                    try
-                    {
-                        bitstreams[k].update();
-                    }
-                    catch (SQLException sqle)
-                    {
-                        throw new RuntimeException(sqle);
-                    }
+                    bitstreamDAO.update(bitstreams[k]);
                 }
             }
 

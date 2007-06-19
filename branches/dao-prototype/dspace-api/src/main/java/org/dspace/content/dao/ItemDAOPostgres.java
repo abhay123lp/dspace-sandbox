@@ -130,13 +130,11 @@ public class ItemDAOPostgres extends ItemDAO
 
     public ItemDAOPostgres(Context context)
     {
-        if (context != null)
-        {
-            this.context = context;
-            this.bundleDAO = BundleDAOFactory.getInstance(context);
-            this.identifierDAO =
-                PersistentIdentifierDAOFactory.getInstance(context);
-        }
+        this.context = context;
+        this.bundleDAO = BundleDAOFactory.getInstance(context);
+        this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        this.identifierDAO =
+            PersistentIdentifierDAOFactory.getInstance(context);
     }
 
     @Override
@@ -201,6 +199,13 @@ public class ItemDAOPostgres extends ItemDAO
     @Override
     public Item retrieve(UUID uuid)
     {
+        Item item = super.retrieve(uuid);
+
+        if (item != null)
+        {
+            return item;
+        }
+
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "item",
@@ -213,7 +218,7 @@ public class ItemDAOPostgres extends ItemDAO
             }
 
             int id = row.getIntColumn("item_id");
-            Item item = new ItemProxy(context, id);
+            item = new ItemProxy(context, id);
             populateItemFromTableRow(item, row);
 
             // FIXME: I'd like to bump the rest of this up into the superclass

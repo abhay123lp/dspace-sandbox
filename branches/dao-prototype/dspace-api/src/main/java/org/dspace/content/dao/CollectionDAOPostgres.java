@@ -171,6 +171,13 @@ public class CollectionDAOPostgres extends CollectionDAO
     @Override
     public Collection retrieve(UUID uuid)
     {
+        Collection collection = super.retrieve(uuid);
+
+        if (collection != null)
+        {
+            return collection;
+        }
+
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "collection",
@@ -183,7 +190,7 @@ public class CollectionDAOPostgres extends CollectionDAO
             }
 
             int id = row.getIntColumn("collection_id");
-            Collection collection = new Collection(context, id);
+            collection = new Collection(context, id);
             populateCollectionFromTableRow(collection, row);
 
             // FIXME: I'd like to bump the rest of this up into the superclass

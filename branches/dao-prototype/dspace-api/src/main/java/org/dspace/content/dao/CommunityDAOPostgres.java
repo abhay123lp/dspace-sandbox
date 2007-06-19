@@ -162,6 +162,13 @@ public class CommunityDAOPostgres extends CommunityDAO
     @Override
     public Community retrieve(UUID uuid)
     {
+        Community community = super.retrieve(uuid);
+
+        if (community != null)
+        {
+            return community;
+        }
+
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "community",
@@ -173,7 +180,7 @@ public class CommunityDAOPostgres extends CommunityDAO
             }
 
             int id = row.getIntColumn("community_id");
-            Community community = new Community(context, id);
+            community = new Community(context, id);
             populateCommunityFromTableRow(community, row);
 
             // FIXME: I'd like to bump the rest of this up into the superclass

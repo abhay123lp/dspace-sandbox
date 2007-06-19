@@ -39,6 +39,7 @@
  */
 package org.dspace.content.dao;
 
+import java.io.InputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Date;
@@ -52,11 +53,7 @@ import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.Browse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
-import org.dspace.content.DCValue;
-import org.dspace.content.Bitstream;
-import org.dspace.content.proxy.BitstreamProxy;
+import org.dspace.content.Item;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -73,7 +70,9 @@ public abstract class BitstreamDAO extends ContentDAO
 
     protected Context context;
 
-    public abstract Bitstream create() throws AuthorizeException;
+    public abstract Bitstream create(InputStream is) throws AuthorizeException;
+    public abstract Bitstream register(int assetstore, String path)
+        throws AuthorizeException;
 
     public Bitstream retrieve(int id)
     {
@@ -82,15 +81,16 @@ public abstract class BitstreamDAO extends ContentDAO
 
     public Bitstream retrieve(UUID uuid)
     {
+        return null;
     }
 
     public void update(Bitstream bitstream) throws AuthorizeException
     {
         // Check authorisation
-        AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
+        AuthorizeManager.authorizeAction(context, bitstream, Constants.WRITE);
 
         log.info(LogManager.getHeader(context, "update_bitstream",
-                "bitstream_id=" + getID()));
+                "bitstream_id=" + bitstream.getID()));
     }
 
     public void delete(int id) throws AuthorizeException
@@ -102,13 +102,13 @@ public abstract class BitstreamDAO extends ContentDAO
         // Check authorisation
         //AuthorizeManager.authorizeAction(context, this, Constants.DELETE);
         log.info(LogManager.getHeader(context, "delete_bitstream",
-                "bitstream_id=" + getID()));
+                "bitstream_id=" + bitstream.getID()));
 
         // Remove from cache
-        context.removeCached(this, getID());
+        context.removeCached(bitstream, bitstream.getID());
 
         // Remove policies
-        AuthorizeManager.removeAllPolicies(context, this);
+        AuthorizeManager.removeAllPolicies(context, bitstream);
     }
 
     public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
