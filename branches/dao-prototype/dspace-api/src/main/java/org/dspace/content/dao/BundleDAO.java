@@ -146,7 +146,13 @@ public abstract class BundleDAO extends ContentDAO
         AuthorizeManager.removeAllPolicies(context, bundle);
     }
 
-    public abstract List<Bundle> getBundles(Item item);
+    @Deprecated
+    public abstract List<Bundle> getBundles(Item item)
+    {
+        return getBundlesByItem(item);
+    }
+
+    public abstract List<Bundle> getBundlesByItem(Item item);
     public abstract List<Bundle> getBundlesByBitstream(Bitstream bitstream);
 
     // FIXME: This should really be in BitstreamDAO, but that hasn't been

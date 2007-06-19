@@ -95,6 +95,9 @@ public abstract class BitstreamDAO extends ContentDAO
 
     public void delete(int id) throws AuthorizeException
     {
+        Bitstream bitstream = retrieve(id);
+        this.update(bitstream); // Sync in-memory object with db before removal
+
         // changed to a check on remove
         // Check authorisation
         //AuthorizeManager.authorizeAction(context, this, Constants.DELETE);
@@ -108,19 +111,6 @@ public abstract class BitstreamDAO extends ContentDAO
         AuthorizeManager.removeAllPolicies(context, this);
     }
 
-    public void decache(Bitstream bitstream)
-    {
-        context.removeCached(bitstream, bitstream.getID());
-    }
-
     public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
     public abstract List<Bitstream> getBitstreamsByItem(Item bitstream);
-
-    public void link(Bitstream bitstream, Bundle bundle) throws AuthorizeException
-    {
-    }
-
-    public void unlink(Bitstream bitstream, Bundle bundle) throws AuthorizeException
-    {
-    }
 }

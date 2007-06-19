@@ -49,8 +49,10 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.dao.BitstreamDAO;
-import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BitstreamDAO;         // Naughty!
+import org.dspace.content.dao.BitstreamDAOFactory;  // Naughty!
+import org.dspace.content.dao.BundleDAO;            // Naughty!
+import org.dspace.content.dao.BundleDAOFactory;     // Naughty!
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
@@ -84,6 +86,10 @@ public class Bitstream extends DSpaceObject
     /** log4j logger */
     private static Logger log = Logger.getLogger(Bitstream.class);
 
+    private Context context;
+    private BitstreamDAO dao;
+    private BundleDAO bundleDAO;
+
     private int sequenceID;
     private String name;
     private String source;
@@ -101,6 +107,7 @@ public class Bitstream extends DSpaceObject
         this.id = id;
         this.context = context;
         this.dao = BitstreamDAOFactory.getInstance(context);
+        this.bundleDAO = BundleDAOFactory.getInstance(context);
     }
 
     public int getSequenceID()
@@ -282,53 +289,7 @@ public class Bitstream extends DSpaceObject
         // Maybe should return AuthorizeException??
         AuthorizeManager.authorizeAction(context, this, Constants.READ);
 
-        return BitstreamStorageManager.retrieve(context, bRow
-                .getIntColumn("bitstream_id"));
-    }
-
-    /**
-     * Get the bundles this bitstream appears in
-     * 
-     * @return array of <code>Bundle</code> s this bitstream appears in
-     * @throws SQLException
-     */
-    public Bundle[] getBundles() throws SQLException
-    {
-        // Get the bundle table rows
-        TableRowIterator tri = DatabaseManager.queryTable(context, "bundle",
-                "SELECT bundle.* FROM bundle, bundle2bitstream WHERE " + 
-                "bundle.bundle_id=bundle2bitstream.bundle_id AND " +
-                "bundle2bitstream.bitstream_id= ? ",
-                 bRow.getIntColumn("bitstream_id"));
-
-        // Build a list of Bundle objects
-        List bundles = new ArrayList();
-
-        while (tri.hasNext())
-        {
-            TableRow r = tri.next();
-
-            // First check the cache
-            Bundle fromCache = (Bundle) context.fromCache(Bundle.class, r
-                    .getIntColumn("bundle_id"));
-
-            if (fromCache != null)
-            {
-                bundles.add(fromCache);
-            }
-            else
-            {
-                bundles.add(new Bundle(context, r));
-            }
-        }
-
-        // close the TableRowIterator to free up resources
-        tri.close();
-
-        Bundle[] bundleArray = new Bundle[bundles.size()];
-        bundleArray = (Bundle[]) bundles.toArray(bundleArray);
-
-        return bundleArray;
+        return BitstreamStorageManager.retrieve(context, getID());
     }
     
     /**
@@ -377,6 +338,13 @@ public class Bitstream extends DSpaceObject
     public static Bitstream find(Context context, UUID uuid) throws SQLException
     {
         return BitstreamDAOFactory.getInstance(context).retrieve(uuid);
+    }
+
+    @Deprecated
+    public Bundle[] getBundles() throws SQLException
+    {
+        List<Bundle> bundles = bundleDAO.getBundlesByBitstream(this);
+        return (Bundle[]) bundles.toArray(new Bundle[0]);;
     }
 
     @Deprecated

@@ -237,11 +237,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         }
     }
 
-    public void decache(Bitstream bitstream)
-    {
-        context.removeCached(bitstream, bitstream.getID());
-    }
-
     public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
     public abstract List<Bitstream> getBitstreamsByItem(Item bitstream);
 
