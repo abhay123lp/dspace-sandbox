@@ -97,8 +97,8 @@ public class ArchiveManager
                     + " (ID: " + colls[i].getID() + ")\n";
         }
 
-        // Check permission. User either has to have REMOVE on owning collection
-        // or be COLLECTION_EDITOR of owning collection
+        // Check permission. User either has to have REMOVE on owning
+        // collection or be COLLECTION_EDITOR of owning collection
         if (!AuthorizeManager.authorizeActionBoolean(context,
                 item.getOwningCollection(), Constants.COLLECTION_ADMIN)
                 && !AuthorizeManager.authorizeActionBoolean(context,
@@ -122,8 +122,8 @@ public class ArchiveManager
                     + "Item was in collections:\n" + collectionProv
                     + InstallItem.getBitstreamProvenanceMessage(item);
 
-            item.addMetadata(MetadataSchema.DC_SCHEMA, "description", "provenance",
-                    "en", prov);
+            item.addMetadata(MetadataSchema.DC_SCHEMA, "description",
+                    "provenance", "en", prov);
 
             // Update item in DB
             itemDAO.update(item);
@@ -185,8 +185,8 @@ public class ArchiveManager
                     + "Item was in collections:\n" + collectionProv
                     + InstallItem.getBitstreamProvenanceMessage(item);
 
-            item.addMetadata(MetadataSchema.DC_SCHEMA, "description", "provenance",
-                    "en", prov);
+            item.addMetadata(MetadataSchema.DC_SCHEMA, "description",
+                    "provenance", "en", prov);
 
             // Update item in DB
             itemDAO.update(item);

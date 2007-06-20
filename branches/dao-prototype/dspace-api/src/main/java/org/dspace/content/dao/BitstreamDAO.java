@@ -54,6 +54,7 @@ import org.dspace.browse.Browse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -112,5 +113,4 @@ public abstract class BitstreamDAO extends ContentDAO
     }
 
     public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
-    public abstract List<Bitstream> getBitstreamsByItem(Item bitstream);
 }

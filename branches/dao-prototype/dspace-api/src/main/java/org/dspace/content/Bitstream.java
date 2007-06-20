@@ -205,7 +205,7 @@ public class Bitstream extends DSpaceObject
      */
     public long getSize()
     {
-        return sizeBytes;
+        return (sizeBytes == null ? 0 : sizeBytes.longValue());
     }
 
     // FIXME: Do we even want this exposed?
@@ -361,25 +361,24 @@ public class Bitstream extends DSpaceObject
     /** Deprecated by the introduction of DAOs */
     @Deprecated
     public Bitstream(Context context, org.dspace.storage.rdbms.TableRow row)
-        throws SQLException
     {
         this(context, row.getIntColumn("bitstream_id"));
     }
 
     @Deprecated
-    public static Bitstream find(Context context, int id) throws SQLException
+    public static Bitstream find(Context context, int id)
     {
         return BitstreamDAOFactory.getInstance(context).retrieve(id);
     }
 
     @Deprecated
-    public static Bitstream find(Context context, UUID uuid) throws SQLException
+    public static Bitstream find(Context context, UUID uuid)
     {
         return BitstreamDAOFactory.getInstance(context).retrieve(uuid);
     }
 
     @Deprecated
-    public Bundle[] getBundles() throws SQLException
+    public Bundle[] getBundles()
     {
         List<Bundle> bundles = bundleDAO.getBundlesByBitstream(this);
         return (Bundle[]) bundles.toArray(new Bundle[0]);
@@ -407,8 +406,7 @@ public class Bitstream extends DSpaceObject
     }
 
     @Deprecated
-//    void delete() throws SQLException
-    public void delete() throws AuthorizeException
+    void delete() throws AuthorizeException
     {
         dao.delete(this.getID());
     }

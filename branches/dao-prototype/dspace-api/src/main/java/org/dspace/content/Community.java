@@ -118,7 +118,8 @@ public class Community extends DSpaceObject
         {
             try
             {
-                value = I18nUtil.getMessage("org.dspace.workflow.WorkflowManager.untitled");
+                value = I18nUtil.getMessage(
+                        "org.dspace.workflow.WorkflowManager.untitled");
             }
             catch (MissingResourceException e)
             {
@@ -303,7 +304,15 @@ public class Community extends DSpaceObject
     public static Community create(Community parent, Context context)
             throws AuthorizeException
     {
-        return CommunityDAOFactory.getInstance(context).create();
+        Community community =
+            CommunityDAOFactory.getInstance(context).create();
+
+        if (parent != null)
+        {
+            ArchiveManager.move(context, community, null, parent);
+        }
+
+        return community;
     }
 
     @Deprecated

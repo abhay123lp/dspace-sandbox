@@ -57,6 +57,7 @@ import org.dspace.content.Community;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.proxy.ItemProxy;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -82,9 +83,11 @@ public abstract class ItemDAO extends ContentDAO
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    public final Item create(int id) throws AuthorizeException
+    public final Item create(int id, UUID uuid) throws AuthorizeException
     {
         Item item = new ItemProxy(context, id);
+
+        item.setIdentifier(new ObjectIdentifier(uuid));
 
         HistoryManager.saveHistory(context, item, HistoryManager.CREATE,
                 context.getCurrentUser(), context.getExtraLogInfo());

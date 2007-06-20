@@ -213,6 +213,19 @@ public class SubmitServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        // XXX: This is a temporary fix for a bug that was introduced in the
+        // multilingualism work
+        Locale locale = context.getCurrentLocale();
+     	
+       	if (inputsReader == null || !langForm.equals(locale))
+    	{
+    		log.info("Dateiname="+I18nUtil.getInputFormsFileName(locale));
+    		
+    	    // read configurable submissions forms data
+    		inputsReader = new DCInputsReader(I18nUtil.getInputFormsFileName(locale));
+    		langForm = locale;
+    	}
+
         /*
          * Possible GET parameters:
          * 
@@ -1834,15 +1847,17 @@ public class SubmitServlet extends DSpaceServlet
     {
         // determine collection
         Collection c = subInfo.submission.getCollection();
+        String uri = c.getPersistentIdentifier().getCanonicalForm();
         
         if ( step >= EDIT_METADATA_1 && step <= EDIT_METADATA_2 )
         {
         	// requires configurable form info per collection
-        	request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getPersistentIdentifier().getCanonicalForm()));
+            request.setAttribute( "submission.inputs",
+                    inputsReader.getInputs(uri));
         	// also indicate page
            	request.setAttribute( "submission.page", new Integer(step) );
-		showProgressAwareJSP(request, response, subInfo,
-                  		     "/submit/edit-metadata.jsp");
+            showProgressAwareJSP(request, response, subInfo,
+                    "/submit/edit-metadata.jsp");
             return;
         }
 
@@ -1850,7 +1865,8 @@ public class SubmitServlet extends DSpaceServlet
         {
         case INITIAL_QUESTIONS:
             // requires configurable form info per collection
-            request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getPersistentIdentifier().getCanonicalForm()));
+            request.setAttribute( "submission.inputs",
+                    inputsReader.getInputs(uri));
             showProgressAwareJSP(request, response, subInfo,
                 		 "/submit/initial-questions.jsp");
             break;
@@ -1873,7 +1889,8 @@ public class SubmitServlet extends DSpaceServlet
 
         case REVIEW_SUBMISSION:
             // requires configurable form info per collection
-            request.setAttribute( "submission.inputs", inputsReader.getInputs(c.getPersistentIdentifier().getCanonicalForm()));
+            request.setAttribute( "submission.inputs",
+                    inputsReader.getInputs(uri));
             showProgressAwareJSP(request, response, subInfo,
             		         "/submit/review.jsp");
             break;

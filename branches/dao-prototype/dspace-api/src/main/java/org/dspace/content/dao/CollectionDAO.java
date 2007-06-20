@@ -56,6 +56,7 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.core.ArchiveManager;
@@ -86,11 +87,13 @@ public abstract class CollectionDAO extends ContentDAO
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    public Collection create(int id) throws AuthorizeException
+    public Collection create(int id, UUID uuid) throws AuthorizeException
     {
         try
         {
             Collection collection = new Collection(context, id);
+
+            collection.setIdentifier(new ObjectIdentifier(uuid));
 
             // Create a default persistent identifier for this Collection, and
             // add it to the in-memory Colleciton object.

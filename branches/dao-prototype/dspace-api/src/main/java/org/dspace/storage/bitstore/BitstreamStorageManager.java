@@ -279,7 +279,7 @@ public class BitstreamStorageManager
      * 
      * @return The ID of the stored bitstream
      */
-    public static int store(Context context, InputStream is)
+    public static TableRow store(Context context, InputStream is)
             throws SQLException, IOException
     {
         // Create internal ID
@@ -368,7 +368,7 @@ public class BitstreamStorageManager
                     + file.getAbsolutePath());
         }
 
-        return bitstream_id;
+        return bitstream;
     }
 
 	/**
@@ -385,7 +385,7 @@ public class BitstreamStorageManager
 	 *                If a problem occurs accessing the RDBMS
 	 * @throws IOExeption
 	 */
-	public static int register(Context context, int assetstore,
+	public static TableRow register(Context context, int assetstore,
 				String bitstreamPath) throws SQLException, IOException {
 
 		// mark this bitstream as a registered bitstream
@@ -511,7 +511,7 @@ public class BitstreamStorageManager
 			log.debug("Stored bitstream " + bitstream_id + " in file "
 					+ file.getAbsolutePath());
 		}
-		return bitstream_id;
+		return bitstream;
 	}
 
 	/**

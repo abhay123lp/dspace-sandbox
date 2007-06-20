@@ -111,13 +111,15 @@ public class CollectionDAOPostgres extends CollectionDAO
     {
         try
         {
+            UUID uuid = UUID.randomUUID();
+
             TableRow row = DatabaseManager.create(context, "collection");
-            row.setColumn("uuid", UUID.randomUUID().toString());
+            row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("collection_id");
             
-            return super.create(id);
+            return super.create(id, uuid);
         }
         catch (SQLException sqle)
         {

@@ -52,6 +52,7 @@ import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
 import org.dspace.core.Constants;
@@ -75,7 +76,7 @@ public abstract class CommunityDAO extends ContentDAO
 
     public abstract Community create() throws AuthorizeException;
 
-    public final Community create(int id) throws AuthorizeException
+    public final Community create(int id, UUID uuid) throws AuthorizeException
     {
         try
         {
@@ -87,6 +88,8 @@ public abstract class CommunityDAO extends ContentDAO
             }
 
             Community community = new Community(context, id);
+
+            community.setIdentifier(new ObjectIdentifier(uuid));
 
             // Create a default persistent identifier for this Community, and
             // add it to the in-memory Community object.
@@ -103,8 +106,6 @@ public abstract class CommunityDAO extends ContentDAO
             policy.setGroup(anonymousGroup);
             policy.update();
 
-            update(community);
-
             HistoryManager.saveHistory(context, community,
                     HistoryManager.CREATE, context.getCurrentUser(),
                     context.getExtraLogInfo());
@@ -112,6 +113,8 @@ public abstract class CommunityDAO extends ContentDAO
             log.info(LogManager.getHeader(context, "create_community",
                     "community_id=" + id) + ",uri=" +
                     community.getPersistentIdentifier().getCanonicalForm());
+
+            update(community);
 
             return community;
         }

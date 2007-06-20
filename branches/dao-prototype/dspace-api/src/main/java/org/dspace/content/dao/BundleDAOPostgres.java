@@ -72,13 +72,15 @@ public class BundleDAOPostgres extends BundleDAO
     {
         try
         {
+            UUID uuid = UUID.randomUUID();
+
             TableRow row = DatabaseManager.create(context, "bundle");
-            row.setColumn("uuid", UUID.randomUUID().toString());
+            row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("bundle_id");
 
-            return super.create(id);
+            return super.create(id, uuid);
         }
         catch (SQLException sqle)
         {
@@ -107,12 +109,7 @@ public class BundleDAOPostgres extends BundleDAO
             }
             else
             {
-                bundle = new Bundle(context, id);
-                populateBundleFromTableRow(bundle, row);
-
-                context.cache(bundle, id);
-
-                return bundle;
+                return retrieve(row);
             }
         }
         catch (SQLException sqle)
@@ -143,19 +140,24 @@ public class BundleDAOPostgres extends BundleDAO
             }
             else
             {
-                int id = row.getIntColumn("bundle_id");
-                bundle = new Bundle(context, id);
-                populateBundleFromTableRow(bundle, row);
-
-                context.cache(bundle, id);
-
-                return bundle;
+                return retrieve(row);
             }
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private Bundle retrieve(TableRow row)
+    {
+        int id = row.getIntColumn("bundle_id");
+        Bundle bundle = new Bundle(context, id);
+        populateBundleFromTableRow(bundle, row);
+
+        context.cache(bundle, id);
+
+        return bundle;
     }
 
     @Override
@@ -339,64 +341,18 @@ public class BundleDAOPostgres extends BundleDAO
         }
     }
 
-    public List<Bitstream> getBitstreams(Bundle bundle)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.query(context, 
-                    "SELECT bitstream_id FROM bundle2bitstream " +
-                    " WHERE bundle_id = " + bundle.getID());
-
-            List<Bitstream> bitstreams = new ArrayList<Bitstream>();
-
-            // FIXME: This is slightly inconsistent with the other DAOs
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("bitstream_id");
-                bitstreams.add(bitstreamDAO.retrieve(id));
-            }
-
-            return bitstreams;
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
     private void populateBundleFromTableRow(Bundle bundle, TableRow row)
     {
-        try
-        {
-            // Get bitstreams
-            TableRowIterator tri = DatabaseManager.queryTable(
-                    context, "bitstream", "SELECT b.* " +
-                    "FROM bitstream b, bundle2bitstream b2b " +
-                    "WHERE b2b.bitstream_id = b.bitstream_id " +
-                    "AND b2b.bundle_id= ? ",
-                    bundle.getID());
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+        List <Bitstream> bitstreams =
+            bitstreamDAO.getBitstreamsByBundle(bundle);
 
-            List <Bitstream> bitstreams = new ArrayList<Bitstream>();
-
-            for (TableRow bsRow : tri.toList())
-            {
-                int id = bsRow.getIntColumn("bitstream_id");
-                bitstreams.add(bitstreamDAO.retrieve(id));
-            }
-
-            UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
-
-            bundle.setIdentifier(new ObjectIdentifier(uuid));
-            bundle.setName(row.getStringColumn("name"));
-            bundle.setBitstreams(bitstreams);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+        bundle.setIdentifier(new ObjectIdentifier(uuid));
+        bundle.setName(row.getStringColumn("name"));
+        bundle.setBitstreams(bitstreams);
     }
 }

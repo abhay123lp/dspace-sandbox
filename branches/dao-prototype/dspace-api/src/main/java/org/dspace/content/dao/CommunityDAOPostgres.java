@@ -107,13 +107,15 @@ public class CommunityDAOPostgres extends CommunityDAO
     {
         try
         {
+            UUID uuid = UUID.randomUUID();
+
             TableRow row = DatabaseManager.create(context, "community");
-            row.setColumn("uuid", UUID.randomUUID().toString());
+            row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("community_id");
-
-            return super.create(id);
+            
+            return super.create(id, uuid);
         }
         catch (SQLException sqle)
         {

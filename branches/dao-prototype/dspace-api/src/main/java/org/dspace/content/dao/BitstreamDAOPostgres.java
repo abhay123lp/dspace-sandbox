@@ -42,6 +42,7 @@ package org.dspace.content.dao;
 import java.io.InputStream;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -68,6 +69,7 @@ import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
+import org.dspace.storage.rdbms.TableRowIterator;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
 
 /**
@@ -101,10 +103,10 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     public Bitstream create(InputStream is) throws AuthorizeException
     {
         // Store the bits
-        int bitstreamID = -1;
+        TableRow row = null;
         try
         {
-            bitstreamID = BitstreamStorageManager.store(context, is);
+            row = BitstreamStorageManager.store(context, is);
         }
         catch (IOException ioe)
         {
@@ -115,15 +117,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             throw new RuntimeException(sqle);
         }
 
-        log.info(LogManager.getHeader(context, "create_bitstream",
-                "bitstream_id=" + bitstreamID));
-
-        // Set the format to "unknown"
-        Bitstream bitstream = retrieve(bitstreamID);
-        bitstream.setFormat(null);
-        update(bitstream);
-
-        return bitstream;
+        return create(row);
     }
 
     /**
@@ -144,11 +138,10 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         throws AuthorizeException
     {
         // Store the bits
-        int bitstreamID = -1;
+        TableRow row = null;
         try
         {
-            bitstreamID =
-                BitstreamStorageManager.register(context, assetstore, path);
+            row = BitstreamStorageManager.register(context, assetstore, path);
         }
         catch (IOException ioe)
         {
@@ -159,14 +152,23 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             throw new RuntimeException(sqle);
         }
 
+        return create(row);
+    }
+
+    private Bitstream create(TableRow row) throws AuthorizeException
+    {
+        int id = row.getIntColumn("bitstream_id");
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+
+        Bitstream bitstream = new Bitstream(context, id);
+        populateBitstreamFromTableRow(bitstream, row);
+        bitstream.setFormat(null);
+        bitstream.setIdentifier(new ObjectIdentifier(uuid));
+
+        update(bitstream);
 
         log.info(LogManager.getHeader(context, "create_bitstream",
-                "bitstream_id=" + bitstreamID));
-
-        // Set the format to "unknown"
-        Bitstream bitstream = retrieve(bitstreamID);
-        bitstream.setFormat(null);
-        update(bitstream);
+                "bitstream_id=" + id));
 
         return bitstream;
     }
@@ -322,13 +324,27 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     @Override
     public List<Bitstream> getBitstreamsByBundle(Bundle bundle)
     {
-        return null;
-    }
+        try
+        {
+            // Get bitstreams
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT bitstream_id FROM bundle2bitstream " +
+                    "WHERE bundle_id = ? ", bundle.getID());
 
-    @Override
-    public List<Bitstream> getBitstreamsByItem(Item bitstream)
-    {
-        return null;
+            List <Bitstream> bitstreams = new ArrayList<Bitstream>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("bitstream_id");
+                bitstreams.add(retrieve(id));
+            }
+
+            return bitstreams;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -350,7 +366,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         String userFormatDescription =
             row.getStringColumn("user_format_description");
 
-        Long sizeBytes = -1l;
+        long sizeBytes = -1l;
         if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
         {
             sizeBytes = new Long(row.getIntColumn("size_bytes"));
@@ -395,7 +411,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         int sequenceID = bitstream.getSequenceID();
         int storeNumber = bitstream.getStoreNumber();
         int bitstreamFormatID = bitstreamFormat.getID();
-        Long sizeBytes = bitstream.getSize();
+        long sizeBytes = bitstream.getSize();
 
         String name = bitstream.getName();
         String source = bitstream.getSource();
@@ -410,23 +426,9 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         row.setColumn("bitstream_format_id", bitstreamFormatID);
         row.setColumn("size_bytes", sizeBytes);
 
-        if (name == null)
-        {
-            row.setColumnNull("name");
-        }
-        else
-        {
-            row.setColumn("name", name);
-        }
-
-        if (source == null)
-        {
-            row.setColumnNull("source");
-        }
-        else
-        {
-            row.setColumn("source", source);
-        }
+        row.setColumn("name", name);
+        row.setColumn("source", source);
+        row.setColumn("internal_id", internalID);
 
         if (description == null)
         {
@@ -462,15 +464,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         else
         {
             row.setColumn("user_format_description", userFormatDescription);
-        }
-
-        if (internalID == null)
-        {
-            row.setColumnNull("internal_id");
-        }
-        else
-        {
-            row.setColumn("internal_id", internalID);
         }
 
         // FIXME: We should be setting this
