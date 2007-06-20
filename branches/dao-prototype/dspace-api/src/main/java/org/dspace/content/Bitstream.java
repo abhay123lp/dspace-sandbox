@@ -219,7 +219,6 @@ public class Bitstream extends DSpaceObject
      * bitstream is uncertain, and the format is set to "unknown."
      * 
      * @param desc the user's description of the format
-     * @throws SQLException
      */
     public void setUserFormatDescription(String desc)
     {
@@ -279,7 +278,6 @@ public class Bitstream extends DSpaceObject
      * @param f
      *            the format of this bitstream, or <code>null</code> for
      *            unknown
-     * @throws SQLException
      */
     public void setFormat(BitstreamFormat f)
     {
@@ -308,17 +306,25 @@ public class Bitstream extends DSpaceObject
      * Retrieve the contents of the bitstream
      * 
      * @return a stream from which the bitstream can be read.
-     * @throws IOException
-     * @throws SQLException
      * @throws AuthorizeException
      */
-    public InputStream retrieve() throws IOException, SQLException,
-            AuthorizeException
+    public InputStream retrieve() throws AuthorizeException
     {
         // Maybe should return AuthorizeException??
         AuthorizeManager.authorizeAction(context, this, Constants.READ);
 
-        return BitstreamStorageManager.retrieve(context, getID());
+        try
+        {
+            return BitstreamStorageManager.retrieve(context, getID());
+        }
+        catch (IOException ioe)
+        {
+            throw new RuntimeException(ioe);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
     
     /**

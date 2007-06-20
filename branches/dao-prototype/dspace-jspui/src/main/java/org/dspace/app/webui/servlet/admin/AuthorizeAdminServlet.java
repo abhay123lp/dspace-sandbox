@@ -62,6 +62,16 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BundleDAO;
+import org.dspace.content.dao.BundleDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.CommunityDAO;
+import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
@@ -94,6 +104,39 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        BitstreamDAO bitstreamDAO = null;
+        BundleDAO bundleDAO = null;
+        ItemDAO itemDAO = null;
+        CollectionDAO collectionDAO = null;
+        CommunityDAO communityDAO = null;
+
+        int bitstreamID = UIUtil.getIntParameter(request, "bitstream_id");
+        int bundleID = UIUtil.getIntParameter(request, "bundle_id");
+        int itemID = UIUtil.getIntParameter(request, "item_id");
+        int collectionID = UIUtil.getIntParameter(request, "collection_id");
+        int communityID = UIUtil.getIntParameter(request, "community_id");
+
+        if (bitstreamID > 0)
+        {
+            bitstreamDAO = BitstreamDAOFactory.getInstance(c);
+        }
+        if (bundleID > 0)
+        {
+            bundleDAO = BundleDAOFactory.getInstance(c);
+        }
+        if (itemID > 0)
+        {
+            itemDAO = ItemDAOFactory.getInstance(c);
+        }
+        if (collectionID > 0)
+        {
+            collectionDAO = CollectionDAOFactory.getInstance(c);
+        }
+        if (communityID > 0)
+        {
+            communityDAO = CommunityDAOFactory.getInstance(c);
+        }
+
         PersistentIdentifierDAO identifierDAO =
             PersistentIdentifierDAOFactory.getInstance(c);
 
@@ -140,13 +183,12 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         {
             Item item = null;
 
-            int item_id = UIUtil.getIntParameter(request, "item_id");
             String uri = request.getParameter("uri");
 
             // if id is set, use it
-            if (item_id > 0)
+            if (itemID > 0)
             {
-                item = Item.find(c, item_id);
+                item = itemDAO.retrieve(itemID);
             }
             else if ((uri != null) && !uri.equals(""))
             {
@@ -181,8 +223,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_item_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Item item = Item
-                    .find(c, UIUtil.getIntParameter(request, "item_id"));
+            Item item = itemDAO.retrieve(itemID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(item);
@@ -206,8 +247,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_item_edit_policy"))
         {
             // edit an item's policy - set up and call policy editor
-            Item item = Item
-                    .find(c, UIUtil.getIntParameter(request, "item_id"));
+            Item item = itemDAO.retrieve(itemID);
 
             int policy_id = UIUtil.getIntParameter(request, "policy_id");
             ResourcePolicy policy = null;
@@ -230,10 +270,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_bundle_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Item item = Item
-                    .find(c, UIUtil.getIntParameter(request, "item_id"));
-            Bundle bundle = Bundle.find(c, UIUtil.getIntParameter(request,
-                    "bundle_id"));
+            Item item = itemDAO.retrieve(itemID);
+            Bundle bundle = bundleDAO.retrieve(bundleID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(bundle);
@@ -258,10 +296,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_bitstream_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Item item = Item
-                    .find(c, UIUtil.getIntParameter(request, "item_id"));
-            Bitstream bitstream = Bitstream.find(c, UIUtil.getIntParameter(
-                    request, "bitstream_id"));
+            Item item = itemDAO.retrieve(itemID);
+            Bitstream bitstream = bitstreamDAO.retrieve(bitstreamID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(bitstream);
@@ -286,8 +322,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_item_delete_policy"))
         {
             // delete a permission from an item
-            Item item = Item
-                    .find(c, UIUtil.getIntParameter(request, "item_id"));
+            Item item = itemDAO.retrieve(itemID);
             ResourcePolicy policy = ResourcePolicy.find(c, UIUtil
                     .getIntParameter(request, "policy_id"));
 
@@ -304,8 +339,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Collection collection = Collection.find(c, UIUtil.getIntParameter(
-                    request, "collection_id"));
+            Collection collection = collectionDAO.retrieve(collectionID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(collection);
@@ -330,8 +364,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community_select"))
         {
             // edit the collection's permissions
-            Community target = Community.find(c, UIUtil.getIntParameter(
-                    request, "community_id"));
+            Community target = communityDAO.retrieve(communityID);
             List policies = AuthorizeManager.getPolicies(c, target);
 
             request.setAttribute("community", target);
@@ -342,8 +375,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_delete_policy"))
         {
             // delete a permission from a collection
-            Collection collection = Collection.find(c, UIUtil.getIntParameter(
-                    request, "collection_id"));
+            Collection collection = collectionDAO.retrieve(collectionID);
             ResourcePolicy policy = ResourcePolicy.find(c, UIUtil
                     .getIntParameter(request, "policy_id"));
 
@@ -362,8 +394,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community_delete_policy"))
         {
             // delete a permission from a community
-            Community community = Community.find(c, UIUtil.getIntParameter(
-                    request, "community_id"));
+            Community community = communityDAO.retrieve(communityID);
             ResourcePolicy policy = ResourcePolicy.find(c, UIUtil
                     .getIntParameter(request, "policy_id"));
 
@@ -382,8 +413,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_edit_policy"))
         {
             // edit a collection's policy - set up and call policy editor
-            Collection collection = Collection.find(c, UIUtil.getIntParameter(
-                    request, "collection_id"));
+            Collection collection = collectionDAO.retrieve(collectionID);
 
             int policy_id = UIUtil.getIntParameter(request, "policy_id");
             ResourcePolicy policy = null;
@@ -417,8 +447,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community_edit_policy"))
         {
             // edit a community's policy - set up and call policy editor
-            Community community = Community.find(c, UIUtil.getIntParameter(
-                    request, "community_id"));
+            Community community = communityDAO.retrieve(communityID);
 
             int policy_id = UIUtil.getIntParameter(request, "policy_id");
             ResourcePolicy policy = null;
@@ -453,8 +482,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Collection collection = Collection.find(c, UIUtil.getIntParameter(
-                    request, "collection_id"));
+            Collection collection = collectionDAO.retrieve(collectionID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(collection);
@@ -479,8 +507,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Community community = Community.find(c, UIUtil.getIntParameter(
-                    request, "community_id"));
+            Community community = communityDAO.retrieve(communityID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(community);
@@ -508,10 +535,6 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             int policy_id = UIUtil.getIntParameter(request, "policy_id");
             int action_id = UIUtil.getIntParameter(request, "action_id");
             int group_id = UIUtil.getIntParameter(request, "group_id");
-            int collection_id = UIUtil
-                    .getIntParameter(request, "collection_id");
-            int community_id = UIUtil.getIntParameter(request, "community_id");
-            int item_id = UIUtil.getIntParameter(request, "item_id");
 
             Item item = null;
             Collection collection = null;
@@ -521,9 +544,9 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             ResourcePolicy policy = ResourcePolicy.find(c, policy_id);
             Group group = Group.find(c, group_id);
 
-            if (collection_id != -1)
+            if (collectionID > 0)
             {
-                collection = Collection.find(c, collection_id);
+                collection = collectionDAO.retrieve(collectionID);
 
                 // modify the policy
                 policy.setAction(action_id);
@@ -553,9 +576,9 @@ public class AuthorizeAdminServlet extends DSpaceServlet
                         c, collection));
                 display_page = "/dspace-admin/authorize-collection-edit.jsp";
             }
-            else if (community_id != -1)
+            else if (communityID > 0)
             {
-                community = Community.find(c, community_id);
+                community = communityDAO.retrieve(communityID);
 
                 // modify the policy
                 policy.setAction(action_id);
@@ -585,9 +608,9 @@ public class AuthorizeAdminServlet extends DSpaceServlet
                         c, community));
                 display_page = "/dspace-admin/authorize-community-edit.jsp";
             }
-            else if (item_id != -1)
+            else if (itemID > 0)
             {
-                item = Item.find(c, item_id);
+                item = itemDAO.retrieve(itemID);
 
                 // modify the policy
                 policy.setAction(action_id);
@@ -614,36 +637,32 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             }
 
             // return to the previous page
-            int collection_id = UIUtil
-                    .getIntParameter(request, "collection_id");
-            int community_id = UIUtil.getIntParameter(request, "community_id");
-            int item_id = UIUtil.getIntParameter(request, "item_id");
             String display_page = null;
 
-            if (collection_id != -1)
+            if (collectionID > 0)
             {
                 // set up for return to collection edit page
-                Collection t = Collection.find(c, collection_id);
+                Collection t = collectionDAO.retrieve(collectionID);
 
                 request.setAttribute("collection", t);
                 request.setAttribute("policies", AuthorizeManager.getPolicies(
                         c, t));
                 display_page = "/dspace-admin/authorize-collection-edit.jsp";
             }
-            else if (community_id != -1)
+            else if (communityID > 0)
             {
                 // set up for return to community edit page
-                Community t = Community.find(c, community_id);
+                Community t = communityDAO.retrieve(communityID);
 
                 request.setAttribute("community", t);
                 request.setAttribute("policies", AuthorizeManager.getPolicies(
                         c, t));
                 display_page = "/dspace-admin/authorize-community-edit.jsp";
             }
-            else if (item_id != -1)
+            else if (itemID > 0)
             {
                 // set up for return to item edit page
-                Item t = Item.find(c, item_id);
+                Item t = itemDAO.retrieve(itemID);
 
                 // show edit form!
                 prepItemEditForm(c, request, t);
@@ -656,18 +675,16 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_advanced_clear"))
         {
             // remove all policies for a set of objects
-            int collection_id = UIUtil
-                    .getIntParameter(request, "collection_id");
             int resource_type = UIUtil
                     .getIntParameter(request, "resource_type");
 
             // if it's to bitstreams, do it to bundles too
-            PolicySet.setPolicies(c, Constants.COLLECTION, collection_id,
+            PolicySet.setPolicies(c, Constants.COLLECTION, collectionID,
                     resource_type, 0, 0, false, true);
 
             if (resource_type == Constants.BITSTREAM)
             {
-                PolicySet.setPolicies(c, Constants.COLLECTION, collection_id,
+                PolicySet.setPolicies(c, Constants.COLLECTION, collectionID,
                         Constants.BUNDLE, 0, 0, false, true);
             }
 
@@ -677,20 +694,18 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_advanced_add"))
         {
             // add a policy to a set of objects
-            int collection_id = UIUtil
-                    .getIntParameter(request, "collection_id");
             int resource_type = UIUtil
                     .getIntParameter(request, "resource_type");
             int action_id = UIUtil.getIntParameter(request, "action_id");
             int group_id = UIUtil.getIntParameter(request, "group_id");
 
-            PolicySet.setPolicies(c, Constants.COLLECTION, collection_id,
+            PolicySet.setPolicies(c, Constants.COLLECTION, collectionID,
                     resource_type, action_id, group_id, false, false);
 
             // if it's a bitstream, do it to the bundle too
             if (resource_type == Constants.BITSTREAM)
             {
-                PolicySet.setPolicies(c, Constants.COLLECTION, collection_id,
+                PolicySet.setPolicies(c, Constants.COLLECTION, collectionID,
                         Constants.BUNDLE, action_id, group_id, false, false);
             }
 
@@ -700,8 +715,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_select"))
         {
             // edit the collection's permissions
-            Collection collection = Collection.find(c, UIUtil.getIntParameter(
-                    request, "collection_id"));
+            Collection collection = collectionDAO.retrieve(collectionID);
             List policies = AuthorizeManager.getPolicies(c, collection);
 
             request.setAttribute("collection", collection);
