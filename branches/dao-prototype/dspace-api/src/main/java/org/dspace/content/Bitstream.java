@@ -283,8 +283,6 @@ public class Bitstream extends DSpaceObject
      */
     public void setFormat(BitstreamFormat f)
     {
-        // FIXME: Would be better if this didn't throw an SQLException,
-        // but we need to find the unknown format!
         if (f == null)
         {
             // Use "Unknown" format

@@ -155,6 +155,11 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         return create(row);
     }
 
+    /**
+     * Because Bitstreams are created in an inherantly different way to the
+     * other DSpaceObjects, we need a kind of "post create update" which is
+     * what this method does.
+     */
     private Bitstream create(TableRow row) throws AuthorizeException
     {
         int id = row.getIntColumn("bitstream_id");

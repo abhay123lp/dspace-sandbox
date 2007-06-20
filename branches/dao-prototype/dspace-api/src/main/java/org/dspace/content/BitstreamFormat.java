@@ -300,8 +300,10 @@ public class BitstreamFormat
     {
         List formats = new ArrayList();
 
-        TableRowIterator tri = DatabaseManager.queryTable(context, "bitstreamformatregistry",
-                        "SELECT * FROM bitstreamformatregistry ORDER BY bitstream_format_id");
+        TableRowIterator tri = DatabaseManager.queryTable(context,
+                "bitstreamformatregistry",
+                "SELECT * FROM bitstreamformatregistry " +
+                "ORDER BY bitstream_format_id");
 
         while (tri.hasNext())
         {
