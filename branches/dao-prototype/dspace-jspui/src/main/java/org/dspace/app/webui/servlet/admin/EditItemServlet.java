@@ -73,6 +73,8 @@ import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
+import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BundleDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
@@ -486,8 +488,10 @@ public class EditItemServlet extends DSpaceServlet
                 int bundleID = Integer.parseInt(st.nextToken());
                 int bitstreamID = Integer.parseInt(st.nextToken());
 
-                Bundle bundle = Bundle.find(context, bundleID);
-                Bitstream bitstream = Bitstream.find(context, bitstreamID);
+                Bundle bundle =
+                    BundleDAOFactory.getInstance(context).retrieve(bundleID);
+                Bitstream bitstream =
+                    BitstreamDAOFactory.getInstance(context).retrieve(bitstreamID);
 
                 // Get the string "(bundleID)_(bitstreamID)" for finding other
                 // parameters related to this bitstream
@@ -540,8 +544,7 @@ public class EditItemServlet extends DSpaceServlet
                     bitstream.setName(name);
                     bitstream.setSource(source);
                     bitstream.setDescription(desc);
-                    bitstream
-                            .setFormat(BitstreamFormat.find(context, formatID));
+                    bitstream.setFormat(BitstreamFormat.find(context, formatID));
 
                     if (primaryBitstreamID > 0)
                     {
