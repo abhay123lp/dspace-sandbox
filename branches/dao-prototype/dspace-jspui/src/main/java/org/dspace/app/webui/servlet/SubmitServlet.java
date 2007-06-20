@@ -75,6 +75,8 @@ import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BitstreamDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -204,6 +206,8 @@ public class SubmitServlet extends DSpaceServlet
     private DCInputsReader inputsReader = null;
     
     private Locale langForm = null;
+
+    private BitstreamDAO bitstreamDAO = null;
     
     protected void doDSGet(Context context, HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException,
@@ -226,6 +230,8 @@ public class SubmitServlet extends DSpaceServlet
          * current community. If the user has selected a collection, a new
          * submission will be started in that collection.
          */
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+
         String workspaceID = request.getParameter("resume");
 
         if (workspaceID != null)
@@ -1315,7 +1321,7 @@ public class SubmitServlet extends DSpaceServlet
             try
             {
                 int id = Integer.parseInt(buttonPressed.substring(16));
-                bitstream = Bitstream.find(context, id);
+                bitstream = bitstreamDAO.retrieve(id);
             }
             catch (NumberFormatException nfe)
             {
@@ -1346,7 +1352,7 @@ public class SubmitServlet extends DSpaceServlet
             try
             {
                 int id = Integer.parseInt(buttonPressed.substring(14));
-                bitstream = Bitstream.find(context, id);
+                bitstream = bitstreamDAO.retrieve(id);
             }
             catch (NumberFormatException nfe)
             {
@@ -1390,7 +1396,7 @@ public class SubmitServlet extends DSpaceServlet
             try
             {
                 int id = Integer.parseInt(buttonPressed.substring(14));
-                bitstream = Bitstream.find(context, id);
+                bitstream = bitstreamDAO.retrieve(id);
             }
             catch (NumberFormatException nfe)
             {
@@ -2110,7 +2116,7 @@ public class SubmitServlet extends DSpaceServlet
         if (request.getParameter("bitstream_id") != null)
         {
             int bitstreamID = UIUtil.getIntParameter(request, "bitstream_id");
-            info.bitstream = Bitstream.find(context, bitstreamID);
+            info.bitstream = bitstreamDAO.retrieve(bitstreamID);
         }
 
         return info;

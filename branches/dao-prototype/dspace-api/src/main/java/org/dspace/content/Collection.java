@@ -63,6 +63,8 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
+import org.dspace.content.dao.BitstreamDAO;         // Naughty!
+import org.dspace.content.dao.BitstreamDAOFactory;  // Naughty!
 import org.dspace.content.dao.CollectionDAO;        // Naughty!
 import org.dspace.content.dao.CollectionDAOFactory; // Naughty!
 import org.dspace.content.dao.CommunityDAO;         // Naughty!
@@ -96,6 +98,7 @@ public class Collection extends DSpaceObject
 
     private Context context;
     private CollectionDAO dao;
+    private BitstreamDAO bitstreamDAO;
     private ItemDAO itemDAO;
     private CommunityDAO communityDAO;
 
@@ -119,6 +122,7 @@ public class Collection extends DSpaceObject
         this.id = id;
         this.context = context;
         this.dao = CollectionDAOFactory.getInstance(context);
+        this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
         this.itemDAO = ItemDAOFactory.getInstance(context);
         this.communityDAO = CommunityDAOFactory.getInstance(context);
 
@@ -296,7 +300,7 @@ public class Collection extends DSpaceObject
             }
             else
             {
-                logo = Bitstream.create(context, is);
+                logo = bitstreamDAO.create(is);
 
                 // now create policy for logo bitstream
                 // to match our READ policy

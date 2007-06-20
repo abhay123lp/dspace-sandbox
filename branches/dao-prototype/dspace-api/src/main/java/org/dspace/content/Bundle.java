@@ -128,6 +128,11 @@ public class Bundle extends DSpaceObject
         this.primaryBitstreamId = primaryBitstreamId;
     }
 
+    public Bitstream getPrimaryBitstream()
+    {
+        return bitstreamDAO.retrieve(primaryBitstreamId);
+    }
+
     public Bitstream getBitstreamByName(String name)
     {
         Bitstream target = null;

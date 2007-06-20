@@ -560,8 +560,7 @@ public class ItemListTag extends TagSupport
                 if ((original[0].getBitstreams().length > 1)
                         && (original[0].getPrimaryBitstreamID() > -1))
                 {
-                    originalBitstream = Bitstream.find(c, original[0]
-                            .getPrimaryBitstreamID());
+                    originalBitstream = original[0].getPrimaryBitstream();
                     thumbnailBitstream = thumbs[0]
                             .getBitstreamByName(originalBitstream.getName()
                                     + ".jpg");

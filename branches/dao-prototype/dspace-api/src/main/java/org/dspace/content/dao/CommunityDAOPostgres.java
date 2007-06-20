@@ -95,6 +95,7 @@ public class CommunityDAOPostgres extends CommunityDAO
         if (context != null)
         {
             this.context = context;
+            this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
             this.collectionDAO = CollectionDAOFactory.getInstance(context);
             this.identifierDAO =
                 PersistentIdentifierDAOFactory.getInstance(context);
@@ -608,15 +609,8 @@ public class CommunityDAOPostgres extends CommunityDAO
         // Get the logo bitstream
         if (!row.isColumnNull("logo_bitstream_id"))
         {
-            try
-            {
-                logo = Bitstream.find(context,
-                        row.getIntColumn("logo_bitstream_id"));
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
+            int id = row.getIntColumn("logo_bitstream_id");
+            logo = bitstreamDAO.retrieve(id);
         }
 
         UUID uuid = UUID.fromString(row.getStringColumn("uuid"));

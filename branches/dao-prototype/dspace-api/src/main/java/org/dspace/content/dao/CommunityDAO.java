@@ -69,6 +69,7 @@ public abstract class CommunityDAO extends ContentDAO
     protected static Logger log = Logger.getLogger(CommunityDAOPostgres.class);
 
     protected Context context;
+    protected BitstreamDAO bitstreamDAO;
     protected CollectionDAO collectionDAO;
     protected PersistentIdentifierDAO identifierDAO;
 
