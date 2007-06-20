@@ -63,10 +63,8 @@ public class BundleDAOPostgres extends BundleDAO
 {
     public BundleDAOPostgres(Context context)
     {
-        if (context != null)
-        {
-            this.context = context;
-        }
+        this.context = context;
+        this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
     }
 
     @Override
@@ -355,7 +353,7 @@ public class BundleDAOPostgres extends BundleDAO
             for (TableRow row : tri.toList())
             {
                 int id = row.getIntColumn("bitstream_id");
-                bitstreams.add(Bitstream.find(context, id));
+                bitstreams.add(bitstreamDAO.retrieve(id));
             }
 
             return bitstreams;
@@ -386,18 +384,8 @@ public class BundleDAOPostgres extends BundleDAO
 
             for (TableRow bsRow : tri.toList())
             {
-                // FIXME: I'd like to do BitstreamDAO.retrieve(id);
-                Bitstream fromCache = (Bitstream) context.fromCache(
-                        Bitstream.class, bsRow.getIntColumn("bitstream_id"));
-
-                if (fromCache != null)
-                {
-                    bitstreams.add(fromCache);
-                }
-                else
-                {
-                    bitstreams.add(new Bitstream(context, bsRow));
-                }
+                int id = bsRow.getIntColumn("bitstream_id");
+                bitstreams.add(bitstreamDAO.retrieve(id));
             }
 
             UUID uuid = UUID.fromString(row.getStringColumn("uuid"));

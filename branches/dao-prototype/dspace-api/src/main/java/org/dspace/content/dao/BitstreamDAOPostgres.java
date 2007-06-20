@@ -340,7 +340,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     {
         int sequenceID = row.getIntColumn("sequence_id");
         int storeNumber = row.getIntColumn("store_number");
-        int internalID = row.getIntColumn("internal_id");
+        String internalID = row.getStringColumn("internal_id");
 
         String name = row.getStringColumn("name");
         String source = row.getStringColumn("source");
@@ -383,36 +383,97 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         bitstream.setFormat(bitstreamFormat);
         bitstream.setStoreNumber(storeNumber);
         bitstream.setInternalID(internalID);
+
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+        bitstream.setIdentifier(new ObjectIdentifier(uuid));
     }
 
     private void populateTableRowFromBitstream(Bitstream bitstream,
             TableRow row)
     {
+        BitstreamFormat bitstreamFormat = bitstream.getFormat();
         int sequenceID = bitstream.getSequenceID();
+        int storeNumber = bitstream.getStoreNumber();
+        int bitstreamFormatID = bitstreamFormat.getID();
+        Long sizeBytes = bitstream.getSize();
+
         String name = bitstream.getName();
         String source = bitstream.getSource();
         String description = bitstream.getDescription();
         String checksum = bitstream.getChecksum();
         String checksumAlgorithm = bitstream.getChecksumAlgorithm();
-        Long sizeBytes = bitstream.getSize();
         String userFormatDescription = bitstream.getUserFormatDescription();
-        BitstreamFormat bitstreamFormat = bitstream.getFormat();
-        int bitstreamFormatID = bitstreamFormat.getID();
-        int storeNumber = bitstream.getStoreNumber();
-        int internalID = bitstream.getInternalID();
+        String internalID = bitstream.getInternalID();
 
+        row.setColumn("sequence_id", sequenceID);
+        row.setColumn("store_number", storeNumber);
         row.setColumn("bitstream_format_id", bitstreamFormatID);
-        row.setColumn("name", name);
         row.setColumn("size_bytes", sizeBytes);
-        row.setColumn("checksum", checksum);
-        row.setColumn("checksum_algorithm", checksumAlgorithm);
-        row.setColumn("description", description);
-        row.setColumn("user_format_description", userFormatDescription);
-        row.setColumn("source", source);
-        row.setColumn("internal_id", internalID);
+
+        if (name == null)
+        {
+            row.setColumnNull("name");
+        }
+        else
+        {
+            row.setColumn("name", name);
+        }
+
+        if (source == null)
+        {
+            row.setColumnNull("source");
+        }
+        else
+        {
+            row.setColumn("source", source);
+        }
+
+        if (description == null)
+        {
+            row.setColumnNull("description");
+        }
+        else
+        {
+            row.setColumn("description", description);
+        }
+
+        if (checksum == null)
+        {
+            row.setColumnNull("checksum");
+        }
+        else
+        {
+            row.setColumn("checksum", checksum);
+        }
+
+        if (checksumAlgorithm == null)
+        {
+            row.setColumnNull("checksum_algorithm");
+        }
+        else
+        {
+            row.setColumn("checksum_algorithm", checksumAlgorithm);
+        }
+
+        if (userFormatDescription == null)
+        {
+            row.setColumnNull("user_format_description");
+        }
+        else
+        {
+            row.setColumn("user_format_description", userFormatDescription);
+        }
+
+        if (internalID == null)
+        {
+            row.setColumnNull("internal_id");
+        }
+        else
+        {
+            row.setColumn("internal_id", internalID);
+        }
+
         // FIXME: We should be setting this
 //        row.setColumn("deleted", deleted);
-        row.setColumn("store_number", storeNumber);
-        row.setColumn("sequence_id", sequenceID);
     }
 }

@@ -95,10 +95,9 @@ public class Bitstream extends DSpaceObject
     private String checksumAlgorithm;
     private Long sizeBytes;
     private String userFormatDescription;
-    private int bitstreamFormatID;
     private BitstreamFormat bitstreamFormat;
     private int storeNumber;
-    private int internalID;
+    private String internalID;
 
     public Bitstream(Context context, int id)
     {
@@ -119,13 +118,13 @@ public class Bitstream extends DSpaceObject
     }
 
     // FIXME: Do we even want this exposed?
-    public int getInternalID()
+    public String getInternalID()
     {
         return internalID;
     }
 
     // FIXME: Do we even want this exposed?
-    public void setInternalID(int internalID)
+    public void setInternalID(String internalID)
     {
         this.internalID = internalID;
     }
@@ -305,9 +304,6 @@ public class Bitstream extends DSpaceObject
 
         // Remove user type description
         userFormatDescription = null;
-
-        // Update the ID in the table row
-        bitstreamFormatID = bitstreamFormat.getID();
     }
 
     /**
@@ -334,7 +330,7 @@ public class Bitstream extends DSpaceObject
      */
     public boolean isRegisteredBitstream()
     {
-        return BitstreamStorageManager.isRegisteredBitstream(internalID + "");
+        return BitstreamStorageManager.isRegisteredBitstream(internalID);
     }
     
     /**

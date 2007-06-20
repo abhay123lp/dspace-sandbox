@@ -60,6 +60,8 @@ import org.dspace.content.Item;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BitstreamDAOFactory;
 import org.dspace.content.dao.BundleDAO;
 import org.dspace.content.dao.BundleDAOFactory;
 import org.dspace.content.dao.ItemDAO;
@@ -101,20 +103,14 @@ public class ObjectIdentifier
             CollectionDAOFactory.getInstance(context);
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
         BundleDAO bundleDAO = BundleDAOFactory.getInstance(context);
+        BitstreamDAO bitstreamDAO = BitstreamDAOFactory.getInstance(context);
 
         if (uuid == null)
         {
             switch(resourceTypeID)
             {
                 case (Constants.BITSTREAM):
-                    try
-                    {
-                        return Bitstream.find(context, resourceID);
-                    }
-                    catch (SQLException sqle)
-                    {
-                        throw new RuntimeException(sqle);
-                    }
+                    return bitstreamDAO.retrieve(resourceID);
                 case (Constants.BUNDLE):
                     return bundleDAO.retrieve(resourceID);
                 case (Constants.ITEM):
@@ -129,16 +125,7 @@ public class ObjectIdentifier
         }
         else
         {
-            DSpaceObject dso = null;
-
-            try
-            {
-                dso = (Bitstream) Bitstream.find(context, uuid);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
+            DSpaceObject dso = (Bitstream) bitstreamDAO.retrieve(uuid);
 
             if (dso == null)
             {

@@ -114,7 +114,7 @@ public class ItemProxy extends Item
     {
         if (!bundlesLoaded)
         {
-            setBundles(bundleDAO.getBundles(this));
+            setBundles(bundleDAO.getBundlesByItem(this));
         }
 
         return (Bundle[]) bundles.toArray(new Bundle[0]);

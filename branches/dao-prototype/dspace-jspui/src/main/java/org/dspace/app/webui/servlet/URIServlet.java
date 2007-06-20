@@ -101,9 +101,7 @@ public class URIServlet extends DSpaceServlet
 
         try
         {
-            log.info(path);
             path = URLDecoder.decode(path, "UTF-8");
-            log.info(path);
         }
         catch (UnsupportedEncodingException uee)
         {
@@ -122,7 +120,6 @@ public class URIServlet extends DSpaceServlet
                     path = path.substring(new String("info:dspace/").length());
                     path = path.replaceFirst("/", ":");
                 }
-                log.info(path);
 
                 // Extract the URI
                 int firstSlash = path.indexOf('/');

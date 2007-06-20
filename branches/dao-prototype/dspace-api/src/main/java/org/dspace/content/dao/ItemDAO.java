@@ -153,7 +153,6 @@ public abstract class ItemDAO extends ContentDAO
         for (Bundle bundle : bundles)
         {
             link(item, bundle);
-            bundleDAO.update(bundle);
         }
 
         // Set sequence IDs for bitstreams in item
