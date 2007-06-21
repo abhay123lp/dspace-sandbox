@@ -63,6 +63,9 @@ import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.CommunityDAOFactory;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
@@ -831,7 +834,8 @@ public class HistoryManager
     private static void addData(Context context, WorkspaceItem wi,
             Resource res, Model model) throws SQLException, RDFException
     {
-        Item item = Item.find(context, wi.getItem().getID());
+        Item item =
+            ItemDAOFactory.getInstance(context).retrieve(wi.getItem().getID());
 
         serializeInternal(context, item, model);
     }
@@ -856,7 +860,8 @@ public class HistoryManager
     private static void addData(Context context, WorkflowItem wi, Resource res,
             Model model) throws SQLException, RDFException
     {
-        Item item = Item.find(context, wi.getItem().getID());
+        Item item =
+            ItemDAOFactory.getInstance(context).retrieve(wi.getItem().getID());
 
         serializeInternal(context, item, model);
     }
@@ -1120,7 +1125,8 @@ public class HistoryManager
         {
             context = new Context();
 
-            Community c = Community.find(context, 1);
+            // WTF is going on here?
+            Community c = CommunityDAOFactory.getInstance(context).retrieve(1);
 
             if (c != null)
             {
@@ -1129,7 +1135,9 @@ public class HistoryManager
                 saveHistory(context, c, CREATE, null, null);
             }
 
-            Collection collection = Collection.find(context, 3);
+            // WTF is going on here?
+            Collection collection =
+                CollectionDAOFactory.getInstance(context).retrieve(3);
 
             if (collection != null)
             {
@@ -1160,7 +1168,8 @@ public class HistoryManager
 
             saveHistory(context, nep, MODIFY, null, null);
 
-            Item item = Item.find(context, 1);
+            // WTF is going on here?
+            Item item = ItemDAOFactory.getInstance(context).retrieve(1);
 
             if (item != null)
             {

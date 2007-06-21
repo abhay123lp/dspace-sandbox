@@ -55,6 +55,10 @@ import org.dspace.browse.Browse;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.storage.rdbms.DatabaseManager;
@@ -81,13 +85,17 @@ public class ItemMapServlet extends DSpaceServlet
             javax.servlet.ServletException, java.io.IOException,
             AuthorizeException
     {
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+        CollectionDAO collectionDAO =
+            CollectionDAOFactory.getInstance(context);
+
         String jspPage = null;
 
         // get with a collection ID means put up browse window
         int myID = UIUtil.getIntParameter(request, "cid");
 
         // get collection
-        Collection myCollection = Collection.find(context, myID);
+        Collection myCollection = collectionDAO.retrieve(myID);
 
         // authorize check
         AuthorizeManager.authorizeAction(context, myCollection,
@@ -112,8 +120,8 @@ public class ItemMapServlet extends DSpaceServlet
         {
             // get with no action parameter set means to put up the main page
             // which is statistics and some command buttons to add/remove items
-	    //
-	    // also holds for interruption by pressing 'Cancel'
+            //
+            // also holds for interruption by pressing 'Cancel'
             int count_native = 0; // # of items owned by this collection
             int count_import = 0; // # of virtual items
             Map myItems = new HashMap(); // # for the browser
@@ -192,14 +200,14 @@ public class ItemMapServlet extends DSpaceServlet
             // get item IDs to remove
             String[] itemIDs = request.getParameterValues("item_ids");
             String message = "remove";
-	    LinkedList removedItems = new LinkedList();
+            LinkedList removedItems = new LinkedList();
 
             for (int j = 0; j < itemIDs.length; j++)
             {
                 int i = Integer.parseInt(itemIDs[j]);
-		removedItems.add(itemIDs[j]);
+                removedItems.add(itemIDs[j]);
 
-                Item myItem = Item.find(context, i);
+                Item myItem = itemDAO.retrieve(i);
 
                 // make sure item doesn't belong to this collection
                 if (!myItem.isOwningCollection(myCollection))
@@ -211,7 +219,7 @@ public class ItemMapServlet extends DSpaceServlet
 
             request.setAttribute("message", message);
             request.setAttribute("collection", myCollection);
-	    request.setAttribute("processedItems", removedItems);
+            request.setAttribute("processedItems", removedItems);
 
             // show this page when we're done
             jspPage = "itemmap-info.jsp";
@@ -224,7 +232,7 @@ public class ItemMapServlet extends DSpaceServlet
             // get item IDs to add
             String[] itemIDs = request.getParameterValues("item_ids");
             String message = "added";
-	    LinkedList addedItems = new LinkedList();
+            LinkedList addedItems = new LinkedList();
 	    
 
             if (itemIDs == null)
@@ -237,7 +245,7 @@ public class ItemMapServlet extends DSpaceServlet
                 {
                     int i = Integer.parseInt(itemIDs[j]);
 
-                    Item myItem = Item.find(context, i);
+                    Item myItem = itemDAO.retrieve(i);
 
                     if (AuthorizeManager.authorizeActionBoolean(context,
                             myItem, Constants.READ))
@@ -255,7 +263,7 @@ public class ItemMapServlet extends DSpaceServlet
 
             request.setAttribute("message", message);
             request.setAttribute("collection", myCollection);
-	    request.setAttribute("processedItems", addedItems);
+            request.setAttribute("processedItems", addedItems);
 
             // show this page when we're done
             jspPage = "itemmap-info.jsp";
@@ -285,7 +293,7 @@ public class ItemMapServlet extends DSpaceServlet
                 // now instantiate and pass items to 'Add' page
                 int itemID = tr.getIntColumn("item_id");
 
-                Item myItem = Item.find(context, itemID);
+                Item myItem = itemDAO.retrieve(itemID);
 
                 // only put on list if you can read item
                 if (AuthorizeManager.authorizeActionBoolean(context, myItem,
@@ -309,7 +317,7 @@ public class ItemMapServlet extends DSpaceServlet
             // target collection to browse
             int t = UIUtil.getIntParameter(request, "t");
 
-            Collection targetCollection = Collection.find(context, t);
+            Collection targetCollection = collectionDAO.retrieve(t);
 
             // now find all imported items from that collection
             // seemingly inefficient, but database should have this query cached

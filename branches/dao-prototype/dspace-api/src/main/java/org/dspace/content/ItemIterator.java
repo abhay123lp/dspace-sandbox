@@ -80,6 +80,8 @@ public class ItemIterator
 
     /** a real iterator which works over the item ids when present */
     private Iterator iditr;
+
+    private ItemDAO dao;
     
     /**
      * Construct an item iterator using a set of TableRow objects from
@@ -94,6 +96,7 @@ public class ItemIterator
     {
         ourContext = context;
         itemRows = rows;
+        dao = ItemDAOFactory.getInstance(context);
     }
 
     /**
@@ -108,6 +111,7 @@ public class ItemIterator
     {
     	ourContext = context;
     	iditr = iids.iterator();
+        dao = ItemDAOFactory.getInstance(context);
     }
     
     /**
@@ -173,7 +177,7 @@ public class ItemIterator
             }
             else
             {
-                return Item.find(ourContext, id);
+                return dao.retrieve(id);
             }
         }
         else

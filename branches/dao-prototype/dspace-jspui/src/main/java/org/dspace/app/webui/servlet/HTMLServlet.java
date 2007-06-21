@@ -54,6 +54,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.PersistentIdentifier;
 import org.dspace.content.uri.dao.PersistentIdentifierDAO;
@@ -214,7 +215,7 @@ public class HTMLServlet extends DSpaceServlet
                     String dbIDString = uri
                             .substring(uri.indexOf('/') + 1);
                     int dbID = Integer.parseInt(dbIDString);
-                    item = Item.find(context, dbID);
+                    item = ItemDAOFactory.getInstance(context).retrieve(dbID);
                 }
                 else
                 {

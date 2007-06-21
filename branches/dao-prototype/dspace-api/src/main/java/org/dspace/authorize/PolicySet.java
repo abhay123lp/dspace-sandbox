@@ -46,6 +46,7 @@ import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
+import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
@@ -135,7 +136,8 @@ public class PolicySet
     {
         if (containerType == Constants.COLLECTION)
         {
-            Collection collection = Collection.find(c, containerID);
+            Collection collection =
+                CollectionDAOFactory.getInstance(c).retrieve(containerID);
             Group group = Group.find(c, groupID);
 
             ItemIterator i = collection.getItems();

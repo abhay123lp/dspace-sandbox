@@ -49,6 +49,8 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
@@ -96,9 +98,10 @@ public class WorkflowItem implements InProgressSubmission
         ourContext = context;
         wfRow = row;
 
-        item = Item.find(context, wfRow.getIntColumn("item_id"));
-        collection = Collection.find(context, wfRow
-                .getIntColumn("collection_id"));
+        int collectionID = wfRow.getIntColumn("collection_id");
+        item = ItemDAOFactory.getInstance(context).retrieve(wfRow.getIntColumn("item_id"));
+        collection =
+            CollectionDAOFactory.getInstance(context).retrieve(collectionID);
 
         if (wfRow.isColumnNull("owner"))
         {

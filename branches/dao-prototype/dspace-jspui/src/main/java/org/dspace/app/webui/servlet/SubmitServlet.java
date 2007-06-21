@@ -77,6 +77,8 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BundleDAOFactory;
+import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -207,8 +209,6 @@ public class SubmitServlet extends DSpaceServlet
     
     private Locale langForm = null;
 
-    private BitstreamDAO bitstreamDAO = null;
-    
     protected void doDSGet(Context context, HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
@@ -243,8 +243,6 @@ public class SubmitServlet extends DSpaceServlet
          * current community. If the user has selected a collection, a new
          * submission will be started in that collection.
          */
-        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-
         String workspaceID = request.getParameter("resume");
 
         if (workspaceID != null)
@@ -506,7 +504,8 @@ public class SubmitServlet extends DSpaceServlet
 
         // First we find the collection
         int id = UIUtil.getIntParameter(request, "collection");
-        Collection col = Collection.find(context, id);
+        Collection col =
+            CollectionDAOFactory.getInstance(context).retrieve(id);
 
         // Show an error if we don't have a collection
         if (col == null)
@@ -1270,6 +1269,8 @@ public class SubmitServlet extends DSpaceServlet
             throws ServletException, IOException, SQLException,
             AuthorizeException
     {
+        BitstreamDAO bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+
         String buttonPressed = UIUtil.getSubmitButton(request, "submit_next");
         Item item = subInfo.submission.getItem();
 
@@ -2127,13 +2128,15 @@ public class SubmitServlet extends DSpaceServlet
         if (request.getParameter("bundle_id") != null)
         {
             int bundleID = UIUtil.getIntParameter(request, "bundle_id");
-            info.bundle = Bundle.find(context, bundleID);
+            info.bundle =
+                BundleDAOFactory.getInstance(context).retrieve(bundleID);
         }
 
         if (request.getParameter("bitstream_id") != null)
         {
             int bitstreamID = UIUtil.getIntParameter(request, "bitstream_id");
-            info.bitstream = bitstreamDAO.retrieve(bitstreamID);
+            info.bitstream =
+                BitstreamDAOFactory.getInstance(context).retrieve(bitstreamID);
         }
 
         return info;
