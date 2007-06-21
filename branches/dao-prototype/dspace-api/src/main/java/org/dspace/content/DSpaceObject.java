@@ -50,12 +50,15 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.log4j.Logger;
 
 /**
  * Abstract base class for DSpace objects
  */
 public abstract class DSpaceObject
 {
+    private static Logger log = Logger.getLogger(DSpaceObject.class);
+
     protected int id;
     protected ObjectIdentifier oid;
     protected List<PersistentIdentifier> identifiers;
@@ -98,8 +101,9 @@ public abstract class DSpaceObject
         }
         else
         {
-            throw new RuntimeException(
-                    "I don't have any persistent identifiers.\n" + this);
+            log.warn("no persistent identifiers found. type=" + getType() +
+                    ", id=" + getID());
+            return null;
         }
     }
 

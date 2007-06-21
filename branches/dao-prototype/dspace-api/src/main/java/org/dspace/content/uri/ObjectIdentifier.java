@@ -157,20 +157,14 @@ public class ObjectIdentifier
 
     public URL getURL()
     {
-        boolean openURL = false;
-
         String base = ConfigurationManager.getProperty("dspace.url") + "/";
-//        String value = (openURL ? "id=info:dspace/" : "info:dspace/");
-        String value = (openURL ? "id=" : "");
         
         if (uuid == null)
         {
-//            value += "dsi/" + resourceTypeID + "/" + resourceID;
             value += "dsi:" + resourceTypeID + "/" + resourceID;
         }
         else
         {
-//            value += "uuid/" + uuid.toString();
             value += "uuid:" + uuid.toString();
         }
 
