@@ -55,6 +55,7 @@ import org.apache.xpath.XPathAPI;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.jdom.Element;
@@ -422,7 +423,7 @@ public class StructBuilder
             }
             else
             {
-                community = Community.create(null, context);
+                community = CommunityDAOFactory.getInstance(context).create();
             }
             
             // default the short description to be an empty string

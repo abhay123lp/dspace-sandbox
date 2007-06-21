@@ -361,6 +361,8 @@ public class EditCommunitiesServlet extends DSpaceServlet
     {
         if (request.getParameter("create").equals("true"))
         {
+            CommunityDAO dao = CommunityDAOFactory.getInstance(context);
+
             // if there is a parent community id specified, create community
             // as its child; otherwise, create it as a top-level community
             int parentID = UIUtil.getIntParameter(request,
@@ -368,8 +370,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
 
             if (parentID != -1)
             {
-                Community parent =
-                    CommunityDAOFactory.getInstance(context).retrieve(parentID);
+                Community parent = dao.retrieve(parentID);
 
                 if (parent != null)
                 {
@@ -378,7 +379,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             }
             else
             {
-                community = Community.create(null, context);
+                community = dao.create();
             }
 
             // Set attribute

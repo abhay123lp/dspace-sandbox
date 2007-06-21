@@ -178,7 +178,8 @@ public class WorkspaceItem implements InProgressSubmission
         AuthorizeManager.authorizeAction(c, coll, Constants.ADD);
 
         // Create an item
-        Item i = Item.create(c);
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
+        Item i = itemDAO.create();
         i.setSubmitter(c.getCurrentUser());
 
         // Now create the policies for the submitter and workflow
