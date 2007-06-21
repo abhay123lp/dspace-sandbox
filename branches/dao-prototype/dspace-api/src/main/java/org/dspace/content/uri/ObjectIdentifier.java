@@ -159,6 +159,8 @@ public class ObjectIdentifier
     {
         String base = ConfigurationManager.getProperty("dspace.url") + "/";
         
+        String value = "";
+
         if (uuid == null)
         {
             value += "dsi:" + resourceTypeID + "/" + resourceID;
@@ -170,9 +172,12 @@ public class ObjectIdentifier
 
         try
         {
-            return new URL(base + (openURL ? "openurl?" : "resource/") +
-                    value);
-//                    URLEncoder.encode(value, "UTF-8"));
+            return new URL(base + "resource/" + value);
+
+            // FIXME: The only reason I'm not doing this is because of the
+            // issues Tomcat < version 6 has with encoded slashes in URLs (it
+            // just refuses to parse them).
+//          return new URL(base + "resource/" + URLEncoder.encode(value, "UTF-8"));
 //        }
 //        catch (UnsupportedEncodingException uee)
 //        {
