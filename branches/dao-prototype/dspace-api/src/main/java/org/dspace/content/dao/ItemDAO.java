@@ -199,7 +199,7 @@ public abstract class ItemDAO extends ContentDAO
     public void delete(int id) throws AuthorizeException
     {
         Item item = retrieve(id);
-        this.update(item); // Sync in-memory object with db before removal
+        this.update(item); // Sync in-memory object before removal
 
         // Remove from cache
         context.removeCached(item, id);

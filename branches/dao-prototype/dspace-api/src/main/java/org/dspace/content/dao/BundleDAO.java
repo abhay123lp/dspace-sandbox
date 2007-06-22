@@ -134,7 +134,7 @@ public abstract class BundleDAO extends ContentDAO
     public void delete(int id) throws AuthorizeException
     {
         Bundle bundle = retrieve(id);
-        this.update(bundle); // Sync in-memory object with db before removal
+        this.update(bundle); // Sync in-memory object before removal
 
         // Remove from cache
         context.removeCached(bundle, id);

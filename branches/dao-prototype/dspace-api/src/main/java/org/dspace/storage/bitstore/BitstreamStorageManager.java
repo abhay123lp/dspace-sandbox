@@ -569,32 +569,6 @@ public class BitstreamStorageManager
     }
 
     /**
-     * <p>
-     * Remove a bitstream from the asset store. This method does not delete any
-     * bits, but simply marks the bitstreams as deleted (the context still needs
-     * to be completed to finalize the transaction).
-     * </p>
-     * 
-     * <p>
-     * If the context is aborted, the bitstreams deletion status remains
-     * unchanged.
-     * </p>
-     * 
-     * @param context
-     *            The current context
-     * @param id
-     *            The ID of the bitstream to delete
-     * @exception SQLException
-     *                If a problem occurs accessing the RDBMS
-     */
-    public static void delete(Context context, int id) throws SQLException
-    {
-        DatabaseManager.updateQuery(context,
-                        "update Bitstream set deleted = '1' where bitstream_id = ? ",
-                        id);
-    }
-
-    /**
      * Clean up the bitstream storage area. This method deletes any bitstreams
      * which are more than 1 hour old and marked deleted. The deletions cannot
      * be undone.
@@ -619,19 +593,10 @@ public class BitstreamStorageManager
             BitstreamDAO bitstreamDAO =
                 BitstreamDAOFactory.getInstance(context);
 
-            String myQuery = "select * from Bitstream where deleted = '1'";
-
-//            List storage = DatabaseManager.queryTable(context, "Bitstream", myQuery)
-//                    .toList();
-
-//            for (Iterator iterator = storage.iterator(); iterator.hasNext();)
             for (Bitstream bitstream : bitstreamDAO.getDeletedBitstreams())
             {
-//                TableRow row = (TableRow) iterator.next();
-//                int bid = row.getIntColumn("bitstream_id");
                 int bid = bitstream.getID();
 
-//				GeneralFile file = getFile(row);
                 GeneralFile file = getFile(bitstream.getStoreNumber(),
                         bitstream.getInternalID());
 
@@ -643,7 +608,6 @@ public class BitstreamStorageManager
                     {
                         log.debug("deleting record");
                         bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
-//                        DatabaseManager.delete(context, "Bitstream", bid);
                         bitstreamDAO.remove(bid);
                     }
                     continue;
@@ -661,11 +625,9 @@ public class BitstreamStorageManager
                 {
                     log.debug("deleting db record");
                     bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
-//                    DatabaseManager.delete(context, "Bitstream", bid);
                     bitstreamDAO.remove(bid);
                 }
 
-//				if (isRegisteredBitstream(row.getStringColumn("internal_id")))
 				if (isRegisteredBitstream(bitstream.getInternalID()))
                 {
 				    continue;			// do not delete registered bitstreams
@@ -792,15 +754,6 @@ public class BitstreamStorageManager
     private static GeneralFile getFile(int storeNumber, String sInternalId)
         throws IOException
     {
-        // Check that bitstream is not null
-//        if (bitstream == null)
-//        {
-//            return null;
-//        }
-
-        // Get the store to use
-//        int storeNumber = bitstream.getStoreNumber();
-
         // Default to zero ('assetstore.dir') for backwards compatibility
         if (storeNumber == -1)
         {
@@ -811,8 +764,6 @@ public class BitstreamStorageManager
 
 		// turn the internal_id into a file path relative to the assetstore
 		// directory
-//		String sInternalId = bitstream.getInternalID();
-
 		// there are 4 cases:
 		// -conventional bitstream, conventional storage
 		// -conventional bitstream, srb storage

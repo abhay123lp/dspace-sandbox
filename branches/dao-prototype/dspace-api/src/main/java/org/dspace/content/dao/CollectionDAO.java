@@ -131,7 +131,8 @@ public abstract class CollectionDAO extends ContentDAO
 
             log.info(LogManager.getHeader(context, "create_collection",
                     "collection_id=" + collection.getID())
-                    + ",uri=" + collection.getPersistentIdentifier().getCanonicalForm());
+                    + ",uri=" +
+                    collection.getPersistentIdentifier().getCanonicalForm());
             
             return collection;
         }

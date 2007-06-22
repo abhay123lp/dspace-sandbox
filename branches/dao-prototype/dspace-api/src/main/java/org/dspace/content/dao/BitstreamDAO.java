@@ -94,25 +94,36 @@ public abstract class BitstreamDAO extends ContentDAO
                 "bitstream_id=" + bitstream.getID()));
     }
 
+    /**
+     * Mark the bitstream as deleted. Actual removal doesn't happen until a
+     * cleanup happens, and remove() is called.
+     */
     public void delete(int id) throws AuthorizeException
     {
         Bitstream bitstream = retrieve(id);
-        this.update(bitstream); // Sync in-memory object with db before removal
 
-        // changed to a check on remove
-        // Check authorisation
-        //AuthorizeManager.authorizeAction(context, this, Constants.DELETE);
         log.info(LogManager.getHeader(context, "delete_bitstream",
-                "bitstream_id=" + bitstream.getID()));
+                "bitstream_id=" + id));
 
         // Remove from cache
-        context.removeCached(bitstream, bitstream.getID());
+        context.removeCached(bitstream, id);
 
         // Remove policies
         AuthorizeManager.removeAllPolicies(context, bitstream);
     }
     
-    public abstract void remove(int id);
+    /**
+     * Actually remove the reference to the bitstream. Note that this doesn't
+     * do anything to the actual files, just their representation in the
+     * system.
+     */
+    public void remove(int id) throws AuthorizeException
+    {
+        Bitstream bitstream = retrieve(id);
+        this.update(bitstream); // Sync in-memory object before removal
+
+        AuthorizeManager.authorizeAction(context, bitstream, Constants.DELETE);
+    }
 
     public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
     public abstract List<Bitstream> getDeletedBitstreams();

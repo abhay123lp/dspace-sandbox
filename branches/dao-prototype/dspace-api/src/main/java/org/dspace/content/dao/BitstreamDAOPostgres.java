@@ -307,6 +307,8 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
+        super.delete(id);
+
         boolean oracle = false;
         if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
         {
@@ -316,12 +318,19 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         try
         {
             // Remove references to primary bitstreams in bundle
-            String query = "update bundle set primary_bitstream_id = ";
-            query += (oracle ? "''" : "Null") + " where primary_bitstream_id = ? ";
-            DatabaseManager.updateQuery(context, query, id);
+            String query1 =
+                "UPDATE bundle SET primary_bitstream_id = " +
+                (oracle ? "''" : "Null") +
+                " WHERE primary_bitstream_id = ? ";
 
-            // Remove bitstream itself
-            BitstreamStorageManager.delete(context, id);
+            // Mark this bitstream as "deleted" (we don't actually remove the
+            // row until a cleanup is performed).
+            String query2 =
+                "UPDATE Bitstream SET deleted = '1' " +
+                "WHERE bitstream_id = ? ";
+
+            DatabaseManager.updateQuery(context, query1, id);
+            DatabaseManager.updateQuery(context, query2, id);
         }
         catch (SQLException sqle)
         {
@@ -333,8 +342,10 @@ public class BitstreamDAOPostgres extends BitstreamDAO
      * FIXME: This BADLY needs some sanity checking.
      */
     @Override
-    public void remove(int id)
+    public void remove(int id) throws AuthorizeException
     {
+        super.remove(id);
+
         try
         {
             DatabaseManager.delete(context, "bitstream", id);
