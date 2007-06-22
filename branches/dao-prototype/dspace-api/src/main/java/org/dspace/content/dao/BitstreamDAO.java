@@ -111,6 +111,9 @@ public abstract class BitstreamDAO extends ContentDAO
         // Remove policies
         AuthorizeManager.removeAllPolicies(context, bitstream);
     }
+    
+    public abstract void remove(int id);
 
     public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
+    public abstract List<Bitstream> getDeletedBitstreams();
 }

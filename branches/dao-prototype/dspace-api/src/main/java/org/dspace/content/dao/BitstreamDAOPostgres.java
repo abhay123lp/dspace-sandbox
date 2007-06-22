@@ -1,5 +1,5 @@
 /*
- * BitstreamDAO.java
+ * BitstreamDAOPostgres.java
  *
  * Version: $Revision: 1727 $
  *
@@ -301,6 +301,9 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         }
     }
 
+    /**
+     * FIXME: Surely this should check authorization?
+     */
     @Override
     public void delete(int id) throws AuthorizeException
     {
@@ -326,6 +329,22 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         }
     }
 
+    /**
+     * FIXME: This BADLY needs some sanity checking.
+     */
+    @Override
+    public void remove(int id)
+    {
+        try
+        {
+            DatabaseManager.delete(context, "bitstream", id);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
     @Override
     public List<Bitstream> getBitstreamsByBundle(Bundle bundle)
     {
@@ -335,6 +354,32 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT bitstream_id FROM bundle2bitstream " +
                     "WHERE bundle_id = ? ", bundle.getID());
+
+            List <Bitstream> bitstreams = new ArrayList<Bitstream>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("bitstream_id");
+                bitstreams.add(retrieve(id));
+            }
+
+            return bitstreams;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<Bitstream> getDeletedBitstreams()
+    {
+        try
+        {
+            // Get bitstreams
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT bitstream_id FROM bitstream " +
+                    "WHERE deleted = '1'");
 
             List <Bitstream> bitstreams = new ArrayList<Bitstream>();
 

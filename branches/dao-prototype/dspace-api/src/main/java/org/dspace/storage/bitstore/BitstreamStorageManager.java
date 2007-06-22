@@ -52,7 +52,12 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.checker.BitstreamInfoDAO;
+import org.dspace.content.Bitstream;
+import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BitstreamDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
@@ -320,7 +325,7 @@ public class BitstreamStorageManager
         }
 
         // Where on the file system will this new bitstream go?
-		GeneralFile file = getFile(bitstream);
+		GeneralFile file = getFile(incoming, id);
 
         // Make the parent dirs if necessary
 		GeneralFile parent = file.getParentFile();
@@ -395,7 +400,8 @@ public class BitstreamStorageManager
 		TableRow bitstream;
 		Context tempContext = null;
 
-		try {
+		try
+        {
 			tempContext = new Context();
 
 			bitstream = DatabaseManager.create(tempContext, "Bitstream");
@@ -405,15 +411,18 @@ public class BitstreamStorageManager
 			DatabaseManager.update(tempContext, bitstream);
 
 			tempContext.complete();
-		} catch (SQLException sqle) {
-			if (tempContext != null) {
+		}
+        catch (SQLException sqle)
+        {
+			if (tempContext != null)
+            {
 				tempContext.abort();
 			}
 			throw sqle;
 		}
 
 		// get a reference to the file
-		GeneralFile file = getFile(bitstream);
+		GeneralFile file = getFile(assetstore, sInternalId);
 
 		// read through a DigestInputStream that will work out the MD5
 		//
@@ -548,9 +557,13 @@ public class BitstreamStorageManager
     public static InputStream retrieve(Context context, int id)
             throws SQLException, IOException
     {
-        TableRow bitstream = DatabaseManager.find(context, "bitstream", id);
+        Bitstream b = BitstreamDAOFactory.getInstance(context).retrieve(id);
+        GeneralFile file = null;
 
-		GeneralFile file = getFile(bitstream);
+        if (b != null)
+        {
+            file = getFile(b.getStoreNumber(), b.getInternalID());
+        }
 
 		return (file != null) ? FileFactory.newFileInputStream(file) : null;
     }
@@ -593,7 +606,8 @@ public class BitstreamStorageManager
      * @exception SQLException
      *                If a problem occurs accessing the RDBMS
      */
-    public static void cleanup(boolean deleteDbRecords) throws SQLException, IOException
+    public static void cleanup(boolean deleteDbRecords)
+        throws SQLException, IOException, AuthorizeException
     {
         Context context = null;
         BitstreamInfoDAO bitstreamInfoDAO = new BitstreamInfoDAO();
@@ -602,18 +616,24 @@ public class BitstreamStorageManager
         try
         {
             context = new Context();
+            BitstreamDAO bitstreamDAO =
+                BitstreamDAOFactory.getInstance(context);
 
             String myQuery = "select * from Bitstream where deleted = '1'";
 
-            List storage = DatabaseManager.queryTable(context, "Bitstream", myQuery)
-                    .toList();
+//            List storage = DatabaseManager.queryTable(context, "Bitstream", myQuery)
+//                    .toList();
 
-            for (Iterator iterator = storage.iterator(); iterator.hasNext();)
+//            for (Iterator iterator = storage.iterator(); iterator.hasNext();)
+            for (Bitstream bitstream : bitstreamDAO.getDeletedBitstreams())
             {
-                TableRow row = (TableRow) iterator.next();
-                int bid = row.getIntColumn("bitstream_id");
+//                TableRow row = (TableRow) iterator.next();
+//                int bid = row.getIntColumn("bitstream_id");
+                int bid = bitstream.getID();
 
-				GeneralFile file = getFile(row);
+//				GeneralFile file = getFile(row);
+                GeneralFile file = getFile(bitstream.getStoreNumber(),
+                        bitstream.getInternalID());
 
                 // Make sure entries which do not exist are removed
                 if (file == null || !file.exists())
@@ -623,7 +643,8 @@ public class BitstreamStorageManager
                     {
                         log.debug("deleting record");
                         bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
-                        DatabaseManager.delete(context, "Bitstream", bid);
+//                        DatabaseManager.delete(context, "Bitstream", bid);
+                        bitstreamDAO.remove(bid);
                     }
                     continue;
                 }
@@ -640,10 +661,13 @@ public class BitstreamStorageManager
                 {
                     log.debug("deleting db record");
                     bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
-                    DatabaseManager.delete(context, "Bitstream", bid);
+//                    DatabaseManager.delete(context, "Bitstream", bid);
+                    bitstreamDAO.remove(bid);
                 }
 
-				if (isRegisteredBitstream(row.getStringColumn("internal_id"))) {
+//				if (isRegisteredBitstream(row.getStringColumn("internal_id")))
+				if (isRegisteredBitstream(bitstream.getInternalID()))
+                {
 				    continue;			// do not delete registered bitstreams
 				}
 
@@ -663,7 +687,7 @@ public class BitstreamStorageManager
                 // and directories have already been deleted
                 // if this is turned off then it still looks like the
                 // file exists
-                if( success )
+                if (success)
                 {
                     deleteParents(file);
                 }
@@ -757,25 +781,25 @@ public class BitstreamStorageManager
      * Return the file corresponding to a bitstream. It's safe to pass in
      * <code>null</code>.
      * 
-     * @param bitstream
-     *            the database table row for the bitstream. Can be
-     *            <code>null</code>
+     * @param storeNumber the store number that the bitstream is in
+     * @param sInternalID the internal id of the bitstream
      * 
      * @return The corresponding file in the file system, or <code>null</code>
      * 
      * @exception IOException
      *                If a problem occurs while determining the file
      */
-    private static GeneralFile getFile(TableRow bitstream) throws IOException
+    private static GeneralFile getFile(int storeNumber, String sInternalId)
+        throws IOException
     {
         // Check that bitstream is not null
-        if (bitstream == null)
-        {
-            return null;
-        }
+//        if (bitstream == null)
+//        {
+//            return null;
+//        }
 
         // Get the store to use
-        int storeNumber = bitstream.getIntColumn("store_number");
+//        int storeNumber = bitstream.getStoreNumber();
 
         // Default to zero ('assetstore.dir') for backwards compatibility
         if (storeNumber == -1)
@@ -787,7 +811,7 @@ public class BitstreamStorageManager
 
 		// turn the internal_id into a file path relative to the assetstore
 		// directory
-		String sInternalId = bitstream.getStringColumn("internal_id");
+//		String sInternalId = bitstream.getInternalID();
 
 		// there are 4 cases:
 		// -conventional bitstream, conventional storage
@@ -797,38 +821,48 @@ public class BitstreamStorageManager
 		// conventional bitstream - dspace ingested, dspace random name/path
 		// registered bitstream - registered to dspace, any name/path
 		String sIntermediatePath = null;
-		if (isRegisteredBitstream(sInternalId)) {
+		if (isRegisteredBitstream(sInternalId))
+        {
 			sInternalId = sInternalId.substring(REGISTERED_FLAG.length());
 			sIntermediatePath = "";
-		} else {
-			
+		}
+        else
+        {	
 			// Sanity Check: If the internal ID contains a
 			// pathname separator, it's probably an attempt to
 			// make a path traversal attack, so ignore the path
 			// prefix.  The internal-ID is supposed to be just a
 			// filename, so this will not affect normal operation.
 			if (sInternalId.indexOf(File.separator) != -1)
-				sInternalId = sInternalId.substring(sInternalId.lastIndexOf(File.separator)+1);
+            {
+				sInternalId = sInternalId.substring(
+                        sInternalId.lastIndexOf(File.separator)+1);
+            }
 			
 			sIntermediatePath = getIntermediatePath(sInternalId);
 		}
 
 		StringBuffer bufFilename = new StringBuffer();
-		if (assetstore instanceof LocalFile) {
+		if (assetstore instanceof LocalFile)
+        {
 			bufFilename.append(assetstore.getCanonicalPath());
 			bufFilename.append(File.separator);
 			bufFilename.append(sIntermediatePath);
 			bufFilename.append(sInternalId);
-			if (log.isDebugEnabled()) {
+			if (log.isDebugEnabled())
+            {
 				log.debug("Local filename for " + sInternalId + " is "
 						+ bufFilename.toString());
 			}
 			return new LocalFile(bufFilename.toString());
 		}
-		if (assetstore instanceof SRBFile) {
+		if (assetstore instanceof SRBFile)
+        {
 			bufFilename.append(sIntermediatePath);
 			bufFilename.append(sInternalId);
-			if (log.isDebugEnabled()) {
+
+			if (log.isDebugEnabled())
+            {
 				log.debug("SRB filename for " + sInternalId + " is "
 						+ ((SRBFile) assetstore).toString()
 						+ bufFilename.toString());
@@ -846,15 +880,17 @@ public class BitstreamStorageManager
 	 *            The internal_id
 	 * @return The path based on the id without leading or trailing separators
 	 */
-	private static String getIntermediatePath(String iInternalId) {
+	private static String getIntermediatePath(String iInternalId)
+    {
 		StringBuffer buf = new StringBuffer();
-		for (int i = 0; i < directoryLevels; i++) {
+		for (int i = 0; i < directoryLevels; i++)
+        {
 			int digits = i * digitsPerLevel;
-			if (i > 0) {
+			if (i > 0)
+            {
 				buf.append(File.separator);
 			}
-			buf.append(iInternalId.substring(digits, digits
-							+ digitsPerLevel));
+            buf.append(iInternalId.substring(digits, digits + digitsPerLevel));
 		}
 		buf.append(File.separator);
 		return buf.toString();
