@@ -301,9 +301,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         }
     }
 
-    /**
-     * FIXME: Surely this should check authorization?
-     */
     @Override
     public void delete(int id) throws AuthorizeException
     {
