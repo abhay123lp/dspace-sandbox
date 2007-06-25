@@ -118,10 +118,12 @@ public class ObjectIdentifier
             case INTS:
                 // value will be (eg) "3/12"
                 this.resourceID =
-                    Integer.parseInt(value.substring(0, value.indexOf('/')));
-                this.resourceTypeID =
                     Integer.parseInt(value.substring(value.indexOf('/') + 1));
+                this.resourceTypeID =
+                    Integer.parseInt(value.substring(0, value.indexOf('/')));
                 break;
+            default:
+                throw new RuntimeException(":(");
         }
     }
 
