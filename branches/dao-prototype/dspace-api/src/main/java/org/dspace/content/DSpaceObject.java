@@ -44,7 +44,7 @@ import java.util.List;
 
 import org.dspace.core.Context;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -61,7 +61,7 @@ public abstract class DSpaceObject
 
     protected int id;
     protected ObjectIdentifier oid;
-    protected List<PersistentIdentifier> identifiers;
+    protected List<ExternalIdentifier> identifiers;
 
     /**
      * Get the type of this object, found in Constants
@@ -93,7 +93,7 @@ public abstract class DSpaceObject
     /**
      * For those cases where you only want one, and you don't care what sort.
      */
-    public PersistentIdentifier getPersistentIdentifier()
+    public ExternalIdentifier getExternalIdentifier()
     {
         if ((identifiers != null) && (identifiers.size() > 0))
         {
@@ -107,22 +107,22 @@ public abstract class DSpaceObject
         }
     }
 
-    public List<PersistentIdentifier> getPersistentIdentifiers()
+    public List<ExternalIdentifier> getExternalIdentifiers()
     {
         if (identifiers == null)
         {
-            identifiers = new ArrayList<PersistentIdentifier>();
+            identifiers = new ArrayList<ExternalIdentifier>();
         }
 
         return identifiers;
     }
 
-    public void addPersistentIdentifier(PersistentIdentifier identifier)
+    public void addExternalIdentifier(ExternalIdentifier identifier)
     {
         this.identifiers.add(identifier);
     }
 
-    public void setPersistentIdentifiers(List<PersistentIdentifier> identifiers)
+    public void setExternalIdentifiers(List<ExternalIdentifier> identifiers)
     {
         this.identifiers = identifiers;
     }

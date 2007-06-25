@@ -56,9 +56,9 @@ import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -150,8 +150,8 @@ public class HTMLServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
 
         Item item = null;
         Bitstream bitstream = null;
@@ -219,7 +219,7 @@ public class HTMLServlet extends DSpaceServlet
                 }
                 else
                 {
-                    PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+                    ExternalIdentifier identifier = identifierDAO.retrieve(uri);
                     ObjectIdentifier oi = identifier.getObjectIdentifier();
                     item = (Item) oi.getObject(context);
                 }

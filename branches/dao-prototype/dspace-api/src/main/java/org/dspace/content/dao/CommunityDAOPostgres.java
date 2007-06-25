@@ -52,9 +52,9 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
@@ -98,7 +98,7 @@ public class CommunityDAOPostgres extends CommunityDAO
             this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
             this.collectionDAO = CollectionDAOFactory.getInstance(context);
             this.identifierDAO =
-                PersistentIdentifierDAOFactory.getInstance(context);
+                ExternalIdentifierDAOFactory.getInstance(context);
         }
     }
 
@@ -148,9 +148,9 @@ public class CommunityDAOPostgres extends CommunityDAO
             // FIXME: I'd like to bump the rest of this up into the superclass
             // so we don't have to do it for every implementation, but I can't
             // figure out a clean way of doing this yet.
-            List<PersistentIdentifier> identifiers =
-                identifierDAO.getPersistentIdentifiers(community);
-            community.setPersistentIdentifiers(identifiers);
+            List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(community);
+            community.setExternalIdentifiers(identifiers);
 
             context.cache(community, id);
 
@@ -189,9 +189,9 @@ public class CommunityDAOPostgres extends CommunityDAO
             // FIXME: I'd like to bump the rest of this up into the superclass
             // so we don't have to do it for every implementation, but I can't
             // figure out a clean way of doing this yet.
-            List<PersistentIdentifier> identifiers =
-                identifierDAO.getPersistentIdentifiers(community);
-            community.setPersistentIdentifiers(identifiers);
+            List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(community);
+            community.setExternalIdentifiers(identifiers);
 
             context.cache(community, id);
 

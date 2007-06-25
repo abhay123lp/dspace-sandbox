@@ -45,9 +45,9 @@ import java.sql.SQLException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.search.DSIndexer;
@@ -94,11 +94,11 @@ public class InstallItem
             IOException, AuthorizeException
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(c);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(c);
 
         Item item = is.getItem();
-        PersistentIdentifier identifier;
+        ExternalIdentifier identifier;
 
         // create accession date
         DCDate now = DCDate.getCurrent();

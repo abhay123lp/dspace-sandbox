@@ -1,5 +1,5 @@
 /*
- * PersistentIdentifierDAOFactory.java
+ * ExternalIdentifierDAOFactory.java
  *
  * Version: $Revision: 1727 $
  *
@@ -44,10 +44,10 @@ import org.dspace.core.Context;
 /**
  * @author James Rutherford
  */
-public class PersistentIdentifierDAOFactory
+public class ExternalIdentifierDAOFactory
 {
-    public static PersistentIdentifierDAO getInstance(Context context)
+    public static ExternalIdentifierDAO getInstance(Context context)
     {
-        return new PersistentIdentifierDAOPostgres(context);
+        return new ExternalIdentifierDAOPostgres(context);
     }
 }

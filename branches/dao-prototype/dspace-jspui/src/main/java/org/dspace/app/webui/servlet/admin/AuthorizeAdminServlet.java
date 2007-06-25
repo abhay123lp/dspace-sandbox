@@ -73,9 +73,9 @@ import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -137,8 +137,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             communityDAO = CommunityDAOFactory.getInstance(c);
         }
 
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(c);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(c);
 
         String button = UIUtil.getSubmitButton(request, "submit");
 
@@ -193,7 +193,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             else if ((uri != null) && !uri.equals(""))
             {
                 // otherwise, attempt to resolve uri
-                PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+                ExternalIdentifier identifier = identifierDAO.retrieve(uri);
                 ObjectIdentifier oi = identifier.getObjectIdentifier();
                 DSpaceObject dso = oi.getObject(c);
 

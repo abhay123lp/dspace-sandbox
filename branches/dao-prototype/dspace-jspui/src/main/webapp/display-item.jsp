@@ -66,7 +66,7 @@
 <%@ page import="org.dspace.content.Community" %>
 <%@ page import="org.dspace.content.DCValue" %>
 <%@ page import="org.dspace.content.Item" %>
-<%@ page import="org.dspace.content.uri.PersistentIdentifier" %>
+<%@ page import="org.dspace.content.uri.ExternalIdentifier" %>
 <%@ page import="org.dspace.core.ConfigurationManager" %>
 <%@ page import="org.dspace.license.CreativeCommons" %>
 
@@ -85,7 +85,7 @@
     Integer workspace_id = (Integer) request.getAttribute("workspace_id");
 
     // get the persistent identifier if the item has one yet
-    PersistentIdentifier identifier = item.getPersistentIdentifier();
+    ExternalIdentifier identifier = item.getExternalIdentifier();
     String uri = identifier.getCanonicalForm();
     String link = item.getIdentifier().getURL().toString();
     String citationLink = identifier.getURI().toString();

@@ -66,9 +66,9 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -121,8 +121,8 @@ public class METSExport
     {
         Context context = new Context();
 
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
 
         init(context);
 
@@ -180,7 +180,7 @@ public class METSExport
                 System.out.println("no namespace provided. assuming handles.");
             }
 
-            PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
             ObjectIdentifier oi = identifier.getObjectIdentifier();
             DSpaceObject o = oi.getObject(context);
 
@@ -210,7 +210,7 @@ public class METSExport
                 System.out.println("no namespace provided. assuming handles.");
             }
 
-            PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
             ObjectIdentifier oi = identifier.getObjectIdentifier();
             DSpaceObject o = oi.getObject(context);
 
@@ -288,11 +288,11 @@ public class METSExport
     public static void writeAIP(Context context, Item item, String dest)
             throws SQLException, IOException, AuthorizeException, MetsException
     {
-        System.out.println("Exporting item " + item.getPersistentIdentifier().getCanonicalForm());
+        System.out.println("Exporting item " + item.getExternalIdentifier().getCanonicalForm());
 
         // Create aip directory
         java.io.File aipDir = new java.io.File(dest
-                + URLEncoder.encode(item.getPersistentIdentifier().getCanonicalForm(), "UTF-8"));
+                + URLEncoder.encode(item.getExternalIdentifier().getCanonicalForm(), "UTF-8"));
 
         if (!aipDir.mkdir())
         {
@@ -358,7 +358,7 @@ public class METSExport
             Mets mets = new Mets();
 
             // Top-level stuff
-            mets.setOBJID(item.getPersistentIdentifier().getCanonicalForm());
+            mets.setOBJID(item.getExternalIdentifier().getCanonicalForm());
             mets.setLABEL("DSpace Item");
             mets.setSchema("mods", "http://www.loc.gov/mods/v3",
                     "http://www.loc.gov/standards/mods/v3/mods-3-0.xsd");
@@ -386,7 +386,7 @@ public class METSExport
             mets.getContent().add(metsHdr);
 
             DmdSec dmdSec = new DmdSec();
-            dmdSec.setID("DMD_hdl_" + item.getPersistentIdentifier().getCanonicalForm());
+            dmdSec.setID("DMD_hdl_" + item.getExternalIdentifier().getCanonicalForm());
 
             MdWrap mdWrap = new MdWrap();
             mdWrap.setMDTYPE(Mdtype.MODS);
@@ -400,7 +400,7 @@ public class METSExport
 
             // amdSec
             AmdSec amdSec = new AmdSec();
-            amdSec.setID("TMD_hdl_" + item.getPersistentIdentifier().getCanonicalForm());
+            amdSec.setID("TMD_hdl_" + item.getExternalIdentifier().getCanonicalForm());
 
             // FIXME: techMD here
             // License as <rightsMD><mdWrap><binData>base64encoded</binData>...
@@ -459,7 +459,7 @@ public class METSExport
                     String bitstreamPID = ConfigurationManager
                             .getProperty("dspace.url")
                             + "/bitstream/"
-                            + item.getPersistentIdentifier().getCanonicalForm()
+                            + item.getExternalIdentifier().getCanonicalForm()
                             + "/"
                             + bitstreams[bits].getSequenceID()
                             + "/"
@@ -472,7 +472,7 @@ public class METSExport
                      * ID: we use the canonical form of the persistent ID, i.e.
                      * the but with _'s instead of /'s so it's a legal xsd:ID.
                      */
-                    String uri = item.getPersistentIdentifier().getCanonicalForm();
+                    String uri = item.getExternalIdentifier().getCanonicalForm();
                     String xmlIDstart = uri.replaceAll("/", "_") + "_";
 
                     file.setID(xmlIDstart + bitstreams[bits].getSequenceID());
@@ -693,7 +693,7 @@ public class METSExport
      */
     private static String getCanonicalForm(String original)
     {
-        for (PersistentIdentifier.Type type : PersistentIdentifier.Type.values())
+        for (ExternalIdentifier.Type type : ExternalIdentifier.Type.values())
         {
             String url = type.getProtocol() + "://" + type.getBaseURI();
             if (original.startsWith(url))

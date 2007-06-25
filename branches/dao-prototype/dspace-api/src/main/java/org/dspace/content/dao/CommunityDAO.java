@@ -53,8 +53,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -72,7 +72,7 @@ public abstract class CommunityDAO extends ContentDAO
     protected Context context;
     protected BitstreamDAO bitstreamDAO;
     protected CollectionDAO collectionDAO;
-    protected PersistentIdentifierDAO identifierDAO;
+    protected ExternalIdentifierDAO identifierDAO;
 
     public abstract Community create() throws AuthorizeException;
 
@@ -93,8 +93,8 @@ public abstract class CommunityDAO extends ContentDAO
 
             // Create a default persistent identifier for this Community, and
             // add it to the in-memory Community object.
-            PersistentIdentifier identifier = identifierDAO.create(community);
-            community.addPersistentIdentifier(identifier);
+            ExternalIdentifier identifier = identifierDAO.create(community);
+            community.addExternalIdentifier(identifier);
 
             // create the default authorization policy for communities
             // of 'anonymous' READ
@@ -112,7 +112,7 @@ public abstract class CommunityDAO extends ContentDAO
 
             log.info(LogManager.getHeader(context, "create_community",
                     "community_id=" + id) + ",uri=" +
-                    community.getPersistentIdentifier().getCanonicalForm());
+                    community.getExternalIdentifier().getCanonicalForm());
 
             update(community);
 

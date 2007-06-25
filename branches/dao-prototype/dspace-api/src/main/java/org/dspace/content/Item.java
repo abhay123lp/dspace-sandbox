@@ -68,7 +68,7 @@ import org.dspace.content.dao.CommunityDAO;         // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
 import org.dspace.content.dao.ItemDAO;              // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
@@ -115,7 +115,7 @@ public class Item extends DSpaceObject
         this.collectionDAO = CollectionDAOFactory.getInstance(context);
         this.communityDAO = CommunityDAOFactory.getInstance(context);
 
-        this.identifiers = new ArrayList<PersistentIdentifier>();
+        this.identifiers = new ArrayList<ExternalIdentifier>();
         this.bundles = new ArrayList<Bundle>();
         this.metadata = new ArrayList<DCValue>();
         this.metadataChanged = false;

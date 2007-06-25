@@ -57,9 +57,9 @@ import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -77,13 +77,11 @@ import org.dspace.storage.bitstore.BitstreamStorageManager;
  */
 public class BitstreamDAOPostgres extends BitstreamDAO
 {
-    private PersistentIdentifierDAO identifierDAO;
-
     public BitstreamDAOPostgres(Context context)
     {
         this.context = context;
         this.identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+            ExternalIdentifierDAOFactory.getInstance(context);
     }
 
     /**
@@ -204,9 +202,9 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             // FIXME: I'd like to bump the rest of this up into the superclass
             // so we don't have to do it for every implementation, but I can't
             // figure out a clean way of doing this yet.
-            List<PersistentIdentifier> identifiers =
-                identifierDAO.getPersistentIdentifiers(bitstream);
-            bitstream.setPersistentIdentifiers(identifiers);
+            List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(bitstream);
+            bitstream.setExternalIdentifiers(identifiers);
 
             context.cache(bitstream, id);
 
@@ -246,9 +244,9 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             // FIXME: I'd like to bump the rest of this up into the superclass
             // so we don't have to do it for every implementation, but I can't
             // figure out a clean way of doing this yet.
-            List<PersistentIdentifier> identifiers =
-                identifierDAO.getPersistentIdentifiers(bitstream);
-            bitstream.setPersistentIdentifiers(identifiers);
+            List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(bitstream);
+            bitstream.setExternalIdentifiers(identifiers);
 
             context.cache(bitstream, id);
 

@@ -55,8 +55,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 import org.dspace.storage.rdbms.DatabaseManager;
@@ -102,7 +102,7 @@ public class CollectionDAOPostgres extends CollectionDAO
             this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
             this.itemDAO = ItemDAOFactory.getInstance(context);
             this.identifierDAO =
-                PersistentIdentifierDAOFactory.getInstance(context);
+                ExternalIdentifierDAOFactory.getInstance(context);
         }
     }
 
@@ -157,9 +157,9 @@ public class CollectionDAOPostgres extends CollectionDAO
             // FIXME: I'd like to bump the rest of this up into the superclass
             // so we don't have to do it for every implementation, but I can't
             // figure out a clean way of doing this yet.
-            List<PersistentIdentifier> identifiers =
-                identifierDAO.getPersistentIdentifiers(collection);
-            collection.setPersistentIdentifiers(identifiers);
+            List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(collection);
+            collection.setExternalIdentifiers(identifiers);
 
             context.cache(collection, id);
 
@@ -199,9 +199,9 @@ public class CollectionDAOPostgres extends CollectionDAO
             // FIXME: I'd like to bump the rest of this up into the superclass
             // so we don't have to do it for every implementation, but I can't
             // figure out a clean way of doing this yet.
-            List<PersistentIdentifier> identifiers =
-                identifierDAO.getPersistentIdentifiers(collection);
-            collection.setPersistentIdentifiers(identifiers);
+            List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(collection);
+            collection.setExternalIdentifiers(identifiers);
 
             context.cache(collection, id);
 

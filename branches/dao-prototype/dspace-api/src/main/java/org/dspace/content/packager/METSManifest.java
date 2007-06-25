@@ -60,7 +60,7 @@ import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.CrosswalkObjectNotSupported;
 import org.dspace.content.crosswalk.MetadataValidationException;
 import org.dspace.content.crosswalk.IngestionCrosswalk;
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -865,7 +865,7 @@ public class METSManifest
 
         if (uri != null)
         {
-            for (PersistentIdentifier.Type t : PersistentIdentifier.Type.values())
+            for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
             {
                 if (uri.startsWith(t.getNamespace() + ":"))
                 {

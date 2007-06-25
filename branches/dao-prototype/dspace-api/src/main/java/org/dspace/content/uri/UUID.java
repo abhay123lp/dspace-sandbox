@@ -48,15 +48,15 @@ import org.dspace.content.DSpaceObject;
 /**
  * @author James Rutherford
  */
-public class UUID extends PersistentIdentifier
+public class UUID extends ExternalIdentifier
 {
     public UUID()
     {
-        super(PersistentIdentifier.Type.UUID);
+        super(ExternalIdentifier.Type.UUID);
     }
 
     public UUID(Context context, DSpaceObject dso,
-            PersistentIdentifier.Type type, String value)
+            ExternalIdentifier.Type type, String value)
     {
         super(context, dso, type, value);
     }

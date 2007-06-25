@@ -59,7 +59,7 @@ import org.apache.lucene.search.Searcher;
 import org.apache.oro.text.perl.Perl5Util;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -270,7 +270,7 @@ public class DSQuery
     static String stripURIs(String myquery)
     {
         // Drop beginning pieces of full URI strings
-        for (PersistentIdentifier.Type t : PersistentIdentifier.Type.values())
+        for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
         {
             if (myquery.startsWith(t.getBaseURI() + "/"))
             {

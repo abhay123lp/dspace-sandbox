@@ -652,7 +652,7 @@ public class WorkflowManager
                 + collection.getID()));
 
         item = InstallItem.installItem(c, wfi);
-        String uri = item.getPersistentIdentifier().getCanonicalForm();
+        String uri = item.getExternalIdentifier().getCanonicalForm();
 
         // Log the event
         log.info(LogManager.getHeader(c, "install_item", "workflow_id="
@@ -677,7 +677,7 @@ public class WorkflowManager
             Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(supportedLocale, "submit_archive"));
             
             // Get the item persistent identifier to email to user
-            String uri = i.getPersistentIdentifier().getCanonicalForm();
+            String uri = i.getExternalIdentifier().getCanonicalForm();
 
             // Get title
             DCValue[] titles = i.getDC("title", null, Item.ANY);

@@ -70,6 +70,7 @@ public abstract class BitstreamDAO extends ContentDAO
     protected Logger log = Logger.getLogger(BitstreamDAO.class);
 
     protected Context context;
+    protected ExternalIdentifierDAO identifierDAO;
 
     public abstract Bitstream create(InputStream is) throws AuthorizeException;
     public abstract Bitstream register(int assetstore, String path)

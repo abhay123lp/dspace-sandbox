@@ -832,7 +832,7 @@ public class SubmitServlet extends DSpaceServlet
 
         // lookup applicable inputs
         Collection c = subInfo.submission.getCollection();
-        DCInput[] inputs = inputsReader.getInputs(c.getPersistentIdentifier().getCanonicalForm()).getPageRows(curStep - EDIT_METADATA_1,
+        DCInput[] inputs = inputsReader.getInputs(c.getExternalIdentifier().getCanonicalForm()).getPageRows(curStep - EDIT_METADATA_1,
 									 subInfo.submission.hasMultipleTitles(),
 									 subInfo.submission.isPublishedBefore());
  
@@ -987,7 +987,7 @@ public class SubmitServlet extends DSpaceServlet
         	else
         	{
         		// determine next step - skipping unused MD pages
-        		int lastMDPage = EDIT_METADATA_1 + inputsReader.getNumberInputPages(c.getPersistentIdentifier().getCanonicalForm()) - 1;
+        		int lastMDPage = EDIT_METADATA_1 + inputsReader.getNumberInputPages(c.getExternalIdentifier().getCanonicalForm()) - 1;
         		if ( curStep == lastMDPage )
         		{
         		    curStep = EDIT_METADATA_2;
@@ -1152,7 +1152,7 @@ public class SubmitServlet extends DSpaceServlet
                 // No files, go back to last edit metadata page
             	Collection c = subInfo.submission.getCollection();
             	int lastPage = EDIT_METADATA_1 + 
-				               inputsReader.getNumberInputPages( c.getPersistentIdentifier().getCanonicalForm() ) - 1;
+				               inputsReader.getNumberInputPages( c.getExternalIdentifier().getCanonicalForm() ) - 1;
                 doStep(context, request, response, subInfo, lastPage);
             }
         }
@@ -1286,7 +1286,7 @@ public class SubmitServlet extends DSpaceServlet
             // a great deal of sense, so go back to last edit metadata page.
         	Collection c = subInfo.submission.getCollection();
         	int lastPage = EDIT_METADATA_1 + 
-			               inputsReader.getNumberInputPages( c.getPersistentIdentifier().getCanonicalForm() ) - 1;
+			               inputsReader.getNumberInputPages( c.getExternalIdentifier().getCanonicalForm() ) - 1;
             doStep(context, request, response, subInfo, lastPage);
         }
         else if (buttonPressed.equals("submit_next"))
@@ -1848,7 +1848,7 @@ public class SubmitServlet extends DSpaceServlet
     {
         // determine collection
         Collection c = subInfo.submission.getCollection();
-        String uri = c.getPersistentIdentifier().getCanonicalForm();
+        String uri = c.getExternalIdentifier().getCanonicalForm();
         
         if ( step >= EDIT_METADATA_1 && step <= EDIT_METADATA_2 )
         {
@@ -2085,7 +2085,7 @@ public class SubmitServlet extends DSpaceServlet
      	// all JSPs displaying the progress bar need to know the
      	// number of metadata edit pages
         subInfo.numMetadataPages =
-        	inputsReader.getNumberInputPages(subInfo.submission.getCollection().getPersistentIdentifier().getCanonicalForm());
+        	inputsReader.getNumberInputPages(subInfo.submission.getCollection().getExternalIdentifier().getCanonicalForm());
         request.setAttribute("submission.info", subInfo);
         
         JSPManager.showJSP(request, response, jspPath);

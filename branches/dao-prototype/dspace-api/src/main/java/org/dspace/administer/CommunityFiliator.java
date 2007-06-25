@@ -53,9 +53,9 @@ import org.dspace.content.Community;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -232,8 +232,8 @@ public class CommunityFiliator
     private Community resolveCommunity(Context c, String communityID)
             throws SQLException
     {
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(c);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(c);
         Community community = null;
 
         if (communityID.indexOf('/') != -1)
@@ -245,7 +245,7 @@ public class CommunityFiliator
                 System.out.println("no namespace provided. assuming handles.");
             }
 
-            PersistentIdentifier identifier =
+            ExternalIdentifier identifier =
                 identifierDAO.retrieve(communityID);
 
             ObjectIdentifier oi = identifier.getObjectIdentifier();

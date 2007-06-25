@@ -55,9 +55,9 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -152,8 +152,8 @@ public class ControlledVocabularySearchServlet extends DSpaceServlet
     private void doSearch(Context context, HttpServletRequest request,
             String query) throws IOException, SQLException
     {
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
 
         // Get the query
         // String query = request.getParameter("query");
@@ -282,7 +282,7 @@ public class ControlledVocabularySearchServlet extends DSpaceServlet
         {
             String uri = (String) itemIdentifiers.get(i);
 
-            PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
             ObjectIdentifier oi = identifier.getObjectIdentifier();
             Item item = (Item) oi.getObject(context);
 
@@ -299,7 +299,7 @@ public class ControlledVocabularySearchServlet extends DSpaceServlet
         {
             String uri = (String) collectionIdentifiers.get(i);
 
-            PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
             ObjectIdentifier oi = identifier.getObjectIdentifier();
             Collection c = (Collection) oi.getObject(context);
 
@@ -316,7 +316,7 @@ public class ControlledVocabularySearchServlet extends DSpaceServlet
         {
             String uri = (String) communityIdentifiers.get(i);
 
-            PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
             ObjectIdentifier oi = identifier.getObjectIdentifier();
             Community c = (Community) oi.getObject(context);
 

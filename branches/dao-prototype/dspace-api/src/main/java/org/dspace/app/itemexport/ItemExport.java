@@ -66,9 +66,9 @@ import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -100,7 +100,7 @@ public class ItemExport
 
     private static ItemDAO itemDAO;
 
-    private static PersistentIdentifierDAO identifierDAO;
+    private static ExternalIdentifierDAO identifierDAO;
 
     /*
      *  
@@ -206,7 +206,7 @@ public class ItemExport
 
         collectionDAO = CollectionDAOFactory.getInstance(c);
         itemDAO = ItemDAOFactory.getInstance(c);
-        identifierDAO = PersistentIdentifierDAOFactory.getInstance(c);
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(c);
 
         // First, add the namespace if necessary
         if (myIDString.indexOf('/') != -1)
@@ -219,7 +219,7 @@ public class ItemExport
             }
         }
 
-        PersistentIdentifier identifier = identifierDAO.retrieve(myIDString);
+        ExternalIdentifier identifier = identifierDAO.retrieve(myIDString);
         ObjectIdentifier oi = identifier.getObjectIdentifier();
 
         if (myType == Constants.ITEM)
@@ -469,7 +469,7 @@ public class ItemExport
         {
             PrintWriter out = new PrintWriter(new FileWriter(outFile));
 
-            out.println(i.getPersistentIdentifier().getCanonicalForm());
+            out.println(i.getExternalIdentifier().getCanonicalForm());
 
             // close the contents file
             out.close();

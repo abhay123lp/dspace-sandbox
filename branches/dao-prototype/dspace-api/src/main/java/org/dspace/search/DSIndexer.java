@@ -71,9 +71,9 @@ import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -232,10 +232,10 @@ public class DSIndexer
     public static void indexContent(Context context, DSpaceObject dso, boolean force)
     throws SQLException, IOException
     {
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
 
-        String uri = dso.getPersistentIdentifier().getCanonicalForm();
+        String uri = dso.getExternalIdentifier().getCanonicalForm();
 
         Term t = new Term("uri", uri);
 
@@ -312,7 +312,7 @@ public class DSIndexer
         try
         {
             unIndexContent(context,
-                    dso.getPersistentIdentifier().getCanonicalForm());
+                    dso.getExternalIdentifier().getCanonicalForm());
         }
         catch(Exception exception)
         {
@@ -600,9 +600,9 @@ public class DSIndexer
      */
     public static void cleanIndex(Context context) throws IOException, SQLException
     {
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
-        PersistentIdentifier identifier = null;
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifier identifier = null;
         ObjectIdentifier oi = null;
 
     	IndexReader reader = DSQuery.getIndexReader();
@@ -835,7 +835,7 @@ public class DSIndexer
     throws SQLException, IOException
     {
         // Create Lucene Document
-        String uri = community.getPersistentIdentifier().getCanonicalForm();
+        String uri = community.getExternalIdentifier().getCanonicalForm();
         Document doc = buildDocument(Constants.COMMUNITY, uri, null);
 
         // and populate it
@@ -861,7 +861,7 @@ public class DSIndexer
         String location_text = buildCollectionLocationString(context, collection);
 
         // Create Lucene Document
-        String uri = collection.getPersistentIdentifier().getCanonicalForm();
+        String uri = collection.getExternalIdentifier().getCanonicalForm();
         Document doc = buildDocument(Constants.COLLECTION, uri, location_text);
 
         // and populate it
@@ -890,7 +890,7 @@ public class DSIndexer
 
         // FIXME: Need to check to make sure the Item has a persistent
         // identifier?
-        String uri = item.getPersistentIdentifier().getCanonicalForm();
+        String uri = item.getExternalIdentifier().getCanonicalForm();
 
         Document doc = buildDocument(Constants.ITEM, uri, location);
 

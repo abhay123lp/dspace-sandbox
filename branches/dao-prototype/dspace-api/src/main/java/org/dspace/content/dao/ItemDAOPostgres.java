@@ -64,9 +64,9 @@ import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.proxy.ItemProxy;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -82,7 +82,7 @@ import org.dspace.storage.rdbms.TableRowIterator;
  */
 public class ItemDAOPostgres extends ItemDAO
 {
-    private PersistentIdentifierDAO identifierDAO;
+    private ExternalIdentifierDAO identifierDAO;
 
     /** query to obtain all the items from the database */
     private final String findAll = "SELECT * FROM item";
@@ -134,7 +134,7 @@ public class ItemDAOPostgres extends ItemDAO
         this.bundleDAO = BundleDAOFactory.getInstance(context);
         this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
         this.identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+            ExternalIdentifierDAOFactory.getInstance(context);
     }
 
     @Override
@@ -184,9 +184,9 @@ public class ItemDAOPostgres extends ItemDAO
             // FIXME: I'd like to bump the rest of this up into the superclass
             // so we don't have to do it for every implementation, but I can't
             // figure out a clean way of doing this yet.
-            List<PersistentIdentifier> identifiers =
-                identifierDAO.getPersistentIdentifiers(item);
-            item.setPersistentIdentifiers(identifiers);
+            List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(item);
+            item.setExternalIdentifiers(identifiers);
 
             context.cache(item, id);
 
@@ -226,9 +226,9 @@ public class ItemDAOPostgres extends ItemDAO
             // FIXME: I'd like to bump the rest of this up into the superclass
             // so we don't have to do it for every implementation, but I can't
             // figure out a clean way of doing this yet.
-            List<PersistentIdentifier> identifiers =
-                identifierDAO.getPersistentIdentifiers(item);
-            item.setPersistentIdentifiers(identifiers);
+            List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(item);
+            item.setExternalIdentifiers(identifiers);
 
             context.cache(item, id);
 

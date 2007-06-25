@@ -79,9 +79,9 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.DCValue;
 import org.dspace.content.DCDate;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -192,8 +192,8 @@ public class FeedServlet extends DSpaceServlet
         if(!uri.equals(SITE_FEED_KEY))
         { 	
         	// Determine if the URI is a valid reference
-            PersistentIdentifierDAO dao = PersistentIdentifierDAOFactory.getInstance(context);
-            PersistentIdentifier identifier = dao.retrieve(uri);
+            ExternalIdentifierDAO dao = ExternalIdentifierDAOFactory.getInstance(context);
+            ExternalIdentifier identifier = dao.retrieve(uri);
             ObjectIdentifier oi = identifier.getObjectIdentifier();
             dso = oi.getObject(context);
         }
@@ -344,7 +344,7 @@ public class FeedServlet extends DSpaceServlet
 	    	
     		String objectUrl = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
     			? dso.getIdentifier().getURL().toString()
-    			: dso.getPersistentIdentifier().getURI().toString();
+    			: dso.getExternalIdentifier().getURI().toString();
     		
 			// put in container-level data
 	        channel.setDescription(description);
@@ -437,7 +437,7 @@ public class FeedServlet extends DSpaceServlet
         //Set item URI
     	String link = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
             ? dspaceItem.getIdentifier().getURL().toString()
-            : dspaceItem.getPersistentIdentifier().getURI().toString();
+            : dspaceItem.getExternalIdentifier().getURI().toString();
 
         rssItem.setLink(link);
         

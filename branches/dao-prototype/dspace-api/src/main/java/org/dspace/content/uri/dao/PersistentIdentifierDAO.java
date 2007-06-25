@@ -1,5 +1,5 @@
 /*
- * PersistentIdentifierDAO.java
+ * ExternalIdentifierDAO.java
  *
  * Version: $Revision: 1727 $
  *
@@ -52,64 +52,64 @@ import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 
 /**
  * @author James Rutherford
  */
-public abstract class PersistentIdentifierDAO
+public abstract class ExternalIdentifierDAO
 {
-    protected Logger log = Logger.getLogger(PersistentIdentifierDAOPostgres.class);
+    protected Logger log = Logger.getLogger(ExternalIdentifierDAOPostgres.class);
 
     protected Context context;
 
-    protected final PersistentIdentifier[] pids = (PersistentIdentifier[])
-            PluginManager.getPluginSequence(PersistentIdentifier.class);
+    protected final ExternalIdentifier[] pids = (ExternalIdentifier[])
+            PluginManager.getPluginSequence(ExternalIdentifier.class);
 
-    public abstract PersistentIdentifier create(DSpaceObject dso);
-    public abstract PersistentIdentifier create(DSpaceObject dso, String canonicalForm);
-    public abstract PersistentIdentifier create(DSpaceObject dso, String value,
-            PersistentIdentifier.Type type);
+    public abstract ExternalIdentifier create(DSpaceObject dso);
+    public abstract ExternalIdentifier create(DSpaceObject dso, String canonicalForm);
+    public abstract ExternalIdentifier create(DSpaceObject dso, String value,
+            ExternalIdentifier.Type type);
 
-    public abstract PersistentIdentifier retrieve(String canonicalForm);
+    public abstract ExternalIdentifier retrieve(String canonicalForm);
 
-    public abstract List<PersistentIdentifier> getPersistentIdentifiers(DSpaceObject dso);
-    public abstract List<PersistentIdentifier>
-        getPersistentIdentifiers(PersistentIdentifier.Type type);
-    public abstract List<PersistentIdentifier>
-        getPersistentIdentifiers(PersistentIdentifier.Type type, String prefix);
+    public abstract List<ExternalIdentifier> getExternalIdentifiers(DSpaceObject dso);
+    public abstract List<ExternalIdentifier>
+        getExternalIdentifiers(ExternalIdentifier.Type type);
+    public abstract List<ExternalIdentifier>
+        getExternalIdentifiers(ExternalIdentifier.Type type, String prefix);
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
     /**
-     * Returns an instantiated PersistentIdentifier of the desired type that
+     * Returns an instantiated ExternalIdentifier of the desired type that
      * references the desired DSpaceObject.
      */
-    protected PersistentIdentifier getInstance(DSpaceObject dso,
-            PersistentIdentifier.Type type, String value)
+    protected ExternalIdentifier getInstance(DSpaceObject dso,
+            ExternalIdentifier.Type type, String value)
     {
         try
         {
-            PersistentIdentifier identifier = null;
+            ExternalIdentifier identifier = null;
 
-            if (type.equals(PersistentIdentifier.Type.NULL))
+            if (type.equals(ExternalIdentifier.Type.NULL))
             {
                 identifier =
-                    new PersistentIdentifier(context, dso, type, value);
+                    new ExternalIdentifier(context, dso, type, value);
             }
             else
             {
-                for (PersistentIdentifier pid : pids)
+                for (ExternalIdentifier pid : pids)
                 {
                     if (type.equals(pid.getType()))
                     {
                         Class pidClass = pid.getClass();
                         Constructor c = pidClass.getDeclaredConstructor(
                                 Context.class, DSpaceObject.class,
-                                PersistentIdentifier.Type.class, String.class);
-                        identifier = (PersistentIdentifier)
+                                ExternalIdentifier.Type.class, String.class);
+                        identifier = (ExternalIdentifier)
                             c.newInstance(context, dso, type, value);
                         break;
                     }
@@ -151,11 +151,11 @@ public abstract class PersistentIdentifierDAO
             throw new RuntimeException(canonicalForm + " isn't canonical form!");
         }
 
-        PersistentIdentifier.Type type = null;
+        ExternalIdentifier.Type type = null;
         String namespace = canonicalForm.substring(0, pos);
         String value = canonicalForm.substring(pos + 1);
 
-        for (PersistentIdentifier.Type t : PersistentIdentifier.Type.values())
+        for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
         {
             if (t.getNamespace().equals(namespace))
             {

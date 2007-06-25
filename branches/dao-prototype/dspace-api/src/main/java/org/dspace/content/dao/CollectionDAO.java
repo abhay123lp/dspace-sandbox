@@ -57,8 +57,8 @@ import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -78,7 +78,7 @@ public abstract class CollectionDAO extends ContentDAO
     protected Context context;
     protected BitstreamDAO bitstreamDAO;
     protected ItemDAO itemDAO;
-    protected PersistentIdentifierDAO identifierDAO;
+    protected ExternalIdentifierDAO identifierDAO;
 
     public abstract Collection create() throws AuthorizeException;
 
@@ -97,8 +97,8 @@ public abstract class CollectionDAO extends ContentDAO
 
             // Create a default persistent identifier for this Collection, and
             // add it to the in-memory Colleciton object.
-            PersistentIdentifier identifier = identifierDAO.create(collection);
-            collection.addPersistentIdentifier(identifier);
+            ExternalIdentifier identifier = identifierDAO.create(collection);
+            collection.addExternalIdentifier(identifier);
 
             // create the default authorization policy for collections
             // of 'anonymous' READ
@@ -132,7 +132,7 @@ public abstract class CollectionDAO extends ContentDAO
             log.info(LogManager.getHeader(context, "create_collection",
                     "collection_id=" + collection.getID())
                     + ",uri=" +
-                    collection.getPersistentIdentifier().getCanonicalForm());
+                    collection.getExternalIdentifier().getCanonicalForm());
             
             return collection;
         }

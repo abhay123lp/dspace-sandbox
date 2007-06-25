@@ -71,7 +71,7 @@ import org.dspace.content.dao.CommunityDAO;         // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
 import org.dspace.content.dao.ItemDAO;              // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.Group;
 import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
@@ -126,7 +126,7 @@ public class Collection extends DSpaceObject
         this.itemDAO = ItemDAOFactory.getInstance(context);
         this.communityDAO = CommunityDAOFactory.getInstance(context);
 
-        this.identifiers = new ArrayList<PersistentIdentifier>();
+        this.identifiers = new ArrayList<ExternalIdentifier>();
         this.metadata = new TreeMap<String, String>();
         this.workflowGroups = new Group[3];
     }

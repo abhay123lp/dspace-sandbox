@@ -55,9 +55,9 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -146,14 +146,14 @@ public class OpenURLServlet extends URIServlet
             id = id.replaceFirst("/", ":");
         }
 
-        PersistentIdentifier identifier = null;
+        ExternalIdentifier identifier = null;
         ObjectIdentifier oi = null;
         DSpaceObject dso = null;
 
         // The value of URI will be the persistent identifier in canonical
         // form, eg: xyz:1234/56
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
         identifier = identifierDAO.retrieve(id);
 
         oi = identifier.getObjectIdentifier();

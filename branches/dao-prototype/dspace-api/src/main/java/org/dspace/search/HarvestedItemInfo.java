@@ -43,7 +43,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.dspace.content.Item;
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.Context;
 
 /**
@@ -62,7 +62,7 @@ public class HarvestedItemInfo
     public int itemID;
 
     /** The (first) persistent identifier */
-    public PersistentIdentifier identifier;
+    public ExternalIdentifier identifier;
 
     /** The datestamp */
     public Date datestamp;
@@ -75,7 +75,7 @@ public class HarvestedItemInfo
      * if originally requested when invoking <code>Harvest</code> (N.B. not
      * Collection objects)
      */
-    public List<PersistentIdentifier> collectionIdentifiers;
+    public List<ExternalIdentifier> collectionIdentifiers;
 
     /** True if this item has been withdrawn */
     public boolean withdrawn;

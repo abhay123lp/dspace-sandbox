@@ -57,9 +57,9 @@ import net.handle.util.StreamTable;
 
 import org.apache.log4j.Logger;
 
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 
@@ -67,7 +67,7 @@ import org.dspace.core.Context;
  * Extension to the CNRI Handle Server that translates requests to resolve
  * handles into DSpace API calls. The implementation simply stubs out most of
  * the methods, and delegates the rest to the
- * {@link org.dspace.content.uri.PersistentIdentifierDAO}. This only provides
+ * {@link org.dspace.content.uri.ExternalIdentifierDAO}. This only provides
  * some of the functionality (namely, the resolving of handles to URLs) of the
  * CNRI HandleStorage interface.
  * 
@@ -261,9 +261,9 @@ public class HandlePlugin implements HandleStorage
 
             context = new Context();
 
-            PersistentIdentifierDAO identifierDAO =
-                PersistentIdentifierDAOFactory.getInstance(context);
-            PersistentIdentifier identifier = identifierDAO.retrieve(handle);
+            ExternalIdentifierDAO identifierDAO =
+                ExternalIdentifierDAOFactory.getInstance(context);
+            ExternalIdentifier identifier = identifierDAO.retrieve(handle);
 
             String url = identifier.getURI().toString();
 
@@ -396,15 +396,15 @@ public class HandlePlugin implements HandleStorage
         {
             context = new Context();
 
-            PersistentIdentifierDAO identifierDAO =
-                PersistentIdentifierDAOFactory.getInstance(context);
+            ExternalIdentifierDAO identifierDAO =
+                ExternalIdentifierDAOFactory.getInstance(context);
 
-            PersistentIdentifier.Type type = PersistentIdentifier.Type.HANDLE;
+            ExternalIdentifier.Type type = ExternalIdentifier.Type.HANDLE;
 
             List<String> handles = new ArrayList<String>();
 
-            for(PersistentIdentifier identifier :
-                    identifierDAO.getPersistentIdentifiers(type, naHandle))
+            for(ExternalIdentifier identifier :
+                    identifierDAO.getExternalIdentifiers(type, naHandle))
             {
                 handles.add(identifier.getValue());
             }

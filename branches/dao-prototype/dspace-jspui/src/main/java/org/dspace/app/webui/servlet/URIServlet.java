@@ -68,9 +68,9 @@ import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -91,7 +91,7 @@ public class URIServlet extends DSpaceServlet
     {
         String uri = null;
         String extraPathInfo = null;
-        PersistentIdentifier identifier = null;
+        ExternalIdentifier identifier = null;
         ObjectIdentifier oi = null;
         DSpaceObject dso = null;
 
@@ -153,8 +153,8 @@ public class URIServlet extends DSpaceServlet
         {
             // The value of URI will be the persistent identifier in canonical
             // form, eg: xyz:1234/56
-            PersistentIdentifierDAO identifierDAO =
-                PersistentIdentifierDAOFactory.getInstance(context);
+            ExternalIdentifierDAO identifierDAO =
+                ExternalIdentifierDAOFactory.getInstance(context);
             identifier = identifierDAO.retrieve(uri);
 
             oi = identifier.getObjectIdentifier();
@@ -331,7 +331,7 @@ public class URIServlet extends DSpaceServlet
         AuthorizeManager.authorizeAction(context, item, Constants.READ);
 
         log.info(LogManager.getHeader(context, "view_item", "uri=" +
-                    item.getPersistentIdentifier().getCanonicalForm()));
+                    item.getExternalIdentifier().getCanonicalForm()));
 
         // show edit link
         if (item.canEdit())

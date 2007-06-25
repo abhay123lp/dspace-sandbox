@@ -48,15 +48,15 @@ import org.dspace.content.DSpaceObject;
 /**
  * @author James Rutherford
  */
-public class Handle extends PersistentIdentifier
+public class Handle extends ExternalIdentifier
 {
     public Handle()
     {
-        super(PersistentIdentifier.Type.HANDLE);
+        super(ExternalIdentifier.Type.HANDLE);
     }
 
     public Handle(Context context, DSpaceObject dso,
-            PersistentIdentifier.Type type, String value)
+            ExternalIdentifier.Type type, String value)
     {
         super(context, dso, type, value);
     }

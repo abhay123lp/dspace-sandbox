@@ -58,9 +58,9 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -118,8 +118,8 @@ public class BrowseServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
 
         // We will resolve the HTTP request parameters into a scope
         BrowseScope scope = new BrowseScope(context);
@@ -190,7 +190,7 @@ public class BrowseServlet extends DSpaceServlet
             else
             {
                 // For browsing items by title or date, focus is a URI
-                PersistentIdentifier identifier = identifierDAO.retrieve(focus);
+                ExternalIdentifier identifier = identifierDAO.retrieve(focus);
                 ObjectIdentifier oi = identifier.getObjectIdentifier();
                 Item item = (Item) oi.getObject(context);
 
@@ -286,7 +286,7 @@ public class BrowseServlet extends DSpaceServlet
             else
             {
                 // Value is URI if we're browsing items by title or date
-                PersistentIdentifier identifier = identifierDAO.retrieve(val);
+                ExternalIdentifier identifier = identifierDAO.retrieve(val);
                 ObjectIdentifier oi = identifier.getObjectIdentifier();
                 Item item = (Item) oi.getObject(context);
 
@@ -422,7 +422,7 @@ public class BrowseServlet extends DSpaceServlet
                 else
                 {
                     Item firstItem = (browseInfo.getItemResults())[0];
-                    s = firstItem.getPersistentIdentifier().getCanonicalForm();
+                    s = firstItem.getExternalIdentifier().getCanonicalForm();
                 }
 
                 if (browseDates && oldestFirst)
@@ -462,7 +462,7 @@ public class BrowseServlet extends DSpaceServlet
                 {
                     Item[] items = browseInfo.getItemResults();
                     Item lastItem = items[items.length - 1];
-                    s = lastItem.getPersistentIdentifier().getCanonicalForm();
+                    s = lastItem.getExternalIdentifier().getCanonicalForm();
                 }
 
                 if (browseDates && oldestFirst)

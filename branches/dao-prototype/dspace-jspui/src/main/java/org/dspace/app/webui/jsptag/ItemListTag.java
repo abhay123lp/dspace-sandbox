@@ -581,7 +581,7 @@ public class ItemListTag extends TagSupport
                     {
                         thumbLink = "<br/><a target=\"_blank\" href=\"" +
                             hrq.getContextPath() + "/bitstream/" +
-                            item.getPersistentIdentifier().getCanonicalForm() +
+                            item.getExternalIdentifier().getCanonicalForm() +
                             "/" + originalBitstream.getSequenceID() + "/" +
                             UIUtil.encodeBitstreamName(originalBitstream.getName(),
                                     Constants.DEFAULT_ENCODING);

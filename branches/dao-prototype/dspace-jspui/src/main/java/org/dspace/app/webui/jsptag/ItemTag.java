@@ -492,7 +492,7 @@ public class ItemTag extends TagSupport
         if (collections != null)
         {
             out.print("<tr><td class=\"metadataFieldLabel\">");
-            if (item.getPersistentIdentifier().getCanonicalForm() == null)
+            if (item.getExternalIdentifier().getCanonicalForm() == null)
             {
                 out.print(LocaleSupport.getLocalizedMessage(pageContext,
                         "org.dspace.app.webui.jsptag.ItemTag.submitted"));
@@ -546,7 +546,7 @@ public class ItemTag extends TagSupport
             boolean html = false;
             // FIXME: This is inconsistent with other URLs, and will leave
             // commas in the URL :(
-            String uri = item.getPersistentIdentifier().getCanonicalForm();
+            String uri = item.getExternalIdentifier().getCanonicalForm();
             Bitstream primaryBitstream = null;
 
             Bundle[] bunds = item.getBundles("ORIGINAL");
@@ -784,7 +784,7 @@ public class ItemTag extends TagSupport
         }
 
         String collStyle = (String) collectionStyles.get(
-                c.getPersistentIdentifier().getCanonicalForm());
+                c.getExternalIdentifier().getCanonicalForm());
 
         if (collStyle == null)
         {
@@ -800,7 +800,7 @@ public class ItemTag extends TagSupport
                     .warn("dspace.cfg specifies undefined item metadata display style '"
                             + collStyle
                             + "' for collection "
-                            + c.getPersistentIdentifier().getCanonicalForm()
+                            + c.getExternalIdentifier().getCanonicalForm()
                             + ".  Using default");
             style = "default";
             return;

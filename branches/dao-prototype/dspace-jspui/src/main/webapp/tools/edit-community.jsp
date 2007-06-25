@@ -124,7 +124,7 @@
     {
 %>
     <h1><fmt:message key="jsp.tools.edit-community.heading2">
-        <fmt:param><%= community.getPersistentIdentifier().getCanonicalForm() %></fmt:param>
+        <fmt:param><%= community.getExternalIdentifier().getCanonicalForm() %></fmt:param>
         </fmt:message>
     </h1>
     <% if(admin_button ) { %>

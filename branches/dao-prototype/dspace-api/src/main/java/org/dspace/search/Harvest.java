@@ -58,9 +58,9 @@ import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -129,9 +129,9 @@ public class Harvest
             throws SQLException, ParseException
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
-        PersistentIdentifier identifier = null;
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifier identifier = null;
 
         // Put together our query. Note there is no need for an
         // "in_archive=true" condition, we are using the existence of a
@@ -260,9 +260,9 @@ public class Harvest
                 String value = row.getStringColumn("value");
                 int typeID = row.getIntColumn("type_id");
 
-                PersistentIdentifier.Type type = null;
+                ExternalIdentifier.Type type = null;
 
-                for (PersistentIdentifier.Type t : PersistentIdentifier.Type.values())
+                for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
                 {
                     if (t.getID() == typeID)
                     {
@@ -323,12 +323,12 @@ public class Harvest
      * @throws SQLException
      */
     public static HarvestedItemInfo getSingle(Context context,
-            PersistentIdentifier identifier, boolean collections)
+            ExternalIdentifier identifier, boolean collections)
         throws SQLException
     {
         // FIXME: Assume identifier is item
         // FIXME: We should be passing an ObjectIdentifier in here, not a
-        // PersistentIdentifier
+        // ExternalIdentifier
         ObjectIdentifier oi = identifier.getObjectIdentifier();
         Item i = (Item) oi.getObject(context);
 
@@ -375,12 +375,12 @@ public class Harvest
 
         List<Collection> parents = collectionDAO.getParentCollections(item);
 
-        List<PersistentIdentifier> identifiers =
-            new LinkedList<PersistentIdentifier>();
+        List<ExternalIdentifier> identifiers =
+            new LinkedList<ExternalIdentifier>();
 
         for (Collection parent : parents)
         {
-            identifiers.add(parent.getPersistentIdentifier());
+            identifiers.add(parent.getExternalIdentifier());
         }
 
         itemInfo.collectionIdentifiers = identifiers;

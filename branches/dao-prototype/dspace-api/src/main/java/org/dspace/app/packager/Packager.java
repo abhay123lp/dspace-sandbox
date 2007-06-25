@@ -59,9 +59,9 @@ import org.dspace.content.packager.PackageDisseminator;
 import org.dspace.content.packager.PackageParameters;
 import org.dspace.content.packager.PackageIngester;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
@@ -228,8 +228,8 @@ public class Packager
         // find the EPerson, assign to context
         Context context = new Context();
 
-        PersistentIdentifierDAO identifierDAO =
-            PersistentIdentifierDAOFactory.getInstance(context);
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
 
         EPerson myEPerson = null;
         myEPerson = EPerson.findByEmail(context, eperson);
@@ -264,7 +264,7 @@ public class Packager
                     System.out.println("no namespace provided. assuming handles.");
                 }
 
-                PersistentIdentifier identifier =
+                ExternalIdentifier identifier =
                     identifierDAO.retrieve(collections[i]);
                 ObjectIdentifier oi = identifier.getObjectIdentifier();
 
@@ -302,7 +302,7 @@ public class Packager
                     if (wfi.getState() == WorkflowManager.WFSTATE_ARCHIVE)
                     {
                         Item ni = wfi.getItem();
-                        uri = ni.getPersistentIdentifier().getCanonicalForm();
+                        uri = ni.getExternalIdentifier().getCanonicalForm();
                     }
                     if (uri == null)
                     {
@@ -319,7 +319,7 @@ public class Packager
                 {
                     InstallItem.installItem(context, wi);
                     System.out.println("Created and installed item, uri="
-                            + wi.getItem().getPersistentIdentifier().getCanonicalForm());
+                            + wi.getItem().getExternalIdentifier().getCanonicalForm());
                 }
                 context.complete();
                 System.exit(0);
@@ -350,7 +350,7 @@ public class Packager
                 System.out.println("no namespace provided. assuming handles.");
             }
 
-            PersistentIdentifier identifier = identifierDAO.retrieve(itemUri);
+            ExternalIdentifier identifier = identifierDAO.retrieve(itemUri);
             ObjectIdentifier oi = identifier.getObjectIdentifier();
 
             // sanity check: did uri resolve, and to a collection?

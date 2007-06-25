@@ -64,7 +64,7 @@ import org.dspace.content.dao.CollectionDAO;        // Naughty!
 import org.dspace.content.dao.CollectionDAOFactory; // Naughty!
 import org.dspace.content.dao.CommunityDAO;         // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.Group;
 import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
@@ -103,7 +103,7 @@ public class Community extends DSpaceObject
         this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
         this.collectionDAO = CollectionDAOFactory.getInstance(context);
 
-        this.identifiers = new ArrayList<PersistentIdentifier>();
+        this.identifiers = new ArrayList<ExternalIdentifier>();
         this.metadata = new TreeMap<String, String>();
     }
 

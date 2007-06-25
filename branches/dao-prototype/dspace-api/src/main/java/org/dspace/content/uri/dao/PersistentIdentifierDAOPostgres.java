@@ -1,5 +1,5 @@
 /*
- * PersistentIdentifierDAO.java
+ * ExternalIdentifierDAO.java
  *
  * Version: $Revision: 1727 $
  *
@@ -53,14 +53,14 @@ import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
 import org.dspace.content.uri.Handle;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 
 /**
  * @author James Rutherford
  */
-public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
+public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
 {
-    public PersistentIdentifierDAOPostgres(Context context)
+    public ExternalIdentifierDAOPostgres(Context context)
     {
         this.context = context;
     }
@@ -68,23 +68,23 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
     /**
      * Creates a persistent identifier of the defualt type.
      */
-    public PersistentIdentifier create(DSpaceObject dso)
+    public ExternalIdentifier create(DSpaceObject dso)
     {
         // The default is the first entry in the list.
         return create(dso, "", pids[0].getType());
     }
 
-    public PersistentIdentifier create(DSpaceObject dso, String canonicalForm)
+    public ExternalIdentifier create(DSpaceObject dso, String canonicalForm)
     {
         Object[] bits = parseCanonicalForm(canonicalForm);
-        PersistentIdentifier.Type type = (PersistentIdentifier.Type) bits[0];
+        ExternalIdentifier.Type type = (ExternalIdentifier.Type) bits[0];
         String value = (String) bits[1];
 
         return create(dso, value, type);
     }
 
-    public PersistentIdentifier create(DSpaceObject dso, String value,
-            PersistentIdentifier.Type type)
+    public ExternalIdentifier create(DSpaceObject dso, String value,
+            ExternalIdentifier.Type type)
     {
         try
         {
@@ -104,7 +104,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                     throw new RuntimeException(":(");
             }
 
-            PersistentIdentifier identifier = getInstance(dso, type, value);
+            ExternalIdentifier identifier = getInstance(dso, type, value);
 
             row.setColumn("handle", value);
             row.setColumn("resource_type_id", dso.getType());
@@ -118,7 +118,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                         + Constants.typeText[dso.getType()] + " " + value);
             }
 
-            dso.addPersistentIdentifier(identifier);
+            dso.addExternalIdentifier(identifier);
 
             return identifier;
         }
@@ -128,10 +128,10 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
         }
     }
 
-    public PersistentIdentifier retrieve(String canonicalForm)
+    public ExternalIdentifier retrieve(String canonicalForm)
     {
         Object[] bits = parseCanonicalForm(canonicalForm);
-        PersistentIdentifier.Type type = (PersistentIdentifier.Type) bits[0];
+        ExternalIdentifier.Type type = (ExternalIdentifier.Type) bits[0];
         String value = (String) bits[1];
 
         DSpaceObject dso = null;
@@ -140,7 +140,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
         int resourceTypeID = -1;
 
         // If the type is NULL, then this is just an internal identifier
-        if (type.equals(PersistentIdentifier.Type.NULL))
+        if (type.equals(ExternalIdentifier.Type.NULL))
         {
             resourceTypeID = Integer.parseInt(value.substring(0,
                         value.indexOf("/")));
@@ -152,7 +152,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
 
             return getInstance(dso, type, value);
         }
-        else if (type.equals(PersistentIdentifier.Type.UUID))
+        else if (type.equals(ExternalIdentifier.Type.UUID))
         {
             ObjectIdentifier oi = new ObjectIdentifier(UUID.fromString(value));
             dso = oi.getObject(context);
@@ -197,12 +197,12 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
         return getInstance(dso, type, value);
     }
 
-    public List<PersistentIdentifier> getPersistentIdentifiers(DSpaceObject dso)
+    public List<ExternalIdentifier> getExternalIdentifiers(DSpaceObject dso)
     {
         try
         {
-            List<PersistentIdentifier> list =
-                new ArrayList<PersistentIdentifier>();
+            List<ExternalIdentifier> list =
+                new ArrayList<ExternalIdentifier>();
 
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "persistentidentifier",
@@ -220,7 +220,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
 
                 // FIXME: Maybe throw an error if the value stored in the db
                 // isn't in the enum?
-                for (PersistentIdentifier pid : pids)
+                for (ExternalIdentifier pid : pids)
                 {
                     if (pid.getTypeID() == id)
                     {
@@ -238,19 +238,19 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
         }
     }
 
-    public List<PersistentIdentifier>
-        getPersistentIdentifiers(PersistentIdentifier.Type type)
+    public List<ExternalIdentifier>
+        getExternalIdentifiers(ExternalIdentifier.Type type)
     {
-        return getPersistentIdentifiers(type, "");
+        return getExternalIdentifiers(type, "");
     }
 
-    public List<PersistentIdentifier>
-        getPersistentIdentifiers(PersistentIdentifier.Type type, String prefix)
+    public List<ExternalIdentifier>
+        getExternalIdentifiers(ExternalIdentifier.Type type, String prefix)
     {
         try
         {
-            List<PersistentIdentifier> list =
-                new ArrayList<PersistentIdentifier>();
+            List<ExternalIdentifier> list =
+                new ArrayList<ExternalIdentifier>();
 
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "persistentidentifier",
@@ -269,7 +269,7 @@ public class PersistentIdentifierDAOPostgres extends PersistentIdentifierDAO
                 ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
                 DSpaceObject dso = oi.getObject(context);
 
-                for (PersistentIdentifier pid : pids)
+                for (ExternalIdentifier pid : pids)
                 {
                     if (type.equals(pid.getType()))
                     {

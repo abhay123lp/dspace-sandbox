@@ -1,5 +1,5 @@
 /*
- * PersistentIdentifier.java
+ * ExternalIdentifier.java
  *
  * Version: $Revision: 1727 $
  *
@@ -57,9 +57,9 @@ import org.dspace.core.ConfigurationManager;
 /**
  * @author James Rutherford
  */
-public class PersistentIdentifier
+public class ExternalIdentifier
 {
-    private static Logger log = Logger.getLogger(PersistentIdentifier.class);
+    private static Logger log = Logger.getLogger(ExternalIdentifier.class);
 
     protected Context context;
     protected String value;
@@ -70,12 +70,12 @@ public class PersistentIdentifier
     private final String BASE_URI;
     private final Type TYPE;
 
-    public PersistentIdentifier()
+    public ExternalIdentifier()
     {
-        this(PersistentIdentifier.Type.NULL);
+        this(ExternalIdentifier.Type.NULL);
     }
 
-    public PersistentIdentifier(PersistentIdentifier.Type type)
+    public ExternalIdentifier(ExternalIdentifier.Type type)
     {
         this.TYPE = type;
         this.PROTOCOL = type.getProtocol();
@@ -83,8 +83,8 @@ public class PersistentIdentifier
         this.BASE_URI = type.getBaseURI();
     }
 
-    public PersistentIdentifier(Context context, DSpaceObject dso,
-            PersistentIdentifier.Type type, String value)
+    public ExternalIdentifier(Context context, DSpaceObject dso,
+            ExternalIdentifier.Type type, String value)
     {
         this(type);
         this.context = context;

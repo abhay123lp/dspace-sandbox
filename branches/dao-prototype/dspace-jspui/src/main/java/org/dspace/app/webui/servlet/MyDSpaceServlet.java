@@ -56,7 +56,7 @@ import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.SupervisedItem;
 import org.dspace.content.WorkspaceItem;
-import org.dspace.content.uri.PersistentIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -442,7 +442,7 @@ public class MyDSpaceServlet extends DSpaceServlet
             // See if that gave the item a persistent identifier. If it did,
             // the item made it into the archive, so we should display a
             // suitable page.
-            PersistentIdentifier identifier = item.getPersistentIdentifier();
+            ExternalIdentifier identifier = item.getExternalIdentifier();
 
             if (identifier != null)
             {

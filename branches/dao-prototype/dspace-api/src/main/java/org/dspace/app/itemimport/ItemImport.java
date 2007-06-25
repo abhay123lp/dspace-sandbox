@@ -81,9 +81,9 @@ import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -127,7 +127,7 @@ public class ItemImport
 
     private static ItemDAO itemDAO;
 
-    private static PersistentIdentifierDAO identifierDAO;
+    private static ExternalIdentifierDAO identifierDAO;
 
     // File listing filter to look for metadata files
     static FilenameFilter metadataFileFilter = new FilenameFilter()
@@ -343,7 +343,7 @@ public class ItemImport
 
         collectionDAO = CollectionDAOFactory.getInstance(c);
         itemDAO = ItemDAOFactory.getInstance(c);
-        identifierDAO = PersistentIdentifierDAOFactory.getInstance(c);
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(c);
 
         // find the EPerson, assign to context
         EPerson myEPerson = null;
@@ -391,7 +391,7 @@ public class ItemImport
 
                     // string has a / so it must be a persistent identifier in
                     // canonical form - try to resolve it
-                    PersistentIdentifier identifier =
+                    ExternalIdentifier identifier =
                         identifierDAO.retrieve(collections[i]);
                     ObjectIdentifier oi = identifier.getObjectIdentifier();
                     mycollections[i] = (Collection) oi.getObject(c);
@@ -576,7 +576,7 @@ public class ItemImport
                 System.out.println("\tReplacing:  " + oldURI);
 
                 // add new item, locate old one
-                PersistentIdentifier identifier =
+                ExternalIdentifier identifier =
                     identifierDAO.retrieve(oldURI);
                 ObjectIdentifier oi = identifier.getObjectIdentifier();
                 oldItem = (Item) oi.getObject(c);
@@ -710,7 +710,7 @@ public class ItemImport
             {
                 Item item = InstallItem.installItem(c, wi, uri);
 
-                uri = item.getPersistentIdentifier().getCanonicalForm();
+                uri = item.getExternalIdentifier().getCanonicalForm();
 
                 mapOutput = itemname + " " + uri;
             }
@@ -759,7 +759,7 @@ public class ItemImport
     {
         // bit of a hack - to remove an item, you must remove it
         // from all collections it's a part of, then it will be removed
-        PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+        ExternalIdentifier identifier = identifierDAO.retrieve(uri);
         ObjectIdentifier oi = identifier.getObjectIdentifier();
         Item myitem = (Item) oi.getObject(c);
 

@@ -301,12 +301,12 @@ public class LayoutTag extends TagSupport
         	if ( commLinks )
         	{
                 Community com = (Community)request.getAttribute("dspace.community");
-        		request.setAttribute("dspace.layout.feedref", com.getPersistentIdentifier().getCanonicalForm());
+        		request.setAttribute("dspace.layout.feedref", com.getExternalIdentifier().getCanonicalForm());
         	}
         	else if( collLinks )
         	{
         		Collection col = (Collection)request.getAttribute("dspace.collection");
-        		request.setAttribute("dspace.layout.feedref", col.getPersistentIdentifier().getCanonicalForm());
+        		request.setAttribute("dspace.layout.feedref", col.getExternalIdentifier().getCanonicalForm());
         	}
         	else //feed is across all of DSpace and not Community/Collection specific
         	{

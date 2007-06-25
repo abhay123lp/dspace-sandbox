@@ -57,9 +57,9 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.PersistentIdentifier;
-import org.dspace.content.uri.dao.PersistentIdentifierDAO;
-import org.dspace.content.uri.dao.PersistentIdentifierDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -139,9 +139,9 @@ public class DSpaceOAICatalog extends AbstractCatalog
             {
                 String canonicalForm =
                     oaiIdentifier.substring(OAI_ID_PREFIX.length());
-                PersistentIdentifierDAO identifierDAO =
-                    PersistentIdentifierDAOFactory.getInstance(context);
-                PersistentIdentifier identifier =
+                ExternalIdentifierDAO identifierDAO =
+                    ExternalIdentifierDAOFactory.getInstance(context);
+                ExternalIdentifier identifier =
                     identifierDAO.retrieve(canonicalForm);
 
                 itemInfo = Harvest.getSingle(context, identifier, false);
@@ -356,9 +356,9 @@ public class DSpaceOAICatalog extends AbstractCatalog
 
                 String canonicalForm =
                     oaiIdentifier.substring(OAI_ID_PREFIX.length());
-                PersistentIdentifierDAO identifierDAO =
-                    PersistentIdentifierDAOFactory.getInstance(context);
-                PersistentIdentifier identifier =
+                ExternalIdentifierDAO identifierDAO =
+                    ExternalIdentifierDAOFactory.getInstance(context);
+                ExternalIdentifier identifier =
                     identifierDAO.retrieve(canonicalForm);
 
                 itemInfo = Harvest.getSingle(context, identifier, true);
@@ -678,7 +678,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
             for (Collection collection : allCollections)
             {
                 String uri =
-                    collection.getPersistentIdentifier().getCanonicalForm();
+                    collection.getExternalIdentifier().getCanonicalForm();
 
                 spec = new StringBuffer("<set><setSpec>");
                 spec.append(uri.replace(':', '_').replace('/', '_'));
@@ -696,7 +696,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
                     // Warn that there is an error of a null set name
                 	log.info(LogManager.getHeader(null, "oai_error",
                        "null_set_name_for_set_id_" +
-                       collection.getPersistentIdentifier().getCanonicalForm()));
+                       collection.getExternalIdentifier().getCanonicalForm()));
                 }
                 spec.append("</set>");
                 sets.add(spec.toString());
@@ -779,7 +779,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
          * set specs are in form xyz_123.456_789 corresponding to
          * xyz:123.456/789
          */
-        for (PersistentIdentifier.Type type : PersistentIdentifier.Type.values())
+        for (ExternalIdentifier.Type type : ExternalIdentifier.Type.values())
         {
             if (set.startsWith(type.getNamespace() + "_"))
             {
@@ -787,9 +787,9 @@ public class DSpaceOAICatalog extends AbstractCatalog
                 // colon, and all subsequent underscores into forward slashes.
                 String uri = set.replaceFirst("_", ":").replace('_', '/');
 
-                PersistentIdentifierDAO identifierDAO =
-                    PersistentIdentifierDAOFactory.getInstance(context);
-                PersistentIdentifier identifier = identifierDAO.retrieve(uri);
+                ExternalIdentifierDAO identifierDAO =
+                    ExternalIdentifierDAOFactory.getInstance(context);
+                ExternalIdentifier identifier = identifierDAO.retrieve(uri);
 
                 ObjectIdentifier oi = identifier.getObjectIdentifier();
                 o = oi.getObject(context);
