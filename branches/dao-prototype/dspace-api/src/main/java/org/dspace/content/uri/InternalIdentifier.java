@@ -1,5 +1,5 @@
 /*
- * ExternalIdentifier.java
+ * InternalIdentifier.java
  *
  * Version: $Revision: 1727 $
  *
@@ -57,39 +57,34 @@ import org.dspace.core.ConfigurationManager;
 /**
  * @author James Rutherford
  */
-public class ExternalIdentifier
+public class InternalIdentifier extends ObjectIdentifier
 {
-    private static Logger log = Logger.getLogger(ExternalIdentifier.class);
+    private static Logger log = Logger.getLogger(InternalIdentifier.class);
 
     protected Context context;
     protected String value;
     protected ObjectIdentifier oid;
 
-    private final String PROTOCOL;
     private final String NS;
-    private final String BASE_URI;
     private final Type TYPE;
 
-    public ExternalIdentifier()
+    public InternalIdentifier()
     {
-        this(ExternalIdentifier.Type.NULL);
+        this(InternalIdentifier.Type.NULL);
     }
 
-    public ExternalIdentifier(ExternalIdentifier.Type type)
+    public InternalIdentifier(InternalIdentifier.Type type)
     {
         this.TYPE = type;
-        this.PROTOCOL = type.getProtocol();
         this.NS = type.getNamespace();
-        this.BASE_URI = type.getBaseURI();
     }
 
-    public ExternalIdentifier(Context context, DSpaceObject dso,
-            ExternalIdentifier.Type type, String value)
+    public InternalIdentifier(Context context, DSpaceObject dso,
+            InternalIdentifier.Type type, String value)
     {
         this(type);
         this.context = context;
         this.value = value;
-        this.oid = dso.getIdentifier();
     }
 
     public ObjectIdentifier getObjectIdentifier()
@@ -105,19 +100,6 @@ public class ExternalIdentifier
     public Type getType()
     {
         return TYPE;
-    }
-
-    public URI getURI()
-    {
-        try
-        {
-            // eg: http + :// + hdl.handle.net + / + 1234/56
-            return new URI(PROTOCOL + "://" + BASE_URI + "/" + value);
-        }
-        catch (URISyntaxException urise)
-        {
-            throw new RuntimeException(urise);
-        }
     }
 
     public String getCanonicalForm()
@@ -159,27 +141,20 @@ public class ExternalIdentifier
         // getID() method which is far better than ordinal(). Also, this
         // information will eventually live in the database (probably), and
         // when that happens, ordinal() will become useless.
-        NULL (0, "", "dsi", ""),    // Internal type
-        HANDLE (1, "http", "hdl", "hdl.handle.net"),
-        UUID (2, "", "uuid", "");   // Internal type
+        NULL (0, "", "dsi", ""),
+        UUID (1, "", "uuid", "");
 
         private final int id;
-        private final String protocol;
         private final String namespace;
-        private final String baseURI;
 
-        private Type(int id, String protocol, String namespace, String baseURI)
+        private Type(int id, String namespace)
         {
             this.id = id;
-            this.protocol = protocol;
             this.namespace = namespace;
-            this.baseURI = baseURI;
         }
 
         public int getID() { return id; }
-        public String getProtocol() { return protocol; }
         public String getNamespace() { return namespace; }
-        public String getBaseURI() { return baseURI; }
     }
 
     ////////////////////////////////////////////////////////////////////
