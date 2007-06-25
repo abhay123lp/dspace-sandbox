@@ -85,19 +85,44 @@ public class ObjectIdentifier
     private int resourceTypeID;
     private UUID uuid;
 
+    private final Type TYPE;
+
     public ObjectIdentifier()
     {
+        this.TYPE = null;
     }
 
     public ObjectIdentifier(int resourceID, int resourceTypeID)
     {
+        this.TYPE = Type.INTS;
         this.resourceID = resourceID;
         this.resourceTypeID = resourceTypeID;
     }
 
     public ObjectIdentifier(UUID uuid)
     {
+        this.TYPE = Type.UUID;
         this.uuid = uuid;
+    }
+
+    public ObjectIdentifier(Type type, String value)
+    {
+        this.TYPE = type;
+        
+        switch (type)
+        {
+            case UUID:
+                // value will be a string representation of a UUID
+                this.uuid = UUID.fromString(value);
+                break;
+            case INTS:
+                // value will be (eg) "3/12"
+                this.resourceID =
+                    Integer.parseInt(value.substring(0, value.indexOf('/')));
+                this.resourceTypeID =
+                    Integer.parseInt(value.substring(value.indexOf('/') + 1));
+                break;
+        }
     }
 
     public DSpaceObject getObject(Context context)
@@ -109,74 +134,77 @@ public class ObjectIdentifier
         BundleDAO bundleDAO = BundleDAOFactory.getInstance(context);
         BitstreamDAO bitstreamDAO = BitstreamDAOFactory.getInstance(context);
 
-        if (uuid == null)
+        switch (TYPE)
         {
-            switch(resourceTypeID)
-            {
-                case (Constants.BITSTREAM):
-                    return bitstreamDAO.retrieve(resourceID);
-                case (Constants.BUNDLE):
-                    return bundleDAO.retrieve(resourceID);
-                case (Constants.ITEM):
-                    return itemDAO.retrieve(resourceID);
-                case (Constants.COLLECTION):
-                    return collectionDAO.retrieve(resourceID);
-                case (Constants.COMMUNITY):
-                    return communityDAO.retrieve(resourceID);
-                default:
-                    throw new RuntimeException("Not a valid DSpaceObject type");
-            }
-        }
-        else
-        {
-            DSpaceObject dso = (Bitstream) bitstreamDAO.retrieve(uuid);
+            case INTS:
+                switch(resourceTypeID)
+                {
+                    case (Constants.BITSTREAM):
+                        return bitstreamDAO.retrieve(resourceID);
+                    case (Constants.BUNDLE):
+                        return bundleDAO.retrieve(resourceID);
+                    case (Constants.ITEM):
+                        return itemDAO.retrieve(resourceID);
+                    case (Constants.COLLECTION):
+                        return collectionDAO.retrieve(resourceID);
+                    case (Constants.COMMUNITY):
+                        return communityDAO.retrieve(resourceID);
+                    default:
+                        throw new RuntimeException("Not a valid DSpaceObject type");
+                }
+            case UUID:
+                DSpaceObject dso = (Bitstream) bitstreamDAO.retrieve(uuid);
 
-            if (dso == null)
-            {
-                dso = (Bundle) bundleDAO.retrieve(uuid);
-            }
-            if (dso == null)
-            {
-                dso = (Item) itemDAO.retrieve(uuid);
-            }
-            if (dso == null)
-            {
-                dso = (Collection) collectionDAO.retrieve(uuid);
-            }
-            if (dso == null)
-            {
-                dso = (Community) communityDAO.retrieve(uuid);
-            }
+                if (dso == null)
+                {
+                    dso = (Bundle) bundleDAO.retrieve(uuid);
+                }
+                if (dso == null)
+                {
+                    dso = (Item) itemDAO.retrieve(uuid);
+                }
+                if (dso == null)
+                {
+                    dso = (Collection) collectionDAO.retrieve(uuid);
+                }
+                if (dso == null)
+                {
+                    dso = (Community) communityDAO.retrieve(uuid);
+                }
 
-            if (dso == null)
-            {
-                throw new RuntimeException("Couldn't find " + uuid);
-            }
-            else
-            {
-                return dso;
-            }
+                if (dso == null)
+                {
+                    throw new RuntimeException("Couldn't find " + uuid);
+                }
+                else
+                {
+                    return dso;
+                }
+            default:
+                throw new RuntimeException("Whoops!");
         }
     }
 
     public URL getURL()
     {
-        String base = ConfigurationManager.getProperty("dspace.url") + "/";
-        
-        String value = "";
+        String url = ConfigurationManager.getProperty("dspace.url") +
+            "/resource/" + TYPE.getNamespace() + ":";
 
-        if (uuid == null)
+        switch (TYPE)
         {
-            value += "dsi:" + resourceTypeID + "/" + resourceID;
-        }
-        else
-        {
-            value += "uuid:" + uuid.toString();
+            case INTS:
+                url += resourceTypeID + "/" + resourceID;
+                break;
+            case UUID:
+                url += uuid.toString();
+                break;
+            default:
+                throw new RuntimeException("Whoops!");
         }
 
         try
         {
-            return new URL(base + "resource/" + value);
+            return new URL(url);
 
             // FIXME: The only reason I'm not doing this is because of the
             // issues Tomcat < version 6 has with encoded slashes in URLs (it
@@ -191,6 +219,21 @@ public class ObjectIdentifier
         {
             throw new RuntimeException(murle);
         }
+    }
+
+    public enum Type
+    {
+        INTS ("dsi"), // signifies a pair of integers (resource type + id)
+        UUID ("uuid");
+
+        private final String namespace;
+
+        private Type(String namespace)
+        {
+            this.namespace = namespace;
+        }
+
+        public String getNamespace() { return namespace; }
     }
 
     ////////////////////////////////////////////////////////////////////

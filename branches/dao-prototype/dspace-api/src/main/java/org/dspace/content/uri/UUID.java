@@ -48,8 +48,9 @@ import org.dspace.content.DSpaceObject;
 /**
  * @author James Rutherford
  */
-public class UUID extends InternalIdentifier
+public class UUID
 {
+    /*
     public UUID()
     {
         super(InternalIdentifier.Type.UUID);
@@ -60,4 +61,5 @@ public class UUID extends InternalIdentifier
     {
         super(context, dso, type, value);
     }
+    */
 }

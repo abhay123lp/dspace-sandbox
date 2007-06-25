@@ -42,7 +42,6 @@ package org.dspace.content.uri.dao;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ConfigurationManager;
@@ -138,27 +137,6 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
 
         int resourceID = -1;
         int resourceTypeID = -1;
-
-        // If the type is NULL, then this is just an internal identifier
-//        if (type.equals(ExternalIdentifier.Type.NULL))
-//        {
-//            resourceTypeID = Integer.parseInt(value.substring(0,
-//                        value.indexOf("/")));
-//            resourceID =
-//                Integer.parseInt(value.substring(value.indexOf("/") + 1));
-//
-//            ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
-//            dso = oi.getObject(context);
-//
-//            return getInstance(dso, type, value);
-//        }
-//        else if (type.equals(ExternalIdentifier.Type.UUID))
-//        {
-//            ObjectIdentifier oi = new ObjectIdentifier(UUID.fromString(value));
-//            dso = oi.getObject(context);
-//
-//            return getInstance(dso, type, value);
-//        }
 
         if (type == null)
         {
@@ -266,7 +244,8 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
                 int resourceID = row.getIntColumn("resource_id");
                 int resourceTypeID = row.getIntColumn("resource_type_id");
 
-                ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
+                ObjectIdentifier oi =
+                    new ObjectIdentifier(resourceID, resourceTypeID);
                 DSpaceObject dso = oi.getObject(context);
 
                 for (ExternalIdentifier pid : pids)

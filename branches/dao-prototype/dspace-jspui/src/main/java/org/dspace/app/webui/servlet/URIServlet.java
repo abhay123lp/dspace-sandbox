@@ -115,12 +115,6 @@ public class URIServlet extends DSpaceServlet
 
             try
             {
-                if (path.startsWith("info:dspace/"))
-                {
-                    path = path.substring(new String("info:dspace/").length());
-                    path = path.replaceFirst("/", ":");
-                }
-
                 // Extract the URI
                 int firstSlash = path.indexOf('/');
 
@@ -151,13 +145,38 @@ public class URIServlet extends DSpaceServlet
         // Find out what the value points to
         if (uri != null)
         {
+            boolean internal = true;
+            String namespace = uri.substring(0, uri.indexOf(':'));
+            String value = uri.substring(uri.indexOf(':') + 1);
+
             // The value of URI will be the persistent identifier in canonical
             // form, eg: xyz:1234/56
-            ExternalIdentifierDAO identifierDAO =
-                ExternalIdentifierDAOFactory.getInstance(context);
-            identifier = identifierDAO.retrieve(uri);
+            for (ExternalIdentifier.Type type : ExternalIdentifier.Type.values())
+            {
+                if (type.getNamespace().equals(namespace))
+                {
+                    internal = false;
+                    break;
+                }
+            }
 
-            oi = identifier.getObjectIdentifier();
+            if (internal)
+            {
+                for (ObjectIdentifier.Type type : ObjectIdentifier.Type.values())
+                {
+                    if (type.getNamespace().equals(namespace))
+                    {
+                        oi = new ObjectIdentifier(type, value);
+                    }
+                }
+            }
+            else
+            {
+                ExternalIdentifierDAO identifierDAO =
+                    ExternalIdentifierDAOFactory.getInstance(context);
+                identifier = identifierDAO.retrieve(uri);
+                oi = identifier.getObjectIdentifier();
+            }
 
             dso = oi.getObject(context);
         }

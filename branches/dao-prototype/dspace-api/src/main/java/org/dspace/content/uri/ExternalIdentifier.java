@@ -57,7 +57,7 @@ import org.dspace.core.ConfigurationManager;
 /**
  * @author James Rutherford
  */
-public class ExternalIdentifier extends ObjectIdentifier
+public class ExternalIdentifier
 {
     private static Logger log = Logger.getLogger(ExternalIdentifier.class);
 

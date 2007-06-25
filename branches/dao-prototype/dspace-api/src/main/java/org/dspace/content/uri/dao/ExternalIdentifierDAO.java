@@ -94,27 +94,19 @@ public abstract class ExternalIdentifierDAO
         {
             ExternalIdentifier identifier = null;
 
-//            if (type.equals(ExternalIdentifier.Type.NULL))
-//            {
-//                identifier =
-//                    new ExternalIdentifier(context, dso, type, value);
-//            }
-//            else
-//            {
-                for (ExternalIdentifier pid : pids)
+            for (ExternalIdentifier pid : pids)
+            {
+                if (type.equals(pid.getType()))
                 {
-                    if (type.equals(pid.getType()))
-                    {
-                        Class pidClass = pid.getClass();
-                        Constructor c = pidClass.getDeclaredConstructor(
-                                Context.class, DSpaceObject.class,
-                                ExternalIdentifier.Type.class, String.class);
-                        identifier = (ExternalIdentifier)
-                            c.newInstance(context, dso, type, value);
-                        break;
-                    }
+                    Class pidClass = pid.getClass();
+                    Constructor c = pidClass.getDeclaredConstructor(
+                            Context.class, DSpaceObject.class,
+                            ExternalIdentifier.Type.class, String.class);
+                    identifier = (ExternalIdentifier)
+                        c.newInstance(context, dso, type, value);
+                    break;
                 }
-//            }
+            }
 
             if (identifier == null)
             {
