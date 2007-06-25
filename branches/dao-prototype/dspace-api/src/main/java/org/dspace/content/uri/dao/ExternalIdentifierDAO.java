@@ -94,13 +94,13 @@ public abstract class ExternalIdentifierDAO
         {
             ExternalIdentifier identifier = null;
 
-            if (type.equals(ExternalIdentifier.Type.NULL))
-            {
-                identifier =
-                    new ExternalIdentifier(context, dso, type, value);
-            }
-            else
-            {
+//            if (type.equals(ExternalIdentifier.Type.NULL))
+//            {
+//                identifier =
+//                    new ExternalIdentifier(context, dso, type, value);
+//            }
+//            else
+//            {
                 for (ExternalIdentifier pid : pids)
                 {
                     if (type.equals(pid.getType()))
@@ -114,7 +114,7 @@ public abstract class ExternalIdentifierDAO
                         break;
                     }
                 }
-            }
+//            }
 
             if (identifier == null)
             {

@@ -87,11 +87,6 @@ public class InternalIdentifier extends ObjectIdentifier
         this.value = value;
     }
 
-    public ObjectIdentifier getObjectIdentifier()
-    {
-        return oid;
-    }
-
     public int getTypeID()
     {
         return TYPE.getID();
@@ -141,8 +136,8 @@ public class InternalIdentifier extends ObjectIdentifier
         // getID() method which is far better than ordinal(). Also, this
         // information will eventually live in the database (probably), and
         // when that happens, ordinal() will become useless.
-        NULL (0, "", "dsi", ""),
-        UUID (1, "", "uuid", "");
+        NULL (0, "dsi"),
+        UUID (1, "uuid");
 
         private final int id;
         private final String namespace;

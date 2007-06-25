@@ -159,7 +159,8 @@ public class ExternalIdentifier extends ObjectIdentifier
         // getID() method which is far better than ordinal(). Also, this
         // information will eventually live in the database (probably), and
         // when that happens, ordinal() will become useless.
-        HANDLE (0, "http", "hdl", "hdl.handle.net");
+        NULL (0, "", "", ""),
+        HANDLE (1, "http", "hdl", "hdl.handle.net");
 
         private final int id;
         private final String protocol;

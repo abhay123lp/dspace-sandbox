@@ -85,6 +85,10 @@ public class ObjectIdentifier
     private int resourceTypeID;
     private UUID uuid;
 
+    public ObjectIdentifier()
+    {
+    }
+
     public ObjectIdentifier(int resourceID, int resourceTypeID)
     {
         this.resourceID = resourceID;

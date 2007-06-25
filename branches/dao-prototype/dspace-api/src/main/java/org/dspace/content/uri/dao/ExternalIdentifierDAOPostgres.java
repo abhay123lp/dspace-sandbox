@@ -140,25 +140,25 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
         int resourceTypeID = -1;
 
         // If the type is NULL, then this is just an internal identifier
-        if (type.equals(ExternalIdentifier.Type.NULL))
-        {
-            resourceTypeID = Integer.parseInt(value.substring(0,
-                        value.indexOf("/")));
-            resourceID =
-                Integer.parseInt(value.substring(value.indexOf("/") + 1));
-
-            ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
-            dso = oi.getObject(context);
-
-            return getInstance(dso, type, value);
-        }
-        else if (type.equals(ExternalIdentifier.Type.UUID))
-        {
-            ObjectIdentifier oi = new ObjectIdentifier(UUID.fromString(value));
-            dso = oi.getObject(context);
-
-            return getInstance(dso, type, value);
-        }
+//        if (type.equals(ExternalIdentifier.Type.NULL))
+//        {
+//            resourceTypeID = Integer.parseInt(value.substring(0,
+//                        value.indexOf("/")));
+//            resourceID =
+//                Integer.parseInt(value.substring(value.indexOf("/") + 1));
+//
+//            ObjectIdentifier oi = new ObjectIdentifier(resourceID, resourceTypeID);
+//            dso = oi.getObject(context);
+//
+//            return getInstance(dso, type, value);
+//        }
+//        else if (type.equals(ExternalIdentifier.Type.UUID))
+//        {
+//            ObjectIdentifier oi = new ObjectIdentifier(UUID.fromString(value));
+//            dso = oi.getObject(context);
+//
+//            return getInstance(dso, type, value);
+//        }
 
         if (type == null)
         {

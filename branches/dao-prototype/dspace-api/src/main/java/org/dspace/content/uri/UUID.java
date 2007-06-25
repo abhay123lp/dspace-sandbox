@@ -48,28 +48,16 @@ import org.dspace.content.DSpaceObject;
 /**
  * @author James Rutherford
  */
-public class UUID extends ExternalIdentifier
+public class UUID extends InternalIdentifier
 {
     public UUID()
     {
-        super(ExternalIdentifier.Type.UUID);
+        super(InternalIdentifier.Type.UUID);
     }
 
     public UUID(Context context, DSpaceObject dso,
-            ExternalIdentifier.Type type, String value)
+            InternalIdentifier.Type type, String value)
     {
         super(context, dso, type, value);
-    }
-
-    @Override
-    public Map<String, List<String>> getMetadata()
-    {
-        return null;
-    }
-
-    @Override
-    public List<String> getMetadata(String field)
-    {
-        return null;
     }
 }
