@@ -6,30 +6,45 @@
  
    <files>
       <file>
-         <source>config/log4j-handle-plugin.properties</source>
+         <source>../dspace/config/log4j-handle-plugin.properties</source>
          <outputDirectory>config</outputDirectory>
          <filtered>true</filtered>
       </file>
       <file>
-         <source>config/log4j.properties</source>
+         <source>../dspace/config/log4j.properties</source>
          <outputDirectory>config</outputDirectory>
          <filtered>true</filtered>
       </file>
       <file>
-         <source>config/log4j.xml</source>
+         <source>../dspace/config/log4j.xml</source>
          <outputDirectory>config</outputDirectory>
          <filtered>true</filtered>
       </file>
       <file>
-         <source>config/oaicat.properties</source>
+         <source>../dspace/config/oaicat.properties</source>
          <outputDirectory>config</outputDirectory>
          <filtered>true</filtered>
       </file>
-      
    </files>
    
-   <fileSets>   
+   <fileSets> 
       <fileSet>
+         <directory>${dspace.dir}</directory>
+         <outputDirectory>.</outputDirectory>
+         <includes>
+            <include>config/dspace.cfg</include>
+         </includes>
+      </fileSet>
+      <fileSet>
+         <directory>../dspace/src/main/config</directory>
+         <outputDirectory>.</outputDirectory>
+         <includes>
+            <include>build.xml</include>
+         </includes>
+      </fileSet>
+      <fileSet>
+         <directory>../dspace</directory>
+         <outputDirectory>.</outputDirectory>
          <includes>
             <include>bin/**</include>
             <include>config/**</include>
@@ -59,9 +74,6 @@
          </outputFileNameMapping>
          <unpack>false</unpack>
          <scope>runtime</scope>
-         <excludes>
-            <exclude>junit:junit</exclude>
-         </excludes>
       </dependencySet>
    </dependencySets>
 
@@ -87,9 +99,9 @@
             <includeDependencies>false</includeDependencies>
             <outputDirectory>webapps</outputDirectory>
             <outputFileNameMapping>
-               ${artifactId}.${extension}
+               ${artifactId}
             </outputFileNameMapping>
-            <unpack>false</unpack>
+            <unpack>true</unpack>
          </binaries>
       </moduleSet>
    </moduleSets>

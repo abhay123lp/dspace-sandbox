@@ -53,9 +53,12 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
-import org.dspace.content.DSpaceObject;
+import org.dspace.content.dao.CommunityDAO;
+import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
@@ -241,7 +244,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
             context = new Context();
 
             // Get the relevant OAIItemInfo objects to make headers
-            Collection scope = resolveSet(context, set);
+            DSpaceObject scope = resolveSet(context, set);
             List itemInfos = Harvest.harvest(context, scope, from, until, 0, 0, // Everything
                                                                                 // for
                                                                                 // now
@@ -564,7 +567,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
             context = new Context();
 
             // Get the relevant HarvestedItemInfo objects to make headers
-            Collection scope = resolveSet(context, set);
+            DSpaceObject scope = resolveSet(context, set);
             List itemInfos = Harvest.harvest(context, scope, from, until,
                     offset, MAX_RECORDS, // Limit amount returned from one
                                          // request
@@ -672,10 +675,11 @@ public class DSpaceOAICatalog extends AbstractCatalog
         {
             context = new Context();
             CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
-            List<Collection> allCollections = collectionDAO.getCollections();
+            CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
 
             StringBuffer spec = null;
-            for (Collection collection : allCollections)
+
+            for (Collection collection : collectionDAO.getCollections())
             {
                 String uri =
                     collection.getExternalIdentifier().getCanonicalForm();
@@ -697,6 +701,33 @@ public class DSpaceOAICatalog extends AbstractCatalog
                 	log.info(LogManager.getHeader(null, "oai_error",
                        "null_set_name_for_set_id_" +
                        collection.getExternalIdentifier().getCanonicalForm()));
+                }
+                spec.append("</set>");
+                sets.add(spec.toString());
+            }
+
+            for (Community community : communityDAO.getCommunities())
+            {
+                String uri =
+                    community.getExternalIdentifier().getCanonicalForm();
+
+                spec = new StringBuffer("<set><setSpec>hdl_");
+                spec.append(uri.replace(':', '_').replace('/', '_'));
+                spec.append("</setSpec>");
+                String commName = community.getMetadata("name");
+                if(commName != null)
+                {
+                	spec.append("<setName>");
+                	spec.append(Utils.addEntities(commName));
+                	spec.append("</setName>");
+                }
+                else
+                {
+                	spec.append("<setName />");
+                    // Warn that there is an error of a null set name
+                	log.info(LogManager.getHeader(null, "oai_error",
+                       "null_set_name_for_set_id_" +
+                       community.getExternalIdentifier().getCanonicalForm()));
                 }
                 spec.append("</set>");
                 sets.add(spec.toString());
@@ -765,7 +796,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
      * @return the corresponding community or collection, or null if no set
      *         provided
      */
-    private Collection resolveSet(Context context, String set)
+    private DSpaceObject resolveSet(Context context, String set)
             throws SQLException, BadArgumentException
     {
         if (set == null)
@@ -796,10 +827,12 @@ public class DSpaceOAICatalog extends AbstractCatalog
             }
         }
 
-        // If it corresponds to a collection, that's the set we want
-        if ((o != null) && o instanceof Collection)
+        // If it corresponds to a collection or a community, that's the set we
+        // want
+        if ((o != null) &&
+                ((o instanceof Collection) || (o instanceof Community))) 
         {
-            return (Collection) o;
+            return o;
         }
 
         // URI is either non-existent, or corresponds to a non-collection

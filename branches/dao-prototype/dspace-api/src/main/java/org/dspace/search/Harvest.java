@@ -140,8 +140,7 @@ public class Harvest
             "SELECT p.value, p.type_id, p.resource_id, " +
             "i.withdrawn, i.last_modified " +
             "FROM persistentidentifier p, item i";
-        
-        
+
         // We are building a complex query that may contain a variable 
         // about of input data points. To accomidate this while still 
         // providing type safty we build a list of parameters to be 
