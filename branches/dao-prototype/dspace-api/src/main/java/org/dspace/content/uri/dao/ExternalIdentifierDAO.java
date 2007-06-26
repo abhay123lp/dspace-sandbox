@@ -66,16 +66,37 @@ public abstract class ExternalIdentifierDAO
     protected final ExternalIdentifier[] pids = (ExternalIdentifier[])
             PluginManager.getPluginSequence(ExternalIdentifier.class);
 
-    public abstract ExternalIdentifier create(DSpaceObject dso);
-    public abstract ExternalIdentifier create(DSpaceObject dso, String canonicalForm);
+    /**
+     * Creates a persistent identifier of the defualt type.
+     */
+    public ExternalIdentifier create(DSpaceObject dso)
+    {
+        // The default is the first entry in the list.
+        return create(dso, "", pids[0].getType());
+    }
+
+    public ExternalIdentifier create(DSpaceObject dso, String canonicalForm)
+    {
+        Object[] bits = parseCanonicalForm(canonicalForm);
+        ExternalIdentifier.Type type = (ExternalIdentifier.Type) bits[0];
+        String value = (String) bits[1];
+
+        return create(dso, value, type);
+    }
+
     public abstract ExternalIdentifier create(DSpaceObject dso, String value,
             ExternalIdentifier.Type type);
 
     public abstract ExternalIdentifier retrieve(String canonicalForm);
 
     public abstract List<ExternalIdentifier> getExternalIdentifiers(DSpaceObject dso);
-    public abstract List<ExternalIdentifier>
-        getExternalIdentifiers(ExternalIdentifier.Type type);
+
+    public List<ExternalIdentifier>
+        getExternalIdentifiers(ExternalIdentifier.Type type)
+    {
+        return getExternalIdentifiers(type, "");
+    }
+
     public abstract List<ExternalIdentifier>
         getExternalIdentifiers(ExternalIdentifier.Type type, String prefix);
 

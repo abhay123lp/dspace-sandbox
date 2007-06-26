@@ -75,7 +75,7 @@ public class ExternalIdentifier
         this(ExternalIdentifier.Type.NULL);
     }
 
-    public ExternalIdentifier(ExternalIdentifier.Type type)
+    protected ExternalIdentifier(ExternalIdentifier.Type type)
     {
         this.TYPE = type;
         this.PROTOCOL = type.getProtocol();
