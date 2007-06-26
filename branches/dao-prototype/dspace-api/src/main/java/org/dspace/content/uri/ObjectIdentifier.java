@@ -155,6 +155,10 @@ public class ObjectIdentifier
                         throw new RuntimeException("Not a valid DSpaceObject type");
                 }
             case UUID:
+                // If we have a UUID, there is no indication of what type of
+                // object it is attached to, so we just keep trying in sequence
+                // until we get something. This isn't an ideal approach, and we
+                // should probably re-order them to minimise lookups.
                 DSpaceObject dso = (Bitstream) bitstreamDAO.retrieve(uuid);
 
                 if (dso == null)
@@ -190,19 +194,7 @@ public class ObjectIdentifier
     public URL getURL()
     {
         String url = ConfigurationManager.getProperty("dspace.url") +
-            "/resource/" + TYPE.getNamespace() + ":";
-
-        switch (TYPE)
-        {
-            case INTS:
-                url += resourceTypeID + "/" + resourceID;
-                break;
-            case UUID:
-                url += uuid.toString();
-                break;
-            default:
-                throw new RuntimeException("Whoops!");
-        }
+            "/resource/" + getCanonicalForm();
 
         try
         {
@@ -221,6 +213,25 @@ public class ObjectIdentifier
         {
             throw new RuntimeException(murle);
         }
+    }
+
+    public String getCanonicalForm()
+    {
+        String s = TYPE.getNamespace() + ":";
+
+        switch (TYPE)
+        {
+            case INTS:
+                s += resourceTypeID + "/" + resourceID;
+                break;
+            case UUID:
+                s += uuid.toString();
+                break;
+            default:
+                throw new RuntimeException("Whoops!");
+        }
+
+        return s;
     }
 
     public enum Type

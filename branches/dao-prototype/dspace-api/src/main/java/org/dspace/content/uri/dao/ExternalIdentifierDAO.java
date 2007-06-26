@@ -88,6 +88,8 @@ public abstract class ExternalIdentifierDAO
             ExternalIdentifier.Type type);
 
     public abstract ExternalIdentifier retrieve(String canonicalForm);
+    public abstract ExternalIdentifier retrieve(ExternalIdentifier.Type type,
+            String value);
 
     public abstract List<ExternalIdentifier> getExternalIdentifiers(DSpaceObject dso);
 

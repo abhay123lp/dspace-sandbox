@@ -276,8 +276,7 @@ public class Harvest
                     throw new RuntimeException(value + " not supported.");
                 }
 
-                identifier =
-                    identifierDAO.retrieve(type.getNamespace() + ":" + value);
+                identifier = identifierDAO.retrieve(type, value);
 
                 itemInfo.context = context;
                 itemInfo.identifier = identifier;

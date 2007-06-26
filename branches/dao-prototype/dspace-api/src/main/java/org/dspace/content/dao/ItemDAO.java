@@ -275,7 +275,6 @@ public abstract class ItemDAO extends ContentDAO
     // between Items (or do we? I doubt it).
     protected final void removeBundleFromItem(Item item, Bundle bundle)
         throws AuthorizeException
-//        throws AuthorizeException, IOException, SQLException
     {
         unlink(item, bundle);
 

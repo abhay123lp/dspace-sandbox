@@ -115,6 +115,12 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
         ExternalIdentifier.Type type = (ExternalIdentifier.Type) bits[0];
         String value = (String) bits[1];
 
+        return retrieve(type, value);
+    }
+
+    public ExternalIdentifier retrieve(ExternalIdentifier.Type type,
+            String value)
+    {
         DSpaceObject dso = null;
 
         int resourceID = -1;
@@ -122,7 +128,7 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
 
         if (type == null)
         {
-            throw new RuntimeException(canonicalForm + " not a supported type");
+            throw new RuntimeException(type + " not a supported type");
         }
 
         try
@@ -143,7 +149,8 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
             }
             else
             {
-                throw new RuntimeException(canonicalForm + " not found");
+                throw new RuntimeException("identifier " + type.getNamespace()
+                        + ":" + value + " not found");
             }
         }
         catch (SQLException sqle)
