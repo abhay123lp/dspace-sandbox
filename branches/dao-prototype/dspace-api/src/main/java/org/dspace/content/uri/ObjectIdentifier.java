@@ -85,29 +85,28 @@ public class ObjectIdentifier
     private int resourceTypeID;
     private UUID uuid;
 
-    private final Type TYPE;
+    private Type type;
 
     public ObjectIdentifier()
     {
-        this.TYPE = null;
     }
 
     public ObjectIdentifier(int resourceID, int resourceTypeID)
     {
-        this.TYPE = Type.INTS;
+        this.type = Type.INTS;
         this.resourceID = resourceID;
         this.resourceTypeID = resourceTypeID;
     }
 
     public ObjectIdentifier(UUID uuid)
     {
-        this.TYPE = Type.UUID;
+        this.type = Type.UUID;
         this.uuid = uuid;
     }
 
     public ObjectIdentifier(Type type, String value)
     {
-        this.TYPE = type;
+        this.type = type;
         
         switch (type)
         {
@@ -136,7 +135,7 @@ public class ObjectIdentifier
         BundleDAO bundleDAO = BundleDAOFactory.getInstance(context);
         BitstreamDAO bitstreamDAO = BitstreamDAOFactory.getInstance(context);
 
-        switch (TYPE)
+        switch (type)
         {
             case INTS:
                 switch(resourceTypeID)
@@ -217,9 +216,9 @@ public class ObjectIdentifier
 
     public String getCanonicalForm()
     {
-        String s = TYPE.getNamespace() + ":";
+        String s = type.getNamespace() + ":";
 
-        switch (TYPE)
+        switch (type)
         {
             case INTS:
                 s += resourceTypeID + "/" + resourceID;

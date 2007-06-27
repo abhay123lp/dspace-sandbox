@@ -59,16 +59,13 @@ import org.dspace.core.ConfigurationManager;
  */
 public class ExternalIdentifier
 {
-    private static Logger log = Logger.getLogger(ExternalIdentifier.class);
+    private static final Logger log = Logger.getLogger(ExternalIdentifier.class);
 
     protected Context context;
     protected String value;
     protected ObjectIdentifier oid;
 
-    private final String PROTOCOL;
-    private final String NS;
-    private final String BASE_URI;
-    private final Type TYPE;
+    private Type type;
 
     public ExternalIdentifier()
     {
@@ -77,10 +74,7 @@ public class ExternalIdentifier
 
     protected ExternalIdentifier(ExternalIdentifier.Type type)
     {
-        this.TYPE = type;
-        this.PROTOCOL = type.getProtocol();
-        this.NS = type.getNamespace();
-        this.BASE_URI = type.getBaseURI();
+        this.type = type;
     }
 
     public ExternalIdentifier(Context context, DSpaceObject dso,
@@ -99,12 +93,12 @@ public class ExternalIdentifier
 
     public int getTypeID()
     {
-        return TYPE.getID();
+        return type.getID();
     }
 
     public Type getType()
     {
-        return TYPE;
+        return type;
     }
 
     public URI getURI()
@@ -112,7 +106,8 @@ public class ExternalIdentifier
         try
         {
             // eg: http + :// + hdl.handle.net + / + 1234/56
-            return new URI(PROTOCOL + "://" + BASE_URI + "/" + value);
+            return new URI(type.getProtocol() + "://" + type.getBaseURI() +
+                    "/" + value);
         }
         catch (URISyntaxException urise)
         {
@@ -123,7 +118,7 @@ public class ExternalIdentifier
     public String getCanonicalForm()
     {
         // eg: hdl:1234/56
-        return NS + ":" + value;
+        return type.getNamespace() + ":" + value;
     }
 
     @Deprecated
