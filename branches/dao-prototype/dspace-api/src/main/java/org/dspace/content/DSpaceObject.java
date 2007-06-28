@@ -101,7 +101,7 @@ public abstract class DSpaceObject
         }
         else
         {
-            log.warn("no persistent identifiers found. type=" + getType() +
+            log.warn("no external identifiers found. type=" + getType() +
                     ", id=" + getID());
             return null;
         }

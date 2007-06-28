@@ -1,6 +1,6 @@
 alter table handle add column type_id integer;
 
-create view persistentidentifier as
+create view externalidentifier as
 (
 	select
 		handle_id as id,

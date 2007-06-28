@@ -134,9 +134,9 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
         try
         {
             TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "persistentidentifier",
+                    "externalidentifier",
                     "SELECT resource_id, resource_type_id " +
-                    "FROM persistentidentifier " +
+                    "FROM externalidentifier " +
                     "WHERE value = ? AND type_id = ?",
                     value, type.getID());
 
@@ -172,8 +172,8 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
                 new ArrayList<ExternalIdentifier>();
 
             TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "persistentidentifier",
-                    "SELECT type_id, value FROM persistentidentifier " +
+                    "externalidentifier",
+                    "SELECT type_id, value FROM externalidentifier " +
                     "WHERE resource_id = ? " +
                     "AND resource_type_id = ?",
                     dso.getID(), dso.getType());
@@ -214,9 +214,9 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
                 new ArrayList<ExternalIdentifier>();
 
             TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "persistentidentifier",
+                    "externalidentifier",
                     "SELECT resource_id, resource_type_id, value " +
-                    "FROM persistentidentifier " +
+                    "FROM externalidentifier " +
                     "WHERE type_id = ? " +
                     "AND value LIKE ?",
                     type.getID(), prefix + "%");

@@ -245,7 +245,10 @@ public class ObjectIdentifier
             this.namespace = namespace;
         }
 
-        public String getNamespace() { return namespace; }
+        public String getNamespace()
+        {
+            return namespace;
+        }
     }
 
     ////////////////////////////////////////////////////////////////////
