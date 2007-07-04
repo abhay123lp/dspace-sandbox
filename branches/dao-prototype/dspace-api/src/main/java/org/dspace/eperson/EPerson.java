@@ -53,6 +53,8 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
+import org.dspace.eperson.dao.EPersonDAO;           // Naughty!
+import org.dspace.eperson.dao.EPersonDAOFactory;    // Naughty!
 import org.dspace.history.HistoryManager;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
@@ -98,7 +100,8 @@ public class EPerson extends DSpaceObject
      * @param row
      *            the corresponding row in the table
      */
-    EPerson(Context context, TableRow row)
+//    EPerson(Context context, TableRow row)
+    public EPerson(Context context, TableRow row)
     {
         myContext = context;
         myRow = row;
@@ -334,74 +337,6 @@ public class EPerson extends DSpaceObject
 		return count.intValue();
 	}
     
-    
-    
-    /**
-     * Find all the epeople that match a particular query
-     * <ul>
-     * <li><code>ID</code></li>
-     * <li><code>LASTNAME</code></li>
-     * <li><code>EMAIL</code></li>
-     * <li><code>NETID</code></li>
-     * </ul>
-     * 
-     * @return array of EPerson objects
-     */
-    public static EPerson[] findAll(Context context, int sortField)
-            throws SQLException
-    {
-        String s;
-
-        switch (sortField)
-        {
-        case ID:
-            s = "eperson_id";
-            break;
-
-        case EMAIL:
-            s = "email";
-            break;
-
-        case LANGUAGE:
-            s = "language";
-            break;
-        case NETID:
-            s = "netid";
-            break;
-
-        default:
-            s = "lastname";
-        }
-
-        // NOTE: The use of 's' in the order by clause can not cause an sql 
-        // injection because the string is derived from constant values above.
-        TableRowIterator rows = DatabaseManager.query(context,
-                "SELECT * FROM eperson ORDER BY "+s);
-
-        List epeopleRows = rows.toList();
-
-        EPerson[] epeople = new EPerson[epeopleRows.size()];
-
-        for (int i = 0; i < epeopleRows.size(); i++)
-        {
-            TableRow row = (TableRow) epeopleRows.get(i);
-
-            // First check the cache
-            EPerson fromCache = (EPerson) context.fromCache(EPerson.class, row
-                    .getIntColumn("eperson_id"));
-
-            if (fromCache != null)
-            {
-                epeople[i] = fromCache;
-            }
-            else
-            {
-                epeople[i] = new EPerson(context, row);
-            }
-        }
-
-        return epeople;
-    }
 
     /**
      * Create a new eperson
@@ -867,5 +802,18 @@ public class EPerson extends DSpaceObject
         // the list of tables can be used to construct an error message
         // explaining to the user why the eperson cannot be deleted.
         return tableList;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Deprecated methods
+    ////////////////////////////////////////////////////////////////////
+
+    @Deprecated
+    public static EPerson[] findAll(Context context, int sortField)
+    {
+        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+        List<EPerson> epeople = dao.getEPeople(sortField);
+        
+        return (EPerson[]) epeople.toArray(new EPerson[0]);
     }
 }

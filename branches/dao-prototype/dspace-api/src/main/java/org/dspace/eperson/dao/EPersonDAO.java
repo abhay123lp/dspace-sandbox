@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.eperson.dao;
 
 import java.util.List;
 import java.util.UUID;
@@ -96,4 +96,22 @@ public abstract class EPersonDAO
     public void delete(int id) throws AuthorizeException
     {
     }
+
+    public List<EPerson> getEPeople()
+    {
+        return getEPeople(EPerson.LASTNAME);
+    }
+
+    /**
+     * Find all the epeople that match a particular query
+     * <ul>
+     * <li><code>ID</code></li>
+     * <li><code>LASTNAME</code></li>
+     * <li><code>EMAIL</code></li>
+     * <li><code>NETID</code></li>
+     * </ul>
+     * 
+     * @return array of EPerson objects
+     */
+    public abstract List<EPerson> getEPeople(int sortField);
 }

@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.eperson.dao;
 
 import java.util.UUID;
 
@@ -53,7 +53,7 @@ import org.dspace.content.uri.ObjectIdentifier;
  */
 public class EPersonDAOFactory
 {
-    public EPersonDAO getInstance(Context context)
+    public static EPersonDAO getInstance(Context context)
     {
         return new EPersonDAOPostgres(context);
     }
