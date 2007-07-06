@@ -107,15 +107,14 @@ public abstract class EPersonDAO
     {
         EPerson eperson = new EPerson(context, id);
 
-        eperson.setIdentifier(new ObjectIdentifier(uuid));
-
-        update(eperson);
-
         log.info(LogManager.getHeader(context, "create_eperson", "eperson_id="
                     + id));
 
         HistoryManager.saveHistory(context, eperson, HistoryManager.REMOVE,
                 context.getCurrentUser(), context.getExtraLogInfo());
+
+        eperson.setIdentifier(new ObjectIdentifier(uuid));
+        update(eperson);
 
         return eperson;
     }
@@ -161,11 +160,11 @@ public abstract class EPersonDAO
                     "You must be an admin to delete an EPerson");
         }
 
-        HistoryManager.saveHistory(context, this, HistoryManager.REMOVE,
+        HistoryManager.saveHistory(context, eperson, HistoryManager.REMOVE,
                 context.getCurrentUser(), context.getExtraLogInfo());
 
         // Remove from cache
-        context.removeCached(this, id);
+        context.removeCached(eperson, id);
 
         log.info(LogManager.getHeader(context, "delete_eperson",
                 "eperson_id=" + id));

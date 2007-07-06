@@ -75,9 +75,6 @@ public class EPerson extends DSpaceObject
     private Context context;
     private EPersonDAO dao;
 
-    private int id;
-    private UUID uuid;
-    
     /** See EPersonMetadataField. */
     private Map<EPersonMetadataField, String> metadata;
 
@@ -99,13 +96,6 @@ public class EPerson extends DSpaceObject
 
     /** The e-mail field (for sorting) */
     public static final int LANGUAGE = 5;
-
-    public EPerson(Context context, int id)
-    {
-        this.id = id;
-        this.dao = EPersonDAOFactory.getInstance(context);
-        this.metadata = new HashMap<EPersonMetadataField, String>(8, 1);
-    }
 
     public enum EPersonMetadataField
     {
@@ -143,13 +133,11 @@ public class EPerson extends DSpaceObject
         }
     }
 
-//    EPerson(Context context, TableRow row)
-    public EPerson(Context context, TableRow row)
+    public EPerson(Context context, int id)
     {
-        this.context = context;
-
-        // Cache ourselves
-        context.cache(this, row.getIntColumn("eperson_id"));
+        this.id = id;
+        this.dao = EPersonDAOFactory.getInstance(context);
+        this.metadata = new HashMap<EPersonMetadataField, String>(8, 1);
     }
 
     /**
@@ -170,8 +158,8 @@ public class EPerson extends DSpaceObject
         else
         {
             // First check the cache
-            EPerson fromCache = (EPerson) context.fromCache(EPerson.class, row
-                    .getIntColumn("eperson_id"));
+            EPerson fromCache = (EPerson) context.fromCache(EPerson.class,
+                    row.getIntColumn("eperson_id"));
 
             if (fromCache != null)
             {
@@ -459,13 +447,6 @@ public class EPerson extends DSpaceObject
         return (encoded.equals(metadata.get(EPersonMetadataField.PASSWORD)));
     }
 
-    /**
-     * Update the EPerson
-     */
-    public void update() throws SQLException, AuthorizeException
-    {
-    }
-
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
@@ -481,6 +462,12 @@ public class EPerson extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
     // Deprecated methods
     ////////////////////////////////////////////////////////////////////
+
+    @Deprecated
+    public EPerson(Context context, TableRow row)
+    {
+        this(context, row.getIntColumn("eperson_id"));
+    }
 
     @Deprecated
     public static EPerson[] findAll(Context context, int sortField)
@@ -505,6 +492,12 @@ public class EPerson extends DSpaceObject
         EPersonDAO dao = EPersonDAOFactory.getInstance(context);
 
         return dao.create();
+    }
+
+    @Deprecated
+    public void update() throws AuthorizeException
+    {
+        dao.update(this);
     }
 
     @Deprecated

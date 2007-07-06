@@ -17,3 +17,5 @@ alter table bundle add column uuid varchar(36);
 alter table item add column uuid varchar(36);
 alter table collection add column uuid varchar(36);
 alter table community add column uuid varchar(36);
+alter table eperson add column uuid varchar(36);
+alter table epersongroup add column uuid varchar(36);

@@ -87,16 +87,14 @@ public abstract class ItemDAO extends ContentDAO
     {
         Item item = new ItemProxy(context, id);
 
-        item.setIdentifier(new ObjectIdentifier(uuid));
-
         HistoryManager.saveHistory(context, item, HistoryManager.CREATE,
                 context.getCurrentUser(), context.getExtraLogInfo());
 
         log.info(LogManager.getHeader(context, "create_item", "item_id=" +
-                    item.getID()));
+                    id));
 
+        item.setIdentifier(new ObjectIdentifier(uuid));
         item.setLastModified(new Date());
-
         update(item);
 
         return item;

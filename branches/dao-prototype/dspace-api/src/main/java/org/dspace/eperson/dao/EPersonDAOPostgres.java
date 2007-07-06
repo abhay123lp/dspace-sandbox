@@ -156,9 +156,8 @@ public class EPersonDAOPostgres extends EPersonDAO
     private EPerson retrieve(TableRow row)
     {
         int id = row.getIntColumn("eperson_id");
-//        EPerson eperson = new EPerson(context, id);
-        EPerson eperson = new EPerson(context, row);
-//        populateEPersonFromTableRow(eperson, row);
+        EPerson eperson = new EPerson(context, id);
+        populateEPersonFromTableRow(eperson, row);
 
         context.cache(eperson, id);
 
@@ -229,7 +228,7 @@ public class EPersonDAOPostgres extends EPersonDAO
         {
             // Remove any group memberships first
             DatabaseManager.updateQuery(context,
-                    "DELETE FROM EPersonGroup2EPerson WHERE eperson_id = ? ", id);
+                    "DELETE FROM epersongroup2eperson WHERE eperson_id = ? ", id);
 
             // Remove any subscriptions
             DatabaseManager.updateQuery(context,

@@ -41,6 +41,7 @@ package org.dspace.content;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.dspace.core.Context;
 import org.dspace.content.uri.ObjectIdentifier;
@@ -60,6 +61,7 @@ public abstract class DSpaceObject
     private static Logger log = Logger.getLogger(DSpaceObject.class);
 
     protected int id;
+    protected UUID uuid;
     protected ObjectIdentifier oid;
     protected List<ExternalIdentifier> identifiers;
 

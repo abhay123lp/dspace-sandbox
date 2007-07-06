@@ -44,7 +44,6 @@ import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
@@ -373,12 +372,6 @@ public class Bitstream extends DSpaceObject
     public static Bitstream find(Context context, int id)
     {
         return BitstreamDAOFactory.getInstance(context).retrieve(id);
-    }
-
-    @Deprecated
-    public static Bitstream find(Context context, UUID uuid)
-    {
-        return BitstreamDAOFactory.getInstance(context).retrieve(uuid);
     }
 
     @Deprecated
