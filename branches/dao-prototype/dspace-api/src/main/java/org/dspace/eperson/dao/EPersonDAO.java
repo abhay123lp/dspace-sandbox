@@ -129,6 +129,17 @@ public abstract class EPersonDAO
         return null;
     }
 
+    public EPerson retrieve(EPerson.EPersonMetadataField field, String value)
+    {
+        if ((field != EPerson.EPersonMetadataField.EMAIL) &&
+            (field != EPerson.EPersonMetadataField.NETID))
+        {
+            throw new IllegalArgumentException(field + " isn't allowed here");
+        }
+
+        return null;
+    }
+
     public void update(EPerson eperson) throws AuthorizeException
     {
         // Check authorisation - if you're not the eperson

@@ -141,79 +141,8 @@ public class EPerson extends DSpaceObject
     }
 
     /**
-     * Find the eperson by their email address
-     *
-     * @return EPerson
-     */
-    public static EPerson findByEmail(Context context, String email)
-            throws SQLException, AuthorizeException
-    {
-        TableRow row = DatabaseManager.findByUnique(context, "eperson",
-                "email", email);
-
-        if (row == null)
-        {
-            return null;
-        }
-        else
-        {
-            // First check the cache
-            EPerson fromCache = (EPerson) context.fromCache(EPerson.class,
-                    row.getIntColumn("eperson_id"));
-
-            if (fromCache != null)
-            {
-                return fromCache;
-            }
-            else
-            {
-                return new EPerson(context, row);
-            }
-        }
-    }
-
-    /**
-     * Find the eperson by their netid
-     *
-     * @param context
-     *            DSpace context
-     * @param netid
-     *            Network ID
-     *
-     * @return corresponding EPerson, or <code>null</code>
-     */
-    public static EPerson findByNetid(Context context, String netid)
-            throws SQLException
-    {
-        if (netid == null)
-            return null;
-
-        TableRow row = DatabaseManager.findByUnique(context, "eperson",
-                "netid", netid);
-
-        if (row == null)
-        {
-            return null;
-        }
-        else
-        {
-            // First check the cache
-            EPerson fromCache = (EPerson) context.fromCache(EPerson.class, row
-                    .getIntColumn("eperson_id"));
-
-            if (fromCache != null)
-            {
-                return fromCache;
-            }
-            else
-            {
-                return new EPerson(context, row);
-            }
-        }
-    }
-
-    /**
-     * Find the epeople that match the search query across firstname, lastname or email
+     * Find the epeople that match the search query across firstname, lastname
+     * or email
      *
      * @param context
      *            DSpace context
@@ -484,6 +413,22 @@ public class EPerson extends DSpaceObject
         EPersonDAO dao = EPersonDAOFactory.getInstance(context);
 
         return dao.retrieve(id);
+    }
+
+    @Deprecated
+    public static EPerson findByEmail(Context context, String email)
+    {
+        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+
+        return dao.retrieve(EPersonMetadataField.EMAIL, email);
+    }
+
+    @Deprecated
+    public static EPerson findByNetid(Context context, String netid)
+    {
+        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+
+        return dao.retrieve(EPersonMetadataField.NETID, netid);
     }
 
     @Deprecated

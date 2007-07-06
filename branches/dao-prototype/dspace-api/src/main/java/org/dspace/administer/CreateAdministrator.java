@@ -220,7 +220,7 @@ public class CreateAdministrator
      * @param email	the email for the user
      * @param first	user's first name
      * @param last	user's last name
-     * @param ps	desired password
+     * @param pw	desired password
      * 
      * @throws Exception
      */

@@ -153,10 +153,49 @@ public class EPersonDAOPostgres extends EPersonDAO
         }
     }
 
+    @Override
+    public EPerson retrieve(EPerson.EPersonMetadataField field, String value)
+    {
+        EPerson eperson = super.retrieve(field, value);
+
+        if (eperson != null)
+        {
+            return eperson;
+        }
+
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context, "eperson",
+                    field.toString(), value);
+
+            if (row == null)
+            {
+                log.warn("eperson with " + field + " " + value + " not found");
+                return null;
+            }
+            else
+            {
+                return retrieve(row);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
     private EPerson retrieve(TableRow row)
     {
         int id = row.getIntColumn("eperson_id");
-        EPerson eperson = new EPerson(context, id);
+
+        EPerson eperson = super.retrieve(id);
+
+        if (eperson != null)
+        {
+            return eperson;
+        }
+
+        eperson = new EPerson(context, id);
         populateEPersonFromTableRow(eperson, row);
 
         context.cache(eperson, id);
