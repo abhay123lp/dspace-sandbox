@@ -41,7 +41,7 @@ package org.dspace.eperson;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -129,7 +129,8 @@ public class EPerson extends DSpaceObject
                 }
             }
 
-            throw new RuntimeException(":(");
+            throw new IllegalArgumentException(name +
+                    "isn't a valid metadata field for EPeople.");
         }
     }
 
@@ -137,7 +138,9 @@ public class EPerson extends DSpaceObject
     {
         this.id = id;
         this.dao = EPersonDAOFactory.getInstance(context);
-        this.metadata = new HashMap<EPersonMetadataField, String>(8, 1);
+
+        this.metadata = new EnumMap<EPersonMetadataField,
+            String>(EPersonMetadataField.class);
     }
 
     /**

@@ -200,14 +200,7 @@ public class PasswordAuthentication
         {
             EPerson eperson = null;
             log.info(LogManager.getHeader(context, "authenticate", "attempting password auth of user="+username));
-            try
-            {
-                eperson = EPerson.findByEmail(context, username.toLowerCase());
-            }
-            catch (AuthorizeException e)
-            {
-                // ignore exception, treat it as lookup failure.
-            }
+            eperson = EPerson.findByEmail(context, username.toLowerCase());
 
             // lookup failed.
             if (eperson == null)

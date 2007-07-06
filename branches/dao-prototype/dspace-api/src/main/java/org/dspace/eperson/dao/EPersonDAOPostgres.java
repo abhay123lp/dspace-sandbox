@@ -154,7 +154,7 @@ public class EPersonDAOPostgres extends EPersonDAO
     }
 
     @Override
-    public EPerson retrieve(EPerson.EPersonMetadataField field, String value)
+    public EPerson retrieve(EPersonMetadataField field, String value)
     {
         EPerson eperson = super.retrieve(field, value);
 
@@ -336,8 +336,7 @@ public class EPersonDAOPostgres extends EPersonDAO
         UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
 
         eperson.setIdentifier(new ObjectIdentifier(uuid));
-        for (EPerson.EPersonMetadataField f :
-                EPerson.EPersonMetadataField.values())
+        for (EPersonMetadataField f : EPersonMetadataField.values())
         {
             eperson.setMetadata(f, row.getStringColumn(f.toString()));
         }
@@ -349,8 +348,7 @@ public class EPersonDAOPostgres extends EPersonDAO
 
     private void populateTableRowFromEPerson(EPerson eperson, TableRow row)
     {
-        for (EPerson.EPersonMetadataField f :
-                EPerson.EPersonMetadataField.values())
+        for (EPersonMetadataField f : EPersonMetadataField.values())
         {
             row.setColumn(f.toString(), eperson.getMetadata(f));
         }

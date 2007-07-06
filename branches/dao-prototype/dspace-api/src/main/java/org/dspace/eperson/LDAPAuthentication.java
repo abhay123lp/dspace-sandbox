@@ -83,7 +83,6 @@ public class LDAPAuthentication
     public boolean canSelfRegister(Context context,
                                    HttpServletRequest request,
                                    String username)
-        throws SQLException
     {
         // XXX might also want to check that username exists in LDAP.
 
@@ -95,7 +94,6 @@ public class LDAPAuthentication
      */
     public void initEPerson(Context context, HttpServletRequest request,
             EPerson eperson)
-        throws SQLException
     {
         // XXX should we try to initialize netid based on email addr,
         // XXX  for eperson created by some other method??
@@ -107,7 +105,6 @@ public class LDAPAuthentication
     public boolean allowSetPassword(Context context,
                                     HttpServletRequest request,
                                     String username)
-        throws SQLException
     {
         // XXX is this right?
         return false;
@@ -145,14 +142,8 @@ public class LDAPAuthentication
         log.info(LogManager.getHeader(context, "auth", "attempting trivial auth of user="+netid));
 
         // Locate the eperson
-        EPerson eperson = null;
-        try
-        {
-            eperson = EPerson.findByNetid(context, netid.toLowerCase());
-        }
-        catch (SQLException e)
-        {
-        }
+        EPerson eperson = EPerson.findByNetid(context, netid.toLowerCase());
+
         boolean loggedIn = false;
         SpeakerToLDAP ldap = new SpeakerToLDAP(log);
 

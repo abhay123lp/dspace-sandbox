@@ -50,6 +50,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.EPerson.EPersonMetadataField;
 import org.dspace.eperson.EPersonDeletionException;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.history.HistoryManager;
@@ -62,29 +63,6 @@ public abstract class EPersonDAO
     protected Logger log = Logger.getLogger(EPersonDAO.class);
 
     protected Context context;
-
-    protected enum EPersonMetadataField
-    {
-        FIRSTNAME ("firstname"),
-        LASTNAME ("lastname"),
-        PASSWORD ("password"),
-        EMAIL ("email"),
-        PHONE ("phone"),
-        NETID ("netid"),
-        LANGUAGE ("language");
-
-        private String name;
-
-        private EPersonMetadataField(String name)
-        {
-            this.name = name;
-        }
-
-        public String toString()
-        {
-            return name;
-        }
-    }
 
     public EPerson create() throws AuthorizeException
     {
@@ -129,10 +107,10 @@ public abstract class EPersonDAO
         return null;
     }
 
-    public EPerson retrieve(EPerson.EPersonMetadataField field, String value)
+    public EPerson retrieve(EPersonMetadataField field, String value)
     {
-        if ((field != EPerson.EPersonMetadataField.EMAIL) &&
-            (field != EPerson.EPersonMetadataField.NETID))
+        if ((field != EPersonMetadataField.EMAIL) &&
+            (field != EPersonMetadataField.NETID))
         {
             throw new IllegalArgumentException(field + " isn't allowed here");
         }
