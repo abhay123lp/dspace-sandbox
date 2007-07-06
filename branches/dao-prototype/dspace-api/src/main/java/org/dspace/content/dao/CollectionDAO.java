@@ -80,6 +80,33 @@ public abstract class CollectionDAO extends ContentDAO
     protected ItemDAO itemDAO;
     protected ExternalIdentifierDAO identifierDAO;
 
+    /**
+     * The allowed metadata fields for Collections are defined in the following
+     * enum. This should make reading / writing all metadatafields a lot less
+     * error-prone, not to mention concise and tidy!
+     */
+    protected enum CollectionMetadataField
+    {
+        NAME ("name"),
+        SHORT_DESCRIPTION ("short_description"),
+        PROVENANCE_DESCRIPTION ("provenance_description"),
+        LICENSE ("license"),
+        COPYRIGHT_TEXT ("copyright_text"),
+        SIDE_BAR_TEXT ("side_bar_text");
+
+        private String name;
+
+        private CollectionMetadataField(String name)
+        {
+            this.name = name;
+        }
+
+        public String toString()
+        {
+            return name;
+        }
+    }
+
     public abstract Collection create() throws AuthorizeException;
 
     // FIXME: This should be called something else, but I can't think of

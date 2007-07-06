@@ -309,6 +309,12 @@ public class ItemProxy extends Item
     }
 
     @Override
+    public void setSubmitter(EPerson submitter)
+    {
+        this.submitterId = submitter.getID();
+    }
+
+    @Override
     public void setSubmitter(int submitterId)
     {
         this.submitterId = submitterId;
@@ -317,17 +323,10 @@ public class ItemProxy extends Item
     @Override
     public EPerson getSubmitter()
     {
-        try
+        if (submitter == null && submitterId > -1)
         {
-            if (submitter == null && submitterId > -1)
-            {
-                submitter = EPerson.find(context, submitterId);
-            }
-            return submitter;
+            submitter = epersonDAO.retrieve(submitterId);
         }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+        return submitter;
     }
 }

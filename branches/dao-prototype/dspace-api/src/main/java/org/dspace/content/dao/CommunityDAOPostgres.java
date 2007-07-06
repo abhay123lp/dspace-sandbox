@@ -62,34 +62,6 @@ import org.dspace.storage.rdbms.TableRowIterator;
 
 public class CommunityDAOPostgres extends CommunityDAO
 {
-    /**
-     * The allowed metadata fields for Communities are defined in the following
-     * enum. This should make reading / writing all metadatafields a lot less
-     * error-prone, not to mention concise and tidy!
-     *
-     * FIXME: Do we want this exposed anywhere else? Probably not...
-     */
-    private enum CommunityMetadataField
-    {
-        NAME	            ("name"),
-        SHORT_DESCRIPTION	("short_description"),
-        INTRODUCTORY_TEXT	("introductory_text"),
-        COPYRIGHT_TEXT	    ("copyright_text"),
-        SIDE_BAR_TEXT	    ("side_bar_text");
-
-        private String name;
-
-        CommunityMetadataField(String name)
-        {
-            this.name = name;
-        }
-
-        public String toString()
-        {
-            return this.name;
-        }
-    }
-
     public CommunityDAOPostgres(Context context)
     {
         if (context != null)

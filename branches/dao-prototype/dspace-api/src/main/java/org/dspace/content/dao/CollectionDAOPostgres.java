@@ -65,35 +65,6 @@ import org.dspace.storage.rdbms.TableRowIterator;
 
 public class CollectionDAOPostgres extends CollectionDAO
 {
-    /**
-     * The allowed metadata fields for Collections are defined in the following
-     * enum. This should make reading / writing all metadatafields a lot less
-     * error-prone, not to mention concise and tidy!
-     *
-     * FIXME: Do we want this exposed anywhere else? Probably not...
-     */
-    private enum CollectionMetadataField
-    {
-        NAME	                ("name"),
-        SHORT_DESCRIPTION	    ("short_description"),
-        PROVENANCE_DESCRIPTION	("provenance_description"),
-        LICENSE	                ("license"),
-        COPYRIGHT_TEXT	        ("copyright_text"),
-        SIDE_BAR_TEXT	        ("side_bar_text");
-
-        private String name;
-
-        CollectionMetadataField(String name)
-        {
-            this.name = name;
-        }
-
-        public String toString()
-        {
-            return this.name;
-        }
-    }
-
     public CollectionDAOPostgres(Context context)
     {
         if (context != null)
