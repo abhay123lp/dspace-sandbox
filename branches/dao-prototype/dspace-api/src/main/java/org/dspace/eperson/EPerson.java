@@ -130,7 +130,7 @@ public class EPerson extends DSpaceObject
             }
 
             throw new IllegalArgumentException(name +
-                    "isn't a valid metadata field for EPeople.");
+                    " isn't a valid metadata field for EPeople.");
         }
     }
 
@@ -142,88 +142,6 @@ public class EPerson extends DSpaceObject
         this.metadata = new EnumMap<EPersonMetadataField,
             String>(EPersonMetadataField.class);
     }
-
-    /**
-     * Find the epeople that match the search query across firstname, lastname
-     * or email
-     *
-     * @param context
-     *            DSpace context
-     * @param query
-     *            The search string
-     *
-     * @return array of EPerson objects
-     */
-    public static EPerson[] search(Context context, String query)
-            throws SQLException
-    {
-        return search(context, query, -1, -1);
-    }
-
-    /**
-     * Find the epeople that match the search query across firstname, lastname or email.
-     * This method also allows offsets and limits for pagination purposes.
-     *
-     * @param context
-     *            DSpace context
-     * @param query
-     *            The search string
-     * @param offset
-     *            Inclusive offset
-     * @param limit
-     *            Maximum number of matches returned
-     *
-     * @return array of EPerson objects
-     */
-    public static EPerson[] search(Context context, String query, int offset, int limit)
-    		throws SQLException
-	{
-		String params = "%"+query.toLowerCase()+"%";
-		String dbquery = "SELECT * FROM eperson WHERE eperson_id = ? OR " +
-			"firstname ILIKE ? OR lastname ILIKE ? OR email ILIKE ? ORDER BY lastname, firstname ASC ";
-
-		if (offset >= 0 && limit >0) {
-			dbquery += "LIMIT " + limit + " OFFSET " + offset;
-		}
-
-        // When checking against the eperson-id, make sure the query can be
-        // made into a number
-		Integer int_param;
-		try {
-			int_param = Integer.valueOf(query);
-		}
-		catch (NumberFormatException e) {
-			int_param = new Integer(-1);
-		}
-
-		// Get all the epeople that match the query
-		TableRowIterator rows =
-            DatabaseManager.query(context, dbquery,
-                    new Object[] {int_param, params, params, params});
-
-		List epeopleRows = rows.toList();
-		EPerson[] epeople = new EPerson[epeopleRows.size()];
-
-		for (int i = 0; i < epeopleRows.size(); i++)
-		{
-		    TableRow row = (TableRow) epeopleRows.get(i);
-
-		    // First check the cache
-		    EPerson fromCache = (EPerson) context.fromCache(EPerson.class, row
-		            .getIntColumn("eperson_id"));
-
-		    if (fromCache != null)
-		    {
-		        epeople[i] = fromCache;
-		    }
-		    else
-		    {
-		        epeople[i] = new EPerson(context, row);
-		    }
-		}
-
-		return epeople;
-	}
 
      public String getLanguage()
      {
@@ -417,6 +335,23 @@ public class EPerson extends DSpaceObject
 
         return dao.retrieve(id);
     }
+
+    @Deprecated
+    public static EPerson[] search(Context context, String query)
+            throws SQLException
+    {
+        return search(context, query, -1, -1);
+    }
+
+    @Deprecated
+    public static EPerson[] search(Context context, String query,
+            int offset, int limit) throws SQLException
+	{
+        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+        List<EPerson> epeople = dao.search(query, offset, limit);
+
+        return (EPerson[]) epeople.toArray(new EPerson[0]);
+	}
 
     @Deprecated
     public static EPerson findByEmail(Context context, String email)

@@ -327,6 +327,64 @@ public class EPersonDAOPostgres extends EPersonDAO
         }
     }
 
+    @Override
+    public List<EPerson> search(String query)
+    {
+        return search(query, -1, -1);
+    }
+
+    @Override
+    public List<EPerson> search(String query, int offset, int limit)
+    {
+        String params = "%" + query.toLowerCase() + "%";
+        String dbquery =
+            "SELECT * FROM eperson " +
+            "WHERE eperson_id = ? " +
+            "OR firstname ILIKE ? " +
+            "OR lastname ILIKE ? " +
+            "OR email ILIKE ? " +
+            "ORDER BY lastname, firstname ASC ";
+
+        if (offset >= 0 && limit > 0)
+        {
+            dbquery += "LIMIT " + limit + " OFFSET " + offset;
+        }
+
+        // When checking against the eperson-id, make sure the query can be
+        // made into a number
+        Integer int_param;
+        try
+        {
+            int_param = Integer.valueOf(query);
+        }
+        catch (NumberFormatException e)
+        {
+            int_param = new Integer(-1);
+        }
+
+        try
+        {
+            // Get all the epeople that match the query
+            TableRowIterator tri =
+                DatabaseManager.query(context, dbquery,
+                        new Object[] {int_param, params, params, params});
+
+            List<EPerson> epeople = new ArrayList<EPerson>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("eperson_id");
+                epeople.add(retrieve(id));
+            }
+
+            return epeople;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////

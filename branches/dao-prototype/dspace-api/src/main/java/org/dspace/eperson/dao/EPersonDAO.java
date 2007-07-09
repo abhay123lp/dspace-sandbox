@@ -176,4 +176,35 @@ public abstract class EPersonDAO
      * @return array of EPerson objects
      */
     public abstract List<EPerson> getEPeople(int sortField);
+
+    /**
+     * Find the epeople that match the search query across firstname, lastname
+     * or email
+     *
+     * @param context
+     *            DSpace context
+     * @param query
+     *            The search string
+     *
+     * @return array of EPerson objects
+     */
+    public abstract List<EPerson> search(String query);
+
+    /**
+     * Find the epeople that match the search query across firstname, lastname
+     * or email. This method also allows offsets and limits for pagination
+     * purposes.
+     *
+     * @param context
+     *            DSpace context
+     * @param query
+     *            The search string
+     * @param offset
+     *            Inclusive offset
+     * @param limit
+     *            Maximum number of matches returned
+     *
+     * @return array of EPerson objects
+     */
+    public abstract List<EPerson> search(String query, int offset, int limit);
 }
