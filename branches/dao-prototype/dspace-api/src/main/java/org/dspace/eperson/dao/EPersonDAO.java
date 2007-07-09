@@ -124,7 +124,7 @@ public abstract class EPersonDAO
         // see if the authorization system says you can
         if (!context.ignoreAuthorization() && (
                     (context.getCurrentUser() == null) ||
-                    (eperson.getID() != context.getCurrentUser().getID())))
+                    (!eperson.(context.getCurrentUser())))
         {
             AuthorizeManager.authorizeAction(context, eperson, Constants.WRITE);
         }
@@ -176,6 +176,18 @@ public abstract class EPersonDAO
      * @return array of EPerson objects
      */
     public abstract List<EPerson> getEPeople(int sortField);
+
+    /**
+     * FIXME: For consistency, this should take a sort parameter.
+     */
+    public abstract List<EPerson> getEPeople(Group group);
+
+    /**
+     * FIXME: For consistency, this should take a sort parameter. The
+     * difference between this and getEPeople(Group group) is that this one
+     * recurses into subgroups, whereas the other doesn't.
+     */
+    public abstract List<EPerson> getAllEPeople(Group group);
 
     /**
      * Find the epeople that match the search query across firstname, lastname

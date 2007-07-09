@@ -328,6 +328,112 @@ public class EPersonDAOPostgres extends EPersonDAO
     }
 
     @Override
+    public List<EPerson> getEPeople(Group group)
+    {
+        try
+        {
+            // get epeople objects
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                "eperson",
+                "SELECT e.eperson_id " +
+                "FROM eperson e, epersongroup2eperson eg2e" +
+                "WHERE eg2e.eperson_id = e.eperson_id " +
+                "AND eg2e.eperson_group_id = ?",
+                group.getID());
+
+            List<EPerson> epeople = new ArrayList<EPerson>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("eperson_id");
+                epeople.add(retrieve(id));
+            }
+
+            return epeople;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(":(", sqle);
+        }
+    }
+
+    @Override
+    public List<EPerson> getAllEPeople(Group group)
+    {
+        try
+        {
+            // two queries - first to get all groups which are a member of this
+            // group second query gets all members of each group in the first
+            // query
+            
+            // Get all groups which are a member of this group
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "group2groupcache",
+                    "SELECT * FROM group2groupcache WHERE parent_id = ? ",
+                    group.getID());
+            
+            Set<Integer> groupIDs = new HashSet<Integer>();
+
+            for (TableRow row : tri.toList())
+            {
+                int childID = row.getIntColumn("child_id");
+                groupIDs.add(new Integer(childID));
+            }
+            
+            // now we have all the groups (including this one) it is time to
+            // find all the EPeople who belong to those groups and filter out
+            // all duplicates
+
+            Object[] parameters = new Object[groupIDs.size() + 1];
+            int idx = 0;
+            Iterator i = groupIDs.iterator();
+
+            // don't forget to add the current group to this query!
+            parameters[idx++] = new Integer(g.getID());
+            String epersonQuery = "eperson_group_id= ? ";
+
+            if (i.hasNext())
+            {
+                epersonQuery += " OR ";
+            }
+            
+            while (i.hasNext())
+            {
+//                int groupID = ((Integer) i.next()).intValue();
+                parameters[idx++] = i.next();
+                
+                epersonQuery += "eperson_group_id= ? ";
+
+                if (i.hasNext())
+                {
+                    epersonQuery += " OR ";
+                }
+            }
+
+            // get all the EPerson IDs
+            // Note: even through the query is dynamicaly built all data is
+            // seperated into the parameters array.
+            tri = DatabaseManager.queryTable(c, "epersongroup2eperson",
+                    "SELECT eperson_id FROM epersongroup2eperson WHERE " +
+                    epersonQuery, parameters);
+
+            List<EPerson> epeople = new ArrayList<EPerson>();
+
+            for (TableRow row : tri.toList())
+            {
+                int epersonID = row.getIntColumn("eperson_id");
+                epeople.add(retrieve(id));
+            }
+
+            return epeople;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
     public List<EPerson> search(String query)
     {
         return search(query, -1, -1);
@@ -338,16 +444,16 @@ public class EPersonDAOPostgres extends EPersonDAO
     {
         String params = "%" + query.toLowerCase() + "%";
         String dbquery =
-            "SELECT * FROM eperson " +
+            "SELECT eperson_id FROM eperson " +
             "WHERE eperson_id = ? " +
             "OR firstname ILIKE ? " +
             "OR lastname ILIKE ? " +
             "OR email ILIKE ? " +
-            "ORDER BY lastname, firstname ASC ";
+            "ORDER BY lastname, firstname ASC";
 
         if (offset >= 0 && limit > 0)
         {
-            dbquery += "LIMIT " + limit + " OFFSET " + offset;
+            dbquery += " LIMIT " + limit + " OFFSET " + offset;
         }
 
         // When checking against the eperson-id, make sure the query can be
@@ -365,9 +471,8 @@ public class EPersonDAOPostgres extends EPersonDAO
         try
         {
             // Get all the epeople that match the query
-            TableRowIterator tri =
-                DatabaseManager.query(context, dbquery,
-                        new Object[] {int_param, params, params, params});
+            TableRowIterator tri = DatabaseManager.query(context, dbquery,
+                    new Object[] {int_param, params, params, params});
 
             List<EPerson> epeople = new ArrayList<EPerson>();
 

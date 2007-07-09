@@ -39,14 +39,7 @@
  */
 package org.dspace.content.dao;
 
-import java.util.UUID;
-
-import org.apache.log4j.Logger;
-
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
-import org.dspace.eperson.Group;
-import org.dspace.content.uri.ObjectIdentifier;
 
 /**
  * @author James Rutherford

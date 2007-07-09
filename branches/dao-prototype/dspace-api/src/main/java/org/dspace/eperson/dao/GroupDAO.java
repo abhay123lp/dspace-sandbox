@@ -49,6 +49,7 @@ import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.proxy.GroupProxy;
 import org.dspace.content.uri.ObjectIdentifier;
 
 /**
@@ -60,7 +61,14 @@ public abstract class GroupDAO
 
     protected Context context;
 
-    public abstract Group create() throws AuthorizeException;
+    public Group create() throws AuthorizeException
+    {
+        if (!AuthorizeManager.isAdmin(context))
+        {
+            throw new AuthorizeException(
+                    "You must be an admin to create an EPerson Group");
+        }
+    }
 
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
@@ -69,14 +77,16 @@ public abstract class GroupDAO
     // even more filthy).
     public Group create(int id, UUID uuid) throws AuthorizeException
     {
-//        Group group = new Group(context, id);
-//
-//        group.setIdentifier(new ObjectIdentifier(uuid));
-//
-//        update(group);
-//
-//        return group;
-        return null;
+        Group group = new GroupProxy(context, id);
+
+        group.setIdentifier(new ObjectIdentifier(uuid));
+
+        update(group);
+
+        log.info(LogManager.getHeader(context, "create_group", "group_id="
+                + id));
+
+        return group;
     }
 
     public Group retrieve(int id)
@@ -91,9 +101,75 @@ public abstract class GroupDAO
 
     public void update(Group group) throws AuthorizeException
     {
+        // Check authorisation - if you're not the eperson
+        // see if the authorization system says you can
+        if (!context.ignoreAuthorization())
+        {
+            AuthorizeManager.authorizeAction(context, group, Constants.WRITE);
+        }
+
+        log.info(LogManager.getHeader(myContext, "update_group", "group_id="
+                + group.getID()));
     }
 
     public void delete(int id) throws AuthorizeException
     {
+        Group group = retrieve(id);
+        update(group); // Sync in-memory object before removal
+
+        // authorized?
+        if (!AuthorizeManager.isAdmin(context))
+        {
+            throw new AuthorizeException(
+                    "You must be an admin to delete a Group");
+        }
+
+        // Remove any ResourcePolicies that reference this group
+        AuthorizeManager.removeGroupPolicies(context, id);
+
+        HistoryManager.saveHistory(context, group, HistoryManager.REMOVE,
+                context.getCurrentUser(), context.getExtraLogInfo());
+
+        log.info(LogManager.getHeader(context, "delete_group", "group_id=" +
+                    id));
+
+        // Remove from cache
+        context.removeCached(group, id);
     }
+
+    public abstract List<Group> getGroups(int sortField);
+
+    /**
+     * Returns a list of all the Groups the given EPerson is a member of.
+     */
+    public abstract List<Group> getGroups(EPerson eperson);
+
+
+    /**
+     * Returns a list of all the subgroups of the given Group (recursively).
+     */
+    public abstract List<Group> getSubGroups(Group group);
+
+    /**
+     * Find the groups that match the search query across eperson_group_id or
+     * name.
+     *
+     * @param query The search string
+     *
+     * @return List of Group objects
+     */
+    public abstract List<Group> search(String query);
+
+    /**
+     * Find the groups that match the search query across eperson_group_id or
+     * name.
+     *
+     * @param query The search string
+     * @param offset Inclusive offset
+     * @param limit Maximum number of matches returned
+     *
+     * @return List of Group objects
+     */
+    public abstract List<Group> search(Context context, String query,
+            int offset, int limit)
 }
