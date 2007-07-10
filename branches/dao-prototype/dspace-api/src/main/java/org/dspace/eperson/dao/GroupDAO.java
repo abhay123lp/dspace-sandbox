@@ -99,6 +99,11 @@ public abstract class GroupDAO
         return null;
     }
 
+    public Group retrieve(String name)
+    {
+        return null;
+    }
+
     public void update(Group group) throws AuthorizeException
     {
         // Check authorisation - if you're not the eperson
@@ -143,11 +148,15 @@ public abstract class GroupDAO
      */
     public abstract List<Group> getGroups(EPerson eperson);
 
-
     /**
      * Returns a list of all the subgroups of the given Group (recursively).
      */
-    public abstract List<Group> getSubGroups(Group group);
+    public abstract List<Group> getAllSubGroups(Group group);
+
+    /**
+     * Returns a list of all the immediate subgroups of the given Group.
+     */
+    public abstract List<Group> getImmediateSubGroups(Group group);
 
     /**
      * Find the groups that match the search query across eperson_group_id or
@@ -171,4 +180,36 @@ public abstract class GroupDAO
      */
     public abstract List<Group> search(Context context, String query,
             int offset, int limit);
+
+    /**
+     * Find out whether or not the logged in EPerson is a member of the given
+     * Group. The reason we take an ID rather than a full object is because we
+     * may be able to give a really quick answer without having to actually
+     * inspect the Group beyond knowing its ID.
+     */
+    public boolean currentUserInGroup(int groupID)
+    {
+        // special, everyone is member of group 0 (anonymous)
+        if (group.getID() == 0)
+        {
+            return true;
+        }
+
+        // first, check for membership if it's a special group
+        // (special groups can be set even if person isn't authenticated)
+        if (context.inSpecialGroup(group.getID()))
+        {
+            return true;
+        }
+
+        EPerson currentuser = context.getCurrentUser();
+
+        // only test for membership if context contains a user
+        if (currentuser != null)
+        {
+            List<Group> groups = getGroups(currentuser);
+
+            return groups.contains(retrieve(groupid));
+        }
+    }
 }

@@ -152,6 +152,36 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    public Group retrieve(String name)
+    {
+        Group group = super.retrieve(name);
+
+        if (group != null)
+        {
+            return group;
+        }
+
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context,
+                    "epersongroup", "name", name);
+
+            if (row == null)
+            {
+                log.warn("group " + name + " not found");
+                return null;
+            }
+            else
+            {
+                return retrieve(row);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
     private Group retrieve(TableRow row)
     {
         int id = row.getIntColumn("eperson_group_id");
@@ -200,6 +230,52 @@ public class GroupDAOPostgres extends GroupDAO
     {
         try
         {
+            // Redo eperson mappings if they've changed
+            if (epeopleChanged)
+            {
+                // Remove any existing mappings
+                DatabaseManager.updateQuery(context,
+                        "delete from epersongroup2eperson where eperson_group_id= ? ",
+                        getID());
+
+                for (EPerson eperson : group.getMembers())
+                {
+                    TableRow mappingRow = DatabaseManager.create(context,
+                            "epersongroup2eperson");
+                    mappingRow.setColumn("eperson_id", eperson.getID());
+                    mappingRow.setColumn("eperson_group_id", group.getID());
+                    DatabaseManager.update(context, mappingRow);
+                }
+
+                epeopleChanged = false;
+            }
+
+            // Redo Group mappings if they've changed
+            if (groupsChanged)
+            {
+                // Remove any existing mappings
+                DatabaseManager.updateQuery(myContext,
+                        "delete from group2group where parent_id= ? ",
+                        getID());
+
+                // Add new mappings
+                for (Group child : group.getSubGroups())
+                {
+                    Group child = (Group) i.next();
+
+                    TableRow mappingRow = DatabaseManager.create(myContext,
+                            "group2group");
+                    mappingRow.setColumn("parent_id", group.getID());
+                    mappingRow.setColumn("child_id", child.getID());
+                    DatabaseManager.update(context, mappingRow);
+                }
+
+                // groups changed, now change group cache
+                rethinkGroupCache();
+
+                groupsChanged = false;
+            }
+
             populateTableRowFromGroup(group, row);
             DatabaseManager.update(context, row);
         }
@@ -286,6 +362,88 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    public List<Group> getGroups(EPerson eperson)
+    {
+        try
+        {
+            // two queries - first to get groups eperson is a member of
+            // second query gets parent groups for groups eperson is a member of
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup2eperson",
+                    "SELECT eperson_group_id " +
+                    "FROM epersongroup2eperson WHERE eperson_id = ?",
+                     e.getID());
+
+            Set<Integer> groupIDs = new HashSet<Integer>();
+
+            for (TableRow row : tri.toList())
+            {
+                int childID = row.getIntColumn("eperson_group_id");
+                groupIDs.add(childID);
+            }
+
+            // Also need to get all "Special Groups" user is a member of!
+            // Otherwise, you're ignoring the user's membership to these groups!
+            for (Group group : context.getSpecialGroups())
+            {
+                groupIDs.add(group.getID());
+            }
+
+            // now we have all owning groups, also grab all parents of owning groups
+            // yes, I know this could have been done as one big query and a union,
+            // but doing the Oracle port taught me to keep to simple SQL!
+
+            String groupQuery = "";
+
+            // Build a list of query parameters
+            Object[] parameters = new Object[groupIDs.size()];
+            int idx = 0;
+            for (Integer groupID : groupIDs)
+            {
+                parameters[idx++] = groupID;
+
+                groupQuery += "child_id= ? ";
+
+                if (idx < groupIDs().size())
+                {
+                    groupQuery += " OR ";
+                }
+            }
+
+            List<Group> groups = new ArrayList<Group>();
+
+            if (groupIDs.size() == 0)
+            {
+                // don't do query, isn't member of any groups
+                return groups;
+            }
+
+            // was member of at least one group
+            // NOTE: even through the query is built dynamicaly all data is
+            // seperated into the the parameters array.
+            tri = DatabaseManager.queryTable(c, "group2groupcache",
+                    "SELECT * FROM group2groupcache WHERE " + groupQuery,
+                    parameters);
+
+            while (tri.hasNext())
+            {
+                TableRow row = tri.next();
+
+                int parentID = row.getIntColumn("parent_id");
+
+                groupIDs.add(new Integer(parentID));
+            }
+
+            tri.close();
+
+            return groupIDs;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
     public List<Group> search(String query, int offset, int limit)
 	{
 		String params = "%" + query.toLowerCase() + "%";
@@ -353,7 +511,8 @@ public class GroupDAOPostgres extends GroupDAO
         TableRowIterator tri = DatabaseManager.queryTable(context, "group2group",
                 "SELECT * FROM group2group");
 
-        Map parents = new HashMap();
+        Map<Integer, Set<Integer>> parents =
+            new HashMap<Integer, Set<Integer>>();
 
         while (tri.hasNext())
         {
@@ -365,7 +524,7 @@ public class GroupDAOPostgres extends GroupDAO
             // if parent doesn't have an entry, create one
             if (!parents.containsKey(parentID))
             {
-                Set children = new HashSet();
+                Set<Integer> children = new HashSet<Integer>();
 
                 // add child id to the list
                 children.add(childID);
@@ -375,7 +534,7 @@ public class GroupDAOPostgres extends GroupDAO
             {
                 // parent has an entry, now add the child to the parent's record
                 // of children
-                Set children = (Set) parents.get(parentID);
+                Set<Integer> children = (Set<Integer>) parents.get(parentID);
                 children.add(childID);
             }
         }
@@ -388,22 +547,13 @@ public class GroupDAOPostgres extends GroupDAO
         // so now to establish all parent,child relationships we can iterate
         // through the parents hash
 
-//        Iterator i = parents.keySet().iterator();
-
         for (Integer parentID : parents.keySet())
         {
-//            Integer parentID = (Integer) i.next();
-
-            Set myChildren = getChildren(parents, parentID);
-
-//            Iterator j = myChildren.iterator();
+            Set<Integer> myChildren = getChildren(parents, parentID);
 
             for (Integer childID : myChildren)
             {
-                // child of a parent
-//                Integer childID = (Integer) j.next();
-
-                ((Set) parents.get(parentID)).add(childID);
+                ((Set<Integer>) parents.get(parentID)).add(childID);
             }
         }
 
@@ -411,20 +561,12 @@ public class GroupDAOPostgres extends GroupDAO
         DatabaseManager.updateQuery(context,
                 "DELETE FROM group2groupcache WHERE id >= 0");
 
-        // write out new one
-//        Iterator pi = parents.keySet().iterator(); // parent iterator
-
         for (Integer parent : parents.keySet())
         {
-//            Integer parent = (Integer) pi.next();
-
-            Set children = (Set) parents.get(parent);
-//            Iterator ci = children.iterator(); // child iterator
+            Set<Integer> children = parents.get(parent);
 
             for (Integer child : children)
             {
-//                Integer child = (Integer) ci.next();
-
                 TableRow row = DatabaseManager.create(context,
                         "group2groupcache");
 
@@ -449,24 +591,19 @@ public class GroupDAOPostgres extends GroupDAO
      *            the parent you're interested in
      * @return Map whose keys are all of the children of a parent
      */
-    private Set getChildren(Map parents, Integer parent)
+    private Set getChildren(Map<Integer, Set<Integer>> parents, Integer parent)
     {
-        Set myChildren = new HashSet();
+        Set<Integer> myChildren = new HashSet<Integer>();
 
         // degenerate case, this parent has no children
         if (!parents.containsKey(parent))
+        {
             return myChildren;
+        }
 
         // got this far, so we must have children
-        Set children = (Set) parents.get(parent);
-
-        // now iterate over all of the children
-//        Iterator i = children.iterator();
-
-        for (Integer childID : children)
+        for (Integer childID : parents.get(parent))
         {
-//            Integer childID = (Integer) i.next();
-
             // add this child's ID to our return set
             myChildren.add(childID);
 
