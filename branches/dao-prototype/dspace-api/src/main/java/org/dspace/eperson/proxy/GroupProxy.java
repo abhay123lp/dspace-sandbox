@@ -41,6 +41,8 @@ package org.dspace.eperson.proxy;
 
 import org.apache.log4j.Logger;
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 
 /**
  * Proxy class that sits in place of the Group class and refrains from loading
@@ -59,7 +61,7 @@ public class GroupProxy extends Group
     private boolean epeopleLoaded = false;
     private boolean groupsLoaded = false;
 
-    public Group(Context context, int id)
+    public GroupProxy(Context context, int id)
     {
         super(context, id);
     }
@@ -138,7 +140,10 @@ public class GroupProxy extends Group
     @Override
     public void removeMember(Group g)
     {
-        loadData();
+        if (!groupsLoaded)
+        {
+            loadGroups();
+        }
 
         if (groups.remove(g))
         {

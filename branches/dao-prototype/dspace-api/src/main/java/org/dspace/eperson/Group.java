@@ -56,9 +56,8 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
+import org.dspace.eperson.dao.GroupDAO;         // Naughty!
+import org.dspace.eperson.dao.GroupDAOFactory;  // Naughty!
 
 /**
  * Class representing a group of e-people.
@@ -70,27 +69,17 @@ public class Group extends DSpaceObject
 {
     // findAll sortby types
     public static final int ID = 0; // sort by ID
-
     public static final int NAME = 1; // sort by NAME (default)
 
-    /** log4j logger */
     private static Logger log = Logger.getLogger(Group.class);
 
-    private Context context;
-    private GroupDAO dao;
+    protected Context context;
+    protected GroupDAO dao;
 
     private String name;
 
-    /** lists of epeople and groups in the group */
-    private List<EPerson> epeople;
-    private List<Group> groups;
-
-    /** lists that need to be written out again */
-    private boolean epeopleChanged = false;
-    private boolean groupsChanged = false;
-
-    /** is this just a stub, or is all data loaded? */
-    private boolean isDataLoaded = false;
+    protected List<EPerson> epeople;
+    protected List<Group> groups;
 
     public Group(Context context, int id)
     {
@@ -430,7 +419,7 @@ public class Group extends DSpaceObject
         if (groupsChanged)
         {
             // Remove any existing mappings
-            DatabaseManager.updateQuery(myContext,
+            DatabaseManager.updateQuery(context,
                     "delete from group2group where parent_id= ? ",
                     getID());
 
@@ -439,7 +428,7 @@ public class Group extends DSpaceObject
             {
                 Group child = (Group) i.next();
 
-                TableRow mappingRow = DatabaseManager.create(myContext,
+                TableRow mappingRow = DatabaseManager.create(context,
                         "group2group");
                 mappingRow.setColumn("parent_id", group.getID());
                 mappingRow.setColumn("child_id", child.getID());
@@ -452,7 +441,7 @@ public class Group extends DSpaceObject
             groupsChanged = false;
         }
 
-        log.info(LogManager.getHeader(myContext, "update_group", "group_id="
+        log.info(LogManager.getHeader(context, "update_group", "group_id="
                 + getID()));
     }
 
@@ -475,7 +464,7 @@ public class Group extends DSpaceObject
     @Deprecated
     Group(Context context, TableRow row)
     {
-        this(context, row.getIntColumn("eperson_group_id");
+        this(context, row.getIntColumn("eperson_group_id"));
     }
 
     @Deprecated

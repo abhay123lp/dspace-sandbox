@@ -117,7 +117,6 @@ public abstract class GroupDAO
         Group group = retrieve(id);
         update(group); // Sync in-memory object before removal
 
-        // authorized?
         if (!AuthorizeManager.isAdmin(context))
         {
             throw new AuthorizeException(
@@ -171,5 +170,5 @@ public abstract class GroupDAO
      * @return List of Group objects
      */
     public abstract List<Group> search(Context context, String query,
-            int offset, int limit)
+            int offset, int limit);
 }

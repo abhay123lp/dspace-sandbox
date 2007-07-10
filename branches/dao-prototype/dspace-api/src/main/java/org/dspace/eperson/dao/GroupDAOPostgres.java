@@ -39,6 +39,13 @@
  */
 package org.dspace.content.dao;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -50,6 +57,9 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.proxy.GroupProxy;
 import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.storage.rdbms.DatabaseManager;
+import org.dspace.storage.rdbms.TableRow;
+import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * @author James Rutherford
@@ -226,7 +236,7 @@ public class GroupDAOPostgres extends GroupDAO
                     id, id);
 
             // don't forget the new table
-            DatabaseManager.updateQuery(myContext,
+            DatabaseManager.updateQuery(context,
                     "DELETE FROM epersongroup2workspaceitem " +
                     "WHERE eperson_group_id = ? ",
                     id);
@@ -246,12 +256,10 @@ public class GroupDAOPostgres extends GroupDAO
 
         switch (sortField)
         {
-            case ID:
+            case Group.ID:
                 s = "eperson_group_id";
                 break;
-            case NAME:
-                s = "name";
-                break;
+            case Group.NAME:
             default:
                 s = "name";
         }
@@ -278,13 +286,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
-    public List<Group> search(String query)
-    {
-	    return search(query, -1, -1);
-    }
-
-    public List<Group> search(Context context, String query,
-            int offset, int limit)
+    public List<Group> search(String query, int offset, int limit)
 	{
 		String params = "%" + query.toLowerCase() + "%";
 		String dbquery =
@@ -348,7 +350,7 @@ public class GroupDAOPostgres extends GroupDAO
     private void rethinkGroupCache() throws SQLException
     {
         // read in the group2group table
-        TableRowIterator tri = DatabaseManager.queryTable(myContext, "group2group",
+        TableRowIterator tri = DatabaseManager.queryTable(context, "group2group",
                 "SELECT * FROM group2group");
 
         Map parents = new HashMap();
@@ -394,7 +396,7 @@ public class GroupDAOPostgres extends GroupDAO
 
             Set myChildren = getChildren(parents, parentID);
 
-            Iterator j = myChildren.iterator();
+//            Iterator j = myChildren.iterator();
 
             for (Integer childID : myChildren)
             {
@@ -406,24 +408,24 @@ public class GroupDAOPostgres extends GroupDAO
         }
 
         // empty out group2groupcache table
-        DatabaseManager.updateQuery(myContext,
+        DatabaseManager.updateQuery(context,
                 "DELETE FROM group2groupcache WHERE id >= 0");
 
         // write out new one
-        Iterator pi = parents.keySet().iterator(); // parent iterator
+//        Iterator pi = parents.keySet().iterator(); // parent iterator
 
-        while (pi.hasNext())
+        for (Integer parent : parents.keySet())
         {
-            Integer parent = (Integer) pi.next();
+//            Integer parent = (Integer) pi.next();
 
             Set children = (Set) parents.get(parent);
-            Iterator ci = children.iterator(); // child iterator
+//            Iterator ci = children.iterator(); // child iterator
 
-            while (ci.hasNext())
+            for (Integer child : children)
             {
-                Integer child = (Integer) ci.next();
+//                Integer child = (Integer) ci.next();
 
-                TableRow row = DatabaseManager.create(myContext,
+                TableRow row = DatabaseManager.create(context,
                         "group2groupcache");
 
                 int parentID = parent.intValue();
@@ -432,7 +434,7 @@ public class GroupDAOPostgres extends GroupDAO
                 row.setColumn("parent_id", parentID);
                 row.setColumn("child_id", childID);
 
-                DatabaseManager.update(myContext, row);
+                DatabaseManager.update(context, row);
             }
         }
     }
@@ -459,11 +461,11 @@ public class GroupDAOPostgres extends GroupDAO
         Set children = (Set) parents.get(parent);
 
         // now iterate over all of the children
-        Iterator i = children.iterator();
+//        Iterator i = children.iterator();
 
-        while (i.hasNext())
+        for (Integer childID : children)
         {
-            Integer childID = (Integer) i.next();
+//            Integer childID = (Integer) i.next();
 
             // add this child's ID to our return set
             myChildren.add(childID);

@@ -124,7 +124,7 @@ public abstract class EPersonDAO
         // see if the authorization system says you can
         if (!context.ignoreAuthorization() && (
                     (context.getCurrentUser() == null) ||
-                    (!eperson.(context.getCurrentUser())))
+                    !eperson.equals(context.getCurrentUser())))
         {
             AuthorizeManager.authorizeAction(context, eperson, Constants.WRITE);
         }
@@ -200,7 +200,10 @@ public abstract class EPersonDAO
      *
      * @return array of EPerson objects
      */
-    public abstract List<EPerson> search(String query);
+    public List<EPerson> search(String query)
+    {
+        return search(query, -1, -1);
+    }
 
     /**
      * Find the epeople that match the search query across firstname, lastname
