@@ -56,9 +56,10 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
+import org.dspace.eperson.dao.EPersonDAO;           // Naughty!
+import org.dspace.eperson.dao.EPersonDAOFactory;    // Naughty!
+import org.dspace.eperson.dao.GroupDAO;             // Naughty!
+import org.dspace.eperson.dao.GroupDAOFactory;      // Naughty!
 
 /**
  * Class representing a group of e-people.
@@ -77,7 +78,8 @@ public class Group extends DSpaceObject
     private static Logger log = Logger.getLogger(Group.class);
 
     private Context context;
-    private GroupDAO dao;
+    protected GroupDAO dao;
+    protected EPersonDAO epersonDAO;
 
     private String name;
 
@@ -89,15 +91,10 @@ public class Group extends DSpaceObject
     {
         this.context = context;
         this.dao = GroupDAOFactory.getInstance(context);
+        this.epersonDAO = EPersonDAOFactory.getInstance(context);
 
         epeople = new ArrayList<EPerson>();
         groups = new ArrayList<Group>();
-    }
-
-    @Override
-    public int getID()
-    {
-        return id;
     }
 
     public String getName()
@@ -166,7 +163,7 @@ public class Group extends DSpaceObject
      */
     public EPerson[] getMembers()
     {
-        return (EPerson[]) epeople.toArray(new Eperson[0]);
+        return (EPerson[]) epeople.toArray(new EPerson[0]);
     }
 
     /**
@@ -217,7 +214,7 @@ public class Group extends DSpaceObject
     }
 
     @Deprecated
-    Group(Context context, TableRow row)
+    Group(Context context, org.dspace.storage.rdbms.TableRow row)
     {
         this(context, row.getIntColumn("eperson_group_id"));
     }
@@ -285,10 +282,10 @@ public class Group extends DSpaceObject
     }
 
     @Deprecated
-    public static Group[] allMemberGroups(Context c, EPerson e)
+    public static Group[] allMemberGroups(Context context, EPerson eperson)
     {
         GroupDAO dao = GroupDAOFactory.getInstance(context);
-        List<Group> groups = dao.getGroups(e);
+        List<Group> groups = dao.getAllGroups(eperson);
 
         return (Group[]) groups.toArray(new Group[0]);
     }

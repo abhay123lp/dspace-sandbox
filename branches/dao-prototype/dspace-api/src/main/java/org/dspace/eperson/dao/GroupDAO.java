@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.eperson.dao;
 
 import java.util.List;
 import java.util.UUID;
@@ -46,11 +46,14 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.proxy.GroupProxy;
 import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.history.HistoryManager;
 
 /**
  * @author James Rutherford
@@ -113,7 +116,7 @@ public abstract class GroupDAO
             AuthorizeManager.authorizeAction(context, group, Constants.WRITE);
         }
 
-        log.info(LogManager.getHeader(myContext, "update_group", "group_id="
+        log.info(LogManager.getHeader(context, "update_group", "group_id="
                 + group.getID()));
     }
 
@@ -146,7 +149,7 @@ public abstract class GroupDAO
     /**
      * Returns a list of all the Groups the given EPerson is a member of.
      */
-    public abstract List<Group> getGroups(EPerson eperson);
+    public abstract List<Group> getAllGroups(EPerson eperson);
 
     /**
      * Returns a list of all the subgroups of the given Group (recursively).
@@ -166,7 +169,10 @@ public abstract class GroupDAO
      *
      * @return List of Group objects
      */
-    public abstract List<Group> search(String query);
+    public List<Group> search(String query)
+    {
+        return search(query, -1, -1);
+    }
 
     /**
      * Find the groups that match the search query across eperson_group_id or
@@ -178,8 +184,7 @@ public abstract class GroupDAO
      *
      * @return List of Group objects
      */
-    public abstract List<Group> search(Context context, String query,
-            int offset, int limit);
+    public abstract List<Group> search(String query, int offset, int limit);
 
     /**
      * Find out whether or not the logged in EPerson is a member of the given
@@ -190,14 +195,14 @@ public abstract class GroupDAO
     public boolean currentUserInGroup(int groupID)
     {
         // special, everyone is member of group 0 (anonymous)
-        if (group.getID() == 0)
+        if (groupID == 0)
         {
             return true;
         }
 
         // first, check for membership if it's a special group
         // (special groups can be set even if person isn't authenticated)
-        if (context.inSpecialGroup(group.getID()))
+        if (context.inSpecialGroup(groupID))
         {
             return true;
         }
@@ -209,7 +214,7 @@ public abstract class GroupDAO
         {
             List<Group> groups = getGroups(currentuser);
 
-            return groups.contains(retrieve(groupid));
+            return groups.contains(retrieve(groupID));
         }
     }
 }

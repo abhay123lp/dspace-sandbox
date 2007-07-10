@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.eperson.dao;
 
 import org.dspace.core.Context;
 
@@ -46,7 +46,7 @@ import org.dspace.core.Context;
  */
 public class GroupDAOFactory
 {
-    public GroupDAO getInstance(Context context)
+    public static GroupDAO getInstance(Context context)
     {
         return new GroupDAOPostgres(context);
     }

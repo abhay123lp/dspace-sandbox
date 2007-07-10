@@ -52,6 +52,7 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.EPerson.EPersonMetadataField;
 import org.dspace.eperson.EPersonDeletionException;
+import org.dspace.eperson.Group;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.history.HistoryManager;
 

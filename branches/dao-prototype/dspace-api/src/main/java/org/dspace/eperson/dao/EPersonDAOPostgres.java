@@ -41,7 +41,9 @@ package org.dspace.eperson.dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.Vector;
 
@@ -54,6 +56,7 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.EPerson.EPersonMetadataField;
 import org.dspace.eperson.EPersonDeletionException;
+import org.dspace.eperson.Group;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
@@ -377,7 +380,7 @@ public class EPersonDAOPostgres extends EPersonDAO
             for (TableRow row : tri.toList())
             {
                 int childID = row.getIntColumn("child_id");
-                groupIDs.add(new Integer(childID));
+                groupIDs.add(childID);
             }
             
             // now we have all the groups (including this one) it is time to
@@ -386,25 +389,23 @@ public class EPersonDAOPostgres extends EPersonDAO
 
             Object[] parameters = new Object[groupIDs.size() + 1];
             int idx = 0;
-            Iterator i = groupIDs.iterator();
 
             // don't forget to add the current group to this query!
-            parameters[idx++] = new Integer(g.getID());
+            parameters[idx++] = group.getID();
             String epersonQuery = "eperson_group_id= ? ";
 
-            if (i.hasNext())
+            if (groupIDs.size() > 0)
             {
                 epersonQuery += " OR ";
             }
             
-            while (i.hasNext())
+            for (Integer i : groupIDs)
             {
-//                int groupID = ((Integer) i.next()).intValue();
-                parameters[idx++] = i.next();
+                parameters[idx++] = i;
                 
                 epersonQuery += "eperson_group_id= ? ";
 
-                if (i.hasNext())
+                if (idx < groupIDs.size())
                 {
                     epersonQuery += " OR ";
                 }
@@ -413,7 +414,7 @@ public class EPersonDAOPostgres extends EPersonDAO
             // get all the EPerson IDs
             // Note: even through the query is dynamicaly built all data is
             // seperated into the parameters array.
-            tri = DatabaseManager.queryTable(c, "epersongroup2eperson",
+            tri = DatabaseManager.queryTable(context, "epersongroup2eperson",
                     "SELECT eperson_id FROM epersongroup2eperson WHERE " +
                     epersonQuery, parameters);
 
@@ -421,7 +422,7 @@ public class EPersonDAOPostgres extends EPersonDAO
 
             for (TableRow row : tri.toList())
             {
-                int epersonID = row.getIntColumn("eperson_id");
+                int id = row.getIntColumn("eperson_id");
                 epeople.add(retrieve(id));
             }
 

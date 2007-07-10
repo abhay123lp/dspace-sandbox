@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.eperson.dao;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -54,6 +54,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.proxy.GroupProxy;
 import org.dspace.content.uri.ObjectIdentifier;
@@ -134,7 +135,7 @@ public class GroupDAOPostgres extends GroupDAO
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
-                    "epersongroup", "uuid", uuid);
+                    "epersongroup", "uuid", uuid.toString());
 
             if (row == null)
             {
@@ -226,17 +227,22 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    /**
+     * FIXME: Look back into ItemDAOPostgres to see how we were cunning there
+     * about updating Bundles + Bitstreams and use that below for EPeople and
+     * Groups.
+     */
     private void update(Group group, TableRow row) throws AuthorizeException
     {
         try
         {
             // Redo eperson mappings if they've changed
-            if (epeopleChanged)
-            {
+//            if (epeopleChanged)
+//            {
                 // Remove any existing mappings
                 DatabaseManager.updateQuery(context,
                         "delete from epersongroup2eperson where eperson_group_id= ? ",
-                        getID());
+                        group.getID());
 
                 for (EPerson eperson : group.getMembers())
                 {
@@ -247,23 +253,21 @@ public class GroupDAOPostgres extends GroupDAO
                     DatabaseManager.update(context, mappingRow);
                 }
 
-                epeopleChanged = false;
-            }
+//                epeopleChanged = false;
+//            }
 
             // Redo Group mappings if they've changed
-            if (groupsChanged)
-            {
+//            if (groupsChanged)
+//            {
                 // Remove any existing mappings
-                DatabaseManager.updateQuery(myContext,
+                DatabaseManager.updateQuery(context,
                         "delete from group2group where parent_id= ? ",
-                        getID());
+                        group.getID());
 
                 // Add new mappings
                 for (Group child : group.getSubGroups())
                 {
-                    Group child = (Group) i.next();
-
-                    TableRow mappingRow = DatabaseManager.create(myContext,
+                    TableRow mappingRow = DatabaseManager.create(context,
                             "group2group");
                     mappingRow.setColumn("parent_id", group.getID());
                     mappingRow.setColumn("child_id", child.getID());
@@ -273,8 +277,8 @@ public class GroupDAOPostgres extends GroupDAO
                 // groups changed, now change group cache
                 rethinkGroupCache();
 
-                groupsChanged = false;
-            }
+//                groupsChanged = false;
+//            }
 
             populateTableRowFromGroup(group, row);
             DatabaseManager.update(context, row);
@@ -362,7 +366,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
-    public List<Group> getGroups(EPerson eperson)
+    public List<Group> getAllGroups(EPerson eperson)
     {
         try
         {
@@ -372,7 +376,7 @@ public class GroupDAOPostgres extends GroupDAO
                     "epersongroup2eperson",
                     "SELECT eperson_group_id " +
                     "FROM epersongroup2eperson WHERE eperson_id = ?",
-                     e.getID());
+                     eperson.getID());
 
             Set<Integer> groupIDs = new HashSet<Integer>();
 
@@ -404,7 +408,7 @@ public class GroupDAOPostgres extends GroupDAO
 
                 groupQuery += "child_id= ? ";
 
-                if (idx < groupIDs().size())
+                if (idx < groupIDs.size())
                 {
                     groupQuery += " OR ";
                 }
@@ -421,22 +425,22 @@ public class GroupDAOPostgres extends GroupDAO
             // was member of at least one group
             // NOTE: even through the query is built dynamicaly all data is
             // seperated into the the parameters array.
-            tri = DatabaseManager.queryTable(c, "group2groupcache",
+            tri = DatabaseManager.queryTable(context, "group2groupcache",
                     "SELECT * FROM group2groupcache WHERE " + groupQuery,
                     parameters);
 
-            while (tri.hasNext())
+            for (TableRow row : tri.toList())
             {
-                TableRow row = tri.next();
-
                 int parentID = row.getIntColumn("parent_id");
-
-                groupIDs.add(new Integer(parentID));
+                groupIDs.add(parentID);
             }
 
-            tri.close();
+            for (Integer id : groupIDs)
+            {
+                groups.add(retrieve(id));
+            }
 
-            return groupIDs;
+            return groups;
         }
         catch (SQLException sqle)
         {
@@ -508,18 +512,16 @@ public class GroupDAOPostgres extends GroupDAO
     private void rethinkGroupCache() throws SQLException
     {
         // read in the group2group table
-        TableRowIterator tri = DatabaseManager.queryTable(context, "group2group",
-                "SELECT * FROM group2group");
+        TableRowIterator tri = DatabaseManager.queryTable(context,
+                "group2group", "SELECT * FROM group2group");
 
         Map<Integer, Set<Integer>> parents =
             new HashMap<Integer, Set<Integer>>();
 
-        while (tri.hasNext())
+        for (TableRow row : tri.toList())
         {
-            TableRow row = (TableRow) tri.next();
-
-            Integer parentID = new Integer(row.getIntColumn("parent_id"));
-            Integer childID = new Integer(row.getIntColumn("child_id"));
+            Integer parentID = row.getIntColumn("parent_id");
+            Integer childID = row.getIntColumn("child_id");
 
             // if parent doesn't have an entry, create one
             if (!parents.containsKey(parentID))
@@ -539,8 +541,6 @@ public class GroupDAOPostgres extends GroupDAO
             }
         }
         
-        tri.close();
-
         // now parents is a hash of all of the IDs of groups that are parents
         // and each hash entry is a hash of all of the IDs of children of those
         // parent groups
