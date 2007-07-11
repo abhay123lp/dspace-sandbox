@@ -71,6 +71,8 @@ public abstract class GroupDAO
             throw new AuthorizeException(
                     "You must be an admin to create an EPerson Group");
         }
+
+        return null;
     }
 
     // FIXME: This should be called something else, but I can't think of
@@ -149,17 +151,19 @@ public abstract class GroupDAO
     /**
      * Returns a list of all the Groups the given EPerson is a member of.
      */
-    public abstract List<Group> getAllGroups(EPerson eperson);
+    public abstract List<Group> getGroups(EPerson eperson);
+
 
     /**
      * Returns a list of all the subgroups of the given Group (recursively).
      */
-    public abstract List<Group> getAllSubGroups(Group group);
+//    public abstract List<Group> getAllSubGroups(Group group);
 
     /**
      * Returns a list of all the immediate subgroups of the given Group.
      */
-    public abstract List<Group> getImmediateSubGroups(Group group);
+//    public abstract List<Group> getImmediateSubGroups(Group group);
+    public abstract List<Group> getSubGroups(Group group);
 
     /**
      * Find the groups that match the search query across eperson_group_id or
@@ -216,5 +220,7 @@ public abstract class GroupDAO
 
             return groups.contains(retrieve(groupID));
         }
+
+        return false;
     }
 }

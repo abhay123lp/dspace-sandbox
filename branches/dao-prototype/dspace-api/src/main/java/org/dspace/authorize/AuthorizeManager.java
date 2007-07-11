@@ -353,14 +353,7 @@ public class AuthorizeManager
         }
         else
         {
-            try
-            {
-                return Group.isMember(c, 1);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
+            return Group.isMember(c, 1);
         }
     }
 

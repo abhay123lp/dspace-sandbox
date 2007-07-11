@@ -234,7 +234,7 @@ public class Group extends DSpaceObject
     }
 
     @Deprecated
-    public void delete()
+    public void delete() throws AuthorizeException
     {
         dao.delete(id);
     }
@@ -276,7 +276,7 @@ public class Group extends DSpaceObject
     public static EPerson[] allMembers(Context context, Group group)
     {
         EPersonDAO dao = EPersonDAOFactory.getInstance(context);
-        List<EPerson> epeople = dao.getAllEpeople(group);
+        List<EPerson> epeople = dao.getAllEPeople(group);
 
         return (EPerson[]) epeople.toArray(new EPerson[0]);
     }
@@ -285,7 +285,7 @@ public class Group extends DSpaceObject
     public static Group[] allMemberGroups(Context context, EPerson eperson)
     {
         GroupDAO dao = GroupDAOFactory.getInstance(context);
-        List<Group> groups = dao.getAllGroups(eperson);
+        List<Group> groups = dao.getGroups(eperson);
 
         return (Group[]) groups.toArray(new Group[0]);
     }

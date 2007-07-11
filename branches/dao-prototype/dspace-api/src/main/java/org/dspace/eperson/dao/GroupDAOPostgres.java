@@ -366,7 +366,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
-    public List<Group> getAllGroups(EPerson eperson)
+    public List<Group> getGroups(EPerson eperson)
     {
         try
         {
@@ -448,6 +448,34 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    public List<Group> getSubGroups(Group group)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup",
+                    "SELECT g.eperson_group_id " +
+                    "FROM epersongroup g, group2group g2g " +
+                    "WHERE g2g.child_id = g.eperson_group_id " +
+                    "AND g2g.parent_id= ? ",
+                    group.getID());
+
+            List<Group> groups = new ArrayList<Group>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("eperson_group_id");
+                groups.add(retrieve(id));
+            }
+
+            return groups;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
     public List<Group> search(String query, int offset, int limit)
 	{
 		String params = "%" + query.toLowerCase() + "%";
@@ -502,6 +530,10 @@ public class GroupDAOPostgres extends GroupDAO
     private void populateTableRowFromGroup(Group group, TableRow row)
     {
         row.setColumn("name", group.getName());
+    }
+
+    private void populateGroupFromTableRow(Group group, TableRow row)
+    {
     }
 
     /**
