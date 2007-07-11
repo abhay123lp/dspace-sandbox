@@ -70,8 +70,10 @@ public class GroupDAOPostgres extends GroupDAO
     public GroupDAOPostgres(Context context)
     {
         this.context = context;
+        this.epersonDAO = EPersonDAOFactory.getInstance(context);
     }
 
+    @Override
     public Group create() throws AuthorizeException
     {
         Group group = super.create();
@@ -94,6 +96,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public Group retrieve(int id)
     {
         Group group = super.retrieve(id);
@@ -123,6 +126,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public Group retrieve(UUID uuid)
     {
         Group group = super.retrieve(uuid);
@@ -153,6 +157,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public Group retrieve(String name)
     {
         Group group = super.retrieve(name);
@@ -202,6 +207,7 @@ public class GroupDAOPostgres extends GroupDAO
         return group;
     }
 
+    @Override
     public void update(Group group) throws AuthorizeException
     {
         super.update(group);
@@ -236,50 +242,6 @@ public class GroupDAOPostgres extends GroupDAO
     {
         try
         {
-            // Redo eperson mappings if they've changed
-//            if (epeopleChanged)
-//            {
-                // Remove any existing mappings
-                DatabaseManager.updateQuery(context,
-                        "delete from epersongroup2eperson where eperson_group_id= ? ",
-                        group.getID());
-
-                for (EPerson eperson : group.getMembers())
-                {
-                    TableRow mappingRow = DatabaseManager.create(context,
-                            "epersongroup2eperson");
-                    mappingRow.setColumn("eperson_id", eperson.getID());
-                    mappingRow.setColumn("eperson_group_id", group.getID());
-                    DatabaseManager.update(context, mappingRow);
-                }
-
-//                epeopleChanged = false;
-//            }
-
-            // Redo Group mappings if they've changed
-//            if (groupsChanged)
-//            {
-                // Remove any existing mappings
-                DatabaseManager.updateQuery(context,
-                        "delete from group2group where parent_id= ? ",
-                        group.getID());
-
-                // Add new mappings
-                for (Group child : group.getSubGroups())
-                {
-                    TableRow mappingRow = DatabaseManager.create(context,
-                            "group2group");
-                    mappingRow.setColumn("parent_id", group.getID());
-                    mappingRow.setColumn("child_id", child.getID());
-                    DatabaseManager.update(context, mappingRow);
-                }
-
-                // groups changed, now change group cache
-                rethinkGroupCache();
-
-//                groupsChanged = false;
-//            }
-
             populateTableRowFromGroup(group, row);
             DatabaseManager.update(context, row);
         }
@@ -293,6 +255,7 @@ public class GroupDAOPostgres extends GroupDAO
      * FIXME We need link() and unlink() for EPerson <--> Group and
      * Group <--> Group mapping
      */
+    @Override
     public void delete(int id) throws AuthorizeException
     {
         try
@@ -330,6 +293,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public List<Group> getGroups(int sortField)
     {
         String s;
@@ -366,6 +330,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public List<Group> getGroups(EPerson eperson)
     {
         try
@@ -448,7 +413,8 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
-    public List<Group> getSubGroups(Group group)
+    @Override
+    public List<Group> getMemberGroups(Group group)
     {
         try
         {
@@ -476,6 +442,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public List<Group> search(String query, int offset, int limit)
 	{
 		String params = "%" + query.toLowerCase() + "%";
@@ -523,6 +490,127 @@ public class GroupDAOPostgres extends GroupDAO
         }
 	}
 
+    public void link(Group parent, Group child)
+    {
+        if (!linked(parent, child))
+        {
+            try
+            {
+                TableRow mappingRow = DatabaseManager.create(context,
+                        "group2group");
+                mappingRow.setColumn("parent_id", parent.getID());
+                mappingRow.setColumn("child_id", child.getID());
+                DatabaseManager.update(context, mappingRow);
+
+                rethinkGroupCache();
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    public void unlink(Group parent, Group child)
+    {
+        if (linked(parent, child))
+        {
+            // Uncomment once the superclass actually does anything
+            // super.unlink(parent, child);
+
+            try
+            {
+                DatabaseManager.updateQuery(context,
+                        "DELETE FROM group2group " +
+                        "WHERE parent_id = ? AND child_id = ?",
+                        parent.getID(), child.getID());
+
+                rethinkGroupCache();
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    private boolean linked(Group parent, Group child)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT id FROM group2group " +
+                    " WHERE parent_id=" + parent.getID() +
+                    " AND child_id=" + child.getID());
+
+            return tri.hasNext();
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public void link(Group group, EPerson eperson)
+    {
+        if (!linked(group, eperson))
+        {
+            // Uncomment once the superclass actually does anything
+            // super.link(group, eperson);
+
+            try
+            {
+                TableRow mappingRow = DatabaseManager.create(context,
+                        "epersongroup2eperson");
+                mappingRow.setColumn("eperson_id", eperson.getID());
+                mappingRow.setColumn("eperson_group_id", group.getID());
+                DatabaseManager.update(context, mappingRow);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    public void unlink(Group group, EPerson eperson)
+    {
+        if (linked(group, eperson))
+        {
+            // Uncomment once the superclass actually does anything
+            // super.unlink(group, eperson);
+
+            try
+            {
+                DatabaseManager.updateQuery(context,
+                        "DELETE FROM epersongroup2eperson " +
+                        "WHERE eperson_group_id = ? AND eperson_id = ?",
+                        group.getID(), eperson.getID());
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    private boolean linked(Group group, EPerson eperson)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT id FROM epersongroup2eperson " +
+                    " WHERE group_id=" + group.getID() +
+                    " AND eperson_id=" + eperson.getID());
+
+            return tri.hasNext();
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
@@ -534,6 +622,10 @@ public class GroupDAOPostgres extends GroupDAO
 
     private void populateGroupFromTableRow(Group group, TableRow row)
     {
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+
+        group.setName(row.getStringColumn("name"));
+        group.setIdentifier(new ObjectIdentifier(uuid));
     }
 
     /**

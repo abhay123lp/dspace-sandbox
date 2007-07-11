@@ -153,9 +153,9 @@ public class Group extends DSpaceObject
         return groups.contains(g);
     }
 
-    public List<Group> getSubGroups()
+    public Group[] getMemberGroups()
     {
-        return groups;
+        return (Group[]) groups.toArray(new Group[0]);
     }
 
     /**
@@ -196,15 +196,6 @@ public class Group extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
     // Deprecated methods
     ////////////////////////////////////////////////////////////////////
-
-    /**
-     * Use getSubGroups() instead.
-     */
-    @Deprecated
-    public Group[] getMemberGroups()
-    {
-        return (Group[]) groups.toArray(new Group[0]);
-    }
 
     @Deprecated
     public static boolean isMember(Context context, int groupID)

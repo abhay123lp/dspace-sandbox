@@ -63,6 +63,7 @@ public abstract class GroupDAO
     protected Logger log = Logger.getLogger(GroupDAO.class);
 
     protected Context context;
+    protected EPersonDAO epersonDAO;
 
     public Group create() throws AuthorizeException
     {
@@ -120,6 +121,56 @@ public abstract class GroupDAO
 
         log.info(LogManager.getHeader(context, "update_group", "group_id="
                 + group.getID()));
+
+        EPerson[] epeople = group.getMembers();
+
+        for (EPerson storedEPerson : epersonDAO.getEPeople(group))
+        {
+            boolean deleted = true;
+            for (EPerson eperson : epeople)
+            {
+                if (eperson.equals(storedEPerson))
+                {
+                    deleted = false;
+                    break;
+                }
+            }
+
+            if (deleted)
+            {
+                unlink(group, storedEPerson);
+            }
+        }
+
+        for (EPerson eperson : epeople)
+        {
+            link(group, eperson);
+        }
+        
+        Group[] groups = group.getMemberGroups();
+
+        for (Group storedGroup : getMemberGroups(group))
+        {
+            boolean deleted = true;
+            for (EPerson eperson : epeople)
+            {
+                if (group.equals(storedGroup))
+                {
+                    deleted = false;
+                    break;
+                }
+            }
+
+            if (deleted)
+            {
+                unlink(group, storedGroup);
+            }
+        }
+
+        for (EPerson eperson : epeople)
+        {
+            link(group, eperson);
+        }
     }
 
     public void delete(int id) throws AuthorizeException
@@ -163,7 +214,7 @@ public abstract class GroupDAO
      * Returns a list of all the immediate subgroups of the given Group.
      */
 //    public abstract List<Group> getImmediateSubGroups(Group group);
-    public abstract List<Group> getSubGroups(Group group);
+    public abstract List<Group> getMemberGroups(Group group);
 
     /**
      * Find the groups that match the search query across eperson_group_id or
@@ -223,4 +274,10 @@ public abstract class GroupDAO
 
         return false;
     }
+
+    // FIXME: All of these should probably check authorization
+    public abstract void link(Group parent, Group child);
+    public abstract void unlink(Group parent, Group child);
+    public abstract void link(Group group, EPerson eperson);
+    public abstract void unlink(Group group, EPerson eperson);
 }

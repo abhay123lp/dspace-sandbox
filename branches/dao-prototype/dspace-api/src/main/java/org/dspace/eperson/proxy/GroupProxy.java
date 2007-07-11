@@ -218,7 +218,7 @@ public class GroupProxy extends Group
     {
         if (!groupsLoaded)
         {
-            groups = dao.getSubGroups(this);
+            groups = dao.getMemberGroups(this);
             groupsLoaded = true;
         }
     }

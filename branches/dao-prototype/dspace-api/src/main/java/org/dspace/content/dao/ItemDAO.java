@@ -130,12 +130,12 @@ public abstract class ItemDAO extends ContentDAO
         Bundle[] bundles = item.getBundles();
 
         // Delete any Bundles that were removed from the in-memory list
-        for (Bundle dBbundle : bundleDAO.getBundles(item))
+        for (Bundle dbBundle : bundleDAO.getBundles(item))
         {
             boolean deleted = true;
             for (Bundle bundle : bundles)
             {
-                if (bundle.getID() == dBbundle.getID())
+                if (bundle.equals(dbBundle))
                 {
                     // If the bundle still exists in memory, don't delete
                     deleted = false;
@@ -145,7 +145,7 @@ public abstract class ItemDAO extends ContentDAO
 
             if (deleted)
             {
-                removeBundleFromItem(item, dBbundle);
+                removeBundleFromItem(item, dbBundle);
             }
         }
 
