@@ -318,7 +318,6 @@ public class EditCommunitiesServlet extends DSpaceServlet
 
         if (community != null)
         {
-            log.info(community);
             response.sendRedirect(response.encodeRedirectURL(
                         community.getIdentifier().getURL().toString()));
         }

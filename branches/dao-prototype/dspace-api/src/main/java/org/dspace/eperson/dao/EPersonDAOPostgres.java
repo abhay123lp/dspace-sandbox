@@ -499,11 +499,12 @@ public class EPersonDAOPostgres extends EPersonDAO
     {
         UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
 
-        eperson.setIdentifier(new ObjectIdentifier(uuid));
         for (EPersonMetadataField f : EPersonMetadataField.values())
         {
             eperson.setMetadata(f, row.getStringColumn(f.toString()));
         }
+
+        eperson.setIdentifier(new ObjectIdentifier(uuid));
         eperson.setCanLogIn(row.getBooleanColumn("can_log_in"));
         eperson.setRequireCertificate(
                 row.getBooleanColumn("require_certificate"));
@@ -516,6 +517,7 @@ public class EPersonDAOPostgres extends EPersonDAO
         {
             row.setColumn(f.toString(), eperson.getMetadata(f));
         }
+
         row.setColumn("can_log_in", eperson.canLogIn());
         row.setColumn("require_certificate", eperson.getRequireCertificate());
         row.setColumn("self_registered", eperson.getSelfRegistered());

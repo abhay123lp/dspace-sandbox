@@ -85,12 +85,14 @@ public abstract class GroupDAO
     {
         Group group = new GroupProxy(context, id);
 
-        group.setIdentifier(new ObjectIdentifier(uuid));
-
-        update(group);
-
         log.info(LogManager.getHeader(context, "create_group", "group_id="
                 + id));
+
+        group.setIdentifier(new ObjectIdentifier(uuid));
+        update(group);
+
+        log.info(uuid);
+        log.info(group);
 
         return group;
     }

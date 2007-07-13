@@ -76,6 +76,8 @@ public class GroupDAOPostgres extends GroupDAO
     @Override
     public Group create() throws AuthorizeException
     {
+        log.info("####################################################");
+        log.info("####################################################");
         Group group = super.create();
 
         try
@@ -85,8 +87,11 @@ public class GroupDAOPostgres extends GroupDAO
             TableRow row = DatabaseManager.create(context, "epersongroup");
             row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
+            log.info(row.getStringColumn("uuid"));
 
             int id = row.getIntColumn("eperson_group_id");
+            log.info("####################################################");
+            log.info("####################################################");
 
             return super.create(id, uuid);
         }
@@ -494,6 +499,9 @@ public class GroupDAOPostgres extends GroupDAO
     {
         if (!linked(parent, child))
         {
+            // Uncomment once the superclass actually does anything
+            // super.link(parent, child);
+
             try
             {
                 TableRow mappingRow = DatabaseManager.create(context,
@@ -615,17 +623,17 @@ public class GroupDAOPostgres extends GroupDAO
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
-    private void populateTableRowFromGroup(Group group, TableRow row)
-    {
-        row.setColumn("name", group.getName());
-    }
-
     private void populateGroupFromTableRow(Group group, TableRow row)
     {
         UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
 
         group.setName(row.getStringColumn("name"));
         group.setIdentifier(new ObjectIdentifier(uuid));
+    }
+
+    private void populateTableRowFromGroup(Group group, TableRow row)
+    {
+        row.setColumn("name", group.getName());
     }
 
     /**

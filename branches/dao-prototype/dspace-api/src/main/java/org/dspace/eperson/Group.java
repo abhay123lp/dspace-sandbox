@@ -213,6 +213,9 @@ public class Group extends DSpaceObject
     @Deprecated
     public static Group create(Context context) throws AuthorizeException
     {
+        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        log.info("Called Group.create()");
+        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
         GroupDAO dao = GroupDAOFactory.getInstance(context);
         Group group = dao.create();
 
@@ -227,7 +230,7 @@ public class Group extends DSpaceObject
     @Deprecated
     public void delete() throws AuthorizeException
     {
-        dao.delete(id);
+        dao.delete(this.getID());
     }
 
     @Deprecated

@@ -73,6 +73,8 @@ import org.dspace.content.dao.ItemDAO;              // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.GroupDAO;             // Naughty!
+import org.dspace.eperson.dao.GroupDAOFactory;      // Naughty!
 import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
 import org.dspace.workflow.WorkflowItem;
@@ -101,6 +103,7 @@ public class Collection extends DSpaceObject
     private BitstreamDAO bitstreamDAO;
     private ItemDAO itemDAO;
     private CommunityDAO communityDAO;
+    private GroupDAO groupDAO;
 
     private String identifier;
     private String license;
@@ -125,6 +128,7 @@ public class Collection extends DSpaceObject
         this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
         this.itemDAO = ItemDAOFactory.getInstance(context);
         this.communityDAO = CommunityDAOFactory.getInstance(context);
+        this.groupDAO = GroupDAOFactory.getInstance(context);
 
         this.identifiers = new ArrayList<ExternalIdentifier>();
         this.metadata = new TreeMap<String, String>();
@@ -150,9 +154,9 @@ public class Collection extends DSpaceObject
         {
             if (submitters == null)
             {
-                submitters = Group.create(context); // I'd rather do it with DAOs
+                submitters = groupDAO.create();
                 submitters.setName("COLLECTION_" + getID() + "_SUBMIT");
-                submitters.update();
+                groupDAO.update(submitters);
             }
 
             setSubmitters(submitters);
