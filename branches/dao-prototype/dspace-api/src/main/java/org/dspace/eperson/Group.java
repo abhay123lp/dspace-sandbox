@@ -90,11 +90,14 @@ public class Group extends DSpaceObject
     {
         this.id = id;
         this.context = context;
-        this.dao = GroupDAOFactory.getInstance(context);
-        this.epersonDAO = EPersonDAOFactory.getInstance(context);
+
+        dao = GroupDAOFactory.getInstance(context);
+        epersonDAO = EPersonDAOFactory.getInstance(context);
 
         epeople = new ArrayList<EPerson>();
         groups = new ArrayList<Group>();
+
+        context.cache(this, id);
     }
 
     public String getName()

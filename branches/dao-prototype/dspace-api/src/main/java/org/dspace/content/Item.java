@@ -112,16 +112,19 @@ public class Item extends DSpaceObject
     {
         this.id = id;
         this.context = context;
-        this.dao = ItemDAOFactory.getInstance(context);
-        this.bundleDAO = BundleDAOFactory.getInstance(context);
-        this.collectionDAO = CollectionDAOFactory.getInstance(context);
-        this.communityDAO = CommunityDAOFactory.getInstance(context);
-        this.epersonDAO = EPersonDAOFactory.getInstance(context);
 
-        this.identifiers = new ArrayList<ExternalIdentifier>();
-        this.bundles = new ArrayList<Bundle>();
-        this.metadata = new ArrayList<DCValue>();
-        this.metadataChanged = false;
+        dao = ItemDAOFactory.getInstance(context);
+        bundleDAO = BundleDAOFactory.getInstance(context);
+        collectionDAO = CollectionDAOFactory.getInstance(context);
+        communityDAO = CommunityDAOFactory.getInstance(context);
+        epersonDAO = EPersonDAOFactory.getInstance(context);
+
+        identifiers = new ArrayList<ExternalIdentifier>();
+        bundles = new ArrayList<Bundle>();
+        metadata = new ArrayList<DCValue>();
+        metadataChanged = false;
+
+        context.cache(this, id);
     }
 
     /**

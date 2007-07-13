@@ -94,13 +94,16 @@ public class Bundle extends DSpaceObject
     {
         this.id = id;
         this.context = context;
-        this.dao = BundleDAOFactory.getInstance(context);
-        this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-        this.itemDAO = ItemDAOFactory.getInstance(context);
 
-        this.name = "";
-        this.primaryBitstreamId = -1;
-        this.bitstreams = new ArrayList<Bitstream>();
+        dao = BundleDAOFactory.getInstance(context);
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        itemDAO = ItemDAOFactory.getInstance(context);
+
+        name = "";
+        primaryBitstreamId = -1;
+        bitstreams = new ArrayList<Bitstream>();
+
+        context.cache(this, id);
     }
 
     public String getName()

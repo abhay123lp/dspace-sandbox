@@ -102,8 +102,11 @@ public class Bitstream extends DSpaceObject
     {
         this.id = id;
         this.context = context;
-        this.dao = BitstreamDAOFactory.getInstance(context);
-        this.bundleDAO = BundleDAOFactory.getInstance(context);
+
+        dao = BitstreamDAOFactory.getInstance(context);
+        bundleDAO = BundleDAOFactory.getInstance(context);
+
+        context.cache(this, id);
     }
 
     public int getSequenceID()

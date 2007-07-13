@@ -124,15 +124,18 @@ public class Collection extends DSpaceObject
     {
         this.id = id;
         this.context = context;
-        this.dao = CollectionDAOFactory.getInstance(context);
-        this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-        this.itemDAO = ItemDAOFactory.getInstance(context);
-        this.communityDAO = CommunityDAOFactory.getInstance(context);
-        this.groupDAO = GroupDAOFactory.getInstance(context);
 
-        this.identifiers = new ArrayList<ExternalIdentifier>();
-        this.metadata = new TreeMap<String, String>();
-        this.workflowGroups = new Group[3];
+        dao = CollectionDAOFactory.getInstance(context);
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        itemDAO = ItemDAOFactory.getInstance(context);
+        communityDAO = CommunityDAOFactory.getInstance(context);
+        groupDAO = GroupDAOFactory.getInstance(context);
+
+        identifiers = new ArrayList<ExternalIdentifier>();
+        metadata = new TreeMap<String, String>();
+        workflowGroups = new Group[3];
+
+        context.cache(this, id);
     }
 
     public Group getSubmitters()

@@ -99,12 +99,15 @@ public class Community extends DSpaceObject
     {
         this.id = id;
         this.context = context;
-        this.dao = CommunityDAOFactory.getInstance(context);
-        this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-        this.collectionDAO = CollectionDAOFactory.getInstance(context);
 
-        this.identifiers = new ArrayList<ExternalIdentifier>();
-        this.metadata = new TreeMap<String, String>();
+        dao = CommunityDAOFactory.getInstance(context);
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        collectionDAO = CollectionDAOFactory.getInstance(context);
+
+        identifiers = new ArrayList<ExternalIdentifier>();
+        metadata = new TreeMap<String, String>();
+
+        context.cache(this, id);
     }
 
     public String getMetadata(String field)

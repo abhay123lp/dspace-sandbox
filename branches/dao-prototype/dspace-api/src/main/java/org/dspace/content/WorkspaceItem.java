@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.dao.CollectionDAO;
@@ -76,13 +77,17 @@ public class WorkspaceItem implements InProgressSubmission
     private Item item;
 
     /** Our context */
-    private Context ourContext;
+    private Context context;
 
     /** The table row corresponding to this workspace item */
     private TableRow wiRow;
 
     /** The collection the item is being submitted to */
     private Collection collection;
+
+    private boolean hasMultipleFiles;
+    private boolean hasMultipleTitles;
+    private boolean publishedBefore;
 
     /**
      * Construct a workspace item corresponding to the given database row
@@ -98,12 +103,16 @@ public class WorkspaceItem implements InProgressSubmission
         CollectionDAO collectionDAO =
             CollectionDAOFactory.getInstance(context);
 
-        ourContext = context;
+        context = context;
         wiRow = row;
 
         item = itemDAO.retrieve(wiRow.getIntColumn("item_id"));
         collection =
             collectionDAO.retrieve(wiRow.getIntColumn("collection_id"));
+
+        hasMultipleFiles = wiRow.getBooleanColumn("multiple_files");
+        hasMultipleTitles = wiRow.getBooleanColumn("multiple_titles");
+        publishedBefore = wiRow.getBooleanColumn("published_before");
 
         // Cache ourselves
         context.cache(this, row.getIntColumn("workspace_item_id"));
@@ -472,17 +481,17 @@ public class WorkspaceItem implements InProgressSubmission
     public void update() throws SQLException, AuthorizeException, IOException
     {
         // Authorisation is checked by the item.update() method below
-        HistoryManager.saveHistory(ourContext, this, HistoryManager.MODIFY,
-                ourContext.getCurrentUser(), ourContext.getExtraLogInfo());
+        HistoryManager.saveHistory(context, this, HistoryManager.MODIFY,
+                context.getCurrentUser(), context.getExtraLogInfo());
 
-        log.info(LogManager.getHeader(ourContext, "update_workspace_item",
+        log.info(LogManager.getHeader(context, "update_workspace_item",
                 "workspace_item_id=" + getID()));
 
         // Update the item
         item.update();
 
         // Update ourselves
-        DatabaseManager.update(ourContext, wiRow);
+        DatabaseManager.update(context, wiRow);
     }
 
     /**
@@ -498,8 +507,8 @@ public class WorkspaceItem implements InProgressSubmission
          * permission on the collection, so our policy is this: Only the
          * original submitter or an administrator can delete a workspace item.
          */
-        if (!AuthorizeManager.isAdmin(ourContext)
-                && ((ourContext.getCurrentUser() == null) || (ourContext
+        if (!AuthorizeManager.isAdmin(context)
+                && ((context.getCurrentUser() == null) || (context
                         .getCurrentUser().getID() != item.getSubmitter()
                         .getID())))
         {
@@ -508,16 +517,16 @@ public class WorkspaceItem implements InProgressSubmission
                     + "original submitter to delete a workspace item");
         }
 
-        HistoryManager.saveHistory(ourContext, this, HistoryManager.REMOVE,
-                ourContext.getCurrentUser(), ourContext.getExtraLogInfo());
+        HistoryManager.saveHistory(context, this, HistoryManager.REMOVE,
+                context.getCurrentUser(), context.getExtraLogInfo());
 
-        log.info(LogManager.getHeader(ourContext, "delete_workspace_item",
+        log.info(LogManager.getHeader(context, "delete_workspace_item",
                 "workspace_item_id=" + getID() + "item_id=" + item.getID()
                         + "collection_id=" + collection.getID()));
 
         //deleteSubmitPermissions();
         // Remove from cache
-        ourContext.removeCached(this, getID());
+        context.removeCached(this, getID());
 
         // Need to delete the epersongroup2workspaceitem row first since it refers
         // to workspaceitem ID
@@ -525,7 +534,7 @@ public class WorkspaceItem implements InProgressSubmission
 
         // Need to delete the workspaceitem row first since it refers
         // to item ID
-        DatabaseManager.delete(ourContext, wiRow);
+        DatabaseManager.delete(context, wiRow);
 
         // Delete item
         item.delete();
@@ -535,7 +544,7 @@ public class WorkspaceItem implements InProgressSubmission
     {
         
         String removeSQL="DELETE FROM epersongroup2workspaceitem WHERE workspace_item_id = ?";
-        DatabaseManager.updateQuery(ourContext, removeSQL,getID());
+        DatabaseManager.updateQuery(context, removeSQL,getID());
         
     }
 
@@ -543,22 +552,22 @@ public class WorkspaceItem implements InProgressSubmission
             IOException
     {
         // Check authorisation. We check permissions on the enclosed item.
-        AuthorizeManager.authorizeAction(ourContext, item, Constants.WRITE);
+        AuthorizeManager.authorizeAction(context, item, Constants.WRITE);
 
-        HistoryManager.saveHistory(ourContext, this, HistoryManager.REMOVE,
-                ourContext.getCurrentUser(), ourContext.getExtraLogInfo());
+        HistoryManager.saveHistory(context, this, HistoryManager.REMOVE,
+                context.getCurrentUser(), context.getExtraLogInfo());
 
-        log.info(LogManager.getHeader(ourContext, "delete_workspace_item",
+        log.info(LogManager.getHeader(context, "delete_workspace_item",
                 "workspace_item_id=" + getID() + "item_id=" + item.getID()
                         + "collection_id=" + collection.getID()));
 
         //        deleteSubmitPermissions();
         // Remove from cache
-        ourContext.removeCached(this, getID());
+        context.removeCached(this, getID());
 
         // Need to delete the workspaceitem row first since it refers
         // to item ID
-        DatabaseManager.delete(ourContext, wiRow);
+        DatabaseManager.delete(context, wiRow);
     }
 
     // InProgressSubmission methods
@@ -567,9 +576,19 @@ public class WorkspaceItem implements InProgressSubmission
         return item;
     }
 
+    public void setItem(Item item)
+    {
+        this.item = item;
+    }
+
     public Collection getCollection()
     {
         return collection;
+    }
+
+    public void setCollection(Collection collection)
+    {
+        this.collection = collection;
     }
 
     public EPerson getSubmitter() throws SQLException
@@ -579,31 +598,31 @@ public class WorkspaceItem implements InProgressSubmission
 
     public boolean hasMultipleFiles()
     {
-        return wiRow.getBooleanColumn("multiple_files");
+        return hasMultipleFiles;
     }
 
-    public void setMultipleFiles(boolean b)
+    public void setMultipleFiles(boolean hasMultipleFiles)
     {
-        wiRow.setColumn("multiple_files", b);
+        wiRow.setColumn("multiple_files", hasMultipleFiles);
     }
 
     public boolean hasMultipleTitles()
     {
-        return wiRow.getBooleanColumn("multiple_titles");
+        return hasMultipleTitles;
     }
 
-    public void setMultipleTitles(boolean b)
+    public void setMultipleTitles(boolean hasMultipleTitles)
     {
-        wiRow.setColumn("multiple_titles", b);
+        wiRow.setColumn("multiple_titles", hasMultipleTitles);
     }
 
     public boolean isPublishedBefore()
     {
-        return wiRow.getBooleanColumn("published_before");
+        return publishedBefore;
     }
 
-    public void setPublishedBefore(boolean b)
+    public void setPublishedBefore(boolean publishedBefore)
     {
-        wiRow.setColumn("published_before", b);
+        wiRow.setColumn("published_before", publishedBefore);
     }
 }
