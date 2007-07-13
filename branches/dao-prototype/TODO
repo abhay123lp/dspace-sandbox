@@ -1,7 +1,0 @@
-Add DAOs for the following classes:
- * org.dspace.authorize.ResourcePolicy
- * org.dspace.content.BitstreamFormat
- * org.dspace.content.SupervisedItem
- * org.dspace.content.WorkspaceItem
- * org.dspace.eperson.EPerson
- * org.dspace.eperson.Group
