@@ -302,7 +302,7 @@ public class EPerson extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
 
     @Deprecated
-    public EPerson(Context context, TableRow row)
+    public EPerson(Context context, org.dspace.storage.rdbms.TableRow row)
     {
         this(context, row.getIntColumn("eperson_id"));
     }
