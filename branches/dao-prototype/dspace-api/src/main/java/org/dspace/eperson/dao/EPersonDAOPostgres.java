@@ -339,7 +339,7 @@ public class EPersonDAOPostgres extends EPersonDAO
             TableRowIterator tri = DatabaseManager.queryTable(context,
                 "eperson",
                 "SELECT e.eperson_id " +
-                "FROM eperson e, epersongroup2eperson eg2e" +
+                "FROM eperson e, epersongroup2eperson eg2e " +
                 "WHERE eg2e.eperson_id = e.eperson_id " +
                 "AND eg2e.eperson_group_id = ?",
                 group.getID());

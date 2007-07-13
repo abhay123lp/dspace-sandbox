@@ -40,6 +40,7 @@
 package org.dspace.eperson.dao;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -90,9 +91,6 @@ public abstract class GroupDAO
 
         group.setIdentifier(new ObjectIdentifier(uuid));
         update(group);
-
-        log.info(uuid);
-        log.info(group);
 
         return group;
     }
@@ -206,6 +204,8 @@ public abstract class GroupDAO
      */
     public abstract List<Group> getGroups(EPerson eperson);
 
+    public abstract Set<Integer> getGroupIDs(EPerson eperson);
+
 
     /**
      * Returns a list of all the subgroups of the given Group (recursively).
@@ -269,9 +269,9 @@ public abstract class GroupDAO
         // only test for membership if context contains a user
         if (currentuser != null)
         {
-            List<Group> groups = getGroups(currentuser);
+            Set<Integer> groupIDs = getGroupIDs(currentuser);
 
-            return groups.contains(retrieve(groupID));
+            return groupIDs.contains(groupID);
         }
 
         return false;

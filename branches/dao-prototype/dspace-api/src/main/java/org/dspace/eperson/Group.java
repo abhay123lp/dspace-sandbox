@@ -89,6 +89,7 @@ public class Group extends DSpaceObject
 
     public Group(Context context, int id)
     {
+        this.id = id;
         this.context = context;
         this.dao = GroupDAOFactory.getInstance(context);
         this.epersonDAO = EPersonDAOFactory.getInstance(context);

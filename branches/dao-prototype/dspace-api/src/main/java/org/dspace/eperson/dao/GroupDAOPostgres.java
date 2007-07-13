@@ -76,8 +76,6 @@ public class GroupDAOPostgres extends GroupDAO
     @Override
     public Group create() throws AuthorizeException
     {
-        log.info("####################################################");
-        log.info("####################################################");
         Group group = super.create();
 
         try
@@ -87,11 +85,8 @@ public class GroupDAOPostgres extends GroupDAO
             TableRow row = DatabaseManager.create(context, "epersongroup");
             row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
-            log.info(row.getStringColumn("uuid"));
 
             int id = row.getIntColumn("eperson_group_id");
-            log.info("####################################################");
-            log.info("####################################################");
 
             return super.create(id, uuid);
         }
@@ -338,6 +333,19 @@ public class GroupDAOPostgres extends GroupDAO
     @Override
     public List<Group> getGroups(EPerson eperson)
     {
+        List<Group> groups = new ArrayList<Group>();
+
+        for (Integer id : getGroupIDs(eperson))
+        {
+            groups.add(retrieve(id));
+        }
+
+        return groups;
+    }
+
+    @Override
+    public Set<Integer> getGroupIDs(EPerson eperson)
+    {
         try
         {
             // two queries - first to get groups eperson is a member of
@@ -384,12 +392,10 @@ public class GroupDAOPostgres extends GroupDAO
                 }
             }
 
-            List<Group> groups = new ArrayList<Group>();
-
             if (groupIDs.size() == 0)
             {
                 // don't do query, isn't member of any groups
-                return groups;
+                return groupIDs;
             }
 
             // was member of at least one group
@@ -405,12 +411,7 @@ public class GroupDAOPostgres extends GroupDAO
                 groupIDs.add(parentID);
             }
 
-            for (Integer id : groupIDs)
-            {
-                groups.add(retrieve(id));
-            }
-
-            return groups;
+            return groupIDs;
         }
         catch (SQLException sqle)
         {
