@@ -73,35 +73,35 @@ public class WorkspaceItem implements InProgressSubmission
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkspaceItem.class);
 
-    /** The item this workspace object pertains to */
-    private Item item;
-
-    /** Our context */
     private Context context;
+    private ItemDAO itemDAO;
+    private CollectionDAO collectionDAO;
 
-    /** The table row corresponding to this workspace item */
     private TableRow wiRow;
 
-    /** The collection the item is being submitted to */
-    private Collection collection;
-
+    private int id;
     private boolean hasMultipleFiles;
     private boolean hasMultipleTitles;
     private boolean publishedBefore;
+    private Item item;
+    private Collection collection;
 
-    /**
-     * Construct a workspace item corresponding to the given database row
-     * 
-     * @param context
-     *            the context this object exists in
-     * @param row
-     *            the database row
-     */
+    public WorkspaceItem(Context context, int id)
+    {
+        this.id = id;
+        this.context = context;
+
+        itemDAO = ItemDAOFactory.getInstance(context);
+        collectionDAO = CollectionDAOFactory.getInstance(context);
+
+        context.cache(this, id);
+    }
+
+    @Deprecated
     WorkspaceItem(Context context, TableRow row) throws SQLException
     {
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-        CollectionDAO collectionDAO =
-            CollectionDAOFactory.getInstance(context);
+        itemDAO = ItemDAOFactory.getInstance(context);
+        collectionDAO = CollectionDAOFactory.getInstance(context);
 
         context = context;
         wiRow = row;
@@ -110,6 +110,7 @@ public class WorkspaceItem implements InProgressSubmission
         collection =
             collectionDAO.retrieve(wiRow.getIntColumn("collection_id"));
 
+        id = wiRow.getIntColumn("workspace_item_id");
         hasMultipleFiles = wiRow.getBooleanColumn("multiple_files");
         hasMultipleTitles = wiRow.getBooleanColumn("multiple_titles");
         publishedBefore = wiRow.getBooleanColumn("published_before");
@@ -451,7 +452,7 @@ public class WorkspaceItem implements InProgressSubmission
      */
     public int getID()
     {
-        return wiRow.getIntColumn("workspace_item_id");
+        return id;
     }
 
     /**
@@ -537,7 +538,7 @@ public class WorkspaceItem implements InProgressSubmission
         DatabaseManager.delete(context, wiRow);
 
         // Delete item
-        item.delete();
+        itemDAO.delete(item.getID());
     }
 
     private void deleteEpersonGroup2WorkspaceItem() throws SQLException

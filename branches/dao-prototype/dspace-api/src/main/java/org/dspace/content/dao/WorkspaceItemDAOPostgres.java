@@ -70,11 +70,11 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         {
             UUID uuid = UUID.randomUUID();
 
-            TableRow row = DatabaseManager.create(context, "item");
+            TableRow row = DatabaseManager.create(context, "workspaceitem");
             row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
 
-            int id = row.getIntColumn("item_id");
+            int id = row.getIntColumn("workspace_item_id");
 
             return super.create(id, uuid);
         }
@@ -86,7 +86,32 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
 
     public WorkspaceItem retrieve(int id)
     {
-        return null;
+        WorkspaceItem wsi = super.retrieve(id);
+
+        if (wsi != null)
+        {
+            return wsi;
+        }
+
+        try
+        {
+            TableRow row = DatabaseManager.find(context, "workspaceitem", id);
+
+            if (row == null)
+            {
+                log.warn("workspace item " + id + " not found");
+                return null;
+            }
+
+            wsi = new WorkspaceItem(context, id);
+            populateWorkspaceItemFromTableRow(wsi, row);
+
+            return wsi;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     public void update(WorkspaceItem wsi) throws AuthorizeException
@@ -101,7 +126,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
-    private void populateWorkSpaceItemFromTableRow(WorkspaceItem wsi,
+    private void populateWorkspaceItemFromTableRow(WorkspaceItem wsi,
             TableRow row)
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
@@ -114,5 +139,8 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
 
         wsi.setItem(item);
         wsi.setCollection(collection);
+        wsi.setMultipleFiles(row.getBooleanColumn("multiple_files"));
+        wsi.setMultipleTitles(row.getBooleanColumn("multiple_titles"));
+        wsi.setPublishedBefore(row.getBooleanColumn("published_before"));
     }
 }

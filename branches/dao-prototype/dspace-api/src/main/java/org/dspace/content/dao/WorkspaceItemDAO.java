@@ -77,7 +77,10 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         return null;
     }
 
-    public abstract WorkspaceItem retrieve(int id);
+    public WorkspaceItem retrieve(int id)
+    {
+        return (WorkspaceItem) context.fromCache(WorkspaceItem.class, id);
+    }
 
     public abstract void update(WorkspaceItem wsi) throws AuthorizeException;
 

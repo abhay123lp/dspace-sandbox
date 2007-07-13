@@ -188,8 +188,6 @@ public class ItemDAOPostgres extends ItemDAO
                 identifierDAO.getExternalIdentifiers(item);
             item.setExternalIdentifiers(identifiers);
 
-            context.cache(item, id);
-
             return item;
         }
         catch (SQLException sqle)
@@ -229,8 +227,6 @@ public class ItemDAOPostgres extends ItemDAO
             List<ExternalIdentifier> identifiers =
                 identifierDAO.getExternalIdentifiers(item);
             item.setExternalIdentifiers(identifiers);
-
-            context.cache(item, id);
 
             return item;
         }

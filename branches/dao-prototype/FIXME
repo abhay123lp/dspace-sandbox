@@ -1,0 +1,4 @@
+Stuff that needs fixin':
+ * think about where to cache objects in the Context. currently happens in
+   constructors, but should maybe happen elsewhere (should objects be
+   responsible for cacheing themselves? probably not).
