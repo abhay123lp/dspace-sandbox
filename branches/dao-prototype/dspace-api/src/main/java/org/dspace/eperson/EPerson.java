@@ -47,8 +47,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
+
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
@@ -57,10 +57,6 @@ import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
 import org.dspace.eperson.dao.EPersonDAO;           // Naughty!
 import org.dspace.eperson.dao.EPersonDAOFactory;    // Naughty!
-import org.dspace.history.HistoryManager;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class representing an e-person.
@@ -82,19 +78,11 @@ public class EPerson extends DSpaceObject
     private boolean canLogin;
     private boolean requireCertificate;
 
-    /** The e-mail field (for sorting) */
+    /** Sort fields */
     public static final int EMAIL = 1;
-
-    /** The last name (for sorting) */
     public static final int LASTNAME = 2;
-
-    /** The e-mail field (for sorting) */
     public static final int ID = 3;
-
-    /** The netid field (for sorting) */
     public static final int NETID = 4;
-
-    /** The e-mail field (for sorting) */
     public static final int LANGUAGE = 5;
 
     public enum EPersonMetadataField

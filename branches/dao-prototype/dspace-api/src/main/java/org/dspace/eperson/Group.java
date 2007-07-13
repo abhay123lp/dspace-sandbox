@@ -49,8 +49,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
@@ -71,7 +71,6 @@ public class Group extends DSpaceObject
 {
     // findAll sortby types
     public static final int ID = 0; // sort by ID
-
     public static final int NAME = 1; // sort by NAME (default)
 
     /** log4j logger */
