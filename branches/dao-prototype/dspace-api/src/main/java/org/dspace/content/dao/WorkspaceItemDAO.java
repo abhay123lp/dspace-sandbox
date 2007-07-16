@@ -83,6 +83,11 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         return (WorkspaceItem) context.fromCache(WorkspaceItem.class, id);
     }
 
+    public WorkspaceItem retrieve(UUID uuid)
+    {
+        return null;
+    }
+
     /**
      * Update the workspace item, including the unarchived item.
      */

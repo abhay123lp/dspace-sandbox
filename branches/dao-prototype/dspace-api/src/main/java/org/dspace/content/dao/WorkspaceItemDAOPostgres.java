@@ -62,6 +62,8 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     public WorkspaceItemDAOPostgres(Context context)
     {
         this.context = context;
+
+        itemDAO = ItemDAOFactory.getInstance(context);
     }
 
     public WorkspaceItem create() throws AuthorizeException
@@ -102,16 +104,54 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
                 log.warn("workspace item " + id + " not found");
                 return null;
             }
-
-            wsi = new WorkspaceItem(context, id);
-            populateWorkspaceItemFromTableRow(wsi, row);
-
-            return wsi;
+            else
+            {
+                return retrieve(row);
+            }
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    public WorkspaceItem retrieve(UUID uuid)
+    {
+        WorkspaceItem wsi = super.retrieve(uuid);
+
+        if (wsi != null)
+        {
+            return wsi;
+        }
+
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context,
+                    "workspaceitem", "uuid", uuid.toString());
+
+            if (row == null)
+            {
+                log.warn("workspace item " + uuid + " not found");
+                return null;
+            }
+            else
+            {
+                return retrieve(row);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private WorkspaceItem retrieve(TableRow row)
+    {
+        int id = row.getIntColumn("workspace_item_id");
+        WorkspaceItem wsi = new WorkspaceItem(context, id);
+        populateWorkspaceItemFromTableRow(wsi, row);
+
+        return wsi;
     }
 
     public void update(WorkspaceItem wsi) throws AuthorizeException

@@ -44,6 +44,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
@@ -193,102 +197,102 @@ public class WorkspaceItem implements InProgressSubmission
      * 
      * @return the newly created workspace item
      */
-    public static WorkspaceItem create(Context c, Collection coll,
-            boolean template) throws AuthorizeException, SQLException,
-            IOException
+    public static WorkspaceItem create(Context c, Collection collection,
+            boolean template)
+        throws AuthorizeException, SQLException, IOException
     {
         // Check the user has permission to ADD to the collection
-        AuthorizeManager.authorizeAction(c, coll, Constants.ADD);
+        AuthorizeManager.authorizeAction(c, collection, Constants.ADD);
 
         // Create an item
         ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
-        Item i = itemDAO.create();
-        i.setSubmitter(c.getCurrentUser());
+        Item item = itemDAO.create();
+        item.setSubmitter(c.getCurrentUser());
 
         // Now create the policies for the submitter and workflow
         // users to modify item and contents
         // contents = bitstreams, bundles
         // FIXME: icky hardcoded workflow steps
-        Group step1group = coll.getWorkflowGroup(1);
-        Group step2group = coll.getWorkflowGroup(2);
-        Group step3group = coll.getWorkflowGroup(3);
+        Group step1group = collection.getWorkflowGroup(1);
+        Group step2group = collection.getWorkflowGroup(2);
+        Group step3group = collection.getWorkflowGroup(3);
 
         EPerson e = c.getCurrentUser();
 
         // read permission
-        AuthorizeManager.addPolicy(c, i, Constants.READ, e);
+        AuthorizeManager.addPolicy(c, item, Constants.READ, e);
 
         if (step1group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.READ, step1group);
+            AuthorizeManager.addPolicy(c, item, Constants.READ, step1group);
         }
 
         if (step2group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.READ, step2group);
+            AuthorizeManager.addPolicy(c, item, Constants.READ, step2group);
         }
 
         if (step3group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.READ, step3group);
+            AuthorizeManager.addPolicy(c, item, Constants.READ, step3group);
         }
 
         // write permission
-        AuthorizeManager.addPolicy(c, i, Constants.WRITE, e);
+        AuthorizeManager.addPolicy(c, item, Constants.WRITE, e);
 
         if (step1group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.WRITE, step1group);
+            AuthorizeManager.addPolicy(c, item, Constants.WRITE, step1group);
         }
 
         if (step2group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.WRITE, step2group);
+            AuthorizeManager.addPolicy(c, item, Constants.WRITE, step2group);
         }
 
         if (step3group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.WRITE, step3group);
+            AuthorizeManager.addPolicy(c, item, Constants.WRITE, step3group);
         }
 
         // add permission
-        AuthorizeManager.addPolicy(c, i, Constants.ADD, e);
+        AuthorizeManager.addPolicy(c, item, Constants.ADD, e);
 
         if (step1group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.ADD, step1group);
+            AuthorizeManager.addPolicy(c, item, Constants.ADD, step1group);
         }
 
         if (step2group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.ADD, step2group);
+            AuthorizeManager.addPolicy(c, item, Constants.ADD, step2group);
         }
 
         if (step3group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.ADD, step3group);
+            AuthorizeManager.addPolicy(c, item, Constants.ADD, step3group);
         }
 
         // remove contents permission
-        AuthorizeManager.addPolicy(c, i, Constants.REMOVE, e);
+        AuthorizeManager.addPolicy(c, item, Constants.REMOVE, e);
 
         if (step1group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step1group);
+            AuthorizeManager.addPolicy(c, item, Constants.REMOVE, step1group);
         }
 
         if (step2group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step2group);
+            AuthorizeManager.addPolicy(c, item, Constants.REMOVE, step2group);
         }
 
         if (step3group != null)
         {
-            AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step3group);
+            AuthorizeManager.addPolicy(c, item, Constants.REMOVE, step3group);
         }
 
         // Copy template if appropriate
-        Item templateItem = coll.getTemplateItem();
+        Item templateItem = collection.getTemplateItem();
 
         if (template && (templateItem != null))
         {
@@ -297,32 +301,34 @@ public class WorkspaceItem implements InProgressSubmission
 
             for (int n = 0; n < md.length; n++)
             {
-                i.addMetadata(md[n].schema, md[n].element, md[n].qualifier,
+                item.addMetadata(md[n].schema, md[n].element, md[n].qualifier,
                         md[n].language, md[n].value);
             }
         }
 
-        i.update();
+        itemDAO.update(item);
 
         // Create the workspace item row
         TableRow row = DatabaseManager.create(c, "workspaceitem");
 
-        row.setColumn("item_id", i.getID());
-        row.setColumn("collection_id", coll.getID());
+        int id = row.getIntColumn("workspace_item_id");
+        WorkspaceItem wsi = new WorkspaceItem(c, id);
+
+        wsi.setItem(item);
+        wsi.setCollection(collection);
+
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(c);
+        dao.update(wsi);
 
         log.info(LogManager.getHeader(c, "create_workspace_item",
                 "workspace_item_id=" + row.getIntColumn("workspace_item_id")
-                        + "item_id=" + i.getID() + "collection_id="
-                        + coll.getID()));
+                        + "item_id=" + item.getID() + "collection_id="
+                        + collection.getID()));
 
-        DatabaseManager.update(c, row);
-
-        WorkspaceItem wi = new WorkspaceItem(c, row);
-
-        HistoryManager.saveHistory(c, wi, HistoryManager.CREATE,
+        HistoryManager.saveHistory(c, wsi, HistoryManager.CREATE,
                 c.getCurrentUser(), c.getExtraLogInfo());
 
-        return wi;
+        return wsi;
     }
 
     /**
@@ -340,7 +346,8 @@ public class WorkspaceItem implements InProgressSubmission
     public static WorkspaceItem[] findByEPerson(Context context, EPerson ep)
             throws SQLException
     {
-        List wsItems = new ArrayList();
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
 
         TableRowIterator tri = DatabaseManager.queryTable(context,
                 "workspaceitem",
@@ -350,28 +357,13 @@ public class WorkspaceItem implements InProgressSubmission
                 "ORDER BY workspaceitem.workspace_item_id", 
                 ep.getID());
 
-        while (tri.hasNext())
+        for (TableRow row : tri.toList())
         {
-            TableRow row = tri.next();
-
-            // Check the cache
-            WorkspaceItem wi = (WorkspaceItem) context.fromCache(
-                    WorkspaceItem.class, row.getIntColumn("workspace_item_id"));
-
-            if (wi == null)
-            {
-                wi = new WorkspaceItem(context, row);
-            }
-
-            wsItems.add(wi);
+            int id = row.getIntColumn("workspace_item_id");
+            wsItems.add(dao.retrieve(id));
         }
-        // close the TableRowIterator to free up resources
-        tri.close();
 
-        WorkspaceItem[] wsArray = new WorkspaceItem[wsItems.size()];
-        wsArray = (WorkspaceItem[]) wsItems.toArray(wsArray);
-
-        return wsArray;
+        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
     }
 
     /**
@@ -387,36 +379,20 @@ public class WorkspaceItem implements InProgressSubmission
     public static WorkspaceItem[] findByCollection(Context context, Collection c)
             throws SQLException
     {
-        List wsItems = new ArrayList();
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
 
         TableRowIterator tri = DatabaseManager.queryTable(context, "workspaceitem",
-                "SELECT workspaceitem.* FROM workspaceitem WHERE " +
-                "workspaceitem.collection_id= ? ",
-                c.getID());
+                "SELECT workspace_item_id FROM workspaceitem WHERE " +
+                "collection_id = ? ", c.getID());
 
-        while (tri.hasNext())
+        for (TableRow row : tri.toList())
         {
-            TableRow row = tri.next();
-
-            // Check the cache
-            WorkspaceItem wi = (WorkspaceItem) context.fromCache(
-                    WorkspaceItem.class, row.getIntColumn("workspace_item_id"));
-
-            // not in cache? turn row into workspaceitem
-            if (wi == null)
-            {
-                wi = new WorkspaceItem(context, row);
-            }
-
-            wsItems.add(wi);
+            int id = row.getIntColumn("workspace_item_id");
+            wsItems.add(dao.retrieve(id));
         }
-        // close the TableRowIterator to free up resources
-        tri.close();
 
-        WorkspaceItem[] wsArray = new WorkspaceItem[wsItems.size()];
-        wsArray = (WorkspaceItem[]) wsItems.toArray(wsArray);
-
-        return wsArray;
+        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
     }
 
     /**
@@ -429,35 +405,20 @@ public class WorkspaceItem implements InProgressSubmission
     public static WorkspaceItem[] findAll(Context context)
         throws SQLException
     {
-        List wsItems = new ArrayList();
-        String query = "SELECT * FROM workspaceitem ORDER BY item_id";
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
+
         TableRowIterator tri = DatabaseManager.queryTable(context,
-                                    "workspaceitem",
-                                    query);
+                "workspaceitem",
+                "SELECT workspace_item_id FROM workspaceitem ORDER BY item_id");
 
-        while (tri.hasNext())
+        for (TableRow row : tri.toList())
         {
-            TableRow row = tri.next();
-            
-            // Check the cache
-            WorkspaceItem wi = (WorkspaceItem) context.fromCache(
-                    WorkspaceItem.class, row.getIntColumn("workspace_item_id"));
-
-            // not in cache? turn row into workspaceitem
-            if (wi == null)
-            {
-                wi = new WorkspaceItem(context, row);
-            }
-            
-            wsItems.add(wi);
+            int id = row.getIntColumn("workspace_item_id");
+            wsItems.add(dao.retrieve(id));
         }
-        
-        tri.close();
-        
-        WorkspaceItem[] wsArray = new WorkspaceItem[wsItems.size()];
-        wsArray = (WorkspaceItem[]) wsItems.toArray(wsArray);
 
-        return wsArray;
+        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
     }
 
     /**
@@ -531,18 +492,51 @@ public class WorkspaceItem implements InProgressSubmission
         DatabaseManager.delete(context, wiRow);
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    public boolean equals(Object o)
+    {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    public boolean equals(WorkspaceItem wsi)
+    {
+        if (this.getID() == wsi.getID())
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
     /** Deprecated by the introduction of DAOs */
     @Deprecated
     WorkspaceItem(Context context, TableRow row) throws SQLException
     {
         this(context, row.getIntColumn("workspace_item_id"));
+        log.info("calling deprecated constructor");
     }
 
     @Deprecated
     public static WorkspaceItem find(Context context, int id)
             throws SQLException
     {
+        log.info("calling deprecated find() method");
         WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        log.info(dao.retrieve(id));
         return dao.retrieve(id);
     }
 

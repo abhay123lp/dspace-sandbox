@@ -57,11 +57,13 @@
 <%@ page import="org.dspace.content.Item" %>
 <%@ page import="org.dspace.eperson.EPerson" %>
 
+<p> RAAAAAAAAAAAAAAAAAAAAAAAWR! </p>
+
 <%
     EPerson eperson = (EPerson) request.getAttribute("user");
     Item[] items = (Item[]) request.getAttribute("items");
 %>
-
+<%= items[0] %>
 <dspace:layout locbar="link"
                parentlink="/mydspace"
                parenttitlekey="jsp.mydspace"

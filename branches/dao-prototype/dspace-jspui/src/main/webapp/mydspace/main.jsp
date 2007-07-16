@@ -74,6 +74,8 @@
 <%@ page import="org.dspace.workflow.WorkflowItem" %>
 <%@ page import="org.dspace.workflow.WorkflowManager" %>
 
+<p> raaaaaaaaaaaaaaaaaaaaaaawr! </p>
+
 <%
     EPerson user = (EPerson) request.getAttribute("mydspace.user");
 
