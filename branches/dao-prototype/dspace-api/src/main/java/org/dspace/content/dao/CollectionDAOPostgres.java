@@ -166,7 +166,7 @@ public class CollectionDAOPostgres extends CollectionDAO
     private Collection retrieve(TableRow row)
     {
         int id = row.getIntColumn("collection_id");
-        collection = new Collection(context, id);
+        Collection collection = new Collection(context, id);
         populateCollectionFromTableRow(collection, row);
 
         // FIXME: I'd like to bump the rest of this up into the superclass

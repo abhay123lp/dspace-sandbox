@@ -156,10 +156,10 @@ public class CommunityDAOPostgres extends CommunityDAO
         }
     }
 
-    private void retrieve(TableRow row)
+    private Community retrieve(TableRow row)
     {
         int id = row.getIntColumn("community_id");
-        community = new Community(context, id);
+        Community community = new Community(context, id);
         populateCommunityFromTableRow(community, row);
 
         // FIXME: I'd like to bump the rest of this up into the superclass

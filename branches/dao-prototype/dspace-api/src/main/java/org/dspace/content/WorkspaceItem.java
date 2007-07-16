@@ -52,6 +52,8 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.dao.WorkspaceItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -63,7 +65,12 @@ import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
- * Class representing an item in the process of being submitted by a user
+ * Class representing an item in the process of being submitted by a user.
+ *
+ * FIXME: this class could benefit from a proxy so the Collection and Item
+ * aren't fully instantiated unless explicitly required. Could be wasted
+ * effort, however, as the number of workspace items in memory at any given
+ * time will typically be very low.
  * 
  * @author Robert Tansley
  * @version $Revision$
@@ -74,6 +81,7 @@ public class WorkspaceItem implements InProgressSubmission
     private static Logger log = Logger.getLogger(WorkspaceItem.class);
 
     private Context context;
+    private WorkspaceItemDAO dao;
     private ItemDAO itemDAO;
     private CollectionDAO collectionDAO;
 
@@ -83,6 +91,8 @@ public class WorkspaceItem implements InProgressSubmission
     private boolean hasMultipleFiles;
     private boolean hasMultipleTitles;
     private boolean publishedBefore;
+    private int stageReached;
+
     private Item item;
     private Collection collection;
 
@@ -91,79 +101,11 @@ public class WorkspaceItem implements InProgressSubmission
         this.id = id;
         this.context = context;
 
+        dao = WorkspaceItemDAOFactory.getInstance(context);
         itemDAO = ItemDAOFactory.getInstance(context);
         collectionDAO = CollectionDAOFactory.getInstance(context);
 
         context.cache(this, id);
-    }
-
-    @Deprecated
-    WorkspaceItem(Context context, TableRow row) throws SQLException
-    {
-        itemDAO = ItemDAOFactory.getInstance(context);
-        collectionDAO = CollectionDAOFactory.getInstance(context);
-
-        context = context;
-        wiRow = row;
-
-        item = itemDAO.retrieve(wiRow.getIntColumn("item_id"));
-        collection =
-            collectionDAO.retrieve(wiRow.getIntColumn("collection_id"));
-
-        id = wiRow.getIntColumn("workspace_item_id");
-        hasMultipleFiles = wiRow.getBooleanColumn("multiple_files");
-        hasMultipleTitles = wiRow.getBooleanColumn("multiple_titles");
-        publishedBefore = wiRow.getBooleanColumn("published_before");
-
-        // Cache ourselves
-        context.cache(this, row.getIntColumn("workspace_item_id"));
-    }
-
-    /**
-     * Get a workspace item from the database. The item, collection and
-     * submitter are loaded into memory.
-     * 
-     * @param context
-     *            DSpace context object
-     * @param id
-     *            ID of the workspace item
-     * 
-     * @return the workspace item, or null if the ID is invalid.
-     */
-    public static WorkspaceItem find(Context context, int id)
-            throws SQLException
-    {
-        // First check the cache
-        WorkspaceItem fromCache = (WorkspaceItem) context.fromCache(
-                WorkspaceItem.class, id);
-
-        if (fromCache != null)
-        {
-            return fromCache;
-        }
-
-        TableRow row = DatabaseManager.find(context, "workspaceitem", id);
-
-        if (row == null)
-        {
-            if (log.isDebugEnabled())
-            {
-                log.debug(LogManager.getHeader(context, "find_workspace_item",
-                        "not_found,workspace_item_id=" + id));
-            }
-
-            return null;
-        }
-        else
-        {
-            if (log.isDebugEnabled())
-            {
-                log.debug(LogManager.getHeader(context, "find_workspace_item",
-                        "workspace_item_id=" + id));
-            }
-
-            return new WorkspaceItem(context, row);
-        }
     }
 
     /**
@@ -279,12 +221,13 @@ public class WorkspaceItem implements InProgressSubmission
 
         if (template && (templateItem != null))
         {
-            DCValue[] md = templateItem.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+            DCValue[] md = templateItem.getMetadata(
+                    Item.ANY, Item.ANY, Item.ANY, Item.ANY);
 
             for (int n = 0; n < md.length; n++)
             {
-                i.addMetadata(md[n].schema, md[n].element, md[n].qualifier, md[n].language,
-                        md[n].value);
+                i.addMetadata(md[n].schema, md[n].element, md[n].qualifier,
+                        md[n].language, md[n].value);
             }
         }
 
@@ -305,8 +248,8 @@ public class WorkspaceItem implements InProgressSubmission
 
         WorkspaceItem wi = new WorkspaceItem(c, row);
 
-        HistoryManager.saveHistory(c, wi, HistoryManager.CREATE, c
-                .getCurrentUser(), c.getExtraLogInfo());
+        HistoryManager.saveHistory(c, wi, HistoryManager.CREATE,
+                c.getCurrentUser(), c.getExtraLogInfo());
 
         return wi;
     }
@@ -328,7 +271,8 @@ public class WorkspaceItem implements InProgressSubmission
     {
         List wsItems = new ArrayList();
 
-        TableRowIterator tri = DatabaseManager.queryTable(context, "workspaceitem",
+        TableRowIterator tri = DatabaseManager.queryTable(context,
+                "workspaceitem",
                 "SELECT workspaceitem.* FROM workspaceitem, item WHERE " +
                 "workspaceitem.item_id=item.item_id AND " +
                 "item.submitter_id= ? " +
@@ -462,7 +406,7 @@ public class WorkspaceItem implements InProgressSubmission
      */
     public int getStageReached()
     {
-        return wiRow.getIntColumn("stage_reached");
+        return stageReached;
     }
 
     /**
@@ -471,28 +415,9 @@ public class WorkspaceItem implements InProgressSubmission
      * @param v
      *            the value of the stage reached column
      */
-    public void setStageReached(int v)
+    public void setStageReached(int stage)
     {
-        wiRow.setColumn("stage_reached", v);
-    }
-
-    /**
-     * Update the workspace item, including the unarchived item.
-     */
-    public void update() throws SQLException, AuthorizeException, IOException
-    {
-        // Authorisation is checked by the item.update() method below
-        HistoryManager.saveHistory(context, this, HistoryManager.MODIFY,
-                context.getCurrentUser(), context.getExtraLogInfo());
-
-        log.info(LogManager.getHeader(context, "update_workspace_item",
-                "workspace_item_id=" + getID()));
-
-        // Update the item
-        item.update();
-
-        // Update ourselves
-        DatabaseManager.update(context, wiRow);
+        wiRow.setColumn("stage_reached", stage);
     }
 
     /**
@@ -508,10 +433,10 @@ public class WorkspaceItem implements InProgressSubmission
          * permission on the collection, so our policy is this: Only the
          * original submitter or an administrator can delete a workspace item.
          */
-        if (!AuthorizeManager.isAdmin(context)
-                && ((context.getCurrentUser() == null) || (context
-                        .getCurrentUser().getID() != item.getSubmitter()
-                        .getID())))
+        if (!AuthorizeManager.isAdmin(context) &&
+                ((context.getCurrentUser() == null) ||
+                 (context.getCurrentUser().getID() !=
+                  item.getSubmitter().getID())))
         {
             // Not an admit, not the submitter
             throw new AuthorizeException("Must be an administrator or the "
@@ -531,7 +456,10 @@ public class WorkspaceItem implements InProgressSubmission
 
         // Need to delete the epersongroup2workspaceitem row first since it refers
         // to workspaceitem ID
-        deleteEpersonGroup2WorkspaceItem();
+        String query =
+            "DELETE FROM epersongroup2workspaceitem " +
+            "WHERE workspace_item_id = ?";
+        DatabaseManager.updateQuery(context, query, getID());
 
         // Need to delete the workspaceitem row first since it refers
         // to item ID
@@ -539,14 +467,6 @@ public class WorkspaceItem implements InProgressSubmission
 
         // Delete item
         itemDAO.delete(item.getID());
-    }
-
-    private void deleteEpersonGroup2WorkspaceItem() throws SQLException
-    {
-        
-        String removeSQL="DELETE FROM epersongroup2workspaceitem WHERE workspace_item_id = ?";
-        DatabaseManager.updateQuery(context, removeSQL,getID());
-        
     }
 
     public void deleteWrapper() throws SQLException, AuthorizeException,
@@ -625,5 +545,26 @@ public class WorkspaceItem implements InProgressSubmission
     public void setPublishedBefore(boolean publishedBefore)
     {
         wiRow.setColumn("published_before", publishedBefore);
+    }
+
+    /** Deprecated by the introduction of DAOs */
+    @Deprecated
+    WorkspaceItem(Context context, TableRow row) throws SQLException
+    {
+        this(context, row.getIntColumn("workspace_item_id"));
+    }
+
+    @Deprecated
+    public static WorkspaceItem find(Context context, int id)
+            throws SQLException
+    {
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        return dao.retrieve(id);
+    }
+
+    @Deprecated
+    public void update() throws SQLException, AuthorizeException, IOException
+    {
+        dao.update(this);
     }
 }

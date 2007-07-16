@@ -239,7 +239,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     private Bitstream retrieve(TableRow row)
     {
         int id = row.getIntColumn("bitstream_id");
-        bitstream = new Bitstream(context, id);
+        Bitstream bitstream = new Bitstream(context, id);
         populateBitstreamFromTableRow(bitstream, row);
 
         // FIXME: I'd like to bump the rest of this up into the superclass

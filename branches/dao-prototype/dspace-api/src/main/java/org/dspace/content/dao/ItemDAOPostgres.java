@@ -222,7 +222,7 @@ public class ItemDAOPostgres extends ItemDAO
     private Item retrieve(TableRow row)
     {
         int id = row.getIntColumn("item_id");
-        item = new ItemProxy(context, id);
+        Item item = new ItemProxy(context, id);
         populateItemFromTableRow(item, row);
 
         // FIXME: I'd like to bump the rest of this up into the superclass
@@ -232,7 +232,7 @@ public class ItemDAOPostgres extends ItemDAO
             identifierDAO.getExternalIdentifiers(item);
         item.setExternalIdentifiers(identifiers);
 
-        return bundle;
+        return item;
     }
 
     @Override

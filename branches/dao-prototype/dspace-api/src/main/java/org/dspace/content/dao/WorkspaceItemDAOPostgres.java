@@ -116,6 +116,40 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
 
     public void update(WorkspaceItem wsi) throws AuthorizeException
     {
+        super.update(wsi);
+
+        try
+        {
+            TableRow row =
+                DatabaseManager.find(context, "workspaceitem", wsi.getID());
+
+            if (row != null)
+            {
+                update(wsi, row);
+            }
+            else
+            {
+                throw new RuntimeException("Didn't find workspace item " +
+                        wsi.getID());
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private void update(WorkspaceItem wsi, TableRow row)
+    {
+        try
+        {
+            populateTableRowFromWorkspaceItem(wsi, row);
+            DatabaseManager.update(context, row);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     public void delete(int id) throws AuthorizeException
@@ -142,5 +176,25 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         wsi.setMultipleFiles(row.getBooleanColumn("multiple_files"));
         wsi.setMultipleTitles(row.getBooleanColumn("multiple_titles"));
         wsi.setPublishedBefore(row.getBooleanColumn("published_before"));
+        wsi.setStageReached(row.getIntColumn("stage_reached"));
+    }
+
+    private void populateTableRowFromWorkspaceItem(WorkspaceItem wsi,
+            TableRow row)
+    {
+        row.setColumn("item_id", wsi.getItem().getID());
+        Collection collection  = wsi.getCollection();
+        if (collection != null)
+        {
+            row.setColumn("collection_id", collection.getID());
+        }
+        else
+        {
+            row.setColumnNull("collection_id");
+        }
+        row.setColumn("multiple_titles", wsi.hasMultipleTitles());
+        row.setColumn("multiple_files", wsi.hasMultipleFiles());
+        row.setColumn("published_before", wsi.isPublishedBefore());
+        row.setColumn("stage_reached", wsi.getStageReached());
     }
 }

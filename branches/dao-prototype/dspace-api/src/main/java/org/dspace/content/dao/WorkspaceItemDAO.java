@@ -58,6 +58,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
     protected Logger log = Logger.getLogger(WorkspaceItemDAO.class);
 
     protected Context context;
+    protected ItemDAO itemDAO;
 
     public abstract WorkspaceItem create() throws AuthorizeException;
 
@@ -82,7 +83,20 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         return (WorkspaceItem) context.fromCache(WorkspaceItem.class, id);
     }
 
-    public abstract void update(WorkspaceItem wsi) throws AuthorizeException;
+    /**
+     * Update the workspace item, including the unarchived item.
+     */
+    public void update(WorkspaceItem wsi) throws AuthorizeException
+    {
+        // Authorisation is checked by the item update
+        HistoryManager.saveHistory(context, wsi, HistoryManager.MODIFY,
+                context.getCurrentUser(), context.getExtraLogInfo());
+
+        log.info(LogManager.getHeader(context, "update_workspace_item",
+                "workspace_item_id=" + wsi.getID()));
+
+        itemDAO.update(wsi.getItem());
+    }
 
     public abstract void delete(int id) throws AuthorizeException;
 }
