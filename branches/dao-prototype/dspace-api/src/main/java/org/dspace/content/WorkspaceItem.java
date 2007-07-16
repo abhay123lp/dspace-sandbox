@@ -107,6 +107,77 @@ public class WorkspaceItem implements InProgressSubmission
 
         context.cache(this, id);
     }
+    
+    public int getID()
+    {
+        return id;
+    }
+
+    public int getStageReached()
+    {
+        return stageReached;
+    }
+
+    public void setStageReached(int stageReached)
+    {
+        this.stageReached = stageReached;
+    }
+
+    // InProgressSubmission methods
+    public Item getItem()
+    {
+        return item;
+    }
+
+    public void setItem(Item item)
+    {
+        this.item = item;
+    }
+
+    public Collection getCollection()
+    {
+        return collection;
+    }
+
+    public void setCollection(Collection collection)
+    {
+        this.collection = collection;
+    }
+
+    public EPerson getSubmitter() throws SQLException
+    {
+        return item.getSubmitter();
+    }
+
+    public boolean hasMultipleFiles()
+    {
+        return hasMultipleFiles;
+    }
+
+    public void setMultipleFiles(boolean hasMultipleFiles)
+    {
+        this.hasMultipleFiles = hasMultipleFiles;
+    }
+
+    public boolean hasMultipleTitles()
+    {
+        return hasMultipleTitles;
+    }
+
+    public void setMultipleTitles(boolean hasMultipleTitles)
+    {
+        this.hasMultipleFiles = hasMultipleTitles;
+    }
+
+    public boolean isPublishedBefore()
+    {
+        return publishedBefore;
+    }
+
+    public void setPublishedBefore(boolean publishedBefore)
+    {
+        this.publishedBefore = publishedBefore;
+    }
 
     /**
      * Create a new workspace item, with a new ID. An Item is also created. The
@@ -388,37 +459,6 @@ public class WorkspaceItem implements InProgressSubmission
 
         return wsArray;
     }
-    
-    /**
-     * Get the internal ID of this workspace item
-     * 
-     * @return the internal identifier
-     */
-    public int getID()
-    {
-        return id;
-    }
-
-    /**
-     * Get the value of the stage reached column
-     * 
-     * @return the value of the stage reached column
-     */
-    public int getStageReached()
-    {
-        return stageReached;
-    }
-
-    /**
-     * Set the value of the stage reached column
-     * 
-     * @param v
-     *            the value of the stage reached column
-     */
-    public void setStageReached(int stage)
-    {
-        wiRow.setColumn("stage_reached", stage);
-    }
 
     /**
      * Delete the workspace item. The entry in workspaceitem, the unarchived
@@ -489,62 +529,6 @@ public class WorkspaceItem implements InProgressSubmission
         // Need to delete the workspaceitem row first since it refers
         // to item ID
         DatabaseManager.delete(context, wiRow);
-    }
-
-    // InProgressSubmission methods
-    public Item getItem()
-    {
-        return item;
-    }
-
-    public void setItem(Item item)
-    {
-        this.item = item;
-    }
-
-    public Collection getCollection()
-    {
-        return collection;
-    }
-
-    public void setCollection(Collection collection)
-    {
-        this.collection = collection;
-    }
-
-    public EPerson getSubmitter() throws SQLException
-    {
-        return item.getSubmitter();
-    }
-
-    public boolean hasMultipleFiles()
-    {
-        return hasMultipleFiles;
-    }
-
-    public void setMultipleFiles(boolean hasMultipleFiles)
-    {
-        wiRow.setColumn("multiple_files", hasMultipleFiles);
-    }
-
-    public boolean hasMultipleTitles()
-    {
-        return hasMultipleTitles;
-    }
-
-    public void setMultipleTitles(boolean hasMultipleTitles)
-    {
-        wiRow.setColumn("multiple_titles", hasMultipleTitles);
-    }
-
-    public boolean isPublishedBefore()
-    {
-        return publishedBefore;
-    }
-
-    public void setPublishedBefore(boolean publishedBefore)
-    {
-        wiRow.setColumn("published_before", publishedBefore);
     }
 
     /** Deprecated by the introduction of DAOs */
