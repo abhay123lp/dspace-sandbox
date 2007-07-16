@@ -39,15 +39,18 @@
  */
 package org.dspace.content.dao;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.Collection;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.EPerson;
 import org.dspace.history.HistoryManager;
 
 /**
@@ -104,4 +107,8 @@ public abstract class WorkspaceItemDAO extends ContentDAO
     }
 
     public abstract void delete(int id) throws AuthorizeException;
+
+    public abstract List<WorkspaceItem> getWorkspaceItems();
+    public abstract List<WorkspaceItem> getWorkspaceItems(EPerson eperson);
+    public abstract List<WorkspaceItem> getWorkspaceItems(Collection collection);
 }

@@ -332,96 +332,6 @@ public class WorkspaceItem implements InProgressSubmission
     }
 
     /**
-     * Get all workspace items for a particular e-person. These are ordered by
-     * workspace item ID, since this should likely keep them in the order in
-     * which they were created.
-     * 
-     * @param context
-     *            the context object
-     * @param ep
-     *            the eperson
-     * 
-     * @return the corresponding workspace items
-     */
-    public static WorkspaceItem[] findByEPerson(Context context, EPerson ep)
-            throws SQLException
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
-
-        TableRowIterator tri = DatabaseManager.queryTable(context,
-                "workspaceitem",
-                "SELECT workspaceitem.* FROM workspaceitem, item WHERE " +
-                "workspaceitem.item_id=item.item_id AND " +
-                "item.submitter_id= ? " +
-                "ORDER BY workspaceitem.workspace_item_id", 
-                ep.getID());
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("workspace_item_id");
-            wsItems.add(dao.retrieve(id));
-        }
-
-        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
-    }
-
-    /**
-     * Get all workspace items for a particular collection.
-     * 
-     * @param context
-     *            the context object
-     * @param c
-     *            the collection
-     * 
-     * @return the corresponding workspace items
-     */
-    public static WorkspaceItem[] findByCollection(Context context, Collection c)
-            throws SQLException
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
-
-        TableRowIterator tri = DatabaseManager.queryTable(context, "workspaceitem",
-                "SELECT workspace_item_id FROM workspaceitem WHERE " +
-                "collection_id = ? ", c.getID());
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("workspace_item_id");
-            wsItems.add(dao.retrieve(id));
-        }
-
-        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
-    }
-
-    /**
-     * Get all workspace items in the whole system
-     *
-     * @param   context     the context object
-     *
-     * @return      all workspace items
-     */
-    public static WorkspaceItem[] findAll(Context context)
-        throws SQLException
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
-
-        TableRowIterator tri = DatabaseManager.queryTable(context,
-                "workspaceitem",
-                "SELECT workspace_item_id FROM workspaceitem ORDER BY item_id");
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("workspace_item_id");
-            wsItems.add(dao.retrieve(id));
-        }
-
-        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
-    }
-
-    /**
      * Delete the workspace item. The entry in workspaceitem, the unarchived
      * item and its contents are all removed (multiple inclusion
      * notwithstanding.)
@@ -524,25 +434,48 @@ public class WorkspaceItem implements InProgressSubmission
 
     /** Deprecated by the introduction of DAOs */
     @Deprecated
-    WorkspaceItem(Context context, TableRow row) throws SQLException
+    WorkspaceItem(Context context, TableRow row)
     {
         this(context, row.getIntColumn("workspace_item_id"));
-        log.info("calling deprecated constructor");
     }
 
     @Deprecated
     public static WorkspaceItem find(Context context, int id)
-            throws SQLException
     {
-        log.info("calling deprecated find() method");
         WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        log.info(dao.retrieve(id));
         return dao.retrieve(id);
     }
 
     @Deprecated
-    public void update() throws SQLException, AuthorizeException, IOException
+    public void update() throws AuthorizeException, IOException
     {
         dao.update(this);
+    }
+
+    @Deprecated
+    public static WorkspaceItem[] findAll(Context context)
+    {
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        List<WorkspaceItem> wsItems = dao.getWorkspaceItems();
+
+        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
+    }
+
+    @Deprecated
+    public static WorkspaceItem[] findByEPerson(Context context, EPerson ep)
+    {
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(ep);
+
+        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
+    }
+
+    @Deprecated
+    public static WorkspaceItem[] findByCollection(Context context, Collection c)
+    {
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(c);
+
+        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
     }
 }

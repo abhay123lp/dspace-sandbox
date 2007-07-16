@@ -40,6 +40,8 @@
 package org.dspace.content.dao;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -50,6 +52,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -194,6 +197,82 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
 
     public void delete(int id) throws AuthorizeException
     {
+    }
+
+    public List<WorkspaceItem> getWorkspaceItems()
+    {
+        try
+        {
+            List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
+
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "workspaceitem",
+                    "SELECT workspace_item_id FROM workspaceitem ORDER BY item_id");
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("workspace_item_id");
+                wsItems.add(retrieve(id));
+            }
+
+            return wsItems;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public List<WorkspaceItem> getWorkspaceItems(EPerson eperson)
+    {
+        try
+        {
+            List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
+
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "workspaceitem",
+                    "SELECT wsi.workspace_item_id FROM workspaceitem wsi, item " +
+                    "WHERE wsi.item_id = item.item_id " +
+                    "AND item.submitter_id = ? " +
+                    "ORDER BY wsi.workspace_item_id", 
+                    eperson.getID());
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("workspace_item_id");
+                wsItems.add(retrieve(id));
+            }
+
+            return wsItems;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public List<WorkspaceItem> getWorkspaceItems(Collection collection)
+    {
+        try
+        {
+            List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
+
+            TableRowIterator tri = DatabaseManager.queryTable(context, "workspaceitem",
+                    "SELECT workspace_item_id FROM workspaceitem WHERE " +
+                    "collection_id = ? ", collection.getID());
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("workspace_item_id");
+                wsItems.add(retrieve(id));
+            }
+
+            return wsItems;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////
