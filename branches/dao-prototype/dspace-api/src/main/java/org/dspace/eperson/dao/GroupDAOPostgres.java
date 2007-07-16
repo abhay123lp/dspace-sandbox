@@ -609,7 +609,7 @@ public class GroupDAOPostgres extends GroupDAO
         {
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT id FROM epersongroup2eperson " +
-                    " WHERE group_id=" + group.getID() +
+                    " WHERE eperson_group_id=" + group.getID() +
                     " AND eperson_id=" + eperson.getID());
 
             return tri.hasNext();
