@@ -121,20 +121,10 @@ public class CollectionDAOPostgres extends CollectionDAO
                 log.warn("collection " + id + " not found");
                 return null;
             }
-
-            collection = new Collection(context, id);
-            populateCollectionFromTableRow(collection, row);
-
-            // FIXME: I'd like to bump the rest of this up into the superclass
-            // so we don't have to do it for every implementation, but I can't
-            // figure out a clean way of doing this yet.
-            List<ExternalIdentifier> identifiers =
-                identifierDAO.getExternalIdentifiers(collection);
-            collection.setExternalIdentifiers(identifiers);
-
-            context.cache(collection, id);
-
-            return collection;
+            else
+            {
+                return retrieve(row);
+            }
         }
         catch (SQLException sqle)
         {
@@ -162,26 +152,31 @@ public class CollectionDAOPostgres extends CollectionDAO
                 log.warn("collection " + uuid + " not found");
                 return null;
             }
-
-            int id = row.getIntColumn("collection_id");
-            collection = new Collection(context, id);
-            populateCollectionFromTableRow(collection, row);
-
-            // FIXME: I'd like to bump the rest of this up into the superclass
-            // so we don't have to do it for every implementation, but I can't
-            // figure out a clean way of doing this yet.
-            List<ExternalIdentifier> identifiers =
-                identifierDAO.getExternalIdentifiers(collection);
-            collection.setExternalIdentifiers(identifiers);
-
-            context.cache(collection, id);
-
-            return collection;
+            else
+            {
+                return retrieve(row);
+            }
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private Collection retrieve(TableRow row)
+    {
+        int id = row.getIntColumn("collection_id");
+        collection = new Collection(context, id);
+        populateCollectionFromTableRow(collection, row);
+
+        // FIXME: I'd like to bump the rest of this up into the superclass
+        // so we don't have to do it for every implementation, but I can't
+        // figure out a clean way of doing this yet.
+        List<ExternalIdentifier> identifiers =
+            identifierDAO.getExternalIdentifiers(collection);
+        collection.setExternalIdentifiers(identifiers);
+
+        return collection;
     }
 
     @Override

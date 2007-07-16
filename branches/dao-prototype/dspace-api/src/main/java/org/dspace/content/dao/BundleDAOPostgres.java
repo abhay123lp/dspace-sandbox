@@ -155,8 +155,6 @@ public class BundleDAOPostgres extends BundleDAO
         Bundle bundle = new Bundle(context, id);
         populateBundleFromTableRow(bundle, row);
 
-        context.cache(bundle, id);
-
         return bundle;
     }
 

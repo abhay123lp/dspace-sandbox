@@ -111,22 +111,13 @@ public class CommunityDAOPostgres extends CommunityDAO
 
             if (row == null)
             {
+                log.warn("community " + id + " not found");
                 return null;
             }
-
-            community = new Community(context, id);
-            populateCommunityFromTableRow(community, row);
-
-            // FIXME: I'd like to bump the rest of this up into the superclass
-            // so we don't have to do it for every implementation, but I can't
-            // figure out a clean way of doing this yet.
-            List<ExternalIdentifier> identifiers =
-                identifierDAO.getExternalIdentifiers(community);
-            community.setExternalIdentifiers(identifiers);
-
-            context.cache(community, id);
-
-            return community;
+            else
+            {
+                return retrieve(row);
+            }
         }
         catch (SQLException sqle)
         {
@@ -151,28 +142,34 @@ public class CommunityDAOPostgres extends CommunityDAO
 
             if (row == null)
             {
+                log.warn("community " + uuid + " not found");
                 return null;
             }
-
-            int id = row.getIntColumn("community_id");
-            community = new Community(context, id);
-            populateCommunityFromTableRow(community, row);
-
-            // FIXME: I'd like to bump the rest of this up into the superclass
-            // so we don't have to do it for every implementation, but I can't
-            // figure out a clean way of doing this yet.
-            List<ExternalIdentifier> identifiers =
-                identifierDAO.getExternalIdentifiers(community);
-            community.setExternalIdentifiers(identifiers);
-
-            context.cache(community, id);
-
-            return community;
+            else
+            {
+                return retrieve(row);
+            }
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private void retrieve(TableRow row)
+    {
+        int id = row.getIntColumn("community_id");
+        community = new Community(context, id);
+        populateCommunityFromTableRow(community, row);
+
+        // FIXME: I'd like to bump the rest of this up into the superclass
+        // so we don't have to do it for every implementation, but I can't
+        // figure out a clean way of doing this yet.
+        List<ExternalIdentifier> identifiers =
+            identifierDAO.getExternalIdentifiers(community);
+        community.setExternalIdentifiers(identifiers);
+
+        return community;
     }
 
     @Override

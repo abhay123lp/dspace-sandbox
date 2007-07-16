@@ -177,18 +177,10 @@ public class ItemDAOPostgres extends ItemDAO
                 log.warn("item " + id + " not found");
                 return null;
             }
-
-            item = new ItemProxy(context, id);
-            populateItemFromTableRow(item, row);
-
-            // FIXME: I'd like to bump the rest of this up into the superclass
-            // so we don't have to do it for every implementation, but I can't
-            // figure out a clean way of doing this yet.
-            List<ExternalIdentifier> identifiers =
-                identifierDAO.getExternalIdentifiers(item);
-            item.setExternalIdentifiers(identifiers);
-
-            return item;
+            else
+            {
+                return retrieve(row);
+            }
         }
         catch (SQLException sqle)
         {
@@ -216,24 +208,31 @@ public class ItemDAOPostgres extends ItemDAO
                 log.warn("item " + uuid + " not found");
                 return null;
             }
-
-            int id = row.getIntColumn("item_id");
-            item = new ItemProxy(context, id);
-            populateItemFromTableRow(item, row);
-
-            // FIXME: I'd like to bump the rest of this up into the superclass
-            // so we don't have to do it for every implementation, but I can't
-            // figure out a clean way of doing this yet.
-            List<ExternalIdentifier> identifiers =
-                identifierDAO.getExternalIdentifiers(item);
-            item.setExternalIdentifiers(identifiers);
-
-            return item;
+            else
+            {
+                return retrieve(row);
+            }
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private Item retrieve(TableRow row)
+    {
+        int id = row.getIntColumn("item_id");
+        item = new ItemProxy(context, id);
+        populateItemFromTableRow(item, row);
+
+        // FIXME: I'd like to bump the rest of this up into the superclass
+        // so we don't have to do it for every implementation, but I can't
+        // figure out a clean way of doing this yet.
+        List<ExternalIdentifier> identifiers =
+            identifierDAO.getExternalIdentifiers(item);
+        item.setExternalIdentifiers(identifiers);
+
+        return bundle;
     }
 
     @Override
