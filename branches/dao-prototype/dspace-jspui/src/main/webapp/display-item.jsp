@@ -150,13 +150,8 @@
     String displayStyle = (displayAll ? "full" : "");
 %>
     <dspace:item-preview item="<%= item %>" />
-    RAAAAAAAAAAAAAAWR
-    <%= item %>
-    RAAAAAAAAAAAAAAWR
     <dspace:item item="<%= item %>" collections="<%= collections %>" style="<%= displayStyle %>" />
-    RAAAAAAAAAAAAAAWR
-    <%= collections[0] %>
-    RAAAAAAAAAAAAAAWR
+
 <%
     if (displayAll)
     {
