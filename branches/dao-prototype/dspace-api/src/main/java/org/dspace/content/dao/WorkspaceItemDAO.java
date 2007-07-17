@@ -215,6 +215,45 @@ public abstract class WorkspaceItemDAO extends ContentDAO
                     "collection_id=" + wsi.getCollection().getID()));
     }
 
+    /**
+     * Delete the workspace item. The entry in workspaceitem, the unarchived
+     * item and its contents are all removed (multiple inclusion
+     * notwithstanding.)
+     */
+    public void deleteAll(int id) throws AuthorizeException
+    {
+        WorkspaceItem wsi = retrieve(id);
+        update(wsi); // Sync in-memory object before removal
+        Item item = wsi.getItem();
+        Collection collection = wsi.getCollection();
+
+        /*
+         * Authorisation is a special case. The submitter won't have REMOVE
+         * permission on the collection, so our policy is this: Only the
+         * original submitter or an administrator can delete a workspace item.
+         */
+        if (!AuthorizeManager.isAdmin(context) &&
+                ((context.getCurrentUser() == null) ||
+                 (context.getCurrentUser().getID() !=
+                  item.getSubmitter().getID())))
+        {
+            // Not an admit, not the submitter
+            throw new AuthorizeException("Must be an administrator or the "
+                    + "original submitter to delete a workspace item");
+        }
+
+        HistoryManager.saveHistory(context, this, HistoryManager.REMOVE,
+                context.getCurrentUser(), context.getExtraLogInfo());
+
+        log.info(LogManager.getHeader(context, "delete_workspace_item",
+                "workspace_item_id=" + wsi.getID() +
+                "item_id=" + item.getID() +
+                "collection_id=" + collection.getID()));
+
+        delete(id);
+        itemDAO.delete(wsi.getItem().getID());
+    }
+
     public abstract List<WorkspaceItem> getWorkspaceItems();
     public abstract List<WorkspaceItem> getWorkspaceItems(EPerson eperson);
     public abstract List<WorkspaceItem> getWorkspaceItems(Collection collection);

@@ -207,6 +207,9 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         try
         {
             DatabaseManager.delete(context, "workspaceitem", id);
+            DatabaseManager.updateQuery(context,
+                "DELETE FROM epersongroup2workspaceitem " +
+                "WHERE workspace_item_id = ?", id);
         }
         catch (SQLException sqle)
         {

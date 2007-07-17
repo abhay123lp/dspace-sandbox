@@ -193,55 +193,6 @@ public class WorkspaceItem implements InProgressSubmission
         this.publishedBefore = publishedBefore;
     }
 
-    /**
-     * Delete the workspace item. The entry in workspaceitem, the unarchived
-     * item and its contents are all removed (multiple inclusion
-     * notwithstanding.)
-     */
-    public void deleteAll() throws SQLException, AuthorizeException,
-            IOException
-    {
-        /*
-         * Authorisation is a special case. The submitter won't have REMOVE
-         * permission on the collection, so our policy is this: Only the
-         * original submitter or an administrator can delete a workspace item.
-         */
-        if (!AuthorizeManager.isAdmin(context) &&
-                ((context.getCurrentUser() == null) ||
-                 (context.getCurrentUser().getID() !=
-                  item.getSubmitter().getID())))
-        {
-            // Not an admit, not the submitter
-            throw new AuthorizeException("Must be an administrator or the "
-                    + "original submitter to delete a workspace item");
-        }
-
-        HistoryManager.saveHistory(context, this, HistoryManager.REMOVE,
-                context.getCurrentUser(), context.getExtraLogInfo());
-
-        log.info(LogManager.getHeader(context, "delete_workspace_item",
-                "workspace_item_id=" + getID() + "item_id=" + item.getID()
-                        + "collection_id=" + collection.getID()));
-
-        //deleteSubmitPermissions();
-        // Remove from cache
-        context.removeCached(this, getID());
-
-        // Need to delete the epersongroup2workspaceitem row first since it refers
-        // to workspaceitem ID
-        String query =
-            "DELETE FROM epersongroup2workspaceitem " +
-            "WHERE workspace_item_id = ?";
-        DatabaseManager.updateQuery(context, query, getID());
-
-        // Need to delete the workspaceitem row first since it refers
-        // to item ID
-        DatabaseManager.delete(context, "workspaceitem", getID());
-
-        // Delete item
-        itemDAO.delete(item.getID());
-    }
-
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
@@ -302,10 +253,16 @@ public class WorkspaceItem implements InProgressSubmission
     }
 
     @Deprecated
-    public void deleteWrapper() throws SQLException, AuthorizeException,
-           IOException
+    public void deleteWrapper() throws AuthorizeException, IOException
     {
         dao.delete(getID());
+    }
+
+    @Deprecated
+    public void deleteAll() throws SQLException, AuthorizeException,
+            IOException
+    {
+        dao.deleteAll(getID());
     }
 
     @Deprecated
