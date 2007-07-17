@@ -75,6 +75,10 @@ public class EPersonDAOPostgres extends EPersonDAO
     @Override
     public EPerson create() throws AuthorizeException
     {
+        // FIXME: This is a bit hackish. The call to the superclass is purely
+        // to check authorization, and we will just get back null rather than
+        // an actual EPerson. Maybe the authorization check should just go in
+        // EPersonDAO.create(EPerson eperson) instead.
         EPerson eperson = super.create();
 
         try
@@ -86,8 +90,10 @@ public class EPersonDAOPostgres extends EPersonDAO
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("eperson_id");
+            eperson = new EPerson(context, id);
+            eperson.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(id, uuid);
+            return super.create(eperson);
         }
         catch (SQLException sqle)
         {

@@ -70,12 +70,17 @@ public class GroupDAOPostgres extends GroupDAO
     public GroupDAOPostgres(Context context)
     {
         this.context = context;
-        this.epersonDAO = EPersonDAOFactory.getInstance(context);
+
+        epersonDAO = EPersonDAOFactory.getInstance(context);
     }
 
     @Override
     public Group create() throws AuthorizeException
     {
+        // FIXME: This is a bit hackish. The call to the superclass is purely
+        // to check authorization, and we will just get back null rather than
+        // an actual Group. Maybe the authorization check should just go in
+        // GroupDAO.create(Group group) instead.
         Group group = super.create();
 
         try
@@ -87,8 +92,10 @@ public class GroupDAOPostgres extends GroupDAO
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("eperson_group_id");
+            group = new GroupProxy(context, id);
+            group.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(id, uuid);
+            return super.create(group);
         }
         catch (SQLException sqle)
         {

@@ -82,18 +82,13 @@ public abstract class EPersonDAO
     // need access to the object that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    public EPerson create(int id, UUID uuid) throws AuthorizeException
+    protected final EPerson create(EPerson eperson) throws AuthorizeException
     {
-        EPerson eperson = new EPerson(context, id);
-
         log.info(LogManager.getHeader(context, "create_eperson", "eperson_id="
-                    + id));
+                    + eperson.getID()));
 
         HistoryManager.saveHistory(context, eperson, HistoryManager.REMOVE,
                 context.getCurrentUser(), context.getExtraLogInfo());
-
-        eperson.setIdentifier(new ObjectIdentifier(uuid));
-        update(eperson);
 
         return eperson;
     }

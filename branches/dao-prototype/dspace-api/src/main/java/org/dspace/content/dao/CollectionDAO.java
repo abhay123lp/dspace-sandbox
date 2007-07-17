@@ -64,6 +64,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
 import org.dspace.workflow.WorkflowItem;
@@ -78,6 +79,7 @@ public abstract class CollectionDAO extends ContentDAO
     protected Context context;
     protected BitstreamDAO bitstreamDAO;
     protected ItemDAO itemDAO;
+    protected GroupDAO groupDAO;
     protected ExternalIdentifierDAO identifierDAO;
 
     /**
@@ -114,14 +116,11 @@ public abstract class CollectionDAO extends ContentDAO
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    public Collection create(int id, UUID uuid) throws AuthorizeException
+    protected final Collection create(Collection collection)
+        throws AuthorizeException
     {
         try
         {
-            Collection collection = new Collection(context, id);
-
-            collection.setIdentifier(new ObjectIdentifier(uuid));
-
             // Create a default persistent identifier for this Collection, and
             // add it to the in-memory Colleciton object.
             ExternalIdentifier identifier = identifierDAO.create(collection);
@@ -129,26 +128,41 @@ public abstract class CollectionDAO extends ContentDAO
 
             // create the default authorization policy for collections
             // of 'anonymous' READ
-            Group anonymousGroup = Group.find(context, 0);
+            Group anonymousGroup = groupDAO.retrieve(0);
 
-            ResourcePolicy policy = ResourcePolicy.create(context);
-            policy.setResource(collection);
-            policy.setAction(Constants.READ);
-            policy.setGroup(anonymousGroup);
-            policy.update();
+            int actions[] = {
+                Constants.READ,
+                Constants.DEFAULT_ITEM_READ,
+                Constants.DEFAULT_BITSTREAM_READ
+            };
 
-            // now create the default policies for submitted items
-            policy = ResourcePolicy.create(context);
-            policy.setResource(collection);
-            policy.setAction(Constants.DEFAULT_ITEM_READ);
-            policy.setGroup(anonymousGroup);
-            policy.update();
+            for (int action : actions)
+            {
+                ResourcePolicy policy = ResourcePolicy.create(context);
+                policy.setResource(collection);
+                policy.setAction(action);
+                policy.setGroup(anonymousGroup);
+                policy.update();
+            }
 
-            policy = ResourcePolicy.create(context);
-            policy.setResource(collection);
-            policy.setAction(Constants.DEFAULT_BITSTREAM_READ);
-            policy.setGroup(anonymousGroup);
-            policy.update();
+//            ResourcePolicy policy = ResourcePolicy.create(context);
+//            policy.setResource(collection);
+//            policy.setAction(Constants.READ);
+//            policy.setGroup(anonymousGroup);
+//            policy.update();
+//
+//            // now create the default policies for submitted items
+//            policy = ResourcePolicy.create(context);
+//            policy.setResource(collection);
+//            policy.setAction(Constants.DEFAULT_ITEM_READ);
+//            policy.setGroup(anonymousGroup);
+//            policy.update();
+//
+//            policy = ResourcePolicy.create(context);
+//            policy.setResource(collection);
+//            policy.setAction(Constants.DEFAULT_BITSTREAM_READ);
+//            policy.setGroup(anonymousGroup);
+//            policy.update();
 
             update(collection);
 
@@ -224,16 +238,14 @@ public abstract class CollectionDAO extends ContentDAO
         try
         {
             Collection collection = retrieve(id);
-            this.update(collection); // Sync in-memory object before removal
+            update(collection); // Sync in-memory object before removal
 
             log.info(LogManager.getHeader(context, "delete_collection",
-                    "collection_id=" + collection.getID()));
+                    "collection_id=" + id));
 
-            // remove from index
+            context.removeCached(collection, id);
+
             DSIndexer.unIndexContent(context, collection);
-
-            // Remove from cache
-            context.removeCached(collection, collection.getID());
 
             HistoryManager.saveHistory(context, collection,
                     HistoryManager.REMOVE, context.getCurrentUser(),

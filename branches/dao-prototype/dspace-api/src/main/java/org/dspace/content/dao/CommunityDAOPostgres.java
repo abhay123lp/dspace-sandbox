@@ -56,6 +56,8 @@ import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
+import org.dspace.eperson.dao.GroupDAO;
+import org.dspace.eperson.dao.GroupDAOFactory;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -67,10 +69,11 @@ public class CommunityDAOPostgres extends CommunityDAO
         if (context != null)
         {
             this.context = context;
-            this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-            this.collectionDAO = CollectionDAOFactory.getInstance(context);
-            this.identifierDAO =
-                ExternalIdentifierDAOFactory.getInstance(context);
+
+            bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+            collectionDAO = CollectionDAOFactory.getInstance(context);
+            groupDAO = GroupDAOFactory.getInstance(context);
+            identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
         }
     }
 
@@ -86,8 +89,10 @@ public class CommunityDAOPostgres extends CommunityDAO
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("community_id");
+            Community community = new Community(context, id);
+            community.setIdentifier(new ObjectIdentifier(uuid));
             
-            return super.create(id, uuid);
+            return super.create(community);
         }
         catch (SQLException sqle)
         {

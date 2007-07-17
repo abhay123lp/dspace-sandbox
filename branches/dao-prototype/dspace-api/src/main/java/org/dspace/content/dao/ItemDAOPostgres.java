@@ -131,26 +131,28 @@ public class ItemDAOPostgres extends ItemDAO
     public ItemDAOPostgres(Context context)
     {
         this.context = context;
-        this.bundleDAO = BundleDAOFactory.getInstance(context);
-        this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-        this.identifierDAO =
-            ExternalIdentifierDAOFactory.getInstance(context);
+
+        bundleDAO = BundleDAOFactory.getInstance(context);
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
     @Override
     public Item create() throws AuthorizeException
     {
+        UUID uuid = UUID.randomUUID();
+
         try
         {
-            UUID uuid = UUID.randomUUID();
-
             TableRow row = DatabaseManager.create(context, "item");
             row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("item_id");
+            Item item = new ItemProxy(context, id);
+            item.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(id, uuid);
+            return super.create(item);
         }
         catch (SQLException sqle)
         {

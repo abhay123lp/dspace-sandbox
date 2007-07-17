@@ -59,6 +59,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
 
@@ -72,6 +73,7 @@ public abstract class CommunityDAO extends ContentDAO
     protected Context context;
     protected BitstreamDAO bitstreamDAO;
     protected CollectionDAO collectionDAO;
+    protected GroupDAO groupDAO;
     protected ExternalIdentifierDAO identifierDAO;
 
     /**
@@ -104,7 +106,13 @@ public abstract class CommunityDAO extends ContentDAO
 
     public abstract Community create() throws AuthorizeException;
 
-    public final Community create(int id, UUID uuid) throws AuthorizeException
+    // FIXME: This should be called something else, but I can't think of
+    // anything suitable. The reason this can't go in create() is because we
+    // need access to the item that was created, but we can't reach into the
+    // subclass to get it (storing it as a protected member variable would be
+    // even more filthy).
+    protected final Community create(Community community)
+        throws AuthorizeException
     {
         try
         {
@@ -115,10 +123,6 @@ public abstract class CommunityDAO extends ContentDAO
                         "Only administrators can create communities");
             }
 
-            Community community = new Community(context, id);
-
-            community.setIdentifier(new ObjectIdentifier(uuid));
-
             // Create a default persistent identifier for this Community, and
             // add it to the in-memory Community object.
             ExternalIdentifier identifier = identifierDAO.create(community);
@@ -126,7 +130,7 @@ public abstract class CommunityDAO extends ContentDAO
 
             // create the default authorization policy for communities
             // of 'anonymous' READ
-            Group anonymousGroup = Group.find(context, 0);
+            Group anonymousGroup = groupDAO.retrieve(0);
 
             ResourcePolicy policy = ResourcePolicy.create(context);
             policy.setResource(community);
@@ -139,7 +143,7 @@ public abstract class CommunityDAO extends ContentDAO
                     context.getExtraLogInfo());
 
             log.info(LogManager.getHeader(context, "create_community",
-                    "community_id=" + id) + ",uri=" +
+                    "community_id=" + community.getID()) + ",uri=" +
                     community.getExternalIdentifier().getCanonicalForm());
 
             update(community);
@@ -195,7 +199,9 @@ public abstract class CommunityDAO extends ContentDAO
         try
         {
             Community community = retrieve(id);
-            this.update(community); // Sync in-memory object before removal
+            update(community); // Sync in-memory object before removal
+
+            context.removeCached(community, id);
 
             // Check authorisation
             // FIXME: If this was a subcommunity, it is first removed from it's
@@ -227,10 +233,7 @@ public abstract class CommunityDAO extends ContentDAO
                     context.getCurrentUser(), context.getExtraLogInfo());
 
             log.info(LogManager.getHeader(context, "delete_community",
-                    "community_id=" + community.getID()));
-
-            // Remove from cache
-            context.removeCached(community, community.getID());
+                    "community_id=" + id));
 
             // Remove collections
             for (Collection child :
@@ -259,8 +262,9 @@ public abstract class CommunityDAO extends ContentDAO
             {
                 throw new RuntimeException(sqle);
             }
-                // Remove all authorization policies
-                AuthorizeManager.removeAllPolicies(context, community);
+
+            // Remove all authorization policies
+            AuthorizeManager.removeAllPolicies(context, community);
         }
         catch (IOException ioe)
         {

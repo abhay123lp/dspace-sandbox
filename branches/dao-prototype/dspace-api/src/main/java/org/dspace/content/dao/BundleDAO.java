@@ -72,16 +72,10 @@ public abstract class BundleDAO extends ContentDAO
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    public Bundle create(int id, UUID uuid) throws AuthorizeException
+    protected final Bundle create(Bundle bundle) throws AuthorizeException
     {
-        Bundle bundle = new Bundle(context, id);
-
-        bundle.setIdentifier(new ObjectIdentifier(uuid));
-
         log.info(LogManager.getHeader(context, "create_bundle", "bundle_id="
                 + bundle.getID()));
-
-        update(bundle);
 
         return bundle;
     }
@@ -134,9 +128,8 @@ public abstract class BundleDAO extends ContentDAO
     public void delete(int id) throws AuthorizeException
     {
         Bundle bundle = retrieve(id);
-        this.update(bundle); // Sync in-memory object before removal
+        update(bundle); // Sync in-memory object before removal
 
-        // Remove from cache
         context.removeCached(bundle, id);
 
         log.info(LogManager.getHeader(context, "delete_bundle", "bundle_id="

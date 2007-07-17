@@ -59,6 +59,8 @@ import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.GroupDAO;
+import org.dspace.eperson.dao.GroupDAOFactory;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -70,10 +72,11 @@ public class CollectionDAOPostgres extends CollectionDAO
         if (context != null)
         {
             this.context = context;
-            this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-            this.itemDAO = ItemDAOFactory.getInstance(context);
-            this.identifierDAO =
-                ExternalIdentifierDAOFactory.getInstance(context);
+
+            bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+            itemDAO = ItemDAOFactory.getInstance(context);
+            groupDAO = GroupDAOFactory.getInstance(context);
+            identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
         }
     }
 
@@ -89,8 +92,10 @@ public class CollectionDAOPostgres extends CollectionDAO
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("collection_id");
+            Collection collection = new Collection(context, id);
+            collection.setIdentifier(new ObjectIdentifier(uuid));
             
-            return super.create(id, uuid);
+            return super.create(collection);
         }
         catch (SQLException sqle)
         {

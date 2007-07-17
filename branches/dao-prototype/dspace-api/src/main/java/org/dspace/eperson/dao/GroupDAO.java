@@ -82,15 +82,10 @@ public abstract class GroupDAO
     // need access to the object that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    public Group create(int id, UUID uuid) throws AuthorizeException
+    protected final Group create(Group group) throws AuthorizeException
     {
-        Group group = new GroupProxy(context, id);
-
         log.info(LogManager.getHeader(context, "create_group", "group_id="
-                + id));
-
-        group.setIdentifier(new ObjectIdentifier(uuid));
-        update(group);
+                + group.getID()));
 
         return group;
     }

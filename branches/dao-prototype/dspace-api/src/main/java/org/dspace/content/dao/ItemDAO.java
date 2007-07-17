@@ -83,17 +83,14 @@ public abstract class ItemDAO extends ContentDAO
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    public final Item create(int id, UUID uuid) throws AuthorizeException
+    protected final Item create(Item item) throws AuthorizeException
     {
-        Item item = new ItemProxy(context, id);
-
         HistoryManager.saveHistory(context, item, HistoryManager.CREATE,
                 context.getCurrentUser(), context.getExtraLogInfo());
 
-        log.info(LogManager.getHeader(context, "create_item", "item_id=" +
-                    id));
+        log.info(LogManager.getHeader(context, "create_item",
+                    "item_id=" + item.getID()));
 
-        item.setIdentifier(new ObjectIdentifier(uuid));
         item.setLastModified(new Date());
         update(item);
 
@@ -197,9 +194,8 @@ public abstract class ItemDAO extends ContentDAO
     public void delete(int id) throws AuthorizeException
     {
         Item item = retrieve(id);
-        this.update(item); // Sync in-memory object before removal
+        update(item); // Sync in-memory object before removal
 
-        // Remove from cache
         context.removeCached(item, id);
 
         HistoryManager.saveHistory(context, item, HistoryManager.REMOVE,
@@ -227,11 +223,10 @@ public abstract class ItemDAO extends ContentDAO
         }
 
         // Remove bundles
-        Bundle[] bundles = item.getBundles();
-        for (int i = 0; i < bundles.length; i++)
+        for (Bundle bundle : item.getBundles())
         {
-            item.removeBundle(bundles[i]);
-            removeBundleFromItem(item, bundles[i]);
+            item.removeBundle(bundle);
+            removeBundleFromItem(item, bundle);
         }
 
         // remove all of our authorization policies

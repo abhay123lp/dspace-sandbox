@@ -79,8 +79,8 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     public BitstreamDAOPostgres(Context context)
     {
         this.context = context;
-        this.identifierDAO =
-            ExternalIdentifierDAOFactory.getInstance(context);
+
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
     /**
@@ -99,11 +99,10 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     @Override
     public Bitstream create(InputStream is) throws AuthorizeException
     {
-        // Store the bits
-        TableRow row = null;
         try
         {
-            row = BitstreamStorageManager.store(context, is);
+            TableRow row = BitstreamStorageManager.store(context, is);
+            return create(row);
         }
         catch (IOException ioe)
         {
@@ -113,8 +112,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         {
             throw new RuntimeException(sqle);
         }
-
-        return create(row);
     }
 
     /**
@@ -134,11 +131,11 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     public Bitstream register(int assetstore, String path)
         throws AuthorizeException
     {
-        // Store the bits
-        TableRow row = null;
         try
         {
-            row = BitstreamStorageManager.register(context, assetstore, path);
+            TableRow row =
+                BitstreamStorageManager.register(context, assetstore, path);
+            return create(row);
         }
         catch (IOException ioe)
         {
@@ -148,8 +145,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         {
             throw new RuntimeException(sqle);
         }
-
-        return create(row);
     }
 
     /**
@@ -160,19 +155,11 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     private Bitstream create(TableRow row) throws AuthorizeException
     {
         int id = row.getIntColumn("bitstream_id");
-        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
 
         Bitstream bitstream = new Bitstream(context, id);
         populateBitstreamFromTableRow(bitstream, row);
-        bitstream.setFormat(null);
-        bitstream.setIdentifier(new ObjectIdentifier(uuid));
 
-        update(bitstream);
-
-        log.info(LogManager.getHeader(context, "create_bitstream",
-                "bitstream_id=" + id));
-
-        return bitstream;
+        return super.create(bitstream);
     }
 
     @Override
@@ -428,14 +415,18 @@ public class BitstreamDAOPostgres extends BitstreamDAO
 
         int bitstreamFormatID = row.getIntColumn("bitstream_format_id");
         BitstreamFormat bitstreamFormat = null;
-        try
+
+        if (bitstreamFormatID > 0)
         {
-            bitstreamFormat =
-                BitstreamFormat.find(context, bitstreamFormatID);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            try
+            {
+                bitstreamFormat =
+                    BitstreamFormat.find(context, bitstreamFormatID);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
         }
 
         bitstream.setSequenceID(sequenceID);

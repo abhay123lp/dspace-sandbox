@@ -64,23 +64,26 @@ public class BundleDAOPostgres extends BundleDAO
     public BundleDAOPostgres(Context context)
     {
         this.context = context;
-        this.bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
     }
 
     @Override
     public Bundle create() throws AuthorizeException
     {
+        UUID uuid = UUID.randomUUID();
+
         try
         {
-            UUID uuid = UUID.randomUUID();
-
             TableRow row = DatabaseManager.create(context, "bundle");
             row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("bundle_id");
+            Bundle bundle = new Bundle(context, id);
+            bundle.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(id, uuid);
+            return super.create(bundle);
         }
         catch (SQLException sqle)
         {

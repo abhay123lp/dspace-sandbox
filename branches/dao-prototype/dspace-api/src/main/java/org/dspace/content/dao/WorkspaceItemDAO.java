@@ -39,6 +39,7 @@
  */
 package org.dspace.content.dao;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,10 +48,15 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Collection;
+import org.dspace.content.DCValue;
+import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 import org.dspace.history.HistoryManager;
 
 /**
@@ -63,22 +69,102 @@ public abstract class WorkspaceItemDAO extends ContentDAO
     protected Context context;
     protected ItemDAO itemDAO;
 
-    public abstract WorkspaceItem create() throws AuthorizeException;
+    /**
+     * Create a new workspace item, with a new ID. An Item is also created. The
+     * submitter is the current user in the context.
+     */
+    public abstract WorkspaceItem create(Collection collection,
+            boolean template) throws AuthorizeException;
 
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    public final WorkspaceItem create(int id, UUID uuid) throws AuthorizeException
+    protected final WorkspaceItem create(WorkspaceItem wsi,
+            Collection collection, boolean template)
+        throws AuthorizeException
     {
-//        WorkspaceItem wsi = new WorkspaceItem(context, id);
-//
-//        wsi.setIdentifier(new ObjectIdentifier(uuid));
-//        update(wsi);
-//
-//        return item;
-        return null;
+        // Check the user has permission to ADD to the collection
+        AuthorizeManager.authorizeAction(context, collection, Constants.ADD);
+
+        EPerson currentUser = context.getCurrentUser();
+
+        // Create an item
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+        Item item = itemDAO.create();
+        item.setSubmitter(currentUser);
+
+        // Now create the policies for the submitter and workflow users to
+        // modify item and contents (contents = bitstreams, bundles)
+        // FIXME: icky hardcoded workflow steps
+        Group stepGroups[] = {
+            collection.getWorkflowGroup(1),
+            collection.getWorkflowGroup(2),
+            collection.getWorkflowGroup(3)
+        };
+
+        int actions[] = {
+            Constants.READ,
+            Constants.WRITE,
+            Constants.ADD,
+            Constants.REMOVE
+        };
+
+        try
+        {
+            for (int action : actions)
+            {
+                AuthorizeManager.addPolicy(context, item, action, currentUser);
+            }
+
+            for (Group stepGroup : stepGroups)
+            {
+                if (stepGroup != null)
+                {
+                    for (int action : actions)
+                    {
+                        AuthorizeManager.addPolicy(context, item, action,
+                                stepGroup);
+                    }
+                }
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+
+        // Copy template if appropriate
+        Item templateItem = collection.getTemplateItem();
+
+        if (template && (templateItem != null))
+        {
+            DCValue[] md = templateItem.getMetadata(
+                    Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+
+            for (int n = 0; n < md.length; n++)
+            {
+                item.addMetadata(md[n].schema, md[n].element, md[n].qualifier,
+                        md[n].language, md[n].value);
+            }
+        }
+
+        itemDAO.update(item);
+
+        wsi.setItem(item);
+        wsi.setCollection(collection);
+        update(wsi);
+
+        log.info(LogManager.getHeader(context, "create_workspace_item",
+                "workspace_item_id=" + wsi.getID() +
+                "item_id=" + item.getID() +
+                "collection_id=" + collection.getID()));
+
+        HistoryManager.saveHistory(context, wsi, HistoryManager.CREATE,
+                context.getCurrentUser(), context.getExtraLogInfo());
+
+        return wsi;
     }
 
     public WorkspaceItem retrieve(int id)
@@ -106,7 +192,25 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         itemDAO.update(wsi.getItem());
     }
 
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        WorkspaceItem wsi = retrieve(id);
+        update(wsi); // Sync in-memory object before removal
+
+        context.removeCached(wsi, id);
+
+        // Check authorisation. We check permissions on the enclosed item.
+        AuthorizeManager.authorizeAction(context, wsi.getItem(),
+                Constants.WRITE);
+
+        HistoryManager.saveHistory(context, wsi, HistoryManager.REMOVE,
+                context.getCurrentUser(), context.getExtraLogInfo());
+
+        log.info(LogManager.getHeader(context, "delete_workspace_item",
+                    "workspace_item_id=" + id +
+                    "item_id=" + wsi.getItem().getID() +
+                    "collection_id=" + wsi.getCollection().getID()));
+    }
 
     public abstract List<WorkspaceItem> getWorkspaceItems();
     public abstract List<WorkspaceItem> getWorkspaceItems(EPerson eperson);

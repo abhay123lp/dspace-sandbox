@@ -83,7 +83,8 @@ public class ExternalIdentifier
         this(type);
         this.context = context;
         this.value = value;
-        this.oid = dso.getIdentifier();
+
+        oid = dso.getIdentifier();
     }
 
     public ObjectIdentifier getObjectIdentifier()

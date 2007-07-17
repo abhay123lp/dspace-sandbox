@@ -79,7 +79,7 @@ import org.dspace.storage.rdbms.TableRowIterator;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class WorkspaceItem implements InProgressSubmission
+public class WorkspaceItem extends DSpaceObject implements InProgressSubmission
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkspaceItem.class);
@@ -89,9 +89,7 @@ public class WorkspaceItem implements InProgressSubmission
     private ItemDAO itemDAO;
     private CollectionDAO collectionDAO;
 
-    private TableRow wiRow;
-
-    private int id;
+//    private int id;
     private boolean hasMultipleFiles;
     private boolean hasMultipleTitles;
     private boolean publishedBefore;
@@ -112,9 +110,13 @@ public class WorkspaceItem implements InProgressSubmission
         context.cache(this, id);
     }
     
-    public int getID()
+//    public int getID()
+//    {
+//        return id;
+//    }
+    public int getType()
     {
-        return id;
+        return -1;
     }
 
     public int getStageReached()
@@ -184,154 +186,6 @@ public class WorkspaceItem implements InProgressSubmission
     }
 
     /**
-     * Create a new workspace item, with a new ID. An Item is also created. The
-     * submitter is the current user in the context.
-     * 
-     * @param c
-     *            DSpace context object
-     * @param coll
-     *            Collection being submitted to
-     * @param template
-     *            if <code>true</code>, the workspace item starts as a copy
-     *            of the collection's template item
-     * 
-     * @return the newly created workspace item
-     */
-    public static WorkspaceItem create(Context c, Collection collection,
-            boolean template)
-        throws AuthorizeException, SQLException, IOException
-    {
-        // Check the user has permission to ADD to the collection
-        AuthorizeManager.authorizeAction(c, collection, Constants.ADD);
-
-        // Create an item
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
-        Item item = itemDAO.create();
-        item.setSubmitter(c.getCurrentUser());
-
-        // Now create the policies for the submitter and workflow
-        // users to modify item and contents
-        // contents = bitstreams, bundles
-        // FIXME: icky hardcoded workflow steps
-        Group step1group = collection.getWorkflowGroup(1);
-        Group step2group = collection.getWorkflowGroup(2);
-        Group step3group = collection.getWorkflowGroup(3);
-
-        EPerson e = c.getCurrentUser();
-
-        // read permission
-        AuthorizeManager.addPolicy(c, item, Constants.READ, e);
-
-        if (step1group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.READ, step1group);
-        }
-
-        if (step2group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.READ, step2group);
-        }
-
-        if (step3group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.READ, step3group);
-        }
-
-        // write permission
-        AuthorizeManager.addPolicy(c, item, Constants.WRITE, e);
-
-        if (step1group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.WRITE, step1group);
-        }
-
-        if (step2group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.WRITE, step2group);
-        }
-
-        if (step3group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.WRITE, step3group);
-        }
-
-        // add permission
-        AuthorizeManager.addPolicy(c, item, Constants.ADD, e);
-
-        if (step1group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.ADD, step1group);
-        }
-
-        if (step2group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.ADD, step2group);
-        }
-
-        if (step3group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.ADD, step3group);
-        }
-
-        // remove contents permission
-        AuthorizeManager.addPolicy(c, item, Constants.REMOVE, e);
-
-        if (step1group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.REMOVE, step1group);
-        }
-
-        if (step2group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.REMOVE, step2group);
-        }
-
-        if (step3group != null)
-        {
-            AuthorizeManager.addPolicy(c, item, Constants.REMOVE, step3group);
-        }
-
-        // Copy template if appropriate
-        Item templateItem = collection.getTemplateItem();
-
-        if (template && (templateItem != null))
-        {
-            DCValue[] md = templateItem.getMetadata(
-                    Item.ANY, Item.ANY, Item.ANY, Item.ANY);
-
-            for (int n = 0; n < md.length; n++)
-            {
-                item.addMetadata(md[n].schema, md[n].element, md[n].qualifier,
-                        md[n].language, md[n].value);
-            }
-        }
-
-        itemDAO.update(item);
-
-        // Create the workspace item row
-        TableRow row = DatabaseManager.create(c, "workspaceitem");
-
-        int id = row.getIntColumn("workspace_item_id");
-        WorkspaceItem wsi = new WorkspaceItem(c, id);
-
-        wsi.setItem(item);
-        wsi.setCollection(collection);
-
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(c);
-        dao.update(wsi);
-
-        log.info(LogManager.getHeader(c, "create_workspace_item",
-                "workspace_item_id=" + row.getIntColumn("workspace_item_id")
-                        + "item_id=" + item.getID() + "collection_id="
-                        + collection.getID()));
-
-        HistoryManager.saveHistory(c, wsi, HistoryManager.CREATE,
-                c.getCurrentUser(), c.getExtraLogInfo());
-
-        return wsi;
-    }
-
-    /**
      * Delete the workspace item. The entry in workspaceitem, the unarchived
      * item and its contents are all removed (multiple inclusion
      * notwithstanding.)
@@ -374,32 +228,10 @@ public class WorkspaceItem implements InProgressSubmission
 
         // Need to delete the workspaceitem row first since it refers
         // to item ID
-        DatabaseManager.delete(context, wiRow);
+        DatabaseManager.delete(context, "workspaceitem", getID());
 
         // Delete item
         itemDAO.delete(item.getID());
-    }
-
-    public void deleteWrapper() throws SQLException, AuthorizeException,
-            IOException
-    {
-        // Check authorisation. We check permissions on the enclosed item.
-        AuthorizeManager.authorizeAction(context, item, Constants.WRITE);
-
-        HistoryManager.saveHistory(context, this, HistoryManager.REMOVE,
-                context.getCurrentUser(), context.getExtraLogInfo());
-
-        log.info(LogManager.getHeader(context, "delete_workspace_item",
-                "workspace_item_id=" + getID() + "item_id=" + item.getID()
-                        + "collection_id=" + collection.getID()));
-
-        //        deleteSubmitPermissions();
-        // Remove from cache
-        context.removeCached(this, getID());
-
-        // Need to delete the workspaceitem row first since it refers
-        // to item ID
-        DatabaseManager.delete(context, wiRow);
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -419,7 +251,7 @@ public class WorkspaceItem implements InProgressSubmission
 
     public boolean equals(WorkspaceItem wsi)
     {
-        if (this.getID() == wsi.getID())
+        if (getID() == wsi.getID())
         {
             return true;
         }
@@ -440,6 +272,15 @@ public class WorkspaceItem implements InProgressSubmission
     }
 
     @Deprecated
+    public static WorkspaceItem create(Context context, Collection collection,
+            boolean template)
+        throws AuthorizeException, IOException
+    {
+        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+        return dao.create(collection, template);
+    }
+
+    @Deprecated
     public static WorkspaceItem find(Context context, int id)
     {
         WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
@@ -450,6 +291,13 @@ public class WorkspaceItem implements InProgressSubmission
     public void update() throws AuthorizeException, IOException
     {
         dao.update(this);
+    }
+
+    @Deprecated
+    public void deleteWrapper() throws SQLException, AuthorizeException,
+           IOException
+    {
+        dao.delete(getID());
     }
 
     @Deprecated

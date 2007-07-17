@@ -77,6 +77,20 @@ public abstract class BitstreamDAO extends ContentDAO
     public abstract Bitstream register(int assetstore, String path)
         throws AuthorizeException;
 
+    // FIXME: This should be called something else, but I can't think of
+    // anything suitable. The reason this can't go in create() is because we
+    // need access to the item that was created, but we can't reach into the
+    // subclass to get it (storing it as a protected member variable would be
+    // even more filthy).
+    protected final Bitstream create(Bitstream bitstream)
+        throws AuthorizeException
+    {
+        log.info(LogManager.getHeader(context, "create_bitstream",
+                "bitstream_id=" + bitstream.getID()));
+
+        return bitstream;
+    }
+
     public Bitstream retrieve(int id)
     {
         return (Bitstream) context.fromCache(Bitstream.class, id);
@@ -107,10 +121,8 @@ public abstract class BitstreamDAO extends ContentDAO
         log.info(LogManager.getHeader(context, "delete_bitstream",
                 "bitstream_id=" + id));
 
-        // Remove from cache
         context.removeCached(bitstream, id);
 
-        // Remove policies
         AuthorizeManager.removeAllPolicies(context, bitstream);
     }
     
@@ -122,7 +134,7 @@ public abstract class BitstreamDAO extends ContentDAO
     public void remove(int id) throws AuthorizeException
     {
         Bitstream bitstream = retrieve(id);
-        this.update(bitstream); // Sync in-memory object before removal
+        update(bitstream); // Sync in-memory object before removal
 
         AuthorizeManager.authorizeAction(context, bitstream, Constants.DELETE);
     }
