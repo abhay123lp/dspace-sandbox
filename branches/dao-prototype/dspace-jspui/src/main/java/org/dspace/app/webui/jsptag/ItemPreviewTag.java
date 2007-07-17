@@ -105,7 +105,7 @@ public class ItemPreviewTag extends TagSupport
     private void showPreview() throws SQLException, IOException
     {
         JspWriter out = pageContext.getOut();
-        
+
         // Only shows 1 preview image at the moment (the first encountered) regardless
         // of the number of bundles/bitstreams of this type
         Bundle[] bundles = item.getBundles("BRANDED_PREVIEW");

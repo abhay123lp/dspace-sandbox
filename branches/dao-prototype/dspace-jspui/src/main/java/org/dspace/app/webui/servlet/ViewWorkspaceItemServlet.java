@@ -109,7 +109,6 @@ public class ViewWorkspaceItemServlet
         HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException, SQLException, AuthorizeException
     {
-        log.info("viewing workspace item");
         // get the value from the request
         int wsItemID = UIUtil.getIntParameter(request,"workspace_id");
         
