@@ -58,6 +58,7 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -79,7 +80,7 @@ import org.dspace.storage.rdbms.TableRowIterator;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class WorkspaceItem extends DSpaceObject implements InProgressSubmission
+public class WorkspaceItem implements InProgressSubmission
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkspaceItem.class);
@@ -89,7 +90,8 @@ public class WorkspaceItem extends DSpaceObject implements InProgressSubmission
     private ItemDAO itemDAO;
     private CollectionDAO collectionDAO;
 
-//    private int id;
+    private int id;
+    private ObjectIdentifier oid;
     private boolean hasMultipleFiles;
     private boolean hasMultipleTitles;
     private boolean publishedBefore;
@@ -110,13 +112,19 @@ public class WorkspaceItem extends DSpaceObject implements InProgressSubmission
         context.cache(this, id);
     }
     
-//    public int getID()
-//    {
-//        return id;
-//    }
-    public int getType()
+    public int getID()
     {
-        return -1;
+        return id;
+    }
+
+    public ObjectIdentifier getIdentifier()
+    {
+        return oid;
+    }
+
+    public void setIdentifier(ObjectIdentifier oid)
+    {
+        this.oid = oid;
     }
 
     public int getStageReached()
@@ -172,7 +180,7 @@ public class WorkspaceItem extends DSpaceObject implements InProgressSubmission
 
     public void setMultipleTitles(boolean hasMultipleTitles)
     {
-        this.hasMultipleFiles = hasMultipleTitles;
+        this.hasMultipleTitles = hasMultipleTitles;
     }
 
     public boolean isPublishedBefore()

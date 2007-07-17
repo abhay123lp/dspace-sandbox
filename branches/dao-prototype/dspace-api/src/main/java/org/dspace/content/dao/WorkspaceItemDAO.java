@@ -97,7 +97,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
 
         // Now create the policies for the submitter and workflow users to
         // modify item and contents (contents = bitstreams, bundles)
-        // FIXME: icky hardcoded workflow steps
+        // FIXME: hardcoded workflow steps
         Group stepGroups[] = {
             collection.getWorkflowGroup(1),
             collection.getWorkflowGroup(2),
@@ -113,11 +113,14 @@ public abstract class WorkspaceItemDAO extends ContentDAO
 
         try
         {
+            // Give read, write, add, and remove privileges to the current user
             for (int action : actions)
             {
                 AuthorizeManager.addPolicy(context, item, action, currentUser);
             }
 
+            // Give read, write, add, and remove privileges to the various
+            // workflow groups (if any).
             for (Group stepGroup : stepGroups)
             {
                 if (stepGroup != null)

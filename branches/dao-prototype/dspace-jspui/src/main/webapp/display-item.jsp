@@ -72,23 +72,14 @@
 
 <%
     // Attributes
-%> <p> checkpoint -4 </p> <%
     Boolean displayAllBoolean = (Boolean) request.getAttribute("display.all");
-%> <p> checkpoint -3 </p> <%
     boolean displayAll = (displayAllBoolean != null && displayAllBoolean.booleanValue());
-%> <p> checkpoint -2 </p> <%
     Boolean suggest = (Boolean)request.getAttribute("suggest.enable");
-%> <p> checkpoint -1 </p> <%
     boolean suggestLink = (suggest == null ? false : suggest.booleanValue());
-%> <p> checkpoint 0 </p> <%
     Item item = (Item) request.getAttribute("item");
-%> <p> checkpoint 1 </p> <%
     Collection[] collections = (Collection[]) request.getAttribute("collections");
-%> <p> checkpoint 2 </p> <%
     Boolean admin_b = (Boolean)request.getAttribute("admin_button");
-%> <p> checkpoint 3 </p> <%
     boolean admin_button = (admin_b == null ? false : admin_b.booleanValue());
-%> <p> checkpoint 4 </p> <%
 
     // get the workspace id if one has been passed
     Integer workspace_id = (Integer) request.getAttribute("workspace_id");
@@ -97,8 +88,7 @@
     ExternalIdentifier identifier = item.getExternalIdentifier();
     String uri = "";
     String citationLink = "";
-    String link = "";
-//    String link = item.getIdentifier().getURL().toString();
+    String link = item.getIdentifier().getURL().toString();
 
     // CC URL & RDF
     String cc_url = CreativeCommons.getLicenseURL(item);
