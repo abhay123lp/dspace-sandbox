@@ -674,17 +674,31 @@ public class WorkflowManager
             // Get the Locale
             Locale epLocale = new Locale(ep.getLanguage());
             Locale supportedLocale = I18nUtil.getSupportedLocale(epLocale);
-            Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(supportedLocale, "submit_archive"));
+            Email email = ConfigurationManager.getEmail(
+                    I18nUtil.getEmailFilename(supportedLocale,
+                        "submit_archive"));
             
-            // Get the item persistent identifier to email to user
-            String uri = i.getExternalIdentifier().getCanonicalForm();
+            // Here, we try to get an external identifier for the item to send
+            // in the notification email. If no external identifier exists, we
+            // just send the "local" item URL.
+            ExternalIdentifier identifier = i.getExternalIdentifier();
+            String uri = "";
+            if (identifier != null)
+            {
+                uri = identifier.getURI().toString();
+            }
+            else
+            {
+                uri = i.getIdentifier().getURL().toString();
+            }
 
             // Get title
             DCValue[] titles = i.getDC("title", null, Item.ANY);
             String title = "";
             try
             {
-                title = I18nUtil.getMessage("org.dspace.workflow.WorkflowManager.untitled");
+                title = I18nUtil.getMessage(
+                        "org.dspace.workflow.WorkflowManager.untitled");
             }
             catch (MissingResourceException e)
             {
