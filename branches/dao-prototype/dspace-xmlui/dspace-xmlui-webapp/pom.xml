@@ -7,7 +7,6 @@
    <artifactId>dspace-xmlui-webapp</artifactId>
    <packaging>war</packaging>
    <name>DSpace XMLUI (Manakin) :: Web Application</name>
-   <version>1.5-SNAPSHOT</version>
    <url>http://www.dspace.org</url>
    <description>DSpace/Manakin XML UI Based Webapplication using the Cocoon and Wing frameworks</description>
 
@@ -18,31 +17,17 @@
       <relativePath>../</relativePath>
    </parent>
 
-   <!-- FIXME: Override this from dspace-pom -->
-   <properties>
-      <config>../../dspace/config/dspace.cfg</config>
-   </properties>
-
    <scm>
       <connection>
-         scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/trunk/dspace-xmlui/webapp
+         scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/trunk/dspace-xmlui/dspace-xmlui-webapp
       </connection>
       <developerConnection>
-         scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/trunk/dspace-xmlui/webapp
+         scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/trunk/dspace-xmlui/dspace-xmlui-webapp
       </developerConnection>
       <url>
-         http://dspace.svn.sourceforge.net/viewvc/dspace/trunk/dspace-xmlui/webapp
+         http://dspace.svn.sourceforge.net/viewvc/dspace/trunk/dspace-xmlui/dspace-xmlui-webapp
       </url>
    </scm>
-
-   <distributionManagement>
-      <site>
-         <id>website</id>
-         <url>
-            http://projects.dspace.org/dspace-xmlui/webapp/
-         </url>
-      </site>
-   </distributionManagement>
 
    <dependencies>
       
@@ -50,7 +35,7 @@
       <dependency>
          <groupId>org.dspace</groupId>
          <artifactId>dspace-xmlui-api</artifactId>
-         <version>1.5-SNAPSHOT</version>
+         <version>${project.version}</version>
       </dependency>
       
    </dependencies>

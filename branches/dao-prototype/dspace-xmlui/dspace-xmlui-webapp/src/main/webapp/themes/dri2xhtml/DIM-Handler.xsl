@@ -56,7 +56,6 @@
     xmlns="http://www.w3.org/1999/xhtml"
     exclude-result-prefixes="i18n dri mets dim  xlink xsl">
     
-    
     <xsl:output indent="yes"/>
     
        
@@ -113,7 +112,7 @@
         <xsl:apply-templates select="./mets:dmdSec/mets:mdWrap[@OTHERMDTYPE='DIM']/mets:xmlData/dim:dim"
             mode="itemSummaryList-DIM"/>
         <!-- Generate the thunbnail, if present, from the file section -->
-        <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='THUMBNAIL']" mode="itemSummaryList-DIM"/>
+        <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='THUMBNAIL']"/>
     </xsl:template>
     
     <!-- Generate the info about the item from the metadata section -->
@@ -123,7 +122,7 @@
                 <a href="{ancestor::mets:METS/@OBJID}">
                     <xsl:choose>
                         <xsl:when test="dim:field[@element='title']">
-                            <xsl:value-of select="dim:field[@element='title'][1]/child::node()"/>
+                            <xsl:value-of select="dim:field[@element='title'][1]/node()"/>
                         </xsl:when>
                         <xsl:otherwise>
                             <i18n:text>xmlui.dri2xhtml.METS-1.0.no-title</i18n:text>
@@ -136,7 +135,7 @@
                     <xsl:choose>
                         <xsl:when test="dim:field[@element='contributor'][@qualifier='author']">
                             <xsl:for-each select="dim:field[@element='contributor'][@qualifier='author']">
-                                <xsl:copy-of select="."/>
+                                <xsl:copy-of select="./node()"/>
                                 <xsl:if test="count(following-sibling::dim:field[@element='contributor'][@qualifier='author']) != 0">
                                     <xsl:text>; </xsl:text>
                                 </xsl:if>
@@ -144,7 +143,7 @@
                         </xsl:when>
                         <xsl:when test="dim:field[@element='creator']">
                             <xsl:for-each select="dim:field[@element='creator']">
-                                <xsl:copy-of select="."/>
+                                <xsl:copy-of select="node()"/>
                                 <xsl:if test="count(following-sibling::dim:field[@element='creator']) != 0">
                                     <xsl:text>; </xsl:text>
                                 </xsl:if>
@@ -152,7 +151,7 @@
                         </xsl:when>
                         <xsl:when test="dim:field[@element='contributor']">
                             <xsl:for-each select="dim:field[@element='contributor']">
-                                <xsl:copy-of select="."/>
+                                <xsl:copy-of select="node()"/>
                                 <xsl:if test="count(following-sibling::dim:field[@element='contributor']) != 0">
                                     <xsl:text>; </xsl:text>
                                 </xsl:if>
@@ -173,7 +172,7 @@
                         <xsl:text>, </xsl:text>
                     </xsl:if>
                     <span class="date">
-                        <xsl:value-of select="substring(dim:field[@element='date' and @qualifier='issued']/child::node(),1,10)"/>
+                        <xsl:value-of select="substring(dim:field[@element='date' and @qualifier='issued']/node(),1,10)"/>
                     </span>
                     <xsl:text>)</xsl:text>
                 </span>
@@ -181,20 +180,7 @@
         </div>
     </xsl:template>
     
-    <!-- Generate the thunbnail, if present, from the file section -->
-    <xsl:template match="mets:fileGrp[@USE='THUMBNAIL']" mode="itemSummaryList-DIM">
-        <div class="artifact-preview">
-            <a href="{ancestor::mets:METS/@OBJID}">
-                <img alt="Thumbnail">
-                    <xsl:attribute name="src">
-                        <xsl:value-of select="mets:file/mets:FLocat[@LOCTYPE='URL']/@xlink:href" />
-                    </xsl:attribute>
-                </img>
-            </a>
-        </div>
-    </xsl:template>
-    
-    
+
     <!-- A collection rendered in the summaryList pattern. Encountered on the community-list page -->
     <xsl:template name="collectionSummaryList-DIM">
         <xsl:variable name="data" select="./mets:dmdSec/mets:mdWrap/mets:xmlData/dim:dim"/>
@@ -253,7 +239,7 @@
         mode="itemSummaryList-DIM"/>
         
         <!-- Generate the thunbnail, if present, from the file section -->
-        <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='THUMBNAIL']" mode="itemSummaryList-DIM"/>
+        <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='THUMBNAIL']"/>
     </xsl:template>
     
     
@@ -267,10 +253,10 @@
         <br/>
         <xsl:choose>
             <xsl:when test="$data/dim:field[@element='description' and @qualifier='abstract']">
-                <xsl:copy-of select="$data/dim:field[@element='description' and @qualifier='abstract']"/>
+                <xsl:copy-of select="$data/dim:field[@element='description' and @qualifier='abstract']/node()"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:copy-of select="$data/dim:field[@element='description'][1]"/>
+                <xsl:copy-of select="$data/dim:field[@element='description'][1]/node()"/>
             </xsl:otherwise>
         </xsl:choose>
     </xsl:template>
@@ -327,20 +313,19 @@
     
     <!-- An item rendered in the summaryView pattern. This is the default way to view a DSpace item in Manakin. -->
     <xsl:template name="itemSummaryView-DIM">
-        
         <!-- Generate the info about the item from the metadata section -->
         <xsl:apply-templates select="./mets:dmdSec/mets:mdWrap[@OTHERMDTYPE='DIM']/mets:xmlData/dim:dim"
         mode="itemSummaryView-DIM"/>
         
         <!-- Generate the bitstream information from the file section -->
-        <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='CONTENT']" mode="itemSummaryView-DIM">
+        <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='CONTENT']">
             <xsl:with-param name="context" select="."/>
             <xsl:with-param name="primaryBitream" select="./mets:structMap[@TYPE='LOGICAL']/mets:div[@TYPE='DSpace Item']/mets:fptr/@FILEID"/>
         </xsl:apply-templates>
 
         <!-- Generate the license information from the file section -->
-        <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='THUMBNAIL']" mode="itemSummaryView-DIM"/>
-        
+        <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='CC-LICENSE' or @USE='LICENSE']"/>
+
     </xsl:template>
     
     
@@ -370,11 +355,11 @@
                 </td>
             </tr>-->
             <tr class="ds-table-row even">
-                <td><span class="bold"><i18n:text>xmlui.dri2xhtml.METS-1.0.item-title</i18n:text>:</span></td>
+                <td><span class="bold"><i18n:text>xmlui.dri2xhtml.METS-1.0.item-title</i18n:text>: </span></td>
                 <td>
                     <xsl:choose>
                         <xsl:when test="dim:field[@element='title']">
-                            <xsl:value-of select="dim:field[@element='title'][1]/child::node()"/>
+                            <xsl:value-of select="dim:field[@element='title'][1]/node()"/>
                         </xsl:when>
                         <xsl:otherwise>
                             <i18n:text>xmlui.dri2xhtml.METS-1.0.no-title</i18n:text>
@@ -388,7 +373,7 @@
                     <xsl:choose>
                         <xsl:when test="dim:field[@element='contributor'][@qualifier='author']">
                             <xsl:for-each select="dim:field[@element='contributor'][@qualifier='author']">
-                                <xsl:copy-of select="."/>
+                                <xsl:copy-of select="node()"/>
                                 <xsl:if test="count(following-sibling::dim:field[@element='contributor'][@qualifier='author']) != 0">
                                     <xsl:text>; </xsl:text>
                                 </xsl:if>
@@ -396,7 +381,7 @@
                         </xsl:when>
                         <xsl:when test="dim:field[@element='creator']">
                             <xsl:for-each select="dim:field[@element='creator']">
-                                <xsl:copy-of select="."/>
+                                <xsl:copy-of select="node()"/>
                                 <xsl:if test="count(following-sibling::dim:field[@element='creator']) != 0">
                                     <xsl:text>; </xsl:text>
                                 </xsl:if>
@@ -404,7 +389,7 @@
                         </xsl:when>
                         <xsl:when test="dim:field[@element='contributor']">
                             <xsl:for-each select="dim:field[@element='contributor']">
-                                <xsl:copy-of select="."/>
+                                <xsl:copy-of select="node()"/>
                                 <xsl:if test="count(following-sibling::dim:field[@element='contributor']) != 0">
                                     <xsl:text>; </xsl:text>
                                 </xsl:if>
@@ -418,165 +403,30 @@
             </tr>
             <tr class="ds-table-row even">
                 <td><span class="bold"><i18n:text>xmlui.dri2xhtml.METS-1.0.item-abstract</i18n:text>:</span></td>
-                <td><xsl:copy-of select="dim:field[@element='description' and @qualifier='abstract']/child::node()"/></td>
+                <td><xsl:copy-of select="dim:field[@element='description' and @qualifier='abstract']/node()"/></td>
             </tr>
             <tr class="ds-table-row odd">
                 <td><span class="bold"><i18n:text>xmlui.dri2xhtml.METS-1.0.item-description</i18n:text>:</span></td>
-                <td><xsl:copy-of select="dim:field[@element='description' and not(@qualifier)]/child::node()"/></td>
+                <td><xsl:copy-of select="dim:field[@element='description' and not(@qualifier)]/node()"/></td>
             </tr>
             <tr class="ds-table-row even">
                 <td><span class="bold"><i18n:text>xmlui.dri2xhtml.METS-1.0.item-uri</i18n:text>:</span></td>
                 <td>
                     <a>
                         <xsl:attribute name="href">
-                            <xsl:copy-of select="dim:field[@element='identifier' and @qualifier='uri'][1]/child::node()"/>
+                            <xsl:copy-of select="dim:field[@element='identifier' and @qualifier='uri'][1]/node()"/>
                         </xsl:attribute>
-                        <xsl:copy-of select="dim:field[@element='identifier' and @qualifier='uri'][1]/child::node()"/>
+                        <xsl:copy-of select="dim:field[@element='identifier' and @qualifier='uri'][1]/node()"/>
                     </a>
                 </td>
             </tr>
             <tr class="ds-table-row odd">
                 <td><span class="bold"><i18n:text>xmlui.dri2xhtml.METS-1.0.item-date</i18n:text>:</span></td>
-                <td><xsl:copy-of select="substring(dim:field[@element='date' and @qualifier='issued']/child::node(),1,10)"/></td>
+                <td><xsl:copy-of select="substring(dim:field[@element='date' and @qualifier='issued']/node(),1,10)"/></td>
             </tr>
         </table>
     </xsl:template>
-    
-    <!-- Generate the bitstream information from the file section -->
-    <xsl:template match="mets:fileGrp[@USE='CONTENT']" mode="itemSummaryView-DIM">
-        <xsl:param name="context"/>
-        <xsl:param name="primaryBitream" select="-1"/>
-        
-        <h2><i18n:text>xmlui.dri2xhtml.METS-1.0.item-files-head</i18n:text></h2>
-        <table class="ds-table file-list">
-            <tr class="ds-table-header-row">
-                <th><i18n:text>xmlui.dri2xhtml.METS-1.0.item-files-file</i18n:text></th>
-                <th><i18n:text>xmlui.dri2xhtml.METS-1.0.item-files-size</i18n:text></th>
-                <th><i18n:text>xmlui.dri2xhtml.METS-1.0.item-files-format</i18n:text></th>
-                <th><i18n:text>xmlui.dri2xhtml.METS-1.0.item-files-view</i18n:text></th>
-            </tr>
-            <xsl:choose>
-                <!-- If one exists and it's of text/html MIME type, only display the primary bitstream -->
-                <xsl:when test="mets:file[@ID=$primaryBitream]/@MIMETYPE='text/html'">
-                    <xsl:apply-templates select="mets:file[@ID=$primaryBitream]" mode="itemSummaryView-DIM">
-                        <xsl:with-param name="context" select="$context"/>
-                    </xsl:apply-templates>
-                </xsl:when>
-                <!-- Otherwise, iterate over and display all of them -->
-                <xsl:otherwise>
-                    <xsl:apply-templates select="mets:file" mode="itemSummaryView-DIM">
-                        <xsl:sort select="mets:FLocat[@LOCTYPE='URL']/@xlink:title"/> 
-                        <xsl:with-param name="context" select="$context"/>
-                    </xsl:apply-templates>
-                </xsl:otherwise>
-            </xsl:choose>
-        </table>
-    </xsl:template>
-    
-    <!-- Build a single row in the bitsreams table of the item view page -->
-    <xsl:template match="mets:file" mode="itemSummaryView-DIM">
-        <xsl:param name="context" select="."/>
-        <tr>
-            <xsl:attribute name="class">
-                <xsl:text>ds-table-row </xsl:text>
-                <xsl:if test="(position() mod 2 = 0)">even </xsl:if>
-                <xsl:if test="(position() mod 2 = 1)">odd </xsl:if>
-            </xsl:attribute>
-            <td>
-                <a>
-                    <xsl:attribute name="href">
-                        <xsl:value-of select="mets:FLocat[@LOCTYPE='URL']/@xlink:href"/>
-                    </xsl:attribute>
-                    <xsl:attribute name="title">
-                        <xsl:value-of select="mets:FLocat[@LOCTYPE='URL']/@xlink:title"/>
-                    </xsl:attribute>
-                    <xsl:choose>
-                        <xsl:when test="string-length(mets:FLocat[@LOCTYPE='URL']/@xlink:title) > 50">
-                            <xsl:variable name="title_length" select="string-length(mets:FLocat[@LOCTYPE='URL']/@xlink:title)"/>
-                            <xsl:value-of select="substring(mets:FLocat[@LOCTYPE='URL']/@xlink:title,1,15)"/>
-                            <xsl:text> ... </xsl:text>
-                            <xsl:value-of select="substring(mets:FLocat[@LOCTYPE='URL']/@xlink:title,$title_length - 25,$title_length)"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:value-of select="mets:FLocat[@LOCTYPE='URL']/@xlink:title"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
-                </a>
-            </td>
-            <!-- File size always comes in bytes and thus needs conversion --> 
-            <td>
-                <xsl:choose>
-                    <xsl:when test="@SIZE &lt; 1000">
-                        <xsl:value-of select="@SIZE"/>
-                        <i18n:text>xmlui.dri2xhtml.METS-1.0.size-bytes</i18n:text>
-                    </xsl:when>
-                    <xsl:when test="@SIZE &lt; 1000000">
-                        <xsl:value-of select="substring(string(@SIZE div 1000),1,5)"/>
-                        <i18n:text>xmlui.dri2xhtml.METS-1.0.size-kilobytes</i18n:text>
-                    </xsl:when>
-                    <xsl:when test="@SIZE &lt; 1000000000">
-                        <xsl:value-of select="substring(string(@SIZE div 1000000),1,5)"/>
-                        <i18n:text>xmlui.dri2xhtml.METS-1.0.size-megabytes</i18n:text>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="substring(string(@SIZE div 1000000000),1,5)"/>
-                        <i18n:text>xmlui.dri2xhtml.METS-1.0.size-gigabytes</i18n:text>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </td>
-            <!-- Currently format carries forward the mime type. In the original DSpace, this 
-                would get resolved to an application via the Bitstream Registry, but we are
-                constrained by the capabilities of METS and can't really pass that info through. -->
-            <td><xsl:value-of select="substring-before(@MIMETYPE,'/')"/>
-                <xsl:text>/</xsl:text>
-                <xsl:value-of select="substring-after(@MIMETYPE,'/')"/>
-            </td>
-            <td>
-                <xsl:choose>
-                    <xsl:when test="$context/mets:fileSec/mets:fileGrp[@USE='THUMBNAIL']/
-                        mets:file[@GROUP_ID=current()/@GROUP_ID]">
-                        <a class="image-link">
-                            <xsl:attribute name="href">
-                                <xsl:value-of select="mets:FLocat[@LOCTYPE='URL']/@xlink:href"/>
-                            </xsl:attribute>
-                            <img alt="Thumbnail">
-                                <xsl:attribute name="src">
-                                    <xsl:value-of select="$context/mets:fileSec/mets:fileGrp[@USE='THUMBNAIL']/
-                                        mets:file[@GROUP_ID=current()/@GROUP_ID]/mets:FLocat[@LOCTYPE='URL']/@xlink:href"/>
-                                </xsl:attribute>
-                            </img>
-                        </a>
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <a>
-                            <xsl:attribute name="href">
-                                <xsl:value-of select="mets:FLocat[@LOCTYPE='URL']/@xlink:href"/>
-                            </xsl:attribute>
-                            <i18n:text>xmlui.dri2xhtml.METS-1.0.item-files-viewOpen</i18n:text>
-                        </a>
-                    </xsl:otherwise>
-                </xsl:choose>                        
-            </td>
-        </tr>
-    </xsl:template>
-    
-    
-    <!-- Generate the license information from the file section -->
-    <xsl:template match="mets:fileGrp[@USE='CC-LICENSE' or @USE='LICENSE']" mode="itemSummaryView-DIM">
-        <div class="license-info">
-            <p><i18n:text>xmlui.dri2xhtml.METS-1.0.license-text</i18n:text></p>
-            <ul>
-                <xsl:if test="@USE='CC-LICENSE'">
-                    <li><a href="{mets:file/mets:FLocat[@xlink:title='license_text']/@xlink:href}">Creative Commons</a></li>
-                </xsl:if>
-                <xsl:if test="@USE='LICENSE'">
-                    <li><a href="{mets:file/mets:FLocat[@xlink:title='license.txt']/@xlink:href}">Original License</a></li>
-                </xsl:if>
-            </ul>
-        </div>
-    </xsl:template>
-    
-    
+
     
     <!-- The summaryView of communities and collections is undefined. -->
     <xsl:template name="collectionSummaryView-DIM">
@@ -625,13 +475,13 @@
             mode="itemDetailView-DIM"/>
         
         <!-- Generate the bitstream information from the file section -->
-        <xsl:apply-templates select="mets:fileSec/mets:fileGrp[@USE='CONTENT']" mode="itemSummaryView-DIM">
+        <xsl:apply-templates select="mets:fileSec/mets:fileGrp[@USE='CONTENT']" mode="itemSummaryView">
             <xsl:with-param name="context" select="."/>
             <xsl:with-param name="primaryBitream" select="./mets:structMap[@TYPE='LOGICAL']/mets:div[@TYPE='DSpace Item']/mets:fptr/@FILEID"/>
         </xsl:apply-templates>
         
         <!-- Generate the license information from the file section -->
-        <xsl:apply-templates select="mets:fileSec/mets:fileGrp[@USE='THUMBNAIL']" mode="itemSummaryView-DIM"/>
+        <xsl:apply-templates select="mets:fileSec/mets:fileGrp[@USE='CC-LICENSE' or @USE='LICENSE']" mode="itemSummaryView"/>
         
     </xsl:template>
     
@@ -657,7 +507,7 @@
                     <xsl:value-of select="./@qualifier"/>
                 </xsl:if>
             </td>
-            <td><xsl:copy-of select="./child::node()"/></td>
+            <td><xsl:copy-of select="./node()"/></td>
             <td><xsl:value-of select="./@language"/></td>
         </tr>
     </xsl:template>
@@ -669,7 +519,7 @@
     <xsl:template name="collectionDetailView-DIM">
         <div class="detail-view">&#160;
             <!-- Generate the logo, if present, from the file section -->
-            <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='LOGO']" mode="collectionDetailView-DIM"/>
+            <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='LOGO']"/>
             <!-- Generate the info about the collections from the metadata section -->
             <xsl:apply-templates select="./mets:dmdSec/mets:mdWrap[@OTHERMDTYPE='DIM']/mets:xmlData/dim:dim"
                 mode="collectionDetailView-DIM"/>
@@ -695,16 +545,7 @@
         </xsl:if>
     </xsl:template>
     
-    <!-- Generate the logo, if present, from the file section -->
-    <xsl:template match="mets:fileGrp[@USE='LOGO']" mode="collectionDetailView-DIM">
-        <div class="ds-logo-wrapper">
-            <img src="{mets:file/mets:FLocat[@LOCTYPE='URL']/@xlink:href}" class="logo">
-                <xsl:attribute name="alt">xmlui.dri2xhtml.METS-1.0.collection-logo-alt</xsl:attribute>
-                <xsl:attribute name="attr" namespace="http://apache.org/cocoon/i18n/2.1">alt</xsl:attribute>
-            </img>
-        </div>
-    </xsl:template>
-	
+    
 	
 	
 	
@@ -712,7 +553,7 @@
     <xsl:template name="communityDetailView-DIM">
         <div class="detail-view">&#160;
             <!-- Generate the logo, if present, from the file section -->
-            <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='LOGO']" mode="collectionDetailView-DIM"/>
+            <xsl:apply-templates select="./mets:fileSec/mets:fileGrp[@USE='LOGO']"/>
             <!-- Generate the info about the collections from the metadata section -->
             <xsl:apply-templates select="./mets:dmdSec/mets:mdWrap[@OTHERMDTYPE='DIM']/mets:xmlData/dim:dim"
                 mode="communityDetailView-DIM"/>
