@@ -184,15 +184,6 @@ public class EditItemServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
-        int itemID = UIUtil.getIntParameter(request, "item_id");
-
-        Item item = null;
-        if (itemID > 0)
-        {
-            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-            item = itemDAO.retrieve(itemID);
-        }
-
         // First, see if we have a multipart request (uploading a new bitstream)
         String contentType = request.getContentType();
 
@@ -200,7 +191,7 @@ public class EditItemServlet extends DSpaceServlet
                 && (contentType.indexOf("multipart/form-data") != -1))
         {
             // This is a multipart request, so it's a file upload
-            processUploadBitstream(context, request, response, item);
+            processUploadBitstream(context, request, response);
 
             return;
         }
@@ -221,6 +212,15 @@ public class EditItemServlet extends DSpaceServlet
          * indicating what needs to be done (from the constants above.)
          */
         int action = UIUtil.getIntParameter(request, "action");
+
+        int itemID = UIUtil.getIntParameter(request, "item_id");
+
+        Item item = null;
+        if (itemID > 0)
+        {
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+            item = itemDAO.retrieve(itemID);
+        }
 
         // now check to see if person can edit item
         checkEditAuthorization(context, item);
@@ -628,13 +628,21 @@ public class EditItemServlet extends DSpaceServlet
      *            current servlet response object
      */
     private void processUploadBitstream(Context context,
-            HttpServletRequest request, HttpServletResponse response,
-            Item item)
+            HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException, SQLException, AuthorizeException
     {
         // Wrap multipart request to get the submission info
         FileUploadRequest wrapper = new FileUploadRequest(request);
         Bitstream b = null;
+
+        int itemID = UIUtil.getIntParameter(wrapper, "item_id");
+
+        Item item = null;
+        if (itemID > 0)
+        {
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+            item = itemDAO.retrieve(itemID);
+        }
 
         File temp = wrapper.getFile("file");
 
