@@ -321,15 +321,7 @@ public class GroupDAOPostgres extends GroupDAO
                     "epersongroup",
                     "SELECT eperson_group_id FROM epersongroup ORDER BY " + s);
 
-            List<Group> groups = new ArrayList<Group>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("eperson_group_id");
-                groups.add(retrieve(id));
-            }
-
-            return groups;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -409,8 +401,8 @@ public class GroupDAOPostgres extends GroupDAO
             // NOTE: even through the query is built dynamicaly all data is
             // seperated into the the parameters array.
             tri = DatabaseManager.queryTable(context, "group2groupcache",
-                    "SELECT * FROM group2groupcache WHERE " + groupQuery,
-                    parameters);
+                    "SELECT parent_id FROM group2groupcache WHERE " +
+                    groupQuery, parameters);
 
             for (TableRow row : tri.toList())
             {
@@ -439,15 +431,7 @@ public class GroupDAOPostgres extends GroupDAO
                     "AND g2g.parent_id= ? ",
                     group.getID());
 
-            List<Group> groups = new ArrayList<Group>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("eperson_group_id");
-                groups.add(retrieve(id));
-            }
-
-            return groups;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -487,6 +471,18 @@ public class GroupDAOPostgres extends GroupDAO
             TableRowIterator tri = DatabaseManager.query(context, dbquery,
                     new Object[] {params, int_param});
 
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+	}
+
+    private List<Group> returnAsList(TableRowIterator tri)
+    {
+        try
+        {
             List<Group> groups = new ArrayList<Group>();
 
             for (TableRow row : tri.toList())
@@ -501,7 +497,7 @@ public class GroupDAOPostgres extends GroupDAO
         {
             throw new RuntimeException(sqle);
         }
-	}
+    }
 
     public void link(Group parent, Group child)
     {

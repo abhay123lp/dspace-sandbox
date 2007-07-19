@@ -342,15 +342,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
                     "SELECT bitstream_id FROM bundle2bitstream " +
                     "WHERE bundle_id = ? ", bundle.getID());
 
-            List <Bitstream> bitstreams = new ArrayList<Bitstream>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("bitstream_id");
-                bitstreams.add(retrieve(id));
-            }
-
-            return bitstreams;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -368,20 +360,32 @@ public class BitstreamDAOPostgres extends BitstreamDAO
                     "SELECT bitstream_id FROM bitstream " +
                     "WHERE deleted = '1'");
 
-            List <Bitstream> bitstreams = new ArrayList<Bitstream>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("bitstream_id");
-                bitstreams.add(retrieve(id));
-            }
-
-            return bitstreams;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private List<Bitstream> returnAsList(TableRowIterator tri)
+    {
+        List <Bitstream> bitstreams = new ArrayList<Bitstream>();
+
+        try
+        {
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("bitstream_id");
+                bitstreams.add(retrieve(id));
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+
+        return bitstreams;
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -418,15 +422,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
 
         if (bitstreamFormatID > 0)
         {
-            try
-            {
-                bitstreamFormat =
-                    BitstreamFormat.find(context, bitstreamFormatID);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
+            bitstreamFormat = BitstreamFormat.find(context, bitstreamFormatID);
         }
 
         bitstream.setSequenceID(sequenceID);

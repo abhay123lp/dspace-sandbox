@@ -236,15 +236,7 @@ public class BundleDAOPostgres extends BundleDAO
                     "SELECT bundle_id FROM item2bundle " +
                     "WHERE item_id = " + item.getID());
 
-            List<Bundle> bundles = new ArrayList<Bundle>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("bundle_id");
-                bundles.add(retrieve(id));
-            }
-
-            return bundles;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -262,20 +254,32 @@ public class BundleDAOPostgres extends BundleDAO
                     "WHERE bundle.bundle_id = bundle2bitstream.bundle_id " +
                     "AND bundle2bitstream.bitstream_id = " + bitstream.getID());
 
-            List<Bundle> bundles = new ArrayList<Bundle>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("bundle_id");
-                bundles.add(retrieve(id));
-            }
-
-            return bundles;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private List<Bundle> returnAsList(TableRowIterator tri)
+    {
+        List<Bundle> bundles = new ArrayList<Bundle>();
+
+        try
+        {
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("bundle_id");
+                bundles.add(retrieve(id));
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+
+        return bundles;
     }
 
     @Override

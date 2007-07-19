@@ -241,15 +241,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                     "community",
                     "SELECT community_id FROM community ORDER BY name");
 
-            List<Community> communities = new ArrayList<Community>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("community_id");
-                communities.add(retrieve(id));
-            }
-
-            return communities;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -270,15 +262,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                     "(SELECT child_comm_id FROM community2community) " +
                     "ORDER BY name");
 
-            List<Community> communities = new ArrayList<Community>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("community_id");
-                communities.add(retrieve(id));
-            }
-
-            return communities;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -302,8 +286,7 @@ public class CommunityDAOPostgres extends CommunityDAO
             TableRowIterator tri = null;
             if (dso instanceof Item)
             {
-                 tri = DatabaseManager.queryTable(context,
-                        "community",
+                 tri = DatabaseManager.queryTable(context, "community",
                         "SELECT c.community_id " +
                         "FROM community c, community2item c2i " +
                         "WHERE c2i.community_id = c.community_id " +
@@ -329,15 +312,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                         dso.getID());
             }
 
-            List<Community> parents = new ArrayList<Community>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("community_id");
-                parents.add(retrieve(id));
-            }
-
-            return parents;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -370,6 +345,18 @@ public class CommunityDAOPostgres extends CommunityDAO
                     "ORDER BY c.name",
                     community.getID());
 
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private List<Community> returnAsList(TableRowIterator tri)
+    {
+        try
+        {
             List<Community> communities = new ArrayList<Community>();
 
             for (TableRow row : tri.toList())

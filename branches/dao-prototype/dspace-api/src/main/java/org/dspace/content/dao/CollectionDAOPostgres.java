@@ -83,10 +83,10 @@ public class CollectionDAOPostgres extends CollectionDAO
     @Override
     public Collection create() throws AuthorizeException
     {
+        UUID uuid = UUID.randomUUID();
+
         try
         {
-            UUID uuid = UUID.randomUUID();
-
             TableRow row = DatabaseManager.create(context, "collection");
             row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
@@ -196,28 +196,14 @@ public class CollectionDAOPostgres extends CollectionDAO
 
             if (row != null)
             {
-                update(collection, row);
+                populateTableRowFromCollection(collection, row);
+                DatabaseManager.update(context, row);
             }
             else
             {
                 throw new RuntimeException("Didn't find collection " +
                         collection.getID());
             }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private void update(Collection collection, TableRow row)
-        throws AuthorizeException
-    {
-        try
-        {
-            populateTableRowFromCollection(collection, row);
-
-            DatabaseManager.update(context, row);
         }
         catch (SQLException sqle)
         {
@@ -258,31 +244,11 @@ public class CollectionDAOPostgres extends CollectionDAO
     {
         try
         {
-            List<Collection> collections = new ArrayList<Collection>();
-
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "collection",
                     "SELECT * FROM collection ORDER BY name");
 
-            while (tri.hasNext())
-            {
-                TableRow row = tri.next();
-                int id = row.getIntColumn("collection_id");
-
-                Collection fromCache =
-                    (Collection) context.fromCache(Collection.class, id);
-
-                if (fromCache != null)
-                {
-                    collections.add(fromCache);
-                }
-                else
-                {
-                    collections.add(retrieve(id));
-                }
-            }
-
-            return collections;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -313,12 +279,12 @@ public class CollectionDAOPostgres extends CollectionDAO
                 (Collection[]) getCollections().toArray(new Collection[0]);
         }
 
-        for (int i = 0; i < collections.length; i++)
+        for (Collection collection : collections)
         {
             if (AuthorizeManager.authorizeActionBoolean(context,
-                    collections[i], actionID))
+                    collection, actionID))
             {
-                results.add(collections[i]);
+                results.add(collection);
             }
         }
 
@@ -338,15 +304,7 @@ public class CollectionDAOPostgres extends CollectionDAO
                     "AND c2i.item_id = ? ",
                     item.getID());
 
-            List<Collection> collections = new ArrayList<Collection>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("collection_id");
-                collections.add(retrieve(id));
-            }
-
-            return collections;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -368,20 +326,32 @@ public class CollectionDAOPostgres extends CollectionDAO
                     "ORDER BY c.name",
                     community.getID());
 
-            List<Collection> collections = new ArrayList<Collection>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("collection_id");
-                collections.add(retrieve(id));
-            }
-
-            return collections;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private List<Collection> returnAsList(TableRowIterator tri)
+    {
+        List<Collection> collections = new ArrayList<Collection>();
+
+        try
+        {
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("collection_id");
+                collections.add(retrieve(id));
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+
+        return collections;
     }
 
     /**

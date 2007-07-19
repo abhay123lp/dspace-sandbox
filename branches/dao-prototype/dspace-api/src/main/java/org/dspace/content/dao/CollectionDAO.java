@@ -145,25 +145,6 @@ public abstract class CollectionDAO extends ContentDAO
                 policy.update();
             }
 
-//            ResourcePolicy policy = ResourcePolicy.create(context);
-//            policy.setResource(collection);
-//            policy.setAction(Constants.READ);
-//            policy.setGroup(anonymousGroup);
-//            policy.update();
-//
-//            // now create the default policies for submitted items
-//            policy = ResourcePolicy.create(context);
-//            policy.setResource(collection);
-//            policy.setAction(Constants.DEFAULT_ITEM_READ);
-//            policy.setGroup(anonymousGroup);
-//            policy.update();
-//
-//            policy = ResourcePolicy.create(context);
-//            policy.setResource(collection);
-//            policy.setAction(Constants.DEFAULT_BITSTREAM_READ);
-//            policy.setGroup(anonymousGroup);
-//            policy.update();
-
             update(collection);
 
             HistoryManager.saveHistory(context, collection,

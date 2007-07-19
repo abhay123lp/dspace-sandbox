@@ -60,6 +60,7 @@ import org.dspace.content.DCValue;
 import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Email;

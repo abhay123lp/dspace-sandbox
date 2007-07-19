@@ -388,15 +388,7 @@ public class ItemDAOPostgres extends ItemDAO
             TableRowIterator tri = DatabaseManager.queryTable(context, "item",
                     "SELECT item_id FROM item WHERE in_archive = '1'");
 
-            List<Item> items = new ArrayList<Item>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("item_id");
-                items.add(retrieve(id));
-            }
-
-            return items;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -417,15 +409,7 @@ public class ItemDAOPostgres extends ItemDAO
                     "AND i.in_archive = '1'",
                     collection.getID());
 
-            List<Item> items = new ArrayList<Item>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("item_id");
-                items.add(retrieve(id));
-            }
-
-            return items;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -444,15 +428,7 @@ public class ItemDAOPostgres extends ItemDAO
                     "AND submitter_id = ? ",
                     eperson.getID());
 
-            List<Item> items = new ArrayList<Item>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("item_id");
-                items.add(retrieve(id));
-            }
-
-            return items;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -472,20 +448,32 @@ public class ItemDAOPostgres extends ItemDAO
                     "AND i2b.bundle_id = ? ",
                     bundle.getID());
 
-            List<Item> items = new ArrayList<Item>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("item_id");
-                items.add(retrieve(id));
-            }
-
-            return items;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private List<Item> returnAsList(TableRowIterator tri)
+    {
+        List<Item> items = new ArrayList<Item>();
+
+        try
+        {
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("item_id");
+                items.add(retrieve(id));
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+
+        return items;
     }
 
     @Override

@@ -247,12 +247,13 @@ public class Bitstream extends DSpaceObject
      */
     public String getFormatDescription()
     {
-        if (bitstreamFormat.getShortDescription().equals("Unknown"))
+        if (BitstreamFormat.UNKNOWN_SHORT_DESCRIPTION.equals(
+                    bitstreamFormat.getShortDescription()))
         {
             // Get user description if there is one
             if (userFormatDescription == null)
             {
-                return "Unknown";
+                return BitstreamFormat.UNKNOWN_SHORT_DESCRIPTION;
             }
 
             return userFormatDescription;
@@ -286,14 +287,7 @@ public class Bitstream extends DSpaceObject
         if (f == null)
         {
             // Use "Unknown" format
-            try
-            {
-                bitstreamFormat = BitstreamFormat.findUnknown(context);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
+            bitstreamFormat = BitstreamFormat.findUnknown(context);
         }
         else
         {

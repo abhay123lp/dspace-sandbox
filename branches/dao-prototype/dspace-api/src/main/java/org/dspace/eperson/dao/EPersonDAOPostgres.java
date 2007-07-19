@@ -320,15 +320,7 @@ public class EPersonDAOPostgres extends EPersonDAO
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT eperson_id FROM eperson ORDER BY " + s);
 
-            List<EPerson> epeople = new ArrayList<EPerson>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("eperson_id");
-                epeople.add(retrieve(id));
-            }
-
-            return epeople;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -350,15 +342,7 @@ public class EPersonDAOPostgres extends EPersonDAO
                 "AND eg2e.eperson_group_id = ?",
                 group.getID());
 
-            List<EPerson> epeople = new ArrayList<EPerson>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("eperson_id");
-                epeople.add(retrieve(id));
-            }
-
-            return epeople;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -424,15 +408,7 @@ public class EPersonDAOPostgres extends EPersonDAO
                     "SELECT eperson_id FROM epersongroup2eperson WHERE " +
                     epersonQuery, parameters);
 
-            List<EPerson> epeople = new ArrayList<EPerson>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("eperson_id");
-                epeople.add(retrieve(id));
-            }
-
-            return epeople;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -481,6 +457,18 @@ public class EPersonDAOPostgres extends EPersonDAO
             TableRowIterator tri = DatabaseManager.query(context, dbquery,
                     new Object[] {int_param, params, params, params});
 
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private List<EPerson> returnAsList(TableRowIterator tri)
+    {
+        try
+        {
             List<EPerson> epeople = new ArrayList<EPerson>();
 
             for (TableRow row : tri.toList())
