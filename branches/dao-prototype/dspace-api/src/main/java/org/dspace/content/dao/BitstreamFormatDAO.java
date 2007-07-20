@@ -149,6 +149,7 @@ public abstract class BitstreamFormatDAO extends ContentDAO
     }
 
     public abstract List<BitstreamFormat> getBitstreamFormats();
+    public abstract List<BitstreamFormat> getBitstreamFormats(String extension);
 
     /**
      * Retrieve all non-internal bitstream formats from the registry. The

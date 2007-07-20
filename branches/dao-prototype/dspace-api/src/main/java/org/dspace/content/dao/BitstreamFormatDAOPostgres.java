@@ -333,6 +333,27 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         }
     }
 
+    public List<BitstreamFormat> getBitstreamFormats(String extension)
+    {
+        try
+        {
+            List<BitstreamFormat> formats = new ArrayList<BitstreamFormat>();
+
+            TableRowIterator tri = DatabaseManager.query(context,
+                "SELECT bfr.bitstream_format_id " +
+                "FROM bitstreamformatregistry bfr, fileextension fe " +
+                "WHERE fe.extension LIKE ? " + 
+                "AND bfr.bitstream_format_id = fe.bitstream_format_id",
+                extension);
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
     public List<BitstreamFormat> getBitstreamFormats(boolean internal)
     {
         try
