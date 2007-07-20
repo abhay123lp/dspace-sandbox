@@ -140,32 +140,28 @@ public class MITSpecialGroup
         EPerson user = context.getCurrentUser();
         boolean hasMITEmail = ((user != null) && isMITEmail(user.getEmail()));
 
-        try {
-            if (hasMITEmail || (request != null && isFromMITCommunity(request)))
-            {
-                log.debug(LogManager.getHeader(context, "getSpecialGroups",
-                            "Got an MIT user, looking for group"));
-
-                Group mitGroup = Group.findByName(context, MIT_GROUPNAME);
-                if (mitGroup == null)
-                {
-                    // Oops - the group isn't there.
-                    log.warn(LogManager.getHeader(context,
-                      "No MIT Group found!! Admin needs to create group named \""+
-                       MIT_GROUPNAME+"\"", ""));
-             
-                    return new int[0];
-                }
-             
-                return new int[] { mitGroup.getID() };
-            }
-            else
-                log.debug(LogManager.getHeader(context, "getSpecialGroups",
-                            "Not an MIT user, no groups for you."));
-
-        }
-        catch (java.sql.SQLException e)
+        if (hasMITEmail || (request != null && isFromMITCommunity(request)))
         {
+            log.debug(LogManager.getHeader(context, "getSpecialGroups",
+                        "Got an MIT user, looking for group"));
+
+            Group mitGroup = Group.findByName(context, MIT_GROUPNAME);
+            if (mitGroup == null)
+            {
+                // Oops - the group isn't there.
+                log.warn(LogManager.getHeader(context,
+                  "No MIT Group found!! Admin needs to create group named \""+
+                   MIT_GROUPNAME+"\"", ""));
+         
+                return new int[0];
+            }
+         
+            return new int[] { mitGroup.getID() };
+        }
+        else
+        {
+            log.debug(LogManager.getHeader(context, "getSpecialGroups",
+                        "Not an MIT user, no groups for you."));
         }
         return new int[0];
     }

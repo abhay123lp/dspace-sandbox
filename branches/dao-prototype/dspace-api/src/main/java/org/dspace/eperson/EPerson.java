@@ -39,7 +39,6 @@
  */
 package org.dspace.eperson;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -330,14 +329,13 @@ public class EPerson extends DSpaceObject
 
     @Deprecated
     public static EPerson[] search(Context context, String query)
-            throws SQLException
     {
         return search(context, query, -1, -1);
     }
 
     @Deprecated
     public static EPerson[] search(Context context, String query,
-            int offset, int limit) throws SQLException
+            int offset, int limit)
 	{
         EPersonDAO dao = EPersonDAOFactory.getInstance(context);
         List<EPerson> epeople = dao.search(query, offset, limit);

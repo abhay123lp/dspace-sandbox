@@ -40,7 +40,6 @@
 package org.dspace.content;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,9 +64,6 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.history.HistoryManager;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class representing an item in the process of being submitted by a user.
@@ -158,7 +154,7 @@ public class WorkspaceItem implements InProgressSubmission
         this.collection = collection;
     }
 
-    public EPerson getSubmitter() throws SQLException
+    public EPerson getSubmitter()
     {
         return item.getSubmitter();
     }
@@ -225,7 +221,7 @@ public class WorkspaceItem implements InProgressSubmission
 
     /** Deprecated by the introduction of DAOs */
     @Deprecated
-    WorkspaceItem(Context context, TableRow row)
+    WorkspaceItem(Context context, org.dspace.storage.rdbms.TableRow row)
     {
         this(context, row.getIntColumn("workspace_item_id"));
     }
@@ -259,7 +255,7 @@ public class WorkspaceItem implements InProgressSubmission
     }
 
     @Deprecated
-    public void deleteAll() throws SQLException, AuthorizeException,
+    public void deleteAll() throws AuthorizeException,
             IOException
     {
         dao.deleteAll(getID());

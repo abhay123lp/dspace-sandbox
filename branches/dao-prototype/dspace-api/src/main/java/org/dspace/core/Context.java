@@ -382,7 +382,7 @@ public class Context
      * @return
      * @throws SQLException
      */
-    public Group[] getSpecialGroups() throws SQLException
+    public Group[] getSpecialGroups()
     {
         List myGroups = new ArrayList();
 

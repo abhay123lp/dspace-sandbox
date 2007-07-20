@@ -600,10 +600,9 @@ public class Item extends DSpaceObject
      * @return Bitstream that is created
      * @throws AuthorizeException
      * @throws IOException
-     * @throws SQLException
      */
     public Bitstream createSingleBitstream(InputStream is, String name)
-            throws AuthorizeException, IOException, SQLException
+            throws AuthorizeException, IOException
     {
         // Authorisation is checked by methods below
         // Create a bundle
@@ -623,10 +622,9 @@ public class Item extends DSpaceObject
      * @return created bitstream
      * @throws AuthorizeException
      * @throws IOException
-     * @throws SQLException
      */
     public Bitstream createSingleBitstream(InputStream is)
-            throws AuthorizeException, IOException, SQLException
+            throws AuthorizeException, IOException
     {
         return createSingleBitstream(is, "ORIGINAL");
     }
@@ -671,12 +669,11 @@ public class Item extends DSpaceObject
      *            the license the user granted
      * @param eperson
      *            the eperson who granted the license
-     * @throws SQLException
      * @throws IOException
      * @throws AuthorizeException
      */
     public void licenseGranted(String license, EPerson eperson)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         // Put together text to store
         String licenseText = "License granted by " + eperson.getFullName()
@@ -703,11 +700,10 @@ public class Item extends DSpaceObject
     /**
      * Remove all licenses from an item - it was rejected
      * 
-     * @throws SQLException
      * @throws AuthorizeException
      * @throws IOException
      */
-    public void removeLicenses() throws SQLException, AuthorizeException,
+    public void removeLicenses() throws AuthorizeException,
             IOException
     {
         // Find the License format
@@ -973,7 +969,6 @@ public class Item extends DSpaceObject
      * return TRUE if context's user can edit item, false otherwise
      * 
      * @return boolean true = current user can edit item
-     * @throws SQLException
      */
     public boolean canEdit()
     {

@@ -41,7 +41,6 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -152,27 +151,27 @@ public class Community extends DSpaceObject
      */
     public Bitstream setLogo(InputStream is) throws AuthorizeException
     {
+        // Check authorisation
+        // authorized to remove the logo when DELETE rights
+        // authorized when canEdit
+        if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
+                context, this, Constants.DELETE)))
+        {
+            canEdit();
+        }
+
+        // First, delete any existing logo
+        if (logo != null)
+        {
+            log.info(LogManager.getHeader(context, "remove_logo",
+                    "community_id=" + getID()));
+
+            logo.delete();
+            logo = null;
+        }
+
         try
         {
-            // Check authorisation
-            // authorized to remove the logo when DELETE rights
-            // authorized when canEdit
-            if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
-                    context, this, Constants.DELETE)))
-            {
-                canEdit();
-            }
-
-            // First, delete any existing logo
-            if (logo != null)
-            {
-                log.info(LogManager.getHeader(context, "remove_logo",
-                        "community_id=" + getID()));
-
-                logo.delete();
-                logo = null;
-            }
-
             if (is != null)
             {
                 Bitstream newLogo = bitstreamDAO.create(is);
@@ -189,7 +188,7 @@ public class Community extends DSpaceObject
                                 + newLogo.getID()));
             }
         }
-        catch (SQLException sqle)
+        catch (java.sql.SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }

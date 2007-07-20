@@ -41,7 +41,6 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -317,7 +316,7 @@ public class Bitstream extends DSpaceObject
         {
             throw new RuntimeException(ioe);
         }
-        catch (SQLException sqle)
+        catch (java.sql.SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }

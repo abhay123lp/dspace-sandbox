@@ -153,17 +153,17 @@ public class Collection extends DSpaceObject
         // Check authorisation
         AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
 
+        if (submitters == null)
+        {
+            submitters = groupDAO.create();
+            submitters.setName("COLLECTION_" + getID() + "_SUBMIT");
+            groupDAO.update(submitters);
+        }
+
+        setSubmitters(submitters);
+
         try
         {
-            if (submitters == null)
-            {
-                submitters = groupDAO.create();
-                submitters.setName("COLLECTION_" + getID() + "_SUBMIT");
-                groupDAO.update(submitters);
-            }
-
-            setSubmitters(submitters);
-
             AuthorizeManager.addPolicy(context, this, Constants.ADD, submitters);
         }
         catch (SQLException sqle)
@@ -389,13 +389,13 @@ public class Collection extends DSpaceObject
         if (workflowGroups[step - 1] == null)
         {
             Group g = null;
+            g = Group.create(context);
+            g.setName("COLLECTION_" + getID() + "_WORKFLOW_STEP_" + step);
+            g.update();
+            setWorkflowGroup(step, g);
+
             try
             {
-                g = Group.create(context);
-                g.setName("COLLECTION_" + getID() + "_WORKFLOW_STEP_" + step);
-                g.update();
-                setWorkflowGroup(step, g);
-
                 AuthorizeManager.addPolicy(context, this, Constants.ADD, g);
             }
             catch (SQLException sqle)
@@ -431,15 +431,15 @@ public class Collection extends DSpaceObject
         // Check authorisation
         AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
 
+        if (admins == null)
+        {
+            admins = Group.create(context);
+            admins.setName("COLLECTION_" + getID() + "_ADMIN");
+            admins.update();
+        }
+
         try
         {
-            if (admins == null)
-            {
-                admins = Group.create(context);
-                admins.setName("COLLECTION_" + getID() + "_ADMIN");
-                admins.update();
-            }
-
             AuthorizeManager.addPolicy(context, this,
                     Constants.COLLECTION_ADMIN, admins);
 

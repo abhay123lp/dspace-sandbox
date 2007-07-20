@@ -69,7 +69,6 @@ public class GlobalDAOPostgres implements GlobalDAO
 
     public void startTransaction() throws SQLException
     {
-//        log.warn("=== STARTING TRANSACTION ===");
         // Obtain a non-auto-committing connection
         connection = DatabaseManager.getConnection();
         connection.setAutoCommit(false);
@@ -77,7 +76,6 @@ public class GlobalDAOPostgres implements GlobalDAO
 
     public void endTransaction() throws SQLException
     {
-//        log.warn("=== ENDING TRANSACTION ===");
         try
         {
             // Commit any changes made as part of the transaction
@@ -93,21 +91,18 @@ public class GlobalDAOPostgres implements GlobalDAO
 
     public void saveTransaction() throws SQLException
     {
-//        log.warn("=== SAVING TRANSACTION ===");
         connection.commit();
     }
 
     public void abortTransaction()
     {
-//        log.warn("=== ABORTING TRANSACTION ===");
         try
         {
             connection.rollback();
         }
-        catch (SQLException se)
+        catch (SQLException sqle)
         {
-            log.error(se.getMessage());
-            se.printStackTrace();
+            log.error(sqle.getMessage());
         }
         finally
         {

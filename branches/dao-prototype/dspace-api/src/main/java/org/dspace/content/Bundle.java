@@ -41,7 +41,6 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -163,7 +162,7 @@ public class Bundle extends DSpaceObject
     }
 
     public Bitstream createBitstream(InputStream is) throws AuthorizeException,
-            IOException, SQLException
+            IOException
     {
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
@@ -177,7 +176,7 @@ public class Bundle extends DSpaceObject
     }
 
     public Bitstream registerBitstream(int assetstore, String bitstreamPath)
-        throws AuthorizeException, IOException, SQLException
+        throws AuthorizeException, IOException
     {
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
@@ -190,8 +189,7 @@ public class Bundle extends DSpaceObject
         return b;
     }
 
-    public void addBitstream(Bitstream b) throws SQLException,
-           AuthorizeException
+    public void addBitstream(Bitstream b) throws AuthorizeException
     {
         log.info(LogManager.getHeader(context, "add_bitstream", "bundle_id="
                 + getID() + ",bitstream_id=" + b.getID()));
@@ -208,7 +206,7 @@ public class Bundle extends DSpaceObject
     }
 
     public void removeBitstream(Bitstream b) throws AuthorizeException,
-            SQLException, IOException
+            IOException
     {
         log.info(LogManager.getHeader(context, "remove_bitstream",
                 "bundle_id=" + getID() + ",bitstream_id=" + b.getID()));
@@ -256,7 +254,7 @@ public class Bundle extends DSpaceObject
     }
 
     @Deprecated
-    public void update() throws SQLException, AuthorizeException
+    public void update() throws AuthorizeException
     {
         dao.update(this);
     }

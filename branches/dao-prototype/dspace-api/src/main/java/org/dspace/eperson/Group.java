@@ -39,7 +39,6 @@
  */
 package org.dspace.eperson;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -247,7 +246,6 @@ public class Group extends DSpaceObject
 
     @Deprecated
     public static Group[] findAll(Context context, int sortField)
-            throws SQLException
     {
         GroupDAO dao = GroupDAOFactory.getInstance(context);
         List<Group> groups = dao.getGroups(sortField);
@@ -261,7 +259,6 @@ public class Group extends DSpaceObject
      */
     @Deprecated
     public static Group findByName(Context context, String name)
-            throws SQLException
     {
         GroupDAO dao = GroupDAOFactory.getInstance(context);
         Group group = dao.retrieve(name);
@@ -289,7 +286,6 @@ public class Group extends DSpaceObject
 
     @Deprecated
     public static Group[] search(Context context, String query)
-    		throws SQLException
 	{
 	    return search(context, query, -1, -1);
 	}
