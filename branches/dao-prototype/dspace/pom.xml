@@ -59,7 +59,7 @@
 
 		</profile>
 		
-		<!--profile>
+		<profile>
 			<id>xmlui</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -72,9 +72,9 @@
 				<module>../dspace-api</module>
 				<module>../dspace-xmlui</module>
 			</modules>
-		</profile-->
+		</profile>
 		
-		<!--profile>
+		<profile>
 			<id>lni</id>
 			<activation>
 				<activeByDefault>true</activeByDefault>
@@ -87,7 +87,7 @@
 				<module>../dspace-api</module>
 				<module>../dspace-lni</module>
 			</modules>
-		</profile-->
+		</profile>
 		
 	</profiles>
 

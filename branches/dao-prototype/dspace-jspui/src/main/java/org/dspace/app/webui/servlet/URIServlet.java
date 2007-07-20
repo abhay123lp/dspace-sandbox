@@ -118,23 +118,23 @@ public class URIServlet extends DSpaceServlet
                 // Extract the URI
                 int firstSlash = path.indexOf('/');
 
-//                if (firstSlash != -1)
-//                {
-//                    // We have extra path info
-//                    // FIXME: this shouldn't exist. if we have extra
-//                    // information in the url, it should be parameterised, not
-//                    // separated by a slash. If we escaped slashes in
-//                    // identifiers to %2F this wouldn't be such an issue, but
-//                    // we don't and as such are making assumptions about the
-//                    // form of the identifiers.
-//                    uri = path.substring(0, firstSlash);
-//                    extraPathInfo = path.substring(firstSlash);
-//                }
-//                else
-//                {
+                if (firstSlash != -1)
+                {
+                    // We have extra path info
+                    // FIXME: this shouldn't exist. if we have extra
+                    // information in the url, it should be parameterised, not
+                    // separated by a slash. If we escaped slashes in
+                    // identifiers to %2F this wouldn't be such an issue, but
+                    // we don't and as such are making assumptions about the
+                    // form of the identifiers.
+                    uri = path.substring(0, firstSlash);
+                    extraPathInfo = path.substring(firstSlash);
+                }
+                else
+                {
                     // The path is just the URI
                     uri = path;
-//                }
+                }
             }
             catch (NumberFormatException nfe)
             {
