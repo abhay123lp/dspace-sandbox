@@ -61,6 +61,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Utils;
@@ -492,7 +493,7 @@ public class ItemTag extends TagSupport
         if (collections != null)
         {
             out.print("<tr><td class=\"metadataFieldLabel\">");
-            if (item.getExternalIdentifier().getCanonicalForm() == null)
+            if (item.getExternalIdentifier() == null)
             {
                 out.print(LocaleSupport.getLocalizedMessage(pageContext,
                         "org.dspace.app.webui.jsptag.ItemTag.submitted"));
@@ -546,7 +547,13 @@ public class ItemTag extends TagSupport
             boolean html = false;
             // FIXME: This is inconsistent with other URLs, and will leave
             // commas in the URL :(
-            String uri = item.getExternalIdentifier().getCanonicalForm();
+            String uri = null;
+            ExternalIdentifier identifier = item.getExternalIdentifier();
+            if (identifier != null)
+            {
+                uri = identifier.getCanonicalForm();
+            }
+
             Bitstream primaryBitstream = null;
 
             Bundle[] bunds = item.getBundles("ORIGINAL");
