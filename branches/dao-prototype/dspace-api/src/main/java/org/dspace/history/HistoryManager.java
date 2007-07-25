@@ -46,12 +46,13 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+//import java.sql.Connection;
+//import java.sql.PreparedStatement;
+//import java.sql.ResultSet;
+//import java.sql.SQLException;
+//import java.sql.Timestamp;
 import java.text.NumberFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,13 +66,16 @@ import org.dspace.content.ItemIterator;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAOFactory;
+import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
 import org.dspace.eperson.EPerson;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
+import org.dspace.history.dao.HistoryDAO;
+import org.dspace.history.dao.HistoryDAOFactory;
+//import org.dspace.storage.rdbms.DatabaseManager;
+//import org.dspace.storage.rdbms.TableRow;
 import org.dspace.workflow.WorkflowItem;
 
 import com.hp.hpl.mesa.rdf.jena.mem.ModelMem;
@@ -182,9 +186,11 @@ public class HistoryManager
      *            A description of the tool that was used to effect the action.
      */
     private static void createHarmonyData(Context context, Object historyObj,
-            int flag, EPerson theUser, String theTool) throws SQLException,
-            RDFException, IOException
+            int flag, EPerson theUser, String theTool)
+        throws RDFException, IOException //, SQLException
     {
+        HistoryDAO dao = HistoryDAOFactory.getInstance(context);
+
         String id = (flag == REMOVE) ? getUniqueId(historyObj) : doSerialize(
                 context, historyObj);
 
@@ -198,19 +204,23 @@ public class HistoryManager
 
         // Previous state (as far as History is concerned). It's possible,
         // of course, that changes were made without telling History!
-        String inputStateId = (flag == CREATE) ? null : findPreviousState(id);
+        String inputStateId =
+            (flag == CREATE) ? null : findPreviousState(context, id);
 
         // Create a model
         Model model = new ModelMem();
 
         // A table row and id for the new state
         Integer stateId = null;
-        TableRow row = null;
+//        TableRow row = null;
+        HistoryState state = null;
 
         if (flag != REMOVE)
         {
-            row = DatabaseManager.create(context, "HistoryState");
-            stateId = new Integer(row.getIntColumn("history_state_id"));
+//            row = DatabaseManager.create(context, "HistoryState");
+//            stateId = new Integer(row.getIntColumn("history_state_id"));
+            state = dao.createState();
+            stateId = state.getID();
         }
 
         // This is the object that we're making statements about....
@@ -302,13 +312,13 @@ public class HistoryManager
 
         model.add(event, generatorId, ID);
 
-        List dbobjs = new LinkedList();
-
         if (flag != REMOVE)
         {
-            row.setColumn("history_state_id", stateId.intValue());
-            row.setColumn("object_id", id);
-            DatabaseManager.update(context, row);
+//            row.setColumn("history_state_id", stateId.intValue());
+//            row.setColumn("object_id", id);
+//            DatabaseManager.update(context, row);
+            state.setObjectID(id);
+            dao.updateState(state);
         }
 
         StringWriter swdata = new StringWriter();
@@ -318,8 +328,10 @@ public class HistoryManager
 
         String data = swdata.toString();
 
-        TableRow h = DatabaseManager.create(context, "History");
-        int hid = h.getIntColumn("history_id");
+//        TableRow h = DatabaseManager.create(context, "History");
+//        int hid = h.getIntColumn("history_id");
+        History h = dao.create();
+        int hid = h.getID();
 
         File file = forId(hid, true);
         FileWriter fw = new FileWriter(file);
@@ -327,9 +339,13 @@ public class HistoryManager
         fw.write(data);
         fw.close();
 
-        h.setColumn("creation_date", nowAsTimeStamp());
-        h.setColumn("checksum", Utils.getMD5(data));
-        DatabaseManager.update(context, h);
+//        h.setColumn("creation_date", nowAsTimeStamp());
+//        h.setColumn("checksum", Utils.getMD5(data));
+//        DatabaseManager.update(context, h);
+        h.setDateCreated(new Date());
+        h.setChecksum(Utils.getMD5(data));
+        log.info("updating History object: " + h.toString());
+        dao.update(h);
     }
 
     ////////////////////////////////////////
@@ -470,7 +486,7 @@ public class HistoryManager
      *                If an error occurs while accessing the database
      */
     private static String serialize(Context context, Object obj)
-            throws RDFException, SQLException
+            throws RDFException //, SQLException
     {
         if (obj == null)
         {
@@ -513,7 +529,7 @@ public class HistoryManager
      *                If an error occurs while accessing the database
      */
     private static void serializeInternal(Context context, Object obj,
-            Model model) throws RDFException, SQLException
+            Model model) throws RDFException //, SQLException
     {
         if (obj == null)
         {
@@ -571,7 +587,7 @@ public class HistoryManager
      *                If an error occurs while accessing the database
      */
     private static String doSerialize(Context context, Object obj)
-            throws SQLException, IOException, RDFException
+            throws IOException, RDFException //, SQLException
     {
         if (obj == null)
         {
@@ -599,20 +615,27 @@ public class HistoryManager
      *                If an error occurs while accessing the database
      */
     private static void store(Context context, String serialization)
-            throws SQLException, IOException
+            throws IOException //, SQLException
     {
+        HistoryDAO dao = HistoryDAOFactory.getInstance(context);
+
         String checksum = Utils.getMD5(serialization);
-        TableRow row = DatabaseManager.findByUnique(context, "history",
-                "checksum", checksum);
+//        TableRow row = DatabaseManager.findByUnique(context, "history",
+//                "checksum", checksum);
+
+        History h = dao.retrieve(checksum);
 
         // Already stored
-        if (row != null)
+//        if (row != null)
+        if (h != null)
         {
             return;
         }
 
-        TableRow h = DatabaseManager.create(context, "History");
-        int hid = h.getIntColumn("history_id");
+//        TableRow h = DatabaseManager.create(context, "History");
+//        int hid = h.getIntColumn("history_id");
+        h = dao.create();
+        int hid = h.getID();
 
         File file = forId(hid, true);
         FileWriter fw = new FileWriter(file);
@@ -620,9 +643,12 @@ public class HistoryManager
         fw.write(serialization);
         fw.close();
 
-        h.setColumn("checksum", checksum);
-        h.setColumn("creation_date", nowAsTimeStamp());
-        DatabaseManager.update(context, h);
+//        h.setColumn("checksum", checksum);
+//        h.setColumn("creation_date", nowAsTimeStamp());
+//        DatabaseManager.update(context, h);
+        h.setChecksum(checksum);
+        h.setDateCreated(new Date());
+        dao.update(h);
     }
 
     /**
@@ -633,35 +659,38 @@ public class HistoryManager
      * @exception SQLException
      *                If an error occurs while accessing the database
      */
-    private static String findPreviousState(String id) throws SQLException
+//    private static String findPreviousState(String id) throws SQLException
+    private static String findPreviousState(Context context, String id)
     {
-        Connection connection = null;
-        PreparedStatement statement = null;
-
-        try
-        {
-            String sql = "SELECT MAX(history_state_id) FROM HistoryState WHERE object_id = ?";
-
-            connection = DatabaseManager.getConnection();
-            statement = connection.prepareStatement(sql);
-            statement.setString(1, id);
-
-            ResultSet results = statement.executeQuery();
-
-            return results.next() ? results.getString(1) : null;
-        }
-        finally
-        {
-            if (statement != null)
-            {
-                statement.close();
-            }
-
-            if (connection != null)
-            {
-                connection.close();
-            }
-        }
+        HistoryDAO dao = HistoryDAOFactory.getInstance(context);
+        return dao.retrievePreviousStateID(id);
+//        Connection connection = null;
+//        PreparedStatement statement = null;
+//
+//        try
+//        {
+//            String sql = "SELECT MAX(history_state_id) FROM HistoryState WHERE object_id = ?";
+//
+//            connection = DatabaseManager.getConnection();
+//            statement = connection.prepareStatement(sql);
+//            statement.setString(1, id);
+//
+//            ResultSet results = statement.executeQuery();
+//
+//            return results.next() ? results.getString(1) : null;
+//        }
+//        finally
+//        {
+//            if (statement != null)
+//            {
+//                statement.close();
+//            }
+//
+//            if (connection != null)
+//            {
+//                connection.close();
+//            }
+//        }
     }
 
     ////////////////////////////////////////
@@ -685,7 +714,7 @@ public class HistoryManager
      *                If an error occurs while accessing the database
      */
     private static void addData(Context context, Community community,
-            Resource res, Model model) throws RDFException, SQLException
+            Resource res, Model model) throws RDFException//, SQLException
     {
         String shortname = getShortName(community);
         model.add(res, model.createProperty(getPropertyId(shortname, "ID")),
@@ -727,7 +756,7 @@ public class HistoryManager
      *                If an error occurs while accessing the database
      */
     private static void addData(Context context, Collection collection,
-            Resource res, Model model) throws SQLException, RDFException
+            Resource res, Model model) throws RDFException //, SQLException
     {
         String shortname = getShortName(collection);
 
@@ -749,11 +778,13 @@ public class HistoryManager
         }
 
         Property hasPart = model.createProperty(getHarmonyId("hasPart"));
-        ItemIterator items = collection.getItems();
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+//        ItemIterator items = collection.getItems();
 
-        while (items.hasNext())
+//        while (items.hasNext())
+        for (Item item : itemDAO.getItemsByCollection(collection))
         {
-            Item item = items.next();
+//            Item item = items.next();
 
             model.add(res, hasPart, getUniqueId(item));
         }
@@ -776,7 +807,7 @@ public class HistoryManager
      *                If an error occurs while accessing the database
      */
     private static void addData(Context context, Item item, Resource res,
-            Model model) throws RDFException, SQLException
+            Model model) throws RDFException//, SQLException
     {
         DCValue[] dcfields = item.getDC(Item.ANY, Item.ANY, Item.ANY);
 
@@ -832,7 +863,7 @@ public class HistoryManager
      *                If an error occurs adding RDF statements to the model
      */
     private static void addData(Context context, WorkspaceItem wi,
-            Resource res, Model model) throws SQLException, RDFException
+            Resource res, Model model) throws RDFException //, SQLException
     {
         Item item =
             ItemDAOFactory.getInstance(context).retrieve(wi.getItem().getID());
@@ -858,7 +889,7 @@ public class HistoryManager
      *                If an error occurs adding RDF statements to the model
      */
     private static void addData(Context context, WorkflowItem wi, Resource res,
-            Model model) throws SQLException, RDFException
+            Model model) throws RDFException //, SQLException
     {
         Item item =
             ItemDAOFactory.getInstance(context).retrieve(wi.getItem().getID());
@@ -884,7 +915,7 @@ public class HistoryManager
      *                If an error occurs adding RDF statements to the model
      */
     private static void addData(Context context, EPerson eperson, Resource res,
-            Model model) throws SQLException, RDFException
+            Model model) throws RDFException //, SQLException
     {
         String shortname = getShortName(eperson);
         model.add(res, model.createProperty(getPropertyId(shortname, "ID")),
@@ -1102,10 +1133,10 @@ public class HistoryManager
      * 
      * @return The current instant as an SQL timestamp.
      */
-    private static Timestamp nowAsTimeStamp()
-    {
-        return new java.sql.Timestamp(new java.util.Date().getTime());
-    }
+//    private static Timestamp nowAsTimeStamp()
+//    {
+//        return new java.sql.Timestamp(new java.util.Date().getTime());
+//    }
 
     ////////////////////////////////////////
     // Main
