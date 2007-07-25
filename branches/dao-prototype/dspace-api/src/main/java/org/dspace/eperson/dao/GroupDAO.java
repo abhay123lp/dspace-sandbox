@@ -87,6 +87,9 @@ public abstract class GroupDAO
         log.info(LogManager.getHeader(context, "create_group", "group_id="
                 + group.getID()));
 
+        HistoryManager.saveHistory(context, group, HistoryManager.CREATE,
+                context.getCurrentUser(), context.getExtraLogInfo());
+
         return group;
     }
 
@@ -116,6 +119,9 @@ public abstract class GroupDAO
 
         log.info(LogManager.getHeader(context, "update_group", "group_id="
                 + group.getID()));
+
+        HistoryManager.saveHistory(context, group, HistoryManager.MODIFY,
+                context.getCurrentUser(), context.getExtraLogInfo());
 
         EPerson[] epeople = group.getMembers();
 

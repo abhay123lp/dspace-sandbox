@@ -39,7 +39,6 @@
  */
 package org.dspace.content.dao;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -133,7 +132,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
                 }
             }
         }
-        catch (SQLException sqle)
+        catch (java.sql.SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
@@ -242,7 +241,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
                     + "original submitter to delete a workspace item");
         }
 
-        HistoryManager.saveHistory(context, this, HistoryManager.REMOVE,
+        HistoryManager.saveHistory(context, wsi, HistoryManager.REMOVE,
                 context.getCurrentUser(), context.getExtraLogInfo());
 
         log.info(LogManager.getHeader(context, "delete_workspace_item",

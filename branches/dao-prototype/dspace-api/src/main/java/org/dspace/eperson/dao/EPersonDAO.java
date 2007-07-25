@@ -87,7 +87,7 @@ public abstract class EPersonDAO
         log.info(LogManager.getHeader(context, "create_eperson", "eperson_id="
                     + eperson.getID()));
 
-        HistoryManager.saveHistory(context, eperson, HistoryManager.REMOVE,
+        HistoryManager.saveHistory(context, eperson, HistoryManager.CREATE,
                 context.getCurrentUser(), context.getExtraLogInfo());
 
         return eperson;
