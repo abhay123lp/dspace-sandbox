@@ -95,8 +95,7 @@ public class AccountManager
      *            Email address to send the registration email to
      */
     public static void sendRegistrationInfo(Context context, String email)
-            throws SQLException, IOException, MessagingException,
-            AuthorizeException
+            throws IOException, MessagingException
     {
         sendInfo(context, email, true, true);
     }
@@ -115,8 +114,7 @@ public class AccountManager
      *            Email address to send the forgot-password email to
      */
     public static void sendForgotPasswordInfo(Context context, String email)
-            throws SQLException, IOException, MessagingException,
-            AuthorizeException
+            throws IOException, MessagingException
     {
         sendInfo(context, email, false, true);
     }
@@ -142,7 +140,6 @@ public class AccountManager
      *                database.
      */
     public static EPerson getEPerson(Context context, String token)
-            throws SQLException, AuthorizeException
     {
         String email = getEmail(context, token);
 
@@ -167,7 +164,6 @@ public class AccountManager
      * @return The email address corresponding to token, or null.
      */
     public static String getEmail(Context context, String token)
-            throws SQLException
     {
         RegistrationDataDAO dao =
             RegistrationDataDAOFactory.getInstance(context);
@@ -193,7 +189,6 @@ public class AccountManager
      *                If a database error occurs
      */
     public static void deleteToken(Context context, String token)
-            throws SQLException
     {
         RegistrationDataDAOFactory.getInstance(context).delete(token);
     }
@@ -217,8 +212,8 @@ public class AccountManager
      * send email; otherwise do not send any email
      */
     protected static void sendInfo(Context context, String email,
-            boolean isRegister, boolean send) throws IOException,
-            MessagingException, AuthorizeException
+            boolean isRegister, boolean send)
+        throws IOException, MessagingException
     {
         // See if a registration token already exists for this user
         RegistrationDataDAO dao =
@@ -275,7 +270,7 @@ public class AccountManager
      */
     private static void sendEmail(Context context, String email,
             boolean isRegister, RegistrationData rd)
-            throws MessagingException, IOException
+        throws IOException, MessagingException
     {
         String base = ConfigurationManager.getProperty("dspace.url");
 
