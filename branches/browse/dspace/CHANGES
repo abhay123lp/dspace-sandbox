@@ -1,4 +1,11 @@
+(Mark Diggory)
+- Guard against output invalid unqualified Dublin Core in OAIDCCrosswalk.
+
+(Graham Triggs / Brad Teale / Ed Yu)
+- S.F. Patch 1679972 OAIDCCrosswalk NPE and invalid character fix
+
 (Graham Triggs)
+- ConfigurationManager fix to honour log4j.configuration
 - S.F. Patch 1749196 Oracle SQL in Bitstream Checker
 
 (Larry Stone, Richard Rodgers, Sands Fish, Mark Diggory)
@@ -21,6 +28,7 @@
 - Fixed SF bug #1614546 get rid of unused mets_bitstream_id column
 - SF Patch #1638569 for SF Bug #1638565 Database Upgrade 12 to 13 missing content on new colums
 - SF Patch #1620700 Add Community and Sub-Community to OAI Sets
+- Removed unnecessary and unused edu.mit.dspace.MITSpecialGroup
 
 (Tim Donohue)
 - Added Configurable Submission to JSP-UI and XML-UI (updated version of SF Patch #1691345)
