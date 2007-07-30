@@ -1,9 +1,9 @@
 /*
- * GroupDAOFactory.java
+ * RegistrationData.java
  *
- * Version: $Revision: 1727 $
+ * Version: $Revision$
  *
- * Date: $Date: 2007-01-19 10:52:10 +0000 (Fri, 19 Jan 2007) $
+ * Date: $Date: 2007-05-25 21:35:39 +0100 (Fri, 25 May 2007) $
  *
  * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
@@ -37,17 +37,45 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.eperson.dao;
+package org.dspace.eperson;
 
 import org.dspace.core.Context;
 
-/**
- * @author James Rutherford
- */
-public class GroupDAOFactory
+public class RegistrationData
 {
-    public static GroupDAO getInstance(Context context)
+    private Context context;
+    private int id;
+    private String email;
+    private String token;
+
+    public RegistrationData(Context context, int id)
     {
-        return new GroupDAOPostgres(context);
+        this.context = context;
+        this.id = id;
+    }
+
+    public int getID()
+    {
+        return id;
+    }
+
+    public String getEmail()
+    {
+        return email;
+    }
+
+    public void setEmail(String email)
+    {
+        this.email = email;
+    }
+
+    public String getToken()
+    {
+        return token;
+    }
+
+    public void setToken(String token)
+    {
+        this.token = token;
     }
 }

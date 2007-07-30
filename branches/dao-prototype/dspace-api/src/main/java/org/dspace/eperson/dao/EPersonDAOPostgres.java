@@ -172,6 +172,11 @@ public class EPersonDAOPostgres extends EPersonDAO
             return eperson;
         }
 
+        if (value == null || "".equals(value))
+        {
+            return null;
+        }
+
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "eperson",
@@ -425,6 +430,11 @@ public class EPersonDAOPostgres extends EPersonDAO
     @Override
     public List<EPerson> search(String query, int offset, int limit)
     {
+        if (query == null || "".equals(query))
+        {
+            return new ArrayList<EPerson>();
+        }
+
         String params = "%" + query.toLowerCase() + "%";
         String dbquery =
             "SELECT eperson_id FROM eperson " +

@@ -1,5 +1,5 @@
 /*
- * GroupDAOFactory.java
+ * RegistrationDataDAOFactory.java
  *
  * Version: $Revision: 1727 $
  *
@@ -44,10 +44,10 @@ import org.dspace.core.Context;
 /**
  * @author James Rutherford
  */
-public class GroupDAOFactory
+public class RegistrationDataDAOFactory
 {
-    public static GroupDAO getInstance(Context context)
+    public static RegistrationDataDAO getInstance(Context context)
     {
-        return new GroupDAOPostgres(context);
+        return new RegistrationDataDAOPostgres(context);
     }
 }

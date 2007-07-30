@@ -1,5 +1,5 @@
 /*
- * GroupDAOFactory.java
+ * RegistrationDataDAO.java
  *
  * Version: $Revision: 1727 $
  *
@@ -39,15 +39,28 @@
  */
 package org.dspace.eperson.dao;
 
+import org.apache.log4j.Logger;
+
 import org.dspace.core.Context;
+import org.dspace.eperson.RegistrationData;
 
 /**
  * @author James Rutherford
  */
-public class GroupDAOFactory
+public abstract class RegistrationDataDAO
 {
-    public static GroupDAO getInstance(Context context)
+    protected Logger log = Logger.getLogger(RegistrationDataDAO.class);
+
+    protected Context context;
+
+    public abstract RegistrationData create();
+    public abstract RegistrationData retrieveByEmail(String email);
+    public abstract RegistrationData retrieveByToken(String token);
+    public abstract void update(RegistrationData registrationData);
+
+    public void delete(String token)
     {
-        return new GroupDAOPostgres(context);
+        RegistrationData rd = retrieveByToken(token);
+        update(rd);
     }
 }
