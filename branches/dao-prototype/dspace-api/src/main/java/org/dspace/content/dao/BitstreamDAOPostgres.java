@@ -83,30 +83,18 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
-    /**
-     * Create a new bitstream, with a new ID. The checksum and file size are
-     * calculated. This method does not check authorisation; other methods such
-     * as Bundle.createBitstream() will check authorisation. The newly created
-     * bitstream has the "unknown" format.
-     * 
-     * @param context DSpace context object
-     * @param is the bits to put in the bitstream
-     * 
-     * @return the newly created bitstream
-     * @throws IOException
-     * @throws SQLException
-     */
     @Override
-    public Bitstream create(InputStream is) throws AuthorizeException
+    public Bitstream create()
     {
         try
         {
-            TableRow row = BitstreamStorageManager.store(context, is);
-            return create(row);
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
+            TableRow row = DatabaseManager.create(context, "bitstream");
+            row.setColumn("uuid", UUID.randomUUID().toString());
+            DatabaseManager.update(context, row);
+
+            int id = row.getIntColumn("bitstream_id");
+
+            return new Bitstream(context, id);
         }
         catch (SQLException sqle)
         {
@@ -114,37 +102,24 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         }
     }
 
-    /**
-     * Register a new bitstream, with a new ID. The checksum and file size are
-     * calculated. This method does not check authorisation; other methods such
-     * as Bundle.createBitstream() will check authorisation. The newly
-     * registered bitstream has the "unknown" format.
-     * 
-     * @param context DSpace context object
-     * @param is the bits to put in the bitstream
-     * 
-     * @return the newly created bitstream
-     * @throws IOException
-     * @throws SQLException
-     */
     @Override
-    public Bitstream register(int assetstore, String path)
-        throws AuthorizeException
+    public Bitstream store(InputStream is)
+        throws AuthorizeException, IOException
     {
-        try
-        {
-            TableRow row =
-                BitstreamStorageManager.register(context, assetstore, path);
-            return create(row);
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+        Bitstream bs = create();
+        BitstreamStorageManager.store(context, bs, is);
+
+        return super.create(bs);
+    }
+
+    @Override
+    public Bitstream register(int store, String path)
+        throws AuthorizeException, IOException
+    {
+        Bitstream bs = create();
+        BitstreamStorageManager.register(context, bs, store, path);
+
+        return super.create(bs);
     }
 
     /**
@@ -406,6 +381,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         String checksumAlgorithm = row.getStringColumn("checksum_algorithm");
         String userFormatDescription =
             row.getStringColumn("user_format_description");
+        boolean deleted = row.getBooleanColumn("deleted");
 
         long sizeBytes = -1l;
         if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
@@ -436,6 +412,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         bitstream.setFormat(bitstreamFormat);
         bitstream.setStoreNumber(storeNumber);
         bitstream.setInternalID(internalID);
+        bitstream.setDeleted(deleted);
 
         UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
         bitstream.setIdentifier(new ObjectIdentifier(uuid));
@@ -447,7 +424,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         BitstreamFormat bitstreamFormat = bitstream.getFormat();
         int sequenceID = bitstream.getSequenceID();
         int storeNumber = bitstream.getStoreNumber();
-        int bitstreamFormatID = bitstreamFormat.getID();
         long sizeBytes = bitstream.getSize();
 
         String name = bitstream.getName();
@@ -457,15 +433,30 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         String checksumAlgorithm = bitstream.getChecksumAlgorithm();
         String userFormatDescription = bitstream.getUserFormatDescription();
         String internalID = bitstream.getInternalID();
+        boolean deleted = bitstream.isDeleted();
+
+        // FIXME: I'm not 100% sure this is correct
+        if (bitstreamFormat == null)
+        {
+            // No format: use "Unknown"
+            bitstreamFormat = BitstreamFormat.findUnknown(context);
+
+            // Panic if we can't find it
+            if (bitstreamFormat == null)
+            {
+                throw new IllegalStateException("No Unknown bitsream format");
+            }
+        }
 
         row.setColumn("sequence_id", sequenceID);
         row.setColumn("store_number", storeNumber);
-        row.setColumn("bitstream_format_id", bitstreamFormatID);
+        row.setColumn("bitstream_format_id", bitstreamFormat.getID());
         row.setColumn("size_bytes", sizeBytes);
 
         row.setColumn("name", name);
         row.setColumn("source", source);
         row.setColumn("internal_id", internalID);
+        row.setColumn("deleted", deleted);
 
         if (description == null)
         {
@@ -502,8 +493,5 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         {
             row.setColumn("user_format_description", userFormatDescription);
         }
-
-        // FIXME: We should be setting this
-//        row.setColumn("deleted", deleted);
     }
 }

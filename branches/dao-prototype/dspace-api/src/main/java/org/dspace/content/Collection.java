@@ -307,7 +307,7 @@ public class Collection extends DSpaceObject
             }
             else
             {
-                logo = bitstreamDAO.create(is);
+                logo = bitstreamDAO.store(is);
 
                 // now create policy for logo bitstream
                 // to match our READ policy

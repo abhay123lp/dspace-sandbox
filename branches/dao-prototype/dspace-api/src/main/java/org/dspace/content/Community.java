@@ -149,7 +149,8 @@ public class Community extends DSpaceObject
      * @return   the new logo bitstream, or <code>null</code> if there is no
      *           logo (<code>null</code> was passed in)
      */
-    public Bitstream setLogo(InputStream is) throws AuthorizeException
+    public Bitstream setLogo(InputStream is)
+        throws AuthorizeException, IOException
     {
         // Check authorisation
         // authorized to remove the logo when DELETE rights
@@ -174,7 +175,7 @@ public class Community extends DSpaceObject
         {
             if (is != null)
             {
-                Bitstream newLogo = bitstreamDAO.create(is);
+                Bitstream newLogo = bitstreamDAO.store(is);
                 logo = newLogo;
 
                 // now create policy for logo bitstream

@@ -166,7 +166,7 @@ public class Bundle extends DSpaceObject
     {
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
-        Bitstream b = bitstreamDAO.create(is);
+        Bitstream b = bitstreamDAO.store(is);
 
         // FIXME: Set permissions for bitstream
 

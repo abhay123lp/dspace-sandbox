@@ -193,7 +193,7 @@ public class AuthorizeManager
 
             throw new AuthorizeException("Authorization denied for action "
                     + actionText + " on " + Constants.typeText[otype] + ":"
-                    + oid + " by user " + userid, o, action);
+                    + oid + " by user " + userid + " in context " + c, o, action);
         }
     }
 

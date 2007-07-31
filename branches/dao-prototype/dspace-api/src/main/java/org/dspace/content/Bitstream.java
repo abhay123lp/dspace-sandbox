@@ -96,6 +96,7 @@ public class Bitstream extends DSpaceObject
     private BitstreamFormat bitstreamFormat;
     private int storeNumber;
     private String internalID;
+    private boolean deleted;
 
     public Bitstream(Context context, int id)
     {
@@ -297,29 +298,28 @@ public class Bitstream extends DSpaceObject
         userFormatDescription = null;
     }
 
+    public boolean isDeleted()
+    {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted)
+    {
+        this.deleted = deleted;
+    }
+
     /**
      * Retrieve the contents of the bitstream
      * 
      * @return a stream from which the bitstream can be read.
      * @throws AuthorizeException
      */
-    public InputStream retrieve() throws AuthorizeException
+    public InputStream retrieve() throws AuthorizeException, IOException
     {
         // Maybe should return AuthorizeException??
         AuthorizeManager.authorizeAction(context, this, Constants.READ);
 
-        try
-        {
-            return BitstreamStorageManager.retrieve(context, getID());
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
-        catch (java.sql.SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+        return BitstreamStorageManager.retrieve(context, getID());
     }
     
     /**
@@ -379,14 +379,14 @@ public class Bitstream extends DSpaceObject
 
     @Deprecated
     static Bitstream create(Context context, InputStream is)
-            throws AuthorizeException
+            throws AuthorizeException, IOException
     {
-        return BitstreamDAOFactory.getInstance(context).create(is);
+        return BitstreamDAOFactory.getInstance(context).store(is);
     }
 
     @Deprecated
     static Bitstream register(Context context, int assetstore,
-            String bitstreamPath) throws AuthorizeException
+            String bitstreamPath) throws AuthorizeException, IOException
     {
         return BitstreamDAOFactory.getInstance(context).register(assetstore,
                 bitstreamPath);

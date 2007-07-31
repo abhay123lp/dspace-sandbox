@@ -73,9 +73,37 @@ public abstract class BitstreamDAO extends ContentDAO
     protected Context context;
     protected ExternalIdentifierDAO identifierDAO;
 
-    public abstract Bitstream create(InputStream is) throws AuthorizeException;
+    public abstract Bitstream create();
+
+    /**
+     * Create a new bitstream, with a new ID. The checksum and file size are
+     * calculated. This method does not check authorisation; other methods such
+     * as Bundle.createBitstream() will check authorisation. The newly created
+     * bitstream has the "unknown" format.
+     * 
+     * @param context DSpace context object
+     * @param is the bits to put in the bitstream
+     * 
+     * @return the newly created bitstream
+     * @throws AuthorizeException
+     */
+    public abstract Bitstream store(InputStream is)
+        throws AuthorizeException, IOException;
+
+    /**
+     * Register a new bitstream, with a new ID. The checksum and file size are
+     * calculated. This method does not check authorisation; other methods such
+     * as Bundle.createBitstream() will check authorisation. The newly
+     * registered bitstream has the "unknown" format.
+     * 
+     * @param context DSpace context object
+     * @param is the bits to put in the bitstream
+     * 
+     * @return the newly created bitstream
+     * @throws AuthorizeException
+     */
     public abstract Bitstream register(int assetstore, String path)
-        throws AuthorizeException;
+        throws AuthorizeException, IOException;
 
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
