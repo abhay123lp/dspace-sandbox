@@ -66,6 +66,9 @@
         <file>
           <exists>../dspace-jspui/pom.xml</exists>
         </file>
+        <file>
+          <exists>../dspace-jspui/pom.xml</exists>
+        </file>
       </activation>
       <modules>
         <module>../dspace-jspui</module>
@@ -91,6 +94,9 @@
     <profile>
       <id>lni</id>
       <activation>
+        <file>
+          <exists>../dspace-lni/pom.xml</exists>
+        </file>
         <file>
           <exists>../dspace-lni/pom.xml</exists>
         </file>
