@@ -110,31 +110,24 @@ public abstract class WorkspaceItemDAO extends ContentDAO
             Constants.REMOVE
         };
 
-        try
+        // Give read, write, add, and remove privileges to the current user
+        for (int action : actions)
         {
-            // Give read, write, add, and remove privileges to the current user
-            for (int action : actions)
-            {
-                AuthorizeManager.addPolicy(context, item, action, currentUser);
-            }
+            AuthorizeManager.addPolicy(context, item, action, currentUser);
+        }
 
-            // Give read, write, add, and remove privileges to the various
-            // workflow groups (if any).
-            for (Group stepGroup : stepGroups)
+        // Give read, write, add, and remove privileges to the various
+        // workflow groups (if any).
+        for (Group stepGroup : stepGroups)
+        {
+            if (stepGroup != null)
             {
-                if (stepGroup != null)
+                for (int action : actions)
                 {
-                    for (int action : actions)
-                    {
-                        AuthorizeManager.addPolicy(context, item, action,
-                                stepGroup);
-                    }
+                    AuthorizeManager.addPolicy(context, item, action,
+                            stepGroup);
                 }
             }
-        }
-        catch (java.sql.SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
         }
 
         // Copy template if appropriate

@@ -86,15 +86,19 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     @Override
     public Bitstream create()
     {
+        UUID uuid = UUID.randomUUID();
+
         try
         {
             TableRow row = DatabaseManager.create(context, "bitstream");
-            row.setColumn("uuid", UUID.randomUUID().toString());
+            row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("bitstream_id");
+            Bitstream bitstream = new Bitstream(context, id);
+            bitstream.setIdentifier(new ObjectIdentifier(uuid));
 
-            return new Bitstream(context, id);
+            return bitstream;
         }
         catch (SQLException sqle)
         {

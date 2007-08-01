@@ -41,9 +41,6 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -162,14 +159,7 @@ public class Collection extends DSpaceObject
 
         setSubmitters(submitters);
 
-        try
-        {
-            AuthorizeManager.addPolicy(context, this, Constants.ADD, submitters);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+        AuthorizeManager.addPolicy(context, this, Constants.ADD, submitters);
 
         return submitters;
     }
@@ -288,41 +278,34 @@ public class Collection extends DSpaceObject
             canEdit();
         }
 
-        try
+        // First, delete any existing logo
+        if (logo != null)
         {
-            // First, delete any existing logo
-            if (logo != null)
-            {
-                log.info(LogManager.getHeader(context, "remove_logo",
-                        "collection_id=" + getID()));
-                logo.delete();
-                logo = null;
-            }
-
-            if (is == null)
-            {
-                log.info(LogManager.getHeader(context, "remove_logo",
-                        "collection_id=" + getID()));
-                logo = null;
-            }
-            else
-            {
-                logo = bitstreamDAO.store(is);
-
-                // now create policy for logo bitstream
-                // to match our READ policy
-                List policies = AuthorizeManager.getPoliciesActionFilter(
-                        context, this, Constants.READ);
-                AuthorizeManager.addPolicies(context, policies, logo);
-
-                log.info(LogManager.getHeader(context, "set_logo",
-                        "collection_id=" + getID() +
-                        ",logo_bitstream_id=" + logo.getID()));
-            }
+            log.info(LogManager.getHeader(context, "remove_logo",
+                    "collection_id=" + getID()));
+            logo.delete();
+            logo = null;
         }
-        catch (SQLException sqle)
+
+        if (is == null)
         {
-            throw new RuntimeException(sqle);
+            log.info(LogManager.getHeader(context, "remove_logo",
+                    "collection_id=" + getID()));
+            logo = null;
+        }
+        else
+        {
+            logo = bitstreamDAO.store(is);
+
+            // now create policy for logo bitstream
+            // to match our READ policy
+            List policies = AuthorizeManager.getPoliciesActionFilter(
+                    context, this, Constants.READ);
+            AuthorizeManager.addPolicies(context, policies, logo);
+
+            log.info(LogManager.getHeader(context, "set_logo",
+                    "collection_id=" + getID() +
+                    ",logo_bitstream_id=" + logo.getID()));
         }
 
         return logo;
@@ -394,14 +377,7 @@ public class Collection extends DSpaceObject
             g.update();
             setWorkflowGroup(step, g);
 
-            try
-            {
-                AuthorizeManager.addPolicy(context, this, Constants.ADD, g);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
+            AuthorizeManager.addPolicy(context, this, Constants.ADD, g);
         }
         return workflowGroups[step - 1];
     }
@@ -438,21 +414,14 @@ public class Collection extends DSpaceObject
             admins.update();
         }
 
-        try
-        {
-            AuthorizeManager.addPolicy(context, this,
-                    Constants.COLLECTION_ADMIN, admins);
+        AuthorizeManager.addPolicy(context, this, Constants.COLLECTION_ADMIN,
+                admins);
 
-            // administrators also get ADD on the submitter group
-            if (submitters != null)
-            {
-                AuthorizeManager.addPolicy(context, submitters, Constants.ADD,
-                        admins);
-            }
-        }
-        catch (SQLException sqle)
+        // administrators also get ADD on the submitter group
+        if (submitters != null)
         {
-            throw new RuntimeException(sqle);
+            AuthorizeManager.addPolicy(context, submitters, Constants.ADD,
+                    admins);
         }
 
         // register this as the admin group

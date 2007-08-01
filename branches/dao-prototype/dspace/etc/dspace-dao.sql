@@ -21,3 +21,4 @@ alter table eperson add column uuid varchar(36);
 alter table epersongroup add column uuid varchar(36);
 alter table workspaceitem add column uuid varchar(36);
 alter table bitstreamformatregistry add column uuid varchar(36);
+alter table resourcepolicy add column uuid varchar(36);

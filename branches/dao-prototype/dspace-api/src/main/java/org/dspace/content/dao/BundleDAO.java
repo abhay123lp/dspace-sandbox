@@ -176,14 +176,7 @@ public abstract class BundleDAO extends ContentDAO
     public void link(Bundle bundle, Bitstream bitstream) throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
-        try
-        {
-            AuthorizeManager.inheritPolicies(context, bundle, bitstream);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+        AuthorizeManager.inheritPolicies(context, bundle, bitstream);
     }
 
     public void unlink(Bundle bundle, Bitstream bitstream) throws AuthorizeException

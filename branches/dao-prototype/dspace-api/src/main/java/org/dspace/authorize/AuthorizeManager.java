@@ -39,19 +39,18 @@
  */
 package org.dspace.authorize;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.dspace.authorize.dao.ResourcePolicyDAO;
+import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
+import org.dspace.eperson.dao.GroupDAOFactory;
 
 /**
  * AuthorizeManager handles all authorization checks for DSpace. For better
@@ -286,36 +285,29 @@ public class AuthorizeManager
             }
         }
 
-        try
+        List policies = getPoliciesActionFilter(c, o, action);
+        Iterator i = policies.iterator();
+
+        while (i.hasNext())
         {
-            List policies = getPoliciesActionFilter(c, o, action);
-            Iterator i = policies.iterator();
+            ResourcePolicy rp = (ResourcePolicy) i.next();
 
-            while (i.hasNext())
+            // check policies for date validity
+            if (rp.isDateValid())
             {
-                ResourcePolicy rp = (ResourcePolicy) i.next();
-
-                // check policies for date validity
-                if (rp.isDateValid())
+                if ((rp.getEPersonID() != -1) && (rp.getEPersonID() == userid))
                 {
-                    if ((rp.getEPersonID() != -1) && (rp.getEPersonID() == userid))
-                    {
-                        return true; // match
-                    }
+                    return true; // match
+                }
 
-                    if ((rp.getGroupID() != -1)
-                            && (Group.isMember(c, rp.getGroupID())))
-                    {
-                        // group was set, and eperson is a member
-                        // of that group
-                        return true;
-                    }
+                if ((rp.getGroupID() != -1)
+                        && (Group.isMember(c, rp.getGroupID())))
+                {
+                    // group was set, and eperson is a member
+                    // of that group
+                    return true;
                 }
             }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
         }
 
         // default authorization is denial
@@ -377,15 +369,16 @@ public class AuthorizeManager
      *             if current user in context is not authorized to add policies
      */
     public static void addPolicy(Context c, DSpaceObject o, int actionID,
-            EPerson e) throws SQLException, AuthorizeException
+            EPerson e) throws AuthorizeException
     {
-        ResourcePolicy rp = ResourcePolicy.create(c);
+        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+        ResourcePolicy rp = dao.create();
 
         rp.setResource(o);
         rp.setAction(actionID);
         rp.setEPerson(e);
 
-        rp.update();
+        dao.update(rp);
     }
 
     /**
@@ -399,21 +392,20 @@ public class AuthorizeManager
      *            ID of action from <code>org.dspace.core.Constants</code>
      * @param g
      *            group to add policy for
-     * @throws SQLException
-     *             if there's a database problem
      * @throws AuthorizeException
      *             if the current user is not authorized to add this policy
      */
     public static void addPolicy(Context c, DSpaceObject o, int actionID,
-            Group g) throws SQLException, AuthorizeException
+            Group g) throws AuthorizeException
     {
-        ResourcePolicy rp = ResourcePolicy.create(c);
+        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+        ResourcePolicy rp = dao.create();
 
         rp.setResource(o);
         rp.setAction(actionID);
         rp.setGroup(g);
 
-        rp.update();
+        dao.update(rp);
     }
 
     /**
@@ -424,35 +416,10 @@ public class AuthorizeManager
      * 
      * @return List of <code>ResourcePolicy</code> objects
      */
+    @Deprecated
     public static List getPolicies(Context c, DSpaceObject o)
-            throws SQLException
     {
-    	TableRowIterator tri = DatabaseManager.queryTable(c, "resourcepolicy",
-                "SELECT * FROM resourcepolicy WHERE resource_type_id= ? AND resource_id= ? ",
-                o.getType(),o.getID());
-
-        List policies = new ArrayList();
-
-        while (tri.hasNext())
-        {
-            TableRow row = tri.next();
-
-            // first check the cache (FIXME: is this right?)
-            ResourcePolicy cachepolicy = (ResourcePolicy) c.fromCache(
-                    ResourcePolicy.class, row.getIntColumn("policy_id"));
-
-            if (cachepolicy != null)
-            {
-                policies.add(cachepolicy);
-            }
-            else
-            {
-                policies.add(new ResourcePolicy(c, row));
-            }
-        }
-        tri.close();
-
-        return policies;
+        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(o);
     }
 
     /**
@@ -464,39 +431,11 @@ public class AuthorizeManager
      *            DSpaceObject policies relate to
      * @param actionID
      *            action (defined in class Constants)
-     * @throws SQLException
-     *             if there's a database problem
      */
     public static List getPoliciesActionFilter(Context c, DSpaceObject o,
-            int actionID) throws SQLException
+            int actionID)
     {
-    	TableRowIterator tri = DatabaseManager.queryTable(c, "resourcepolicy",
-                "SELECT * FROM resourcepolicy WHERE resource_type_id= ? "+
-                "AND resource_id= ? AND action_id= ? ", 
-                o.getType(), o.getID(),actionID);
-
-        List policies = new ArrayList();
-
-        while (tri.hasNext())
-        {
-            TableRow row = tri.next();
-
-            // first check the cache (FIXME: is this right?)
-            ResourcePolicy cachepolicy = (ResourcePolicy) c.fromCache(
-                    ResourcePolicy.class, row.getIntColumn("policy_id"));
-
-            if (cachepolicy != null)
-            {
-                policies.add(cachepolicy);
-            }
-            else
-            {
-                policies.add(new ResourcePolicy(c, row));
-            }
-        }
-        tri.close();
-
-        return policies;
+        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(o, actionID);
     }
 
     /**
@@ -507,13 +446,11 @@ public class AuthorizeManager
      *            source of policies
      * @param dest
      *            destination of inherited policies
-     * @throws SQLException
-     *             if there's a database problem
      * @throws AuthorizeException
      *             if the current user is not authorized to add these policies
      */
     public static void inheritPolicies(Context c, DSpaceObject src,
-            DSpaceObject dest) throws SQLException, AuthorizeException
+            DSpaceObject dest) throws AuthorizeException
     {
         // find all policies for the source object
         List policies = getPolicies(c, src);
@@ -530,14 +467,14 @@ public class AuthorizeManager
      *            List of ResourcePolicy objects
      * @param dest
      *            object to have policies added
-     * @throws SQLException
-     *             if there's a database problem
      * @throws AuthorizeException
      *             if the current user is not authorized to add these policies
      */
     public static void addPolicies(Context c, List policies, DSpaceObject dest)
-            throws SQLException, AuthorizeException
+            throws AuthorizeException
     {
+        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+
         Iterator i = policies.iterator();
 
         // now add them to the destination object
@@ -545,7 +482,7 @@ public class AuthorizeManager
         {
             ResourcePolicy srp = (ResourcePolicy) i.next();
 
-            ResourcePolicy drp = ResourcePolicy.create(c);
+            ResourcePolicy drp = dao.create();
 
             // copy over values
             drp.setResource(dest);
@@ -556,7 +493,7 @@ public class AuthorizeManager
             drp.setEndDate(srp.getEndDate());
 
             // and write out new policy
-            drp.update();
+            dao.update(drp);
         }
     }
 
@@ -568,18 +505,13 @@ public class AuthorizeManager
      * @param o
      *            object to remove policies for
      */
-    public static void removeAllPolicies(Context c, DSpaceObject o)
+    public static void removeAllPolicies(Context c, DSpaceObject dso)
     {
-        // FIXME: authorization check?
-        try
+        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+
+        for (ResourcePolicy rp : dao.getPolicies(dso))
         {
-    	    DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy " +
-                    "WHERE resource_type_id= ? AND resource_id= ? ",
-                    o.getType(), o.getID());
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            dao.delete(rp.getID());
         }
     }
 
@@ -605,17 +537,11 @@ public class AuthorizeManager
         }
         else
         {
-            try
+            ResourcePolicyDAO dao =
+                ResourcePolicyDAOFactory.getInstance(context);
+            for (ResourcePolicy rp : dao.getPolicies(dso, actionID))
             {
-        	    DatabaseManager.updateQuery(context,
-                        "DELETE FROM resourcepolicy " +
-                        "WHERE resource_type_id= ? AND "+
-                        "resource_id= ? AND action_id= ? ",
-                        dso.getType(), dso.getID(), actionID);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
+                dao.delete(rp.getID());
             }
         }
     }
@@ -628,19 +554,21 @@ public class AuthorizeManager
      *            current context
      * @param groupID
      *            ID of the group
-     * @throws SQLException
-     *             if there's a database problem
      */
-    public static void removeGroupPolicies(Context c, int groupID)
+    public static void removeGroupPolicies(Context context, int groupID)
     {
-        try
+        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(context);
+        Group group = GroupDAOFactory.getInstance(context).retrieve(groupID);
+
+        if (group == null)
         {
-            DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy WHERE "
-                    + "epersongroup_id= ? ", groupID);
+            throw new IllegalArgumentException("Couldn't find group with id " +
+                    groupID);
         }
-        catch (SQLException sqle)
+
+        for (ResourcePolicy rp : dao.getPolicies(group))
         {
-            throw new RuntimeException(sqle);
+            dao.delete(rp.getID());
         }
     }
 
@@ -654,20 +582,14 @@ public class AuthorizeManager
      *            the object
      * @param g
      *            the group
-     * @throws SQLException
-     *             if there's a database problem
      */
     public static void removeGroupPolicies(Context c, DSpaceObject o, Group g)
     {
-        try
+        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+
+        for (ResourcePolicy rp : dao.getPolicies(o, g))
         {
-            DatabaseManager.updateQuery(c, "DELETE FROM resourcepolicy WHERE "
-                    + "resource_type_id= ? AND resource_id= ? AND epersongroup_id= ? ",
-                    o.getType(), o.getID(), g.getID());
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            dao.delete(rp.getID());
         }
     }
 
@@ -683,60 +605,18 @@ public class AuthorizeManager
      *            ID of action frm <code>org.dspace.core.Constants</code>
      * @return array of <code>Group</code>s that can perform the specified
      *         action on the specified object
-     * @throws java.sql.SQLException
-     *             if there's a database problem
      */
-    public static Group[] getAuthorizedGroups(Context c, DSpaceObject o,
+    public static Group[] getAuthorizedGroups(Context c, DSpaceObject dso,
             int actionID)
     {
-        List groups = new ArrayList();
+        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+        List<Group> groups = new ArrayList<Group>();
 
-        try
+        for (ResourcePolicy rp : dao.getPolicies(dso, actionID))
         {
-            // do query matching groups, actions, and objects
-            TableRowIterator tri = DatabaseManager.queryTable(c,
-                    "resourcepolicy",
-                    "SELECT * FROM resourcepolicy WHERE resource_type_id= ? "+
-                    "AND resource_id= ? AND action_id= ? ",
-                    o.getType(),o.getID(),actionID);
-            
-            while (tri.hasNext())
-            {
-                TableRow row = tri.next();
-
-                // first check the cache (FIXME: is this right?)
-                ResourcePolicy cachepolicy = (ResourcePolicy) c.fromCache(
-                        ResourcePolicy.class, row.getIntColumn("policy_id"));
-
-                ResourcePolicy myPolicy = null;
-
-                if (cachepolicy != null)
-                {
-                    myPolicy = cachepolicy;
-                }
-                else
-                {
-                    myPolicy = new ResourcePolicy(c, row);
-                }
-
-                // now do we have a group?
-                Group myGroup = myPolicy.getGroup();
-
-                if (myGroup != null)
-                {
-                    groups.add(myGroup);
-                }
-            }
-            tri.close();
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            groups.add(rp.getGroup());
         }
 
-        Group[] groupArray = new Group[groups.size()];
-        groupArray = (Group[]) groups.toArray(groupArray);
-
-        return groupArray;
+        return (Group[]) groups.toArray(new Group[0]);
     }
 }

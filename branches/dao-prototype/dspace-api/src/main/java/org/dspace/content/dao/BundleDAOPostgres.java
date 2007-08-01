@@ -173,38 +173,25 @@ public class BundleDAOPostgres extends BundleDAO
 
             if (row != null)
             {
-                update(bundle, row);
+                row.setColumn("name", bundle.getName());
+
+                if (bundle.getPrimaryBitstreamID() > 0)
+                {
+                    row.setColumn("primary_bitstream_id",
+                            bundle.getPrimaryBitstreamID());
+                }
+                else
+                {
+                    row.setColumnNull("primary_bitstream_id");
+                }
+
+                DatabaseManager.update(context, row);
             }
             else
             {
                 throw new RuntimeException("Didn't find bundle " +
                         bundle.getID());
             }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private void update(Bundle bundle, TableRow bundleRow)
-        throws AuthorizeException
-    {
-        try
-        {
-            bundleRow.setColumn("name", bundle.getName());
-
-            if (bundle.getPrimaryBitstreamID() > 0)
-            {
-                bundleRow.setColumn("primary_bitstream_id",
-                        bundle.getPrimaryBitstreamID());
-            }
-            else
-            {
-                bundleRow.setColumnNull("primary_bitstream_id");
-            }
-
-            DatabaseManager.update(context, bundleRow);
         }
         catch (SQLException sqle)
         {

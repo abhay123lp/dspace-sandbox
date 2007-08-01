@@ -171,27 +171,20 @@ public class Community extends DSpaceObject
             logo = null;
         }
 
-        try
+        if (is != null)
         {
-            if (is != null)
-            {
-                Bitstream newLogo = bitstreamDAO.store(is);
-                logo = newLogo;
+            Bitstream newLogo = bitstreamDAO.store(is);
+            logo = newLogo;
 
-                // now create policy for logo bitstream
-                // to match our READ policy
-                List policies = AuthorizeManager.getPoliciesActionFilter(
-                        context, this, Constants.READ);
-                AuthorizeManager.addPolicies(context, policies, newLogo);
+            // now create policy for logo bitstream
+            // to match our READ policy
+            List policies = AuthorizeManager.getPoliciesActionFilter(context,
+                    this, Constants.READ);
+            AuthorizeManager.addPolicies(context, policies, newLogo);
 
-                log.info(LogManager.getHeader(context, "set_logo",
-                        "community_id=" + getID() + "logo_bitstream_id="
-                                + newLogo.getID()));
-            }
-        }
-        catch (java.sql.SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            log.info(LogManager.getHeader(context, "set_logo",
+                    "community_id=" + getID() + "logo_bitstream_id="
+                            + newLogo.getID()));
         }
 
         return logo;

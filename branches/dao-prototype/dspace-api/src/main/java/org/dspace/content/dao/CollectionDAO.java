@@ -119,49 +119,42 @@ public abstract class CollectionDAO extends ContentDAO
     protected final Collection create(Collection collection)
         throws AuthorizeException
     {
-        try
+        // Create a default persistent identifier for this Collection, and
+        // add it to the in-memory Colleciton object.
+        ExternalIdentifier identifier = identifierDAO.create(collection);
+        collection.addExternalIdentifier(identifier);
+
+        // create the default authorization policy for collections
+        // of 'anonymous' READ
+        Group anonymousGroup = groupDAO.retrieve(0);
+
+        int actions[] = {
+            Constants.READ,
+            Constants.DEFAULT_ITEM_READ,
+            Constants.DEFAULT_BITSTREAM_READ
+        };
+
+        for (int action : actions)
         {
-            // Create a default persistent identifier for this Collection, and
-            // add it to the in-memory Colleciton object.
-            ExternalIdentifier identifier = identifierDAO.create(collection);
-            collection.addExternalIdentifier(identifier);
-
-            // create the default authorization policy for collections
-            // of 'anonymous' READ
-            Group anonymousGroup = groupDAO.retrieve(0);
-
-            int actions[] = {
-                Constants.READ,
-                Constants.DEFAULT_ITEM_READ,
-                Constants.DEFAULT_BITSTREAM_READ
-            };
-
-            for (int action : actions)
-            {
-                ResourcePolicy policy = ResourcePolicy.create(context);
-                policy.setResource(collection);
-                policy.setAction(action);
-                policy.setGroup(anonymousGroup);
-                policy.update();
-            }
-
-            update(collection);
-
-            HistoryManager.saveHistory(context, collection,
-                    HistoryManager.CREATE, context.getCurrentUser(),
-                    context.getExtraLogInfo());
-
-            log.info(LogManager.getHeader(context, "create_collection",
-                    "collection_id=" + collection.getID())
-                    + ",uri=" +
-                    collection.getExternalIdentifier().getCanonicalForm());
-            
-            return collection;
+            ResourcePolicy policy = ResourcePolicy.create(context);
+            policy.setResource(collection);
+            policy.setAction(action);
+            policy.setGroup(anonymousGroup);
+            policy.update();
         }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+
+        update(collection);
+
+        HistoryManager.saveHistory(context, collection,
+                HistoryManager.CREATE, context.getCurrentUser(),
+                context.getExtraLogInfo());
+
+        log.info(LogManager.getHeader(context, "create_collection",
+                "collection_id=" + collection.getID())
+                + ",uri=" +
+                collection.getExternalIdentifier().getCanonicalForm());
+        
+        return collection;
     }
 
     public Collection retrieve(int id)
@@ -335,14 +328,7 @@ public abstract class CollectionDAO extends ContentDAO
 
         // If we're adding the Item to the Collection, we bequeath the
         // policies unto it.
-        try
-        {
-            AuthorizeManager.inheritPolicies(context, collection, item);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+        AuthorizeManager.inheritPolicies(context, collection, item);
 
     }
 

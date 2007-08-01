@@ -279,17 +279,10 @@ public abstract class ItemDAO extends ContentDAO
             // currentUser because he started the removal process and he will
             // end it too. also add right to remove from the bundle to remove
             // it's bitstreams.
-            try
-            {
-                AuthorizeManager.addPolicy(context, bundle, Constants.DELETE,
-                        context.getCurrentUser());
-                AuthorizeManager.addPolicy(context, bundle, Constants.REMOVE,
-                        context.getCurrentUser());
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
+            AuthorizeManager.addPolicy(context, bundle, Constants.DELETE,
+                    context.getCurrentUser());
+            AuthorizeManager.addPolicy(context, bundle, Constants.REMOVE,
+                    context.getCurrentUser());
 
             // The bundle is an orphan, delete it
             bundleDAO.delete(bundle.getID());

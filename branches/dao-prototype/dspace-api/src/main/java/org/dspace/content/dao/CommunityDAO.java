@@ -114,46 +114,39 @@ public abstract class CommunityDAO extends ContentDAO
     protected final Community create(Community community)
         throws AuthorizeException
     {
-        try
+        // Only administrators and adders can create communities
+        if (!(AuthorizeManager.isAdmin(context)))
         {
-            // Only administrators and adders can create communities
-            if (!(AuthorizeManager.isAdmin(context)))
-            {
-                throw new AuthorizeException(
-                        "Only administrators can create communities");
-            }
-
-            // Create a default persistent identifier for this Community, and
-            // add it to the in-memory Community object.
-            ExternalIdentifier identifier = identifierDAO.create(community);
-            community.addExternalIdentifier(identifier);
-
-            // create the default authorization policy for communities
-            // of 'anonymous' READ
-            Group anonymousGroup = groupDAO.retrieve(0);
-
-            ResourcePolicy policy = ResourcePolicy.create(context);
-            policy.setResource(community);
-            policy.setAction(Constants.READ);
-            policy.setGroup(anonymousGroup);
-            policy.update();
-
-            HistoryManager.saveHistory(context, community,
-                    HistoryManager.CREATE, context.getCurrentUser(),
-                    context.getExtraLogInfo());
-
-            log.info(LogManager.getHeader(context, "create_community",
-                    "community_id=" + community.getID()) + ",uri=" +
-                    community.getExternalIdentifier().getCanonicalForm());
-
-            update(community);
-
-            return community;
+            throw new AuthorizeException(
+                    "Only administrators can create communities");
         }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
+
+        // Create a default persistent identifier for this Community, and
+        // add it to the in-memory Community object.
+        ExternalIdentifier identifier = identifierDAO.create(community);
+        community.addExternalIdentifier(identifier);
+
+        // create the default authorization policy for communities
+        // of 'anonymous' READ
+        Group anonymousGroup = groupDAO.retrieve(0);
+
+        ResourcePolicy policy = ResourcePolicy.create(context);
+        policy.setResource(community);
+        policy.setAction(Constants.READ);
+        policy.setGroup(anonymousGroup);
+        policy.update();
+
+        HistoryManager.saveHistory(context, community,
+                HistoryManager.CREATE, context.getCurrentUser(),
+                context.getExtraLogInfo());
+
+        log.info(LogManager.getHeader(context, "create_community",
+                "community_id=" + community.getID()) + ",uri=" +
+                community.getExternalIdentifier().getCanonicalForm());
+
+        update(community);
+
+        return community;
     }
 
     public Community retrieve(int id)

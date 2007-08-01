@@ -209,14 +209,8 @@ public abstract class GroupDAO
 
 
     /**
-     * Returns a list of all the subgroups of the given Group (recursively).
-     */
-//    public abstract List<Group> getAllSubGroups(Group group);
-
-    /**
      * Returns a list of all the immediate subgroups of the given Group.
      */
-//    public abstract List<Group> getImmediateSubGroups(Group group);
     public abstract List<Group> getMemberGroups(Group group);
 
     /**
