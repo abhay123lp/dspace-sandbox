@@ -542,8 +542,6 @@ public class BitstreamStorageManager
      *            The ID of the bitstream to retrieve
      * @exception IOException
      *                If a problem occurs while retrieving the bits
-     * @exception SQLException
-     *                If a problem occurs accessing the RDBMS
      * 
      * @return The stream of bits, or null
      */
@@ -570,8 +568,6 @@ public class BitstreamStorageManager
      * 	           only deletes the files and directories in the assetstore  
      * @exception IOException
      *                If a problem occurs while cleaning up
-     * @exception SQLException
-     *                If a problem occurs accessing the RDBMS
      */
     public static void cleanup(boolean deleteDbRecords)
         throws IOException, AuthorizeException
