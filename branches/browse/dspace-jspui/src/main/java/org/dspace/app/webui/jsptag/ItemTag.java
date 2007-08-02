@@ -368,31 +368,15 @@ public class ItemTag extends TagSupport
                     }
                     else if (isAuthor)
                     {
-                    	String bType = ConfigurationManager.getProperty("webui.authorlinks.browse");
-                    	if (bType != null)
-                    	{
-                    		out.print("<a href=\"" + request.getContextPath() + "/browse?type=" + bType + "&value="
-                    				+ URLEncoder.encode(values[j].value, "UTF-8") + "\">" + Utils.addEntities(values[j].value)
-                    				+ "</a>");
-                    	}
-                    	else
-                    	{
-                    		out.print(Utils.addEntities(values[j].value));
-                    	}
+                        out.print("<a href=\"" + request.getContextPath() + "/items-by-author?author="
+                            + URLEncoder.encode(values[j].value, "UTF-8") + "\">" + values[j].value
+                            + "</a>");
                     }
                     else if (isSubject)
                     {
-                    	String sType = ConfigurationManager.getProperty("webui.authorlinks.browse");
-                    	if (sType != null)
-                    	{
-                    		out.print("<a href=\"" + request.getContextPath() + "/browse?type=" + sType + "&value="
-                    				+ URLEncoder.encode(values[j].value, "UTF-8") + "\">" + Utils.addEntities(values[j].value)
-                    				+ "</a>");
-                    	}
-                    	else
-                    	{
-                    		out.print(Utils.addEntities(values[j].value));
-                    	}
+                        out.print("<a href=\"" + request.getContextPath() + "/items-by-subject?subject="
+                            + URLEncoder.encode(values[j].value, "UTF-8") + "\">" + values[j].value
+                            + "</a>");
                     }
                     else
                     {
