@@ -66,11 +66,6 @@
 <%@ page import="org.dspace.core.Utils"%>
 <%@ page import="org.dspace.core.ConfigurationManager"%>
 <%@ page import="org.dspace.eperson.Group"     %>
-<%@ page import="org.dspace.browse.BrowseIndex" %>
- 
-<%@ page import="org.dspace.app.webui.components.RecentSubmissions" %>
-<%@ page import="org.dspace.content.Item" %>
-<%@ page import="org.dspace.content.DCValue" %>
 
 
 
@@ -80,8 +75,11 @@
     Community  community  = (Community) request.getAttribute("community");
     Group      submitters = (Group) request.getAttribute("submitters");
 
-    RecentSubmissions rs = (RecentSubmissions) request.getAttribute("recently.submitted");
-    
+    String[] lastSubmittedTitles = (String[])
+        request.getAttribute("last.submitted.titles");
+    String[] lastSubmittedURLs = (String[])
+        request.getAttribute("last.submitted.urls");
+
     boolean loggedIn =
         ((Boolean) request.getAttribute("logged.in")).booleanValue();
     boolean subscribed =
@@ -95,8 +93,6 @@
     Boolean submit_b      = (Boolean)request.getAttribute("can_submit_button");
     boolean submit_button = (submit_b == null ? false : submit_b.booleanValue());
 
-	// get the browse indices
-    BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
 
     // Put the metadata values into guaranteed non-null variables
     String name = collection.getMetadata("name");
@@ -154,10 +150,10 @@
   </table>
 
   <%-- Search/Browse --%>
+  <form method="get" action="">
     <table class="miscTable" align="center" summary="This table allows you to search through all collections in the repository">
       <tr>
         <td class="evenRowEvenCol" colspan="2">
-        <form method="get" action="">
           <table>
             <tr>
               <td class="standard" align="center">
@@ -175,32 +171,17 @@
 				<input type="submit" name="submit_search" value="<fmt:message key="jsp.general.go"/>" />
               </td>
             </tr>
-          </table>
-        </form>
-        </td>
-       </tr>
             <tr>
-              <td align="center" class="standard" valign="middle">
+              <td align="center" class="standard">
                 <small><fmt:message key="jsp.general.orbrowse"/>&nbsp;</small>
-				<%-- Insert the dynamic list of browse options --%>
-<%
-	for (int i = 0; i < bis.length; i++)
-	{
-		String key = "browse.menu." + bis[i].getMessageKey();
-%>
-	<div class="browse_buttons">
-	<form method="get" action="<%= request.getContextPath() %>/handle/<%= collection.getHandle() %>/browse">
-		<input type="hidden" name="type" value="<%= bis[i].getName() %>"/>
-		<%-- <input type="hidden" name="collection" value="<%= collection.getHandle() %>" /> --%>
-		<input type="submit" name="submit_browse" value="<fmt:message key="<%= key %>"/>"/>
-	</form>
-	</div>
-<%	
-	}
-%>
+                <input type="submit" name="submit_titles" value="<fmt:message key="jsp.general.titles.button"/>" />&nbsp;<input type="submit" name="submit_authors" value="<fmt:message key="jsp.general.authors.button"/>" />&nbsp;<input type="submit" name="submit_subjects" value="<fmt:message key="jsp.general.subjects.button"/>" />&nbsp;<input type="submit" name="submit_dates" value="<fmt:message key="jsp.general.date.button"/>" />
 	      </td>
             </tr>
           </table>
+        </td>
+      </tr>
+    </table>
+  </form>
 
   <table width="100%" align="center" cellspacing="10">
     <tr>
@@ -308,23 +289,16 @@
 
 	<h3><fmt:message key="jsp.collection-home.recentsub"/></h3>
 <%
-	if (rs != null)
-	{
-		Item[] items = rs.getRecentSubmissions();
-		for (int i = 0; i < items.length; i++)
-		{
-			DCValue[] dcv = items[i].getMetadata("dc", "title", null, Item.ANY);
-			String displayTitle = "Untitled";
-			if (dcv != null)
-			{
-				if (dcv.length > 0)
-				{
-					displayTitle = dcv[0].value;
-				}
-			}
-			%><p class="recentItem"><a href="<%= request.getContextPath() %>/handle/<%= items[i].getHandle() %>"><%= displayTitle %></a></p><%
-		}
-	}
+    for (int i = 0; i < lastSubmittedTitles.length; i++)
+    {
+    	String displayTitle = (lastSubmittedTitles[i] == null
+    		? LocaleSupport.getLocalizedMessage(pageContext, "jsp.general.untitled")
+    		: Utils.addEntities(lastSubmittedTitles[i]));
+    		
+%>
+    <p class="recentItem"><a href="<%= request.getContextPath() %><%= lastSubmittedURLs[i] %>"><%= displayTitle %></a></p>
+<%
+  }
 %>
     <p>&nbsp;</p>
 <%
