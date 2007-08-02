@@ -78,7 +78,6 @@ public abstract class ResourcePolicyDAO
         ResourcePolicy rp = retrieve(id);
         update(rp); // Sync in-memory object before removal
 
-        log.info(rp);
         context.removeCached(rp, id);
     }
 

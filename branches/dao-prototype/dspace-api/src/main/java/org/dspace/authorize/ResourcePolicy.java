@@ -279,7 +279,6 @@ public class ResourcePolicy
      */
     public void setGroup(Group group)
     {
-        log.info(group);
         if (group != null)
         {
             groupID = group.getID();

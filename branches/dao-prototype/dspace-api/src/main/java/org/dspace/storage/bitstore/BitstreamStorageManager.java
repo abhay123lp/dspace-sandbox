@@ -292,34 +292,8 @@ public class BitstreamStorageManager
         // Create a deleted bitstream row, using a separate DB connection
         Context tempContext = null;
 
-        // FIXME: Figure out why this creates a temporary context object. It
-        // would surely be much better to use the Context that is passed in.
-//        try
-//        {
-            bitstream.setDeleted(true);
-            bitstream.setInternalID(id);
-
-            /*
-             * Set the store number of the new bitstream If you want to use some
-             * other method of working out where to put a new bitstream, here's
-             * where it should go
-             */
-            bitstream.setStoreNumber(incoming);
-
-//            tempContext = new Context();
-//            BitstreamDAOFactory.getInstance(tempContext).update(bitstream);
-//            tempContext.complete();
-            dao.update(bitstream);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            if (tempContext != null)
-//            {
-//                tempContext.abort();
-//            }
-//
-//            throw new RuntimeException(sqle);
-//        }
+        // Put something into the storage layer to attach the file to.
+        storeInitialMetadata(context, dao, bitstream, incoming, id);
 
         // Where on the file system will this new bitstream go?
 		GeneralFile file = getFile(incoming, id);
@@ -390,31 +364,8 @@ public class BitstreamStorageManager
 		// mark this bitstream as a registered bitstream
 		String sInternalId = REGISTERED_FLAG + bitstreamPath;
 
-		// Create a deleted bitstream row, using a separate DB connection
-		Context tempContext = null;
-
-        // FIXME: Figure out why this creates a temporary context object. It
-        // would surely be much better to use the Context that is passed in.
-//		try
-//        {
-			bitstream.setDeleted(true);
-			bitstream.setInternalID(sInternalId);
-			bitstream.setStoreNumber(assetstore);
-
-//			tempContext = new Context();
-//            BitstreamDAOFactory.getInstance(tempContext).update(bitstream);
-//			tempContext.complete();
-            dao.update(bitstream);
-//		}
-//        catch (SQLException sqle)
-//        {
-//			if (tempContext != null)
-//            {
-//				tempContext.abort();
-//			}
-//
-//			throw new RuntimeException(sqle);
-//		}
+        // Put something into the storage layer to attach the file to.
+        storeInitialMetadata(context, dao, bitstream, assetstore, sInternalId);
 
 		// get a reference to the file
 		GeneralFile file = getFile(assetstore, sInternalId);
@@ -838,4 +789,55 @@ public class BitstreamStorageManager
 		return buf.toString();
 	}
 
+    /**
+     * This inserts some metadata into the storage layer using a separate
+     * Context to ensure that there is some record of the file in the metadata
+     * store.
+     */
+    private static void storeInitialMetadata(Context context,
+            BitstreamDAO dao, Bitstream bitstream,
+            int assetstore, String internalID)
+        throws AuthorizeException
+    {
+        Context tempContext = null;
+
+        // Make sure there's something in the database from the other
+        // Context, then run an update into that from the temporary one
+        try
+        {
+            context.commit();
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+
+		try
+        {
+            /*
+             * Set the store number of the new bitstream If you want to use some
+             * other method of working out where to put a new bitstream, here's
+             * where it should go (only applicable for store(), not register()).
+             */
+			bitstream.setStoreNumber(assetstore);
+			bitstream.setInternalID(internalID);
+			bitstream.setDeleted(true);
+
+			tempContext = new Context();
+            tempContext.setCurrentUser(context.getCurrentUser());
+
+            BitstreamDAO tempDAO = BitstreamDAOFactory.getInstance(tempContext);
+            tempDAO.update(bitstream);
+			tempContext.complete();
+		}
+        catch (SQLException sqle)
+        {
+			if (tempContext != null)
+            {
+				tempContext.abort();
+			}
+
+			throw new RuntimeException(sqle);
+		}
+    }
 }
