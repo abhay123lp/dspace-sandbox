@@ -42,6 +42,7 @@ package org.dspace.app.xmlui.aspect.artifactbrowser;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.cocoon.caching.CacheableProcessingComponent;
 import org.apache.cocoon.environment.ObjectModelHelper;
@@ -59,6 +60,7 @@ import org.dspace.app.xmlui.wing.element.ReferenceSet;
 import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.app.xmlui.wing.element.Xref;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.browse.BrowseItem;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.xml.sax.SAXException;
@@ -156,9 +158,9 @@ public class BrowseAuthorItems extends AbstractBrowse implements CacheableProces
 	            
 	            performBrowse(MODE_BY_AUTHOR_ITEM);
 	            
-	            for (Item item : browseInfo.getItemResults())
+	            for (BrowseItem item : (List<BrowseItem>)browseInfo.getResults())
 	            {
-	                validity.add(item);
+	                validity.add( Item.find(context, item.getID()) );
 	            }
 	            
 	            this.validity = validity.complete();
@@ -197,13 +199,13 @@ public class BrowseAuthorItems extends AbstractBrowse implements CacheableProces
     	performBrowse(MODE_BY_AUTHOR_ITEM);
     	
         Request request = ObjectModelHelper.getRequest(objectModel);
-        Item[] items = browseInfo.getItemResults();
+        List<BrowseItem> items = browseInfo.getResults();
         String top = request.getParameter("authorTop");
         String bottom = request.getParameter("authorBottom");
         String author = request.getParameter("author");
 
         // Determine Pagination variables
-        int itemsTotal = items.length;
+        int itemsTotal = items.size();
         int firstItemIndex = 0;
         int lastItemIndex = firstItemIndex + ITEMS_PER_PAGE;
 
@@ -225,8 +227,8 @@ public class BrowseAuthorItems extends AbstractBrowse implements CacheableProces
         // Check four out of bounds indices.
         if (firstItemIndex < 0)
             firstItemIndex = 0;
-        if (lastItemIndex > items.length - 1)
-            lastItemIndex = items.length - 1;
+        if (lastItemIndex > items.size() - 1)
+            lastItemIndex = items.size() - 1;
 
         // Determine the next & previous link;
         String baseURL = "browse-author-items?author=" + URLEncode(author);
@@ -234,7 +236,7 @@ public class BrowseAuthorItems extends AbstractBrowse implements CacheableProces
         String nextPage = null;
         if (firstItemIndex > 0)
             previousPage = baseURL + "&authorBottom=" + (firstItemIndex);
-        if (lastItemIndex < items.length - 1)
+        if (lastItemIndex < items.size() - 1)
             nextPage = baseURL + "&authorTop=" + (lastItemIndex);
         
         // Build the DRI Body
@@ -258,7 +260,7 @@ public class BrowseAuthorItems extends AbstractBrowse implements CacheableProces
 
         for (int i = firstItemIndex; i <= lastItemIndex; i++)
         {
-            referenceSet.addReference(items[i]);
+            referenceSet.addReference( Item.find(context, items.get(i).getID()) );
         }
     }
     

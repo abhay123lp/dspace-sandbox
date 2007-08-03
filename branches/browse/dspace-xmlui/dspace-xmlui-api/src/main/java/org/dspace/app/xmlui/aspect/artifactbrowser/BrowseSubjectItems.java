@@ -42,6 +42,7 @@ package org.dspace.app.xmlui.aspect.artifactbrowser;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.cocoon.caching.CacheableProcessingComponent;
 import org.apache.cocoon.environment.ObjectModelHelper;
@@ -59,6 +60,7 @@ import org.dspace.app.xmlui.wing.element.ReferenceSet;
 import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.app.xmlui.wing.element.Xref;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.browse.BrowseItem;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.xml.sax.SAXException;
@@ -191,13 +193,13 @@ public class BrowseSubjectItems extends AbstractBrowse implements CacheableProce
     	performBrowse(MODE_BY_SUBJECT_ITEM);
     	
         Request request = ObjectModelHelper.getRequest(objectModel);
-        Item[] items = browseInfo.getItemResults();
+        List<BrowseItem> items = browseInfo.getResults();
         String top = request.getParameter("subjectTop");
         String bottom = request.getParameter("subjectBottom");
         String subject = request.getParameter("subject");
 
         // Determine Pagination variables
-        int itemsTotal = items.length;
+        int itemsTotal = items.size();
         int firstItemIndex = 0;
         int lastItemIndex = firstItemIndex + ITEMS_PER_PAGE;
 
@@ -219,8 +221,8 @@ public class BrowseSubjectItems extends AbstractBrowse implements CacheableProce
         // Check four out of bounds indices.
         if (firstItemIndex < 0)
             firstItemIndex = 0;
-        if (lastItemIndex > items.length - 1)
-            lastItemIndex = items.length - 1;
+        if (lastItemIndex > items.size() - 1)
+            lastItemIndex = items.size() - 1;
 
         // Determine the next & previous link;
         String baseURL = "browse-subject-items?subject=" + URLEncode(subject);
@@ -228,7 +230,7 @@ public class BrowseSubjectItems extends AbstractBrowse implements CacheableProce
         String nextPage = null;
         if (firstItemIndex > 0)
             previousPage = baseURL + "&subjectBottom=" + (firstItemIndex);
-        if (lastItemIndex < items.length - 1)
+        if (lastItemIndex < items.size() - 1)
             nextPage = baseURL + "&subjectTop=" + (lastItemIndex);
         
         // Build the DRI Body
@@ -252,7 +254,7 @@ public class BrowseSubjectItems extends AbstractBrowse implements CacheableProce
 
         for (int i = firstItemIndex; i <= lastItemIndex; i++)
         {
-            referenceSet.addReference(items[i]);
+            referenceSet.addReference( Item.find(context, items.get(i).getID()) );
         }
     }
     

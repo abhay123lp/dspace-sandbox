@@ -60,6 +60,7 @@ import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.app.xmlui.wing.element.Para;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.browse.BrowseItem;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.xml.sax.SAXException;
@@ -156,9 +157,9 @@ public class BrowseTitles extends AbstractBrowse implements CacheableProcessingC
 	            
 	            performBrowse(MODE_BY_TITLE);
 	            
-	            for (Item item : browseInfo.getItemResults())
+	            for (BrowseItem item : (java.util.List<BrowseItem>)browseInfo.getResults())
 	            {
-	                validity.add(item);
+	                validity.add( Item.find(context, item.getID()) );
 	            } 
 	            
 	            this.validity = validity.complete();
@@ -229,10 +230,11 @@ public class BrowseTitles extends AbstractBrowse implements CacheableProcessingC
         // Refrence all the browsed items
         ReferenceSet referenceSet = results.addReferenceSet("browse-by-title",
                 ReferenceSet.TYPE_SUMMARY_LIST, "title", null);
-        for (Item item : browseInfo.getItemResults())
+
+        for (BrowseItem item : (java.util.List<BrowseItem>)browseInfo.getResults())
         {
-            referenceSet.addReference(item);
-        }
+            referenceSet.addReference( Item.find(context, item.getID()) );
+        } 
     }
     
     /**

@@ -42,6 +42,7 @@ package org.dspace.app.xmlui.aspect.artifactbrowser;
 import java.io.IOException;
 import java.io.Serializable;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.cocoon.caching.CacheableProcessingComponent;
@@ -61,6 +62,7 @@ import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.app.xmlui.wing.element.Para;
 import org.dspace.app.xmlui.wing.element.Select;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.browse.BrowseItem;
 import org.dspace.content.DCDate;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -175,9 +177,9 @@ public class BrowseDates extends AbstractBrowse implements CacheableProcessingCo
 	            
 	            performBrowse(MODE_BY_DATE);
 	            
-	            for (Item item : browseInfo.getItemResults())
+	            for (BrowseItem item : (List<BrowseItem>)browseInfo.getResults())
 	            {
-	                validity.add(item);
+	                validity.add( Item.find(context, item.getID()) );
 	            }
 	            
 	            this.validity = validity.complete();
@@ -275,9 +277,9 @@ public class BrowseDates extends AbstractBrowse implements CacheableProcessingCo
         // Refrence all the browsed items
         ReferenceSet referenceSet = results.addReferenceSet("browse-by-date",
                 ReferenceSet.TYPE_SUMMARY_LIST, "date", null);
-        for (Item item : browseInfo.getItemResults())
+        for (BrowseItem item : (List<BrowseItem>)browseInfo.getResults())
         {
-            referenceSet.addReference(item);
+            referenceSet.addReference( Item.find(context, item.getID()) );
         }
     }
     

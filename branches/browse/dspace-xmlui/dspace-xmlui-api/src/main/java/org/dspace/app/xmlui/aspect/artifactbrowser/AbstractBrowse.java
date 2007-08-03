@@ -44,6 +44,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.cocoon.environment.ObjectModelHelper;
@@ -56,6 +57,7 @@ import org.dspace.browse.BrowseEngine;
 import org.dspace.browse.BrowseException;
 import org.dspace.browse.BrowseIndex;
 import org.dspace.browse.BrowseInfo;
+import org.dspace.browse.BrowseItem;
 import org.dspace.browse.BrowserScope;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -301,12 +303,12 @@ public class AbstractBrowse extends AbstractDSpaceTransformer
             Map<String,String> parameters = new HashMap<String,String>();
             if (browseItem)
             {
-                Item[] items = browseInfo.getItemResults();
+                List<BrowseItem> items = browseInfo.getResults();
 
-                if (items == null || items.length <= 0)
+                if (items == null || items.size() <= 0)
                     return null;
 
-                String bottom = URLEncoder.encode(items[0].getHandle(),
+                String bottom = URLEncoder.encode(items.get(0).getHandle(),
                         Constants.DEFAULT_ENCODING);
                 
                 parameters.put("bottom",bottom);
@@ -356,12 +358,12 @@ public class AbstractBrowse extends AbstractDSpaceTransformer
             Map<String,String> parameters = new HashMap<String,String>();
             if (browseItem)
             {
-                Item[] items = browseInfo.getItemResults();
+                List<BrowseItem> items = browseInfo.getResults();
 
-                if (items == null || items.length <= 0)
+                if (items == null || items.size() <= 0)
                     return null;
 
-                String top = URLEncoder.encode(items[items.length - 1].getHandle(),
+                String top = URLEncoder.encode(items.get(0).getHandle(),
                         Constants.DEFAULT_ENCODING);
                 
                 parameters.put("top",top);
