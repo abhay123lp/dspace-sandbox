@@ -39,11 +39,28 @@
  */
 package org.dspace.workflow.dao.postgres;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
+import org.dspace.content.Collection;
+import org.dspace.content.Item;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.dao.EPersonDAO;
+import org.dspace.eperson.dao.EPersonDAOFactory;
+import org.dspace.storage.rdbms.DatabaseManager;
+import org.dspace.storage.rdbms.TableRow;
+import org.dspace.storage.rdbms.TableRowIterator;
+import org.dspace.workflow.TaskListItem;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.dao.WorkflowItemDAO;
 
@@ -55,12 +72,32 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
     public WorkflowItemDAOPostgres(Context context)
     {
         this.context = context;
+
+        itemDAO = ItemDAOFactory.getInstance(context);
+        wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
     }
 
     @Override
     public WorkflowItem create(WorkspaceItem wsi) throws AuthorizeException
     {
-        return null;
+        UUID uuid = UUID.randomUUID();
+
+        try
+        {
+            TableRow row = DatabaseManager.create(context, "workflowitem");
+            row.setColumn("uuid", uuid.toString());
+            DatabaseManager.update(context, row);
+
+            int id = row.getIntColumn("workflow_item_id");
+            WorkflowItem wfi = new WorkflowItem(context, id);
+            wfi.setIdentifier(new ObjectIdentifier(uuid));
+
+            return super.create(wfi, wsi);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     @Override
@@ -92,10 +129,246 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
     @Override
     public void update(WorkflowItem wfi) throws AuthorizeException
     {
+        super.update(wfi);
+
+        try
+        {
+            TableRow row =
+                DatabaseManager.find(context, "workflowitem", wfi.getID());
+
+            if (row != null)
+            {
+                populateTableRowFromWorkflowItem(wfi, row);
+                DatabaseManager.update(context, row);
+            }
+            else
+            {
+                throw new RuntimeException("Didn't find workflow item " +
+                        wfi.getID());
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     @Override
     public void delete(int id) throws AuthorizeException
     {
+        super.delete(id);
+
+        try
+        {
+            DatabaseManager.delete(context, "workflowitem", id);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public TaskListItem createTask(WorkflowItem wfi, EPerson eperson)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.create(context, "tasklistitem");
+            row.setColumn("eperson_id", eperson.getID());
+            row.setColumn("workflow_id", wfi.getID());
+            DatabaseManager.update(context, row);
+
+            int id = row.getIntColumn("tasklist_id");
+            TaskListItem tli = new TaskListItem(id);
+            tli.setEPersonID(eperson.getID());
+            tli.setWorkflowItemID(wfi.getID());
+
+            return tli;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public void deleteTasks(WorkflowItem wfi)
+    {
+        try
+        {
+            DatabaseManager.deleteByValue(context, "tasklistitem",
+                    "workflow_id", wfi.getID() + "");
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<WorkflowItem> getWorkflowItems()
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT workflow_id FROM workflow ORDER BY workflow_id");
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<WorkflowItem> getWorkflowItemsByOwner(EPerson eperson)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT workflow_id FROM workflowitem " +
+                    "WHERE owner = ? ORDER BY workflow_id",
+                    eperson.getID());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<WorkflowItem> getWorkflowItemsBySubmitter(EPerson eperson)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT wfi.workflow_id FROM workflowitem wfi, item i " +
+                    "WHERE wfi.item_id = i.item_id " +
+                    "AND i.submitter_id = ? " + 
+                    "ORDER BY wfi.workflow_id",
+                    eperson.getID());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<WorkflowItem> getWorkflowItems(Collection collection)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT workflow_id FROM workflowitem " +
+                    "WHERE collection_id = ? ",
+                    collection.getID());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private List<WorkflowItem> returnAsList(TableRowIterator tri)
+        throws SQLException
+    {
+        List<WorkflowItem> wfItems = new ArrayList<WorkflowItem>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("workflow_id");
+            wfItems.add(retrieve(id));
+        }
+
+        return wfItems;
+    }
+
+    @Override
+    public List<TaskListItem> getTaskListItems(EPerson eperson)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT tli.* " +
+                    "FROM workflowitem wfi, tasklistitem tli " +
+                    "WHERE tli.eperson_id = ? " +
+                    "AND tli.workflow_id = wfi.workflow_id",
+                    eperson.getID());
+
+            List<TaskListItem> tlItems = new ArrayList<TaskListItem>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("tasklist_id");
+                int epersonID = row.getIntColumn("eperson_id");
+                int workflowItemID = row.getIntColumn("workflow_id");
+
+                TaskListItem tli = new TaskListItem(id);
+                tli.setEPersonID(epersonID);
+                tli.setWorkflowItemID(workflowItemID);
+
+                tlItems.add(tli);
+            }
+
+            return tlItems;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private void populateWorkflowItemFromTableRow(WorkflowItem wfi,
+            TableRow row)
+    {
+        itemDAO = ItemDAOFactory.getInstance(context);
+        CollectionDAO collectionDAO =
+            CollectionDAOFactory.getInstance(context);
+        EPersonDAO epersonDAO = EPersonDAOFactory.getInstance(context);
+
+        Item item = itemDAO.retrieve(row.getIntColumn("item_id"));
+        Collection collection =
+            collectionDAO.retrieve(row.getIntColumn("collection_id"));
+        EPerson owner = epersonDAO.retrieve(row.getIntColumn("owner"));
+
+        wfi.setItem(item);
+        wfi.setCollection(collection);
+        wfi.setOwner(owner);
+        wfi.setMultipleFiles(row.getBooleanColumn("multiple_files"));
+        wfi.setMultipleTitles(row.getBooleanColumn("multiple_titles"));
+        wfi.setPublishedBefore(row.getBooleanColumn("published_before"));
+        wfi.setState(row.getIntColumn("state"));
+    }
+
+    private void populateTableRowFromWorkflowItem(WorkflowItem wfi,
+            TableRow row)
+    {
+        row.setColumn("item_id", wfi.getItem().getID());
+        row.setColumn("collection_id", wfi.getCollection().getID());
+        EPerson owner = wfi.getOwner();
+        if (owner != null)
+        {
+            row.setColumn("owner", owner.getID());
+        }
+        else
+        {
+            row.setColumnNull("owner");
+        }
+        row.setColumn("multiple_titles", wfi.hasMultipleTitles());
+        row.setColumn("multiple_files", wfi.hasMultipleFiles());
+        row.setColumn("published_before", wfi.isPublishedBefore());
+        row.setColumn("state", wfi.getState());
     }
 }

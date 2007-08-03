@@ -56,6 +56,7 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.history.HistoryManager;
+import org.dspace.workflow.WorkflowItem;
 
 /**
  * @author James Rutherford
@@ -73,6 +74,13 @@ public abstract class WorkspaceItemDAO extends ContentDAO
      */
     public abstract WorkspaceItem create(Collection collection,
             boolean template) throws AuthorizeException;
+
+    /**
+     * Create a WorkspaceItem from a WorkflowItem. This is for returning Items
+     * to a user without submitting it to the archive.
+     */
+    public abstract WorkspaceItem create(WorkflowItem wfi)
+        throws AuthorizeException;
 
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
@@ -157,6 +165,19 @@ public abstract class WorkspaceItemDAO extends ContentDAO
 
         HistoryManager.saveHistory(context, wsi, HistoryManager.CREATE,
                 context.getCurrentUser(), context.getExtraLogInfo());
+
+        return wsi;
+    }
+
+    public WorkspaceItem create(WorkspaceItem wsi, WorkflowItem wfi)
+        throws AuthorizeException
+    {
+        wsi.setItem(wfi.getItem());
+        wsi.setCollection(wfi.getCollection());
+        wsi.setMultipleFiles(wfi.hasMultipleFiles());
+        wsi.setMultipleTitles(wfi.hasMultipleTitles());
+        wsi.setPublishedBefore(wfi.isPublishedBefore());
+        update(wsi);
 
         return wsi;
     }

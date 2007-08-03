@@ -63,6 +63,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
+import org.dspace.workflow.WorkflowItem;
 
 /**
  * @author James Rutherford
@@ -76,8 +77,21 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         itemDAO = ItemDAOFactory.getInstance(context);
     }
 
+    @Override
     public WorkspaceItem create(Collection collection, boolean template)
         throws AuthorizeException
+    {
+        return super.create(create(), collection, template);
+    }
+
+    @Override
+    public WorkspaceItem create(WorkflowItem wfi)
+        throws AuthorizeException
+    {
+        return super.create(create(), wfi);
+    }
+
+    private WorkspaceItem create()
     {
         UUID uuid = UUID.randomUUID();
 
@@ -91,7 +105,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
             WorkspaceItem wsi = new WorkspaceItem(context, id);
             wsi.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(wsi, collection, template);
+            return wsi;
         }
         catch (SQLException sqle)
         {
@@ -99,6 +113,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         }
     }
 
+    @Override
     public WorkspaceItem retrieve(int id)
     {
         WorkspaceItem wsi = super.retrieve(id);
@@ -128,6 +143,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         }
     }
 
+    @Override
     public WorkspaceItem retrieve(UUID uuid)
     {
         WorkspaceItem wsi = super.retrieve(uuid);
@@ -167,6 +183,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         return wsi;
     }
 
+    @Override
     public void update(WorkspaceItem wsi) throws AuthorizeException
     {
         super.update(wsi);
@@ -178,7 +195,8 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
 
             if (row != null)
             {
-                update(wsi, row);
+                populateTableRowFromWorkspaceItem(wsi, row);
+                DatabaseManager.update(context, row);
             }
             else
             {
@@ -192,19 +210,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         }
     }
 
-    private void update(WorkspaceItem wsi, TableRow row)
-    {
-        try
-        {
-            populateTableRowFromWorkspaceItem(wsi, row);
-            DatabaseManager.update(context, row);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
+    @Override
     public void delete(int id) throws AuthorizeException
     {
         super.delete(id);
@@ -222,24 +228,17 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         }
     }
 
+    @Override
     public List<WorkspaceItem> getWorkspaceItems()
     {
         try
         {
-            List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
-
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "workspaceitem",
                     "SELECT workspace_item_id FROM workspaceitem " +
                     "ORDER BY item_id");
 
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("workspace_item_id");
-                wsItems.add(retrieve(id));
-            }
-
-            return wsItems;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -251,8 +250,6 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     {
         try
         {
-            List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
-
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "workspaceitem",
                     "SELECT wsi.workspace_item_id " +
@@ -262,13 +259,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
                     "ORDER BY wsi.workspace_item_id", 
                     eperson.getID());
 
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("workspace_item_id");
-                wsItems.add(retrieve(id));
-            }
-
-            return wsItems;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -280,24 +271,31 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     {
         try
         {
-            List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
-
-            TableRowIterator tri = DatabaseManager.queryTable(context, "workspaceitem",
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "workspaceitem",
                     "SELECT workspace_item_id FROM workspaceitem WHERE " +
                     "collection_id = ? ", collection.getID());
 
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("workspace_item_id");
-                wsItems.add(retrieve(id));
-            }
-
-            return wsItems;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private List<WorkspaceItem> returnAsList(TableRowIterator tri)
+        throws SQLException
+    {
+        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("workspace_item_id");
+            wsItems.add(retrieve(id));
+        }
+
+        return wsItems;
     }
 
     ////////////////////////////////////////////////////////////////////
