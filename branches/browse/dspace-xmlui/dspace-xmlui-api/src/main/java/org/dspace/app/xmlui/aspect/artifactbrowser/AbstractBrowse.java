@@ -207,11 +207,11 @@ public class AbstractBrowse extends AbstractDSpaceTransformer
         }
         else if (mode == MODE_BY_AUTHOR_ITEM)
         {
-            scope.setValueFocus(author);
+            scope.setValue(author);
         }
         else if (mode == MODE_BY_SUBJECT_ITEM)
         {
-            scope.setValueFocus(subject);
+            scope.setValue(subject);
         }
 
         // Are we in a community or collection?
