@@ -104,18 +104,8 @@ public class Bitstream extends DSpaceObject
 
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
-
-    /**
-     * Private constructor for creating a Bitstream object based on the contents
-     * of a DB table row.
-     * 
-     * @param context
-     *            the context this object exists in
-     * @param row
-     *            the corresponding row in the table
-     * @throws SQLException
-     */
-    Bitstream(Context context, TableRow row) throws SQLException
+    
+    public Bitstream(Context context, int id)
     {
         this.id = id;
         this.context = context;
@@ -136,39 +126,15 @@ public class Bitstream extends DSpaceObject
 
     public void setSequenceID(int sequenceID)
     {
-        // Store the bits
-        int bitstreamID = BitstreamStorageManager.store(context, is);
-
-        log.info(LogManager.getHeader(context, "create_bitstream",
-                "bitstream_id=" + bitstreamID));
-
-        // Set the format to "unknown"
-        Bitstream bitstream = find(context, bitstreamID);
-        bitstream.setFormat(null);
-
-        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID, null));
-
-        return bitstream;
+        this.sequenceID = sequenceID;
+        modifiedMetadata = true;
+        addDetails("SequenceID");
     }
 
     // FIXME: Do we even want this exposed?
     public String getInternalID()
     {
-        // Store the bits
-        int bitstreamID = BitstreamStorageManager.register(
-        		context, assetstore, bitstreamPath);
-
-        log.info(LogManager.getHeader(context,
-            "create_bitstream",
-            "bitstream_id=" + bitstreamID));
-
-        // Set the format to "unknown"
-        Bitstream bitstream = find(context, bitstreamID);
-        bitstream.setFormat(null);
-
-        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID, "REGISTER"));
-
-        return bitstream;
+        return internalID;
     }
 
     // FIXME: Do we even want this exposed?
@@ -181,29 +147,6 @@ public class Bitstream extends DSpaceObject
     {
         // No Handles for bitstreams
         return null;
-    }
-
-    /**
-     * Get the sequence ID of this bitstream
-     * 
-     * @return the sequence ID
-     */
-    public int getSequenceID()
-    {
-        return bRow.getIntColumn("sequence_id");
-    }
-
-    /**
-     * Set the sequence ID of this bitstream
-     * 
-     * @param sid
-     *            the ID
-     */
-    public void setSequenceID(int sid)
-    {
-        bRow.setColumn("sequence_id", sid);
-        modifiedMetadata = true;
-        addDetails("SequenceID");
     }
 
     /**
@@ -390,58 +333,12 @@ public class Bitstream extends DSpaceObject
 
     public boolean isDeleted()
     {
-        // Check authorisation
-        AuthorizeManager.authorizeAction(bContext, this, Constants.WRITE);
-
-        log.info(LogManager.getHeader(bContext, "update_bitstream",
-                "bitstream_id=" + getID()));
-
-        if (modified)
-        {
-            bContext.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
-            modified = false;
-        }
-        if (modifiedMetadata)
-        {
-            bContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, getID(), getDetails()));
-            modifiedMetadata = false;
-            clearDetails();
-        }
-
-        DatabaseManager.update(bContext, bRow);
+        return deleted;
     }
 
     public void setDeleted(boolean deleted)
     {
-        boolean oracle = false;
-        if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
-        {
-            oracle = true;
-        }
-
-        // changed to a check on remove
-        // Check authorisation
-        //AuthorizeManager.authorizeAction(bContext, this, Constants.DELETE);
-        log.info(LogManager.getHeader(bContext, "delete_bitstream",
-                "bitstream_id=" + getID()));
-
-        bContext.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, getID(), String.valueOf(getSequenceID())));
-
-        // Remove from cache
-        bContext.removeCached(this, getID());
-
-        // Remove policies
-        AuthorizeManager.removeAllPolicies(bContext, this);
-
-        // Remove references to primary bitstreams in bundle
-        String query = "update bundle set primary_bitstream_id = ";
-        query += (oracle ? "''" : "Null") + " where primary_bitstream_id = ? ";
-        DatabaseManager.updateQuery(bContext,
-                query, bRow.getIntColumn("bitstream_id"));
-
-        // Remove bitstream itself
-        BitstreamStorageManager.delete(bContext, bRow
-                .getIntColumn("bitstream_id"));
+        this.deleted = deleted;
     }
 
     /**
@@ -478,8 +375,11 @@ public class Bitstream extends DSpaceObject
         return storeNumber;
     }
 
-        // Build a list of Bundle objects
-        List<Bundle> bundles = new ArrayList<Bundle>();
+    // FIXME: Do we even want this exposed?
+    public void setStoreNumber(int storeNumber)
+    {
+        this.storeNumber = storeNumber;
+    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
@@ -514,21 +414,39 @@ public class Bitstream extends DSpaceObject
     static Bitstream create(Context context, InputStream is)
             throws AuthorizeException, IOException
     {
-        return BitstreamDAOFactory.getInstance(context).store(is);
+        Bitstream bitstream = BitstreamDAOFactory.getInstance(context).store(is);
+        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstream.getID(), null));
+        return bitstream;
     }
 
     @Deprecated
     static Bitstream register(Context context, int assetstore,
             String bitstreamPath) throws AuthorizeException, IOException
     {
-        return BitstreamDAOFactory.getInstance(context).register(assetstore,
+        
+        Bitstream bitstream =  BitstreamDAOFactory.getInstance(context).register(assetstore,
                 bitstreamPath);
+        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstream.getID(), "REGISTER"));
+        return bitstream;
     }
 
     @Deprecated
     public void update() throws AuthorizeException
     {
         dao.update(this);
+        
+        context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, getID(), String.valueOf(getSequenceID())));
+        if (modified)
+         {
+             context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
+             modified = false;
+         }
+         if (modifiedMetadata)
+         {
+             context.addEvent(new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, getID(), getDetails()));
+             modifiedMetadata = false;
+             clearDetails();
+         }
     }
 
     @Deprecated

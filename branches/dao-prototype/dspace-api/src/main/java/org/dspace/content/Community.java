@@ -66,7 +66,6 @@ import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.Group;
 import org.dspace.event.Event;
-import org.dspace.handle.HandleManager;
 
 /**
  * Class representing a community
@@ -99,16 +98,8 @@ public class Community extends DSpaceObject
 
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
-
-    /**
-     * Construct a community object from a database row.
-     * 
-     * @param context
-     *            the context this object exists in
-     * @param row
-     *            the corresponding row in the table
-     */
-    Community(Context context, TableRow row) throws SQLException
+    
+    public Community(Context context, int id)
     {
         this.id = id;
         this.context = context;
@@ -126,222 +117,6 @@ public class Community extends DSpaceObject
         clearDetails();
     }
 
-    /**
-     * Get a community from the database. Loads in the metadata
-     * 
-     * @param context
-     *            DSpace context object
-     * @param id
-     *            ID of the community
-     * 
-     * @return the community, or null if the ID is invalid.
-     */
-    public static Community find(Context context, int id) throws SQLException
-    {
-        // First check the cache
-        Community fromCache = (Community) context
-                .fromCache(Community.class, id);
-
-        if (fromCache != null)
-        {
-            return fromCache;
-        }
-
-        TableRow row = DatabaseManager.find(context, "community", id);
-
-        if (row == null)
-        {
-            if (log.isDebugEnabled())
-            {
-                log.debug(LogManager.getHeader(context, "find_community",
-                        "not_found,community_id=" + id));
-            }
-
-            return null;
-        }
-        else
-        {
-            if (log.isDebugEnabled())
-            {
-                log.debug(LogManager.getHeader(context, "find_community",
-                        "community_id=" + id));
-            }
-
-            return new Community(context, row);
-        }
-    }
-
-    /**
-     * Create a new community, with a new ID.
-     * 
-     * @param context
-     *            DSpace context object
-     * 
-     * @return the newly created community
-     */
-    public static Community create(Community parent, Context context)
-            throws SQLException, AuthorizeException
-    {
-        // Only administrators and adders can create communities
-        if (!(AuthorizeManager.isAdmin(context) || AuthorizeManager
-                .authorizeActionBoolean(context, parent, Constants.ADD)))
-        {
-            throw new AuthorizeException(
-                    "Only administrators can create communities");
-        }
-
-        TableRow row = DatabaseManager.create(context, "community");
-        Community c = new Community(context, row);
-        c.handle = HandleManager.createHandle(context, c);
-
-        // create the default authorization policy for communities
-        // of 'anonymous' READ
-        Group anonymousGroup = Group.find(context, 0);
-
-        ResourcePolicy myPolicy = ResourcePolicy.create(context);
-        myPolicy.setResource(c);
-        myPolicy.setAction(Constants.READ);
-        myPolicy.setGroup(anonymousGroup);
-        myPolicy.update();
-
-        context.addEvent(new Event(Event.CREATE, Constants.COMMUNITY, c.getID(), c.handle));
-
-        // if creating a top-level Community, simulate an ADD event at the Site.
-        if (parent == null)
-            context.addEvent(new Event(Event.ADD, Constants.SITE, Site.SITE_ID, Constants.COMMUNITY, c.getID(), c.handle));
-
-        log.info(LogManager.getHeader(context, "create_community",
-                "community_id=" + row.getIntColumn("community_id"))
-                + ",handle=" + c.handle);
-
-        return c;
-    }
-
-    /**
-     * Get a list of all communities in the system. These are alphabetically
-     * sorted by community name.
-     * 
-     * @param context
-     *            DSpace context object
-     * 
-     * @return the communities in the system
-     */
-    public static Community[] findAll(Context context) throws SQLException
-    {
-        TableRowIterator tri = DatabaseManager.queryTable(context, "community",
-                "SELECT * FROM community ORDER BY name");
-
-        List<Community> communities = new ArrayList<Community>();
-
-        while (tri.hasNext())
-        {
-            TableRow row = tri.next();
-
-            // First check the cache
-            Community fromCache = (Community) context.fromCache(
-                    Community.class, row.getIntColumn("community_id"));
-
-            if (fromCache != null)
-            {
-                communities.add(fromCache);
-            }
-            else
-            {
-                communities.add(new Community(context, row));
-            }
-        }
-        // close the TableRowIterator to free up resources
-        tri.close();
-
-        Community[] communityArray = new Community[communities.size()];
-        communityArray = (Community[]) communities.toArray(communityArray);
-
-        return communityArray;
-    }
-
-    /**
-     * Get a list of all top-level communities in the system. These are
-     * alphabetically sorted by community name. A top-level community is one
-     * without a parent community.
-     * 
-     * @param context
-     *            DSpace context object
-     * 
-     * @return the top-level communities in the system
-     */
-    public static Community[] findAllTop(Context context) throws SQLException
-    {
-        // get all communities that are not children
-        TableRowIterator tri = DatabaseManager.queryTable(context, "community",
-                "SELECT * FROM community WHERE NOT community_id IN "
-                        + "(SELECT child_comm_id FROM community2community) "
-                        + "ORDER BY name");
-
-        List<Community> topCommunities = new ArrayList<Community>();
-
-        while (tri.hasNext())
-        {
-            TableRow row = tri.next();
-
-            // First check the cache
-            Community fromCache = (Community) context.fromCache(
-                    Community.class, row.getIntColumn("community_id"));
-
-            if (fromCache != null)
-            {
-                topCommunities.add(fromCache);
-            }
-            else
-            {
-                topCommunities.add(new Community(context, row));
-            }
-        }
-        // close the TableRowIterator to free up resources
-        tri.close();
-
-        Community[] communityArray = new Community[topCommunities.size()];
-        communityArray = (Community[]) topCommunities.toArray(communityArray);
-
-        return communityArray;
-    }
-
-    /**
-     * Get the internal ID of this collection
-     * 
-     * @return the internal identifier
-     */
-    public int getID()
-    {
-        return communityRow.getIntColumn("community_id");
-    }
-
-    /**
-     * @see org.dspace.content.DSpaceObject#getHandle()
-     */
-    public String getHandle()
-    {
-        if(handle == null) {
-        	try {
-				handle = HandleManager.findHandle(this.ourContext, this);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
-			}
-        }
-    	return handle;
-    }
-
-    /**
-     * Get the value of a metadata field
-     * 
-     * @param field
-     *            the name of the metadata field to get
-     * 
-     * @return the value of the metadata field
-     * 
-     * @exception IllegalArgumentException
-     *                if the requested metadata field doesn't exist
-     */
     public String getMetadata(String field)
     {
         return metadata.get(field);
@@ -365,12 +140,7 @@ public class Community extends DSpaceObject
         modifiedMetadata = true;
         addDetails(field);
     }
-
-    public String getName()
-    {
-        return getMetadata("name");
-    }
-
+    
     /**
      * Get the logo for the community. <code>null</code> is return if the
      * community does not have a logo.
@@ -439,25 +209,7 @@ public class Community extends DSpaceObject
 
     public void setLogoBitstream(Bitstream logo)
     {
-        // Check authorisation
-        canEdit();
-
-        log.info(LogManager.getHeader(ourContext, "update_community",
-                "community_id=" + getID()));
-
-        DatabaseManager.update(ourContext, communityRow);
-
-        if (modified)
-        {
-            ourContext.addEvent(new Event(Event.MODIFY, Constants.COMMUNITY, getID(), null));
-            modified = false;
-        }
-        if (modifiedMetadata)
-        {
-            ourContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.COMMUNITY, getID(), getDetails()));
-            modifiedMetadata = false;
-            clearDetails();
-        }
+        this.logo = logo;
     }
 
     /**
@@ -468,7 +220,7 @@ public class Community extends DSpaceObject
      */
     public Collection createCollection() throws AuthorizeException
     {
-        List<Collection> collections = new ArrayList<Collection>();
+        AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
         Collection collection = collectionDAO.create();
 
@@ -484,7 +236,8 @@ public class Community extends DSpaceObject
      */
     public Community createSubcommunity() throws AuthorizeException
     {
-        List<Community> subcommunities = new ArrayList<Community>();
+        // Check authorisation
+        AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
         Community community = dao.create();
 
@@ -535,8 +288,8 @@ public class Community extends DSpaceObject
 
     public int getType()
     {
-        List<Community> parentList = new ArrayList<Community>();
-        Community parent = getParentCommunity();
+        return Constants.COMMUNITY;
+    }
 
     ////////////////////////////////////////////////////////////////////
     // Deprecated methods
@@ -569,18 +322,31 @@ public class Community extends DSpaceObject
 
         if (parent != null)
         {
-            // No existing mapping, so add one
-            TableRow mappingRow = DatabaseManager.create(ourContext,
-                    "community2collection");
-
-            mappingRow.setColumn("community_id", getID());
-            mappingRow.setColumn("collection_id", c.getID());
-
-            ourContext.addEvent(new Event(Event.ADD, Constants.COMMUNITY, getID(), Constants.COLLECTION, c.getID(), c.getHandle()));
-
-            DatabaseManager.update(ourContext, mappingRow);
+            ArchiveManager.move(context, community, null, parent);
+            context.addEvent(
+                    new Event(
+                            Event.ADD, 
+                            Constants.COMMUNITY, 
+                            parent.getID(),
+                            Constants.COMMUNITY, 
+                            community.getID(), 
+                            community.getIdentifier().getCanonicalForm()
+                            ));
         }
-
+        else
+        {
+            context.addEvent(
+                    new Event(
+                            Event.ADD, 
+                            Constants.SITE, 
+                            Site.SITE_ID, 
+                            Constants.COMMUNITY, 
+                            community.getID(), 
+                            community.getIdentifier().getCanonicalForm()
+                            ));
+        }
+        
+        
         return community;
     }
 
@@ -599,54 +365,16 @@ public class Community extends DSpaceObject
         CommunityDAO dao = CommunityDAOFactory.getInstance(context);
         List<Community> communities = dao.getTopLevelCommunities();
 
-        log.info(LogManager.getHeader(ourContext, "add_subcommunity",
-                "parent_comm_id=" + getID() + ",child_comm_id=" + c.getID()));
-
-        // Find out if mapping exists
-        TableRowIterator tri = DatabaseManager.queryTable(ourContext,
-                "community2community",
-                "SELECT * FROM community2community WHERE parent_comm_id= ? "+
-                "AND child_comm_id= ? ",getID(), c.getID());
-        
-        if (!tri.hasNext())
-        {
-            // No existing mapping, so add one
-            TableRow mappingRow = DatabaseManager.create(ourContext,
-                    "community2community");
-
-            mappingRow.setColumn("parent_comm_id", getID());
-            mappingRow.setColumn("child_comm_id", c.getID());
-
-            ourContext.addEvent(new Event(Event.ADD, Constants.COMMUNITY, getID(), Constants.COMMUNITY, c.getID(), c.getHandle()));
-
-            DatabaseManager.update(ourContext, mappingRow);
-        }
-        // close the TableRowIterator to free up resources
-        tri.close();
+        return (Community[]) communities.toArray(new Community[0]);
     }
 
     @Deprecated
     public Community getParentCommunity()
     {
-        // Check authorisation
-        AuthorizeManager.authorizeAction(ourContext, this, Constants.REMOVE);
-
-        log.info(LogManager.getHeader(ourContext, "remove_collection",
-                "community_id=" + getID() + ",collection_id=" + c.getID()));
-
-        // Remove any mappings
-        DatabaseManager.updateQuery(ourContext,
-                "DELETE FROM community2collection WHERE community_id= ? "+
-                "AND collection_id= ? ", getID(), c.getID());
-
-        ourContext.addEvent(new Event(Event.REMOVE, Constants.COMMUNITY, getID(), Constants.COLLECTION, c.getID(), c.getHandle()));
-
-        // Is the community an orphan?
-        TableRowIterator tri = DatabaseManager.query(ourContext,
-                "SELECT * FROM community2collection WHERE collection_id= ? ",
-                c.getID());
-
-        if (!tri.hasNext())
+        // FIXME: Oh so Bad and Wrong, but it's at least as good as the old
+        // implementation, so we'll let it slide.
+        List<Community> parents = dao.getParentCommunities(this);
+        if (parents.size() == 0)
         {
             return null;
         }
@@ -656,105 +384,15 @@ public class Community extends DSpaceObject
     @Deprecated
     public Community[] getAllParents()
     {
-        // Check authorisation
-        AuthorizeManager.authorizeAction(ourContext, this, Constants.REMOVE);
-
-        log.info(LogManager.getHeader(ourContext, "remove_subcommunity",
-                "parent_comm_id=" + getID() + ",child_comm_id=" + c.getID()));
-
-        // Remove any mappings
-        DatabaseManager.updateQuery(ourContext,
-                "DELETE FROM community2community WHERE parent_comm_id= ? " +
-                " AND child_comm_id= ? ", getID(),c.getID());
-
-        ourContext.addEvent(new Event(Event.REMOVE, Constants.COMMUNITY, getID(), Constants.COMMUNITY, c.getID(), c.getHandle()));
-
-        // Is the subcommunity an orphan?
-        TableRowIterator tri = DatabaseManager.query(ourContext,
-                "SELECT * FROM community2community WHERE child_comm_id= ? ",
-                c.getID());
-
-        if (!tri.hasNext())
-        {
-            //make the right to remove the sub explicit because the implicit
-            // relation
-            //has been removed. This only has to concern the currentUser
-            // because
-            //he started the removal process and he will end it too.
-            //also add right to remove from the subcommunity to remove it's
-            // children.
-            AuthorizeManager.addPolicy(ourContext, c, Constants.DELETE,
-                    ourContext.getCurrentUser());
-            AuthorizeManager.addPolicy(ourContext, c, Constants.REMOVE,
-                    ourContext.getCurrentUser());
-
-            // Orphan; delete it
-            c.delete();
-        }
-        // close the TableRowIterator to free up resources
-        tri.close();
+        List<Community> parents = dao.getAllParentCommunities(this);
+        return (Community[]) parents.toArray(new Community[0]);
     }
 
     @Deprecated
     public Collection[] getCollections()
     {
-        // Check authorisation
-        // FIXME: If this was a subcommunity, it is first removed from it's
-        // parent.
-        // This means the parentCommunity == null
-        // But since this is also the case for top-level communities, we would
-        // give everyone rights to remove the top-level communities.
-        // The same problem occurs in removing the logo
-        if (!AuthorizeManager.authorizeActionBoolean(ourContext,
-                getParentCommunity(), Constants.REMOVE))
-        {
-            AuthorizeManager
-                    .authorizeAction(ourContext, this, Constants.DELETE);
-        }
-
-        // If not a top-level community, have parent remove me; this
-        // will call delete() after removing the linkage
-        Community parent = getParentCommunity();
-
-        if (parent != null)
-        {
-            parent.removeSubcommunity(this);
-
-            return;
-        }
-
-        log.info(LogManager.getHeader(ourContext, "delete_community",
-                "community_id=" + getID()));
-
-        ourContext.addEvent(new Event(Event.DELETE, Constants.COMMUNITY, getID(), getHandle()));
-
-        // Remove from cache
-        ourContext.removeCached(this, getID());
-
-        // Remove collections
-        Collection[] cols = getCollections();
-
-        for (int i = 0; i < cols.length; i++)
-        {
-            removeCollection(cols[i]);
-        }
-
-        // Remove subcommunities
-        Community[] comms = getSubcommunities();
-
-        for (int j = 0; j < comms.length; j++)
-        {
-            removeSubcommunity(comms[j]);
-        }
-
-        // Remove the logo
-        setLogo(null);
-
-        // Remove all authorization policies
-        AuthorizeManager.removeAllPolicies(ourContext, this);
-
-        // Delete community row
-        DatabaseManager.delete(ourContext, communityRow);
+        List<Collection> collections = collectionDAO.getChildCollections(this);
+        return (Collection[]) collections.toArray(new Collection[0]);
     }
 
     @Deprecated

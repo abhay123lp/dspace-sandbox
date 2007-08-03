@@ -40,7 +40,17 @@
 package org.dspace.content;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.log4j.Logger;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -51,10 +61,18 @@ import org.dspace.eperson.Group;
  */
 public abstract class DSpaceObject
 {
+
+    private static Logger log = Logger.getLogger(DSpaceObject.class);
+    
     // accumulate information to add to "detail" element of content Event,
     // e.g. to document metadata fields touched, etc.
     private StringBuffer eventDetails = null;
 
+    protected int id;
+    protected UUID uuid;
+    protected ObjectIdentifier oid;
+    protected List<ExternalIdentifier> identifiers;
+    
     /**
      * Reset the cache of event details.
      */
@@ -182,15 +200,6 @@ public abstract class DSpaceObject
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
-
-    /**
-     * Get a proper name for the object. This may return <code>null</code>.
-     * Name should be suitable for display in a user interface.
-     *
-     * @return Name for the object, or <code>null</code> if it doesn't have
-     *         one
-     */
-    abstract public String getName();
 
     /**
      * Generic find for when the precise type of a DSO is not known, just the

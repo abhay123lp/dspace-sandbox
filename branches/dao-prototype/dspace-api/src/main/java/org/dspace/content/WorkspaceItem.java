@@ -132,124 +132,10 @@ public class WorkspaceItem implements InProgressSubmission
         this.stageReached = stageReached;
     }
 
-        // Create an item
-        Item i = Item.create(c);
-        i.setSubmitter(c.getCurrentUser());
-
-        // Now create the policies for the submitter and workflow
-        // users to modify item and contents
-        // contents = bitstreams, bundles
-        // FIXME: icky hardcoded workflow steps
-        Group step1group = coll.getWorkflowGroup(1);
-        Group step2group = coll.getWorkflowGroup(2);
-        Group step3group = coll.getWorkflowGroup(3);
-
-        EPerson e = c.getCurrentUser();
-
-        // read permission
-        AuthorizeManager.addPolicy(c, i, Constants.READ, e);
-
-        if (step1group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.READ, step1group);
-        }
-
-        if (step2group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.READ, step2group);
-        }
-
-        if (step3group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.READ, step3group);
-        }
-
-        // write permission
-        AuthorizeManager.addPolicy(c, i, Constants.WRITE, e);
-
-        if (step1group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.WRITE, step1group);
-        }
-
-        if (step2group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.WRITE, step2group);
-        }
-
-        if (step3group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.WRITE, step3group);
-        }
-
-        // add permission
-        AuthorizeManager.addPolicy(c, i, Constants.ADD, e);
-
-        if (step1group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.ADD, step1group);
-        }
-
-        if (step2group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.ADD, step2group);
-        }
-
-        if (step3group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.ADD, step3group);
-        }
-
-        // remove contents permission
-        AuthorizeManager.addPolicy(c, i, Constants.REMOVE, e);
-
-        if (step1group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step1group);
-        }
-
-        if (step2group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step2group);
-        }
-
-        if (step3group != null)
-        {
-            AuthorizeManager.addPolicy(c, i, Constants.REMOVE, step3group);
-        }
-
-        // Copy template if appropriate
-        Item templateItem = coll.getTemplateItem();
-
-        if (template && (templateItem != null))
-        {
-            DCValue[] md = templateItem.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
-
-            for (int n = 0; n < md.length; n++)
-            {
-                i.addMetadata(md[n].schema, md[n].element, md[n].qualifier, md[n].language,
-                        md[n].value);
-            }
-        }
-
-        i.update();
-
-        // Create the workspace item row
-        TableRow row = DatabaseManager.create(c, "workspaceitem");
-
-        row.setColumn("item_id", i.getID());
-        row.setColumn("collection_id", coll.getID());
-
-        log.info(LogManager.getHeader(c, "create_workspace_item",
-                "workspace_item_id=" + row.getIntColumn("workspace_item_id")
-                        + "item_id=" + i.getID() + "collection_id="
-                        + coll.getID()));
-
-        DatabaseManager.update(c, row);
-
-        WorkspaceItem wi = new WorkspaceItem(c, row);
-
-        return wi;
+    // InProgressSubmission methods
+    public Item getItem()
+    {
+        return item;
     }
 
     public void setItem(Item item)
@@ -299,7 +185,8 @@ public class WorkspaceItem implements InProgressSubmission
 
     public void setPublishedBefore(boolean publishedBefore)
     {
-        // Authorisation is checked by the item.update() method below
+        this.publishedBefore = publishedBefore;
+    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
@@ -323,24 +210,7 @@ public class WorkspaceItem implements InProgressSubmission
             return true;
         }
 
-        log.info(LogManager.getHeader(ourContext, "delete_workspace_item",
-                "workspace_item_id=" + getID() + "item_id=" + item.getID()
-                        + "collection_id=" + collection.getID()));
-
-        //deleteSubmitPermissions();
-        // Remove from cache
-        ourContext.removeCached(this, getID());
-
-        // Need to delete the epersongroup2workspaceitem row first since it refers
-        // to workspaceitem ID
-        deleteEpersonGroup2WorkspaceItem();
-
-        // Need to delete the workspaceitem row first since it refers
-        // to item ID
-        DatabaseManager.delete(ourContext, wiRow);
-
-        // Delete item
-        item.delete();
+        return false;
     }
 
     public int hashCode()
@@ -352,20 +222,7 @@ public class WorkspaceItem implements InProgressSubmission
     @Deprecated
     WorkspaceItem(Context context, org.dspace.storage.rdbms.TableRow row)
     {
-        // Check authorisation. We check permissions on the enclosed item.
-        AuthorizeManager.authorizeAction(ourContext, item, Constants.WRITE);
-
-        log.info(LogManager.getHeader(ourContext, "delete_workspace_item",
-                "workspace_item_id=" + getID() + "item_id=" + item.getID()
-                        + "collection_id=" + collection.getID()));
-
-        //        deleteSubmitPermissions();
-        // Remove from cache
-        ourContext.removeCached(this, getID());
-
-        // Need to delete the workspaceitem row first since it refers
-        // to item ID
-        DatabaseManager.delete(ourContext, wiRow);
+        this(context, row.getIntColumn("workspace_item_id"));
     }
 
     @Deprecated

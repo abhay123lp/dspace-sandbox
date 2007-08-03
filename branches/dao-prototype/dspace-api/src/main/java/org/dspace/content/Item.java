@@ -59,13 +59,20 @@ import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.content.dao.BundleDAO;            // Naughty!
+import org.dspace.content.dao.BundleDAOFactory;     // Naughty!
+import org.dspace.content.dao.CollectionDAO;        // Naughty!
+import org.dspace.content.dao.CollectionDAOFactory; // Naughty!
+import org.dspace.content.dao.CommunityDAO;         // Naughty!
+import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
+import org.dspace.content.dao.ItemDAO;              // Naughty!
+import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.event.Event;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.handle.HandleManager;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
+import org.dspace.eperson.dao.EPersonDAO;           // Naughty!
+import org.dspace.eperson.dao.EPersonDAOFactory;    // Naughty!
 
 /**
  * Class representing an item in DSpace. Note that everything is held in memory
@@ -92,50 +99,30 @@ public class Item extends DSpaceObject
     protected boolean withdrawn;
     protected Date lastModified;
 
-    /** The bundles in this item - kept in sync with DB */
-    private List<Bundle> bundles;
+    protected int owningCollectionId;
+    protected Collection owningCollection;
+    protected int submitterId;
+    protected EPerson submitter;
 
-    /** The Dublin Core metadata - a list of DCValue objects. */
-    private List<DCValue> dublinCore;
+    protected List<Bundle> bundles;
+    protected List<DCValue> metadata;
 
     protected boolean metadataChanged;
-
-    /**
-     * True if the Dublin Core has changed since reading from the DB or the last
-     * update()
-     */
-    private boolean dublinCoreChanged;
 
     /**
      * True if anything else was changed since last update()
      * (to drive event mechanism)
      */
     private boolean modified;
-
-    /**
-     * Construct an item with the given table row
-     * 
-     * @param context
-     *            the context this object exists in
-     * @param row
-     *            the corresponding row in the table
-     * @throws SQLException
-     */
-    Item(Context context, TableRow row) throws SQLException
+    
+    public Item(Context context, int id)
     {
-        ourContext = context;
-        itemRow = row;
-        dublinCoreChanged = false;
-        modified = false;
-        dublinCore = new ArrayList<DCValue>();
-        clearDetails();
- 
-        // Get Dublin Core metadata
-        TableRowIterator tri = DatabaseManager.queryTable(ourContext, "MetadataValue",
-                "SELECT * FROM MetadataValue WHERE item_id= ? " +
-                " ORDER BY metadata_field_id, place",
-                itemRow.getIntColumn("item_id"));
+        this.id = id;
+        this.context = context;
 
+        modified = false;
+        clearDetails();
+        
         dao = ItemDAOFactory.getInstance(context);
         bundleDAO = BundleDAOFactory.getInstance(context);
         collectionDAO = CollectionDAOFactory.getInstance(context);
@@ -167,21 +154,8 @@ public class Item extends DSpaceObject
      */
     public void setArchived(boolean inArchive)
     {
-        TableRow row = DatabaseManager.create(context, "item");
-        Item i = new Item(context, row);
-
-        // Call update to give the item a last modified date. OK this isn't
-        // amazingly efficient but creates don't happen that often.
-        context.setIgnoreAuthorization(true);
-        i.update();
-        context.setIgnoreAuthorization(false);
-
-        context.addEvent(new Event(Event.CREATE, Constants.ITEM, i.getID(), null));
-
-        log.info(LogManager.getHeader(context, "create_item", "item_id="
-                + row.getIntColumn("item_id")));
-
-        return i;
+        this.inArchive = inArchive;
+        context.addEvent(new Event(Event.CREATE, Constants.ITEM, getID(), null));
     }
 
     /**
@@ -197,53 +171,6 @@ public class Item extends DSpaceObject
     public void setWithdrawn(boolean withdrawn)
     {
         this.withdrawn = withdrawn;
-    }
-
-    /**
-     * Get the internal ID of this item. In general, this shouldn't be exposed
-     * to users
-     * 
-     * @return the internal identifier
-     */
-    public int getID()
-    {
-        return itemRow.getIntColumn("item_id");
-    }
-
-    /**
-     * @see org.dspace.content.DSpaceObject#getHandle()
-     */
-    public String getHandle()
-    {
-        if(handle == null) {
-        	try {
-				handle = HandleManager.findHandle(this.ourContext, this);
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				//e.printStackTrace();
-			}
-        }
-    	return handle;
-    }
-
-    /**
-     * Find out if the item is part of the main archive
-     * 
-     * @return true if the item is in the main archive
-     */
-    public boolean isArchived()
-    {
-        return itemRow.getBooleanColumn("in_archive");
-    }
-
-    /**
-     * Find out if the item has been withdrawn
-     * 
-     * @return true if the item has been withdrawn
-     */
-    public boolean isWithdrawn()
-    {
-        return itemRow.getBooleanColumn("withdrawn");
     }
 
     /**
@@ -272,7 +199,6 @@ public class Item extends DSpaceObject
     public Collection getOwningCollection()
     {
         return owningCollection;
-        modified = true;
     }
 
     /**
@@ -352,7 +278,8 @@ public class Item extends DSpaceObject
     {
         // Build up list of matching values
         List<DCValue> values = new ArrayList<DCValue>();
-        for (DCValue dcv : dublinCore)
+
+        for (DCValue dcv : metadata)
         {
             if (match(schema, element, qualifier, lang, dcv))
             {
@@ -500,14 +427,9 @@ public class Item extends DSpaceObject
     public void clearMetadata(String schema, String element, String qualifier,
             String lang)
     {
-        // We will build a list of values NOT matching the values to clear
-        List<DCValue> values = new ArrayList<DCValue>();
-        for (DCValue dcv : dublinCore)
+        if (metadata.size() == 0)
         {
-            if (!match(schema, element, qualifier, lang, dcv))
-            {
-                values.add(dcv);
-            }
+            return;
         }
 
         Iterator<DCValue> i = metadata.iterator();
@@ -548,60 +470,9 @@ public class Item extends DSpaceObject
 
     public void setSubmitter(int submitterId)
     {
-        List<Collection> collections = new ArrayList<Collection>();
+        this.submitterId = submitterId;
 
         submitter = epersonDAO.retrieve(submitterId);
-    }
-
-    /**
-     * Get the communities this item is in. Returns an unordered array of the
-     * communities that house the collections this item is in, including parent
-     * communities of the owning collections.
-     * 
-     * @return the communities this item is in.
-     * @throws SQLException
-     */
-    public Community[] getCommunities() throws SQLException
-    {
-        List<Community> communities = new ArrayList<Community>();
-
-        // Get community table rows
-        TableRowIterator tri = DatabaseManager.queryTable(ourContext,"community",
-                        "SELECT community.* FROM community, community2item " +
-                        "WHERE community2item.community_id=community.community_id " +
-                        "AND community2item.item_id= ? ",
-                        itemRow.getIntColumn("item_id"));
-
-        while (tri.hasNext())
-        {
-            TableRow row = tri.next();
-
-            // First check the cache
-            Community owner = (Community) ourContext.fromCache(Community.class,
-                    row.getIntColumn("community_id"));
-
-            if (owner == null)
-            {
-                owner = new Community(ourContext, row);
-            }
-
-            communities.add(owner);
-
-            // now add any parent communities
-            Community[] parents = owner.getAllParents();
-
-            for (int i = 0; i < parents.length; i++)
-            {
-                communities.add(parents[i]);
-            }
-        }
-        // close the TableRowIterator to free up resources
-        tri.close();
-
-        Community[] communityArray = new Community[communities.size()];
-        communityArray = (Community[]) communities.toArray(communityArray);
-
-        return communityArray;
     }
 
     /**
@@ -611,15 +482,8 @@ public class Item extends DSpaceObject
      */
     public Bundle[] getBundles()
     {
-    	if (bundles == null)
-    	{
-                bundles = new ArrayList<Bundle>();
-    		// Get bundles
-    		TableRowIterator tri = DatabaseManager.queryTable(ourContext, "bundle",
-    					"SELECT bundle.* FROM bundle, item2bundle WHERE " +
-    					"item2bundle.bundle_id=bundle.bundle_id AND " +
-    					"item2bundle.item_id= ? ",
-                        itemRow.getIntColumn("item_id"));
+        return (Bundle[]) bundles.toArray(new Bundle[0]);
+    }
 
     public void setBundles(List<Bundle> bundles)
     {
@@ -636,11 +500,8 @@ public class Item extends DSpaceObject
      */
     public Bundle[] getBundles(String name)
     {
-        List<Bundle> matchingBundles = new ArrayList<Bundle>();
-
-        // now only keep bundles with matching names
-        Bundle[] bunds = getBundles();
-        for (int i = 0; i < bunds.length; i++ )
+        List<Bundle> tmp = new ArrayList<Bundle>();
+        for (Bundle bundle : getBundles())
         {
             if (name.equals(bundle.getName()))
             {
@@ -715,7 +576,7 @@ public class Item extends DSpaceObject
 
         bundles.add(b);
 
-        ourContext.addEvent(new Event(Event.ADD, Constants.ITEM, getID(), Constants.BUNDLE, b.getID(), b.getName()));
+        context.addEvent(new Event(Event.ADD, Constants.ITEM, getID(), Constants.BUNDLE, b.getID(), b.getName()));
     }
 
     /**
@@ -743,39 +604,8 @@ public class Item extends DSpaceObject
                 i.remove();
             }
         }
+        context.addEvent(new Event(Event.REMOVE, Constants.ITEM, getID(), Constants.BUNDLE, b.getID(), b.getName()));
 
-        // Remove mapping from DB
-        DatabaseManager.updateQuery(ourContext,
-                "DELETE FROM item2bundle WHERE item_id= ? " +
-                "AND bundle_id= ? ",
-                getID(), b.getID());
-
-        ourContext.addEvent(new Event(Event.REMOVE, Constants.ITEM, getID(), Constants.BUNDLE, b.getID(), b.getName()));
-
-        // If the bundle is orphaned, it's removed
-        TableRowIterator tri = DatabaseManager.query(ourContext,
-                "SELECT * FROM item2bundle WHERE bundle_id= ? ",
-                b.getID());
-
-        if (!tri.hasNext())
-        {
-            //make the right to remove the bundle explicit because the implicit
-            // relation
-            //has been removed. This only has to concern the currentUser
-            // because
-            //he started the removal process and he will end it too.
-            //also add right to remove from the bundle to remove it's
-            // bitstreams.
-            AuthorizeManager.addPolicy(ourContext, b, Constants.DELETE,
-                    ourContext.getCurrentUser());
-            AuthorizeManager.addPolicy(ourContext, b, Constants.REMOVE,
-                    ourContext.getCurrentUser());
-
-            // The bundle is an orphan, delete it
-            b.delete();
-        }
-        // close the TableRowIterator to free up resources
-        tri.close();
     }
 
     /**
@@ -827,7 +657,7 @@ public class Item extends DSpaceObject
      */
     public Bitstream[] getNonInternalBitstreams()
     {
-        List<Bitstream> bitstreamList = new ArrayList<Bitstream>();
+        List bitstreamList = new ArrayList();
 
         // Go through the bundles and bitstreams picking out ones which aren't
         // of internal formats
@@ -925,165 +755,6 @@ public class Item extends DSpaceObject
     }
 
     /**
-     * Update the item "in archive" flag and Dublin Core metadata in the
-     * database
-     * 
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public void update() throws SQLException, AuthorizeException
-    {
-        // Check authorisation
-        // only do write authorization if user is not an editor
-        if (!canEdit())
-        {
-            AuthorizeManager.authorizeAction(ourContext, this, Constants.WRITE);
-        }
-
-        log.info(LogManager.getHeader(ourContext, "update_item", "item_id="
-                + getID()));
-
-        // Set the last modified date
-        itemRow.setColumn("last_modified", new Date());
-
-        // Set sequence IDs for bitstreams in item
-        int sequence = 0;
-        Bundle[] bunds = getBundles();
-
-        // find the highest current sequence number
-        for (int i = 0; i < bunds.length; i++)
-        {
-            Bitstream[] streams = bunds[i].getBitstreams();
-
-            for (int k = 0; k < streams.length; k++)
-            {
-                if (streams[k].getSequenceID() > sequence)
-                {
-                    sequence = streams[k].getSequenceID();
-                }
-            }
-        }
-
-        // start sequencing bitstreams without sequence IDs
-        sequence++;
-
-        for (int i = 0; i < bunds.length; i++)
-        {
-            Bitstream[] streams = bunds[i].getBitstreams();
-
-            for (int k = 0; k < streams.length; k++)
-            {
-                if (streams[k].getSequenceID() < 0)
-                {
-                    streams[k].setSequenceID(sequence);
-                    sequence++;
-                    streams[k].update();
-                }
-            }
-        }
-
-        // Make sure that withdrawn and in_archive are non-null
-        if (itemRow.isColumnNull("in_archive"))
-        {
-            itemRow.setColumn("in_archive", false);
-        }
-
-        if (itemRow.isColumnNull("withdrawn"))
-        {
-            itemRow.setColumn("withdrawn", false);
-        }
-
-        // Map counting number of values for each element/qualifier.
-        // Keys are Strings: "element" or "element.qualifier"
-        // Values are Integers indicating number of values written for a
-        // element/qualifier
-        Map<String,Integer> elementCount = new HashMap<String,Integer>();
-
-        DatabaseManager.update(ourContext, itemRow);
-
-        // Redo Dublin Core if it's changed
-        if (dublinCoreChanged)
-        {
-            // Remove existing DC
-            removeMetadataFromDatabase();
-
-            // Add in-memory DC
-            for (DCValue dcv : dublinCore)
-            {
-                // Get the DC Type
-                int schemaID;
-                MetadataSchema schema = MetadataSchema.find(ourContext,dcv.schema);
-                if (schema == null) {
-                    schemaID = MetadataSchema.DC_SCHEMA_ID;
-                } else {
-                    schemaID = schema.getSchemaID();
-                }
-
-                MetadataField field = MetadataField.findByElement(ourContext,
-                        schemaID, dcv.element, dcv.qualifier);
-
-                if (field == null)
-                {
-                    // Bad DC field, log and throw exception
-                    log.warn(LogManager
-                            .getHeader(ourContext, "bad_dc",
-                                    "Bad DC field. SchemaID="+String.valueOf(schemaID)
-                                            + ", element: \""
-                                            + ((dcv.element == null) ? "null"
-                                                    : dcv.element)
-                                            + "\" qualifier: \""
-                                            + ((dcv.qualifier == null) ? "null"
-                                                    : dcv.qualifier)
-                                            + "\" value: \""
-                                            + ((dcv.value == null) ? "null"
-                                                    : dcv.value) + "\""));
-
-                    throw new SQLException("bad_dublin_core "
-                            + "SchemaID="+String.valueOf(schemaID)+", "
-                            + dcv.element
-                            + " " + dcv.qualifier);
-                }
-
-                // Work out the place number for ordering
-                int current = 0;
-
-                // Key into map is "element" or "element.qualifier"
-                String key = dcv.element
-                        + ((dcv.qualifier == null) ? "" : ("." + dcv.qualifier));
-
-                Integer currentInteger = (Integer) elementCount.get(key);
-
-                if (currentInteger != null)
-                {
-                    current = currentInteger.intValue();
-                }
-
-                current++;
-                elementCount.put(key, new Integer(current));
-
-                // Write DCValue
-                MetadataValue metadata = new MetadataValue();
-                metadata.setItemId(getID());
-                metadata.setFieldId(field.getFieldID());
-                metadata.setValue(dcv.value);
-                metadata.setLanguage(dcv.language);
-                metadata.setPlace(current);
-                metadata.create(ourContext);
-            }
-
-            ourContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.ITEM, getID(), getDetails()));
-            dublinCoreChanged = false;
-            clearDetails();
-        }
-
-        if (modified)
-        {
-            ourContext.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), null));
-            modified = false;
-        }
-    }
-
-    /**
      * Withdraw the item from the archive. It is kept in place, and the content
      * and metadata are not deleted, but it is not publicly accessible.
      * 
@@ -1093,61 +764,9 @@ public class Item extends DSpaceObject
     @Deprecated
     public void withdraw() throws AuthorizeException, IOException
     {
-        String timestamp = DCDate.getCurrent().toString();
+        ArchiveManager.withdrawItem(context, this);
 
-        // Build some provenance data while we're at it.
-        String collectionProv = "";
-        Collection[] colls = getCollections();
-
-        for (int i = 0; i < colls.length; i++)
-        {
-            collectionProv = collectionProv + colls[i].getMetadata("name")
-                    + " (ID: " + colls[i].getID() + ")\n";
-        }
-
-        // Check permission. User either has to have REMOVE on owning collection
-        // or be COLLECTION_EDITOR of owning collection
-        if (AuthorizeManager.authorizeActionBoolean(ourContext,
-                getOwningCollection(), Constants.COLLECTION_ADMIN)
-                || AuthorizeManager.authorizeActionBoolean(ourContext,
-                        getOwningCollection(), Constants.REMOVE))
-        {
-            // authorized
-        }
-        else
-        {
-            throw new AuthorizeException(
-                    "To withdraw item must be COLLECTION_ADMIN or have REMOVE authorization on owning Collection");
-        }
-
-        // Set withdrawn flag. timestamp will be set; last_modified in update()
-        itemRow.setColumn("withdrawn", true);
-
-        // in_archive flag is now false
-        itemRow.setColumn("in_archive", false);
-
-        // Add suitable provenance - includes user, date, collections +
-        // bitstream checksums
-        EPerson e = ourContext.getCurrentUser();
-        String prov = "Item withdrawn by " + e.getFullName() + " ("
-                + e.getEmail() + ") on " + timestamp + "\n"
-                + "Item was in collections:\n" + collectionProv
-                + InstallItem.getBitstreamProvenanceMessage(this);
-
-        addDC("description", "provenance", "en", prov);
-
-        // Update item in DB
-        update();
-
-        ourContext.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), "WITHDRAW"));
-
-        // and all of our authorization policies
-        // FIXME: not very "multiple-inclusion" friendly
-        AuthorizeManager.removeAllPolicies(ourContext, this);
-
-        // Write log
-        log.info(LogManager.getHeader(ourContext, "withdraw_item", "user="
-                + e.getEmail() + ",item_id=" + getID()));
+		context.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), "WITHDRAW"));
     }
 
     /**
@@ -1159,55 +778,8 @@ public class Item extends DSpaceObject
     @Deprecated
     public void reinstate() throws AuthorizeException, IOException
     {
-        String timestamp = DCDate.getCurrent().toString();
-
-        // Check permission. User must have ADD on all collections.
-        // Build some provenance data while we're at it.
-        String collectionProv = "";
-        Collection[] colls = getCollections();
-
-        for (int i = 0; i < colls.length; i++)
-        {
-            collectionProv = collectionProv + colls[i].getMetadata("name")
-                    + " (ID: " + colls[i].getID() + ")\n";
-            AuthorizeManager.authorizeAction(ourContext, colls[i],
-                    Constants.ADD);
-        }
-
-        // Clear withdrawn flag
-        itemRow.setColumn("withdrawn", false);
-
-        // in_archive flag is now true
-        itemRow.setColumn("in_archive", true);
-
-        // Add suitable provenance - includes user, date, collections +
-        // bitstream checksums
-        EPerson e = ourContext.getCurrentUser();
-        String prov = "Item reinstated by " + e.getFullName() + " ("
-                + e.getEmail() + ") on " + timestamp + "\n"
-                + "Item was in collections:\n" + collectionProv
-                + InstallItem.getBitstreamProvenanceMessage(this);
-
-        addDC("description", "provenance", "en", prov);
-
-        // Update item in DB
-        update();
-
-        ourContext.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), "REINSTATE"));
-
-        // authorization policies
-        if (colls.length > 0)
-        {
-            // FIXME: not multiple inclusion friendly - just apply access
-            // policies from first collection
-            // remove the item's policies and replace them with
-            // the defaults from the collection
-            inheritCollectionDefaultPolicies(colls[0]);
-        }
-
-        // Write log
-        log.info(LogManager.getHeader(ourContext, "reinstate_item", "user="
-                + e.getEmail() + ",item_id=" + getID()));
+        ArchiveManager.reinstateItem(context, this);
+        context.addEvent(new Event(Event.MODIFY, Constants.ITEM, getID(), "REINSTATE"));
     }
 
     /**
@@ -1218,83 +790,16 @@ public class Item extends DSpaceObject
      */
     public boolean isOwningCollection(Collection c)
     {
-        ourContext.addEvent(new Event(Event.DELETE, Constants.ITEM, getID(), getHandle()));
-
-        log.info(LogManager.getHeader(ourContext, "delete_item", "item_id="
-                + getID()));
-
-        // Remove from cache
-        ourContext.removeCached(this, getID());
-
-        // Remove from browse indices, if appropriate
-        /** XXX FIXME
-         ** Although all other Browse index updates are managed through
-         ** Event consumers, removing an Item *must* be done *here* (inline)
-         ** because otherwise, tables are left in an inconsistent state
-         ** and the DB transaction will fail.
-         ** Any fix would involve too much work on Browse code that
-         ** is likely to be replaced soon anyway.   --lcs, Aug 2006
-         **/
-        if (isArchived())
+        if (owningCollectionId > 0)
         {
-            // Remove from Browse indices
-            Browse.itemRemoved(ourContext, getID());
+            if (c.getID() == owningCollectionId)
+            {
+                return true;
+            }
         }
         else if (owningCollection != null)
         {
-            removeBundle(bunds[i]);
-        }
-
-        // remove all of our authorization policies
-        AuthorizeManager.removeAllPolicies(ourContext, this);
-
-        // Finally remove item row
-        DatabaseManager.delete(ourContext, itemRow);
-    }
-    
-    /**
-     * Remove item and all its sub-structure from the context cache.
-     * Useful in batch processes where a single context has a long,
-     * multi-item lifespan
-     */
-    public void decache() throws SQLException
-    {
-        // Remove item and it's submitter from cache
-        ourContext.removeCached(this, getID());
-        if (submitter != null)
-        {
-        	ourContext.removeCached(submitter, submitter.getID());
-        }
-        // Remove bundles & bitstreams from cache if they have been loaded
-        if (bundles != null)
-        {
-        	Bundle[] bunds = getBundles();
-        	for (int i = 0; i < bunds.length; i++)
-        	{
-        		ourContext.removeCached(bunds[i], bunds[i].getID());
-        		Bitstream[] bitstreams = bunds[i].getBitstreams();
-        		for (int j = 0; j < bitstreams.length; j++)
-        		{
-        			ourContext.removeCached(bitstreams[j], bitstreams[j].getID());
-        		}
-        	}
-        }
-    }
-
-    /**
-     * Return <code>true</code> if <code>other</code> is the same Item as
-     * this object, <code>false</code> otherwise
-     * 
-     * @param other
-     *            object to compare to
-     * @return <code>true</code> if object passed in represents the same item
-     *         as this object
-     */
-    public boolean equals(DSpaceObject other)
-    {
-        if (this.getType() == other.getType())
-        {
-            if (this.getID() == other.getID())
+            if (c.getID() == owningCollection.getID())
             {
                 return true;
             }
@@ -1517,9 +1022,187 @@ public class Item extends DSpaceObject
 
         return false;
     }
-    public String getName()
+
+    /**
+     * Utility method for pattern-matching metadata elements.  This
+     * method will return <code>true</code> if the given schema,
+     * element, qualifier and language match the schema, element,
+     * qualifier and language of the <code>DCValue</code> object passed
+     * in.  Any or all of the elemenent, qualifier and language passed
+     * in can be the <code>Item.ANY</code> wildcard.
+     *
+     * FIXME: It's a bit filthy and horrid to make this protected, but I need
+     * to access from the ItemProxy subclass. Really, it should exist somewhere
+     * else, possibly in DCValue.
+     *
+     * @param schema
+     *            the schema for the metadata field. <em>Must</em> match
+     *            the <code>name</code> of an existing metadata schema.
+     * @param element
+     *            the element to match, or <code>Item.ANY</code>
+     * @param qualifier
+     *            the qualifier to match, or <code>Item.ANY</code>
+     * @param language
+     *            the language to match, or <code>Item.ANY</code>
+     * @param dcv
+     *            the Dublin Core value
+     * @return <code>true</code> if there is a match
+     */
+    protected boolean match(String schema, String element, String qualifier,
+            String language, DCValue dcv)
     {
-        DCValue t[] = getMetadata("dc", "title", null, Item.ANY);
-        return (t.length >= 1) ? t[0].value : null;
+        // We will attempt to disprove a match - if we can't we have a match
+        if (!element.equals(Item.ANY) && !element.equals(dcv.element))
+        {
+            // Elements do not match, no wildcard
+            return false;
+        }
+
+        if (qualifier == null)
+        {
+            // Value must be unqualified
+            if (dcv.qualifier != null)
+            {
+                // Value is qualified, so no match
+                return false;
+            }
+        }
+        else if (!qualifier.equals(Item.ANY))
+        {
+            // Not a wildcard, so qualifier must match exactly
+            if (!qualifier.equals(dcv.qualifier))
+            {
+                return false;
+            }
+        }
+
+        if (language == null)
+        {
+            // Value must be null language to match
+            if (dcv.language != null)
+            {
+                // Value is qualified, so no match
+                return false;
+            }
+        }
+        else if (!language.equals(Item.ANY))
+        {
+            // Not a wildcard, so language must match exactly
+            if (!language.equals(dcv.language))
+            {
+                return false;
+            }
+        }
+        else if (!schema.equals(Item.ANY))
+        {
+            if (dcv.schema != null && !dcv.schema.equals(schema))
+            {
+                // The namespace doesn't match
+                return false;
+            }
+        }
+
+        // If we get this far, we have a match
+        return true;
+    }
+
+    /** Deprecated by the introduction of DAOs */
+    @Deprecated
+    Item(Context context, org.dspace.storage.rdbms.TableRow row)
+    {
+        this(context, row.getIntColumn("item_id"));
+    }
+
+    @Deprecated
+    public static Item find(Context context, int id)
+    {
+        return ItemDAOFactory.getInstance(context).retrieve(id);
+    }
+
+    @Deprecated
+    static Item create(Context context) throws AuthorizeException
+    {
+        return ItemDAOFactory.getInstance(context).create();
+    }
+
+    @Deprecated
+    public static ItemIterator findAll(Context context)
+    {
+        ItemDAO dao = ItemDAOFactory.getInstance(context);
+        List<Item> items = dao.getItems();
+
+        return new ItemIterator(context, items);
+    }
+
+    @Deprecated
+    public static ItemIterator findBySubmitter(Context context,
+            EPerson eperson)
+    {
+        ItemDAO dao = ItemDAOFactory.getInstance(context);
+        List<Item> items = dao.getItemsBySubmitter(eperson);
+
+        ArrayList list = new ArrayList();
+        for (Item i : items)
+        {
+            list.add(i.getID());
+        }
+        return new ItemIterator(context, list);
+    }
+
+    @Deprecated
+    public Collection[] getCollections()
+    {
+        List<Collection> parents = collectionDAO.getParentCollections(this);
+        return (Collection[]) parents.toArray(new Collection[0]);
+    }
+
+    @Deprecated
+    public Community[] getCommunities()
+    {
+        List<Community> parents = communityDAO.getParentCommunities(this);
+        return (Community[]) parents.toArray(new Community[0]);
+    }
+
+    @Deprecated
+    public void decache()
+    {
+        dao.decache(this);
+    }
+
+    @Deprecated
+    public void update() throws AuthorizeException
+    {
+        dao.update(this);
+        context.addEvent(new Event(Event.MODIFY_METADATA, Constants.ITEM, getID(), getDetails()));
+        metadataChanged = false;
+        clearDetails();
+    }
+
+    @Deprecated
+    void delete() throws AuthorizeException, IOException
+    {
+        dao.delete(this.getID());
+    }
+
+    /** Deprecated because we shouldn't be referencing DC explicitly any more */
+    @Deprecated
+    public DCValue[] getDC(String element, String qualifier, String lang)
+    {
+        return getMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang);
+    }
+
+    @Deprecated
+    public void addDC(String element, String qualifier, String lang,
+            String... values)
+    {
+        addMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang, values);
+    }
+
+    @Deprecated
+    public void clearDC(String element, String qualifier, String lang)
+    {
+        clearMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang);
     }
 }
+
+

@@ -53,11 +53,13 @@ import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.content.dao.BitstreamDAO;         // Naughty!
+import org.dspace.content.dao.BitstreamDAOFactory;  // Naughty!
+import org.dspace.content.dao.BundleDAO;            // Naughty!
+import org.dspace.content.dao.BundleDAOFactory;     // Naughty!
+import org.dspace.content.dao.ItemDAO;              // Naughty!
+import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
 import org.dspace.event.Event;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
-
 /**
  * Class representing bundles of bitstreams stored in the DSpace system
  * <P>
@@ -82,63 +84,18 @@ public class Bundle extends DSpaceObject
     private BitstreamDAO bitstreamDAO;
     private ItemDAO itemDAO;
 
-    /** The bitstreams in this bundle */
-    private List<Bitstream> bitstreams;
-
     /** Flag set when data is modified, for events */
     private boolean modified;
 
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
 
-    /**
-     * Construct a bundle object with the given table row
-     * 
-     * @param context
-     *            the context this object exists in
-     * @param row
-     *            the corresponding row in the table
-     */
-    Bundle(Context context, TableRow row) throws SQLException
+
+    public Bundle(Context context)
     {
-        ourContext = context;
-        bundleRow = row;
-        bitstreams = new ArrayList<Bitstream>();
-
-        // Get bitstreams
-        TableRowIterator tri = DatabaseManager.queryTable(
-                ourContext, "bitstream",
-                "SELECT bitstream.* FROM bitstream, bundle2bitstream WHERE "
-                        + "bundle2bitstream.bitstream_id=bitstream.bitstream_id AND "
-                        + "bundle2bitstream.bundle_id= ? ",
-                bundleRow.getIntColumn("bundle_id"));
-        
-        while (tri.hasNext())
-        {
-            TableRow r = (TableRow) tri.next();
-
-            // First check the cache
-            Bitstream fromCache = (Bitstream) context.fromCache(
-                    Bitstream.class, r.getIntColumn("bitstream_id"));
-
-            if (fromCache != null)
-            {
-                bitstreams.add(fromCache);
-            }
-            else
-            {
-                bitstreams.add(new Bitstream(ourContext, r));
-            }
-        }
-        // close the TableRowIterator to free up resources
-        tri.close();
-
-        // Cache ourselves
-        context.cache(this, row.getIntColumn("bundle_id"));
-
-        modified = modifiedMetadata = false;
+        this(context, -1);
     }
-
+    
     public Bundle(Context context, int id)
     {
         this.id = id;
@@ -153,24 +110,18 @@ public class Bundle extends DSpaceObject
         bitstreams = new ArrayList<Bitstream>();
 
         context.cache(this, id);
+        modified = modifiedMetadata = false;
     }
 
     public String getName()
     {
-        // Create a table row
-        TableRow row = DatabaseManager.create(context, "bundle");
-
-        log.info(LogManager.getHeader(context, "create_bundle", "bundle_id="
-                + row.getIntColumn("bundle_id")));
-
-        context.addEvent(new Event(Event.CREATE, Constants.BUNDLE, row.getIntColumn("bundle_id"), null));
-
-        return new Bundle(context, row);
+        return name;
     }
 
     public void setName(String name)
     {
         this.name = name;
+        modifiedMetadata = true;
     }
 
     public void unsetPrimaryBitstreamID()
@@ -178,24 +129,6 @@ public class Bundle extends DSpaceObject
     	primaryBitstreamId = -1;
     }
 
-    /**
-     * Set the name of the bundle
-     * 
-     * @param name
-     *            string name of the bundle (ORIGINAL, TEXT, THUMBNAIL) are the
-     *            values currently used
-     */
-    public void setName(String name)
-    {
-        bundleRow.setColumn("name", name);
-        modifiedMetadata = true;
-    }
-
-    /**
-     * Get the primary bitstream ID of the bundle
-     * 
-     * @return primary bitstream ID or -1 if not set
-     */
     public int getPrimaryBitstreamID()
     {
         return primaryBitstreamId;
@@ -235,40 +168,7 @@ public class Bundle extends DSpaceObject
 
     public void setBitstreams(List<Bitstream> bitstreams)
     {
-        List<Item> items = new ArrayList<Item>();
-
-        // Get items
-        TableRowIterator tri = DatabaseManager.queryTable(
-        		ourContext, "item",
-                "SELECT item.* FROM item, item2bundle WHERE " +
-                "item2bundle.item_id=item.item_id AND " +
-                "item2bundle.bundle_id= ? ",
-                bundleRow.getIntColumn("bundle_id"));
-        
-        while (tri.hasNext())
-        {
-            TableRow r = (TableRow) tri.next();
-
-            // Used cached copy if there is one
-            Item fromCache = (Item) ourContext.fromCache(Item.class, r
-                    .getIntColumn("item_id"));
-
-            if (fromCache != null)
-            {
-                items.add(fromCache);
-            }
-            else
-            {
-                items.add(new Item(ourContext, r));
-            }
-        }
-        // close the TableRowIterator to free up resources
-        tri.close();
-
-        Item[] itemArray = new Item[items.size()];
-        itemArray = (Item[]) items.toArray(itemArray);
-
-        return itemArray;
+        this.bitstreams = bitstreams;
     }
 
     public Bitstream createBitstream(InputStream is) throws AuthorizeException,
@@ -313,19 +213,9 @@ public class Bundle extends DSpaceObject
         }
 
         bitstreams.add(b);
-
-        ourContext.addEvent(new Event(Event.ADD, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
-
-        // copy authorization policies from bundle to bitstream
-        // FIXME: multiple inclusion is affected by this...
-        AuthorizeManager.inheritPolicies(ourContext, this, b);
-
-        // Add the mapping row to the database
-        TableRow mappingRow = DatabaseManager.create(ourContext,
-                "bundle2bitstream");
-        mappingRow.setColumn("bundle_id", getID());
-        mappingRow.setColumn("bitstream_id", b.getID());
-        DatabaseManager.update(ourContext, mappingRow);
+        
+        context.addEvent(new Event(Event.ADD, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
+        
     }
 
     public void removeBitstream(Bitstream b) throws AuthorizeException,
@@ -341,17 +231,16 @@ public class Bundle extends DSpaceObject
             if (bitstream.getID() == b.getID())
             {
                 i.remove();
+                
+                context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
+                           
             }
         }
     }
 
-        ourContext.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
-
-        // Delete the mapping row
-        DatabaseManager.updateQuery(ourContext,
-                "DELETE FROM bundle2bitstream WHERE bundle_id= ? "+
-                "AND bitstream_id= ? ", 
-                getID(), b.getID());
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
 
     public int getType()
     {
@@ -374,44 +263,39 @@ public class Bundle extends DSpaceObject
         return BundleDAOFactory.getInstance(context).retrieve(id);
     }
 
-        if (modified)
-        {
-            ourContext.addEvent(new Event(Event.MODIFY, Constants.BUNDLE, getID(), null));
-            modified = false;
-        }
-        if (modifiedMetadata)
-        {
-            ourContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.BUNDLE, getID(), null));
-            modifiedMetadata = false;
-        }
-
-        DatabaseManager.update(ourContext, bundleRow);
+    @Deprecated
+    static Bundle create(Context context) throws AuthorizeException
+    {
+    	Bundle bundle = BundleDAOFactory.getInstance(context).create();
+        context.addEvent(new Event(Event.CREATE, Constants.BUNDLE, bundle.getID(), null));
+        return bundle;
     }
 
     @Deprecated
     public void update() throws AuthorizeException
     {
         dao.update(this);
+        
+         if (modified)
+        {
+            context.addEvent(new Event(Event.MODIFY, Constants.BUNDLE, getID(), null));
+            modified = false;
+        }
+        if (modifiedMetadata)
+        {
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.BUNDLE, getID(), null));
+            modifiedMetadata = false;
+        }
     }
 
-        ourContext.addEvent(new Event(Event.DELETE, Constants.BUNDLE, getID(), getName()));
+       
 
-        // Remove from cache
-        ourContext.removeCached(this, getID());
-
-        // Remove bitstreams
-        Bitstream[] bs = getBitstreams();
-
-        for (int i = 0; i < bs.length; i++)
-        {
-            removeBitstream(bs[i]);
-        }
-
-        // remove our authorization policies
-        AuthorizeManager.removeAllPolicies(ourContext, this);
-
-        // Remove ourself
-        DatabaseManager.delete(ourContext, bundleRow);
+    @Deprecated
+    void delete() throws AuthorizeException, IOException
+    {
+        dao.delete(this.getID());
+        context.addEvent(new Event(Event.DELETE, Constants.BUNDLE, getID(), getName()));
+        
     }
 
     @Deprecated
