@@ -59,6 +59,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.event.Event;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -98,7 +99,23 @@ public class Bitstream extends DSpaceObject
     private String internalID;
     private boolean deleted;
 
-    public Bitstream(Context context, int id)
+    /** Flag set when data is modified, for events */
+    private boolean modified;
+
+    /** Flag set when metadata is modified, for events */
+    private boolean modifiedMetadata;
+
+    /**
+     * Private constructor for creating a Bitstream object based on the contents
+     * of a DB table row.
+     * 
+     * @param context
+     *            the context this object exists in
+     * @param row
+     *            the corresponding row in the table
+     * @throws SQLException
+     */
+    Bitstream(Context context, TableRow row) throws SQLException
     {
         this.id = id;
         this.context = context;
@@ -107,6 +124,9 @@ public class Bitstream extends DSpaceObject
         bundleDAO = BundleDAOFactory.getInstance(context);
 
         context.cache(this, id);
+
+        modified = modifiedMetadata = false;
+        clearDetails();
     }
 
     public int getSequenceID()
@@ -116,13 +136,39 @@ public class Bitstream extends DSpaceObject
 
     public void setSequenceID(int sequenceID)
     {
-        this.sequenceID = sequenceID;
+        // Store the bits
+        int bitstreamID = BitstreamStorageManager.store(context, is);
+
+        log.info(LogManager.getHeader(context, "create_bitstream",
+                "bitstream_id=" + bitstreamID));
+
+        // Set the format to "unknown"
+        Bitstream bitstream = find(context, bitstreamID);
+        bitstream.setFormat(null);
+
+        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID, null));
+
+        return bitstream;
     }
 
     // FIXME: Do we even want this exposed?
     public String getInternalID()
     {
-        return internalID;
+        // Store the bits
+        int bitstreamID = BitstreamStorageManager.register(
+        		context, assetstore, bitstreamPath);
+
+        log.info(LogManager.getHeader(context,
+            "create_bitstream",
+            "bitstream_id=" + bitstreamID));
+
+        // Set the format to "unknown"
+        Bitstream bitstream = find(context, bitstreamID);
+        bitstream.setFormat(null);
+
+        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstreamID, "REGISTER"));
+
+        return bitstream;
     }
 
     // FIXME: Do we even want this exposed?
@@ -131,6 +177,41 @@ public class Bitstream extends DSpaceObject
         this.internalID = internalID;
     }
 
+    public String getHandle()
+    {
+        // No Handles for bitstreams
+        return null;
+    }
+
+    /**
+     * Get the sequence ID of this bitstream
+     * 
+     * @return the sequence ID
+     */
+    public int getSequenceID()
+    {
+        return bRow.getIntColumn("sequence_id");
+    }
+
+    /**
+     * Set the sequence ID of this bitstream
+     * 
+     * @param sid
+     *            the ID
+     */
+    public void setSequenceID(int sid)
+    {
+        bRow.setColumn("sequence_id", sid);
+        modifiedMetadata = true;
+        addDetails("SequenceID");
+    }
+
+    /**
+     * Get the name of this bitstream - typically the filename, without any path
+     * information
+     * 
+     * @return the name of the bitstream
+     */
     public String getName()
     {
         return name;
@@ -139,6 +220,8 @@ public class Bitstream extends DSpaceObject
     public void setName(String name)
     {
         this.name = name;
+        modifiedMetadata = true;
+        addDetails("Name");
     }
 
     /**
@@ -156,6 +239,8 @@ public class Bitstream extends DSpaceObject
     public void setSource(String source)
     {
         this.source = source;
+        modifiedMetadata = true;
+        addDetails("Source");
     }
 
     public String getDescription()
@@ -166,6 +251,8 @@ public class Bitstream extends DSpaceObject
     public void setDescription(String description)
     {
         this.description = description;
+        modifiedMetadata = true;
+        addDetails("Description");
     }
 
     /**
@@ -226,6 +313,8 @@ public class Bitstream extends DSpaceObject
     {
         setFormat(null);
         this.userFormatDescription = desc;
+        modifiedMetadata = true;
+        addDetails("UserFormatDescription");
     }
 
     /**
@@ -296,16 +385,63 @@ public class Bitstream extends DSpaceObject
 
         // Remove user type description
         userFormatDescription = null;
+        modified = true;
     }
 
     public boolean isDeleted()
     {
-        return deleted;
+        // Check authorisation
+        AuthorizeManager.authorizeAction(bContext, this, Constants.WRITE);
+
+        log.info(LogManager.getHeader(bContext, "update_bitstream",
+                "bitstream_id=" + getID()));
+
+        if (modified)
+        {
+            bContext.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
+            modified = false;
+        }
+        if (modifiedMetadata)
+        {
+            bContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, getID(), getDetails()));
+            modifiedMetadata = false;
+            clearDetails();
+        }
+
+        DatabaseManager.update(bContext, bRow);
     }
 
     public void setDeleted(boolean deleted)
     {
-        this.deleted = deleted;
+        boolean oracle = false;
+        if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+        {
+            oracle = true;
+        }
+
+        // changed to a check on remove
+        // Check authorisation
+        //AuthorizeManager.authorizeAction(bContext, this, Constants.DELETE);
+        log.info(LogManager.getHeader(bContext, "delete_bitstream",
+                "bitstream_id=" + getID()));
+
+        bContext.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, getID(), String.valueOf(getSequenceID())));
+
+        // Remove from cache
+        bContext.removeCached(this, getID());
+
+        // Remove policies
+        AuthorizeManager.removeAllPolicies(bContext, this);
+
+        // Remove references to primary bitstreams in bundle
+        String query = "update bundle set primary_bitstream_id = ";
+        query += (oracle ? "''" : "Null") + " where primary_bitstream_id = ? ";
+        DatabaseManager.updateQuery(bContext,
+                query, bRow.getIntColumn("bitstream_id"));
+
+        // Remove bitstream itself
+        BitstreamStorageManager.delete(bContext, bRow
+                .getIntColumn("bitstream_id"));
     }
 
     /**
@@ -342,11 +478,8 @@ public class Bitstream extends DSpaceObject
         return storeNumber;
     }
 
-    // FIXME: Do we even want this exposed?
-    public void setStoreNumber(int storeNumber)
-    {
-        this.storeNumber = storeNumber;
-    }
+        // Build a list of Bundle objects
+        List<Bundle> bundles = new ArrayList<Bundle>();
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods

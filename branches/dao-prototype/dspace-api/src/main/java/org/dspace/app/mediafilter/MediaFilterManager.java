@@ -107,6 +107,8 @@ public class MediaFilterManager
         // create an options object and populate it
         CommandLineParser parser = new PosixParser();
 
+        int status = 0;
+
         Options options = new Options();
         
         options.addOption("v", "verbose", false,
@@ -235,6 +237,10 @@ public class MediaFilterManager
             c.complete();
             c = null;
         }
+        catch (Exception e)
+        {
+            status = 1;
+        }
         finally
         {
             if (c != null)
@@ -242,6 +248,7 @@ public class MediaFilterManager
                 c.abort();
             }
         }
+        System.exit(status);
     }
 
     public static void applyFiltersAllItems(Context c) throws Exception

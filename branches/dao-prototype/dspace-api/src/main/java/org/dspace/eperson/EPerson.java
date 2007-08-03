@@ -54,8 +54,10 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
-import org.dspace.eperson.dao.EPersonDAO;           // Naughty!
-import org.dspace.eperson.dao.EPersonDAOFactory;    // Naughty!
+import org.dspace.event.Event;
+import org.dspace.storage.rdbms.DatabaseManager;
+import org.dspace.storage.rdbms.TableRow;
+import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class representing an e-person.
@@ -84,7 +86,27 @@ public class EPerson extends DSpaceObject
     public static final int NETID = 4;
     public static final int LANGUAGE = 5;
 
-    public enum EPersonMetadataField
+    /** Our context */
+    private Context myContext;
+
+    /** The row in the table representing this eperson */
+    private TableRow myRow;
+
+    /** Flag set when data is modified, for events */
+    private boolean modified;
+
+    /** Flag set when metadata is modified, for events */
+    private boolean modifiedMetadata;
+
+    /**
+     * Construct an EPerson
+     * 
+     * @param context
+     *            the context this object exists in
+     * @param row
+     *            the corresponding row in the table
+     */
+    EPerson(Context context, TableRow row)
     {
         FIRSTNAME ("firstname"),
         LASTNAME ("lastname"),
@@ -94,7 +116,11 @@ public class EPerson extends DSpaceObject
         NETID ("netid"),
         LANGUAGE ("language");
 
-        private String name;
+        // Cache ourselves
+        context.cache(this, row.getIntColumn("eperson_id"));
+        modified = modifiedMetadata = false;
+        clearDetails();
+    }
 
         private EPersonMetadataField(String name)
         {
@@ -134,6 +160,100 @@ public class EPerson extends DSpaceObject
         context.cache(this, id);
     }
 
+    /**
+     * Create a new eperson
+     * 
+     * @param context
+     *            DSpace context object
+     */
+    public static EPerson create(Context context) throws SQLException,
+            AuthorizeException
+    {
+        // authorized?
+        if (!AuthorizeManager.isAdmin(context))
+        {
+            throw new AuthorizeException(
+                    "You must be an admin to create an EPerson");
+        }
+
+        // Create a table row
+        TableRow row = DatabaseManager.create(context, "eperson");
+
+        EPerson e = new EPerson(context, row);
+
+        log.info(LogManager.getHeader(context, "create_eperson", "eperson_id="
+                + e.getID()));
+
+        context.addEvent(new Event(Event.CREATE, Constants.EPERSON, e.getID(), null));
+
+        return e;
+    }
+
+    /**
+     * Delete an eperson
+     * 
+     */
+    public void delete() throws SQLException, AuthorizeException,
+            EPersonDeletionException
+    {
+        // authorized?
+        if (!AuthorizeManager.isAdmin(myContext))
+        {
+            throw new AuthorizeException(
+                    "You must be an admin to delete an EPerson");
+        }
+
+        // check for presence of eperson in tables that
+        // have constraints on eperson_id
+        Vector constraintList = getDeleteConstraints();
+
+        // if eperson exists in tables that have constraints
+        // on eperson, throw an exception
+        if (constraintList.size() > 0)
+        {
+            throw new EPersonDeletionException(constraintList);
+        }
+
+        myContext.addEvent(new Event(Event.DELETE, Constants.EPERSON, getID(), getEmail()));
+
+        // Remove from cache
+        myContext.removeCached(this, getID());
+
+        // XXX FIXME: This sidesteps the object model code so it won't
+        // generate  REMOVE events on the affected Groups.
+
+        // Remove any group memberships first
+        DatabaseManager.updateQuery(myContext,
+                "DELETE FROM EPersonGroup2EPerson WHERE eperson_id= ? ",
+                getID());
+
+        // Remove any subscriptions
+        DatabaseManager.updateQuery(myContext,
+                "DELETE FROM subscription WHERE eperson_id= ? ",
+                getID());
+
+        // Remove ourself
+        DatabaseManager.delete(myContext, myRow);
+
+        log.info(LogManager.getHeader(myContext, "delete_eperson",
+                "eperson_id=" + getID()));
+    }
+
+    /**
+     * Get the e-person's internal identifier
+     * 
+     * @return the internal identifier
+     */
+    public int getID()
+    {
+        return myRow.getIntColumn("eperson_id");
+    }
+    
+    /**
+     * Get the e-person's language
+     * 
+     * @return  language
+     */
      public String getLanguage()
      {
          return metadata.get(EPersonMetadataField.LANGUAGE);
@@ -162,6 +282,7 @@ public class EPerson extends DSpaceObject
         }
 
         metadata.put(EPersonMetadataField.EMAIL, email);
+        modified = true;
     }
 
     public String getNetid()
@@ -177,6 +298,7 @@ public class EPerson extends DSpaceObject
         }
 
         metadata.put(EPersonMetadataField.NETID, netid);
+        modified = true;
     }
 
     /**
@@ -212,6 +334,7 @@ public class EPerson extends DSpaceObject
     public void setFirstName(String firstName)
     {
         metadata.put(EPersonMetadataField.FIRSTNAME, firstName);
+        modified = true;
     }
 
     public String getLastName()
@@ -222,11 +345,13 @@ public class EPerson extends DSpaceObject
     public void setLastName(String lastName)
     {
         metadata.put(EPersonMetadataField.LASTNAME, lastName);
+        modified = true;
     }
 
     public void setCanLogIn(boolean canLogin)
     {
         this.canLogin = canLogin;
+        modified = true;
     }
 
     public boolean canLogIn()
@@ -237,6 +362,7 @@ public class EPerson extends DSpaceObject
     public void setRequireCertificate(boolean requireCertificate)
     {
         this.requireCertificate = requireCertificate;
+        modified = true;
     }
 
     public boolean getRequireCertificate()
@@ -247,6 +373,7 @@ public class EPerson extends DSpaceObject
     public void setSelfRegistered(boolean selfRegistered)
     {
         this.selfRegistered = selfRegistered;
+        modified = true;
     }
 
     public boolean getSelfRegistered()
@@ -274,11 +401,14 @@ public class EPerson extends DSpaceObject
     public void setMetadata(String field, String value)
     {
         metadata.put(EPersonMetadataField.fromString(field), value);
+        modifiedMetadata = true;
+        addDetails(field);
     }
 
     public void setPassword(String password)
     {
         metadata.put(EPersonMetadataField.PASSWORD, Utils.getMD5(password));
+        modified = true;
     }
 
     public boolean checkPassword(String attempt)
@@ -310,13 +440,17 @@ public class EPerson extends DSpaceObject
         this(context, row.getIntColumn("eperson_id"));
     }
 
-    @Deprecated
-    public static EPerson[] findAll(Context context, int sortField)
-    {
-        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
-        List<EPerson> epeople = dao.getEPeople(sortField);
-
-        return (EPerson[]) epeople.toArray(new EPerson[0]);
+        if (modified)
+        {
+            myContext.addEvent(new Event(Event.MODIFY, Constants.EPERSON, getID(), null));
+            modified = false;
+        }
+        if (modifiedMetadata)
+        {
+            myContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, getID(), getDetails()));
+            modifiedMetadata = false;
+            clearDetails();
+        }
     }
 
     @Deprecated
@@ -346,7 +480,7 @@ public class EPerson extends DSpaceObject
     @Deprecated
     public static EPerson findByEmail(Context context, String email)
     {
-        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+        Vector<String> tableList = new Vector<String>();
 
         return dao.retrieve(EPersonMetadataField.EMAIL, email);
     }
@@ -378,4 +512,10 @@ public class EPerson extends DSpaceObject
     {
         dao.delete(getID());
     }
+
+    public String getName()
+    {
+        return getEmail();
+    }
+
 }

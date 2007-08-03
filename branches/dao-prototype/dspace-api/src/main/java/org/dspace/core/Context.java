@@ -54,6 +54,10 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.storage.dao.GlobalDAO;
 import org.dspace.storage.dao.GlobalDAOFactory;
+import org.dspace.event.Event;
+import org.dspace.event.EventManager;
+import org.dspace.event.Dispatcher;
+import org.dspace.storage.rdbms.DatabaseManager;
 
 /**
  * Class representing the context of a particular DSpace operation. This stores
@@ -70,7 +74,6 @@ import org.dspace.storage.dao.GlobalDAOFactory;
  * The context object is also used as a cache for CM API objects.
  * 
  * 
- * @author Robert Tansley
  * @author James Rutherford
  * @version $Revision$
  */
@@ -98,6 +101,12 @@ public class Context
 
     /** Group IDs of special groups user is a member of */
     private List specialGroups;
+    
+    /** Content events */
+    private List<Event> events = null;
+
+    /** Event dispatcher name */
+    private String dispName = null;
 
     /**
      * Construct a new context object. A database connection is opened. No user
@@ -259,12 +268,78 @@ public class Context
      *                if there was an error completing the database transaction
      *                or closing the connection
      */
-    public void commit() throws SQLException
-    {
+    public void commit() throws SQLException {
         // Commit any changes made as part of the transaction
         dao.saveTransaction();
+
+        Dispatcher dispatcher = null;
+
+        try {
+            if (events != null) {
+                
+                if (dispName == null) {
+                    dispName = EventManager.DEFAULT_DISPATCHER;
+                }
+                
+                dispatcher = EventManager.getDispatcher(dispName);
+                
+                dispatcher.dispatch(this);
+            }
+            
+        } finally {
+            events = null;
+            if(dispatcher != null) 
+            {
+            	/* 
+            	 * TODO return dispatcher via internal method dispatcher.close();
+            	 * and remove the returnDispatcher method from EventManager.
+            	 */
+                EventManager.returnDispatcher(dispName, dispatcher);
+            }
+        }
+
     }
 
+    /**
+     * Select an event dispatcher, <code>null</code> selects the default
+     * 
+     */
+    public void setDispatcher(String dispatcher)
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug(this.toString() + ": setDispatcher(\"" + dispatcher + "\")");
+        }
+        dispName = dispatcher;
+    }
+
+    /**
+     * Add an event to be dispatched when this context is committed.
+     * 
+     * @param event
+     */
+    public void addEvent(Event event)
+    {
+        if (events == null)
+        {
+            events = new ArrayList<Event>();
+        }
+        
+        events.add(event);
+    }
+
+    /**
+     * Get the current event list. If there is a separate list of events from
+     * already-committed operations combine that with current list.
+     * 
+     * @return List of all available events.
+     */
+    public List<Event> getEvents()
+    {
+        return events;
+    }
+
+    
     /**
      * Close the context, without committing any of the changes performed using
      * this context. The database connection is freed. No exception is thrown if
@@ -275,9 +350,11 @@ public class Context
     public void abort()
     {
         dao.abortTransaction();
+        events = null;
     }
 
     /**
+     * 
      * Find out if this context is valid. Returns <code>false</code> if this
      * context has been aborted or completed.
      * 

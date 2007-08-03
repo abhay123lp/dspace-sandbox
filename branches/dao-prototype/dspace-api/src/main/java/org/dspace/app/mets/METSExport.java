@@ -242,6 +242,7 @@ public class METSExport
         }
 
         context.abort();
+        System.exit(0);
     }
 
     /**

@@ -70,7 +70,6 @@ import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.history.HistoryManager;
 import org.dspace.workflow.dao.WorkflowItemDAO;
 import org.dspace.workflow.dao.WorkflowItemDAOFactory;
 
