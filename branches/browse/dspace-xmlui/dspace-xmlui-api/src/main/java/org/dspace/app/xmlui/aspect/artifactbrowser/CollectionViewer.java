@@ -46,7 +46,9 @@ import java.sql.SQLException;
 import org.apache.cocoon.caching.CacheableProcessingComponent;
 import org.apache.cocoon.util.HashUtil;
 import org.apache.excalibur.source.SourceValidity;
+import org.apache.log4j.Logger;
 import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
+import org.dspace.app.xmlui.cocoon.DSpaceFeedGenerator;
 import org.dspace.app.xmlui.utils.DSpaceValidity;
 import org.dspace.app.xmlui.utils.HandleUtil;
 import org.dspace.app.xmlui.utils.UIException;
@@ -59,8 +61,10 @@ import org.dspace.app.xmlui.wing.element.List;
 import org.dspace.app.xmlui.wing.element.PageMeta;
 import org.dspace.app.xmlui.wing.element.Para;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.browse.Browse;
-import org.dspace.browse.BrowseScope;
+import org.dspace.browse.BrowseEngine;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.BrowseIndex;
+import org.dspace.browse.BrowserScope;
 import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -75,6 +79,8 @@ import org.xml.sax.SAXException;
  */
 public class CollectionViewer extends AbstractDSpaceTransformer implements CacheableProcessingComponent
 {
+    private static final Logger log = Logger.getLogger(DSpaceFeedGenerator.class);
+
     /** Language Strings */
     private static final Message T_dspace_home =
         message("xmlui.general.dspace_home");
@@ -298,12 +304,23 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
         if (recentSubmissionItems != null)
             return recentSubmissionItems;
         
+        BrowserScope scope = new BrowserScope(context);
+        scope.setCollection(collection);
+        scope.setResultsPerPage(RECENT_SUBMISISONS);
         
-        BrowseScope scope = new BrowseScope(context);
-        scope.setScope(collection);
-        scope.setTotal(RECENT_SUBMISISONS);
-    
-        this.recentSubmissionItems = Browse.getLastSubmitted(scope);
+        // FIXME Exception Handling
+        try
+        {
+        	scope.setBrowseIndex(BrowseIndex.getBrowseIndex("dateaccessioned"));
+
+        	BrowseEngine be = new BrowseEngine(context);
+        	this.recentSubmissionItems = be.browse(scope).getResults();
+        }
+        catch (BrowseException bex)
+        {
+        	log.error("Caught BrowseException", bex);
+        }
+        
         return this.recentSubmissionItems;
     }
     

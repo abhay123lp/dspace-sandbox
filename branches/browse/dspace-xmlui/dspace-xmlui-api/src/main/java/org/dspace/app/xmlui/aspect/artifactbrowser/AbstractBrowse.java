@@ -52,9 +52,11 @@ import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
 import org.dspace.app.xmlui.utils.ContextUtil;
 import org.dspace.app.xmlui.utils.HandleUtil;
 import org.dspace.app.xmlui.utils.UIException;
-import org.dspace.browse.Browse;
+import org.dspace.browse.BrowseEngine;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.BrowseIndex;
 import org.dspace.browse.BrowseInfo;
-import org.dspace.browse.BrowseScope;
+import org.dspace.browse.BrowserScope;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
@@ -92,7 +94,7 @@ public class AbstractBrowse extends AbstractDSpaceTransformer
      * determine these cached results. 
      */
     protected BrowseInfo browseInfo;
-    protected BrowseScope browseScope;
+    protected BrowserScope browseScope;
     protected boolean browseItem; 
     
     /**
@@ -135,23 +137,26 @@ public class AbstractBrowse extends AbstractDSpaceTransformer
         	throw new UIException("Unable to decode url parameters: top, bottom, subject or author.",uee);
         }
         
-        // Buld the browse scope
-        BrowseScope scope = new BrowseScope(context);
+        // Build the browse scope
+        BrowserScope scope = new BrowserScope(context);
         
-        scope.setTotal(RESULTS_PER_PAGE);
+        scope.setResultsPerPage(RESULTS_PER_PAGE);
 
         if (top != null && !"".equals(top))
         {
             if (mode == MODE_BY_AUTHOR || mode == MODE_BY_SUBJECT)
             {   
-                scope.setFocus(top);
-                scope.setNumberBefore(0);
+            	scope.setValueFocus(top);
+                // FIXME What to replace this with?
+//                scope.setFocus(top);
+//                scope.setNumberBefore(0);
             }
             else 
             {
                 Item item = (Item) HandleManager.resolveToObject(context, top);
-                scope.setFocus(item);
-                scope.setNumberBefore(0);
+                scope.setFocus(item.getID());
+                // FIXME What to replace this with?
+//                scope.setNumberBefore(0);
             }
 
         }
@@ -160,20 +165,25 @@ public class AbstractBrowse extends AbstractDSpaceTransformer
             
             if (mode == MODE_BY_AUTHOR || mode == MODE_BY_SUBJECT)
             {
-                scope.setFocus(bottom);
-                scope.setNumberBefore(RESULTS_PER_PAGE - 1);
+            	scope.setValueFocus(bottom);
+                // FIXME What to replace this with?
+//                scope.setFocus(bottom);
+//                scope.setNumberBefore(RESULTS_PER_PAGE - 1);
             }
             else
             {
                 Item item = (Item) HandleManager.resolveToObject(context, bottom);
-                scope.setFocus(item);
-                scope.setNumberBefore(RESULTS_PER_PAGE - 1);
+                scope.setFocus(item.getID());
+                // FIXME What to replace this with?
+//                scope.setNumberBefore(RESULTS_PER_PAGE - 1);
             }
         }
         else if (startsWith != null && !"".equals(startsWith))
         {
-            scope.setFocus(startsWith);
-            scope.setNumberBefore(0);
+        	scope.setValueFocus(startsWith);
+            // FIXME What to replace this with?
+//            scope.setFocus(startsWith);
+//            scope.setNumberBefore(0);
         }
         else if (mode == MODE_BY_DATE && year != null
                 && !"".equals(year))
@@ -182,63 +192,77 @@ public class AbstractBrowse extends AbstractDSpaceTransformer
             {
                 if (month.length() == 1)
                     month = "0" + month;
-                scope.setFocus(year + "-" + month);
-                scope.setNumberBefore(0);
+                scope.setValueFocus(year + "-" + month);
+                // FIXME What to replace this with?
+//                scope.setNumberBefore(0);
             }
             else
             {
-                scope.setFocus(year + "-01");
-                scope.setNumberBefore(0);
+                scope.setValueFocus(year + "-01");
+                // FIXME What to replace this with?
+//                scope.setNumberBefore(0);
             }
         }
         else if (mode == MODE_BY_AUTHOR_ITEM)
         {
-            scope.setFocus(author);
+            scope.setValueFocus(author);
         }
         else if (mode == MODE_BY_SUBJECT_ITEM)
         {
-            scope.setFocus(subject);
+            scope.setValueFocus(subject);
         }
 
         // Are we in a community or collection?
         DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
         if (dso instanceof Community)
-            scope.setScope((Community) dso);
+            scope.setCommunity((Community) dso);
         if (dso instanceof Collection)
-            scope.setScope((Collection) dso);
+            scope.setCollection((Collection) dso);
 
         // Query the browse index
         BrowseInfo browseInfo;
 
-        if (mode == MODE_BY_TITLE)
+        try
         {
-            browseInfo = Browse.getItemsByTitle(scope);
-        }
-        else if (mode == MODE_BY_DATE)
-        {
-            browseInfo = Browse.getItemsByDate(scope, false);
-        }
-        else if (mode == MODE_BY_AUTHOR)
-        {
-        	browseInfo = Browse.getAuthors(scope);
-        }
-        else if (mode == MODE_BY_AUTHOR_ITEM)
-        {
-        	browseInfo = Browse.getItemsByAuthor(scope, true);
-        }
-        else if (mode == MODE_BY_SUBJECT)
-        {
-        	browseInfo = Browse.getSubjects(scope);
-        }
-        else if (mode == MODE_BY_SUBJECT_ITEM)
-        {
-        	browseInfo = Browse.getItemsBySubject(scope, true);
-        }
-        else
-        {
-            throw new UIException("Unknown mode selected.");
-        }
-
+	        if (mode == MODE_BY_TITLE)
+	        {
+	        	scope.setBrowseIndex(BrowseIndex.getBrowseIndex("title"));
+	        }
+	        else if (mode == MODE_BY_DATE)
+	        {
+	        	scope.setBrowseIndex(BrowseIndex.getBrowseIndex("dateissued"));
+	        }
+	        else if (mode == MODE_BY_AUTHOR)
+	        {
+	        	scope.setBrowseIndex(BrowseIndex.getBrowseIndex("author"));
+	        }
+	        else if (mode == MODE_BY_AUTHOR_ITEM)
+	        {
+	        	scope.setBrowseIndex(BrowseIndex.getBrowseIndex("author"));
+	        	scope.setBrowseLevel(1);
+	        }
+	        else if (mode == MODE_BY_SUBJECT)
+	        {
+	        	scope.setBrowseIndex(BrowseIndex.getBrowseIndex("subject"));
+	        }
+	        else if (mode == MODE_BY_SUBJECT_ITEM)
+	        {
+	        	scope.setBrowseIndex(BrowseIndex.getBrowseIndex("subject"));
+	        	scope.setBrowseLevel(1);
+	        }
+	        else
+	        {
+	            throw new UIException("Unknown mode selected.");
+	        }
+	
+	    	BrowseEngine be = new BrowseEngine(context);
+	    	browseInfo = be.browse(scope);
+	    }
+	    catch (BrowseException bex)
+	    {
+	    	throw new UIException("Unable to process browse", bex);
+	    }
+    	
         // Save the search results for later access.
         this.browseInfo = browseInfo;
         this.browseScope = scope;
