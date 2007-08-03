@@ -55,6 +55,7 @@
 <%@ page import="org.dspace.content.DCDate" %>
 <%@ page import="java.net.URLEncoder" %>
 <%@ page import="org.dspace.core.Utils" %>
+<%@ page import="org.dspace.app.webui.util.UIUtil" %>
 
 <%
 	//First, get the browse info object
@@ -202,7 +203,7 @@
 		for (int i = 1; i <= 12; i++)
 		{
 %>
-                                <option value="<%= i %>"><%= DCDate.getMonthName(i) %></option>
+                                <option value="<%= i %>"><%= DCDate.getMonthName(i, UIUtil.getSessionLocale(request)) %></option>
 <%
 		}
 %>
