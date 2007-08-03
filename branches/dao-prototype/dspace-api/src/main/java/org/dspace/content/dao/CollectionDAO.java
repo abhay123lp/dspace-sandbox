@@ -74,7 +74,7 @@ import org.dspace.workflow.WorkflowItem;
  */
 public abstract class CollectionDAO extends ContentDAO
 {
-    protected static Logger log = Logger.getLogger(CollectionDAOPostgres.class);
+    protected static Logger log = Logger.getLogger(CollectionDAO.class);
 
     protected Context context;
     protected BitstreamDAO bitstreamDAO;

@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.content.dao.postgres;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -51,6 +51,8 @@ import org.dspace.core.Constants;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BundleDAO;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;

@@ -40,6 +40,7 @@
 package org.dspace.eperson.dao;
 
 import org.dspace.core.Context;
+import org.dspace.eperson.dao.postgres.EPersonDAOPostgres;
 
 /**
  * @author James Rutherford

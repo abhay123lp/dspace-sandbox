@@ -40,6 +40,7 @@
 package org.dspace.history.dao;
 
 import org.dspace.core.Context;
+import org.dspace.history.dao.postgres.HistoryDAOPostgres;
 
 public class HistoryDAOFactory
 {

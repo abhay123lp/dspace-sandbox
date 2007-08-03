@@ -39,19 +39,24 @@
  */
 package org.dspace.storage.dao;
 
+import org.apache.log4j.Logger;
+import org.dspace.storage.dao.postgres.GlobalDAOPostgres;
+
 import java.sql.Connection;
 import java.sql.SQLException;
 
 /**
  * @author James Rutherford
  */
-public interface GlobalDAO
+public abstract class GlobalDAO
 {
+	protected static final Logger log = Logger.getLogger(GlobalDAO.class);
+	
     // FIXME: These should all be GlobalDAOExceptions
-    public void startTransaction() throws SQLException;
-    public void endTransaction() throws SQLException;
-    public void saveTransaction() throws SQLException;
-    public void abortTransaction();
-    public boolean transactionOpen();
-    @Deprecated Connection getConnection();
+    public abstract void startTransaction() throws SQLException;
+    public abstract void endTransaction() throws SQLException;
+    public abstract void saveTransaction() throws SQLException;
+    public abstract void abortTransaction();
+    public abstract boolean transactionOpen();
+    @Deprecated public abstract Connection getConnection();
 }

@@ -40,6 +40,7 @@
 package org.dspace.workflow.dao;
 
 import org.dspace.core.Context;
+import org.dspace.workflow.dao.postgres.WorkflowItemDAOPostgres;
 
 public class WorkflowItemDAOFactory
 {

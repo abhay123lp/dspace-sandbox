@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.authorize.dao;
+package org.dspace.authorize.dao.postgres;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.core.Context;
 import org.dspace.content.DSpaceObject;
 import org.dspace.eperson.Group;

@@ -43,7 +43,6 @@ import org.apache.log4j.Logger;
 
 import org.dspace.core.Context;
 import org.dspace.history.History;
-import org.dspace.history.HistoryManager;
 import org.dspace.history.HistoryState;
 
 /**

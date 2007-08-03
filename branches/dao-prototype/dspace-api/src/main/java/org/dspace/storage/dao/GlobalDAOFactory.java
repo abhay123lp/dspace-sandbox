@@ -41,7 +41,7 @@ package org.dspace.storage.dao;
 
 import java.sql.SQLException;
 
-import org.dspace.core.Context;
+import org.dspace.storage.dao.postgres.GlobalDAOPostgres;
 
 /**
  * @author James Rutherford

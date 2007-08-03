@@ -37,23 +37,20 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.storage.dao;
+package org.dspace.storage.dao.postgres;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import org.dspace.core.Context;
+import org.dspace.storage.dao.GlobalDAO;
 import org.dspace.storage.rdbms.DatabaseManager;
-
-import org.apache.log4j.Logger;
 
 /**
  * @author James Rutherford
  */
-public class GlobalDAOPostgres implements GlobalDAO
+public class GlobalDAOPostgres extends GlobalDAO
 {
-    private static final Logger log =
-        Logger.getLogger(GlobalDAOPostgres.class);
+    
     private Connection connection;
 
     // FIXME: This should be a GlobalDAOException

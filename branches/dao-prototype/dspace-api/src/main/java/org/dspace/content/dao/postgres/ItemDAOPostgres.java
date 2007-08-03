@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.content.dao.postgres;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -62,6 +62,9 @@ import org.dspace.content.ItemIterator;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BundleDAOFactory;
+import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.proxy.ItemProxy;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;

@@ -39,6 +39,7 @@
  */
 package org.dspace.content.dao;
 
+import org.dspace.content.dao.postgres.BitstreamDAOPostgres;
 import org.dspace.core.Context;
 
 /**

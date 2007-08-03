@@ -68,7 +68,7 @@ import org.dspace.search.DSIndexer;
  */
 public abstract class CommunityDAO extends ContentDAO
 {
-    protected static Logger log = Logger.getLogger(CommunityDAOPostgres.class);
+    protected static Logger log = Logger.getLogger(CommunityDAO.class);
 
     protected Context context;
     protected BitstreamDAO bitstreamDAO;

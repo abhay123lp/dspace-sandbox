@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.eperson.dao;
+package org.dspace.eperson.dao.postgres;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -48,16 +48,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.EPersonDAOFactory;
+import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.proxy.GroupProxy;
-import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;

@@ -39,6 +39,7 @@
  */
 package org.dspace.authorize.dao;
 
+import org.dspace.authorize.dao.postgres.ResourcePolicyDAOPostgres;
 import org.dspace.core.Context;
 
 /**

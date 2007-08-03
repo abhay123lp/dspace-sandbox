@@ -37,12 +37,13 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.eperson.dao;
+package org.dspace.eperson.dao.postgres;
 
 import java.sql.SQLException;
 
 import org.dspace.core.Context;
 import org.dspace.eperson.RegistrationData;
+import org.dspace.eperson.dao.RegistrationDataDAO;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 

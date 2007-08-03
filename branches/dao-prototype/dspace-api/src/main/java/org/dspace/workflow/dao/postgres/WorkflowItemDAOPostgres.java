@@ -37,20 +37,15 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.workflow.dao;
+package org.dspace.workflow.dao.postgres;
 
-import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
-import org.dspace.history.HistoryManager;
 import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.dao.WorkflowItemDAO;
 
 /**
  * @author James Rutherford
@@ -62,11 +57,13 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
         this.context = context;
     }
 
+    @Override
     public WorkflowItem create(WorkspaceItem wsi) throws AuthorizeException
     {
         return null;
     }
 
+    @Override
     public WorkflowItem retrieve(int id)
     {
         WorkflowItem wfi = super.retrieve(id);
@@ -79,6 +76,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
         return null;
     }
 
+    @Override
     public WorkflowItem retrieve(UUID uuid)
     {
         WorkflowItem wfi = super.retrieve(uuid);
@@ -90,11 +88,13 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
 
         return null;
     }
-
+    
+    @Override
     public void update(WorkflowItem wfi) throws AuthorizeException
     {
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
     }

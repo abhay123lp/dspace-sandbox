@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.content.dao.postgres;
 
 import java.io.InputStream;
 import java.io.IOException;
@@ -47,8 +47,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.Browse;
@@ -56,6 +54,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
