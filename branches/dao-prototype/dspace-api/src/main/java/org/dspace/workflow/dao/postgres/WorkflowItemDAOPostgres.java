@@ -88,7 +88,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
             row.setColumn("uuid", uuid.toString());
             DatabaseManager.update(context, row);
 
-            int id = row.getIntColumn("workflow_item_id");
+            int id = row.getIntColumn("workflow_id");
             WorkflowItem wfi = new WorkflowItem(context, id);
             wfi.setIdentifier(new ObjectIdentifier(uuid));
 
@@ -110,7 +110,24 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
             return wfi;
         }
 
-        return null;
+        try
+        {
+            TableRow row = DatabaseManager.find(context, "workflowitem", id);
+
+            if (row == null)
+            {
+                log.warn("workflow item " + id + " not found");
+                return null;
+            }
+            else
+            {
+                return retrieve(row);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     @Override
@@ -123,7 +140,34 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
             return wfi;
         }
 
-        return null;
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context,
+                    "workflowitem", "uuid", uuid.toString());
+
+            if (row == null)
+            {
+                log.warn("workflow item " + uuid + " not found");
+                return null;
+            }
+            else
+            {
+                return retrieve(row);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private WorkflowItem retrieve(TableRow row)
+    {
+        int id = row.getIntColumn("workflow_id");
+        WorkflowItem wfi = new WorkflowItem(context, id);
+        populateWorkflowItemFromTableRow(wfi, row);
+
+        return wfi;
     }
     
     @Override
