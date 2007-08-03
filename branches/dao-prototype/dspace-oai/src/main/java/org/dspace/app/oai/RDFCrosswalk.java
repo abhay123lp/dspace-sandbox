@@ -120,7 +120,7 @@ public class RDFCrosswalk extends Crosswalk
         metadata.append("<ow:Publication rdf:about=\"oai:")
                 .append(hostName)
                 .append(":")
-                .append(item.getExternalIdentifier().getCanonicalForm())
+                .append(item.getHandle())
                 .append("\">");
 
         for (int i = 0; i < allDC.length; i++)
@@ -169,11 +169,22 @@ public class RDFCrosswalk extends Crosswalk
         }
         
         // add extended info - collection, communities, and thumbnail URLs
-        Collection[] colls = item.getCollections();;
-        Community[] comms = item.getCommunities();
-        Bundle[] origBundles = item.getBundles("ORIGINAL");
-        Bundle[] thumbBundles = item.getBundles("THUMBNAIL");
-
+        Collection[] colls = null;
+        Community[] comms = null;
+        Bundle[] origBundles = null;
+        Bundle[] thumbBundles = null;
+        try
+        {
+        	colls = item.getCollections();
+        	comms = item.getCommunities();
+        	origBundles = item.getBundles("ORIGINAL");
+        	thumbBundles = item.getBundles("THUMBNAIL");
+        }
+        catch(SQLException sqlE)
+        {
+        	;
+        }
+        
         // all parent communities map to DC source
         for (int i = 0; i < comms.length; i++)
         {
