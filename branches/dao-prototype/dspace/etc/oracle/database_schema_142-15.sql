@@ -38,26 +38,13 @@
 -- DAMAGE.
 
 --
--- SQL commands to upgrade the database schema of a live DSpace 1.3 or 1.3.x
--- to the DSpace 1.4 database schema
+-- SQL commands to upgrade the database schema of a live DSpace 1.4.2
+-- to the DSpace 1.5 database schema
 -- 
 -- DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. 
 -- DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. 
 -- DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. DUMP YOUR DATABASE FIRST. 
 
-------------------------------------------------------
--- New Column language language in EPerson
-------------------------------------------------------
-
-alter table eperson add column language VARCHAR(64);
-update eperson set language = 'en';
-
-alter table bundle drop column mets_bitstream_id; -- totally unused column
-
-
--------------------------------------------------------------------------------
--- Necessary for Configurable Submission functionality:
--- Modification to workspaceitem table to support keeping track
--- of the last page reached within a step in the Configurable Submission Process
--------------------------------------------------------------------------------
-ALTER TABLE workspaceitem ADD page_reached INTEGER;
+-- Remove NOT NULL restrictions from the checksum columns of most_recent_checksum
+ALTER TABLE most_recent_checksum MODIFY expected_checksum null;
+ALTER TABLE most_recent_checksum MODIFY current_checksum null;
