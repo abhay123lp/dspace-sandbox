@@ -139,6 +139,9 @@ public class Collection extends DSpaceObject
         workflowGroups = new Group[3];
 
         context.cache(this, id);
+
+        modified = modifiedMetadata = false;
+        clearDetails();
     }
 
     public Group getSubmitters()
@@ -250,6 +253,13 @@ public class Collection extends DSpaceObject
         metadata.put(field, value);
         modifiedMetadata = true;
         addDetails(field);
+        modifiedMetadata = true;
+        addDetails(field);
+    }
+
+    public String getName()
+    {
+        return getMetadata("name");
     }
 
     /**
@@ -362,6 +372,7 @@ public class Collection extends DSpaceObject
     public void setWorkflowGroup(int step, Group g)
     {
         workflowGroups[step - 1] = g;
+        modified = true;
         modified = true;
     }
 
@@ -487,6 +498,7 @@ public class Collection extends DSpaceObject
     public Item getTemplateItem()
     {
         return templateItem;
+        modified = true;
     }
 
     public void setTemplateItem(Item templateItem)

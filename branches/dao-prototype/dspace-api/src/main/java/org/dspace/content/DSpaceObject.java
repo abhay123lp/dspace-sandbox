@@ -227,4 +227,40 @@ public abstract class DSpaceObject
         }
         return null;
     }
+
+    /**
+     * Get a proper name for the object. This may return <code>null</code>.
+     * Name should be suitable for display in a user interface.
+     *
+     * @return Name for the object, or <code>null</code> if it doesn't have
+     *         one
+     */
+    abstract public String getName();
+
+    /**
+     * Generic find for when the precise type of a DSO is not known, just the
+     * a pair of type number and database ID.
+     *
+     * @param context - the context
+     * @param type - type number
+     * @param id - id within table of type'd objects
+     * @return the object found, or null if it does not exist.
+     * @throws SQLException only upon failure accessing the database.
+     */
+    public static DSpaceObject find(Context context, int type, int id)
+        throws SQLException
+    {
+        switch (type)
+        {
+            case Constants.BITSTREAM : return Bitstream.find(context, id);
+            case Constants.BUNDLE    : return Bundle.find(context, id);
+            case Constants.ITEM      : return Item.find(context, id);
+            case Constants.COLLECTION: return Collection.find(context, id);
+            case Constants.COMMUNITY : return Community.find(context, id);
+            case Constants.GROUP     : return Group.find(context, id);
+            case Constants.EPERSON   : return EPerson.find(context, id);
+            case Constants.SITE      : return Site.find(context, id);
+        }
+        return null;
+    }
 }

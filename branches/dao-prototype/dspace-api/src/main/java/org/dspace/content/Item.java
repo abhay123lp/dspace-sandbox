@@ -199,6 +199,7 @@ public class Item extends DSpaceObject
     public Collection getOwningCollection()
     {
         return owningCollection;
+        modified = true;
     }
 
     /**
@@ -209,6 +210,7 @@ public class Item extends DSpaceObject
     public void setOwningCollection(Collection owningCollection)
     {
         this.owningCollection = owningCollection;
+        modified = true;
         modified = true;
     }
 
@@ -466,6 +468,7 @@ public class Item extends DSpaceObject
     {
         this.submitter = submitter;
         modified = true;
+        modified = true;
     }
 
     public void setSubmitter(int submitterId)
@@ -577,6 +580,8 @@ public class Item extends DSpaceObject
         bundles.add(b);
 
         context.addEvent(new Event(Event.ADD, Constants.ITEM, getID(), Constants.BUNDLE, b.getID(), b.getName()));
+
+        ourContext.addEvent(new Event(Event.ADD, Constants.ITEM, getID(), Constants.BUNDLE, b.getID(), b.getName()));
     }
 
     /**
@@ -657,7 +662,7 @@ public class Item extends DSpaceObject
      */
     public Bitstream[] getNonInternalBitstreams()
     {
-        List bitstreamList = new ArrayList();
+        List<Bitstream> bitstreamList = new ArrayList<Bitstream>();
 
         // Go through the bundles and bitstreams picking out ones which aren't
         // of internal formats
@@ -714,6 +719,32 @@ public class Item extends DSpaceObject
         b.setFormat(bf);
 
         b.update();
+    }
+
+    /**
+     * Remove just the DSpace license from an item This is useful to update the
+     * current DSpace license, in case the user must accept the DSpace license
+     * again (either the item was rejected, or resumed after saving)
+     * <p>
+     * This method is used by the org.dspace.submit.step.LicenseStep class
+     * 
+     * @throws SQLException
+     * @throws AuthorizeException
+     * @throws IOException
+     */
+    public void removeDSpaceLicense() throws SQLException, AuthorizeException,
+            IOException
+    {
+        // get all bundles with name "LICENSE" (these are the DSpace license
+        // bundles)
+        Bundle[] bunds = getBundles("LICENSE");
+
+        for (int i = 0; i < bunds.length; i++)
+        {
+            // FIXME: probably serious troubles with Authorizations
+            // fix by telling system not to check authorization?
+            removeBundle(bunds[i]);
+        }
     }
 
     /**

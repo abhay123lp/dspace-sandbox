@@ -168,6 +168,7 @@ public class EPerson extends DSpaceObject
 
         metadata.put(EPersonMetadataField.EMAIL, email);
         modified = true;
+        modified = true;
     }
 
     public String getNetid()
@@ -183,6 +184,7 @@ public class EPerson extends DSpaceObject
         }
 
         metadata.put(EPersonMetadataField.NETID, netid);
+        modified = true;
         modified = true;
     }
 
@@ -220,6 +222,7 @@ public class EPerson extends DSpaceObject
     {
         metadata.put(EPersonMetadataField.FIRSTNAME, firstName);
         modified = true;
+        modified = true;
     }
 
     public String getLastName()
@@ -231,11 +234,13 @@ public class EPerson extends DSpaceObject
     {
         metadata.put(EPersonMetadataField.LASTNAME, lastName);
         modified = true;
+        modified = true;
     }
 
     public void setCanLogIn(boolean canLogin)
     {
         this.canLogin = canLogin;
+        modified = true;
         modified = true;
     }
 
@@ -248,6 +253,7 @@ public class EPerson extends DSpaceObject
     {
         this.requireCertificate = requireCertificate;
         modified = true;
+        modified = true;
     }
 
     public boolean getRequireCertificate()
@@ -258,6 +264,7 @@ public class EPerson extends DSpaceObject
     public void setSelfRegistered(boolean selfRegistered)
     {
         this.selfRegistered = selfRegistered;
+        modified = true;
         modified = true;
     }
 
@@ -288,11 +295,14 @@ public class EPerson extends DSpaceObject
         metadata.put(EPersonMetadataField.fromString(field), value);
         modifiedMetadata = true;
         addDetails(field);
+        modifiedMetadata = true;
+        addDetails(field);
     }
 
     public void setPassword(String password)
     {
         metadata.put(EPersonMetadataField.PASSWORD, Utils.getMD5(password));
+        modified = true;
         modified = true;
     }
 
@@ -408,4 +418,10 @@ public class EPerson extends DSpaceObject
 
         
     }
+
+    public String getName()
+    {
+        return getEmail();
+    }
+
 }

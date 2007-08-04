@@ -122,6 +122,7 @@ public class Bundle extends DSpaceObject
     {
         this.name = name;
         modifiedMetadata = true;
+        modifiedMetadata = true;
     }
 
     public void unsetPrimaryBitstreamID()
@@ -132,6 +133,7 @@ public class Bundle extends DSpaceObject
     public int getPrimaryBitstreamID()
     {
         return primaryBitstreamId;
+        modified = true;
     }
 
     public void setPrimaryBitstreamID(int primaryBitstreamId)

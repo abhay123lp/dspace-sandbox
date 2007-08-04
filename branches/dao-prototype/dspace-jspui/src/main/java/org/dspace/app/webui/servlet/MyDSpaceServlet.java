@@ -66,6 +66,7 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.submit.AbstractProcessingStep;
+import org.dspace.submit.AbstractProcessingStep;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowManager;
 

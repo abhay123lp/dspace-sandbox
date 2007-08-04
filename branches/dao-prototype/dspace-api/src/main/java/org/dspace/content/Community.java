@@ -139,8 +139,15 @@ public class Community extends DSpaceObject
         metadata.put(field, value);
         modifiedMetadata = true;
         addDetails(field);
+        modifiedMetadata = true;
+        addDetails(field);
     }
     
+    public String getName()
+    {
+        return getMetadata("name");
+    }
+
     /**
      * Get the logo for the community. <code>null</code> is return if the
      * community does not have a logo.

@@ -183,6 +183,7 @@ public class ItemImport
         String eperson = null; // db ID or email
         String[] collections = null; // db ID or URIs
         int status = 0;
+        int status = 0;
 
         if (line.hasOption('h'))
         {
