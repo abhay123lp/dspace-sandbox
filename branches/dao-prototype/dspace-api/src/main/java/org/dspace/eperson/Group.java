@@ -131,8 +131,6 @@ public class Group extends DSpaceObject
         epeople.add(e);
 
         context.addEvent(new Event(Event.ADD, Constants.GROUP, getID(), Constants.EPERSON, e.getID(), e.getEmail()));
-
-        myContext.addEvent(new Event(Event.ADD, Constants.GROUP, getID(), Constants.EPERSON, e.getID(), e.getEmail()));
     }
 
     public void addMember(Group g)
@@ -145,8 +143,6 @@ public class Group extends DSpaceObject
         groups.add(g);
 
         context.addEvent(new Event(Event.ADD, Constants.GROUP, getID(), Constants.GROUP, g.getID(), g.getName()));
-
-        myContext.addEvent(new Event(Event.ADD, Constants.GROUP, getID(), Constants.GROUP, g.getID(), g.getName()));
     }
 
     public void removeMember(EPerson e)
