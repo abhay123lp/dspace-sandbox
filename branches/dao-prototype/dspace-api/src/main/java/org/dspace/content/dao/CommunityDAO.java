@@ -60,7 +60,6 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
-import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
 
 /**
@@ -136,10 +135,6 @@ public abstract class CommunityDAO extends ContentDAO
         policy.setGroup(anonymousGroup);
         policy.update();
 
-        HistoryManager.saveHistory(context, community,
-                HistoryManager.CREATE, context.getCurrentUser(),
-                context.getExtraLogInfo());
-
         log.info(LogManager.getHeader(context, "create_community",
                 "community_id=" + community.getID()) + ",uri=" +
                 community.getExternalIdentifier().getCanonicalForm());
@@ -163,9 +158,6 @@ public abstract class CommunityDAO extends ContentDAO
     {
         // Check authorization
         community.canEdit();
-
-        HistoryManager.saveHistory(context, this, HistoryManager.MODIFY,
-                context.getCurrentUser(), context.getExtraLogInfo());
 
         log.info(LogManager.getHeader(context, "update_community",
                 "community_id=" + community.getID()));
@@ -221,9 +213,6 @@ public abstract class CommunityDAO extends ContentDAO
             {
                 unlink(parent, community);
             }
-
-            HistoryManager.saveHistory(context, community, HistoryManager.REMOVE,
-                    context.getCurrentUser(), context.getExtraLogInfo());
 
             log.info(LogManager.getHeader(context, "delete_community",
                     "community_id=" + id));

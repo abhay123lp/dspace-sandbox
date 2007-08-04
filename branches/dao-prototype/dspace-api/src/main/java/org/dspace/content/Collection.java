@@ -653,7 +653,7 @@ public class Collection extends DSpaceObject
     void delete() throws AuthorizeException
     {
         dao.delete(this.getID());
-        context.addEvent(new Event(Event.DELETE, Constants.COLLECTION, getID(), this.getIdentifier().getCanonicalForm()));
+        context.addEvent(new Event(Event.DELETE, Constants.COLLECTION, getID(), getIdentifier().getCanonicalForm()));
     }
 
     @Deprecated

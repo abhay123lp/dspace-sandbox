@@ -327,6 +327,7 @@ public class BundleDAOPostgres extends BundleDAO
                     "AND bitstream_id = ? ",
                     bundle.getID(), bitstream.getID());
 
+            // FIXME: If true, this will leave the TableRowIterator open
             return tri.hasNext();
         }
         catch (SQLException sqle)

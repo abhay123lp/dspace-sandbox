@@ -75,6 +75,8 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         {
             TableRow row =
                 DatabaseManager.create(context, "bitstreamformatregistry");
+            row.setColumn("uuid", uuid.toString());
+            DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("bitstream_format_id");
             BitstreamFormat bitstreamFormat = new BitstreamFormat(context, id);
@@ -401,7 +403,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
             bitstreamFormat, TableRow row)
     {
         UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
-
         bitstreamFormat.setIdentifier(new ObjectIdentifier(uuid));
 
         List<String> extensions = new ArrayList<String>();

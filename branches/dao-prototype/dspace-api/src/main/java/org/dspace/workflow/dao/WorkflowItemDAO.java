@@ -53,7 +53,6 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.eperson.EPerson;
-import org.dspace.history.HistoryManager;
 import org.dspace.workflow.TaskListItem;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowManager;
@@ -90,9 +89,6 @@ public abstract class WorkflowItemDAO
         
         update(wfi);
 
-        HistoryManager.saveHistory(context, wfi, HistoryManager.CREATE,
-            context.getCurrentUser(), context.getExtraLogInfo());
-
         return wfi;
     }
 
@@ -115,9 +111,6 @@ public abstract class WorkflowItemDAO
 
         log.info(LogManager.getHeader(context, "update_workflow_item",
                 "workflow_item_id=" + wfi.getID()));
-
-        HistoryManager.saveHistory(context, wfi, HistoryManager.MODIFY,
-                context.getCurrentUser(), context.getExtraLogInfo());
     }
 
     /**
@@ -127,9 +120,6 @@ public abstract class WorkflowItemDAO
     {
         WorkflowItem wfi = retrieve(id);
         update(wfi); // Sync in-memory object before removal
-
-        HistoryManager.saveHistory(context, wfi, HistoryManager.REMOVE,
-                context.getCurrentUser(), context.getExtraLogInfo());
 
         context.removeCached(wfi, id);
 

@@ -434,11 +434,24 @@ public class Community extends DSpaceObject
     public void update() throws AuthorizeException
     {
         dao.update(this);
+        
+		if (modified)
+        {
+            context.addEvent(new Event(Event.MODIFY, Constants.COMMUNITY, getID(), null));
+            modified = false;
+        }
+        if (modifiedMetadata)
+        {
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.COMMUNITY, getID(), getDetails()));
+            modifiedMetadata = false;
+            clearDetails();
+        }
     }
 
     @Deprecated
     public void delete() throws AuthorizeException
     {
+        context.addEvent(new Event(Event.DELETE, Constants.COMMUNITY, getID(), getIdentifier().getCanonicalForm()));
         dao.delete(this.getID());
     }
 }

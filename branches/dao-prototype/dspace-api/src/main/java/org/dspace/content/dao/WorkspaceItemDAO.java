@@ -55,7 +55,6 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.history.HistoryManager;
 import org.dspace.workflow.WorkflowItem;
 
 /**
@@ -163,9 +162,6 @@ public abstract class WorkspaceItemDAO extends ContentDAO
                 "item_id=" + item.getID() +
                 "collection_id=" + collection.getID()));
 
-        HistoryManager.saveHistory(context, wsi, HistoryManager.CREATE,
-                context.getCurrentUser(), context.getExtraLogInfo());
-
         return wsi;
     }
 
@@ -198,9 +194,6 @@ public abstract class WorkspaceItemDAO extends ContentDAO
     public void update(WorkspaceItem wsi) throws AuthorizeException
     {
         // Authorisation is checked by the item update
-        HistoryManager.saveHistory(context, wsi, HistoryManager.MODIFY,
-                context.getCurrentUser(), context.getExtraLogInfo());
-
         log.info(LogManager.getHeader(context, "update_workspace_item",
                 "workspace_item_id=" + wsi.getID()));
 
@@ -217,9 +210,6 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         // Check authorisation. We check permissions on the enclosed item.
         AuthorizeManager.authorizeAction(context, wsi.getItem(),
                 Constants.WRITE);
-
-        HistoryManager.saveHistory(context, wsi, HistoryManager.REMOVE,
-                context.getCurrentUser(), context.getExtraLogInfo());
 
         log.info(LogManager.getHeader(context, "delete_workspace_item",
                     "workspace_item_id=" + id +
@@ -253,9 +243,6 @@ public abstract class WorkspaceItemDAO extends ContentDAO
             throw new AuthorizeException("Must be an administrator or the "
                     + "original submitter to delete a workspace item");
         }
-
-        HistoryManager.saveHistory(context, wsi, HistoryManager.REMOVE,
-                context.getCurrentUser(), context.getExtraLogInfo());
 
         log.info(LogManager.getHeader(context, "delete_workspace_item",
                 "workspace_item_id=" + wsi.getID() +

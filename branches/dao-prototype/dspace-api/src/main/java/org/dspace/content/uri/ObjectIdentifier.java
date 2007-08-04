@@ -123,6 +123,21 @@ public class ObjectIdentifier
         }
     }
 
+    public static ObjectIdentifier fromString(String canonicalForm)
+    {
+        for (Type t : Type.values())
+        {
+            String ns = t.getNamespace();
+            if (canonicalForm.startsWith(ns))
+            {
+                return new ObjectIdentifier(t, canonicalForm.substring(ns.length() + 1));
+            }
+        }
+
+        throw new IllegalArgumentException(canonicalForm +
+                "not recognised as an object identifier");
+    }
+
     public DSpaceObject getObject(Context context)
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);

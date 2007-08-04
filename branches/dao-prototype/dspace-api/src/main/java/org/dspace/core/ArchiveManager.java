@@ -66,7 +66,6 @@ import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.EPerson;
-import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
 
 /**
@@ -128,10 +127,6 @@ public class ArchiveManager
             // Update item in DB
             itemDAO.update(item);
 
-            // Invoke History system
-            HistoryManager.saveHistory(context, item, HistoryManager.MODIFY, e,
-                    context.getExtraLogInfo());
-
             // Remove from indicies
             Browse.itemRemoved(context, item.getID());
             DSIndexer.unIndexContent(context, item);
@@ -190,10 +185,6 @@ public class ArchiveManager
 
             // Update item in DB
             itemDAO.update(item);
-
-            // Invoke History system
-            HistoryManager.saveHistory(context, item, HistoryManager.MODIFY, e,
-                    context.getExtraLogInfo());
 
             // Add to indicies
             // Remove - update() already performs this

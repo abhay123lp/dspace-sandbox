@@ -65,7 +65,6 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
-import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
 import org.dspace.workflow.WorkflowItem;
 
@@ -145,10 +144,6 @@ public abstract class CollectionDAO extends ContentDAO
 
         update(collection);
 
-        HistoryManager.saveHistory(context, collection,
-                HistoryManager.CREATE, context.getCurrentUser(),
-                context.getExtraLogInfo());
-
         log.info(LogManager.getHeader(context, "create_collection",
                 "collection_id=" + collection.getID())
                 + ",uri=" +
@@ -171,9 +166,6 @@ public abstract class CollectionDAO extends ContentDAO
     {
         // Check authorisation
         collection.canEdit();
-
-        HistoryManager.saveHistory(context, this, HistoryManager.MODIFY,
-                context.getCurrentUser(), context.getExtraLogInfo());
 
         log.info(LogManager.getHeader(context, "update_collection",
                 "collection_id=" + collection.getID()));
@@ -220,10 +212,6 @@ public abstract class CollectionDAO extends ContentDAO
             context.removeCached(collection, id);
 
             DSIndexer.unIndexContent(context, collection);
-
-            HistoryManager.saveHistory(context, collection,
-                    HistoryManager.REMOVE, context.getCurrentUser(),
-                    context.getExtraLogInfo());
 
             // Remove Template Item
             collection.removeTemplateItem();

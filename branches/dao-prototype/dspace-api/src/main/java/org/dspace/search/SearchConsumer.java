@@ -51,6 +51,7 @@ import org.apache.log4j.Logger;
 import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;
@@ -67,13 +68,13 @@ public class SearchConsumer implements Consumer
     private static Logger log = Logger.getLogger(SearchConsumer.class);
 
     // collect Items, Collections, Communities newly created.
-    private Set objectsCreated = null;
+    private Set<DSpaceObject> objectsCreated = null;
 
     // collect Items, Collections, Communities that need reindexing
-    private Set objectsToUpdate = null;
+    private Set<DSpaceObject> objectsToUpdate = null;
 
     // handles to delete since IDs are not useful by now.
-    private Set handlesToDelete = null;
+    private Set<ObjectIdentifier> objectsToDelete = null;
 
     public void initialize() throws Exception
     {
@@ -95,9 +96,9 @@ public class SearchConsumer implements Consumer
 
         if (objectsCreated == null)
         {
-            objectsCreated = new HashSet();
-            objectsToUpdate = new HashSet();
-            handlesToDelete = new HashSet();
+            objectsCreated = new HashSet<DSpaceObject>();
+            objectsToUpdate = new HashSet<DSpaceObject>();
+            objectsToDelete = new HashSet<ObjectIdentifier>();
         }
 
         int st = event.getSubjectType();
@@ -135,7 +136,8 @@ public class SearchConsumer implements Consumer
                 dso = ((Bundle) dso).getItems()[0];
                 if (log.isDebugEnabled())
                     log.debug("Transforming Bundle event into MODIFY of Item "
-                            + dso.getHandle());
+//                            + dso.getHandle());
+                            + dso.getID());
             }
             else
                 return;
@@ -167,7 +169,7 @@ public class SearchConsumer implements Consumer
             if (detail == null)
                 log.warn("got null detail on DELETE event, skipping it.");
             else
-                handlesToDelete.add(detail);
+                objectsToDelete.add(ObjectIdentifier.fromString(detail));
             break;
         default:
             log
@@ -187,14 +189,13 @@ public class SearchConsumer implements Consumer
     public void end(Context ctx) throws Exception
     {
         // add new created items to index, unless they were deleted.
-        for (Iterator ii = objectsCreated.iterator(); ii.hasNext();)
+        for (DSpaceObject ic : objectsCreated)
         {
-            DSpaceObject ic = (DSpaceObject) ii.next();
             if (ic.getType() != Constants.ITEM || ((Item) ic).isArchived())
             {
                 // if handle is NOT in list of deleted objects, index it:
-                String hdl = ic.getHandle();
-                if (hdl != null && !handlesToDelete.contains(hdl))
+                ObjectIdentifier oid = ic.getIdentifier();
+                if (oid != null && !objectsToDelete.contains(oid))
                 {
                     try
                     {
@@ -203,14 +204,14 @@ public class SearchConsumer implements Consumer
                             log.debug("Indexed NEW "
                                     + Constants.typeText[ic.getType()]
                                     + ", id=" + String.valueOf(ic.getID())
-                                    + ", handle=" + hdl);
+                                    + ", oid=" + oid.getCanonicalForm());
                     }
                     catch (Exception e)
                     {
                         log.error("Failed while indexing new object: ", e);
                         objectsCreated = null;
                         objectsToUpdate = null;
-                        handlesToDelete = null;
+                        objectsToDelete = null;
                     }
                 }
             }
@@ -219,14 +220,13 @@ public class SearchConsumer implements Consumer
         }
 
         // update the changed Items not deleted because they were on create list
-        for (Iterator ii = objectsToUpdate.iterator(); ii.hasNext();)
+        for (DSpaceObject iu : objectsToUpdate)
         {
-            DSpaceObject iu = (DSpaceObject) ii.next();
             if (iu.getType() != Constants.ITEM || ((Item) iu).isArchived())
             {
                 // if handle is NOT in list of deleted objects, index it:
-                String hdl = iu.getHandle();
-                if (hdl != null && !handlesToDelete.contains(hdl))
+                ObjectIdentifier oid = iu.getIdentifier();
+                if (oid != null && !objectsToDelete.contains(oid))
                 {
                     try
                     {
@@ -235,34 +235,33 @@ public class SearchConsumer implements Consumer
                             log.debug("RE-Indexed "
                                     + Constants.typeText[iu.getType()]
                                     + ", id=" + String.valueOf(iu.getID())
-                                    + ", handle=" + hdl);
+                                    + ", oid=" + oid.getCanonicalForm());
                     }
                     catch (Exception e)
                     {
                         log.error("Failed while RE-indexing object: ", e);
                         objectsCreated = null;
                         objectsToUpdate = null;
-                        handlesToDelete = null;
+                        objectsToDelete = null;
                     }
                 }
             }
         }
 
-        for (Iterator ii = handlesToDelete.iterator(); ii.hasNext();)
+        for (ObjectIdentifier oid : objectsToDelete)
         {
-            String hdl = (String) ii.next();
             try
             {
-                DSIndexer.unIndexContent(ctx, hdl);
+                DSIndexer.unIndexContent(ctx, oid.getObject(ctx));
                 if (log.isDebugEnabled())
-                    log.debug("UN-Indexed Item, handle=" + hdl);
+                    log.debug("UN-Indexed Item, oid=" + oid.getCanonicalForm());
             }
             catch (Exception e)
             {
-                log.error("Failed while UN-indexing object: " + hdl, e);
-                objectsCreated = new HashSet();
-                objectsToUpdate = new HashSet();
-                handlesToDelete = new HashSet();
+                log.error("Failed while UN-indexing object: " + oid.getCanonicalForm(), e);
+            objectsCreated = new HashSet<DSpaceObject>();
+            objectsToUpdate = new HashSet<DSpaceObject>();
+            objectsToDelete = new HashSet<ObjectIdentifier>();
             }
 
         }
@@ -270,7 +269,7 @@ public class SearchConsumer implements Consumer
         // "free" the resources
         objectsCreated = null;
         objectsToUpdate = null;
-        handlesToDelete = null;
+        objectsToDelete = null;
     }
 
     public void finish(Context ctx) throws Exception

@@ -282,7 +282,7 @@ public class Bundle extends DSpaceObject
     void delete() throws AuthorizeException, IOException
     {
         dao.delete(this.getID());
-        context.addEvent(new Event(Event.DELETE, Constants.BUNDLE, getID(), getName()));
+        context.addEvent(new Event(Event.DELETE, Constants.BUNDLE, getID(), getIdentifier().getCanonicalForm()));
         
     }
 

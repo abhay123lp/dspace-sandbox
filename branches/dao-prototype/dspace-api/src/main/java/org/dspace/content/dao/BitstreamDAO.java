@@ -60,7 +60,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.history.HistoryManager;
 import org.dspace.search.DSIndexer;
 
 /**

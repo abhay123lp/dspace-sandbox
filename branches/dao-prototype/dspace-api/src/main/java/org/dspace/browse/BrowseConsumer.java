@@ -132,7 +132,10 @@ public class BrowseConsumer implements Consumer
             Browse.itemAdded(ctx, i);
             toUpdate.remove(i);
             if (log.isDebugEnabled())
-                log.debug("Added browse indices for Item id="+String.valueOf(i.getID())+", hdl="+i.getHandle());
+            {
+                log.debug("Added browse indices for Item id=" + i.getID() + 
+                        ", oid=" + i.getIdentifier().getCanonicalForm());
+            }
         }
 
         // don't update an item we've just added.
@@ -141,7 +144,10 @@ public class BrowseConsumer implements Consumer
             Item i = (Item)ui.next();
             Browse.itemChanged(ctx, i);
             if (log.isDebugEnabled())
-                log.debug("Updated browse indices for Item id="+String.valueOf(i.getID())+", hdl="+i.getHandle());
+            {
+                log.debug("Updated browse indices for Item id=" + i.getID() +
+                        ", oid=" + i.getIdentifier().getCanonicalForm());
+            }
         }
 
         // NOTE: Removed items are necessarily handled inline (ugh).

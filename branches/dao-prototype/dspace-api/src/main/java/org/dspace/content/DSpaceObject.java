@@ -91,9 +91,13 @@ public abstract class DSpaceObject
     protected void addDetails(String d)
     {
         if (eventDetails == null)
+        {
             eventDetails = new StringBuffer(d);
+        }
         else
+        {
             eventDetails.append(", ").append(d);
+        }
     }
 
     /**
@@ -212,20 +216,9 @@ public abstract class DSpaceObject
      * @throws SQLException only upon failure accessing the database.
      */
     public static DSpaceObject find(Context context, int type, int id)
-        throws SQLException
     {
-        switch (type)
-        {
-            case Constants.BITSTREAM : return Bitstream.find(context, id);
-            case Constants.BUNDLE    : return Bundle.find(context, id);
-            case Constants.ITEM      : return Item.find(context, id);
-            case Constants.COLLECTION: return Collection.find(context, id);
-            case Constants.COMMUNITY : return Community.find(context, id);
-            case Constants.GROUP     : return Group.find(context, id);
-            case Constants.EPERSON   : return EPerson.find(context, id);
-            case Constants.SITE      : return Site.find(context, id);
-        }
-        return null;
+        ObjectIdentifier oid = new ObjectIdentifier(id, type);
+        return oid.getObject(context);
     }
     
 }
