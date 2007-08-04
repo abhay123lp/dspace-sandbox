@@ -444,7 +444,6 @@ public class Bitstream extends DSpaceObject
     {
         dao.update(this);
         
-        context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, getID(), getIdentifier().getCanonicalForm()));
         if (modified)
          {
              context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
@@ -462,5 +461,6 @@ public class Bitstream extends DSpaceObject
     void delete() throws AuthorizeException
     {
         dao.delete(this.getID());
+        context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, getID(), getIdentifier().getCanonicalForm()));
     }
 }

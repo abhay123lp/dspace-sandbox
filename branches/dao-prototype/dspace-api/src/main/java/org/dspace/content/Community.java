@@ -451,7 +451,7 @@ public class Community extends DSpaceObject
     @Deprecated
     public void delete() throws AuthorizeException
     {
-        context.addEvent(new Event(Event.DELETE, Constants.COMMUNITY, getID(), getIdentifier().getCanonicalForm()));
         dao.delete(this.getID());
+        context.addEvent(new Event(Event.DELETE, Constants.COMMUNITY, getID(), getIdentifier().getCanonicalForm()));
     }
 }
