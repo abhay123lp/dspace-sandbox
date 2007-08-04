@@ -77,9 +77,9 @@ public class SubmissionInfo
     private SubmissionConfig submissionConfig = null;
     
     /**
-    * Handle of the collection where this item is being submitted
+    * URI of the collection where this item is being submitted
     */
-    private String collectionHandle = null;
+    private String collectionURI = null;
     
     /***************************************************************************
     * Holds all information used to build the Progress Bar in a key,value set.
@@ -147,14 +147,14 @@ public class SubmissionInfo
         subInfo.setSubmissionItem(subItem);
 
         // Only if the submission item is created can we set its collection
-        String collectionHandle = SubmissionConfigReader.DEFAULT_COLLECTION;
+        String collectionURI = SubmissionConfigReader.DEFAULT_COLLECTION;
         if (subItem != null)
         {
-            collectionHandle = subItem.getCollection().getHandle();
+            collectionURI = subItem.getCollection().getExternalIdentifier().getCanonicalForm();
         }
 
         // save this collection handle to this submission info object
-        subInfo.setCollectionHandle(collectionHandle);
+        subInfo.setCollectionURI(collectionURI);
 
         // load Submission Process config for this item's collection
         // (Note: this also loads the Progress Bar info, since it is
@@ -225,12 +225,12 @@ public class SubmissionInfo
             throws ServletException
     {
         // Only if the submission item is created can we set its collection
-        String collectionHandle = SubmissionConfigReader.DEFAULT_COLLECTION;
+        String collectionURI = SubmissionConfigReader.DEFAULT_COLLECTION;
         if (this.submissionItem != null)
         {
-            collectionHandle = submissionItem.getCollection().getHandle();
+            collectionURI = submissionItem.getCollection().getExternalIdentifier().getCanonicalForm();
         }
-        this.setCollectionHandle(collectionHandle);
+        this.setCollectionURI(collectionURI);
 
         // force a reload of the submission process configuration
         loadSubmissionConfig(request, this, true);
@@ -300,24 +300,24 @@ public class SubmissionInfo
     }
     
     /**
-     * Gets the handle of the collection to which this item is being submitted
+     * Gets the URI of the collection to which this item is being submitted
      * 
-     * @return the collection handle
+     * @return the collection URI (canonical form)
      */
-    public String getCollectionHandle()
+    public String getCollectionURI()
     {
-        return this.collectionHandle;
+        return this.collectionURI;
     }
 
     /**
-     * Sets the handle of the collection to which this item is being submitted
+     * Sets the URI of the collection to which this item is being submitted
      * 
      * @param handle
      *            the new collection handle
      */
-    public void setCollectionHandle(String handle)
+    public void setCollectionURI(String canonicalForm)
     {
-        this.collectionHandle = handle;
+        this.collectionURI = canonicalForm;
     }
 
     /**
@@ -634,7 +634,7 @@ public class SubmissionInfo
         {
             // first, try to load from cache
             subInfo.submissionConfig = loadSubmissionConfigFromCache(request
-                    .getSession(), subInfo.getCollectionHandle(), subInfo
+                    .getSession(), subInfo.getCollectionURI(), subInfo
                     .isInWorkflow());
         }
 
@@ -643,12 +643,12 @@ public class SubmissionInfo
             // reload the proper Submission process config
             // (by reading the XML config file)
             subInfo.submissionConfig = submissionConfigReader
-                    .getSubmissionConfig(subInfo.getCollectionHandle(), subInfo
+                    .getSubmissionConfig(subInfo.getCollectionURI(), subInfo
                             .isInWorkflow());
 
             // cache this new submission process configuration
             saveSubmissionConfigToCache(request.getSession(),
-                    subInfo.submissionConfig, subInfo.getCollectionHandle(),
+                    subInfo.submissionConfig, subInfo.getCollectionURI(),
                     subInfo.isInWorkflow());
 
             // also must force reload Progress Bar info,
@@ -672,7 +672,7 @@ public class SubmissionInfo
      *            The HTTP Session object
      * @param subConfig
      *            The SubmissionConfig to cache
-     * @param collectionHandle
+     * @param collectionURI
      *            The Collection handle this SubmissionConfig corresponds to
      * @param isWorkflow
      *            Whether this SubmissionConfig corresponds to a workflow
@@ -680,13 +680,13 @@ public class SubmissionInfo
      * 
      */
     private static void saveSubmissionConfigToCache(HttpSession session,
-            SubmissionConfig subConfig, String collectionHandle,
+            SubmissionConfig subConfig, String collectionURI,
             boolean isWorkflow)
     {
         // cache the submission process config
         // and the collection it corresponds to
         session.setAttribute("submission.config", subConfig);
-        session.setAttribute("submission.config.collection", collectionHandle);
+        session.setAttribute("submission.config.collection", collectionURI);
         session.setAttribute("submission.config.isWorkflow", new Boolean(
                 isWorkflow));
     }
@@ -698,7 +698,7 @@ public class SubmissionInfo
      * 
      * @param session
      *            The HTTP Session object
-     * @param collectionHandle
+     * @param collectionURI
      *            The Collection handle of the SubmissionConfig to load
      * @param isWorkflow
      *            whether or not we loading the Submission process for a
@@ -707,11 +707,11 @@ public class SubmissionInfo
      * @return The cached SubmissionConfig for this collection
      */
     private static SubmissionConfig loadSubmissionConfigFromCache(
-            HttpSession session, String collectionHandle, boolean isWorkflow)
+            HttpSession session, String collectionURI, boolean isWorkflow)
     {
         // attempt to load submission process config
         // from cache for the current collection
-        String cachedHandle = (String) session
+        String cachedURI = (String) session
                 .getAttribute("submission.config.collection");
 
         Boolean cachedIsWorkflow = (Boolean) session
@@ -719,7 +719,7 @@ public class SubmissionInfo
 
         // only load from cache if the collection handle and
         // workflow item status both match!
-        if (collectionHandle.equals(cachedHandle)
+        if (collectionURI.equals(cachedURI)
                 && isWorkflow == cachedIsWorkflow.booleanValue())
 
         {
