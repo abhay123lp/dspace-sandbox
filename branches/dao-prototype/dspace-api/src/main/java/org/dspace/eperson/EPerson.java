@@ -39,25 +39,19 @@
  */
 package org.dspace.eperson;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
+import org.dspace.eperson.dao.EPersonDAO;
+import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.event.Event;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class representing an e-person.
@@ -86,27 +80,13 @@ public class EPerson extends DSpaceObject
     public static final int NETID = 4;
     public static final int LANGUAGE = 5;
 
-    /** Our context */
-    private Context myContext;
-
-    /** The row in the table representing this eperson */
-    private TableRow myRow;
-
     /** Flag set when data is modified, for events */
     private boolean modified;
 
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
-
-    /**
-     * Construct an EPerson
-     * 
-     * @param context
-     *            the context this object exists in
-     * @param row
-     *            the corresponding row in the table
-     */
-    EPerson(Context context, TableRow row)
+    
+    public enum EPersonMetadataField
     {
         FIRSTNAME ("firstname"),
         LASTNAME ("lastname"),
@@ -116,11 +96,7 @@ public class EPerson extends DSpaceObject
         NETID ("netid"),
         LANGUAGE ("language");
 
-        // Cache ourselves
-        context.cache(this, row.getIntColumn("eperson_id"));
-        modified = modifiedMetadata = false;
-        clearDetails();
-    }
+        private String name;
 
         private EPersonMetadataField(String name)
         {
@@ -158,102 +134,11 @@ public class EPerson extends DSpaceObject
             String>(EPersonMetadataField.class);
 
         context.cache(this, id);
+                
+        modified = modifiedMetadata = false;
+        clearDetails();
     }
 
-    /**
-     * Create a new eperson
-     * 
-     * @param context
-     *            DSpace context object
-     */
-    public static EPerson create(Context context) throws SQLException,
-            AuthorizeException
-    {
-        // authorized?
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "You must be an admin to create an EPerson");
-        }
-
-        // Create a table row
-        TableRow row = DatabaseManager.create(context, "eperson");
-
-        EPerson e = new EPerson(context, row);
-
-        log.info(LogManager.getHeader(context, "create_eperson", "eperson_id="
-                + e.getID()));
-
-        context.addEvent(new Event(Event.CREATE, Constants.EPERSON, e.getID(), null));
-
-        return e;
-    }
-
-    /**
-     * Delete an eperson
-     * 
-     */
-    public void delete() throws SQLException, AuthorizeException,
-            EPersonDeletionException
-    {
-        // authorized?
-        if (!AuthorizeManager.isAdmin(myContext))
-        {
-            throw new AuthorizeException(
-                    "You must be an admin to delete an EPerson");
-        }
-
-        // check for presence of eperson in tables that
-        // have constraints on eperson_id
-        Vector constraintList = getDeleteConstraints();
-
-        // if eperson exists in tables that have constraints
-        // on eperson, throw an exception
-        if (constraintList.size() > 0)
-        {
-            throw new EPersonDeletionException(constraintList);
-        }
-
-        myContext.addEvent(new Event(Event.DELETE, Constants.EPERSON, getID(), getEmail()));
-
-        // Remove from cache
-        myContext.removeCached(this, getID());
-
-        // XXX FIXME: This sidesteps the object model code so it won't
-        // generate  REMOVE events on the affected Groups.
-
-        // Remove any group memberships first
-        DatabaseManager.updateQuery(myContext,
-                "DELETE FROM EPersonGroup2EPerson WHERE eperson_id= ? ",
-                getID());
-
-        // Remove any subscriptions
-        DatabaseManager.updateQuery(myContext,
-                "DELETE FROM subscription WHERE eperson_id= ? ",
-                getID());
-
-        // Remove ourself
-        DatabaseManager.delete(myContext, myRow);
-
-        log.info(LogManager.getHeader(myContext, "delete_eperson",
-                "eperson_id=" + getID()));
-    }
-
-    /**
-     * Get the e-person's internal identifier
-     * 
-     * @return the internal identifier
-     */
-    public int getID()
-    {
-        return myRow.getIntColumn("eperson_id");
-    }
-    
-    /**
-     * Get the e-person's language
-     * 
-     * @return  language
-     */
      public String getLanguage()
      {
          return metadata.get(EPersonMetadataField.LANGUAGE);
@@ -440,17 +325,13 @@ public class EPerson extends DSpaceObject
         this(context, row.getIntColumn("eperson_id"));
     }
 
-        if (modified)
-        {
-            myContext.addEvent(new Event(Event.MODIFY, Constants.EPERSON, getID(), null));
-            modified = false;
-        }
-        if (modifiedMetadata)
-        {
-            myContext.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, getID(), getDetails()));
-            modifiedMetadata = false;
-            clearDetails();
-        }
+    @Deprecated
+    public static EPerson[] findAll(Context context, int sortField)
+    {
+        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+        List<EPerson> epeople = dao.getEPeople(sortField);
+
+        return (EPerson[]) epeople.toArray(new EPerson[0]);
     }
 
     @Deprecated
@@ -480,7 +361,7 @@ public class EPerson extends DSpaceObject
     @Deprecated
     public static EPerson findByEmail(Context context, String email)
     {
-        Vector<String> tableList = new Vector<String>();
+        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
 
         return dao.retrieve(EPersonMetadataField.EMAIL, email);
     }
@@ -505,17 +386,26 @@ public class EPerson extends DSpaceObject
     public void update() throws AuthorizeException
     {
         dao.update(this);
+
+        if (modified)
+        {
+            context.addEvent(new Event(Event.MODIFY, Constants.EPERSON, getID(), null));
+            modified = false;
+        }
+        if (modifiedMetadata)
+        {
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, getID(), getDetails()));
+            modifiedMetadata = false;
+            clearDetails();
+        }
     }
 
     @Deprecated
     public void delete() throws AuthorizeException, EPersonDeletionException
     {
         dao.delete(getID());
-    }
+        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, getID(), getEmail()));
 
-    public String getName()
-    {
-        return getEmail();
+        
     }
-
 }
