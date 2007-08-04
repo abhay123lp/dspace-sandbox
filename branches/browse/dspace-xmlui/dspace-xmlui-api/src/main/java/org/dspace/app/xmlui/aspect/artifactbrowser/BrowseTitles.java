@@ -159,7 +159,7 @@ public class BrowseTitles extends AbstractBrowse implements CacheableProcessingC
 	            
 	            for (BrowseItem item : (java.util.List<BrowseItem>)browseInfo.getResults())
 	            {
-	                validity.add( Item.find(context, item.getID()) );
+	                validity.add(item);
 	            } 
 	            
 	            this.validity = validity.complete();
@@ -233,7 +233,7 @@ public class BrowseTitles extends AbstractBrowse implements CacheableProcessingC
 
         for (BrowseItem item : (java.util.List<BrowseItem>)browseInfo.getResults())
         {
-            referenceSet.addReference( Item.find(context, item.getID()) );
+            referenceSet.addReference(item);
         } 
     }
     

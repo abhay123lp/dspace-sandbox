@@ -179,7 +179,7 @@ public class BrowseDates extends AbstractBrowse implements CacheableProcessingCo
 	            
 	            for (BrowseItem item : (List<BrowseItem>)browseInfo.getResults())
 	            {
-	                validity.add( Item.find(context, item.getID()) );
+	                validity.add(item);
 	            }
 	            
 	            this.validity = validity.complete();
@@ -279,7 +279,7 @@ public class BrowseDates extends AbstractBrowse implements CacheableProcessingCo
                 ReferenceSet.TYPE_SUMMARY_LIST, "date", null);
         for (BrowseItem item : (List<BrowseItem>)browseInfo.getResults())
         {
-            referenceSet.addReference( Item.find(context, item.getID()) );
+            referenceSet.addReference(item);
         }
     }
     

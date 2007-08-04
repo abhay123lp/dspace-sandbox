@@ -160,7 +160,7 @@ public class BrowseAuthorItems extends AbstractBrowse implements CacheableProces
 	            
 	            for (BrowseItem item : (List<BrowseItem>)browseInfo.getResults())
 	            {
-	                validity.add( Item.find(context, item.getID()) );
+	                validity.add(item);
 	            }
 	            
 	            this.validity = validity.complete();
@@ -260,7 +260,7 @@ public class BrowseAuthorItems extends AbstractBrowse implements CacheableProces
 
         for (int i = firstItemIndex; i <= lastItemIndex; i++)
         {
-            referenceSet.addReference( Item.find(context, items.get(i).getID()) );
+            referenceSet.addReference(items.get(i));
         }
     }
     

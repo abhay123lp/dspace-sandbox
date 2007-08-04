@@ -186,7 +186,7 @@ public class CommunityViewer extends AbstractDSpaceTransformer implements Cachea
 	            // Recently submitted items
 	            for (BrowseItem item : getRecientlySubmittedIems(community))
 	            {
-	                validity.add( Item.find(context, item.getID()) );
+	                validity.add(item);
 	            }
 	            
 	            this.validity = validity.complete();
@@ -339,7 +339,7 @@ public class CommunityViewer extends AbstractDSpaceTransformer implements Cachea
                     null, "recent-submissions");
             for (BrowseItem item : items)
             {
-                lastSubmitted.addReference( Item.find(context, item.getID()) );
+                lastSubmitted.addReference(item);
             }
         }
     }

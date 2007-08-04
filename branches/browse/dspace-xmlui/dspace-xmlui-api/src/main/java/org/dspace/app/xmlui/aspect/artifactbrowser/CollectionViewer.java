@@ -170,7 +170,7 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
 	            // add reciently submitted items
 	            for(BrowseItem item : getRecientlySubmittedIems(collection))
 	            {
-	                validity.add( Item.find( context, item.getID()) );
+	                validity.add(item);
 	            }
 	            
 	            this.validity = validity.complete();
@@ -288,8 +288,7 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
                     null, "recent-submissions");
             for (BrowseItem item : items)
             {
-            	lastSubmitted.addReference( Item.find(context, item.getID()) );
-//                lastSubmitted.addReference(item);
+                lastSubmitted.addReference(item);
             }
         }
     }
