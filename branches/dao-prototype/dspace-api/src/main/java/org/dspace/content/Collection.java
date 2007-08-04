@@ -497,8 +497,8 @@ public class Collection extends DSpaceObject
 
     public Item getTemplateItem()
     {
-        return templateItem;
         modified = true;
+        return templateItem;
     }
 
     public void setTemplateItem(Item templateItem)

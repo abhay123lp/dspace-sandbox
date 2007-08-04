@@ -115,6 +115,7 @@ public class Site extends DSpaceObject
      * @param context the context.
      * @param id integer database id, ignored.
      * @returns Site object.
+     * @deprecated
      */
     public static DSpaceObject find(Context context, int id)
         throws SQLException

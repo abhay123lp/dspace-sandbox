@@ -132,8 +132,8 @@ public class Bundle extends DSpaceObject
 
     public int getPrimaryBitstreamID()
     {
-        return primaryBitstreamId;
         modified = true;
+        return primaryBitstreamId;
     }
 
     public void setPrimaryBitstreamID(int primaryBitstreamId)

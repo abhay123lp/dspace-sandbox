@@ -198,8 +198,8 @@ public class Item extends DSpaceObject
      */
     public Collection getOwningCollection()
     {
-        return owningCollection;
         modified = true;
+        return owningCollection;
     }
 
     /**
@@ -580,8 +580,6 @@ public class Item extends DSpaceObject
         bundles.add(b);
 
         context.addEvent(new Event(Event.ADD, Constants.ITEM, getID(), Constants.BUNDLE, b.getID(), b.getName()));
-
-        ourContext.addEvent(new Event(Event.ADD, Constants.ITEM, getID(), Constants.BUNDLE, b.getID(), b.getName()));
     }
 
     /**
