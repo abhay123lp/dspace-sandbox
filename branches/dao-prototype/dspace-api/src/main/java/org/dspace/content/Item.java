@@ -1135,12 +1135,9 @@ public class Item extends DSpaceObject
         return true;
     }
 
-    /** Deprecated by the introduction of DAOs */
-    @Deprecated
-    Item(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("item_id"));
-    }
+    ////////////////////////////////////////////////////////////////////
+    // Deprecated methods
+    ////////////////////////////////////////////////////////////////////
 
     @Deprecated
     public static Item find(Context context, int id)

@@ -402,12 +402,9 @@ public class Bitstream extends DSpaceObject
         return Constants.BITSTREAM;
     }
 
-    /** Deprecated by the introduction of DAOs */
-    @Deprecated
-    public Bitstream(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("bitstream_id"));
-    }
+    ////////////////////////////////////////////////////////////////////
+    // Deprecated methods
+    ////////////////////////////////////////////////////////////////////
 
     @Deprecated
     public static Bitstream find(Context context, int id)

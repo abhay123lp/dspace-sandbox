@@ -89,12 +89,6 @@ public class Bundle extends DSpaceObject
 
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
-
-
-    public Bundle(Context context)
-    {
-        this(context, -1);
-    }
     
     public Bundle(Context context, int id)
     {
@@ -254,12 +248,6 @@ public class Bundle extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
 
     @Deprecated
-    Bundle(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("bundle_id"));
-    }
-
-    @Deprecated
     public static Bundle find(Context context, int id)
     {
         return BundleDAOFactory.getInstance(context).retrieve(id);
@@ -289,8 +277,6 @@ public class Bundle extends DSpaceObject
             modifiedMetadata = false;
         }
     }
-
-       
 
     @Deprecated
     void delete() throws AuthorizeException, IOException

@@ -609,12 +609,6 @@ public class Collection extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
 
     @Deprecated
-    Collection(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("collection_id"));
-    }
-
-    @Deprecated
     static Collection create(Context context) throws AuthorizeException
     {
         Collection collection = CollectionDAOFactory.getInstance(context).create();

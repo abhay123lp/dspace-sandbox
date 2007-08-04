@@ -235,17 +235,8 @@ public class Group extends DSpaceObject
     }
 
     @Deprecated
-    Group(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("eperson_group_id"));
-    }
-
-    @Deprecated
     public static Group create(Context context) throws AuthorizeException
     {
-        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-        log.info("Called Group.create()");
-        log.info("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
         GroupDAO dao = GroupDAOFactory.getInstance(context);
         Group group = dao.create();
         

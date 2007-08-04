@@ -309,12 +309,6 @@ public class Community extends DSpaceObject
     }
 
     @Deprecated
-    Community(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("community_id"));
-    }
-
-    @Deprecated
     public static Community find(Context context, int id)
     {
         return CommunityDAOFactory.getInstance(context).retrieve(id);

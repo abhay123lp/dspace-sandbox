@@ -188,6 +188,11 @@ public class EPerson extends DSpaceObject
         modified = true;
     }
 
+    public String getName()
+    {
+        return getEmail();
+    }
+
     /**
      * Get the e-person's full name, combining first and last name in a
      * displayable string.
@@ -330,12 +335,6 @@ public class EPerson extends DSpaceObject
     ////////////////////////////////////////////////////////////////////
 
     @Deprecated
-    public EPerson(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("eperson_id"));
-    }
-
-    @Deprecated
     public static EPerson[] findAll(Context context, int sortField)
     {
         EPersonDAO dao = EPersonDAOFactory.getInstance(context);
@@ -418,10 +417,4 @@ public class EPerson extends DSpaceObject
 
         
     }
-
-    public String getName()
-    {
-        return getEmail();
-    }
-
 }
