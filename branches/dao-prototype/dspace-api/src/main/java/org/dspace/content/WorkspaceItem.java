@@ -91,6 +91,7 @@ public class WorkspaceItem implements InProgressSubmission
     private boolean hasMultipleTitles;
     private boolean publishedBefore;
     private int stageReached;
+    private int pageReached;
 
     private Item item;
     private Collection collection;
