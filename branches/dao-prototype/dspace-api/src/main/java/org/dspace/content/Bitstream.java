@@ -117,9 +117,6 @@ public class Bitstream extends DSpaceObject
 
         modified = modifiedMetadata = false;
         clearDetails();
-
-        modified = modifiedMetadata = false;
-        clearDetails();
     }
 
     public int getSequenceID()
