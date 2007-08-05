@@ -59,7 +59,7 @@ public class BrowserScope
 	private BrowseIndex browseIndex;
 	
 	/** the order in which to display results */
-	private String order;
+	private String order = "ASC";
 	
 	/** the field upon which to sort */
 	private int sortBy;
@@ -77,7 +77,7 @@ public class BrowserScope
 	private String startsWith;
 	
 	/** the number of results per page to display */
-	private int resultsPerPage;
+	private int resultsPerPage = 20;
 	
 	/** the Collection to which to restrict */
 	private Collection collection;
@@ -316,7 +316,8 @@ public class BrowserScope
 	 */
 	public void setOrder(String order)
 	{
-		this.order = order;
+		if (order != null && !"".equals(order))
+			this.order = order;
 	}
 
 	/**
@@ -332,7 +333,8 @@ public class BrowserScope
 	 */
 	public void setResultsPerPage(int resultsPerPage)
 	{
-		this.resultsPerPage = resultsPerPage;
+		if (resultsPerPage > -1)
+			this.resultsPerPage = resultsPerPage;
 	}
 
 	/**
@@ -364,7 +366,7 @@ public class BrowserScope
 		{
 			if (browseIndex != null)
 			{
-				if (sortBy == 0)
+				if (sortBy <= 0)
 				{
 					String dataType = browseIndex.getDataType();
 					String type = ("date".equals(dataType) ? "date" : "text");
