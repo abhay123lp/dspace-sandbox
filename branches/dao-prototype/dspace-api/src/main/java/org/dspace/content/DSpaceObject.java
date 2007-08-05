@@ -61,7 +61,6 @@ import org.dspace.eperson.Group;
  */
 public abstract class DSpaceObject
 {
-
     private static Logger log = Logger.getLogger(DSpaceObject.class);
     
     // accumulate information to add to "detail" element of content Event,
@@ -220,5 +219,4 @@ public abstract class DSpaceObject
         ObjectIdentifier oid = new ObjectIdentifier(id, type);
         return oid.getObject(context);
     }
-    
 }

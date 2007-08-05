@@ -132,6 +132,16 @@ public class WorkspaceItem implements InProgressSubmission
         this.stageReached = stageReached;
     }
 
+    public int getPageReached()
+    {
+        return pageReached;
+    }
+
+    public void setPageReached(int pageReached)
+    {
+        this.pageReached = pageReached;
+    }
+
     // InProgressSubmission methods
     public Item getItem()
     {

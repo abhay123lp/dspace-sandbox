@@ -319,6 +319,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         wsi.setMultipleTitles(row.getBooleanColumn("multiple_titles"));
         wsi.setPublishedBefore(row.getBooleanColumn("published_before"));
         wsi.setStageReached(row.getIntColumn("stage_reached"));
+        wsi.setPageReached(row.getIntColumn("page_reached"));
     }
 
     private void populateTableRowFromWorkspaceItem(WorkspaceItem wsi,
@@ -338,5 +339,6 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         row.setColumn("multiple_files", wsi.hasMultipleFiles());
         row.setColumn("published_before", wsi.isPublishedBefore());
         row.setColumn("stage_reached", wsi.getStageReached());
+        row.setColumn("page_reached", wsi.getPageReached());
     }
 }
