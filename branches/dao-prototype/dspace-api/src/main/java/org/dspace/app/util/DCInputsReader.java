@@ -297,7 +297,7 @@ public class DCInputsReader
     		{
     			String id = getAttribute(nd, "collection-uri");
     			String value = getAttribute(nd, "form-name");
-			String content = getValue(nd);
+                String content = getValue(nd);
     			if (id == null)
     			{
     				throw new SAXException("name-map element is missing collection-uri attribute");

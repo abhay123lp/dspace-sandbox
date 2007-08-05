@@ -159,7 +159,7 @@ public class JSPUploadStep extends UploadStep implements JSPStep
             Collection c = subInfo.getSubmissionItem().getCollection();
             DCInputsReader inputsReader = new DCInputsReader();
             request.setAttribute("submission.inputs", inputsReader.getInputs(c
-                    .getHandle()));
+                    .getExternalIdentifier().getCanonicalForm()));
         }
 
         // show whichever upload page is appropriate
@@ -326,7 +326,7 @@ public class JSPUploadStep extends UploadStep implements JSPStep
                     Collection c = subInfo.getSubmissionItem().getCollection();
                     DCInputsReader inputsReader = new DCInputsReader();
                     request.setAttribute("submission.inputs", inputsReader
-                            .getInputs(c.getHandle()));
+                            .getInputs(c.getExternalIdentifier().getCanonicalForm()));
                 }
                 JSPStepManager.showJSP(request, response, subInfo, UPLOAD_ERROR_JSP);
 

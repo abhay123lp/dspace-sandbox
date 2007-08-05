@@ -556,7 +556,7 @@ public class MyDSpaceServlet extends DSpaceServlet
             Collection c = wsi.getCollection();
             SubmissionConfigReader subConfigReader = new SubmissionConfigReader();
             SubmissionConfig subConfig = subConfigReader.getSubmissionConfig(c
-                    .getHandle(), false);
+                    .getExternalIdentifier().getCanonicalForm(), false);
 
             // Set the "stage_reached" column on the workspace item
             // to the LAST page of the LAST step in the submission process
