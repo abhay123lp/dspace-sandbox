@@ -204,19 +204,4 @@ public abstract class DSpaceObject
         return HashCodeBuilder.reflectionHashCode(this);
     }
 
-    /**
-     * Generic find for when the precise type of a DSO is not known, just the
-     * a pair of type number and database ID.
-     *
-     * @param context - the context
-     * @param type - type number
-     * @param id - id within table of type'd objects
-     * @return the object found, or null if it does not exist.
-     * @throws SQLException only upon failure accessing the database.
-     */
-    public static DSpaceObject find(Context context, int type, int id)
-    {
-        ObjectIdentifier oid = new ObjectIdentifier(id, type);
-        return oid.getObject(context);
-    }
 }
