@@ -57,7 +57,6 @@ import org.dspace.storage.dao.GlobalDAOFactory;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;
 import org.dspace.event.Dispatcher;
-import org.dspace.storage.rdbms.DatabaseManager;
 
 /**
  * Class representing the context of a particular DSpace operation. This stores

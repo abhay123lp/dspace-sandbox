@@ -53,9 +53,6 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.workflow.dao.WorkflowItemDAO;
 import org.dspace.workflow.dao.WorkflowItemDAOFactory;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class representing an item going through the workflow process in DSpace
@@ -200,11 +197,9 @@ public class WorkflowItem implements InProgressSubmission
         this.publishedBefore = publishedBefore;
     }
 
-    @Deprecated
-    WorkflowItem(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("workflow_id"));
-    }
+    ////////////////////////////////////////////////////////////////////
+    // Deprecated methods
+    ////////////////////////////////////////////////////////////////////
 
     @Deprecated
     public void update() throws IOException, AuthorizeException
