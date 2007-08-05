@@ -326,19 +326,26 @@
 			%><input type="hidden" name="focus" value="<%= bi.getFocusItem() %>"/><%
 		}
 --%>
+<%
+	if (sos.size() > 1 && bi.getBrowseLevel() > 0)
+	{
+%>
 		<fmt:message key="browse.full.sort-by"/>
 		<select name="sort_by">
 <%
-	Iterator itr = sos.keySet().iterator();
-	while (itr.hasNext())
-	{
-		SortOption sortBy = (SortOption) sos.get((Integer) itr.next());
-		String selected = (sortBy.getName().equals(sortedBy) ? "selected=\"selected\"" : "");
-		String mKey = "browse.sort-by." + sortBy.getName();
-		%> <option value="<%= sortBy.getNumber() %>" <%= selected %>><fmt:message key="<%= mKey %>"/></option><%
-	}
+		Iterator itr = sos.keySet().iterator();
+		while (itr.hasNext())
+		{
+			SortOption sortBy = (SortOption) sos.get((Integer) itr.next());
+			String selected = (sortBy.getName().equals(sortedBy) ? "selected=\"selected\"" : "");
+			String mKey = "browse.sort-by." + sortBy.getName();
+			%> <option value="<%= sortBy.getNumber() %>" <%= selected %>><fmt:message key="<%= mKey %>"/></option><%
+		}
 %>
 		</select>
+<%
+	}
+%>
 		
 		<fmt:message key="browse.full.order"/>
 		<select name="order">
