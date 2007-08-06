@@ -356,68 +356,71 @@ public class IndexBrowse
                 
                 // remove old metadata from the item index
                 removeIndex(item.getID(), bis[i]);
-                
-                // get the metadata from the item
-                String[] md = bis[i].getMdBits();
-                DCValue[] values = item.getMetadata(md[0], md[1], md[2], Item.ANY);
-                
-                // if we have values to index on, then do so
-                if (values != null)
-                {
-                    for (int x = 0; x < values.length; x++)
-                    {
-                        // get the normalised version of the value
-                        String nVal = BrowseOrder.makeSortString(values[x].value, values[x].language, bis[i].getDataType()); 
     
-                        // now obtain the sort order values that we will use
-                        Map map = bis[i].getSortOptions();
-                        Map sortMap = new HashMap();
-                        Iterator itr = map.keySet().iterator();
-                        while (itr.hasNext())
+                if (item.isArchived() && !item.isWithdrawn())
+                {
+                    // get the metadata from the item
+                    String[] md = bis[i].getMdBits();
+                    DCValue[] values = item.getMetadata(md[0], md[1], md[2], Item.ANY);
+                    
+                    // if we have values to index on, then do so
+                    if (values != null)
+                    {
+                        for (int x = 0; x < values.length; x++)
                         {
-                            Integer key = (Integer) itr.next();
-                            SortOption so = (SortOption) map.get(key);
-                            String metadata = so.getMetadata();
-                            
-                            // If we've already used the metadata for this Item
-                            // it will be cached in the map
-                            DCValue value = (DCValue) itemMDMap.get(metadata);
-                            
-                            // We haven't used this metadata before, so grab it from the item
-                            if (value == null)
+                            // get the normalised version of the value
+                            String nVal = BrowseOrder.makeSortString(values[x].value, values[x].language, bis[i].getDataType()); 
+        
+                            // now obtain the sort order values that we will use
+                            Map map = bis[i].getSortOptions();
+                            Map sortMap = new HashMap();
+                            Iterator itr = map.keySet().iterator();
+                            while (itr.hasNext())
                             {
-                                String[] somd = so.getMdBits();
-                                DCValue[] dcv = item.getMetadata(somd[0], somd[1], somd[2], Item.ANY);
+                                Integer key = (Integer) itr.next();
+                                SortOption so = (SortOption) map.get(key);
+                                String metadata = so.getMetadata();
                                 
-                                if (dcv == null)
+                                // If we've already used the metadata for this Item
+                                // it will be cached in the map
+                                DCValue value = (DCValue) itemMDMap.get(metadata);
+                                
+                                // We haven't used this metadata before, so grab it from the item
+                                if (value == null)
                                 {
-                                    continue;
+                                    String[] somd = so.getMdBits();
+                                    DCValue[] dcv = item.getMetadata(somd[0], somd[1], somd[2], Item.ANY);
+                                    
+                                    if (dcv == null)
+                                    {
+                                        continue;
+                                    }
+                                    
+                                    // we only use the first dc value
+                                    if (dcv.length > 0)
+                                    {
+                                        // Set it as the current metadata value to use
+                                        // and add it to the map
+                                        value = dcv[0];
+                                        itemMDMap.put(metadata, dcv[0]);
+                                    }
                                 }
                                 
-                                // we only use the first dc value
-                                if (dcv.length > 0)
+                                // normalise the values as we insert into the sort map
+                                if (value != null && value.value != null)
                                 {
-                                    // Set it as the current metadata value to use
-                                    // and add it to the map
-                                    value = dcv[0];
-                                    itemMDMap.put(metadata, dcv[0]);
+                                    String nValue = BrowseOrder.makeSortString(value.value, value.language, so.getType());
+                                    sortMap.put(key, nValue);
                                 }
                             }
                             
-                            // normalise the values as we insert into the sort map
-                            if (value != null && value.value != null)
+                            dao.insertIndex(bis[i].getTableName(), item.getID(), values[x].value, nVal, sortMap);
+                            
+                            if (bis[i].isSingle())
                             {
-                                String nValue = BrowseOrder.makeSortString(value.value, value.language, so.getType());
-                                sortMap.put(key, nValue);
+                                int distinctID = dao.getDistinctID(bis[i].getTableName(true, false, false), values[x].value, nVal);
+                                dao.createDistinctMapping(bis[i].getMapName(), item.getID(), distinctID);
                             }
-                        }
-                        
-                        dao.insertIndex(bis[i].getTableName(), item.getID(), values[x].value, nVal, sortMap);
-                        
-                        if (bis[i].isSingle())
-                        {
-                            int distinctID = dao.getDistinctID(bis[i].getTableName(true, false, false), values[x].value, nVal);
-                            dao.createDistinctMapping(bis[i].getMapName(), item.getID(), distinctID);
                         }
                     }
                 }
@@ -1028,5 +1031,35 @@ public class IndexBrowse
 	        
 	        return id;
 	    }
+	    
+	    /**
+	     * Is the Item archived?
+	     * If we only have a cut down BrowseItem, assume that it is
+	     * @return
+	     */
+	    public boolean isArchived()
+	    {
+	    	if (item != null)
+	    	{
+	    		return item.isArchived();
+	    	}
+	    	
+	    	return true;
+	    }
+	    
+        /**
+         * Is the Item withdrawn?
+         * If we only have a cut down BrowseItem, assume that it is not
+         * @return
+         */
+        public boolean isWithdrawn()
+        {
+            if (item != null)
+            {
+            	return item.isWithdrawn();
+            }
+            
+            return false;
+        }
 	}
 }
