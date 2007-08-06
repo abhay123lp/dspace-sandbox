@@ -12,9 +12,11 @@ import java.util.Map;
 import org.apache.cocoon.caching.CacheableProcessingComponent;
 import org.apache.cocoon.environment.ObjectModelHelper;
 import org.apache.cocoon.environment.Request;
+import org.apache.cocoon.util.HashUtil;
 import org.apache.excalibur.source.SourceValidity;
 import org.dspace.app.xmlui.cocoon.AbstractDSpaceTransformer;
 import org.dspace.app.xmlui.utils.ContextUtil;
+import org.dspace.app.xmlui.utils.DSpaceValidity;
 import org.dspace.app.xmlui.utils.HandleUtil;
 import org.dspace.app.xmlui.utils.RequestUtils;
 import org.dspace.app.xmlui.utils.UIException;
@@ -46,85 +48,6 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.xml.sax.SAXException;
-
-/*
- * Helper class to track browse parameters
- */
-class BrowseParams
-{
-    String month;
-
-    String year;
-
-    int etAl;
-
-    BrowserScope scope;
-
-    final static String MONTH = "month";
-
-    final static String YEAR = "year";
-
-    final static String ETAL = "etal";
-
-    final static String TYPE = "type";
-
-    final static String FOCUS = "focus";
-
-    final static String FOCUS_VALUE = "vfocus";
-
-    final static String FOCUS_VALUE_LANG = "vfocus_lang";
-
-    final static String ORDER = "order";
-
-    final static String RESULTS_PER_PAGE = "rpp";
-
-    final static String SORT_BY = "sort_by";
-
-    final static String STARTS_WITH = "starts_with";
-
-    final static String VALUE = "value";
-
-    final static String VALUE_LANG = "value_lang";
-
-    /*
-     * Creates a map of the browse options common to all pages (type / value /
-     * value language)
-     */
-    Map<String, String> getCommonParameters() throws UIException
-    {
-        Map<String, String> paramMap = new HashMap<String, String>();
-
-        paramMap.put(BrowseParams.TYPE, AbstractDSpaceTransformer.URLEncode(this.scope
-                .getBrowseIndex().getName()));
-
-        if (scope.getValue() != null)
-            paramMap.put(BrowseParams.VALUE, AbstractDSpaceTransformer.URLEncode(scope.getValue()));
-
-        if (scope.getValueLang() != null)
-            paramMap.put(BrowseParams.VALUE_LANG, AbstractDSpaceTransformer.URLEncode(scope
-                    .getValueLang()));
-
-        return paramMap;
-    }
-
-    /*
-     * Creates a Map of the browse control options (sort by / ordering / results
-     * per page / authors per item)
-     */
-    Map<String, String> getControlParameters() throws UIException
-    {
-        Map<String, String> paramMap = new HashMap<String, String>();
-
-        paramMap.put(BrowseParams.SORT_BY, Integer.toString(this.scope.getSortBy()));
-        paramMap
-                .put(BrowseParams.ORDER, AbstractDSpaceTransformer.URLEncode(this.scope.getOrder()));
-        paramMap.put(BrowseParams.RESULTS_PER_PAGE, Integer
-                .toString(this.scope.getResultsPerPage()));
-        paramMap.put(BrowseParams.ETAL, Integer.toString(this.etAl));
-
-        return paramMap;
-    }
-};
 
 /**
  * Implements all the browse functionality (browse by title, subject, authors,
@@ -196,27 +119,69 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
 
     public Serializable getKey()
     {
-        Request request = ObjectModelHelper.getRequest(objectModel);
-
         try
         {
             BrowseParams params = getUserParams();
-            String key = "";
+            
+            String key = params.getKey();
+            
+            if (key != null)
+            {
+                DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
+                if (dso != null)
+                    key += "-" + dso.getHandle();            
 
-            throw new BrowseException("Don't cache");
-
-            // return HashUtil.hash(key);
+                return HashUtil.hash(key);
+            }
         }
         catch (Exception e)
         {
             // Ignore all errors and just don't cache.
-            return "0";
         }
+        
+        return "0";
     }
 
     public SourceValidity getValidity()
     {
-        return null;
+        if (validity == null)
+        {
+            try
+            {
+                DSpaceValidity validity = new DSpaceValidity();
+                DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
+
+                if (dso != null)
+                    validity.add(dso);
+                
+                BrowseInfo info = getBrowseInfo();
+                
+                // Are we browsing items, or unique metadata?
+                if (isItemBrowse(info))
+                {
+                    // Add the browse items to the validity
+                    for (BrowseItem item : (java.util.List<BrowseItem>) info.getResults())
+                    {
+                        validity.add(item);
+                    }
+                }
+                else
+                {
+                    // Add the metadata to the validity
+                    for (String singleEntry : browseInfo.getStringResults())
+                    {
+                        validity.add(singleEntry);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                // Just ignore all errors and return an invalid cache.
+            }
+            
+        }
+        
+        return this.validity;
     }
 
     /**
@@ -734,3 +699,111 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
             (info.getBrowseIndex().isDate() && info.getSortOption().isDefault());
     }
 }
+
+/*
+ * Helper class to track browse parameters
+ */
+class BrowseParams
+{
+    String month;
+
+    String year;
+
+    int etAl;
+
+    BrowserScope scope;
+
+    final static String MONTH = "month";
+
+    final static String YEAR = "year";
+
+    final static String ETAL = "etal";
+
+    final static String TYPE = "type";
+
+    final static String FOCUS = "focus";
+
+    final static String FOCUS_VALUE = "vfocus";
+
+    final static String FOCUS_VALUE_LANG = "vfocus_lang";
+
+    final static String ORDER = "order";
+
+    final static String RESULTS_PER_PAGE = "rpp";
+
+    final static String SORT_BY = "sort_by";
+
+    final static String STARTS_WITH = "starts_with";
+
+    final static String VALUE = "value";
+
+    final static String VALUE_LANG = "value_lang";
+
+    /*
+     * Creates a map of the browse options common to all pages (type / value /
+     * value language)
+     */
+    Map<String, String> getCommonParameters() throws UIException
+    {
+        Map<String, String> paramMap = new HashMap<String, String>();
+
+        paramMap.put(BrowseParams.TYPE, AbstractDSpaceTransformer.URLEncode(this.scope
+                .getBrowseIndex().getName()));
+
+        if (scope.getValue() != null)
+            paramMap.put(BrowseParams.VALUE, AbstractDSpaceTransformer.URLEncode(scope.getValue()));
+
+        if (scope.getValueLang() != null)
+            paramMap.put(BrowseParams.VALUE_LANG, AbstractDSpaceTransformer.URLEncode(scope
+                    .getValueLang()));
+
+        return paramMap;
+    }
+
+    /*
+     * Creates a Map of the browse control options (sort by / ordering / results
+     * per page / authors per item)
+     */
+    Map<String, String> getControlParameters() throws UIException
+    {
+        Map<String, String> paramMap = new HashMap<String, String>();
+
+        paramMap.put(BrowseParams.SORT_BY, Integer.toString(this.scope.getSortBy()));
+        paramMap
+                .put(BrowseParams.ORDER, AbstractDSpaceTransformer.URLEncode(this.scope.getOrder()));
+        paramMap.put(BrowseParams.RESULTS_PER_PAGE, Integer
+                .toString(this.scope.getResultsPerPage()));
+        paramMap.put(BrowseParams.ETAL, Integer.toString(this.etAl));
+
+        return paramMap;
+    }
+    
+    String getKey()
+    {
+        try
+        {
+            String key = "";
+            
+            key += "-" + scope.getBrowseIndex().getName();
+            key += "-" + scope.getBrowseLevel();
+            key += "-" + scope.getStartsWith();
+            key += "-" + scope.getResultsPerPage();
+            key += "-" + scope.getSortBy();
+            key += "-" + scope.getSortOption().getNumber();
+            key += "-" + scope.getOrder();
+            key += "-" + scope.getFocus();
+            key += "-" + scope.getValue();
+            key += "-" + scope.getValueLang();
+            key += "-" + scope.getValueFocus();
+            key += "-" + scope.getValueFocusLang();
+            key += "-" + etAl;
+    
+            return key;
+        }
+        catch (Exception e)
+        {
+            return null; // ignore exception and return no key
+        }
+    }
+};
+
