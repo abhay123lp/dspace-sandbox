@@ -78,10 +78,10 @@ import org.dspace.storage.rdbms.TableRowIterator;
  * @author Robert Tansley
  * @version $Revision$
  */
-public class Subscribe
+public class SubscriptionManager
 {
     /** log4j logger */
-    private static Logger log = Logger.getLogger(Subscribe.class);
+    private static Logger log = Logger.getLogger(SubscriptionManager.class);
 
     /**
      * Subscribe an e-person to a collection. An e-mail will be sent every day a

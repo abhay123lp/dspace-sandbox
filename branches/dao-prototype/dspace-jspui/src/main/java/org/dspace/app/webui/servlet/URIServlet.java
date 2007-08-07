@@ -78,7 +78,7 @@ import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.Subscribe;
+import org.dspace.eperson.SubscriptionManager;
 
 public class URIServlet extends DSpaceServlet
 {
@@ -525,14 +525,14 @@ public class URIServlet extends DSpaceServlet
                     return;
                 else
                 {
-                    Subscribe.subscribe(context, context.getCurrentUser(),
+                    SubscriptionManager.subscribe(context, context.getCurrentUser(),
                             collection);
                     updated = true;
                 }
             }
             else if (request.getParameter("submit_unsubscribe") != null)
             {
-                Subscribe.unsubscribe(context, context.getCurrentUser(),
+                SubscriptionManager.unsubscribe(context, context.getCurrentUser(),
                         collection);
                 updated = true;
             }
@@ -558,7 +558,7 @@ public class URIServlet extends DSpaceServlet
 
             if (e != null)
             {
-                subscribed = Subscribe.isSubscribed(context, e, collection);
+                subscribed = SubscriptionManager.isSubscribed(context, e, collection);
 
                 // is the user a COLLECTION_EDITOR?
                 if (collection.canEditBoolean())
