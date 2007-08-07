@@ -230,16 +230,12 @@ public class Harvest
         query += " ORDER BY p.resource_id";
 
         log.debug(LogManager.getHeader(context, "harvest SQL", query));
-        log.info(LogManager.getHeader(context, "harvest SQL", query));
-        log.info(parameters);
         
         // Execute
         Object[] parametersArray = parameters.toArray();
         TableRowIterator tri = DatabaseManager.query(context, query, parametersArray);
         List infoObjects = new LinkedList();
         int index = 0;
-
-        log.info(tri.hasNext());
 
         // Process results of query into HarvestedItemInfo objects
         while (tri.hasNext())
