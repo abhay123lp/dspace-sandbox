@@ -40,14 +40,19 @@
 package org.dspace.eperson.dao.postgres;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import org.dspace.core.Context;
+import org.dspace.content.Collection;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.RegistrationData;
 import org.dspace.eperson.Subscription;
 import org.dspace.eperson.dao.SubscriptionDAO;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
+import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * @author James Rutherford
@@ -159,6 +164,76 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
         try
         {
             DatabaseManager.delete(context, "subscription", id);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public boolean isSubscribed(EPerson eperson, Collection collection)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT subscription_id FROM subscription " +
+                    "WHERE eperson_id = ? AND collection_id = ?", 
+                    eperson.getID(), collection.getID());
+            
+            boolean result = tri.hasNext();
+            tri.close();
+            
+            return result;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<Subscription> getSubscriptions()
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT subscription_id FROM subscription " +
+                    "ORDER BY eperson_id");
+
+            List<Subscription> subscriptions = new ArrayList<Subscription>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("subscription_id");
+                subscriptions.add(retrieve(id));
+            }
+
+            return subscriptions;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<Subscription> getSubscriptions(EPerson eperson)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context,
+                    "SELECT subscription_id FROM subscription WHERE eperson_id = ?",
+                    eperson.getID());
+
+            List<Subscription> subscriptions = new ArrayList<Subscription>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("subscription_id");
+                subscriptions.add(retrieve(id));
+            }
+
+            return subscriptions;
         }
         catch (SQLException sqle)
         {

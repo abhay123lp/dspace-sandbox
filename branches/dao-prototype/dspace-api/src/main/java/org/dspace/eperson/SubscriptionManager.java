@@ -40,7 +40,6 @@
 package org.dspace.eperson;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,6 +56,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
@@ -66,11 +66,12 @@ import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.dao.EPersonDAO;
+import org.dspace.eperson.dao.EPersonDAOFactory;
+import org.dspace.eperson.dao.SubscriptionDAO;
+import org.dspace.eperson.dao.SubscriptionDAOFactory;
 import org.dspace.search.Harvest;
 import org.dspace.search.HarvestedItemInfo;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
  * Class defining methods for sending new item e-mail alerts to users
@@ -95,33 +96,27 @@ public class SubscriptionManager
      *            Collection to subscribe to
      */
     public static void subscribe(Context context, EPerson eperson,
-            Collection collection) throws SQLException, AuthorizeException
+            Collection collection) throws AuthorizeException
     {
         // Check authorisation. Must be administrator, or the eperson.
         if (AuthorizeManager.isAdmin(context)
                 || ((context.getCurrentUser() != null) && (context
                         .getCurrentUser().getID() == eperson.getID())))
         {
-            // already subscribed?      	
-        	TableRowIterator r = DatabaseManager.query(context,
-                    "SELECT * FROM subscription WHERE eperson_id= ? " +
-                    " AND collection_id= ? ", 
-                    eperson.getID(),collection.getID());
-
-            if (!r.hasNext())
+            if (!isSubscribed(context, eperson, collection))
             {
-                // Not subscribed, so add them
-                TableRow row = DatabaseManager.create(context, "subscription");
-                row.setColumn("eperson_id", eperson.getID());
-                row.setColumn("collection_id", collection.getID());
-                DatabaseManager.update(context, row);
+                SubscriptionDAO dao =
+                    SubscriptionDAOFactory.getInstance(context);
+
+                Subscription sub = dao.create();
+                sub.setEPersonID(eperson.getID());
+                sub.setCollectionID(collection.getID());
+                dao.update(sub);
 
                 log.info(LogManager.getHeader(context, "subscribe",
                         "eperson_id=" + eperson.getID() + ",collection_id="
                                 + collection.getID()));
             }
-            
-            r.close();
         }
         else
         {
@@ -143,30 +138,40 @@ public class SubscriptionManager
      *            Collection to unsubscribe from
      */
     public static void unsubscribe(Context context, EPerson eperson,
-            Collection collection) throws SQLException, AuthorizeException
+            Collection collection) throws AuthorizeException
     {
         // Check authorisation. Must be administrator, or the eperson.
         if (AuthorizeManager.isAdmin(context)
                 || ((context.getCurrentUser() != null) && (context
                         .getCurrentUser().getID() == eperson.getID())))
         {
+            SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
+
             if (collection == null)
             {
-                // Unsubscribe from all
-                DatabaseManager.updateQuery(context,
-                        "DELETE FROM subscription WHERE eperson_id= ? ",
-                        eperson.getID());
+                for (Subscription sub : dao.getSubscriptions(eperson))
+                {
+                    log.info(LogManager.getHeader(context, "unsubscribe",
+                            "eperson_id=" + sub.getEPersonID() +
+                            ",collection_id=" + sub.getCollectionID()));
+
+                    dao.delete(sub.getID());
+                }
             }
             else
-            {       
-                DatabaseManager.updateQuery(context,
-                        "DELETE FROM subscription WHERE eperson_id= ? " +
-                        "AND collection_id= ? ", 
-                        eperson.getID(),collection.getID());
+            {
+                for (Subscription sub : dao.getSubscriptions(eperson))
+                {
+                    if (collection.getID() == sub.getCollectionID())
+                    {
+                        log.info(LogManager.getHeader(context, "unsubscribe",
+                                "eperson_id=" + sub.getEPersonID() +
+                                ",collection_id=" + sub.getCollectionID()));
 
-                log.info(LogManager.getHeader(context, "unsubscribe",
-                        "eperson_id=" + eperson.getID() + ",collection_id="
-                                + collection.getID()));
+                        dao.delete(sub.getID());
+                        break;
+                    }
+                }
             }
         }
         else
@@ -186,28 +191,19 @@ public class SubscriptionManager
      * @return array of collections e-person is subscribed to
      */
     public static Collection[] getSubscriptions(Context context, EPerson eperson)
-            throws SQLException
     {
-        TableRowIterator tri = DatabaseManager.query(context,
-                "SELECT collection_id FROM subscription WHERE eperson_id= ? ",
-                eperson.getID());
+        SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
+        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
 
-        List collections = new ArrayList();
+        List<Subscription> subscriptions = dao.getSubscriptions(eperson);
+        List<Collection> collections = new ArrayList<Collection>();
 
-        while (tri.hasNext())
+        for (Subscription sub : subscriptions)
         {
-            TableRow row = tri.next();
-
-            int id = row.getIntColumn("collection_id");
-            collections.add(
-                    CollectionDAOFactory.getInstance(context).retrieve(id));
+            collections.add(collectionDAO.retrieve(sub.getCollectionID()));
         }
-
-        tri.close();
         
-        Collection[] collArray = new Collection[collections.size()];
-
-        return (Collection[]) collections.toArray(collArray);
+        return (Collection[]) collections.toArray(new Collection[0]);
     }
 
     /**
@@ -222,17 +218,10 @@ public class SubscriptionManager
      * @return <code>true</code> if they are subscribed
      */
     public static boolean isSubscribed(Context context, EPerson eperson,
-            Collection collection) throws SQLException
+            Collection collection)
     {
-    	TableRowIterator tri = DatabaseManager.query(context,
-                "SELECT * FROM subscription WHERE eperson_id= ? " +
-                "AND collection_id= ? ", 
-                eperson.getID(),collection.getID());
-    	
-    	boolean result = tri.hasNext();
-    	tri.close();
-    	
-    	return result;
+        SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
+        return dao.isSubscribed(eperson, collection);
     }
 
     /**
@@ -251,30 +240,28 @@ public class SubscriptionManager
      * @param context
      *            DSpace context object
      */
-    public static void processDaily(Context context) throws SQLException,
-            IOException
+    public static void processDaily(Context context) throws IOException
     {
         // Grab the subscriptions
-        TableRowIterator tri = DatabaseManager.query(context,
-                "SELECT * FROM subscription ORDER BY eperson_id");
+        SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
+        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
+        EPersonDAO epersonDAO = EPersonDAOFactory.getInstance(context);
+
+        List<Subscription> subscriptions = dao.getSubscriptions();
 
         EPerson currentEPerson = null;
-        List collections = null; // List of Collections
+        List<Collection> collections = null; // List of Collections
 
         // Go through the list collating subscriptions for each e-person
-        while (tri.hasNext())
+        for (Subscription sub : subscriptions)
         {
-            TableRow row = tri.next();
-
             // Does this row relate to the same e-person as the last?
             if ((currentEPerson == null)
-                    || (row.getIntColumn("eperson_id") != currentEPerson
-                            .getID()))
+                    || (sub.getEPersonID() != currentEPerson.getID()))
             {
                 // New e-person. Send mail for previous e-person
                 if (currentEPerson != null)
                 {
-
                     try
                     {
                         sendEmail(context, currentEPerson, collections);
@@ -287,17 +274,12 @@ public class SubscriptionManager
                     }
                 }
 
-                currentEPerson = EPerson.find(context, row
-                        .getIntColumn("eperson_id"));
-                collections = new ArrayList();
+                currentEPerson = epersonDAO.retrieve(sub.getEPersonID());
+                collections = new ArrayList<Collection>();
             }
 
-            int id = row.getIntColumn("collection_id");
-            collections.add(
-                    CollectionDAOFactory.getInstance(context).retrieve(id));
+            collections.add(collectionDAO.retrieve(sub.getCollectionID()));
         }
-        
-        tri.close();
         
         // Process the last person
         if (currentEPerson != null)
@@ -328,15 +310,14 @@ public class SubscriptionManager
      *            List of collection IDs (Integers)
      */
     public static void sendEmail(Context context, EPerson eperson,
-            List collections) throws IOException, MessagingException,
-            SQLException
+            List collections) throws IOException, MessagingException
     {
         ExternalIdentifier identifier = null;
 
         // Get a resource bundle according to the eperson language preferences
         Locale epersonLocale = new Locale(eperson.getLanguage());
         Locale supportedLocale = I18nUtil.getSupportedLocale(epersonLocale);
-        ResourceBundle labels =  ResourceBundle.getBundle("Messages", supportedLocale);
+        ResourceBundle labels = ResourceBundle.getBundle("Messages", supportedLocale);
         
         // Get the start and end dates for yesterday
         Date thisTimeYesterday = new Date(System.currentTimeMillis()
@@ -359,13 +340,11 @@ public class SubscriptionManager
         {
             Collection c = (Collection) collections.get(i);
 
-            try {
-                List itemInfos = Harvest.harvest(context, c, startDate, endDate, 0, // Limit
-                                                                                    // and
-                                                                                    // offset
-                                                                                    // zero,
-                                                                                    // get
-                                                                                    // everything
+            try
+            {
+                // Limit and offset zero, get everything
+                List itemInfos = Harvest.harvest(context, c, startDate,
+                        endDate, 0, 
                         0, true, // Need item objects
                         false, // But not containers
                         false); // Or withdrawals
@@ -375,25 +354,26 @@ public class SubscriptionManager
                 {
                     if (!isFirst)
                     {
-                        emailText
-                                .append("\n---------------------------------------\n");
+                        emailText.append("\n---------------------------------------\n");
                     }
                     else
                     {
                         isFirst = false;
                     }
     
-                    emailText.append(labels.getString("org.dspace.eperson.Subscribe.new-items")).append(
-                            c.getMetadata("name")).append(": ").append(
-                            itemInfos.size()).append("\n\n");
+                    emailText.append(labels.getString(
+                                "org.dspace.eperson.Subscribe.new-items")).append(
+                                c.getMetadata("name")).append(": ").append(
+                                itemInfos.size()).append("\n\n");
     
                     for (int j = 0; j < itemInfos.size(); j++)
                     {
-                        HarvestedItemInfo hii = (HarvestedItemInfo) itemInfos
-                                .get(j);
+                        HarvestedItemInfo hii =
+                            (HarvestedItemInfo) itemInfos.get(j);
     
                         DCValue[] titles = hii.item.getDC("title", null, Item.ANY);
-                        emailText.append("      ").append(labels.getString("org.dspace.eperson.Subscribe.title")).append(" ");
+                        emailText.append("      ").append(labels.getString(
+                                    "org.dspace.eperson.Subscribe.title")).append(" ");
     
                         if (titles.length > 0)
                         {
@@ -401,7 +381,8 @@ public class SubscriptionManager
                         }
                         else
                         {
-                            emailText.append(labels.getString("org.dspace.eperson.Subscribe.untitled"));
+                            emailText.append(labels.getString(
+                                        "org.dspace.eperson.Subscribe.untitled"));
                         }
     
                         DCValue[] authors = hii.item.getDC("contributor", Item.ANY,
@@ -409,8 +390,9 @@ public class SubscriptionManager
     
                         if (authors.length > 0)
                         {
-                            emailText.append("\n    ").append(labels.getString("org.dspace.eperson.Subscribe.authors")).append(
-                                    authors[0].value);
+                            emailText.append("\n    ").append(labels.getString(
+                                        "org.dspace.eperson.Subscribe.authors"))
+                                .append(authors[0].value);
     
                             for (int k = 1; k < authors.length; k++)
                             {
@@ -421,9 +403,10 @@ public class SubscriptionManager
     
                         identifier = hii.identifier;
 
-                        emailText.append("\n         ").append(labels.getString("org.dspace.eperson.Subscribe.id")).append(
-                                identifier.getURI().toString()).append(
-                                "\n\n");
+                        emailText.append("\n         ").append(labels.getString(
+                                    "org.dspace.eperson.Subscribe.id")).append(
+                                    identifier.getURI().toString()).append(
+                                    "\n\n");
                     }
                 }
             }
@@ -431,12 +414,20 @@ public class SubscriptionManager
             {
                 // This should never get thrown as the Dates are auto-generated
             }
+            catch (java.sql.SQLException sqle)
+            {
+                // This could be thrown by Harvest.harvest(). Soon that class
+                // should be going through DAOs so this catch should be very
+                // short-lived.
+                throw new RuntimeException(sqle);
+            }
         }
 
         // Send an e-mail if there were any new items
         if (emailText.length() > 0)
         {
-            Email email = ConfigurationManager.getEmail(I18nUtil.getEmailFilename(supportedLocale, "subscription"));
+            Email email = ConfigurationManager.getEmail(
+                    I18nUtil.getEmailFilename(supportedLocale, "subscription"));
 
             email.addRecipient(eperson.getEmail());
             email.addArgument(emailText.toString());

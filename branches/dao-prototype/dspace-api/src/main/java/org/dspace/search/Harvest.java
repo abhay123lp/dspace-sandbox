@@ -322,7 +322,6 @@ public class Harvest
      */
     public static HarvestedItemInfo getSingle(Context context,
             ExternalIdentifier identifier, boolean collections)
-        throws SQLException
     {
         // FIXME: Assume identifier is item
         // FIXME: We should be passing an ObjectIdentifier in here, not a
@@ -361,10 +360,9 @@ public class Harvest
      *            DSpace context
      * @param itemInfo
      *            HarvestedItemInfo object to fill out
-     * @throws SQLException
      */
     private static void fillCollections(Context context,
-            HarvestedItemInfo itemInfo) throws SQLException
+            HarvestedItemInfo itemInfo)
     {
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
 

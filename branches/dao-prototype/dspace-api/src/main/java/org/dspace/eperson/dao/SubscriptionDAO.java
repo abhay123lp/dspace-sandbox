@@ -39,11 +39,14 @@
  */
 package org.dspace.eperson.dao;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
 import org.dspace.core.Context;
+import org.dspace.content.Collection;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Subscription;
 
 /**
@@ -60,4 +63,7 @@ public abstract class SubscriptionDAO
     public abstract Subscription retrieve(UUID uuid);
     public abstract void update(Subscription subscription);
     public abstract void delete(int id);
+    public abstract boolean isSubscribed(EPerson eperson, Collection collection);
+    public abstract List<Subscription> getSubscriptions();
+    public abstract List<Subscription> getSubscriptions(EPerson eperson);
 }
