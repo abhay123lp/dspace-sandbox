@@ -1,5 +1,5 @@
 /*
- * EPersonDAO.java
+ * EPersonDAOFactory.java
  *
  * Version: $Revision: 1727 $
  *

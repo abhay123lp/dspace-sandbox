@@ -226,27 +226,14 @@ public class EPersonDAOPostgres extends EPersonDAO
 
             if (row != null)
             {
-                update(eperson, row);
+                populateTableRowFromEPerson(eperson, row);
+                DatabaseManager.update(context, row);
             }
             else
             {
                 throw new RuntimeException("Didn't find eperson " +
                         eperson.getID());
             }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private void update(EPerson eperson, TableRow row)
-        throws AuthorizeException
-    {
-        try
-        {
-            populateTableRowFromEPerson(eperson, row);
-            DatabaseManager.update(context, row);
         }
         catch (SQLException sqle)
         {

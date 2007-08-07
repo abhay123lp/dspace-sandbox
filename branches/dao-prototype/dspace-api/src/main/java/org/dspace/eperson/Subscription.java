@@ -1,9 +1,9 @@
 /*
- * RegistrationData.java
+ * Subscription.java
  *
  * Version: $Revision$
  *
- * Date: $Date: 2007-05-25 21:35:39 +0100 (Fri, 25 May 2007) $
+ * Date: $Date: 2007-06-25 11:43:06 +0100 (Mon, 25 Jun 2007) $
  *
  * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
@@ -39,13 +39,13 @@
  */
 package org.dspace.eperson;
 
-public class RegistrationData
+public class Subscription
 {
     private int id;
-    private String email;
-    private String token;
+    private int epersonID;
+    private int collectionID;
 
-    public RegistrationData(int id)
+    public Subscription(int id)
     {
         this.id = id;
     }
@@ -55,23 +55,23 @@ public class RegistrationData
         return id;
     }
 
-    public String getEmail()
+    public int getEPersonID()
     {
-        return email;
+        return epersonID;
     }
 
-    public void setEmail(String email)
+    public void setEPersonID(int epersonID)
     {
-        this.email = email;
+        this.epersonID = epersonID;
     }
 
-    public String getToken()
+    public int getCollectionID()
     {
-        return token;
+        return collectionID;
     }
 
-    public void setToken(String token)
+    public void setCollectionID(int collectionID)
     {
-        this.token = token;
+        this.collectionID = collectionID;
     }
 }

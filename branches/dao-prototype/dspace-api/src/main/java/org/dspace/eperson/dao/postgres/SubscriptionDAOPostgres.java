@@ -1,5 +1,5 @@
 /*
- * RegistrationDataDAOPostgres.java
+ * SubscriptionDAO.java
  *
  * Version: $Revision: 1727 $
  *
@@ -40,32 +40,35 @@
 package org.dspace.eperson.dao.postgres;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 import org.dspace.core.Context;
 import org.dspace.eperson.RegistrationData;
-import org.dspace.eperson.dao.RegistrationDataDAO;
+import org.dspace.eperson.Subscription;
+import org.dspace.eperson.dao.SubscriptionDAO;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 
 /**
  * @author James Rutherford
  */
-public class RegistrationDataDAOPostgres extends RegistrationDataDAO
+public class SubscriptionDAOPostgres extends SubscriptionDAO
 {
-    public RegistrationDataDAOPostgres(Context context)
+    public SubscriptionDAOPostgres(Context context)
     {
         this.context = context;
     }
 
-    public RegistrationData create()
+    @Override
+    public Subscription create()
     {
         try
         {
-            TableRow row = DatabaseManager.create(context, "registrationdata");
+            TableRow row = DatabaseManager.create(context, "subscription");
 
-            int id = row.getIntColumn("registrationdata_id");
+            int id = row.getIntColumn("subscription_id");
             
-            return new RegistrationData(id);
+            return new Subscription(id);
         }
         catch (SQLException sqle)
         {
@@ -73,36 +76,75 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
         }
     }
 
-    public RegistrationData retrieveByEmail(String email)
+    @Override
+    public Subscription retrieve(int id)
     {
-        return retrieve("email", email);
+        try
+        {
+            TableRow row = DatabaseManager.find(context, "subscription", id);
+
+            return retrieve(row);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
-    public RegistrationData retrieveByToken(String token)
-    {
-        return retrieve("token", token);
-    }
-
-    private RegistrationData retrieve(String field, String value)
+    @Override
+    public Subscription retrieve(UUID uuid)
     {
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
-                    "registrationdata", field, value);
+                    "subscription", "uuid", uuid.toString());
 
-            if (row == null)
+            return retrieve(row);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private Subscription retrieve(TableRow row) throws SQLException
+    {
+        if (row == null)
+        {
+            return null;
+        }
+        else
+        {
+            int id = row.getIntColumn("subscription_id");
+            Subscription sub = new Subscription(id);
+
+            sub.setEPersonID(row.getIntColumn("eperson_id"));
+            sub.setCollectionID(row.getIntColumn("collection_id"));
+
+            return sub;
+        }
+    }
+
+    @Override
+    public void update(Subscription subscription)
+    {
+        try
+        {
+            int id = subscription.getID();
+            TableRow row = DatabaseManager.find(context, "subscription", id);
+
+            if (row != null)
             {
-                return null;
+                int epersonID = subscription.getEPersonID();
+                int collectionID = subscription.getCollectionID();
+
+                row.setColumn("eperson_id", epersonID);
+                row.setColumn("collection_id", collectionID);
+                DatabaseManager.update(context, row);
             }
             else
             {
-                int id = row.getIntColumn("registrationdata_id");
-                RegistrationData rd = new RegistrationData(id);
-
-                rd.setEmail(row.getStringColumn("email"));
-                rd.setToken(row.getStringColumn("token"));
-
-                return rd;
+                throw new RuntimeException("Didn't find subscription " + id);
             }
         }
         catch (SQLException sqle)
@@ -111,34 +153,12 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
         }
     }
 
-    public void update(RegistrationData rd)
+    @Override
+    public void delete(int id)
     {
         try
         {
-            TableRow row = DatabaseManager.find(context,
-                    "registrationdata", rd.getID());
-
-            // This is it -- we don't use the 'expires' column any more, though
-            // the data model allows for it.
-            row.setColumn("email", rd.getEmail());
-            row.setColumn("token", rd.getToken());
-            
-            DatabaseManager.update(context, row);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    public void delete(String token)
-    {
-        super.delete(token);
-
-        try
-        {
-            DatabaseManager.deleteByValue(context, "registrationdata", "token",
-                    token);
+            DatabaseManager.delete(context, "subscription", id);
         }
         catch (SQLException sqle)
         {

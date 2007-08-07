@@ -224,31 +224,14 @@ public class GroupDAOPostgres extends GroupDAO
 
             if (row != null)
             {
-                update(group, row);
+                populateTableRowFromGroup(group, row);
+                DatabaseManager.update(context, row);
             }
             else
             {
                 throw new RuntimeException("Didn't find group " +
                         group.getID());
             }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    /**
-     * FIXME: Look back into ItemDAOPostgres to see how we were cunning there
-     * about updating Bundles + Bitstreams and use that below for EPeople and
-     * Groups.
-     */
-    private void update(Group group, TableRow row) throws AuthorizeException
-    {
-        try
-        {
-            populateTableRowFromGroup(group, row);
-            DatabaseManager.update(context, row);
         }
         catch (SQLException sqle)
         {

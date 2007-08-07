@@ -104,6 +104,11 @@ public abstract class GroupDAO
         return null;
     }
 
+    /**
+     * FIXME: Look back into ItemDAOPostgres to see how we were cunning there
+     * about updating Bundles + Bitstreams and use that below for EPeople and
+     * Groups.
+     */
     public void update(Group group) throws AuthorizeException
     {
         // Check authorisation - if you're not the eperson
