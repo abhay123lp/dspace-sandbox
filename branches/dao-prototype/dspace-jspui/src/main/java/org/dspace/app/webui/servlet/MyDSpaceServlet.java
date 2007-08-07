@@ -443,17 +443,11 @@ public class MyDSpaceServlet extends DSpaceServlet
             WorkflowManager.advance(context, workflowItem, context
                     .getCurrentUser());
 
-            // FIXME: This should be a return value from advance()
-            // See if that gave the item a persistent identifier. If it did,
-            // the item made it into the archive, so we should display a
-            // suitable page.
-            ExternalIdentifier identifier = item.getExternalIdentifier();
-
-            if (identifier != null)
+            if (item.isArchived())
             {
-                String displayIdentifier = identifier.getURI().toString();
+                String uri = item.getIdentifier().getURL().toString();
 
-                request.setAttribute("identifier", displayIdentifier);
+                request.setAttribute("identifier", uri);
                 JSPManager.showJSP(request, response,
                         "/mydspace/in-archive.jsp");
             }
@@ -556,7 +550,7 @@ public class MyDSpaceServlet extends DSpaceServlet
             Collection c = wsi.getCollection();
             SubmissionConfigReader subConfigReader = new SubmissionConfigReader();
             SubmissionConfig subConfig = subConfigReader.getSubmissionConfig(c
-                    .getExternalIdentifier().getCanonicalForm(), false);
+                    .getIdentifier().getCanonicalForm(), false);
 
             // Set the "stage_reached" column on the workspace item
             // to the LAST page of the LAST step in the submission process

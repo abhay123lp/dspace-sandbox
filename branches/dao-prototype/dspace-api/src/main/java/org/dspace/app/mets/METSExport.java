@@ -289,11 +289,11 @@ public class METSExport
     public static void writeAIP(Context context, Item item, String dest)
             throws SQLException, IOException, AuthorizeException, MetsException
     {
-        System.out.println("Exporting item " + item.getExternalIdentifier().getCanonicalForm());
+        System.out.println("Exporting item " + item.getIdentifier().getCanonicalForm());
 
         // Create aip directory
         java.io.File aipDir = new java.io.File(dest
-                + URLEncoder.encode(item.getExternalIdentifier().getCanonicalForm(), "UTF-8"));
+                + URLEncoder.encode(item.getIdentifier().getCanonicalForm(), "UTF-8"));
 
         if (!aipDir.mkdir())
         {
@@ -359,7 +359,7 @@ public class METSExport
             Mets mets = new Mets();
 
             // Top-level stuff
-            mets.setOBJID(item.getExternalIdentifier().getCanonicalForm());
+            mets.setOBJID(item.getIdentifier().getCanonicalForm());
             mets.setLABEL("DSpace Item");
             mets.setSchema("mods", "http://www.loc.gov/mods/v3",
                     "http://www.loc.gov/standards/mods/v3/mods-3-0.xsd");
@@ -387,7 +387,7 @@ public class METSExport
             mets.getContent().add(metsHdr);
 
             DmdSec dmdSec = new DmdSec();
-            dmdSec.setID("DMD_hdl_" + item.getExternalIdentifier().getCanonicalForm());
+            dmdSec.setID("DMD_hdl_" + item.getIdentifier().getCanonicalForm());
 
             MdWrap mdWrap = new MdWrap();
             mdWrap.setMDTYPE(Mdtype.MODS);
@@ -401,7 +401,7 @@ public class METSExport
 
             // amdSec
             AmdSec amdSec = new AmdSec();
-            amdSec.setID("TMD_hdl_" + item.getExternalIdentifier().getCanonicalForm());
+            amdSec.setID("TMD_hdl_" + item.getIdentifier().getCanonicalForm());
 
             // FIXME: techMD here
             // License as <rightsMD><mdWrap><binData>base64encoded</binData>...
@@ -460,7 +460,7 @@ public class METSExport
                     String bitstreamPID = ConfigurationManager
                             .getProperty("dspace.url")
                             + "/bitstream/"
-                            + item.getExternalIdentifier().getCanonicalForm()
+                            + item.getIdentifier().getCanonicalForm()
                             + "/"
                             + bitstreams[bits].getSequenceID()
                             + "/"
@@ -473,7 +473,7 @@ public class METSExport
                      * ID: we use the canonical form of the persistent ID, i.e.
                      * the but with _'s instead of /'s so it's a legal xsd:ID.
                      */
-                    String uri = item.getExternalIdentifier().getCanonicalForm();
+                    String uri = item.getIdentifier().getCanonicalForm();
                     String xmlIDstart = uri.replaceAll("/", "_") + "_";
 
                     file.setID(xmlIDstart + bitstreams[bits].getSequenceID());

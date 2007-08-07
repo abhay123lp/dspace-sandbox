@@ -67,9 +67,13 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
     @Override
     public Subscription create()
     {
+        UUID uuid = UUID.randomUUID();
+
         try
         {
             TableRow row = DatabaseManager.create(context, "subscription");
+            row.setColumn("uuid", uuid.toString());
+            DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("subscription_id");
             

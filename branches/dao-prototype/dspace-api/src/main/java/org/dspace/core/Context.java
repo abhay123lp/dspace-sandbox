@@ -42,6 +42,7 @@ package org.dspace.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -267,27 +268,36 @@ public class Context
      *                if there was an error completing the database transaction
      *                or closing the connection
      */
-    public void commit() throws SQLException {
+    public void commit() throws SQLException
+    {
         // Commit any changes made as part of the transaction
         dao.saveTransaction();
 
         Dispatcher dispatcher = null;
 
-        try {
-            if (events != null) {
-                
-                if (dispName == null) {
+        try
+        {
+            if (events != null)
+            {    
+                if (dispName == null)
+                {
                     dispName = EventManager.DEFAULT_DISPATCHER;
                 }
                 
                 dispatcher = EventManager.getDispatcher(dispName);
-                
                 dispatcher.dispatch(this);
             }
-            
-        } finally {
-            events = null;
-            if(dispatcher != null) 
+        }
+        finally
+        {
+            if (events != null)
+            {
+                synchronized (events)
+                {
+                    events = null;
+                }
+            }
+            if(dispatcher != null)
             {
             	/* 
             	 * TODO return dispatcher via internal method dispatcher.close();
@@ -317,11 +327,11 @@ public class Context
      * 
      * @param event
      */
-    public void addEvent(Event event)
+    public synchronized void addEvent(Event event)
     {
         if (events == null)
         {
-            events = new ArrayList<Event>();
+            events = Collections.synchronizedList(new ArrayList<Event>());
         }
         
         events.add(event);
@@ -333,9 +343,11 @@ public class Context
      * 
      * @return List of all available events.
      */
-    public List<Event> getEvents()
+    public synchronized List<Event> getEvents()
     {
-        return events;
+        List<Event> tmp = events;
+        events = null;
+        return tmp;
     }
 
     

@@ -118,7 +118,7 @@
         for (int i = 0; i < communityArray.length; i++)
         {
 %>
-                                    <option value="<%= communityArray[i].getExternalIdentifier().getCanonicalForm() %>"><%= communityArray[i].getMetadata("name") %></option>
+                                    <option value="<%= communityArray[i].getIdentifier().getCanonicalForm() %>"><%= communityArray[i].getMetadata("name") %></option>
 <%
         }
     }
@@ -128,12 +128,12 @@
         // "all of DSpace", the community, and the collections within the community.
 %>
                                     <option value="/"><fmt:message key="jsp.general.genericScope"/></option>
-                                    <option selected="selected" value="<%= community.getExternalIdentifier().getCanonicalForm() %>"><%= community.getMetadata("name") %></option>
+                                    <option selected="selected" value="<%= community.getIdentifier().getCanonicalForm() %>"><%= community.getMetadata("name") %></option>
 <%
         for (int i = 0; i < collectionArray.length; i++)
         {
 %>
-                                    <option value="<%= collectionArray[i].getExternalIdentifier().getCanonicalForm() %>"><%= collectionArray[i].getMetadata("name") %></option>
+                                    <option value="<%= collectionArray[i].getIdentifier().getCanonicalForm() %>"><%= collectionArray[i].getMetadata("name") %></option>
 <%
         }
     }
@@ -142,8 +142,8 @@
         // Scope of the search is a specific collection
 %>
                                     <option value="/"><fmt:message key="jsp.general.genericScope"/></option>
-                                    <option value="<%= community.getExternalIdentifier().getCanonicalForm() %>"><%= community.getMetadata("name") %></option>
-                                    <option selected="selected" value="<%= collection.getExternalIdentifier().getCanonicalForm() %>"><%= collection.getMetadata("name") %></option>
+                                    <option value="<%= community.getIdentifier().getCanonicalForm() %>"><%= community.getMetadata("name") %></option>
+                                    <option selected="selected" value="<%= collection.getIdentifier().getCanonicalForm() %>"><%= collection.getMetadata("name") %></option>
 <%
     }
 %>

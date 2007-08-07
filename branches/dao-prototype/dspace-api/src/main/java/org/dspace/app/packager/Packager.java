@@ -302,7 +302,7 @@ public class Packager
                     if (wfi.getState() == WorkflowManager.WFSTATE_ARCHIVE)
                     {
                         Item ni = wfi.getItem();
-                        uri = ni.getExternalIdentifier().getCanonicalForm();
+                        uri = ni.getIdentifier().getCanonicalForm();
                     }
                     if (uri == null)
                     {
@@ -319,7 +319,7 @@ public class Packager
                 {
                     InstallItem.installItem(context, wi);
                     System.out.println("Created and installed item, uri="
-                            + wi.getItem().getExternalIdentifier().getCanonicalForm());
+                            + wi.getItem().getIdentifier().getCanonicalForm());
                 }
                 context.complete();
                 System.exit(0);

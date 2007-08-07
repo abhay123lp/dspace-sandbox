@@ -713,7 +713,7 @@ public class ItemImport
             {
                 Item item = InstallItem.installItem(c, wi, uri);
 
-                uri = item.getExternalIdentifier().getCanonicalForm();
+                uri = item.getIdentifier().getCanonicalForm();
 
                 mapOutput = itemname + " " + uri;
             }

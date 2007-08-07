@@ -341,10 +341,19 @@ public class FeedServlet extends DSpaceServlet
 	           	logo = comm.getLogo();
 	    		scope.setScope(comm);
 	    	}
-	    	
-    		String objectUrl = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
-    			? dso.getIdentifier().getURL().toString()
-    			: dso.getExternalIdentifier().getURI().toString();
+
+	    	String objectUrl = "";
+            if (dso.getExternalIdentifier() != null)
+            {
+                objectUrl = ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
+                    ? dso.getIdentifier().getURL().toString()
+                    : dso.getExternalIdentifier().getURI().toString();
+            }
+            else
+            {
+                // If no external identifier is available, use the local URL
+                objectUrl = dso.getIdentifier().getURL().toString();
+            }
     		
 			// put in container-level data
 	        channel.setDescription(description);

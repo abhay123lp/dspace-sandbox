@@ -350,7 +350,7 @@ public class URIServlet extends DSpaceServlet
         AuthorizeManager.authorizeAction(context, item, Constants.READ);
 
         log.info(LogManager.getHeader(context, "view_item", "uri=" +
-                    item.getExternalIdentifier().getCanonicalForm()));
+                    item.getIdentifier().getCanonicalForm()));
 
         // show edit link
         if (item.canEdit())

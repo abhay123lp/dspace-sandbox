@@ -422,7 +422,7 @@ public class BrowseServlet extends DSpaceServlet
                 else
                 {
                     Item firstItem = (browseInfo.getItemResults())[0];
-                    s = firstItem.getExternalIdentifier().getCanonicalForm();
+                    s = firstItem.getIdentifier().getCanonicalForm();
                 }
 
                 if (browseDates && oldestFirst)
@@ -462,7 +462,7 @@ public class BrowseServlet extends DSpaceServlet
                 {
                     Item[] items = browseInfo.getItemResults();
                     Item lastItem = items[items.length - 1];
-                    s = lastItem.getExternalIdentifier().getCanonicalForm();
+                    s = lastItem.getIdentifier().getCanonicalForm();
                 }
 
                 if (browseDates && oldestFirst)

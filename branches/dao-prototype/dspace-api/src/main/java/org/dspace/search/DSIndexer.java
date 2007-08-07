@@ -235,7 +235,7 @@ public class DSIndexer
         ExternalIdentifierDAO identifierDAO =
             ExternalIdentifierDAOFactory.getInstance(context);
 
-        String uri = dso.getExternalIdentifier().getCanonicalForm();
+        String uri = dso.getIdentifier().getCanonicalForm();
 
         Term t = new Term("uri", uri);
 
@@ -312,7 +312,7 @@ public class DSIndexer
         try
         {
             unIndexContent(context,
-                    dso.getExternalIdentifier().getCanonicalForm());
+                    dso.getIdentifier().getCanonicalForm());
         }
         catch(Exception exception)
         {
@@ -835,7 +835,7 @@ public class DSIndexer
     throws SQLException, IOException
     {
         // Create Lucene Document
-        String uri = community.getExternalIdentifier().getCanonicalForm();
+        String uri = community.getIdentifier().getCanonicalForm();
         Document doc = buildDocument(Constants.COMMUNITY, uri, null);
 
         // and populate it
@@ -865,7 +865,7 @@ public class DSIndexer
         String location_text = buildCollectionLocationString(context, collection);
 
         // Create Lucene Document
-        String uri = collection.getExternalIdentifier().getCanonicalForm();
+        String uri = collection.getIdentifier().getCanonicalForm();
         Document doc = buildDocument(Constants.COLLECTION, uri, location_text);
 
         // and populate it
@@ -898,7 +898,7 @@ public class DSIndexer
 
         // FIXME: Need to check to make sure the Item has a persistent
         // identifier?
-        String uri = item.getExternalIdentifier().getCanonicalForm();
+        String uri = item.getIdentifier().getCanonicalForm();
 
         Document doc = buildDocument(Constants.ITEM, uri, location);
 

@@ -458,7 +458,7 @@ public class StructBuilder
             // This looks like a lot of repetition of getting information from
             // above but it's here to keep it separate from the create process
             // in case we want to move it or make it switchable later
-            element.setAttribute("uri", community.getExternalIdentifier().getCanonicalForm());
+            element.setAttribute("uri", community.getIdentifier().getCanonicalForm());
             
             Element nameElement = new Element("name");
             nameElement.setText(community.getMetadata("name"));
@@ -556,7 +556,7 @@ public class StructBuilder
             
             collection.update();
             
-            element.setAttribute("uri", collection.getExternalIdentifier().getCanonicalForm());
+            element.setAttribute("uri", collection.getIdentifier().getCanonicalForm());
             
             Element nameElement = new Element("name");
             nameElement.setText(collection.getMetadata("name"));

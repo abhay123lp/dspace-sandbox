@@ -154,7 +154,7 @@ public class DescribeStep extends AbstractProcessingStep
         // lookup applicable inputs
         Collection c = subInfo.getSubmissionItem().getCollection();
         DCInput[] inputs = inputsReader.getInputs(
-                c.getExternalIdentifier().getCanonicalForm()).getPageRows(
+                c.getIdentifier().getCanonicalForm()).getPageRows(
                 currentPage - 1,
                 subInfo.getSubmissionItem().hasMultipleTitles(),
                 subInfo.getSubmissionItem().isPublishedBefore());
@@ -343,7 +343,7 @@ public class DescribeStep extends AbstractProcessingStep
         if (subInfo.getSubmissionItem() != null)
         {
             collectionHandle = subInfo.getSubmissionItem().getCollection()
-                    .getExternalIdentifier().getCanonicalForm();
+                    .getIdentifier().getCanonicalForm();
         }
 
         // get number of input pages (i.e. "Describe" pages)

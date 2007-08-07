@@ -137,7 +137,7 @@ public abstract class CommunityDAO extends ContentDAO
 
         log.info(LogManager.getHeader(context, "create_community",
                 "community_id=" + community.getID()) + ",uri=" +
-                community.getExternalIdentifier().getCanonicalForm());
+                community.getIdentifier().getCanonicalForm());
 
         update(community);
 

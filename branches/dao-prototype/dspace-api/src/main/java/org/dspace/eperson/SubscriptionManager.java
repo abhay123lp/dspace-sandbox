@@ -58,9 +58,7 @@ import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
@@ -310,9 +308,10 @@ public class SubscriptionManager
      *            List of collection IDs (Integers)
      */
     public static void sendEmail(Context context, EPerson eperson,
-            List collections) throws IOException, MessagingException
+            List<Collection> collections)
+        throws IOException, MessagingException
     {
-        ExternalIdentifier identifier = null;
+        ObjectIdentifier identifier = null;
 
         // Get a resource bundle according to the eperson language preferences
         Locale epersonLocale = new Locale(eperson.getLanguage());
@@ -336,10 +335,8 @@ public class SubscriptionManager
         StringBuffer emailText = new StringBuffer();
         boolean isFirst = true;
 
-        for (int i = 0; i < collections.size(); i++)
+        for (Collection c : collections)
         {
-            Collection c = (Collection) collections.get(i);
-
             try
             {
                 // Limit and offset zero, get everything
@@ -405,7 +402,7 @@ public class SubscriptionManager
 
                         emailText.append("\n         ").append(labels.getString(
                                     "org.dspace.eperson.Subscribe.id")).append(
-                                    identifier.getURI().toString()).append(
+                                    identifier.getURL()).append(
                                     "\n\n");
                     }
                 }

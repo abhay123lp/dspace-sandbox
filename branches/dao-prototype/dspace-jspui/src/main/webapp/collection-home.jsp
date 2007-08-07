@@ -160,8 +160,8 @@
 	        <label for="tlocation"><small><strong><fmt:message key="jsp.general.location"/></strong></small></label>&nbsp;
                   <select name="location" id="tlocation">
 		    <option value="/"><fmt:message key="jsp.general.genericScope"/></option>
-                    <option selected="selected" value="<%= community.getExternalIdentifier().getCanonicalForm() %>"><%= communityName %></option>
-                    <option selected="selected" value="<%= collection.getExternalIdentifier().getCanonicalForm() %>"><%= name %></option>
+                    <option selected="selected" value="<%= community.getIdentifier().getCanonicalForm() %>"><%= communityName %></option>
+                    <option selected="selected" value="<%= collection.getIdentifier().getCanonicalForm() %>"><%= name %></option>
                   </select>
               </td>
             </tr>
@@ -329,7 +329,7 @@
     	       width = 36;
     	    }
 %>
-    <a href="<%= request.getContextPath() %>/feed/<%= fmts[j] %>/<%= collection.getExternalIdentifier().getCanonicalForm() %>"><img src="<%= request.getContextPath() %>/image/<%= icon %>" alt="RSS Feed" width="<%= width %>" height="15" vspace="3" border="0" /></a>
+    <a href="<%= request.getContextPath() %>/feed/<%= fmts[j] %>/<%= collection.getIdentifier().getCanonicalForm() %>"><img src="<%= request.getContextPath() %>/image/<%= icon %>" alt="RSS Feed" width="<%= width %>" height="15" vspace="3" border="0" /></a>
 <%
     	}
 %>

@@ -469,7 +469,7 @@ public class ItemExport
         {
             PrintWriter out = new PrintWriter(new FileWriter(outFile));
 
-            out.println(i.getExternalIdentifier().getCanonicalForm());
+            out.println(i.getIdentifier().getCanonicalForm());
 
             // close the contents file
             out.close();

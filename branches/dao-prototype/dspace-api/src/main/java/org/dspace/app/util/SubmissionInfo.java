@@ -150,10 +150,10 @@ public class SubmissionInfo
         String collectionURI = SubmissionConfigReader.DEFAULT_COLLECTION;
         if (subItem != null)
         {
-            collectionURI = subItem.getCollection().getExternalIdentifier().getCanonicalForm();
+            collectionURI = subItem.getCollection().getIdentifier().getCanonicalForm();
         }
 
-        // save this collection handle to this submission info object
+        // save this collection URI to this submission info object
         subInfo.setCollectionURI(collectionURI);
 
         // load Submission Process config for this item's collection
@@ -228,7 +228,7 @@ public class SubmissionInfo
         String collectionURI = SubmissionConfigReader.DEFAULT_COLLECTION;
         if (this.submissionItem != null)
         {
-            collectionURI = submissionItem.getCollection().getExternalIdentifier().getCanonicalForm();
+            collectionURI = submissionItem.getCollection().getIdentifier().getCanonicalForm();
         }
         this.setCollectionURI(collectionURI);
 
@@ -312,8 +312,8 @@ public class SubmissionInfo
     /**
      * Sets the URI of the collection to which this item is being submitted
      * 
-     * @param handle
-     *            the new collection handle
+     * @param canonicalForm
+     *            the new collection URI (canonical form)
      */
     public void setCollectionURI(String canonicalForm)
     {
@@ -673,7 +673,7 @@ public class SubmissionInfo
      * @param subConfig
      *            The SubmissionConfig to cache
      * @param collectionURI
-     *            The Collection handle this SubmissionConfig corresponds to
+     *            The Collection URI this SubmissionConfig corresponds to
      * @param isWorkflow
      *            Whether this SubmissionConfig corresponds to a workflow
      * 
@@ -699,7 +699,7 @@ public class SubmissionInfo
      * @param session
      *            The HTTP Session object
      * @param collectionURI
-     *            The Collection handle of the SubmissionConfig to load
+     *            The Collection URI of the SubmissionConfig to load
      * @param isWorkflow
      *            whether or not we loading the Submission process for a
      *            workflow item
@@ -717,8 +717,8 @@ public class SubmissionInfo
         Boolean cachedIsWorkflow = (Boolean) session
                 .getAttribute("submission.config.isWorkflow");
 
-        // only load from cache if the collection handle and
-        // workflow item status both match!
+        // only load from cache if the collection URI and workflow item status
+        // both match!
         if (collectionURI.equals(cachedURI)
                 && isWorkflow == cachedIsWorkflow.booleanValue())
 

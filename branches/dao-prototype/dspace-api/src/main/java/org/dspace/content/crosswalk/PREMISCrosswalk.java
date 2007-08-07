@@ -254,7 +254,7 @@ public class PREMISCrosswalk
         {
             Item bi[] = bn[0].getItems();
             if (bi.length > 0)
-                uri = bi[0].getExternalIdentifier().getCanonicalForm();
+                uri = bi[0].getIdentifier().getCanonicalForm();
         }
         // get or make up name for bitstream:
         String bsName = bitstream.getName();

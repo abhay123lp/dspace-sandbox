@@ -619,7 +619,7 @@ public class WorkflowManager
         {
             throw new RuntimeException(sqle);
         }
-        String uri = item.getExternalIdentifier().getCanonicalForm();
+        String uri = item.getIdentifier().getCanonicalForm();
 
         // Log the event
         log.info(LogManager.getHeader(c, "install_item", "workflow_id="

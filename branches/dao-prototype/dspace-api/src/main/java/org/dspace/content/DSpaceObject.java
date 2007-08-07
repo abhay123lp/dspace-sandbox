@@ -203,5 +203,4 @@ public abstract class DSpaceObject
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
-
 }

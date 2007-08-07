@@ -493,7 +493,7 @@ public class ItemTag extends TagSupport
         if (collections != null)
         {
             out.print("<tr><td class=\"metadataFieldLabel\">");
-            if (item.getExternalIdentifier() == null)
+            if (!item.isArchived())
             {
                 out.print(LocaleSupport.getLocalizedMessage(pageContext,
                         "org.dspace.app.webui.jsptag.ItemTag.submitted"));
@@ -547,12 +547,7 @@ public class ItemTag extends TagSupport
             boolean html = false;
             // FIXME: This is inconsistent with other URLs, and will leave
             // commas in the URL :(
-            String uri = null;
-            ExternalIdentifier identifier = item.getExternalIdentifier();
-            if (identifier != null)
-            {
-                uri = identifier.getCanonicalForm();
-            }
+            String uri = item.getIdentifier().getURL().toString();
 
             Bitstream primaryBitstream = null;
 
@@ -616,11 +611,15 @@ public class ItemTag extends TagSupport
                 // If no real persistent identifier yet (e.g. because Item
                 // is in workflow) we use the identifier db-id/1234 where
                 // 1234 is the database ID of the item.
-                if (uri == null)
-                {
-                    // FIXME: We should probably use the dsi:x/y format
-                    uri = "db-id/" + item.getID();
-                }
+                
+                // Commented out because we now get the uri string from the
+                // internal identifier, not the external (so it is guaranteed
+                // to always exist).
+//                if (uri == null)
+//                {
+//                    // FIXME: We should probably use the dsi:x/y format
+//                    uri = "db-id/" + item.getID();
+//                }
 
                 out.print("<tr><td headers=\"t1\" class=\"standard\">");
                 out.print("<a target=\"_blank\" href=\"");
@@ -791,7 +790,7 @@ public class ItemTag extends TagSupport
         }
 
         String collStyle = (String) collectionStyles.get(
-                c.getExternalIdentifier().getCanonicalForm());
+                c.getIdentifier().getCanonicalForm());
 
         if (collStyle == null)
         {
@@ -807,7 +806,7 @@ public class ItemTag extends TagSupport
                     .warn("dspace.cfg specifies undefined item metadata display style '"
                             + collStyle
                             + "' for collection "
-                            + c.getExternalIdentifier().getCanonicalForm()
+                            + c.getIdentifier().getCanonicalForm()
                             + ".  Using default");
             style = "default";
             return;
