@@ -69,7 +69,6 @@ import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;

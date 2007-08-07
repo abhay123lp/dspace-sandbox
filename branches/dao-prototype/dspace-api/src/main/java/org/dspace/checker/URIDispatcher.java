@@ -50,6 +50,9 @@ import org.dspace.core.Context;
  * A BitstreamDispatcher that checks all the bitstreams contained within an
  * item, collection or community referred to by persistent identifier.
  * 
+ * FIXME: This needs to be changed to store an ObjectIdentifier rather than a
+ * String.
+ * 
  * @author Jim Downing
  * @author Grace Carpenter
  * @author Nathan Sarr
