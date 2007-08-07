@@ -66,6 +66,24 @@ import org.dspace.storage.rdbms.TableRowIterator;
  */
 public class BrowseCreateDAOOracle implements BrowseCreateDAO
 {
+    public String createPrimaryTable(String table, List sortCols,
+            boolean execute) throws BrowseException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void insertIndex(String table, int itemID, Map sortCols)
+            throws BrowseException {
+        // TODO Auto-generated method stub
+        
+    }
+
+    public String createPrimaryView(String table, List sortCols, boolean execute)
+            throws BrowseException {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     /** Log4j logger */
     private static Logger log = Logger.getLogger(BrowseCreateDAOOracle.class);
 
@@ -151,7 +169,7 @@ public class BrowseCreateDAOOracle implements BrowseCreateDAO
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#createDatabaseIndices(java.lang.String, boolean)
      */
-    public String[] createDatabaseIndices(String table, boolean execute) throws BrowseException
+    public String[] createDatabaseIndices(String table, boolean value, boolean execute) throws BrowseException
     {
         try
         {
@@ -255,7 +273,7 @@ public class BrowseCreateDAOOracle implements BrowseCreateDAO
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#createPrimaryTable(java.lang.String, java.util.List, boolean)
      */
-    public String createPrimaryTable(String table, List sortCols, boolean execute) throws BrowseException
+    public String createSecondaryTable(String table, List sortCols, boolean execute) throws BrowseException
     {
         try
         {

@@ -105,6 +105,7 @@ public interface BrowseCreateDAO
 	 * @param sortCols	an Integer-String map of sort column numbers and values
 	 * @throws BrowseException
 	 */
+    public void insertIndex(String table, int itemID, Map sortCols) throws BrowseException;
 	public void insertIndex(String table, int itemID, String value, String sortValue, Map sortCols) throws BrowseException;
 	
 	/**
@@ -251,7 +252,11 @@ public interface BrowseCreateDAO
 	 * @return			the instructions (SQL) that effect the creation
 	 * @throws BrowseException
 	 */
-	public String createPrimaryTable(String table, List sortCols, boolean execute) throws BrowseException;
+	public String createSecondaryTable(String table, List sortCols, boolean execute) throws BrowseException;
+
+    public String createPrimaryTable(String table, List sortCols, boolean execute) throws BrowseException;
+	
+	public String createPrimaryView(String table, List sortCols, boolean execute) throws BrowseException;
 	
 	/**
 	 * Create any indices that the implementing DAO sees fit to maximise performance.
@@ -265,7 +270,7 @@ public interface BrowseCreateDAO
 	 * @return			the instructions (SQL) that effect the indices
 	 * @throws BrowseException
 	 */
-	public String[] createDatabaseIndices(String table, boolean execute) throws BrowseException;
+	public String[] createDatabaseIndices(String table, boolean value, boolean execute) throws BrowseException;
 	
 	/**
 	 * Create the View of the full item index as seen from a collection.

@@ -146,7 +146,7 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#createDatabaseIndices(java.lang.String, boolean)
      */
-    public String[] createDatabaseIndices(String table, boolean execute)
+    public String[] createDatabaseIndices(String table, boolean value, boolean execute)
         throws BrowseException
     {
         try
@@ -161,11 +161,19 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
             
             if (execute)
             {
-                DatabaseManager.updateQuery(context, createSortIndex);
+                if (value)
+                    DatabaseManager.updateQuery(context, createSortIndex);
+                
                 DatabaseManager.updateQuery(context, createItemIndex);
             }
             
-            String[] array = { createSortIndex, createItemIndex };
+            if (value)
+            {
+                String[] array = { createSortIndex, createItemIndex };
+                return array;
+            }
+            
+            String[] array = { createItemIndex };
             return array;
         }
         catch (SQLException e)
@@ -259,7 +267,44 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
         try
         {
             StringBuffer sb = new StringBuffer();
-            sb.append("sort_value ");
+            
+            Iterator itr = sortCols.iterator();
+            while (itr.hasNext())
+            {
+                Integer no = (Integer) itr.next();
+                sb.append(", sort_");
+                sb.append(no.toString());
+                sb.append(getSortColumnDefinition());
+            }
+            
+            String createTable = "CREATE TABLE " + table + " (" +
+                                    "id integer primary key," +
+                                    "item_id integer references item(item_id)" +
+                                    sb.toString() + 
+                                    ");";
+            if (execute)
+            {
+                DatabaseManager.updateQuery(context, createTable);
+            }
+            return createTable;
+        }
+        catch (SQLException e)
+        {
+            log.error("caught exception: ", e);
+            throw new BrowseException(e);
+        }       
+    }
+    
+    /* (non-Javadoc)
+     * @see org.dspace.browse.BrowseCreateDAO#createPrimaryTable(java.lang.String, java.util.List, boolean)
+     */
+    public String createSecondaryTable(String table, List sortCols, boolean execute)
+        throws BrowseException
+    {
+        try
+        {
+            StringBuffer sb = new StringBuffer();
+            sb.append(", sort_value ");
             sb.append(getSortColumnDefinition());
             
             Iterator itr = sortCols.iterator();
@@ -273,8 +318,8 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
             
             String createTable = "CREATE TABLE " + table + " (" +
                                     "id integer primary key," +
-                                    "item_id integer references item(item_id)," +
-                                    "value " + getValueColumnDefinition() + ", " + 
+                                    "item_id integer references item(item_id), " +
+                                    "value " + getValueColumnDefinition() +
                                     sb.toString() + 
                                     ");";
             if (execute)
@@ -290,6 +335,28 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
         }       
     }
 
+    public String createPrimaryView(String view, List sortCols, boolean execute)
+        throws BrowseException
+    {
+        try
+        {
+            String createPriView = "CREATE VIEW " + view + " as " +
+                    "SELECT * FROM " + BrowseIndex.ITEM_INDEX + ";";
+
+            if (execute)
+            {
+                DatabaseManager.updateQuery(context, createPriView);
+            }
+            
+            return createPriView;
+        }
+        catch (SQLException e)
+        {
+            log.error("caught exception: ", e);
+            throw new BrowseException(e);
+        }       
+    }
+    
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#createSequence(java.lang.String, boolean)
      */
@@ -470,6 +537,38 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
             
             log.debug("insertDistinctRecord: return=" + distinctID);
             return distinctID;
+        }
+        catch (SQLException e)
+        {
+            log.error("caught exception: ", e);
+            throw new BrowseException(e);
+        }
+    }
+    
+    /* (non-Javadoc)
+     * @see org.dspace.browse.BrowseCreateDAO#insertIndex(java.lang.String, int, java.lang.String, java.lang.String, java.util.Map)
+     */
+    public void insertIndex(String table, int itemID, Map sortCols)
+        throws BrowseException
+    {
+        try
+        {
+            // create us a row in the index
+            TableRow row = DatabaseManager.create(context, table);
+            
+            // set the primary information for the index
+            row.setColumn("item_id", itemID);
+            
+            // now set the columns for the other sort values
+            Iterator itra = sortCols.keySet().iterator();
+            while (itra.hasNext())
+            {
+                Integer key = (Integer) itra.next();
+                String nValue = (String) sortCols.get(key);
+                row.setColumn("sort_" + key.toString(), utils.truncateSortValue(nValue));
+            }
+            
+            DatabaseManager.update(context, row);
         }
         catch (SQLException e)
         {

@@ -60,6 +60,9 @@ import org.dspace.core.ConfigurationManager;
  */
 public class BrowseIndex
 {
+    public static String ITEM_INDEX     = "bi_item";
+    public static String ITEM_INDEX_SEQ = "bi_item_seq";
+    
 	/** the configuration number, as specified in the config */
     private int number;
     
@@ -82,7 +85,7 @@ public class BrowseIndex
     private String[] mdBits;
     
     /** the sort options available for this index */
-    private Map sortOptions = new HashMap();
+    private static Map<Integer, SortOption> sortOptions = null;
     
     /**
      * Create a new BrowseIndex object using the definition from the configuration,
@@ -121,9 +124,6 @@ public class BrowseIndex
         metadata = matcher.group(2);
         datatype = matcher.group(3);
         displayType = matcher.group(4);
-        
-        // now load the sort options
-        loadSortOptions();
     }
 
     /**
@@ -236,14 +236,6 @@ public class BrowseIndex
 	public void setNumber(int number)
 	{
 		this.number = number;
-	}
-
-	/**
-	 * @param sortOptions The sortOptions to set.
-	 */
-	public void setSortOptions(Map sortOptions)
-	{
-		this.sortOptions = sortOptions;
 	}
 
 	/**
@@ -515,39 +507,33 @@ public class BrowseIndex
     /**
      * @return	the SortOptions object for this index
      */
-    public Map getSortOptions()
+    public static Map<Integer, SortOption> getSortOptions() throws BrowseException
     {
-    	return sortOptions;
-    }
-    
-    /**
-     * For the specific browse index, load the sort options from
-     * configuration
-     * 
-     * @throws BrowseException
-     */
-    public void loadSortOptions()
-    	throws BrowseException
-    {
-    	Enumeration en = ConfigurationManager.propertyNames();
+        if (sortOptions != null)
+            return sortOptions;
         
-        ArrayList browseIndices = new ArrayList();
-        
-        String rx = "webui\\.browse\\.sort-option\\.(\\d+)";
-        Pattern pattern = Pattern.compile(rx);
-        
-        while (en.hasMoreElements())
+        sortOptions = new HashMap<Integer, SortOption>();
+        synchronized (sortOptions)
         {
-            String property = (String) en.nextElement();
-            Matcher matcher = pattern.matcher(property);
-            if (matcher.matches())
+            Enumeration en = ConfigurationManager.propertyNames();
+            
+            String rx = "webui\\.browse\\.sort-option\\.(\\d+)";
+            Pattern pattern = Pattern.compile(rx);
+            
+            while (en.hasMoreElements())
             {
-                int number = Integer.parseInt(matcher.group(1));
-                String option = ConfigurationManager.getProperty(property);
-                SortOption so = new SortOption(number, option);
-                sortOptions.put(new Integer(number), so);
+                String property = (String) en.nextElement();
+                Matcher matcher = pattern.matcher(property);
+                if (matcher.matches())
+                {
+                    int number = Integer.parseInt(matcher.group(1));
+                    String option = ConfigurationManager.getProperty(property);
+                    SortOption so = new SortOption(number, option);
+                    sortOptions.put(new Integer(number), so);
+                }
             }
         }
+    	return sortOptions;
     }
     
     /**

@@ -239,7 +239,7 @@ public class BrowseEngine
 			// prepare the parameters for the focus clause if we are to have one
 			String focusValue = null;
 			String rawFocusValue = null;
-			String focusField = "sort_value";
+			String focusField = "sort_1"; // Use the first 
 			if (scope.hasFocus() || scope.hasValueFocus() || scope.hasStartsWith())
 			{
 				focusValue = getFocusValue();
@@ -276,7 +276,7 @@ public class BrowseEngine
 			// assemble the value clause if we are to have one
 			String value = null;
 			String rawValue = null;
-			if (scope.hasValue())
+			if (scope.hasValue() && scope.isSecondLevel())
 			{
 				value = scope.getValue();
 				rawValue = value;
@@ -309,7 +309,7 @@ public class BrowseEngine
 			}
 			
 			// assemble the ORDER BY clause
-			String orderBy = "sort_value";
+			String orderBy = "sort_1";
 			if (scope.getSortBy() > 0)
 			{
 				orderBy = "sort_" + Integer.toString(scope.getSortBy());
