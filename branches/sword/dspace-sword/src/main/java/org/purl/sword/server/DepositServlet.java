@@ -12,6 +12,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.purl.sword.HttpHeaders;
+import org.purl.sword.SWORDAuthenticationException;
+import org.purl.sword.SWORDException;
 import org.purl.sword.SWORDServer;
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
@@ -79,20 +81,24 @@ public class DepositServlet extends HttpServlet {
 		d.setIPAddress(request.getRemoteAddr());
 		
         // Get the ServiceDocument
-		DepositResponse dr = myRepository.doDeposit(d);
-        
-        // Is the response null?
-		if (dr != null) {
+		try {
+			DepositResponse dr = myRepository.doDeposit(d);
+			
 			// Print out the Service Document
 			// response.setContentType("application/atomserv+xml");
 			response.setContentType("application/xml");
 			PrintWriter out = response.getWriter();
 	        out.write(dr.marshall());
-	    } else if (authN.equals("Basic")) {
-	    	String s = "Basic realm=\"SWORD\"";
-	    	response.setHeader("WWW-Authenticate", s);
-	    	response.setStatus(401);
-	    }
+		} catch (SWORDAuthenticationException sae) {
+			if (authN.equals("Basic")) {
+		    	String s = "Basic realm=\"SWORD\"";
+		    	response.setHeader("WWW-Authenticate", s);
+		    	response.setStatus(401);
+			}
+		} catch (SWORDException se) {
+			// Throw a HTTP 500
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+		}
     }
 	
     /**

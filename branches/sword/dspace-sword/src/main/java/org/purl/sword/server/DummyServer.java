@@ -1,5 +1,6 @@
 package org.purl.sword.server;
 
+import org.purl.sword.SWORDAuthenticationException;
 import org.purl.sword.SWORDServer;
 import org.purl.sword.base.Collection;
 import org.purl.sword.base.Deposit;
@@ -35,8 +36,9 @@ public class DummyServer implements SWORDServer {
 	 * for the onBehalfOf user.
 	 * 
 	 * @param onBehalfOf The user that the client is acting on behalf of
+	 * @throws SWORDAuthenticationException 
 	 */
-	public ServiceDocument doServiceDocument(ServiceDocumentRequest sdr) {
+	public ServiceDocument doServiceDocument(ServiceDocumentRequest sdr) throws SWORDAuthenticationException {
 		// Authenticate the user
 		String username = sdr.getUsername();
 		String password = sdr.getPassword();
@@ -44,7 +46,7 @@ public class DummyServer implements SWORDServer {
 		    (password != null) && 
 		    (!username.equalsIgnoreCase(password))) {
 				// User not authenticated
-				return null;
+				throw new SWORDAuthenticationException("Bad credentials");
 		}
 		
 		// Create and return a dummy ServiceDocument
@@ -90,7 +92,7 @@ public class DummyServer implements SWORDServer {
 	    return document;
 	}
 
-	public DepositResponse doDeposit(Deposit deposit) {
+	public DepositResponse doDeposit(Deposit deposit) throws SWORDAuthenticationException {
 		// Authenticate the user
 		String username = deposit.getUsername();
 		String password = deposit.getPassword();
@@ -98,7 +100,7 @@ public class DummyServer implements SWORDServer {
 		    (password != null) && 
 		    (!username.equalsIgnoreCase(password))) {
 				// User not authenticated
-				return null;
+			throw new SWORDAuthenticationException("Bad credentials");
 		}
 		
 		// Handle the deposit

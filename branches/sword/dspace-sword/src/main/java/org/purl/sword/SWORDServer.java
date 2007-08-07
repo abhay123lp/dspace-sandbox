@@ -22,7 +22,8 @@ public interface SWORDServer {
 	 *
 	 * @return The ServiceDocument representing the service document
 	 */
-	public ServiceDocument doServiceDocument(ServiceDocumentRequest sdr);
+	public ServiceDocument doServiceDocument(ServiceDocumentRequest sdr)
+		throws SWORDAuthenticationException, SWORDException;
 	
 	/**
 	 * Answer a SWORD deposit
@@ -31,6 +32,6 @@ public interface SWORDServer {
 	 * 
 	 * @return The response to the deposit
 	 */
-	public DepositResponse doDeposit(Deposit deposit);
-
+	public DepositResponse doDeposit(Deposit deposit)
+		throws SWORDAuthenticationException, SWORDException;
 }
