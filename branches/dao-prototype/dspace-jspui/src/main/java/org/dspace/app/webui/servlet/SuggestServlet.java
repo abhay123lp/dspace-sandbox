@@ -42,7 +42,6 @@ package org.dspace.app.webui.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.MissingResourceException;
 import javax.mail.MessagingException;
 import javax.servlet.ServletException;
