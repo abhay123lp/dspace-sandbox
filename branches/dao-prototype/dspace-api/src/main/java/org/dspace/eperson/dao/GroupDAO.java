@@ -52,8 +52,6 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.proxy.GroupProxy;
-import org.dspace.content.uri.ObjectIdentifier;
 
 /**
  * @author James Rutherford

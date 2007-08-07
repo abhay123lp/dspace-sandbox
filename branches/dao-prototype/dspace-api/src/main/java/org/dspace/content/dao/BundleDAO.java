@@ -39,7 +39,6 @@
  */
 package org.dspace.content.dao;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -53,7 +52,6 @@ import org.dspace.core.LogManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
-import org.dspace.content.uri.ObjectIdentifier;
 
 /**
  * @author James Rutherford

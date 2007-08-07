@@ -44,7 +44,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 
 import org.apache.log4j.Logger;
 
@@ -60,6 +59,7 @@ import org.dspace.content.dao.BundleDAOFactory;     // Naughty!
 import org.dspace.content.dao.ItemDAO;              // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
 import org.dspace.event.Event;
+
 /**
  * Class representing bundles of bitstreams stored in the DSpace system
  * <P>

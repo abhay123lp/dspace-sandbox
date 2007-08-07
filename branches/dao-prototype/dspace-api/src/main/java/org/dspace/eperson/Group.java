@@ -41,7 +41,6 @@ package org.dspace.eperson;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.io.IOException;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;

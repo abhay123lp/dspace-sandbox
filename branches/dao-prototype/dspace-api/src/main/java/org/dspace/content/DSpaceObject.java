@@ -39,7 +39,6 @@
  */
 package org.dspace.content;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -51,10 +50,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.core.Constants;
-import org.dspace.core.Context;
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
 
 /**
  * Abstract base class for DSpace objects

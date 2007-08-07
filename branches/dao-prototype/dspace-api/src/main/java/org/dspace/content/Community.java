@@ -51,7 +51,6 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.authorize.ResourcePolicy;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -64,7 +63,6 @@ import org.dspace.content.dao.CollectionDAOFactory; // Naughty!
 import org.dspace.content.dao.CommunityDAO;         // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
 import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.eperson.Group;
 import org.dspace.event.Event;
 
 /**

@@ -48,7 +48,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import org.dspace.content.DCDate;
-import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.search.HarvestedItemInfo;
 
 import ORG.oclc.oai.server.catalog.RecordFactory;
@@ -108,7 +108,7 @@ public class DSpaceRecordFactory extends RecordFactory
 
         // Convert the canonical form xyz:123.456/789 to the OAI-friendly
         // xyz_123.456/789
-        for (ExternalIdentifier identifier : hii.collectionIdentifiers)
+        for (ObjectIdentifier identifier : hii.collectionIdentifiers)
         {
             String uri = identifier.getCanonicalForm();
             setSpecs.add(uri.replaceFirst(":", "_").replace('/', '_'));

@@ -39,15 +39,11 @@
  */
 package org.dspace.eperson;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.jsp.PageContext;
 import java.sql.SQLException;
 
-import org.apache.log4j.Logger;
 import org.dspace.core.Context;
-import org.dspace.eperson.EPerson;
 
 
 /**

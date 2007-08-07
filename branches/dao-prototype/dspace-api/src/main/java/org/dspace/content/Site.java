@@ -40,17 +40,12 @@
 package org.dspace.content;
 
 import java.sql.SQLException;
-import java.net.URI;
 import java.io.IOException;
 
 
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
-import org.dspace.event.Event;
 import org.dspace.authorize.AuthorizeException;
 
 /**

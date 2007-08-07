@@ -93,7 +93,7 @@ public class DIDLCrosswalk extends Crosswalk
         
         StringBuffer metadata = new StringBuffer();
         StringBuffer metadata1 = new StringBuffer();
-        String itemURI=item.getExternalIdentifier().getCanonicalForm();
+        String itemURI=item.getIdentifier().getCanonicalForm();
         int maxsize=  Integer.parseInt(ConfigurationManager.getProperty("oai.didl.maxresponse")); 
         String currdate=ServerVerb.createResponseDate(new Date());
         

@@ -119,7 +119,7 @@ public class RDFCrosswalk extends Crosswalk
         metadata.append("<ow:Publication rdf:about=\"oai:")
                 .append(hostName)
                 .append(":")
-                .append(item.getExternalIdentifier().getCanonicalForm())
+                .append(item.getIdentifier().getCanonicalForm())
                 .append("\">");
 
         for (int i = 0; i < allDC.length; i++)

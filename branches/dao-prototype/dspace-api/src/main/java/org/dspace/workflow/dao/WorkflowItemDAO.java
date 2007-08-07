@@ -55,7 +55,6 @@ import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.eperson.EPerson;
 import org.dspace.workflow.TaskListItem;
 import org.dspace.workflow.WorkflowItem;
-import org.dspace.workflow.WorkflowManager;
 
 /**
  * @author James Rutherford

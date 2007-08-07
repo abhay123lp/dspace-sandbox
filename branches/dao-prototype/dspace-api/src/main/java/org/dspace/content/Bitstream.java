@@ -41,7 +41,6 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -51,21 +50,11 @@ import org.dspace.content.dao.BitstreamDAO;         // Naughty!
 import org.dspace.content.dao.BitstreamDAOFactory;  // Naughty!
 import org.dspace.content.dao.BundleDAO;            // Naughty!
 import org.dspace.content.dao.BundleDAOFactory;     // Naughty!
-import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.event.Event;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
 
-import org.apache.commons.lang.builder.EqualsBuilder;
-import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * Class representing bitstreams stored in the DSpace system.

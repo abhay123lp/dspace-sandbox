@@ -52,9 +52,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.dao.BitstreamFormatDAO;
 import org.dspace.content.dao.BitstreamFormatDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 
 /**
  * FIXME: Should this extend DSpaceObject?

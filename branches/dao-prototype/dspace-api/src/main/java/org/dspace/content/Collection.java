@@ -52,8 +52,6 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.authorize.ResourcePolicy;
-import org.dspace.browse.Browse;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
@@ -73,8 +71,6 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;             // Naughty!
 import org.dspace.eperson.dao.GroupDAOFactory;      // Naughty!
 import org.dspace.event.Event;
-import org.dspace.search.DSIndexer;
-import org.dspace.workflow.WorkflowItem;
 
 /**
  * Class representing a collection.

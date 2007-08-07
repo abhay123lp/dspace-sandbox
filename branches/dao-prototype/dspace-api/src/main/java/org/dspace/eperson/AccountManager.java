@@ -40,7 +40,6 @@
 package org.dspace.eperson;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Locale;
@@ -48,7 +47,6 @@ import java.util.Locale;
 import javax.mail.MessagingException;
 
 import org.apache.log4j.Logger;
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Email;

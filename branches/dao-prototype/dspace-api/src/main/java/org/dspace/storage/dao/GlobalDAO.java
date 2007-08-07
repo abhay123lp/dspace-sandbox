@@ -40,7 +40,6 @@
 package org.dspace.storage.dao;
 
 import org.apache.log4j.Logger;
-import org.dspace.storage.dao.postgres.GlobalDAOPostgres;
 
 import java.sql.Connection;
 import java.sql.SQLException;

@@ -48,8 +48,6 @@ import org.dspace.core.Context;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
 
-import org.dspace.storage.dao.GlobalDAO;
-import org.dspace.storage.dao.GlobalDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 
