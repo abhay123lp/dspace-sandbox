@@ -4,11 +4,16 @@ import org.apache.log4j.Logger;
 
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.EPerson;
+import org.dspace.authorize.AuthorizeException;
 
 import org.purl.sword.SWORDServer;
-import org.purl.sword.base.SWORDDeposit;
-import org.purl.sword.base.SWORDDepositResponse;
+import org.purl.sword.base.DepositResponse;
 import org.purl.sword.base.ServiceDocument;
+import org.purl.sword.base.ServiceDocumentRequest;
+import org.purl.sword.server.Deposit;
+
+import java.sql.SQLException;
 
 /**
  * An implementation of the SWORDServer interface to allow SWORD deposit
@@ -40,68 +45,88 @@ public class DSpaceSWORDServer implements SWORDServer
 //		}
 	}
 	
-	// methods custom to the DSpace implementation of SWORDServer
-	/////////////////////////////////////////////////////////////
-	
-	public void setContext(Context context)
-	{
-		this.context = context;
-	}
-	
 	// methods required by SWORDServer interface
 	////////////////////////////////////////////
+
+	/* (non-Javadoc)
+	 * @see org.purl.sword.SWORDServer#doServiceDocument(org.purl.sword.base.ServiceDocumentRequest)
+	 */
+	public ServiceDocument doServiceDocument(ServiceDocumentRequest request)
+	{
+		if (log.isDebugEnabled())
+		{
+			log.debug(LogManager.getHeader(context, "sword_do_service_document", ""));
+		}
+		
+		try
+		{
+			// first build a context for the request
+			this.constructContext(request);
+
+			// now authenticate the user
+			SWORDAuthentication auth = new SWORDAuthentication();
+			EPerson ep = null;
+			if (auth.authenticates(this.context, request.getUserName(), request.getUserPassword()))
+			{
+				ep = EPerson.findByEmail(this.context, request.getUserName());
+			}
+			if (ep != null)
+			{
+				this.context.setCurrentUser(ep);
+			}
+			else
+			{
+				// FIXME: what do we do here?  Throw an exception?
+			}
+			
+			// log the request
+			log.info(LogManager.getHeader(context, "sword_service_document_request", "username=" + request.getUserName() + ",on_behalf_of=" + request.getOnBehalfOf()));
+			
+			// prep the service request, then get the service document out of it
+			SWORDService service = new SWORDService();
+			service.setContext(context);
+			service.setUsername(request.getUserName());
+			service.setOnBehalfOf(request.getOnBehalfOf());
+			ServiceDocument doc = service.getServiceDocument();
+			return doc;
+		}
+		catch (SQLException e)
+		{
+			log.error("caught exception: ", e);
+		}
+		catch (AuthorizeException e)
+		{
+			log.error("caught exception: ", e);
+		}
+		
+		return null;
+	}
 	
 	/* (non-Javadoc)
-	 * @see org.purl.sword.SWORDServer#authenticates(java.lang.String, java.lang.String)
+	 * @see org.purl.sword.SWORDServer#doSWORDDeposit(org.purl.sword.server.Deposit)
 	 */
-	public boolean authenticates(String username, String password)
+	public DepositResponse doSWORDDeposit(Deposit deposit)
 	{
-		SWORDAuthentication auth = new SWORDAuthentication();
-		boolean result = auth.authenticates(context, username, password);
-		log.info(LogManager.getHeader(context, "sword_authentication", "username=" + username + ",authenticated=" + Boolean.toString(result)));
-		return result;
+		// TODO Auto-generated method stub
+		return null;
 	}
-
-	/* (non-Javadoc)
-	 * @see org.purl.sword.SWORDServer#doServiceDocument(java.lang.String, java.lang.String)
-	 */
-	public ServiceDocument doServiceDocument(String username, String onBehalfOf)
+	
+	// internal methods
+	///////////////////
+	
+	private void constructContext(ServiceDocumentRequest request)
 	{
-		log.info(LogManager.getHeader(context, "sword_service_document_request", "username=" + username + ",on_behalf_of=" + onBehalfOf));
-		SWORDService service = new SWORDService();
-		service.setContext(context);
-		service.setUsername(username);
-		service.setOnBehalfOf(onBehalfOf);
-		ServiceDocument doc = service.getServiceDocument();
-		return doc;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.purl.sword.SWORDServer#doServiceDocument(java.lang.String)
-	 */
-	public ServiceDocument doServiceDocument(String username)
-	{
-		log.info(LogManager.getHeader(context, "sword_service_document_request", "username=" + username));
-		SWORDService service = new SWORDService();
-		service.setContext(context);
-		service.setUsername(username);
-		ServiceDocument doc = service.getServiceDocument();
-		return doc;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.purl.sword.SWORDServer#doSWORDDeposit(java.lang.String, org.purl.sword.base.SWORDDeposit)
-	 */
-	public SWORDDepositResponse doSWORDDeposit(String username, SWORDDeposit deposit)
-	{
-		log.info(LogManager.getHeader(context, "sword_deposit_request", "username=" + username + ",deposit_id=" + deposit.getDepositID()));
-		DepositManager dm = new DepositManager();
-		dm.setContext(context);
-		dm.setUsername(username);
-		dm.setDeposit(deposit);
-		SWORDDepositResponse resp = dm.deposit();
-		log.info(LogManager.getHeader(context, "sword_deposit", "username=" + username + ", id=" + resp.getId()));
-		return resp;
+		try
+		{
+			this.context = new Context();
+		}
+		catch (SQLException e)
+		{
+			log.error("caught exception: ", e);
+		}
+		
+		// Set the session ID and IP address
+        // this.context.setExtraLogInfo("session_id=0:ip_addr=" + request.getIP());
 	}
 	
 }
