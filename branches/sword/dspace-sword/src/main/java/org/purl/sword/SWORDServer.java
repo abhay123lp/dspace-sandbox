@@ -19,6 +19,10 @@ public interface SWORDServer {
 	 * Answer a Service Document request sent on behalf of a user
 	 * 
 	 * @param sdr The Service Document Request object
+	 * 
+	 * @exception SWORDAuthenticationException Thrown if the authentication fails
+	 * @exception SWORDException Thrown in an un-handalable Exception occurs. 
+	 *            This will be dealt with by sending a HTTP 500 Server Exception
 	 *
 	 * @return The ServiceDocument representing the service document
 	 */
@@ -29,6 +33,10 @@ public interface SWORDServer {
 	 * Answer a SWORD deposit
 	 * 
 	 * @param deposit The Deposit object
+	 * 
+	 * @exception SWORDAuthenticationException Thrown if the authentication fails
+	 * @exception SWORDException Thrown in an un-handalable Exception occurs. 
+	 *            This will be dealt with by sending a HTTP 500 Server Exception
 	 * 
 	 * @return The response to the deposit
 	 */
