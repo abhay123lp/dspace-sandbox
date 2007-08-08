@@ -54,6 +54,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.browse.Thumbnail; // FIXME: Move to this package
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -1131,6 +1132,77 @@ public class Item extends DSpaceObject
 
         // If we get this far, we have a match
         return true;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Stuff from BrowseItem
+    ////////////////////////////////////////////////////////////////////
+
+    /**
+     * Get a thumbnail object out of the item.
+     * 
+     * Warning: using this method actually instantiates an Item, which has a
+     * corresponding performance hit on the database during browse listing
+     * rendering.  That's your own fault for wanting to put images on your
+     * browse page!
+     * 
+     * @return
+     * @throws SQLException
+     */
+    public Thumbnail getThumbnail()
+    {
+        // if there's no original, there is no thumbnail
+        Bundle[] original = getBundles("ORIGINAL");
+        if (original.length == 0)
+        {
+            return null;
+        }
+        
+        // if multiple bitstreams, check if the primary one is HTML
+        boolean html = false;
+        if (original[0].getBitstreams().length > 1)
+        {
+            Bitstream[] bitstreams = original[0].getBitstreams();
+
+            for (int i = 0; (i < bitstreams.length) && !html; i++)
+            {
+                if (bitstreams[i].getID() == original[0].getPrimaryBitstreamID())
+                {
+                    html = bitstreams[i].getFormat().getMIMEType().equals("text/html");
+                }
+            }
+        }
+
+        // now actually pull out the thumbnail (ouch!)
+        Bundle[] thumbs = getBundles("THUMBNAIL");
+        
+        // if there are thumbs and we're not dealing with an HTML item
+        // then show the thumbnail
+        if ((thumbs.length > 0) && !html)
+        {
+            Bitstream thumbnailBitstream;
+            Bitstream originalBitstream;
+            
+            if ((original[0].getBitstreams().length > 1) && (original[0].getPrimaryBitstreamID() > -1))
+            {
+                originalBitstream = Bitstream.find(context, original[0].getPrimaryBitstreamID());
+                thumbnailBitstream = thumbs[0].getBitstreamByName(originalBitstream.getName() + ".jpg");
+            }
+            else
+            {
+                originalBitstream = original[0].getBitstreams()[0];
+                thumbnailBitstream = thumbs[0].getBitstreams()[0];
+            }
+            
+            if ((thumbnailBitstream != null)
+                    && (AuthorizeManager.authorizeActionBoolean(context, thumbnailBitstream, Constants.READ)))
+            {
+                Thumbnail thumbnail = new Thumbnail(thumbnailBitstream, originalBitstream);
+                return thumbnail;
+            }
+        }
+
+        return null;
     }
 
     ////////////////////////////////////////////////////////////////////

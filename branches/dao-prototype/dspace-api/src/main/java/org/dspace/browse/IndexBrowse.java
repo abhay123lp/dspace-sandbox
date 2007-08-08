@@ -52,8 +52,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
+
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Context;
 
 /**
@@ -898,6 +901,9 @@ public class IndexBrowse
     private int createIndex()
     	throws BrowseException
     {
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+        List<Item> items = itemDAO.getItems();
+
     	try
     	{
     		// first, pre-prepare the known metadata fields that we want to query
@@ -908,16 +914,18 @@ public class IndexBrowse
     		}
     		
     		// now get the ids of ALL the items in the database
-    		BrowseItem bi = new BrowseItem(context, -1);
-    		Integer[] ids = bi.findAll();
+//    		Item bi = new Item(context, -1);
+//    		Integer[] ids = bi.findAll();
 
     		// go through every item id, grab the relevant metadata
     		// and write it into the database
     		
-    		for (int j = 0; j < ids.length; j++)
+//    		for (int j = 0; j < ids.length; j++)
+    		for (Item item : items)
     		{
-    			BrowseItem item = new BrowseItem(context, ids[j].intValue());
-                indexItem(new ItemMetadataProxy(ids[j].intValue(), item));
+//    			Item item = new Item(context, ids[j].intValue());
+//                indexItem(new ItemMetadataProxy(ids[j].intValue(), item));
+                indexItem(new ItemMetadataProxy(item.getID(), item));
     			
     			// after each item we commit the context and clear the cache
     			context.commit();
@@ -938,7 +946,8 @@ public class IndexBrowse
             // Make sure the deletes are written back
             context.commit();
     		
-    		return ids.length;
+//    		return ids.length;
+    		return items.size();
     	}
     	catch (SQLException e)
     	{
@@ -989,12 +998,12 @@ public class IndexBrowse
 	}
 	
 	// private inner class
-	//	 Hides the Item / BrowseItem in such a way that we can remove
+	//	 Hides the Item / Item in such a way that we can remove
 	//	 the duplication in indexing an item.
 	private class ItemMetadataProxy
 	{
 	    private Item item;
-	    private BrowseItem browseItem;
+	    private Item browseItem;
 	    private int id;
 	    
 	    ItemMetadataProxy(Item item)
@@ -1004,7 +1013,7 @@ public class IndexBrowse
 	        this.id         = 0;
 	    }
 
-	    ItemMetadataProxy(int id, BrowseItem browseItem)
+	    ItemMetadataProxy(int id, Item browseItem)
 	    {
 	        this.item       = null;
 	        this.browseItem = browseItem;
@@ -1034,7 +1043,7 @@ public class IndexBrowse
 	    
 	    /**
 	     * Is the Item archived?
-	     * If we only have a cut down BrowseItem, assume that it is
+	     * If we only have a cut down Item, assume that it is
 	     * @return
 	     */
 	    public boolean isArchived()
@@ -1049,7 +1058,7 @@ public class IndexBrowse
 	    
         /**
          * Is the Item withdrawn?
-         * If we only have a cut down BrowseItem, assume that it is not
+         * If we only have a cut down Item, assume that it is not
          * @return
          */
         public boolean isWithdrawn()

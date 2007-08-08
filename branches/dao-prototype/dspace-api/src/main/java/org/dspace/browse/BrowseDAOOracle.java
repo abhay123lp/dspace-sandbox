@@ -44,6 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.dspace.content.Item;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.storage.rdbms.DatabaseManager;
@@ -235,6 +238,8 @@ public class BrowseDAOOracle implements BrowseDAO
      */
     public List doQuery() throws BrowseException
     {
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+
         String query = getQuery();
         Object[] params = getQueryParams();
         
@@ -254,8 +259,8 @@ public class BrowseDAOOracle implements BrowseDAO
             while (tri.hasNext())
             {
                 TableRow row = tri.next();
-                BrowseItem browseItem = new BrowseItem(context, row.getIntColumn("item_id"));
-                results.add(browseItem);
+                Item item = itemDAO.retrieve(row.getIntColumn("item_id"));
+                results.add(item);
             }
             
             return results;

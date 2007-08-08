@@ -59,8 +59,6 @@ import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.browse.Browse;
-import org.dspace.browse.BrowseScope;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -75,10 +73,13 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.core.PluginManager;
 import org.dspace.core.Utils;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.SubscriptionManager;
+import org.dspace.plugin.CollectionHomeProcessor;
+import org.dspace.plugin.CommunityHomeProcessor;
 
 public class URIServlet extends DSpaceServlet
 {
@@ -444,16 +445,8 @@ public class URIServlet extends DSpaceServlet
             // get any subcommunities of the community
             Community[] subcommunities = community.getSubcommunities();
 
-            // Find the 5 last submitted items
-            BrowseScope scope = new BrowseScope(context);
-            scope.setScope(community);
-            scope.setTotal(5);
-
-            List items = Browse.getLastSubmitted(scope);
-
-            // Get titles and URLs to item pages
-            String[] itemTitles = getItemTitles(items);
-            String[] itemLinks = getItemURLs(context, items);
+            // perform any necessary pre-processing
+            preProcessCommunityHome(context, request, response, community);
 
             // is the user a COMMUNITY_EDITOR?
             if (community.canEditBoolean())
@@ -479,12 +472,29 @@ public class URIServlet extends DSpaceServlet
             }
 
             // Forward to community home page
-            request.setAttribute("last.submitted.titles", itemTitles);
-            request.setAttribute("last.submitted.urls", itemLinks);
             request.setAttribute("community", community);
             request.setAttribute("collections", collections);
             request.setAttribute("subcommunities", subcommunities);
             JSPManager.showJSP(request, response, "/community-home.jsp");
+        }
+    }
+
+    private void preProcessCommunityHome(Context context, HttpServletRequest request,
+            HttpServletResponse response, Community community)
+        throws ServletException, IOException, SQLException
+    {
+        try
+        {
+            CommunityHomeProcessor[] chp = (CommunityHomeProcessor[]) PluginManager.getPluginSequence(CommunityHomeProcessor.class);
+            for (int i = 0; i < chp.length; i++)
+            {
+                chp[i].process(context, request, response, community);
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("caught exception: ", e);
+            throw new ServletException(e);
         }
     }
 
@@ -541,17 +551,9 @@ public class URIServlet extends DSpaceServlet
             log.info(LogManager.getHeader(context, "view_collection",
                     "collection_id=" + collection.getID()));
 
-            // Find the 5 last submitted items
-            BrowseScope scope = new BrowseScope(context);
-            scope.setScope(collection);
-            scope.setTotal(5);
-
-            List items = Browse.getLastSubmitted(scope);
-
-            // Get titles and URLs to item pages
-            String[] itemTitles = getItemTitles(items);
-            String[] itemLinks = getItemURLs(context, items);
-
+            // perform any necessary pre-processing
+            preProcessCollectionHome(context, request, response, collection);
+            
             // Is the user logged in/subscribed?
             EPerson e = context.getCurrentUser();
             boolean subscribed = false;
@@ -600,8 +602,6 @@ public class URIServlet extends DSpaceServlet
             }
 
             // Forward to collection home page
-            request.setAttribute("last.submitted.titles", itemTitles);
-            request.setAttribute("last.submitted.urls", itemLinks);
             request.setAttribute("collection", collection);
             request.setAttribute("community", community);
             request.setAttribute("logged.in", new Boolean(e != null));
@@ -612,6 +612,25 @@ public class URIServlet extends DSpaceServlet
             {
                 context.complete();
             }
+        }
+    }
+
+    private void preProcessCollectionHome(Context context, HttpServletRequest request,
+            HttpServletResponse response, Collection collection)
+        throws ServletException, IOException, SQLException
+    {
+        try
+        {
+            CollectionHomeProcessor[] chp = (CollectionHomeProcessor[]) PluginManager.getPluginSequence(CollectionHomeProcessor.class);
+            for (int i = 0; i < chp.length; i++)
+            {
+                chp[i].process(context, request, response, collection);
+            }
+        }
+        catch (Exception e)
+        {
+            log.error("caught exception: ", e);
+            throw new ServletException(e);
         }
     }
 

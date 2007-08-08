@@ -47,6 +47,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 
@@ -217,7 +218,7 @@ public class BrowseEngine
 	
 	/**
 	 * Browse the archive by the full item browse mechanism.  This produces a
-	 * BrowseInfo object which contains full BrowseItem objects as its result
+	 * BrowseInfo object which contains full Item objects as its result
 	 * set.
 	 * 
 	 * @param bs		the scope of the browse
@@ -339,11 +340,11 @@ public class BrowseEngine
 			// previous queries
 			
 			// NEXT PAGE
-			BrowseItem next = null;
+			Item next = null;
 			int lastIndex = results.size() - 1;
 			if (lastIndex >= scope.getResultsPerPage())
 			{
-				next = (BrowseItem) results.get(lastIndex);
+				next = (Item) results.get(lastIndex);
 				results.remove(lastIndex);
 			}
 			
@@ -351,7 +352,7 @@ public class BrowseEngine
 			// this involves some slightly complex messing around, so delegated to
 			// its own method.  remember to only do this when there is a focus
 			// value, otherwise we are just on the first page
-			BrowseItem prev = null;
+			Item prev = null;
 			if (scope.hasFocus() || scope.hasValueFocus() || scope.hasStartsWith())
 			{
 				int prevID = -1;
@@ -365,7 +366,7 @@ public class BrowseEngine
 				}
 				if (prevID != -1)
 				{
-					prev = new BrowseItem(context, prevID);
+					prev = new Item(context, prevID);
 				}
 			}
 			
@@ -865,7 +866,7 @@ public class BrowseEngine
 	 * some previous results to pad out the full number of results per page).  If the
 	 * callback is null, then no results are kept
 	 * 
-	 * @param callback	A List object for holding BrowseItem objects indexed numerically in the correct order
+	 * @param callback	A List object for holding Item objects indexed numerically in the correct order
 	 * @return			the database id of the top of the previous page
 	 * @throws SQLException
 	 * @throws BrowseException
@@ -923,10 +924,10 @@ public class BrowseEngine
 		// work our way through the list, capturing if necessary, and finally
 		// having the last result, which will be the top of the previous page
 		int i = 0;
-		BrowseItem prev = null;
+		Item prev = null;
 		while (itr.hasNext())
 		{
-			BrowseItem browseItem = (BrowseItem) itr.next();
+			Item browseItem = (Item) itr.next();
 			
 			// we need to copy this, because of the scoping vs by-reference issue
 			prev = browseItem;
