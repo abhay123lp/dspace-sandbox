@@ -189,7 +189,7 @@
 		String key = "browse.menu." + bis[i].getMessageKey();
 %>
 	<div class="browse_buttons">
-	<form method="get" action="<%= request.getContextPath() %>/handle/<%= collection.getHandle() %>/browse">
+	<form method="get" action="<%= collection.getIdentifier().getURL().toString() %>/browse">
 		<input type="hidden" name="type" value="<%= bis[i].getName() %>"/>
 		<%-- <input type="hidden" name="collection" value="<%= collection.getHandle() %>" /> --%>
 		<input type="submit" name="submit_browse" value="<fmt:message key="<%= key %>"/>"/>
@@ -322,7 +322,7 @@
 					displayTitle = dcv[0].value;
 				}
 			}
-			%><p class="recentItem"><a href="<%= request.getContextPath() %>/handle/<%= items[i].getHandle() %>"><%= displayTitle %></a></p><%
+			%><p class="recentItem"><a href="<%= items[i].getIdentifier().getURL().toString() %>"><%= displayTitle %></a></p><%
 		}
 	}
 %>
