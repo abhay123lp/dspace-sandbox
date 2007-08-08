@@ -257,6 +257,10 @@ public class Context
      */
     public void complete() throws SQLException
     {
+        // We need to commit first to complete the event processing
+        // TODO this may be temporary - MRD
+        commit();
+        
         dao.endTransaction();
     }
 
@@ -270,8 +274,7 @@ public class Context
      */
     public void commit() throws SQLException
     {
-        // Commit any changes made as part of the transaction
-        dao.saveTransaction();
+        
 
         Dispatcher dispatcher = null;
 
@@ -285,7 +288,16 @@ public class Context
                 }
                 
                 dispatcher = EventManager.getDispatcher(dispName);
+                
+                // Commit any changes made as part of the transaction
+                dao.saveTransaction();
+                
                 dispatcher.dispatch(this);
+            }
+            else
+            {
+                // Commit any changes made as part of the transaction
+                dao.saveTransaction();
             }
         }
         finally
