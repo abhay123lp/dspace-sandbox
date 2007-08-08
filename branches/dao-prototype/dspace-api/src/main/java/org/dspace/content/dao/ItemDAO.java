@@ -49,7 +49,8 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.browse.Browse;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
@@ -196,7 +197,8 @@ public abstract class ItemDAO extends ContentDAO
             // Remove from Browse indices
             try
             {
-                Browse.itemRemoved(context, id);
+                IndexBrowse ib = new IndexBrowse(context);
+                ib.itemRemoved(item);
                 DSIndexer.unIndexContent(context, item);
             }
             catch (IOException ioe)
@@ -206,6 +208,10 @@ public abstract class ItemDAO extends ContentDAO
             catch (SQLException sqle)
             {
                 throw new RuntimeException(sqle);
+            }
+            catch (BrowseException e)
+            {
+                throw new RuntimeException(e);
             }
         }
 

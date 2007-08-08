@@ -51,7 +51,8 @@ import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.browse.Browse;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
@@ -358,11 +359,16 @@ public class ItemDAOPostgres extends ItemDAO
 //            }
 
             // Update browse indices
-            Browse.itemChanged(context, item);
+            IndexBrowse ib = new IndexBrowse(context);
+            ib.indexItem(item);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
+        }
+        catch (BrowseException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 

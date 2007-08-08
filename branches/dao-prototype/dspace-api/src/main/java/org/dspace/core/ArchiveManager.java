@@ -46,7 +46,8 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.browse.Browse;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCDate;
@@ -123,12 +124,20 @@ public class ArchiveManager
             itemDAO.update(item);
 
             // Remove from indicies
-            Browse.itemRemoved(context, item.getID());
+            IndexBrowse ib = new IndexBrowse(context);
+            ib.itemRemoved(item);
             DSIndexer.unIndexContent(context, item);
+            
+            
+            
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
+        }
+        catch (BrowseException be)
+        {
+            throw new RuntimeException(be);
         }
 
         // and all of our authorization policies
