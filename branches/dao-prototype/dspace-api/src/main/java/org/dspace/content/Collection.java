@@ -626,6 +626,11 @@ public class Collection extends DSpaceObject
 
         return (Collection[]) collections.toArray(new Collection[0]);
     }
+        catch (BrowseException e)
+        {
+        	log.error("caught exception: ", e);
+        	throw new IOException(e.getMessage());
+        }
 
     @Deprecated
     public void update() throws AuthorizeException
