@@ -327,7 +327,7 @@
 		}
 --%>
 <%
-	if (sos.size() > 1 && bi.getBrowseLevel() > 0)
+	if (sos.size() > 1) // && bi.getBrowseLevel() > 0
 	{
 %>
 		<fmt:message key="browse.full.sort-by"/>

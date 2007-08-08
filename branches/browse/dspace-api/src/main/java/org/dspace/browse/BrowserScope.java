@@ -203,8 +203,28 @@ public class BrowserScope
 	 * @param browseIndex The browseIndex to set.
 	 */
 	public void setBrowseIndex(BrowseIndex browseIndex)
+	    throws BrowseException
 	{
-		this.browseIndex = browseIndex;
+        this.browseIndex = browseIndex;
+
+        if (sortBy > 0 && browseIndex.isFull())
+        {
+            String sortName = browseIndex.getMetadata();
+            
+            Map<Integer, SortOption> sortMap = BrowseIndex.getSortOptions();
+            SortOption newSo = sortMap.get(new Integer(sortBy));
+            
+            if (!newSo.getName().equalsIgnoreCase(sortName))
+            {
+                BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
+                
+                for (BrowseIndex bi : bis)
+                {
+                    if (bi.isFull() && bi.getMetadata().equalsIgnoreCase(newSo.getName()))
+                        this.browseIndex = bi;
+                }
+            }
+        }
 	}
 
 	/**
@@ -349,7 +369,30 @@ public class BrowserScope
 	 * @param sortBy The sortBy to set.
 	 */
 	public void setSortBy(int sortBy)
+	    throws BrowseException
 	{
+	    if (browseIndex != null)
+	    {
+	        if (sortBy > 0 && browseIndex.isFull())
+	        {
+	            String sortName = browseIndex.getMetadata();
+	            
+                Map<Integer, SortOption> sortMap = BrowseIndex.getSortOptions();
+                SortOption newSo = sortMap.get(new Integer(sortBy));
+                
+                if (!newSo.getName().equalsIgnoreCase(sortName))
+                {
+                    BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
+                    
+                    for (BrowseIndex bi : bis)
+                    {
+                        if (bi.isFull() && bi.getMetadata().equalsIgnoreCase(newSo.getName()))
+                            browseIndex = bi;
+                    }
+                }
+	        }
+	    }
+	    
 		this.sortBy = sortBy;
 	}
 
@@ -374,7 +417,7 @@ public class BrowserScope
 				}
 				else
 				{
-					Map<Integer, SortOption> sortMap = browseIndex.getSortOptions();
+					Map<Integer, SortOption> sortMap = BrowseIndex.getSortOptions();
 					
 	                if (sortBy <= 0)
 	                {
@@ -388,7 +431,6 @@ public class BrowserScope
                                 sortOption = so;
                             else if (sortOption == null)    // Ensure that we take the first one if we don't match anything
                                 sortOption = so;
-                                
                         }
 	                }
 					else
