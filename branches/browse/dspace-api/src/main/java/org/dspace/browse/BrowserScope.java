@@ -366,7 +366,7 @@ public class BrowserScope
 		{
 			if (browseIndex != null)
 			{
-				if (sortBy <= 0)
+				if (sortBy <= 0 && browseIndex.isSingle())
 				{
 					String dataType = browseIndex.getDataType();
 					String type = ("date".equals(dataType) ? "date" : "text");
@@ -374,9 +374,28 @@ public class BrowserScope
 				}
 				else
 				{
-					Map map = browseIndex.getSortOptions();
-					SortOption so = (SortOption) map.get(new Integer(sortBy));
-					sortOption = so;
+					Map<Integer, SortOption> sortMap = browseIndex.getSortOptions();
+					
+	                if (sortBy <= 0)
+	                {
+	                    String sortName = browseIndex.getDefaultSortColumn();
+	                    
+                        java.util.Collection<SortOption> sOc = sortMap.values();
+                        
+                        for (SortOption so : sOc)
+                        {
+                            if (so.getName().equalsIgnoreCase(browseIndex.getMetadata()))
+                                sortOption = so;
+                            else if (sortOption == null)    // Ensure that we take the first one if we don't match anything
+                                sortOption = so;
+                                
+                        }
+	                }
+					else
+					{
+    					SortOption so = sortMap.get(new Integer(sortBy));
+    					sortOption = so;
+					}
 				}
 			}
 		}

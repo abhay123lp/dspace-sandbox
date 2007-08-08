@@ -91,8 +91,6 @@ public class BrowseIndex
     /** the sort options available for this index */
     private static Map<Integer, SortOption> sortOptions = null;
     
-    private static int numberCounter = 1;
-    
     /**
      * Create a new BrowseIndex object using the definition from the configuration,
      * and the number of the configuration option.  The definition should be of
@@ -114,7 +112,7 @@ public class BrowseIndex
     public BrowseIndex(String definition, int number)
     	throws BrowseException
     {
-        this.number = 0;
+        this.number = number;
         
         String rx = "(\\w+):([\\w\\.\\*]+):(\\w+):(\\w+)";
         Pattern pattern = Pattern.compile(rx);
@@ -130,9 +128,6 @@ public class BrowseIndex
         metadata = matcher.group(2);
         datatype = matcher.group(3);
         displayType = matcher.group(4);
-        
-        if (this.isSingle())
-            this.number = numberCounter++;
     }
 
     /**
@@ -172,7 +167,10 @@ public class BrowseIndex
 	 */
 	public String[] getMdBits()
 	{
-		return mdBits;
+	    if (isSingle())
+	        return mdBits;
+	    
+	    return null;
 	}
 
 	/**
@@ -239,7 +237,8 @@ public class BrowseIndex
     {
     	try
     	{
-    		mdBits = interpretField(metadata, null);
+    	    if (isSingle())
+    	        mdBits = interpretField(metadata, null);
     	}
     	catch(IOException e)
     	{
@@ -301,8 +300,11 @@ public class BrowseIndex
      */
     public static String getTableName(int number, boolean isCommunity, boolean isCollection, boolean isDistinct, boolean isMap)
     {
-    	String baseName = "bi_" + number;
-    	
+        return BrowseIndex.getTableName("bi_" + Integer.toString(number), isCommunity, isCollection, isDistinct, isMap);
+    }
+    
+    public static String getTableName(String baseName, boolean isCommunity, boolean isCollection, boolean isDistinct, boolean isMap)
+    {
     	// isDistinct is meaningless in relation to isCommunity and isCollection
     	// so we bounce that back first, ignoring other arguments
     	if (isDistinct)
@@ -340,10 +342,10 @@ public class BrowseIndex
      */
     public String getTableName(boolean isCommunity, boolean isCollection, boolean isDistinct, boolean isMap)
     {
-        if (this.number > 0)
+        if (this.isSingle())
             return BrowseIndex.getTableName(number, isCommunity, isCollection, isDistinct, isMap);
         
-        return BrowseIndex.ITEM_INDEX;
+        return BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, isCommunity, isCollection, isDistinct, isMap);
     }
     
     /**
@@ -533,6 +535,32 @@ public class BrowseIndex
             }
         }
     	return sortOptions;
+    }
+
+    public String getDefaultSortColumn() throws BrowseException
+    {
+        String focusField;
+        if (isSingle())
+        {
+            focusField = "sort_value";
+        }
+        else
+        {
+            focusField = "sort_1";  // Use the first sort column
+            Map<Integer, SortOption> sortMap = BrowseIndex.getSortOptions();
+            
+            if (sortMap != null)
+            {
+                java.util.Collection<SortOption> sOc = sortMap.values();
+                
+                for (SortOption so : sOc)
+                {
+                    if (so.getName().equalsIgnoreCase(getMetadata()))
+                        focusField = "sort_" + so.getNumber();
+                }
+            }
+        }
+        return focusField;
     }
     
     /**

@@ -335,9 +335,10 @@ public interface BrowseCreateDAO
 	 * 
 	 * @param table		the index table to check
 	 * @param map		the name of the associated distinct mapping table
+	 * @param withdrawn TODO
 	 * @throws BrowseException
 	 */
-	public void pruneExcess(String table, String map) throws BrowseException;
+	public void pruneExcess(String table, String map, boolean withdrawn) throws BrowseException;
 	
 	/**
 	 * So that there are no distinct values indexed which are no longer referenced from the

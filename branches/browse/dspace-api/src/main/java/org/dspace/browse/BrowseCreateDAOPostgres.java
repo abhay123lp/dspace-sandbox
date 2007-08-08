@@ -635,22 +635,28 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#pruneExcess(java.lang.String, java.lang.String)
      */
-    public void pruneExcess(String table, String map)
+    public void pruneExcess(String table, String map, boolean withdrawn)
         throws BrowseException
     {
         TableRowIterator tri = null;
         
         try
         {
-            String query = "SELECT item_id FROM " + table + " WHERE item_id NOT IN ( SELECT item_id FROM item WHERE in_archive = true AND withdrawn = false)";
+            String query = "SELECT item_id FROM " + table + " WHERE item_id NOT IN ( SELECT item_id FROM item WHERE in_archive = true AND withdrawn = " +
+                        (withdrawn ? "true" : "false") + ")";
             tri = DatabaseManager.query(context, query);
             while (tri.hasNext())
             {
                 TableRow row = tri.next();
                 String delete = "DELETE FROM " + table + " WHERE item_id = " + Integer.toString(row.getIntColumn("item_id"));
-                String deleteDistinct = "DELETE FROM " + map + " WHERE item_id = " + Integer.toString(row.getIntColumn("item_id"));
+                
                 DatabaseManager.updateQuery(context, delete);
-                DatabaseManager.updateQuery(context, deleteDistinct);
+
+                if (map != null)
+                {
+                    String deleteDistinct = "DELETE FROM " + map + " WHERE item_id = " + Integer.toString(row.getIntColumn("item_id"));
+                    DatabaseManager.updateQuery(context, deleteDistinct);
+                }
             }
         }
         catch (SQLException e)

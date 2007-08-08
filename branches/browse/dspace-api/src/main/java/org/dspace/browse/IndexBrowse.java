@@ -382,7 +382,7 @@ public class IndexBrowse
                     // remove old metadata from the item index
                     removeIndex(item.getID(), bis[i]);
         
-                    if (item.isArchived() && item.isWithdrawn())
+                    if (item.isArchived() && !item.isWithdrawn())
                     {
                         // get the metadata from the item
                         String[] md = bis[i].getMdBits();
@@ -717,61 +717,53 @@ public class IndexBrowse
         			
         			output.message("Deleting old index and associated resources: " + tableName);
         			
-        			try
+        			// prepare a statement which will delete the table and associated
+        			// resources
+        			String dropper = dao.dropIndexAndRelated(tableName, this.execute());
+        			String dropSeq = dao.dropSequence(sequence, this.execute());
+                    String dropColView = dao.dropView( colViewName, this.execute() );
+                    String dropComView = dao.dropView( comViewName, this.execute() );
+        			
+        			output.sql(dropper);
+        			output.sql(dropSeq);
+                    output.sql(dropColView);
+                    output.sql(dropComView);
+    
+    
+        			// NOTE: we need a secondary context to check for the existance
+        			// of the table, because if an SQLException is thrown, then
+        			// the connection is aborted, and no more transaction stuff can be
+        			// done.  Therefore we use a blank context to make the requests,
+        			// not caring if it gets aborted or not
+        			
+        			output.message("Checking for " + distinctTableName);
+        			boolean distinct = true;
+        			if (!dao.testTableExistance(distinctTableName))
         			{
-            			// prepare a statement which will delete the table and associated
-            			// resources
-            			String dropper = dao.dropIndexAndRelated(tableName, this.execute());
-            			String dropSeq = dao.dropSequence(sequence, this.execute());
-                        String dropColView = dao.dropView( colViewName, this.execute() );
-                        String dropComView = dao.dropView( comViewName, this.execute() );
-            			
-            			output.sql(dropper);
-            			output.sql(dropSeq);
-                        output.sql(dropColView);
-                        output.sql(dropComView);
-        
-        
-            			// NOTE: we need a secondary context to check for the existance
-            			// of the table, because if an SQLException is thrown, then
-            			// the connection is aborted, and no more transaction stuff can be
-            			// done.  Therefore we use a blank context to make the requests,
-            			// not caring if it gets aborted or not
-            			
-            			output.message("Checking for " + distinctTableName);
-            			boolean distinct = true;
-            			if (!dao.testTableExistance(distinctTableName))
-            			{
-            				output.message("... no distinct index for this table");
-            				distinct = false;
-            			}
-            			else
-            			{
-            				output.message("...found");
-            			}
-            			
-            			if (distinct)
-            			{
-            				// prepare statements that will delete the distinct value tables
-            				String dropDistinctTable = dao.dropIndexAndRelated(distinctTableName, this.execute());
-            				String dropMap = dao.dropIndexAndRelated(distinctMapName, this.execute());
-            				String dropDistinctMapSeq = dao.dropSequence(mapSequence, this.execute());
-            				String dropDistinctSeq = dao.dropSequence(distinctSequence, this.execute());
-                            String dropDistinctColView = dao.dropView( distinctColViewName, this.execute() );
-                            String dropDistinctComView = dao.dropView( distinctComViewName, this.execute() );
-            				
-            				output.sql(dropDistinctTable);
-            				output.sql(dropMap);
-            				output.sql(dropDistinctMapSeq);
-            				output.sql(dropDistinctSeq);
-                            output.sql(dropDistinctColView);
-                            output.sql(dropDistinctComView);
-            			}
+        				output.message("... no distinct index for this table");
+        				distinct = false;
         			}
-        			catch (Throwable t)
+        			else
         			{
-        			    // Threw an exception dropping the table, so it might be a view
-        			    dao.dropView(tableName, this.execute);
+        				output.message("...found");
+        			}
+        			
+        			if (distinct)
+        			{
+        				// prepare statements that will delete the distinct value tables
+        				String dropDistinctTable = dao.dropIndexAndRelated(distinctTableName, this.execute());
+        				String dropMap = dao.dropIndexAndRelated(distinctMapName, this.execute());
+        				String dropDistinctMapSeq = dao.dropSequence(mapSequence, this.execute());
+        				String dropDistinctSeq = dao.dropSequence(distinctSequence, this.execute());
+                        String dropDistinctColView = dao.dropView( distinctColViewName, this.execute() );
+                        String dropDistinctComView = dao.dropView( distinctComViewName, this.execute() );
+        				
+        				output.sql(dropDistinctTable);
+        				output.sql(dropMap);
+        				output.sql(dropDistinctMapSeq);
+        				output.sql(dropDistinctSeq);
+                        output.sql(dropDistinctColView);
+                        output.sql(dropDistinctComView);
         			}
                 }
     			
@@ -780,20 +772,32 @@ public class IndexBrowse
 
             if (dao.testTableExistance(BrowseIndex.ITEM_INDEX))
             {
+                String colViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, false, true, false, false);
+                String comViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, true, false, false, false);
                 String dropper = dao.dropIndexAndRelated(BrowseIndex.ITEM_INDEX, this.execute());
                 String dropSeq = dao.dropSequence(BrowseIndex.ITEM_INDEX_SEQ, this.execute());
+                String dropColView = dao.dropView( colViewName, this.execute() );
+                String dropComView = dao.dropView( comViewName, this.execute() );
 
                 output.sql(dropper);
                 output.sql(dropSeq);
+                output.sql(dropColView);
+                output.sql(dropComView);
             }
     		
             if (dao.testTableExistance(BrowseIndex.WITHDRAWN_INDEX))
             {
+                String colViewName = BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, false, true, false, false);
+                String comViewName = BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, true, false, false, false);
                 String dropper = dao.dropIndexAndRelated(BrowseIndex.WITHDRAWN_INDEX, this.execute());
                 String dropSeq = dao.dropSequence(BrowseIndex.WITHDRAWN_INDEX_SEQ, this.execute());
+                String dropColView = dao.dropView( colViewName, this.execute() );
+                String dropComView = dao.dropView( comViewName, this.execute() );
 
                 output.sql(dropper);
                 output.sql(dropSeq);
+                output.sql(dropColView);
+                output.sql(dropComView);
             }
             
     		if (execute())
@@ -812,6 +816,9 @@ public class IndexBrowse
     {
         try
         {
+            String colViewName;
+            String comViewName;
+
             // prepare the array list of sort options
             Map<Integer, SortOption> cols = BrowseIndex.getSortOptions();
             Iterator<Integer> itr = (Iterator<Integer>)cols.keySet().iterator();
@@ -820,28 +827,42 @@ public class IndexBrowse
             {
                 sortCols.add(itr.next());
             }
+
+            colViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, false, true, false, false);
+            comViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, true, false, false, false);
             
             String itemSeq   = dao.createSequence(BrowseIndex.ITEM_INDEX_SEQ, this.execute());
             String itemTable = dao.createPrimaryTable(BrowseIndex.ITEM_INDEX, sortCols, execute);
             String[] itemIndices = dao.createDatabaseIndices(BrowseIndex.ITEM_INDEX, false, this.execute());
+            String itemColView = dao.createCollectionView(BrowseIndex.ITEM_INDEX, colViewName, this.execute());
+            String itemComView = dao.createCommunityView(BrowseIndex.ITEM_INDEX, comViewName, this.execute());
 
-            String withdrawnSeq   = dao.createSequence(BrowseIndex.WITHDRAWN_INDEX_SEQ, this.execute());
-            String withdrawnTable = dao.createPrimaryTable(BrowseIndex.WITHDRAWN_INDEX, sortCols, execute);
-            String[] withdrawnIndices = dao.createDatabaseIndices(BrowseIndex.WITHDRAWN_INDEX, false, this.execute());
-            
+            colViewName = BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, false, true, false, false);
+            comViewName = BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, true, false, false, false);
+
             output.sql(itemSeq);
             output.sql(itemTable);
             for (int i = 0; i < itemIndices.length; i++)
             {
                 output.sql(itemIndices[i]);
             }
+            output.sql(itemColView);
+            output.sql(itemComView);
+            
+            String withdrawnSeq   = dao.createSequence(BrowseIndex.WITHDRAWN_INDEX_SEQ, this.execute());
+            String withdrawnTable = dao.createPrimaryTable(BrowseIndex.WITHDRAWN_INDEX, sortCols, execute);
+            String[] withdrawnIndices = dao.createDatabaseIndices(BrowseIndex.WITHDRAWN_INDEX, false, this.execute());
+            String withdrawnColView = dao.createCollectionView(BrowseIndex.WITHDRAWN_INDEX, colViewName, this.execute());
+            String withdrawnComView = dao.createCommunityView(BrowseIndex.WITHDRAWN_INDEX, comViewName, this.execute());
             
             output.sql(withdrawnSeq);
             output.sql(withdrawnTable);
-            for (int i = 0; i < itemIndices.length; i++)
+            for (int i = 0; i < withdrawnIndices.length; i++)
             {
                 output.sql(withdrawnIndices[i]);
             }
+            output.sql(withdrawnColView);
+            output.sql(withdrawnComView);
             
             if (execute())
             {
@@ -1041,13 +1062,16 @@ public class IndexBrowse
     		// index list
     		for (int k = 0; k < bis.length; k++)
     		{
-    			dao.pruneExcess(bis[k].getTableName(false, false, false, false), bis[k].getTableName(false, false, false, true));
-    			if (bis[k].isSingle())
-    			{
+                if (bis[k].isSingle())
+                {
+                    dao.pruneExcess(bis[k].getTableName(false, false, false, false), bis[k].getTableName(false, false, false, true), false);
     				dao.pruneDistinct(bis[k].getTableName(false, false, true, false), bis[k].getTableName(false, false, false, true));
     			}
     		}
 
+            dao.pruneExcess(BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, false, false, false, false), null, false);
+            dao.pruneExcess(BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, false, false, false, false), null, true);
+            
             // Make sure the deletes are written back
             context.commit();
     		

@@ -562,13 +562,14 @@ public class BrowseCreateDAOOracle implements BrowseCreateDAO
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#pruneExcess(java.lang.String, java.lang.String)
      */
-    public void pruneExcess(String table, String map) throws BrowseException
+    public void pruneExcess(String table, String map, boolean withdrawn) throws BrowseException
     {
         TableRowIterator tri = null;
         
         try
         {
-            String query = "SELECT item_id FROM " + table + " WHERE item_id NOT IN ( SELECT item_id FROM item WHERE in_archive = true AND withrdawn = false)";
+            String query = "SELECT item_id FROM " + table + " WHERE item_id NOT IN ( SELECT item_id FROM item WHERE in_archive = 1 AND withdrawn = " +
+                            (withdrawn ? "0" : "1") + ")";
             tri = DatabaseManager.query(context, query);
             while (tri.hasNext())
             {

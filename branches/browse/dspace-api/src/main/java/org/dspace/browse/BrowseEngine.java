@@ -43,6 +43,7 @@ package org.dspace.browse;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
@@ -239,7 +240,8 @@ public class BrowseEngine
 			// prepare the parameters for the focus clause if we are to have one
 			String focusValue = null;
 			String rawFocusValue = null;
-			String focusField = "sort_1"; // Use the first 
+			String focusField = browseIndex.getDefaultSortColumn();
+			
 			if (scope.hasFocus() || scope.hasValueFocus() || scope.hasStartsWith())
 			{
 				focusValue = getFocusValue();
@@ -309,7 +311,7 @@ public class BrowseEngine
 			}
 			
 			// assemble the ORDER BY clause
-			String orderBy = "sort_1";
+			String orderBy = browseIndex.getDefaultSortColumn();
 			if (scope.getSortBy() > 0)
 			{
 				orderBy = "sort_" + Integer.toString(scope.getSortBy());
