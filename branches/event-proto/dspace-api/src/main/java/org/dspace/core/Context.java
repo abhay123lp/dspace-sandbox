@@ -283,30 +283,30 @@ public class Context
         try
         {
             if (events != null)
-            {    
+            {
+
                 if (dispName == null)
                 {
                     dispName = EventManager.DEFAULT_DISPATCHER;
                 }
-                dispatcher = EventManager.getDispatcher(dispName);       
+
+                dispatcher = EventManager.getDispatcher(dispName);
                 connection.commit();
                 // now lock down context to prevent consumers from misbehaving
                 locked = true;
                 dispatcher.dispatch(this);
-            } else {
-                connection.commit();                
             }
-            
+            else
+            {
+                connection.commit();
+            }
+
         }
         finally
         {
             events = null;
             if(dispatcher != null) 
             {
-            	/* 
-            	 * TODO return dispatcher via internal method dispatcher.close();
-            	 * and remove the returnDispatcher method from EventManager.
-            	 */
                 EventManager.returnDispatcher(dispName, dispatcher);
             }
         }

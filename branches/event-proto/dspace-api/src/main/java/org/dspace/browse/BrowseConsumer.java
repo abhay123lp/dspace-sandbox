@@ -42,11 +42,11 @@ package org.dspace.browse;
 
 import org.apache.log4j.Logger;
 
+import java.sql.SQLException;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
 
-import org.dspace.browse.Browse;
 import org.dspace.content.Item;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
@@ -138,7 +138,19 @@ public class BrowseConsumer implements Consumer
     {
         for (Item aItem: toAdd)
         {
-            Browse.itemAdded(ctx, aItem);
+            // FIXME: there is an exception handling problem here
+            try
+            {
+            	// Update browse indices
+            	IndexBrowse ib = new IndexBrowse(ctx);
+            	ib.indexItem(aItem);
+            }
+            catch (BrowseException e)
+            {
+            	log.error("caught exception: ", e);
+            	throw new SQLException(e.getMessage());
+            }
+
             toUpdate.remove(aItem);
             if (log.isDebugEnabled())
             {
@@ -150,7 +162,19 @@ public class BrowseConsumer implements Consumer
         // don't update an item we've just added.
         for (Item uItem: toUpdate)
         {
-            Browse.itemChanged(ctx, uItem);
+            // FIXME: there is an exception handling problem here
+            try
+            {
+            	// Update browse indices
+            	IndexBrowse ib = new IndexBrowse(ctx);
+            	ib.indexItem(uItem);
+            }
+            catch (BrowseException e)
+            {
+            	log.error("caught exception: ", e);
+            	throw new SQLException(e.getMessage());
+            }
+        
             if (log.isDebugEnabled())
             {
                 log.debug("Updated browse indices for Item id="+
