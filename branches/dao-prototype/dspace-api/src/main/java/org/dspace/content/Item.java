@@ -86,7 +86,6 @@ public class Item extends DSpaceObject
 
     public static final String ANY = "*";
 
-    protected Context context;
     protected ItemDAO dao;
     protected BundleDAO bundleDAO;
     protected CollectionDAO collectionDAO;

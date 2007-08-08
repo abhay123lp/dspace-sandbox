@@ -63,7 +63,6 @@ public class EPerson extends DSpaceObject
 {
     private static Logger log = Logger.getLogger(EPerson.class);
 
-    private Context context;
     private EPersonDAO dao;
 
     /** See EPersonMetadataField. */

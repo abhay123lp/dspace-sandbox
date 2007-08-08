@@ -71,7 +71,6 @@ public class Bitstream extends DSpaceObject
     /** log4j logger */
     private static Logger log = Logger.getLogger(Bitstream.class);
 
-    private Context context;
     private BitstreamDAO dao;
     private BundleDAO bundleDAO;
 

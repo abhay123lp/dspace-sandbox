@@ -91,7 +91,6 @@ public class Collection extends DSpaceObject
 {
     private static Logger log = Logger.getLogger(Collection.class);
 
-    private Context context;
     private CollectionDAO dao;
     private BitstreamDAO bitstreamDAO;
     private ItemDAO itemDAO;

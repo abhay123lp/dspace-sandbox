@@ -48,6 +48,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Collection;
 import org.dspace.content.DCValue;
+import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Constants;
@@ -61,6 +62,7 @@ import org.dspace.workflow.WorkflowItem;
  * @author James Rutherford
  */
 public abstract class WorkspaceItemDAO extends ContentDAO
+    implements InProgressSubmissionDAOInterface
 {
     protected Logger log = Logger.getLogger(WorkspaceItemDAO.class);
 
@@ -191,13 +193,13 @@ public abstract class WorkspaceItemDAO extends ContentDAO
     /**
      * Update the workspace item, including the unarchived item.
      */
-    public void update(WorkspaceItem wsi) throws AuthorizeException
+    public void update(InProgressSubmission ips) throws AuthorizeException
     {
         // Authorisation is checked by the item update
         log.info(LogManager.getHeader(context, "update_workspace_item",
-                "workspace_item_id=" + wsi.getID()));
+                "workspace_item_id=" + ips.getID()));
 
-        itemDAO.update(wsi.getItem());
+        itemDAO.update(ips.getItem());
     }
 
     public void delete(int id) throws AuthorizeException

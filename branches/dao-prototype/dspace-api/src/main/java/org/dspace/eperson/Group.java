@@ -68,7 +68,6 @@ public class Group extends DSpaceObject
     /** log4j logger */
     private static Logger log = Logger.getLogger(Group.class);
 
-    private Context context;
     protected GroupDAO dao;
     protected EPersonDAO epersonDAO;
 

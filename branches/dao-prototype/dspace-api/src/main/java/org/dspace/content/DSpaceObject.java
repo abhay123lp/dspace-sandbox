@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import org.dspace.core.Context;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -62,6 +64,7 @@ public abstract class DSpaceObject
     // e.g. to document metadata fields touched, etc.
     private StringBuffer eventDetails = null;
 
+    protected Context context;
     protected int id;
     protected UUID uuid;
     protected ObjectIdentifier oid;

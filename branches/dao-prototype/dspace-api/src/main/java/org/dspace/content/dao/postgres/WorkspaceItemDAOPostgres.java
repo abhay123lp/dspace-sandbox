@@ -49,6 +49,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Collection;
+import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.CollectionDAO;
@@ -184,8 +185,10 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     }
 
     @Override
-    public void update(WorkspaceItem wsi) throws AuthorizeException
+    public void update(InProgressSubmission ips) throws AuthorizeException
     {
+        WorkspaceItem wsi = (WorkspaceItem) ips;
+
         super.update(wsi);
 
         try

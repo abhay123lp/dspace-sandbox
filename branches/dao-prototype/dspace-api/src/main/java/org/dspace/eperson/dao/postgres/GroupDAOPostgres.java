@@ -49,6 +49,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -321,6 +322,48 @@ public class GroupDAOPostgres extends GroupDAO
         }
 
         return groups;
+    }
+
+    @Override
+    public List<Group> getSupervisorGroups()
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup",
+                    "SELECT eg.eperson_group_id " +
+                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi" +
+                    "WHERE eg2wsi.eperson_group_id = eg.eperson_group_id " +
+                    "ORDER BY eg.name");
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<Group> getSupervisorGroups(WorkspaceItem wsi)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup",
+                    "SELECT eg.eperson_group_id " +
+                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi" +
+                    "WHERE eg2wsi.workspace_item_id = ? " +
+                    "AND eg2wsi.eperson_group_id = eg.eperson_group_id " +
+                    "ORDER BY eg.name",
+                    wsi.getID());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     @Override

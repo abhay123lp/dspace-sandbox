@@ -79,7 +79,6 @@ public class Bundle extends DSpaceObject
     private int primaryBitstreamId;
     private List<Bitstream> bitstreams;
 
-    private Context context;
     private BundleDAO dao;
     private BitstreamDAO bitstreamDAO;
     private ItemDAO itemDAO;

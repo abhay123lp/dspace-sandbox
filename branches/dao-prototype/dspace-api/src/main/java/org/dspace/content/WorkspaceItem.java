@@ -75,12 +75,13 @@ public class WorkspaceItem implements InProgressSubmission
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkspaceItem.class);
 
-    private Context context;
+    protected int id;
+    protected Context context;
+
     private WorkspaceItemDAO dao;
     private ItemDAO itemDAO;
     private CollectionDAO collectionDAO;
 
-    private int id;
     private ObjectIdentifier oid;
     private boolean hasMultipleFiles;
     private boolean hasMultipleTitles;

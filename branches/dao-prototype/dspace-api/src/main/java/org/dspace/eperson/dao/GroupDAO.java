@@ -47,6 +47,7 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -199,6 +200,13 @@ public abstract class GroupDAO
     public abstract List<Group> getGroups(EPerson eperson);
 
     public abstract Set<Integer> getGroupIDs(EPerson eperson);
+
+    public abstract List<Group> getSupervisorGroups();
+
+    /**
+     * Gets all the groups that are supervising a workspace item
+     */
+    public abstract List<Group> getSupervisorGroups(WorkspaceItem wsi);
 
 
     /**

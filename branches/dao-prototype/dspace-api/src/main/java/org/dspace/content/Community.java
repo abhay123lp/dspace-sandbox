@@ -80,7 +80,6 @@ public class Community extends DSpaceObject
 {
     private static Logger log = Logger.getLogger(Community.class);
 
-    private Context context;
     private CommunityDAO dao;
     private BitstreamDAO bitstreamDAO;
     private CollectionDAO collectionDAO;
