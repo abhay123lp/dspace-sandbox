@@ -357,23 +357,32 @@ public class IndexBrowse
         {
             // Remove from the main item index
             removeIndex(item.getID(), BrowseIndex.ITEM_INDEX);
+            removeIndex(item.getID(), BrowseIndex.WITHDRAWN_INDEX);
 
             if (item.isArchived() && !item.isWithdrawn())
             {
-                Map sortMap = getSortValues(item, itemMDMap);
-                dao.insertIndex(BrowseIndex.ITEM_INDEX, item.getID(), sortMap);
+                if (item.isWithdrawn())
+                {
+                    Map sortMap = getSortValues(item, itemMDMap);
+                    dao.insertIndex(BrowseIndex.WITHDRAWN_INDEX, item.getID(), sortMap);
+                }
+                else
+                {
+                    Map sortMap = getSortValues(item, itemMDMap);
+                    dao.insertIndex(BrowseIndex.ITEM_INDEX, item.getID(), sortMap);
+                }
             }
 
             for (int i = 0; i < bis.length; i++)
             {
                 log.debug("Indexing for item " + item.getID() + ", for index: " + bis[i].getTableName());
                 
-                // remove old metadata from the item index
-                removeIndex(item.getID(), bis[i]);
-    
-                if (item.isArchived() && !item.isWithdrawn())
+                if (bis[i].isSingle())
                 {
-                    if (bis[i].isSingle())
+                    // remove old metadata from the item index
+                    removeIndex(item.getID(), bis[i]);
+        
+                    if (item.isArchived() && item.isWithdrawn())
                     {
                         // get the metadata from the item
                         String[] md = bis[i].getMdBits();
@@ -635,7 +644,7 @@ public class IndexBrowse
     	// first, erase the existing indexes
     	clearDatabase();
     	
-    	createItemTable();
+    	createItemTables();
     	
     	// for each current browse index, make all the relevant tables
     	for (int i = 0; i < bis.length; i++)
@@ -653,7 +662,7 @@ public class IndexBrowse
     			logMe.append(" " + so.getMetadata() + " ");
     		}
     		
-    		output.message("Creating browse index " + bis[i].getNumber() + 
+    		output.message("Creating browse index " + bis[i].getName() + 
     				": index by " + bis[i].getMetadata() + 
     				" sortable by: " + logMe.toString());
         }
@@ -778,6 +787,15 @@ public class IndexBrowse
                 output.sql(dropSeq);
             }
     		
+            if (dao.testTableExistance(BrowseIndex.WITHDRAWN_INDEX))
+            {
+                String dropper = dao.dropIndexAndRelated(BrowseIndex.WITHDRAWN_INDEX, this.execute());
+                String dropSeq = dao.dropSequence(BrowseIndex.WITHDRAWN_INDEX_SEQ, this.execute());
+
+                output.sql(dropper);
+                output.sql(dropSeq);
+            }
+            
     		if (execute())
     		{
     			context.commit();
@@ -790,7 +808,7 @@ public class IndexBrowse
     	}
 	}
 
-    private void createItemTable() throws BrowseException
+    private void createItemTables() throws BrowseException
     {
         try
         {
@@ -806,12 +824,23 @@ public class IndexBrowse
             String itemSeq   = dao.createSequence(BrowseIndex.ITEM_INDEX_SEQ, this.execute());
             String itemTable = dao.createPrimaryTable(BrowseIndex.ITEM_INDEX, sortCols, execute);
             String[] itemIndices = dao.createDatabaseIndices(BrowseIndex.ITEM_INDEX, false, this.execute());
-    
+
+            String withdrawnSeq   = dao.createSequence(BrowseIndex.WITHDRAWN_INDEX_SEQ, this.execute());
+            String withdrawnTable = dao.createPrimaryTable(BrowseIndex.WITHDRAWN_INDEX, sortCols, execute);
+            String[] withdrawnIndices = dao.createDatabaseIndices(BrowseIndex.WITHDRAWN_INDEX, false, this.execute());
+            
             output.sql(itemSeq);
             output.sql(itemTable);
             for (int i = 0; i < itemIndices.length; i++)
             {
                 output.sql(itemIndices[i]);
+            }
+            
+            output.sql(withdrawnSeq);
+            output.sql(withdrawnTable);
+            for (int i = 0; i < itemIndices.length; i++)
+            {
+                output.sql(withdrawnIndices[i]);
             }
             
             if (execute())
@@ -895,17 +924,7 @@ public class IndexBrowse
 				output.sql(createDistinctColView);
 				output.sql(createDistinctComView);
 			}
-			else
-			{
-                String createView = dao.createPrimaryView(tableName, sortCols, this.execute());
-                String createColView = dao.createCollectionView(tableName, colViewName, this.execute());
-                String createComView = dao.createCommunityView(tableName, comViewName, this.execute());
 
-                output.sql(createView);
-                output.sql(createColView);
-                output.sql(createComView);
-			}
-			
 			if (execute())
 			{
 				context.commit();

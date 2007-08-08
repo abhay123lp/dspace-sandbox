@@ -1274,6 +1274,14 @@
             <xsl:apply-templates />
         </h3>
     </xsl:template>
+    <xsl:template match="dri:includeSet/dri:head" priority="2">
+        <h3>
+            <xsl:call-template name="standardAttribues">
+                <xsl:with-param name="class">ds-list-head</xsl:with-param>
+            </xsl:call-template>
+            <xsl:apply-templates />
+        </h3>
+    </xsl:template>
     
     <!-- Finally, the generic header element template, given the lowest priority, is there for cases not 
         covered above. It assumes nothing about the parent element and simply generates an HTML h3 tag -->
@@ -2174,11 +2182,33 @@
             </xsl:otherwise>
         </xsl:choose>        
     </xsl:template>
+    <xsl:template match="dri:includeSet[@type = 'summaryList']" priority="2">
+        <xsl:apply-templates select="dri:head"/>
+        <!-- Here we decide whether we have a hierarchical list or a flat one -->
+        <xsl:choose>
+            <xsl:when test="descendant-or-self::dri:includeSet/@rend='hierarchy' or ancestor::dri:includeSet/@rend='hierarchy'">
+                <ul>
+                    <xsl:apply-templates select="*[not(name()='head')]" mode="summaryList"/>
+                </ul>
+            </xsl:when>
+            <xsl:otherwise>
+                <ul class="ds-artifact-list">
+                    <xsl:apply-templates select="*[not(name()='head')]" mode="summaryList"/>
+                </ul>
+            </xsl:otherwise>
+        </xsl:choose>        
+    </xsl:template>
         
     <!-- First, the detail list case -->
     <xsl:template match="dri:referenceSet[@type = 'detailList']" priority="2">
         <xsl:apply-templates select="dri:head"/>
         <ul class="ds-referenceSet-list">
+            <xsl:apply-templates select="*[not(name()='head')]" mode="detailList"/>
+        </ul>
+    </xsl:template>
+    <xsl:template match="dri:includeSet[@type = 'detailList']" priority="2">
+        <xsl:apply-templates select="dri:head"/>
+        <ul class="ds-includeSet-list">
             <xsl:apply-templates select="*[not(name()='head')]" mode="detailList"/>
         </ul>
     </xsl:template>
@@ -2190,11 +2220,19 @@
         <xsl:apply-templates select="dri:head"/>
         <xsl:apply-templates select="*[not(name()='head')]" mode="summaryView"/>
     </xsl:template>
+    <xsl:template match="dri:includeSet[@type = 'summaryView']" priority="2">
+        <xsl:apply-templates select="dri:head"/>
+        <xsl:apply-templates select="*[not(name()='head')]" mode="summaryView"/>
+    </xsl:template>
             
     <!-- Finally, we have the detailed view case that is applicable to items, communities and collections.
         In DRI it constitutes a standard view of collections/communities and a complete metadata listing
         view of items. -->
-    <xsl:template match="dri:referenceSet[@type = 'detailView']" priority="2">
+    <xsl:template match="dri:referenceSet[@type = 'detailView']|dri:includeSet[@type = 'detailView']" priority="2">
+        <xsl:apply-templates select="dri:head"/>
+        <xsl:apply-templates select="*[not(name()='head')]" mode="detailView"/>
+    </xsl:template>
+    <xsl:template match="dri:includeSet[@type = 'detailView']" priority="2">
         <xsl:apply-templates select="dri:head"/>
         <xsl:apply-templates select="*[not(name()='head')]" mode="detailView"/>
     </xsl:template>

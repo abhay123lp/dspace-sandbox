@@ -135,25 +135,31 @@
                     <xsl:choose>
                         <xsl:when test="dim:field[@element='contributor'][@qualifier='author']">
                             <xsl:for-each select="dim:field[@element='contributor'][@qualifier='author']">
-                                <xsl:copy-of select="./node()"/>
-                                <xsl:if test="count(following-sibling::dim:field[@element='contributor'][@qualifier='author']) != 0">
-                                    <xsl:text>; </xsl:text>
+                            	<xsl:if test="position() &lt; 6">
+                                	<xsl:if test="count(preceding-sibling::dim:field[@element='contributor'][@qualifier='author']) != 0">
+                                    	<xsl:text>; </xsl:text>
+                                	</xsl:if>
+                                	<xsl:copy-of select="./node()"/>
                                 </xsl:if>
                             </xsl:for-each>
                         </xsl:when>
                         <xsl:when test="dim:field[@element='creator']">
                             <xsl:for-each select="dim:field[@element='creator']">
-                                <xsl:copy-of select="node()"/>
-                                <xsl:if test="count(following-sibling::dim:field[@element='creator']) != 0">
-                                    <xsl:text>; </xsl:text>
+                            	<xsl:if test="position() &lt; 6">
+	                                <xsl:if test="count(preceding-sibling::dim:field[@element='creator']) != 0">
+	                                    <xsl:text>; </xsl:text>
+	                                </xsl:if>
+	                                <xsl:copy-of select="node()"/>
                                 </xsl:if>
                             </xsl:for-each>
                         </xsl:when>
                         <xsl:when test="dim:field[@element='contributor']">
                             <xsl:for-each select="dim:field[@element='contributor']">
-                                <xsl:copy-of select="node()"/>
-                                <xsl:if test="count(following-sibling::dim:field[@element='contributor']) != 0">
-                                    <xsl:text>; </xsl:text>
+                            	<xsl:if test="position() &lt; 6">
+	                                <xsl:if test="count(preceding-sibling::dim:field[@element='contributor']) != 0">
+	                                    <xsl:text>; </xsl:text>
+	                                </xsl:if>
+	                                <xsl:copy-of select="node()"/>
                                 </xsl:if>
                             </xsl:for-each>
                         </xsl:when>

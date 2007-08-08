@@ -62,8 +62,12 @@ public class BrowseIndex
 {
     public static String ITEM_INDEX     = "bi_item";
     public static String ITEM_INDEX_SEQ = "bi_item_seq";
+
+    public static String WITHDRAWN_INDEX     = "bi_withdrawn";
+    public static String WITHDRAWN_INDEX_SEQ = "bi_withdrawn_seq";
     
 	/** the configuration number, as specified in the config */
+    /** used for single metadata browse tables for generating the table name */
     private int number;
     
     /** the name of the browse index, as specified in the config */
@@ -87,6 +91,8 @@ public class BrowseIndex
     /** the sort options available for this index */
     private static Map<Integer, SortOption> sortOptions = null;
     
+    private static int numberCounter = 1;
+    
     /**
      * Create a new BrowseIndex object using the definition from the configuration,
      * and the number of the configuration option.  The definition should be of
@@ -108,7 +114,7 @@ public class BrowseIndex
     public BrowseIndex(String definition, int number)
     	throws BrowseException
     {
-        this.number = number;
+        this.number = 0;
         
         String rx = "(\\w+):([\\w\\.\\*]+):(\\w+):(\\w+)";
         Pattern pattern = Pattern.compile(rx);
@@ -124,6 +130,9 @@ public class BrowseIndex
         metadata = matcher.group(2);
         datatype = matcher.group(3);
         displayType = matcher.group(4);
+        
+        if (this.isSingle())
+            this.number = numberCounter++;
     }
 
     /**
@@ -223,22 +232,6 @@ public class BrowseIndex
 	}
 
 	/**
-	 * @return Returns the number.
-	 */
-	public int getNumber()
-	{
-		return number;
-	}
-
-	/**
-	 * @param number The number to set.
-	 */
-	public void setNumber(int number)
-	{
-		this.number = number;
-	}
-
-	/**
 	 * Populate the internal array containing the bits of metadata, for
 	 * ease of use later
 	 */
@@ -264,7 +257,10 @@ public class BrowseIndex
 	 */
     public String getSequenceName(boolean isDistinct, boolean isMap)
     {
-    	return BrowseIndex.getSequenceName(this.number, isDistinct, isMap);
+        if (this.number > 0)
+            return BrowseIndex.getSequenceName(this.number, isDistinct, isMap);
+        
+        return BrowseIndex.ITEM_INDEX_SEQ;
     }
     
     /**
@@ -344,7 +340,10 @@ public class BrowseIndex
      */
     public String getTableName(boolean isCommunity, boolean isCollection, boolean isDistinct, boolean isMap)
     {
-    	return BrowseIndex.getTableName(number, isCommunity, isCollection, isDistinct, isMap);
+        if (this.number > 0)
+            return BrowseIndex.getTableName(number, isCommunity, isCollection, isDistinct, isMap);
+        
+        return BrowseIndex.ITEM_INDEX;
     }
     
     /**
@@ -560,23 +559,6 @@ public class BrowseIndex
         returnTables = (String[]) tables.toArray((String[]) returnTables);
         
         return returnTables;
-    }
-    
-    /**
-     * @deprecated
-     * @return
-     * @throws BrowseException
-     */
-    public static Map getBrowseIndicesMap()
-    	throws BrowseException
-    {
-    	Map map = new HashMap();
-    	BrowseIndex[] bis = getBrowseIndices();
-    	for (int i = 0 ; i < bis.length; i++)
-    	{
-    		map.put(new Integer(bis[i].getNumber()), bis[i]);
-    	}
-    	return map;
     }
     
     /**
