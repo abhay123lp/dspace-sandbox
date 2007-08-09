@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.purl.sword.Namespaces;
+import org.purl.sword.base.Namespaces;
 import org.w3.atom.ContentType;
 import org.w3.atom.Title;
 

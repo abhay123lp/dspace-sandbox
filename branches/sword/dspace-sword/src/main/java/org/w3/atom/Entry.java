@@ -1,19 +1,19 @@
 package org.w3.atom;
 
 import java.text.ParseException;
-import java.util.ArrayList; 
-import java.util.List; 
-import java.util.Iterator; 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import nu.xom.Element;
 import nu.xom.Elements;
 
-import org.purl.sword.Namespaces;
 import org.purl.sword.base.InfoLogger;
+import org.purl.sword.base.Namespaces;
 import org.purl.sword.base.SwordElementInterface;
 import org.purl.sword.base.UnmarshallException;
-import org.purl.sword.base.XmlElement; 
+import org.purl.sword.base.XmlElement;
 
 /**
  * Represents an ATOM entry. 

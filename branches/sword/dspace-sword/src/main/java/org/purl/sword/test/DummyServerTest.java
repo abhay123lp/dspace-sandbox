@@ -1,6 +1,6 @@
 package org.purl.sword.test;
 
-import org.purl.sword.SWORDServer;
+import org.purl.sword.server.SWORDServer;
 import org.purl.sword.server.DummyServer;
 
 public class DummyServerTest {

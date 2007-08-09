@@ -2,10 +2,9 @@ package org.w3.atom;
 
 import nu.xom.Attribute;
 import nu.xom.Element;
-import nu.xom.Elements;
 
-import org.purl.sword.Namespaces;
 import org.purl.sword.base.InfoLogger;
+import org.purl.sword.base.Namespaces;
 import org.purl.sword.base.SwordElementInterface;
 import org.purl.sword.base.UnmarshallException;
 import org.purl.sword.base.XmlElement;

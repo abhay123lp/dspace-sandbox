@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-import org.purl.sword.HttpHeaders;
-import org.purl.sword.SWORDAuthenticationException;
-import org.purl.sword.SWORDException;
-import org.purl.sword.SWORDServer;
+import org.purl.sword.base.HttpHeaders;
+import org.purl.sword.base.SWORDAuthenticationException;
+import org.purl.sword.base.SWORDException;
+import org.purl.sword.server.SWORDServer;
 import org.purl.sword.base.ServiceDocument;
 import org.purl.sword.base.ServiceDocumentRequest;
 

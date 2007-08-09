@@ -3,11 +3,11 @@ package org.w3.atom;
 import nu.xom.Attribute;
 import nu.xom.Element;
 
-import org.purl.sword.Namespaces;
 import org.purl.sword.base.InfoLogger;
+import org.purl.sword.base.Namespaces;
+import org.purl.sword.base.SwordElementInterface;
 import org.purl.sword.base.UnmarshallException;
 import org.purl.sword.base.XmlElement;
-import org.purl.sword.base.SwordElementInterface;
 
 /**
  * Represents an ATOM Content element. 

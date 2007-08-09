@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 
-import org.purl.sword.Namespaces;
+import org.purl.sword.base.Namespaces;
 
 import nu.xom.Element; 
 import nu.xom.Elements;

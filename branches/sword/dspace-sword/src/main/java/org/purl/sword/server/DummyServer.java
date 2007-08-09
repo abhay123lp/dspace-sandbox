@@ -1,7 +1,7 @@
 package org.purl.sword.server;
 
-import org.purl.sword.SWORDAuthenticationException;
-import org.purl.sword.SWORDServer;
+import org.purl.sword.base.SWORDAuthenticationException;
+import org.purl.sword.server.SWORDServer;
 import org.purl.sword.base.Collection;
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;

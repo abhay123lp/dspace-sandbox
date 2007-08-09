@@ -3,7 +3,7 @@ package org.purl.sword.base;
 import nu.xom.Element;
 import nu.xom.Elements;
 
-import org.purl.sword.Namespaces;
+import org.purl.sword.base.Namespaces;
 import org.w3.atom.Entry;  
 
 /**
