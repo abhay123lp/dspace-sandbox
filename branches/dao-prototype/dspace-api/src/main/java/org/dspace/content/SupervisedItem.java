@@ -48,6 +48,8 @@ import org.apache.log4j.Logger;
 import org.dspace.core.Context;
 import org.dspace.content.dao.SupervisedItemDAO;
 import org.dspace.content.dao.SupervisedItemDAOFactory;
+import org.dspace.content.dao.WorkspaceItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
@@ -66,6 +68,7 @@ public class SupervisedItem extends WorkspaceItem
     
     private GroupDAO groupDAO;
     private SupervisedItemDAO dao;
+    private WorkspaceItemDAO wsiDAO;
     
     public SupervisedItem(Context context, int id)
     {
@@ -73,6 +76,7 @@ public class SupervisedItem extends WorkspaceItem
         super(context, id);
 
         dao = SupervisedItemDAOFactory.getInstance(context);
+        wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
         groupDAO = GroupDAOFactory.getInstance(context);
     }
 
@@ -98,7 +102,7 @@ public class SupervisedItem extends WorkspaceItem
     public Group[] getSupervisorGroups(Context context, int id)
     {
         SupervisedItemDAO dao = SupervisedItemDAOFactory.getInstance(context);
-        WorkspaceItem wsi = dao.retrieve(id);
+        WorkspaceItem wsi = wsiDAO.retrieve(id);
         List<Group> groups = groupDAO.getSupervisorGroups(wsi);
 
         return (Group[]) groups.toArray(new Group[0]);

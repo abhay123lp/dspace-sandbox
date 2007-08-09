@@ -49,7 +49,6 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Collection;
-import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.CollectionDAO;
@@ -92,7 +91,8 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         return super.create(create(), wfi);
     }
 
-    private WorkspaceItem create()
+    @Override
+    public WorkspaceItem create()
     {
         UUID uuid = UUID.randomUUID();
 
@@ -185,10 +185,8 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     }
 
     @Override
-    public void update(InProgressSubmission ips) throws AuthorizeException
+    public void update(WorkspaceItem wsi) throws AuthorizeException
     {
-        WorkspaceItem wsi = (WorkspaceItem) ips;
-
         super.update(wsi);
 
         try
@@ -299,6 +297,30 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         }
 
         return wsItems;
+    }
+
+    @Override
+    public <T extends WorkspaceItem> void populate(T t)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.find(context, "workspaceitem",
+                    t.getID());
+
+            if (row == null)
+            {
+                log.warn("workspace item " + t.getID() + " not found");
+            }
+            else
+            {
+                populateWorkspaceItemFromTableRow(t, row);
+                log.info(t);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
     ////////////////////////////////////////////////////////////////////

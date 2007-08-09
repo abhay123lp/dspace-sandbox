@@ -61,11 +61,14 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.search.DSIndexer;
+import org.dspace.storage.dao.CRUD;
+import org.dspace.storage.dao.Link;
 
 /**
  * @author James Rutherford
  */
 public abstract class ItemDAO extends ContentDAO
+    implements CRUD<Item>, Link<Item, Bundle>
 {
     protected Logger log = Logger.getLogger(ItemDAO.class);
 

@@ -47,17 +47,20 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.WorkspaceItem;
+import org.dspace.content.InProgressSubmission;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.storage.dao.CRUD;
+import org.dspace.storage.dao.Link;
 
 /**
  * @author James Rutherford
  */
 public abstract class GroupDAO
+    implements CRUD<Group>, Link<Group, EPerson>
 {
     protected Logger log = Logger.getLogger(GroupDAO.class);
 
@@ -204,9 +207,9 @@ public abstract class GroupDAO
     public abstract List<Group> getSupervisorGroups();
 
     /**
-     * Gets all the groups that are supervising a workspace item
+     * Gets all the groups that are supervising an in-progress submission
      */
-    public abstract List<Group> getSupervisorGroups(WorkspaceItem wsi);
+    public abstract List<Group> getSupervisorGroups(InProgressSubmission ips);
 
 
     /**
@@ -276,6 +279,12 @@ public abstract class GroupDAO
     // FIXME: All of these should probably check authorization
     public abstract void link(Group parent, Group child);
     public abstract void unlink(Group parent, Group child);
+
     public abstract void link(Group group, EPerson eperson);
     public abstract void unlink(Group group, EPerson eperson);
+
+    public abstract void link(Group group, InProgressSubmission ips);
+    public abstract void unlink(Group group, InProgressSubmission ips);
+    public abstract boolean linked(Group group, InProgressSubmission ips);
+    public abstract void cleanSupervisionOrders();
 }

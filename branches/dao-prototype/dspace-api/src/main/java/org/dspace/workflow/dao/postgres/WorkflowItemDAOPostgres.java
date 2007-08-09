@@ -78,7 +78,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
     }
 
     @Override
-    public WorkflowItem create(WorkspaceItem wsi) throws AuthorizeException
+    public WorkflowItem create() throws AuthorizeException
     {
         UUID uuid = UUID.randomUUID();
 
@@ -92,12 +92,19 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
             WorkflowItem wfi = new WorkflowItem(context, id);
             wfi.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(wfi, wsi);
+            return wfi;
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    @Override
+    public WorkflowItem create(WorkspaceItem wsi) throws AuthorizeException
+    {
+        WorkflowItem wfi = create();
+        return super.create(wfi, wsi);
     }
 
     @Override

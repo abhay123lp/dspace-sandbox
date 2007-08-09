@@ -49,7 +49,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.WorkspaceItem;
+import org.dspace.content.InProgressSubmission;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -345,7 +345,7 @@ public class GroupDAOPostgres extends GroupDAO
     }
 
     @Override
-    public List<Group> getSupervisorGroups(WorkspaceItem wsi)
+    public List<Group> getSupervisorGroups(InProgressSubmission ips)
     {
         try
         {
@@ -356,7 +356,7 @@ public class GroupDAOPostgres extends GroupDAO
                     "WHERE eg2wsi.workspace_item_id = ? " +
                     "AND eg2wsi.eperson_group_id = eg.eperson_group_id " +
                     "ORDER BY eg.name",
-                    wsi.getID());
+                    ips.getID());
 
             return returnAsList(tri);
         }
@@ -523,6 +523,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public void link(Group parent, Group child)
     {
         if (!linked(parent, child))
@@ -532,11 +533,11 @@ public class GroupDAOPostgres extends GroupDAO
 
             try
             {
-                TableRow mappingRow = DatabaseManager.create(context,
+                TableRow row = DatabaseManager.create(context,
                         "group2group");
-                mappingRow.setColumn("parent_id", parent.getID());
-                mappingRow.setColumn("child_id", child.getID());
-                DatabaseManager.update(context, mappingRow);
+                row.setColumn("parent_id", parent.getID());
+                row.setColumn("child_id", child.getID());
+                DatabaseManager.update(context, row);
 
                 rethinkGroupCache();
             }
@@ -547,6 +548,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public void unlink(Group parent, Group child)
     {
         if (linked(parent, child))
@@ -587,6 +589,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public void link(Group group, EPerson eperson)
     {
         if (!linked(group, eperson))
@@ -596,11 +599,11 @@ public class GroupDAOPostgres extends GroupDAO
 
             try
             {
-                TableRow mappingRow = DatabaseManager.create(context,
+                TableRow row = DatabaseManager.create(context,
                         "epersongroup2eperson");
-                mappingRow.setColumn("eperson_id", eperson.getID());
-                mappingRow.setColumn("eperson_group_id", group.getID());
-                DatabaseManager.update(context, mappingRow);
+                row.setColumn("eperson_id", eperson.getID());
+                row.setColumn("eperson_group_id", group.getID());
+                DatabaseManager.update(context, row);
             }
             catch (SQLException sqle)
             {
@@ -609,6 +612,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public void unlink(Group group, EPerson eperson)
     {
         if (linked(group, eperson))
@@ -634,12 +638,105 @@ public class GroupDAOPostgres extends GroupDAO
     {
         try
         {
-            TableRowIterator tri = DatabaseManager.query(context,
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup2eperson",
                     "SELECT id FROM epersongroup2eperson " +
-                    " WHERE eperson_group_id=" + group.getID() +
-                    " AND eperson_id=" + eperson.getID());
+                    " WHERE eperson_group_id = ? " +
+                    " AND eperson_id = ?",
+                    group.getID(), eperson.getID());
 
             return tri.hasNext();
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public void link(Group group, InProgressSubmission ips)
+    {
+        if (!linked(group, ips))
+        {
+            // Uncomment once the superclass actually does anything
+            // super.link(group, ips);
+
+            try
+            {
+                TableRow row = DatabaseManager.create(context,
+                        "epersongroup2workspaceitem");
+                row.setColumn("eperson_group_id", group.getID());
+                row.setColumn("workspace_item_id", ips.getID());
+                DatabaseManager.update(context, row);
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    @Override
+    public void unlink(Group group, InProgressSubmission ips)
+    {
+        if (linked(group, ips))
+        {
+            // Uncomment once the superclass actually does anything
+            // super.unlink(group, ips);
+
+            try
+            {
+                DatabaseManager.updateQuery(context,
+                        "DELETE FROM epersongroup2workspaceitem " +
+                        "WHERE eperson_group_id = ? AND workspace_item_id = ?",
+                        group.getID(), ips.getID());
+            }
+            catch (SQLException sqle)
+            {
+                throw new RuntimeException(sqle);
+            }
+        }
+    }
+
+    public boolean linked(Group group, InProgressSubmission ips)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup2workspaceitem",
+                    "SELECT id FROM epersongroup2workspaceitem " +
+                    " WHERE eperson_group_id = ? " +
+                    " AND workspace_item_id = ? ",
+                    group.getID(), ips.getID());
+
+            return tri.hasNext();
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public void cleanSupervisionOrders()
+    {
+        try
+        {
+            // this horrid looking query tests to see if there are any groups or
+            // workspace items which match up to the ones in the linking database
+            // table.  If there aren't, we know that the link is out of date, and 
+            // it can be deleted.
+            String query =
+                "DELETE FROM epersongroup2workspaceitem eg2wsi " +
+                "WHERE NOT EXISTS ( " +
+                    "SELECT 1 FROM workspaceitem " +
+                    "WHERE workspace_item_id = eg2wsi.workspace_item_id " +
+                ") OR NOT EXISTS ( " +
+                    "SELECT 1 FROM epersongroup " +
+                    "WHERE eperson_group_id = eg2wsi.eperson_group_id " +
+                ")";
+            
+            DatabaseManager.updateQuery(context, query);
         }
         catch (SQLException sqle)
         {

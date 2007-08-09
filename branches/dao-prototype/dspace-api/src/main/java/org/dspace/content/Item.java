@@ -42,7 +42,6 @@ package org.dspace.content;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -725,11 +724,10 @@ public class Item extends DSpaceObject
      * <p>
      * This method is used by the org.dspace.submit.step.LicenseStep class
      * 
-     * @throws SQLException
      * @throws AuthorizeException
      * @throws IOException
      */
-    public void removeDSpaceLicense() throws SQLException, AuthorizeException,
+    public void removeDSpaceLicense() throws AuthorizeException,
             IOException
     {
         // get all bundles with name "LICENSE" (these are the DSpace license
@@ -854,14 +852,13 @@ public class Item extends DSpaceObject
      * @param newpolicies -
      *            this will be all of the new policies for the item and its
      *            contents
-     * @throws SQLException
      * @throws AuthorizeException
      *
      * FIXME: Move this somewhere more appropriate. It isn't the responsibility
      * of the Item to do this kind of thing.
      */
-    public void replaceAllItemPolicies(List newpolicies) throws SQLException,
-            AuthorizeException
+    public void replaceAllItemPolicies(List newpolicies)
+        throws AuthorizeException
     {
         // remove all our policies, add new ones
         AuthorizeManager.removeAllPolicies(context, this);
@@ -875,14 +872,13 @@ public class Item extends DSpaceObject
      * @param newpolicies -
      *            this will be all of the new policies for the bundle and
      *            bitstream contents
-     * @throws SQLException
      * @throws AuthorizeException
      *
      * FIXME: Move this somewhere more appropriate. It isn't the responsibility
      * of the Item to do this kind of thing.
      */
     public void replaceAllBitstreamPolicies(List newpolicies)
-            throws SQLException, AuthorizeException
+            throws AuthorizeException
     {
         // remove all policies from bundles, add new ones
         // Remove bundles
@@ -915,12 +911,11 @@ public class Item extends DSpaceObject
      * 
      * @param g
      *            Group referenced by policies that needs to be removed
-     * @throws SQLException
      *
      * FIXME: Move this somewhere more appropriate. It isn't the responsibility
      * of the Item to do this kind of thing.
      */
-    public void removeGroupPolicies(Group g) throws SQLException
+    public void removeGroupPolicies(Group g)
     {
         // remove Group's policies from Item
         AuthorizeManager.removeGroupPolicies(context, this, g);
@@ -954,16 +949,13 @@ public class Item extends DSpaceObject
      * 
      * @param c
      *            Collection
-     * @throws java.sql.SQLException
-     *             if an SQL error or if no default policies found. It's a bit
-     *             draconian, but default policies must be enforced.
      * @throws AuthorizeException
      *
      * FIXME: Move this somewhere more appropriate. It isn't the responsibility
      * of the Item to do this kind of thing.
      */
     public void inheritCollectionDefaultPolicies(Collection c)
-            throws java.sql.SQLException, AuthorizeException
+            throws AuthorizeException
     {
         // remove the submit authorization policies
         // and replace them with the collection's default READ policies
@@ -977,7 +969,7 @@ public class Item extends DSpaceObject
         // MUST have default policies
         if (!i.hasNext())
         {
-            throw new java.sql.SQLException("Collection " + c.getID()
+            throw new RuntimeException("Collection " + c.getID()
                     + " has no default item READ policies");
         }
 
@@ -998,7 +990,7 @@ public class Item extends DSpaceObject
 
         if (!i.hasNext())
         {
-            throw new java.sql.SQLException("Collection " + c.getID()
+            throw new RuntimeException("Collection " + c.getID()
                     + " has no default bitstream READ policies");
         }
 
@@ -1147,7 +1139,6 @@ public class Item extends DSpaceObject
      * browse page!
      * 
      * @return
-     * @throws SQLException
      */
     public Thumbnail getThumbnail()
     {

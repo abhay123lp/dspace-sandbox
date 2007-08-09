@@ -54,55 +54,11 @@ import org.dspace.eperson.Group;
 import org.dspace.workflow.WorkflowItem;
 
 public abstract class SupervisedItemDAO extends ContentDAO
-    implements InProgressSubmissionDAOInterface
 {
     protected Logger log = Logger.getLogger(SupervisedItemDAO.class);
 
     protected Context context;
-
-    public SupervisedItem create(Collection collection, boolean template)
-        throws AuthorizeException
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        return (SupervisedItem) dao.create(collection, template);
-    }
-
-    public SupervisedItem create(WorkflowItem wfi)
-        throws AuthorizeException
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        return (SupervisedItem) dao.create(wfi);
-    }
-
-    public SupervisedItem retrieve(int id)
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        return (SupervisedItem) dao.retrieve(id);
-    }
-
-    public SupervisedItem retrieve(UUID uuid)
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        return (SupervisedItem) dao.retrieve(uuid);
-    }
-
-    public void update(InProgressSubmission ips) throws AuthorizeException
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        dao.update(ips);
-    }
-
-    public void delete(int id) throws AuthorizeException
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        dao.delete(id);
-    }
-
-    public void deleteAll(int id) throws AuthorizeException
-    {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        dao.deleteAll(id);
-    }
+    protected WorkspaceItemDAO dao;
 
     /**
      * Get all workspace items that are being supervised.

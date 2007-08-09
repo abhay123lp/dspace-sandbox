@@ -49,11 +49,13 @@ import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.content.BitstreamFormat;
+import org.dspace.storage.dao.CRUD;
 
 /**
  * @author James Rutherford
  */
 public abstract class BitstreamFormatDAO extends ContentDAO
+    implements CRUD<BitstreamFormat>
 {
     protected Logger log = Logger.getLogger(BitstreamFormatDAO.class);
 

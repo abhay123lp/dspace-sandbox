@@ -60,11 +60,14 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.search.DSIndexer;
+import org.dspace.storage.dao.CRUD;
+import org.dspace.storage.dao.Link;
 
 /**
  * @author James Rutherford
  */
 public abstract class CommunityDAO extends ContentDAO
+    implements CRUD<Community>, Link<DSpaceObject, DSpaceObject>
 {
     protected static Logger log = Logger.getLogger(CommunityDAO.class);
 

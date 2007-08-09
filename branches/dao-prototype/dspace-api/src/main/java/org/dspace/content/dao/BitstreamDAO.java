@@ -54,11 +54,13 @@ import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.storage.dao.CRUD;
 
 /**
  * @author James Rutherford
  */
 public abstract class BitstreamDAO extends ContentDAO
+    implements CRUD<Bitstream>
 {
     protected Logger log = Logger.getLogger(BitstreamDAO.class);
 

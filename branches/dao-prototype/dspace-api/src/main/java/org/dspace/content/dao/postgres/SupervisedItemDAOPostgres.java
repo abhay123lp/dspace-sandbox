@@ -44,7 +44,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dspace.content.SupervisedItem;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.SupervisedItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.storage.rdbms.DatabaseManager;
@@ -56,6 +58,8 @@ public class SupervisedItemDAOPostgres extends SupervisedItemDAO
     public SupervisedItemDAOPostgres(Context context)
     {
         this.context = context;
+
+        dao = WorkspaceItemDAOFactory.getInstance(context);
     }
 
     @Override
@@ -70,7 +74,7 @@ public class SupervisedItemDAOPostgres extends SupervisedItemDAO
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "workspaceitem",
                     "SELECT DISTINCT wsi.workspace_item_id " +
-                    "FROM workspaceitem wsi, eg2wsi " +
+                    "FROM workspaceitem wsi, epersongroup2workspaceitem eg2wsi " +
                     "WHERE wsi.workspace_item_id = eg2wsi.workspace_item_id " +
                     "ORDER BY wsi.workspace_item_id");
 
@@ -119,7 +123,10 @@ public class SupervisedItemDAOPostgres extends SupervisedItemDAO
         for (TableRow row : tri.toList())
         {
             int id = row.getIntColumn("workspace_item_id");
-            items.add(retrieve(id));
+            SupervisedItem si = new SupervisedItem(context, id);
+            WorkspaceItem wsi = dao.retrieve(id);
+            dao.populate(si);
+            items.add(si);
         }
 
         return items;

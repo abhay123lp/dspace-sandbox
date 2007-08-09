@@ -227,12 +227,6 @@ public class WorkspaceItem implements InProgressSubmission
 
     /** Deprecated by the introduction of DAOs */
     @Deprecated
-    WorkspaceItem(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("workspace_item_id"));
-    }
-
-    @Deprecated
     public static WorkspaceItem create(Context context, Collection collection,
             boolean template)
         throws AuthorizeException, IOException

@@ -1,5 +1,5 @@
 /*
- * SubscriptionDAO.java
+ * CRUD.java
  *
  * Version: $Revision: 1727 $
  *
@@ -37,35 +37,17 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.eperson.dao;
+package org.dspace.storage.dao;
 
-import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.Collection;
-import org.dspace.core.Context;
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Subscription;
 
-/**
- * @author James Rutherford
- */
-public abstract class SubscriptionDAO
+public interface CRUD<T>
 {
-    protected Logger log = Logger.getLogger(SubscriptionDAO.class);
-
-    protected Context context;
-
-    public abstract Subscription create();
-    public abstract Subscription retrieve(int id);
-    public abstract Subscription retrieve(UUID uuid);
-    public abstract void update(Subscription sub);
-    public abstract void delete(int id);
-
-    public abstract boolean isSubscribed(EPerson eperson, Collection collection);
-    public abstract List<Subscription> getSubscriptions();
-    public abstract List<Subscription> getSubscriptions(EPerson eperson);
+    public T create() throws AuthorizeException;
+    public T retrieve(int id);
+    public T retrieve(UUID uuid);
+    public void update(T t) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException;
 }

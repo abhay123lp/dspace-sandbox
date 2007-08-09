@@ -52,11 +52,14 @@ import org.dspace.core.LogManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.storage.dao.CRUD;
+import org.dspace.storage.dao.Link;
 
 /**
  * @author James Rutherford
  */
 public abstract class BundleDAO extends ContentDAO
+    implements CRUD<Bundle>, Link<Bundle, Bitstream>
 {
     protected Logger log = Logger.getLogger(BundleDAO.class);
 

@@ -67,11 +67,14 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.search.DSIndexer;
 import org.dspace.workflow.WorkflowItem;
+import org.dspace.storage.dao.CRUD;
+import org.dspace.storage.dao.Link;
 
 /**
  * @author James Rutherford
  */
 public abstract class CollectionDAO extends ContentDAO
+    implements CRUD<Collection>, Link<Collection, Item>
 {
     protected static Logger log = Logger.getLogger(CollectionDAO.class);
 

@@ -1,5 +1,5 @@
 /*
- * InProgressSubmissionDAOInterface.java
+ * Link.java
  *
  * Version: $Revision: 1727 $
  *
@@ -37,34 +37,12 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
-
-import java.util.List;
-import java.util.UUID;
-
-import org.apache.log4j.Logger;
+package org.dspace.storage.dao;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.Collection;
-import org.dspace.content.InProgressSubmission;
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
-import org.dspace.workflow.WorkflowItem;
 
-/**
- * @author James Rutherford
- */
-public interface InProgressSubmissionDAOInterface
+public interface Link<S, T>
 {
-    public InProgressSubmission create(Collection collection, boolean template)
-        throws AuthorizeException;
-
-    public InProgressSubmission create(WorkflowItem wfi)
-        throws AuthorizeException;
-
-    public InProgressSubmission retrieve(int id);
-    public InProgressSubmission retrieve(UUID uuid);
-    public void update(InProgressSubmission ips) throws AuthorizeException;
-    public void delete(int id) throws AuthorizeException;
-    public void deleteAll(int id) throws AuthorizeException;
+    public void link(S s, T t) throws AuthorizeException;
+    public void unlink(S s, T t) throws AuthorizeException;
 }

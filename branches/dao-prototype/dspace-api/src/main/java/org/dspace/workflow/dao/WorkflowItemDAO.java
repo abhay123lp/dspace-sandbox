@@ -53,6 +53,7 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.eperson.EPerson;
+import org.dspace.storage.dao.CRUD;
 import org.dspace.workflow.TaskListItem;
 import org.dspace.workflow.WorkflowItem;
 
@@ -60,12 +61,15 @@ import org.dspace.workflow.WorkflowItem;
  * @author James Rutherford
  */
 public abstract class WorkflowItemDAO
+    implements CRUD<WorkflowItem>
 {
     protected Logger log = Logger.getLogger(WorkflowItemDAO.class);
 
     protected Context context;
     protected ItemDAO itemDAO;
     protected WorkspaceItemDAO wsiDAO;
+
+    public abstract WorkflowItem create() throws AuthorizeException;
 
     public abstract WorkflowItem create(WorkspaceItem wsi)
         throws AuthorizeException;
