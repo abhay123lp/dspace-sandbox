@@ -181,10 +181,6 @@ public abstract class CollectionDAO extends ContentDAO
         {
             throw new RuntimeException(ioe);
         }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
 
         ItemIterator iterator = collection.getItems();
         try

@@ -40,7 +40,6 @@
 package org.dspace.content;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.dao.ItemDAO;
@@ -70,7 +69,7 @@ public class InstallItem
      * @return the fully archived Item
      */
     public static Item installItem(Context c, InProgressSubmission is)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         return installItem(c, is, null);
     }
@@ -88,8 +87,7 @@ public class InstallItem
      * @return the fully archived Item
      */
     public static Item installItem(Context c, InProgressSubmission is,
-            String value) throws SQLException,
-            IOException, AuthorizeException
+            String value) throws IOException, AuthorizeException
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
         ExternalIdentifierDAO identifierDAO =
@@ -174,7 +172,6 @@ public class InstallItem
      * @return provenance description
      */
     public static String getBitstreamProvenanceMessage(Item myitem)
-    						throws SQLException
     {
         // Get non-internal format bitstreams
         Bitstream[] bitstreams = myitem.getNonInternalBitstreams();

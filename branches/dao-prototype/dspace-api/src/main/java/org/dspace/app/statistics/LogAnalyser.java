@@ -37,27 +37,21 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-
 package org.dspace.app.statistics;
 
-import org.dspace.app.statistics.LogLine;
-
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Context;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-
-import java.sql.SQLException;
-
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.Long;
 import java.lang.StringBuffer;
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
+import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -70,12 +64,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.StringTokenizer;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.dspace.app.statistics.LogLine;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
+import org.dspace.storage.rdbms.DatabaseManager;
+import org.dspace.storage.rdbms.TableRow;
 
 /**
  * This class performs all the actual analysis of a given set of DSpace log

@@ -40,7 +40,6 @@
 package org.dspace.content.dao;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -209,10 +208,6 @@ public abstract class ItemDAO extends ContentDAO
             catch (IOException ioe)
             {
                 throw new RuntimeException(ioe);
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
             }
             catch (BrowseException e)
             {

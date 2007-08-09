@@ -40,7 +40,6 @@
 package org.dspace.content.dao;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.UUID;
 
@@ -172,10 +171,6 @@ public abstract class CommunityDAO extends ContentDAO
         {
             throw new RuntimeException(ioe);
         }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
 
         // FIXME: Do we need to iterate through child Communities /
         // Collecitons to update / re-index? Probably not.
@@ -236,16 +231,8 @@ public abstract class CommunityDAO extends ContentDAO
             // bitstreamDAO.delete(logoId)
             community.setLogo(null);
 
-            try
-            {
-                // remove from the search index
-                DSIndexer.unIndexContent(context, community);
-
-            }
-            catch (SQLException sqle)
-            {
-                throw new RuntimeException(sqle);
-            }
+            // remove from the search index
+            DSIndexer.unIndexContent(context, community);
 
             // Remove all authorization policies
             AuthorizeManager.removeAllPolicies(context, community);

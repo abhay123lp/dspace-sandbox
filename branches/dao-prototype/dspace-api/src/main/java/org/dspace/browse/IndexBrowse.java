@@ -134,11 +134,10 @@ public class IndexBrowse
      * applied to the Context
      * 
      * @param context
-     * @throws SQLException
      * @throws BrowseException
      */
     public IndexBrowse(Context context)
-    	throws SQLException, BrowseException
+    	throws BrowseException
     {
     	this.context = context;
     	this.context.setIgnoreAuthorization(true);

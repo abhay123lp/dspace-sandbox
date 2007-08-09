@@ -44,7 +44,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -209,11 +208,10 @@ public class DSIndexer
      * 
      * @param context Users Context
      * @param dso DSpace Object (Item, Collection or Community
-     * @throws SQLException
      * @throws IOException
      */
     public static void indexContent(Context context, DSpaceObject dso)
-    throws SQLException, IOException
+    throws IOException
     {
     	indexContent(context, dso, false);
     }
@@ -226,11 +224,10 @@ public class DSIndexer
      * @param context Users Context
      * @param dso DSpace Object (Item, Collection or Community
      * @param force Force update even if not stale.
-     * @throws SQLException
      * @throws IOException
      */
     public static void indexContent(Context context, DSpaceObject dso, boolean force)
-    throws SQLException, IOException
+    throws IOException
     {
         ExternalIdentifierDAO identifierDAO =
             ExternalIdentifierDAOFactory.getInstance(context);
@@ -303,11 +300,10 @@ public class DSIndexer
      * 
      * @param context
      * @param dso DSpace Object, can be Community, Item, or Collection
-     * @throws SQLException
      * @throws IOException
      */
     public static void unIndexContent(Context context, DSpaceObject dso)
-            throws SQLException, IOException
+            throws IOException
     {
         try
         {
@@ -326,11 +322,10 @@ public class DSIndexer
      * 
      * @param context
      * @param uri 
-     * @throws SQLException
      * @throws IOException
      */
     public static void unIndexContent(Context context, String uri)
-            throws SQLException, IOException
+            throws IOException
     {
         
         IndexWriter writer = openIndex(context, false);
@@ -363,7 +358,7 @@ public class DSIndexer
      * @param dso  object to re-index
      */
     public static void reIndexContent(Context context, DSpaceObject dso)
-            throws SQLException, IOException
+            throws IOException
     {
         try
         {
@@ -381,7 +376,7 @@ public class DSIndexer
 	 * 
 	 * @param c context to use
 	 */
-    public static void createIndex(Context c) throws SQLException, IOException
+    public static void createIndex(Context c) throws IOException
     {
         itemDAO = ItemDAOFactory.getInstance(c);
 
@@ -398,10 +393,9 @@ public class DSIndexer
      * filehandle usage and keep performance fast!
      * 
      * @param c Users Context
-     * @throws SQLException
      * @throws IOException
      */
-    public static void optimizeIndex(Context c) throws SQLException, IOException
+    public static void optimizeIndex(Context c) throws IOException
     {
         IndexWriter writer = openIndex(c, false);
 
@@ -424,7 +418,7 @@ public class DSIndexer
      * @throws IOException 
      * @throws SQLException 
      */
-    public static void main(String[] args) throws SQLException, IOException
+    public static void main(String[] args) throws IOException, java.sql.SQLException
     {
     	
         Context context = new Context();
@@ -596,9 +590,8 @@ public class DSIndexer
      * 
      * @param context
      * @throws IOException 
-     * @throws SQLException 
      */
-    public static void cleanIndex(Context context) throws IOException, SQLException
+    public static void cleanIndex(Context context) throws IOException
     {
         ExternalIdentifierDAO identifierDAO =
             ExternalIdentifierDAOFactory.getInstance(context);
@@ -723,11 +716,10 @@ public class DSIndexer
 	 * @param uri
 	 * @param dso
 	 * @return
-	 * @throws SQLException
 	 * @throws IOException
 	 */
     private static boolean requiresIndexing(String uri, Date lastModified)
-        throws SQLException, IOException
+        throws IOException
     {
 		
 		boolean reindexItem = false;
@@ -782,10 +774,8 @@ public class DSIndexer
      * @param c
      * @param myitem
      * @return
-     * @throws SQLException
      */
     private static String buildItemLocationString(Context c, Item myitem)
-            throws SQLException
     {
         // build list of community ids
         Community[] communities = myitem.getCommunities();
@@ -807,7 +797,7 @@ public class DSIndexer
     }
 
     private static String buildCollectionLocationString(Context c,
-            Collection target) throws SQLException
+            Collection target)
     {
         // build list of community ids
         Community[] communities = target.getCommunities();
@@ -828,11 +818,10 @@ public class DSIndexer
      * @param context Users Context
      * @param community Community to be indexed
      * @return
-     * @throws SQLException
      * @throws IOException
      */
     private static Document buildDocument(Context context, Community community) 
-    throws SQLException, IOException
+        throws IOException
     {
         // Create Lucene Document
         String uri = community.getIdentifier().getCanonicalForm();
@@ -856,11 +845,10 @@ public class DSIndexer
      * @param context Users Context
      * @param collection Collection to be indexed
      * @return
-     * @throws SQLException
      * @throws IOException
      */
     private static Document buildDocument(Context context, Collection collection) 
-    throws SQLException, IOException
+        throws IOException
     {
         String location_text = buildCollectionLocationString(context, collection);
 
@@ -887,11 +875,10 @@ public class DSIndexer
      * @param context Users Context
      * @param item The DSpace Item to be indexed
      * @return
-     * @throws SQLException
      * @throws IOException
      */
     private static Document buildDocument(Context context, Item item) 
-        throws SQLException, IOException
+        throws IOException
     {
     	// get the location string (for searching by collection & community)
         String location = buildItemLocationString(context, item);
