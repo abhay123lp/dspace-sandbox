@@ -306,7 +306,7 @@ public class BrowseListTag extends TagSupport
                         {
 //                            metadata = "<a href=\"" + hrq.getContextPath() + "/handle/" 
 //                            + items[i].getHandle() + "\">" 
-                            metadata = "<a href=\"" + hrq.getContextPath() + "/resource/" 
+                            metadata = "<a href=\""
                             + items[i].getIdentifier().getURL().toString() + "\">" 
                             + Utils.addEntities(metadataArray[0].value)
                             + "</a>";
@@ -653,13 +653,13 @@ public class BrowseListTag extends TagSupport
 //        		String link = hrq.getContextPath() + "/bitstream/" + item.getHandle() + "/" + original.getSequenceID() + "/" +
 //        						UIUtil.encodeBitstreamName(original.getName(), Constants.DEFAULT_ENCODING);
 //        		thumbFrag.append("<a target=\"_blank\" href=\"" + link + "\" />");
-                String link = hrq.getContextPath() + "/resource/" + original.getIdentifier().getURL().toString();
+                String link = original.getIdentifier().getURL().toString();
         		thumbFrag.append("<a target=\"_blank\" href=\"" + link + "\" />");
         	}
         	else
         	{
 //        		String link = hrq.getContextPath() + "/handle/" + item.getHandle();
-        		String link = hrq.getContextPath() + "/resource/" + item.getIdentifier().getURL().toString();
+        		String link = item.getIdentifier().getURL().toString();
         		thumbFrag.append("<a href=\"" + link + "\" />");
         	}
         	

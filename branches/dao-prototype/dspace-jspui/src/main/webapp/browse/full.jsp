@@ -106,11 +106,11 @@
 	String linkBase = request.getContextPath() + "/";
 	if (collection != null)
 	{
-		linkBase = linkBase + "resource/" + collection.getIdentifier().getURL().toString() + "/";
+		linkBase = collection.getIdentifier().getURL().toString() + "/";
 	}
 	if (community != null)
 	{
-		linkBase = linkBase + "resource/" + community.getIdentifier().getURL().toString() + "/";
+		linkBase = community.getIdentifier().getURL().toString() + "/";
 	}
 	
 	String direction = (bi.isAscending() ? "ASC" : "DESC");
