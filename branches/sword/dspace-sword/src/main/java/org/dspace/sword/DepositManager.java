@@ -1,12 +1,20 @@
 package org.dspace.sword;
 
+import org.apache.log4j.Logger;
 import org.dspace.core.Context;
 
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
 
+import java.io.File;
+import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 public class DepositManager
 {
+	public static Logger log = Logger.getLogger(DepositManager.class);
+	
 	private Context context;
 	
 	private Deposit deposit;
@@ -28,7 +36,23 @@ public class DepositManager
 	}
 
 	public DepositResponse deposit()
+		throws DSpaceSWORDException
 	{
-		return null;
+		// first we want to verify that the deposit is safe
+		// check the checksums and all that stuff
+		// This throws an exception if it can't verify the deposit
+		this.verify();
+
+		// Obtain the relevant ingester from the factory
+		SWORDIngester si = SWORDIngesterFactory.getInstance(context, deposit);
+		DepositResponse response = si.ingest(context, deposit);
+
+		return response;
+	}
+	
+	private void verify()
+		throws DSpaceSWORDException
+	{
+		// FIXME: please implement
 	}
 }
