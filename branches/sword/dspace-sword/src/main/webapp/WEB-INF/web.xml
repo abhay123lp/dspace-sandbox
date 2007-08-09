@@ -60,7 +60,7 @@
 
   <servlet-mapping>
     <servlet-name>servicedocument</servlet-name>
-    <url-pattern>/*</url-pattern>
+    <url-pattern>/servicedocument</url-pattern>
   </servlet-mapping>
 
 </web-app>
