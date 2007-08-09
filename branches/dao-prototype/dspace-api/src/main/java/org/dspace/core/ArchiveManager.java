@@ -40,7 +40,12 @@
 package org.dspace.core;
 
 import java.io.IOException;
+import java.util.List;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
@@ -60,7 +65,9 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 import org.dspace.search.DSIndexer;
 
 /**
@@ -476,7 +483,6 @@ public class ArchiveManager
 
             options.addOption("a", "all", false, "print all items");
             options.addOption("m", "metadata", false, "print item metadata");
-            options.addOption("r", "revision", false, "new revision of item");
             options.addOption("p", "print", false, "print item");
             options.addOption("u", "user", true, "eperson email address or id");
             options.addOption("i", "item_id", true, "id of the item");
@@ -506,52 +512,66 @@ public class ArchiveManager
             else if (line.hasOption("z") && line.hasOption("i"))
             {
                 System.out.println("id go");
-                am.printPersistentIdentifiers(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
-            }
-            else if (line.hasOption("r") && line.hasOption("i"))
-            {
-//            	 find the EPerson, assign to context
-                EPerson myEPerson = null;
-                String eperson = null;
-                if (line.hasOption('u'))
-                {
-                    eperson = line.getOptionValue("u");
-                }
-                else
-                {
-                    System.out.println("Error, eperson cannot be found: " + eperson);
-                    System.exit(1);
-                }
-                if (eperson.indexOf('@') != -1)
-                {
-                    // @ sign, must be an email
-                    myEPerson = EPerson.findByEmail(c, eperson);
-                }
-                else
-                {
-                    myEPerson = EPerson.find(c, Integer.parseInt(eperson));
-                }
-
-                if (myEPerson == null)
-                {
-                    System.out.println("Error, eperson cannot be found: " + eperson);
-                    System.exit(1);
-                }
-
-                c.setCurrentUser(myEPerson);
-
-                int id = Integer.parseInt(line.getOptionValue("i"));
-                Item i = ArchiveManager.newVersionOfItem(c, itemDAO.retrieve(id));
-                System.out.println("Original Item: \n");
-                System.out.println(itemDAO.retrieve(id).toString());
-                System.out.println("New Item: \n");
-                System.out.println(i.toString());
+                am.printExternalIdentifiers(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
             }
             c.complete();
         }
         catch (Exception e)
         {
             throw new RuntimeException(e);
+        }
+    }
+    
+    /**
+     * Prints out the list of items using item.toString()
+     * @param items List<Item>
+     */
+    private void printItems(List<Item> items)
+    {
+        for (Item i : items)
+        {
+            System.out.println(i.toString());
+        }
+    }
+    
+    /**
+     * Prints out the list of groups using toString()
+     * @param g Group[]
+     */
+    private void printGroups(Group[] groups)
+    {
+        for (Group g : groups)
+        {
+            System.out.println("Group: " + g.toString());
+        }
+    }
+
+    /**
+     * Prints out the Item's metadata twice in two forms
+     * 
+     * @param item Item
+     */
+    private void printItemMetadata(Item item)
+    {
+        System.out.println(item.getMetadata().toString());
+        for (Object o : item.getMetadata())
+        {
+            System.out.println(o.toString());
+        }
+    }
+    
+    /**
+     * Prints out all the persistent Identifiers for the given Item
+     * 
+     * @param item item
+     */
+    private void printExternalIdentifiers(Item item)
+    {
+    	System.out.println("one pi: " + item.getExternalIdentifier().getCanonicalForm());
+        System.out.println(item.getExternalIdentifiers().toString());
+        for (ExternalIdentifier id : item.getExternalIdentifiers())
+        {
+            System.out.println(id.getCanonicalForm());
         }
     }
 }
