@@ -40,7 +40,6 @@
 package org.dspace.core;
 
 import java.io.IOException;
-import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
@@ -127,13 +126,6 @@ public class ArchiveManager
             IndexBrowse ib = new IndexBrowse(context);
             ib.itemRemoved(item);
             DSIndexer.unIndexContent(context, item);
-            
-            
-            
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
         }
         catch (BrowseException be)
         {
@@ -177,37 +169,31 @@ public class ArchiveManager
         // Add suitable provenance - includes user, date, collections +
         // bitstream checksums
         EPerson e = context.getCurrentUser();
-        try
+
+        String prov = "Item reinstated by " + e.getFullName() + " ("
+                + e.getEmail() + ") on " + timestamp + "\n"
+                + "Item was in collections:\n" + collectionProv
+                + InstallItem.getBitstreamProvenanceMessage(item);
+
+        item.addMetadata(MetadataSchema.DC_SCHEMA, "description",
+                "provenance", "en", prov);
+
+        // Update item in DB
+        itemDAO.update(item);
+
+        // Add to indicies
+        // Remove - update() already performs this
+        // Browse.itemAdded(context, this);
+        DSIndexer.indexContent(context, item);
+
+        // authorization policies
+        if (colls.length > 0)
         {
-            String prov = "Item reinstated by " + e.getFullName() + " ("
-                    + e.getEmail() + ") on " + timestamp + "\n"
-                    + "Item was in collections:\n" + collectionProv
-                    + InstallItem.getBitstreamProvenanceMessage(item);
-
-            item.addMetadata(MetadataSchema.DC_SCHEMA, "description",
-                    "provenance", "en", prov);
-
-            // Update item in DB
-            itemDAO.update(item);
-
-            // Add to indicies
-            // Remove - update() already performs this
-            // Browse.itemAdded(context, this);
-            DSIndexer.indexContent(context, item);
-
-            // authorization policies
-            if (colls.length > 0)
-            {
-                // FIXME: not multiple inclusion friendly - just apply access
-                // policies from first collection
-                // remove the item's policies and replace them with
-                // the defaults from the collection
-                item.inheritCollectionDefaultPolicies(colls[0]);
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            // FIXME: not multiple inclusion friendly - just apply access
+            // policies from first collection
+            // remove the item's policies and replace them with
+            // the defaults from the collection
+            item.inheritCollectionDefaultPolicies(colls[0]);
         }
 
         log.info(LogManager.getHeader(context, "reinstate_item", "user="
@@ -458,5 +444,114 @@ public class ArchiveManager
         log.warn("***************************************************");
         log.warn("Moving " + dsoStr + " from " + sourceStr + " to " + destStr);
         log.warn("***************************************************");
+    }
+
+    /**
+     * Using the CLI on ArchiveManager
+	 *
+     * Add {dspace.dir}/bin to your path or cd {dspace.dir}/bin
+     * dsrun org.dspace.core.ArchiveManager [opts] 
+	 *
+	 * Options
+     * -i [item id] Allows for the specification of an item by id
+     * -u [email or id of eperson] Allows for the use of Authorization and specifying a user 
+     * -p print the given item's (-i [id]) item_id, revision, previous_revision
+     * -a print the same item data as -p for all items
+     * -m print the given item's metadata
+     * -z print the given item's persistent identifiers
+     * -r create a new revision of the given item using the given user (-u [email or id]) 
+     * 
+     * Should be extenisble for other actions.
+     */
+    public static void main(String[] argv)
+    {
+        Context c = null;
+        try
+        {
+            c = new Context();
+            CommandLineParser parser = new PosixParser();
+            Options options = new Options();
+            ArchiveManager am = new ArchiveManager();
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
+
+            options.addOption("a", "all", false, "print all items");
+            options.addOption("m", "metadata", false, "print item metadata");
+            options.addOption("r", "revision", false, "new revision of item");
+            options.addOption("p", "print", false, "print item");
+            options.addOption("u", "user", true, "eperson email address or id");
+            options.addOption("i", "item_id", true, "id of the item");
+            options.addOption("z", "identifiers", false, "print the presistent ids");
+            options.addOption("g", "group", false, "print the group info");
+            CommandLine line = parser.parse(options, argv);
+
+
+
+            if (line.hasOption("a"))
+            {
+                am.printItems(itemDAO.getItems());
+            }
+            else if (line.hasOption('g')) 
+            {
+                am.printGroups(Group.findAll(c, 1));
+            }
+            else if (line.hasOption("m") && line.hasOption("i"))
+            {
+                am.printItemMetadata(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
+            }
+            else if (line.hasOption("p") && line.hasOption("i"))
+            {
+                int id = Integer.parseInt(line.getOptionValue("i"));
+                System.out.println(itemDAO.retrieve(id).toString());
+            }
+            else if (line.hasOption("z") && line.hasOption("i"))
+            {
+                System.out.println("id go");
+                am.printPersistentIdentifiers(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
+            }
+            else if (line.hasOption("r") && line.hasOption("i"))
+            {
+//            	 find the EPerson, assign to context
+                EPerson myEPerson = null;
+                String eperson = null;
+                if (line.hasOption('u'))
+                {
+                    eperson = line.getOptionValue("u");
+                }
+                else
+                {
+                    System.out.println("Error, eperson cannot be found: " + eperson);
+                    System.exit(1);
+                }
+                if (eperson.indexOf('@') != -1)
+                {
+                    // @ sign, must be an email
+                    myEPerson = EPerson.findByEmail(c, eperson);
+                }
+                else
+                {
+                    myEPerson = EPerson.find(c, Integer.parseInt(eperson));
+                }
+
+                if (myEPerson == null)
+                {
+                    System.out.println("Error, eperson cannot be found: " + eperson);
+                    System.exit(1);
+                }
+
+                c.setCurrentUser(myEPerson);
+
+                int id = Integer.parseInt(line.getOptionValue("i"));
+                Item i = ArchiveManager.newVersionOfItem(c, itemDAO.retrieve(id));
+                System.out.println("Original Item: \n");
+                System.out.println(itemDAO.retrieve(id).toString());
+                System.out.println("New Item: \n");
+                System.out.println(i.toString());
+            }
+            c.complete();
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }
