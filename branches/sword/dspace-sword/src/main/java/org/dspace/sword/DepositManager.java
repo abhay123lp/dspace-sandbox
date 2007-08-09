@@ -2,16 +2,14 @@ package org.dspace.sword;
 
 import org.dspace.core.Context;
 
-import org.purl.sword.base.SWORDDeposit;
-import org.purl.sword.base.SWORDDepositResponse;
+import org.purl.sword.base.Deposit;
+import org.purl.sword.base.DepositResponse;
 
 public class DepositManager
 {
 	private Context context;
 	
-	private String username;
-	
-	private SWORDDeposit deposit;
+	private Deposit deposit;
 	
 	/**
 	 * @param context the context to set
@@ -24,20 +22,12 @@ public class DepositManager
 	/**
 	 * @param deposit the deposit to set
 	 */
-	public void setDeposit(SWORDDeposit deposit)
+	public void setDeposit(Deposit deposit)
 	{
 		this.deposit = deposit;
 	}
 
-	/**
-	 * @param username the username to set
-	 */
-	public void setUsername(String username)
-	{
-		this.username = username;
-	}
-	
-	public SWORDDepositResponse deposit()
+	public DepositResponse deposit()
 	{
 		return null;
 	}

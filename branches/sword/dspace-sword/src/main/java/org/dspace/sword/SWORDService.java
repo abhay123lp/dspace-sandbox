@@ -21,23 +21,9 @@ public class SWORDService
 	
 	private Context context;
 	
-	private String username;
-	
-	private String onBehalfOf;
-	
 	public void setContext(Context context)
 	{
 		this.context = context;
-	}
-	
-	public void setUsername(String un)
-	{
-		this.username = un;
-	}
-	
-	public void setOnBehalfOf(String obo)
-	{
-		this.onBehalfOf = obo;
 	}
 	
 	public ServiceDocument getServiceDocument()
@@ -45,19 +31,28 @@ public class SWORDService
 	{
 		try
 		{
+			// DSpace will support the top level service option
 			ServiceLevel sl = ServiceLevel.ONE;
+			
+			// can we dry-run requests
 			boolean noOp = true;
+			
+			// can we be verbose in our actions
 			boolean verbose = true;
 
+			// construct a new service document
 			Service service = new Service(sl, noOp, verbose);
 			ServiceDocument sd = new ServiceDocument(service);
 
+			// set the title of the workspace as per the name of the DSpace installation
 			String ws = ConfigurationManager.getProperty("dspace.name");
 			Workspace workspace = new Workspace();
 			workspace.setTitle(ws);
 
+			// locate the collections to which the authenticated user has ADD rights
 			Collection[] cols = Collection.findAuthorized(context, null, Constants.ADD);
 			
+			// add the permissable collections to the workspace
 			for (int i = 0; i < cols.length; i++)
 			{
 				org.purl.sword.base.Collection scol = this.buildSwordCollection(cols[i]);
@@ -78,15 +73,29 @@ public class SWORDService
 		org.purl.sword.base.Collection scol = new org.purl.sword.base.Collection();
 		
 		// prepare the parameters to be put in the sword collection
-		String location = HandleManager.getCanonicalForm(col.getHandle()); // FIXME: is this the URL it wants?
+		// FIXME: is this the URL it wants?  Or do we want a URL to publish to
+		String location = HandleManager.getCanonicalForm(col.getHandle()); 
+		
+		// collection title is just its name
 		String title = col.getMetadata("name");
+		
+		// the collection policy is the licence to which the collection adheres
 		String collectionPolicy = col.getLicense();
-		String treatment = ""; // FIXME: what sort of info is this?
-		// String namespace = "";  FIXME: this might be internal to SWORD - difficult to tell
+		
+		// FIXME: what is the treatment?
+		String treatment = "";
+		
+		// FIXME: this might be internal to SWORD - difficult to tell
+		// String namespace = "";
+		
+		// abstract is the short description of the collection
 		String dcAbstract = col.getMetadata("short_description");
+		
+		// FIXME: what does it mean to support mediation?
 		boolean mediation = true;
 		
 		// the list of mime types that we accept
+		// for the time being, we just take a zip, and we have to trust what's in it
 		String zip = "application/zip";
 		
 		// load up the sword collection
