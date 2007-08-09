@@ -42,11 +42,16 @@ package org.dspace.content.dao.postgres;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
@@ -57,6 +62,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
@@ -71,6 +77,7 @@ import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -406,6 +413,130 @@ public class ItemDAOPostgres extends ItemDAO
     }
 
     @Override
+    public List<Item> getItems(DSpaceObject scope,
+            String startDate, String endDate, int offset, int limit,
+            boolean items, boolean collections, boolean withdrawn)
+        throws ParseException
+    {
+        try
+        {
+            // Put together our query. Note there is no need for an
+            // "in_archive=true" condition, we are using the existence of a
+            // persistent identifier as our 'existence criterion'.
+            String query =
+                "SELECT p.value, p.type_id, p.resource_id, " +
+                "i.withdrawn, i.last_modified " +
+                "FROM externalidentifier p, item i";
+
+            // We are building a complex query that may contain a variable 
+            // about of input data points. To accomidate this while still 
+            // providing type safty we build a list of parameters to be 
+            // plugged into the query at the database level.
+            List parameters = new ArrayList();
+            
+            if (scope != null)
+            {
+                if (scope.getType() == Constants.COLLECTION)
+                {
+                    query += ", collection2item cl2i";
+                }
+                else if (scope.getType() == Constants.COMMUNITY)
+                {
+                    query += ", community2item cm2i";
+                }
+            }       
+
+            query += " WHERE p.resource_type_id=" + Constants.ITEM +
+                " AND p.resource_id = i.item_id ";
+
+            if (scope != null)
+            {
+                if (scope.getType() == Constants.COLLECTION)
+                {
+                    query += " AND cl2i.collection_id= ? " +
+                             " AND cl2i.item_id = p.resource_id ";
+                    parameters.add(new Integer(scope.getID()));
+                }
+                else if (scope.getType() == Constants.COMMUNITY)
+                {
+                    query += " AND cm2i.community_id= ? " +
+                             " AND cm2i.item_id = p.resource_id";
+                    parameters.add(new Integer(scope.getID()));
+                }
+            }      
+                    
+            if (startDate != null)
+            {
+                query = query + " AND i.last_modified >= ? ";
+                parameters.add(toTimestamp(startDate, false));
+            }
+
+            if (endDate != null)
+            {
+                /*
+                 * If the end date has seconds precision, e.g.:
+                 * 
+                 * 2004-04-29T13:45:43Z
+                 * 
+                 * we need to add 999 milliseconds to this. This is because SQL
+                 * TIMESTAMPs have millisecond precision, and so might have a value:
+                 * 
+                 * 2004-04-29T13:45:43.952Z
+                 * 
+                 * and so <= '2004-04-29T13:45:43Z' would not pick this up. Reading
+                 * things out of the database, TIMESTAMPs are rounded down, so the
+                 * above value would be read as '2004-04-29T13:45:43Z', and
+                 * therefore a caller would expect <= '2004-04-29T13:45:43Z' to
+                 * include that value.
+                 * 
+                 * Got that? ;-)
+                 */
+                boolean selfGenerated = false;
+                if (endDate.length() == 20)
+                {
+                    endDate = endDate.substring(0, 19) + ".999Z";
+                    selfGenerated = true;
+                }
+
+                query += " AND i.last_modified <= ? ";
+                parameters.add(toTimestamp(endDate, selfGenerated));
+            }
+            
+            if (withdrawn == false)
+            {
+                // Exclude withdrawn items
+                if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+                {
+                    query += " AND withdrawn=0 ";
+                }
+                else
+                {
+                    // postgres uses booleans
+                    query += " AND withdrawn=false ";
+                }
+            }
+
+            // Order by item ID, so that for a given harvest the order will be
+            // consistent. This is so that big harvests can be broken up into
+            // several smaller operations (e.g. for OAI resumption tokens.)
+            query += " ORDER BY p.resource_id";
+
+            log.debug(LogManager.getHeader(context, "harvest SQL", query));
+            
+            // Execute
+            Object[] parametersArray = parameters.toArray();
+            TableRowIterator tri = DatabaseManager.query(context, query,
+                    parametersArray);
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
     public List<Item> getItemsByCollection(Collection collection)
     {
         try
@@ -715,4 +846,41 @@ public class ItemDAOPostgres extends ItemDAO
                 "DELETE FROM MetadataValue WHERE item_id= ? ",
                 itemId);
     }
+    
+    /**
+     * Convert a String to a java.sql.Timestamp object
+     * 
+     * @param t The timestamp String
+     * @param selfGenerated Is this a self generated timestamp (e.g. it has
+     *                      .999 on the end)
+     * @return The converted Timestamp
+     * @throws ParseException 
+     */
+    private static Timestamp toTimestamp(String t, boolean selfGenerated)
+        throws ParseException
+    {
+        SimpleDateFormat df;
+        
+        // Choose the correct date format based on string length
+        if (t.length() == 10)
+        {
+            df = new SimpleDateFormat("yyyy-MM-dd");
+        }
+        else if (t.length() == 20)
+        {
+            df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        }
+        else if (selfGenerated)
+        {
+            df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+        }
+        else {
+            // Not self generated, and not in a guessable format
+            throw new ParseException("", 0);
+        }
+        
+        // Parse the date
+        df.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
+        return new Timestamp(df.parse(t).getTime());
+    }    
 }

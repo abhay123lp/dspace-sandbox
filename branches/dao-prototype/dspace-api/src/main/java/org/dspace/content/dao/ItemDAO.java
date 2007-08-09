@@ -41,6 +41,7 @@ package org.dspace.content.dao;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
@@ -54,6 +55,7 @@ import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.core.Constants;
@@ -253,6 +255,10 @@ public abstract class ItemDAO extends ContentDAO
     }
 
     public abstract List<Item> getItems();
+    public abstract List<Item> getItems(DSpaceObject scope,
+            String startDate, String endDate, int offset, int limit,
+            boolean items, boolean collections, boolean withdrawn)
+        throws ParseException;
     public abstract List<Item> getItemsByCollection(Collection collection);
     public abstract List<Item> getItemsBySubmitter(EPerson eperson);
 

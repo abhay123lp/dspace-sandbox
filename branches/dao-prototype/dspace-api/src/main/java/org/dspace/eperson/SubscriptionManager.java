@@ -411,13 +411,6 @@ public class SubscriptionManager
             {
                 // This should never get thrown as the Dates are auto-generated
             }
-            catch (java.sql.SQLException sqle)
-            {
-                // This could be thrown by Harvest.harvest(). Soon that class
-                // should be going through DAOs so this catch should be very
-                // short-lived.
-                throw new RuntimeException(sqle);
-            }
         }
 
         // Send an e-mail if there were any new items
