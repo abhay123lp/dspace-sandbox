@@ -200,6 +200,10 @@ public class BrowserScope
 	}
 
 	/**
+     * NB For 'Item' indexes, if there is an 'index' configured for this sort
+     * (ie. a link to it appears in the navigation), then we should use that
+     * index instead of the passed index - unless we deliberately passed a
+     * 'generic' / internal index
 	 * @param browseIndex The browseIndex to set.
 	 */
 	public void setBrowseIndex(BrowseIndex browseIndex)
@@ -207,14 +211,19 @@ public class BrowserScope
 	{
         this.browseIndex = browseIndex;
 
+        // If a sorting option has already been set, see if we can update
+        // the configured browse index instead
         if (sortBy > 0 && browseIndex.isItemIndex())
         {
-            for (BrowseIndex bi : browseIndex.getBrowseIndices())
+            if (!BrowseIndex.isInternalIndex(browseIndex))
             {
-                if (bi.isItemIndex() && bi.getSortOption().getNumber() == sortBy)
+                for (BrowseIndex bi : BrowseIndex.getBrowseIndices())
                 {
-                    this.browseIndex = bi;
-                    this.sortBy = -1;
+                    if (bi.isItemIndex() && bi.getSortOption().getNumber() == sortBy)
+                    {
+                        this.browseIndex = bi;
+                        this.sortBy = -1;
+                    }
                 }
             }
         }
@@ -359,17 +368,21 @@ public class BrowserScope
 	}
 
 	/**
+	 * NB For 'Item' indexes, if there is an 'index' configured for this sort
+	 * (ie. a link to it appears in the navigation), then we should use that
+	 * index instead of the passed index - unless we deliberately passed a
+	 * 'generic' / internal index
 	 * @param sortBy The sortBy to set.
 	 */
 	public void setSortBy(int sortBy)
 	    throws BrowseException
 	{
         this.sortBy = sortBy;
-	    if (browseIndex != null)
+	    if (!BrowseIndex.isInternalIndex(browseIndex))
 	    {
 	        if (sortBy > 0 && browseIndex.isItemIndex())
 	        {
-	            for (BrowseIndex bi : browseIndex.getBrowseIndices())
+	            for (BrowseIndex bi : BrowseIndex.getBrowseIndices())
 	            {
 	                if (bi.isItemIndex() && bi.getSortOption().getNumber() == sortBy)
 	                {

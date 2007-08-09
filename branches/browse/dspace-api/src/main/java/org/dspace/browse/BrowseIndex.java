@@ -699,6 +699,17 @@ public class BrowseIndex
     	
     	return field;
     }
+    
+    /**
+     * Does the browse index represent one of the internal item indexes
+     * 
+     * @param bi
+     * @return
+     */
+    public static boolean isInternalIndex(BrowseIndex bi)
+    {
+        return (bi == itemIndex || bi == withdrawnIndex);
+    }
 
     private static String makeTableBaseName(int number)
     {

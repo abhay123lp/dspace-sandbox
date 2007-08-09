@@ -67,24 +67,6 @@ import org.dspace.storage.rdbms.TableRowIterator;
  */
 public class BrowseCreateDAOOracle implements BrowseCreateDAO
 {
-    public String createPrimaryTable(String table, List sortCols,
-            boolean execute) throws BrowseException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public void insertIndex(String table, int itemID, Map sortCols)
-            throws BrowseException {
-        // TODO Auto-generated method stub
-        
-    }
-
-    public String createPrimaryView(String table, List sortCols, boolean execute)
-            throws BrowseException {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
     /** Log4j logger */
     private static Logger log = Logger.getLogger(BrowseCreateDAOOracle.class);
 
@@ -259,7 +241,7 @@ public class BrowseCreateDAOOracle implements BrowseCreateDAO
         try
         {
             String create = "CREATE TABLE " + table + " (" +
-                            "id integer PRIMARY KEY, " + 
+                            "id INTEGER PRIMARY KEY, " + 
                             "value " + getValueColumnDefinition() + ", " +
                             "sort_value " + getSortColumnDefinition() +
                             ")";
@@ -277,6 +259,61 @@ public class BrowseCreateDAOOracle implements BrowseCreateDAO
         }
     }
 
+    public String createPrimaryTable(String table, List sortCols, boolean execute) throws BrowseException
+    {
+        try
+        {
+            StringBuffer sb = new StringBuffer();
+            
+            Iterator itr = sortCols.iterator();
+            while (itr.hasNext())
+            {
+                Integer no = (Integer) itr.next();
+                sb.append(", sort_");
+                sb.append(no.toString());
+                sb.append(getSortColumnDefinition());
+            }
+            
+            String createTable = "CREATE TABLE " + table + " (" +
+                                    "id INTEGER PRIMARY KEY," +
+                                    "item_id INTEGER REFERENCES item(item_id)" +
+                                    sb.toString() + 
+                                    ")";
+            if (execute)
+            {
+                DatabaseManager.updateQuery(context, createTable);
+            }
+            return createTable;
+        }
+        catch (SQLException e)
+        {
+            log.error("caught exception: ", e);
+            throw new BrowseException(e);
+        }       
+    }
+
+    public String createPrimaryView(String view, List sortCols, boolean execute)
+            throws BrowseException
+    {
+        try
+        {
+            String createPriView = "CREATE VIEW " + view + " as " +
+                    "SELECT * FROM " + BrowseIndex.getItemIndex().getTableName();
+
+            if (execute)
+            {
+                DatabaseManager.updateQuery(context, createPriView);
+            }
+            
+            return createPriView;
+        }
+        catch (SQLException e)
+        {
+            log.error("caught exception: ", e);
+            throw new BrowseException(e);
+        }       
+    }
+    
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#createPrimaryTable(java.lang.String, java.util.List, boolean)
      */
@@ -512,6 +549,35 @@ public class BrowseCreateDAOOracle implements BrowseCreateDAO
         }
     }
 
+    public void insertIndex(String table, int itemID, Map sortCols)
+            throws BrowseException
+    {
+        try
+        {
+            // create us a row in the index
+            TableRow row = DatabaseManager.create(context, table);
+            
+            // set the primary information for the index
+            row.setColumn("item_id", itemID);
+            
+            // now set the columns for the other sort values
+            Iterator itra = sortCols.keySet().iterator();
+            while (itra.hasNext())
+            {
+                Integer key = (Integer) itra.next();
+                String nValue = (String) sortCols.get(key);
+                row.setColumn("sort_" + key.toString(), utils.truncateSortValue(nValue));
+            }
+            
+            DatabaseManager.update(context, row);
+        }
+        catch (SQLException e)
+        {
+            log.error("caught exception: ", e);
+            throw new BrowseException(e);
+        }
+    }
+    
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#insertIndex(java.lang.String, int, java.lang.String, java.lang.String, java.util.Map)
      */
