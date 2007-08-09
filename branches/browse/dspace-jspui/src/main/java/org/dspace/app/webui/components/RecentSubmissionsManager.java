@@ -99,7 +99,7 @@ public class RecentSubmissionsManager
 			// prep our engine and scope
 			BrowseEngine be = new BrowseEngine(context);
 			BrowserScope bs = new BrowserScope(context);
-			BrowseIndex bi = BrowseIndex.getItemIndex();
+			BrowseIndex bi = BrowseIndex.getItemBrowseIndex();
 			
 			// fill in the scope with the relevant gubbins
 			bs.setBrowseIndex(bi);

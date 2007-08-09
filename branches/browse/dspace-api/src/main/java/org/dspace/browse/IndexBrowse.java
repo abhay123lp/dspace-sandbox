@@ -357,20 +357,20 @@ public class IndexBrowse
         try
         {
             // Remove from the main item index
-            removeIndex(item.getID(), BrowseIndex.getItemIndex().getTableName());
-            removeIndex(item.getID(), BrowseIndex.getWithdrawnIndex().getTableName());
+            removeIndex(item.getID(), BrowseIndex.getItemBrowseIndex().getTableName());
+            removeIndex(item.getID(), BrowseIndex.getWithdrawnBrowseIndex().getTableName());
 
             if (item.isArchived() && !item.isWithdrawn())
             {
                 if (item.isWithdrawn())
                 {
                     Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
-                    dao.insertIndex(BrowseIndex.getWithdrawnIndex().getTableName(), item.getID(), sortMap);
+                    dao.insertIndex(BrowseIndex.getWithdrawnBrowseIndex().getTableName(), item.getID(), sortMap);
                 }
                 else
                 {
                     Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
-                    dao.insertIndex(BrowseIndex.getItemIndex().getTableName(), item.getID(), sortMap);
+                    dao.insertIndex(BrowseIndex.getItemBrowseIndex().getTableName(), item.getID(), sortMap);
                 }
             }
 
@@ -764,8 +764,8 @@ public class IndexBrowse
     			i++;
     		}
 
-            dropItemTables(BrowseIndex.getItemIndex());
-            dropItemTables(BrowseIndex.getWithdrawnIndex());
+            dropItemTables(BrowseIndex.getItemBrowseIndex());
+            dropItemTables(BrowseIndex.getWithdrawnBrowseIndex());
             
     		if (execute())
     		{
@@ -819,8 +819,8 @@ public class IndexBrowse
                 sortCols.add(new Integer(so.getNumber()));
             }
 
-            createItemTables(BrowseIndex.getItemIndex(), sortCols);
-            createItemTables(BrowseIndex.getWithdrawnIndex(), sortCols);
+            createItemTables(BrowseIndex.getItemBrowseIndex(), sortCols);
+            createItemTables(BrowseIndex.getWithdrawnBrowseIndex(), sortCols);
             
             if (execute())
             {
@@ -1055,8 +1055,8 @@ public class IndexBrowse
     			}
     		}
 
-            dao.pruneExcess(BrowseIndex.getItemIndex().getTableName(false, false, false, false), null, false);
-            dao.pruneExcess(BrowseIndex.getWithdrawnIndex().getTableName(false, false, false, false), null, true);
+            dao.pruneExcess(BrowseIndex.getItemBrowseIndex().getTableName(false, false, false, false), null, false);
+            dao.pruneExcess(BrowseIndex.getWithdrawnBrowseIndex().getTableName(false, false, false, false), null, true);
             
             // Make sure the deletes are written back
             context.commit();

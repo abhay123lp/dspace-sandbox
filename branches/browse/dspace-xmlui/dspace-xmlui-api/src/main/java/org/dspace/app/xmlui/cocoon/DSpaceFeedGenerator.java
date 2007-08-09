@@ -553,7 +553,7 @@ public class DSpaceFeedGenerator extends AbstractGenerator
     	// FIXME Exception handling
     	try
     	{
-            scope.setBrowseIndex(BrowseIndex.getItemIndex());
+            scope.setBrowseIndex(BrowseIndex.getItemBrowseIndex());
             for (SortOption so : SortOption.getSortOptions())
             {
                 if (so.getName().equals(source))

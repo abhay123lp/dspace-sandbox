@@ -365,7 +365,7 @@ public class CommunityViewer extends AbstractDSpaceTransformer implements Cachea
         // FIXME Exception Handling
         try
         {
-        	scope.setBrowseIndex(BrowseIndex.getItemIndex());
+        	scope.setBrowseIndex(BrowseIndex.getItemBrowseIndex());
             for (SortOption so : SortOption.getSortOptions())
             {
                 if (so.getName().equals(source))

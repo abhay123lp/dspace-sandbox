@@ -183,7 +183,7 @@ public class BrowseEngine
 		dao.setLimit(scope.getResultsPerPage());
 		
 		// assemble the ORDER BY clause
-        String orderBy = browseIndex.getDefaultSortColumn();
+        String orderBy = browseIndex.getSortField();
 		if (scope.getSortBy() > 0)
 		{
 			orderBy = "sort_" + Integer.toString(scope.getSortBy());
@@ -240,7 +240,7 @@ public class BrowseEngine
 			// prepare the parameters for the focus clause if we are to have one
 			String focusValue = null;
 			String rawFocusValue = null;
-			String focusField = browseIndex.getDefaultSortColumn();
+			String focusField = browseIndex.getSortField();
 			
 			if (scope.hasJumpToItem() || scope.hasJumpToValue() || scope.hasStartsWith())
 			{
@@ -311,7 +311,7 @@ public class BrowseEngine
 			}
 			
 			// assemble the ORDER BY clause
-			String orderBy = browseIndex.getDefaultSortColumn();
+			String orderBy = browseIndex.getSortField();
 			if (scope.getSortBy() > 0)
 			{
 				orderBy = "sort_" + Integer.toString(scope.getSortBy());

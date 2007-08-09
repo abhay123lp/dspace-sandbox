@@ -316,7 +316,7 @@ public class FeedServlet extends DSpaceServlet
     		{
     			throw new IOException("There is no configuration supplied for: recent.submissions.index");
     		}
-    		BrowseIndex bix = BrowseIndex.getItemIndex();
+    		BrowseIndex bix = BrowseIndex.getItemBrowseIndex();
     		if (bix == null)
     		{
     			throw new IOException("There is no browse index with the name: " + idx);

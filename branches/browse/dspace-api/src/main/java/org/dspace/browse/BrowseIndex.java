@@ -98,12 +98,16 @@ public class BrowseIndex
     {
     }
     
-    private BrowseIndex(String name)
+    /**
+     * Constructor for creating generic / internal index objects
+     * @param baseName
+     */
+    private BrowseIndex(String baseName)
     {
         try
         {
             number = -1;
-            tableBaseName = name;
+            tableBaseName = baseName;
             displayType = "item";
             sortOption = SortOption.getDefaultSortOption();
         }
@@ -172,7 +176,7 @@ public class BrowseIndex
                 if (sortOption == null)
                     valid = false;
                 
-                tableBaseName = getItemIndex().tableBaseName;
+                tableBaseName = getItemBrowseIndex().tableBaseName;
             }
             else
             {
@@ -277,6 +281,9 @@ public class BrowseIndex
 //		this.name = name;
 //	}
 	
+	/**
+	 * Get the SortOption associated with this index.
+	 */
 	public SortOption getSortOption()
 	{
 	    return sortOption;
@@ -325,6 +332,13 @@ public class BrowseIndex
         return BrowseIndex.getSequenceName(makeTableBaseName(number), isDistinct, isMap);
     }
     
+    /**
+     * Generate a sequence name from the given base
+     * @param baseName
+     * @param isDistinct
+     * @param isMap
+     * @return
+     */
     private static String getSequenceName(String baseName, boolean isDistinct, boolean isMap)
     {
         if (isDistinct)
@@ -340,6 +354,7 @@ public class BrowseIndex
         
         return baseName;
     }
+    
     /**
      * Get the name of the table for the given set of circumstances
      * This is provided solely for cleaning the database, where you are
@@ -357,6 +372,15 @@ public class BrowseIndex
         return BrowseIndex.getTableName(makeTableBaseName(number), isCommunity, isCollection, isDistinct, isMap);
     }
     
+    /**
+     * Generate a table name from the given base
+     * @param baseName
+     * @param isCommunity
+     * @param isCollection
+     * @param isDistinct
+     * @param isMap
+     * @return
+     */
     private static String getTableName(String baseName, boolean isCommunity, boolean isCollection, boolean isDistinct, boolean isMap)
     {
     	// isDistinct is meaningless in relation to isCommunity and isCollection
@@ -559,7 +583,12 @@ public class BrowseIndex
         return "item".equals(displayType);
     }
     
-    public String getDefaultSortColumn() throws BrowseException
+    /**
+     * Get the field for sorting associated with this index
+     * @return
+     * @throws BrowseException
+     */
+    public String getSortField() throws BrowseException
     {
         String focusField;
         if (isMetadataIndex())
@@ -639,8 +668,8 @@ public class BrowseIndex
     }
     
     /**
-     * Get the browse index from configuration with the specified name.  The
-     * name is the first part of the browse configuration
+     * Get the browse index from configuration with the specified name.
+     * The name is the first part of the browse configuration
      * 
      * @param name		the name to retrieve
      * @return			the specified browse index
@@ -658,12 +687,39 @@ public class BrowseIndex
         return null;
     }
     
-    public static BrowseIndex getItemIndex()
+    /**
+     * Get the configured browse index that is defined to use this sort option
+     * 
+     * @param so
+     * @return
+     * @throws BrowseException
+     */
+    public static BrowseIndex getBrowseIndex(SortOption so) throws BrowseException
+    {
+        for (BrowseIndex bix : BrowseIndex.getBrowseIndices())
+        {
+            if (bix.getSortOption() == so)
+                return bix;
+        }
+        
+        return null;
+    }
+    
+    /**
+     * Get the internally defined browse index for archived items
+     * 
+     * @return
+     */
+    public static BrowseIndex getItemBrowseIndex()
     {
         return BrowseIndex.itemIndex;
     }
     
-    public static BrowseIndex getWithdrawnIndex()
+    /**
+     * Get the internally defined browse index for withdrawn items
+     * @return
+     */
+    public static BrowseIndex getWithdrawnBrowseIndex()
     {
         return BrowseIndex.withdrawnIndex;
     }
@@ -711,6 +767,22 @@ public class BrowseIndex
         return (bi == itemIndex || bi == withdrawnIndex);
     }
 
+    /**
+     * Does this browse index represent one of the internal item indexes
+     * 
+     * @param bi
+     * @return
+     */
+    public boolean isInternalIndex()
+    {
+        return (this == itemIndex || this == withdrawnIndex);
+    }
+
+    /**
+     * Generate a base table name
+     * @param number
+     * @return
+     */
     private static String makeTableBaseName(int number)
     {
         return "bi_" + Integer.toString(number);

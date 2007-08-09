@@ -559,13 +559,51 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
 
         try
         {
-            params.scope.setBrowseIndex(BrowseIndex.getBrowseIndex(request
-                    .getParameter(BrowseParams.TYPE)));
+            String type   = request.getParameter(BrowseParams.TYPE);
+            int    sortBy = RequestUtils.getIntParameter(request, BrowseParams.SORT_BY);
+            
+            BrowseIndex bi = BrowseIndex.getBrowseIndex(type);
+            if (bi == null)
+            {
+                throw new BrowseException("There is no browse index of the type: " + type);
+            }
+            
+            // If we don't have a sort column
+            if (sortBy == -1)
+            {
+                // Get the default one
+                SortOption so = bi.getSortOption();
+                if (so != null)
+                {
+                    sortBy = so.getNumber();
+                }
+            }
+            else if (bi.isItemIndex() && !bi.isInternalIndex())
+            {
+                // If a default sort option is specified by the index, but it isn't
+                // the same as sort option requested, attempt to find an index that
+                // is configured to use that sort by default
+                // This is so that we can then highlight the correct option in the navigation
+                SortOption bso = bi.getSortOption();
+                SortOption so = SortOption.getSortOption(sortBy);
+                if ( bso != null && bso != so)
+                {
+                    BrowseIndex newBi = BrowseIndex.getBrowseIndex(so);
+                    if (newBi != null)
+                    {
+                        bi   = newBi;
+                        type = bi.getName();
+                    }
+                }
+            }
+            
+            params.scope.setBrowseIndex(bi);
+            params.scope.setSortBy(sortBy);
+            
             params.scope.setJumpToItem(RequestUtils.getIntParameter(request, BrowseParams.JUMPTO_ITEM));
             params.scope.setOrder(request.getParameter(BrowseParams.ORDER));
             params.scope.setResultsPerPage(RequestUtils.getIntParameter(request,
                     BrowseParams.RESULTS_PER_PAGE));
-            params.scope.setSortBy(RequestUtils.getIntParameter(request, BrowseParams.SORT_BY));
             params.scope.setStartsWith(request.getParameter(BrowseParams.STARTS_WITH));
             params.scope.setFilterValue(request.getParameter(BrowseParams.FILTER_VALUE));
             params.scope.setJumpToValue(request.getParameter(BrowseParams.JUMPTO_VALUE));
