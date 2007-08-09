@@ -1,4 +1,4 @@
-package org.purl.sword;
+package org.purl.sword.base;
 
 /**
  * Represents a generic SWORD exception. If this thrown by a repository,

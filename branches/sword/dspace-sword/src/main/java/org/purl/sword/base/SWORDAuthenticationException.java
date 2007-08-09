@@ -1,4 +1,4 @@
-package org.purl.sword;
+package org.purl.sword.base;
 
 /**
  * Represents a SWORD exception to be thrown if bad authentication credentials

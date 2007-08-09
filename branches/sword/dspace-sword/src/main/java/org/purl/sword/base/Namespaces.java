@@ -4,7 +4,7 @@
  *   Revision : $Revision$
  *   Name     : $Name$
  */
-package org.purl.sword;
+package org.purl.sword.base;
 
 /**
  * List of the namespaces that are used by SWORD. 

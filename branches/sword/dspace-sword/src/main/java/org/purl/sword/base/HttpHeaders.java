@@ -4,7 +4,7 @@
  *   Revision : $Revision$
  *   Name     : $Name$
  */
-package org.purl.sword;
+package org.purl.sword.base;
 
 /**
  * Definition of the additional HTTP Header tags that will be used in 
