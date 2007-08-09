@@ -356,12 +356,14 @@ public class IndexBrowse
         
         try
         {
-            // Remove from the main item index
+            // Remove from the item indexes (archive and withdrawn)
             removeIndex(item.getID(), BrowseIndex.getItemBrowseIndex().getTableName());
             removeIndex(item.getID(), BrowseIndex.getWithdrawnBrowseIndex().getTableName());
 
-            if (item.isArchived() && !item.isWithdrawn())
+            // Index any archived item
+            if (item.isArchived())
             {
+                // If it's withdrawn, add it to the withdrawn items index
                 if (item.isWithdrawn())
                 {
                     Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
@@ -369,11 +371,13 @@ public class IndexBrowse
                 }
                 else
                 {
+                    // Otherwise, add it to the main item index
                     Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
                     dao.insertIndex(BrowseIndex.getItemBrowseIndex().getTableName(), item.getID(), sortMap);
                 }
             }
 
+            // Now update the metadata indexes
             for (int i = 0; i < bis.length; i++)
             {
                 log.debug("Indexing for item " + item.getID() + ", for index: " + bis[i].getTableName());
@@ -383,6 +387,7 @@ public class IndexBrowse
                     // remove old metadata from the item index
                     removeIndex(item.getID(), bis[i]);
         
+                    // now index the new details - but only if it's archived and not withdrawn
                     if (item.isArchived() && !item.isWithdrawn())
                     {
                         // get the metadata from the item
@@ -419,6 +424,14 @@ public class IndexBrowse
         }
     }
 
+    /**
+     * Get the normalised values for each of the sort columns
+     * @param item
+     * @param itemMDMap
+     * @return
+     * @throws BrowseException
+     * @throws SQLException
+     */
     private Map<Integer, String> getSortValues(ItemMetadataProxy item, Map itemMDMap)
             throws BrowseException, SQLException
     {

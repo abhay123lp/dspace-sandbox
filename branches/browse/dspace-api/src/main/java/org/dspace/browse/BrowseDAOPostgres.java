@@ -642,7 +642,7 @@ public class BrowseDAOPostgres implements BrowseDAO
         // it will look like one of the following, for example
         //     sort_value <= myvalue
         //     sort_1 >= myvalue
-        buildWhereClauseFocus(queryBuf, params);
+        buildWhereClauseJumpTo(queryBuf, params);
         
         // assemble the where clause out of the two possible value clauses
         // and include container support
@@ -688,10 +688,10 @@ public class BrowseDAOPostgres implements BrowseDAO
         // it will look like one of the following, for example
         //     sort_value <= myvalue
         //     sort_1 >= myvalue
-        buildWhereClauseFocus(queryBuf, params);
+        buildWhereClauseJumpTo(queryBuf, params);
         
         // assemble the value clause if we are to have one
-        buildWhereClauseValue(queryBuf, params);
+        buildWhereClauseFilterValue(queryBuf, params);
         
         // assemble the where clause out of the two possible value clauses
         // and include container support
@@ -933,7 +933,7 @@ public class BrowseDAOPostgres implements BrowseDAO
      * 
      * @return  the focus clause
      */
-    private void buildWhereClauseFocus(StringBuffer queryBuf, List params)
+    private void buildWhereClauseJumpTo(StringBuffer queryBuf, List params)
     {
         // get the operator (<[=] | >[=]) which the focus of the browse will
         // be matched using
@@ -1004,7 +1004,7 @@ public class BrowseDAOPostgres implements BrowseDAO
      * 
      * @return  the value clause
      */
-    private void buildWhereClauseValue(StringBuffer queryBuf, List params)
+    private void buildWhereClauseFilterValue(StringBuffer queryBuf, List params)
     {
         // assemble the value clause if we are to have one
         if (value != null && valueField != null)

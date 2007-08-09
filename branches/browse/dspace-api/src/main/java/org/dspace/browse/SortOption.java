@@ -275,7 +275,7 @@ public class SortOption
     }
 
     /**
-     * @return	the SortOptions object for this index
+     * @return	a map of the configured sort options
      */
     public static Map<Integer, SortOption> getSortOptionsMap() throws BrowseException
     {
@@ -294,6 +294,11 @@ public class SortOption
     	return SortOption.sortOptionsMap;
     }
 
+    /**
+     * Return all the configured sort options
+     * @return
+     * @throws BrowseException
+     */
     public static Set<SortOption> getSortOptions() throws BrowseException
     {
         if (SortOption.sortOptionsSet != null)
@@ -324,6 +329,12 @@ public class SortOption
         return SortOption.sortOptionsSet;
     }
     
+    /**
+     * Get the defined sort option by number (.1, .2, etc)
+     * @param number
+     * @return
+     * @throws BrowseException
+     */
     public static SortOption getSortOption(int number) throws BrowseException
     {
         for (SortOption so : SortOption.getSortOptions())
@@ -335,6 +346,11 @@ public class SortOption
         return null;
     }
     
+    /**
+     * Get the default sort option - initially, just the first one defined
+     * @return
+     * @throws BrowseException
+     */
     public static SortOption getDefaultSortOption() throws BrowseException
     {
         for (SortOption so : getSortOptions())
