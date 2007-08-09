@@ -269,7 +269,7 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
                 // Create a Map of the query parameters for the link
                 Map<String, String> queryParams = new HashMap<String, String>();
                 queryParams.put(BrowseParams.TYPE, URLEncode(type));
-                queryParams.put(BrowseParams.VALUE, URLEncode(singleEntry));
+                queryParams.put(BrowseParams.FILTER_VALUE, URLEncode(singleEntry));
 
                 // Create an entry in the table, and a linked entry
                 Cell cell = singleTable.addRow().addCell();
@@ -490,9 +490,9 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
         if (info.hasPrevPage())
         {
             if (info.getPrevItem() < 0)
-                parameters.put(BrowseParams.FOCUS_VALUE, URLEncode(info.getPrevValue()));
+                parameters.put(BrowseParams.JUMPTO_VALUE, URLEncode(info.getPrevValue()));
             else
-                parameters.put(BrowseParams.FOCUS, Integer.toString(info.getPrevItem()));
+                parameters.put(BrowseParams.JUMPTO_ITEM, Integer.toString(info.getPrevItem()));
         }
 
         return super.generateURL(BROWSE_URL_BASE, parameters);
@@ -519,9 +519,9 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
         if (info.hasNextPage())
         {
             if (info.getNextItem() < 0)
-                parameters.put(BrowseParams.FOCUS_VALUE, URLEncode(info.getNextValue()));
+                parameters.put(BrowseParams.JUMPTO_VALUE, URLEncode(info.getNextValue()));
             else
-                parameters.put(BrowseParams.FOCUS, Integer.toString(info.getNextItem()));
+                parameters.put(BrowseParams.JUMPTO_ITEM, Integer.toString(info.getNextItem()));
         }
 
         return super.generateURL(BROWSE_URL_BASE, parameters);
@@ -561,18 +561,19 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
         {
             params.scope.setBrowseIndex(BrowseIndex.getBrowseIndex(request
                     .getParameter(BrowseParams.TYPE)));
-            params.scope.setFocus(RequestUtils.getIntParameter(request, BrowseParams.FOCUS));
+            params.scope.setJumpToItem(RequestUtils.getIntParameter(request, BrowseParams.JUMPTO_ITEM));
             params.scope.setOrder(request.getParameter(BrowseParams.ORDER));
             params.scope.setResultsPerPage(RequestUtils.getIntParameter(request,
                     BrowseParams.RESULTS_PER_PAGE));
             params.scope.setSortBy(RequestUtils.getIntParameter(request, BrowseParams.SORT_BY));
             params.scope.setStartsWith(request.getParameter(BrowseParams.STARTS_WITH));
-            params.scope.setValue(request.getParameter(BrowseParams.VALUE));
-            params.scope.setValueFocus(request.getParameter(BrowseParams.FOCUS_VALUE));
-            params.scope.setValueFocusLang(request.getParameter(BrowseParams.FOCUS_VALUE_LANG));
-            params.scope.setValueLang(request.getParameter(BrowseParams.VALUE_LANG));
+            params.scope.setFilterValue(request.getParameter(BrowseParams.FILTER_VALUE));
+            params.scope.setJumpToValue(request.getParameter(BrowseParams.JUMPTO_VALUE));
+            params.scope.setJumpToValueLang(request.getParameter(BrowseParams.JUMPTO_VALUE_LANG));
+            params.scope.setFilterValueLang(request.getParameter(BrowseParams.FILTER_VALUE_LANG));
 
-            if (params.scope.getValue() != null)
+            // Filtering to a value implies this is a second level browse
+            if (params.scope.getFilterValue() != null)
                 params.scope.setBrowseLevel(1);
 
             // if year and perhaps month have been selected, we translate these
@@ -676,7 +677,7 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
      */
     private boolean isItemBrowse(BrowseInfo info)
     {
-        return info.getBrowseIndex().isFull() || info.isSecondLevel();
+        return info.getBrowseIndex().isItemIndex() || info.isSecondLevel();
     }
     
     /**
@@ -709,7 +710,7 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
             else
                 scopeName = "";
             
-            if (bix.isSingle())
+            if (bix.isMetadataIndex())
             {
                 titleMessage = message("xmlui.ArtifactBrowser.ConfigurableBrowse.title.metadata." + bix.getName())
                         .parameterize(scopeName, value);
@@ -743,7 +744,7 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
             else
                 scopeName = "";
 
-            if (bix.isSingle())
+            if (bix.isMetadataIndex())
             {
                 titleMessage = message("xmlui.ArtifactBrowser.ConfigurableBrowse.trail.metadata." + bix.getName())
                         .parameterize(scopeName);
@@ -785,11 +786,11 @@ class BrowseParams
 
     final static String TYPE = "type";
 
-    final static String FOCUS = "focus";
+    final static String JUMPTO_ITEM = "focus";
 
-    final static String FOCUS_VALUE = "vfocus";
+    final static String JUMPTO_VALUE = "vfocus";
 
-    final static String FOCUS_VALUE_LANG = "vfocus_lang";
+    final static String JUMPTO_VALUE_LANG = "vfocus_lang";
 
     final static String ORDER = "order";
 
@@ -799,9 +800,9 @@ class BrowseParams
 
     final static String STARTS_WITH = "starts_with";
 
-    final static String VALUE = "value";
+    final static String FILTER_VALUE = "value";
 
-    final static String VALUE_LANG = "value_lang";
+    final static String FILTER_VALUE_LANG = "value_lang";
 
     /*
      * Creates a map of the browse options common to all pages (type / value /
@@ -811,15 +812,20 @@ class BrowseParams
     {
         Map<String, String> paramMap = new HashMap<String, String>();
 
-        paramMap.put(BrowseParams.TYPE, AbstractDSpaceTransformer.URLEncode(this.scope
-                .getBrowseIndex().getName()));
+        paramMap.put(BrowseParams.TYPE, AbstractDSpaceTransformer.URLEncode(
+                scope.getBrowseIndex().getName()));
 
-        if (scope.getValue() != null)
-            paramMap.put(BrowseParams.VALUE, AbstractDSpaceTransformer.URLEncode(scope.getValue()));
+        if (scope.getFilterValue() != null)
+        {
+            paramMap.put(BrowseParams.FILTER_VALUE, AbstractDSpaceTransformer.URLEncode(
+                    scope.getFilterValue()));
+        }
 
-        if (scope.getValueLang() != null)
-            paramMap.put(BrowseParams.VALUE_LANG, AbstractDSpaceTransformer.URLEncode(scope
-                    .getValueLang()));
+        if (scope.getFilterValueLang() != null)
+        {
+            paramMap.put(BrowseParams.FILTER_VALUE_LANG, AbstractDSpaceTransformer.URLEncode(
+                    scope.getFilterValueLang()));
+        }
 
         return paramMap;
     }
@@ -855,11 +861,11 @@ class BrowseParams
             key += "-" + scope.getSortBy();
             key += "-" + scope.getSortOption().getNumber();
             key += "-" + scope.getOrder();
-            key += "-" + scope.getFocus();
-            key += "-" + scope.getValue();
-            key += "-" + scope.getValueLang();
-            key += "-" + scope.getValueFocus();
-            key += "-" + scope.getValueFocusLang();
+            key += "-" + scope.getJumpToItem();
+            key += "-" + scope.getFilterValue();
+            key += "-" + scope.getFilterValueLang();
+            key += "-" + scope.getJumpToValue();
+            key += "-" + scope.setJumpToValueLang();
             key += "-" + etAl;
     
             return key;

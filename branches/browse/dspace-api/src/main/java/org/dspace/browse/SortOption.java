@@ -323,4 +323,12 @@ public class SortOption
 
         return SortOption.sortOptionsSet;
     }
+    
+    public static SortOption getDefaultSortOption() throws BrowseException
+    {
+        for (SortOption so : getSortOptions())
+            return so;
+        
+        return null;
+    }
 }

@@ -315,7 +315,7 @@ public class IndexBrowse
     private void removeIndex(int itemID, BrowseIndex bi)
         throws BrowseException
     {
-        if (bi.isSingle())
+        if (bi.isMetadataIndex())
         {
             // remove old metadata from the item index
             dao.deleteByItemID(bi.getTableName(), itemID);
@@ -357,20 +357,20 @@ public class IndexBrowse
         try
         {
             // Remove from the main item index
-            removeIndex(item.getID(), BrowseIndex.ITEM_INDEX);
-            removeIndex(item.getID(), BrowseIndex.WITHDRAWN_INDEX);
+            removeIndex(item.getID(), BrowseIndex.getItemIndex().getTableName());
+            removeIndex(item.getID(), BrowseIndex.getWithdrawnIndex().getTableName());
 
             if (item.isArchived() && !item.isWithdrawn())
             {
                 if (item.isWithdrawn())
                 {
                     Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
-                    dao.insertIndex(BrowseIndex.WITHDRAWN_INDEX, item.getID(), sortMap);
+                    dao.insertIndex(BrowseIndex.getWithdrawnIndex().getTableName(), item.getID(), sortMap);
                 }
                 else
                 {
                     Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
-                    dao.insertIndex(BrowseIndex.ITEM_INDEX, item.getID(), sortMap);
+                    dao.insertIndex(BrowseIndex.getItemIndex().getTableName(), item.getID(), sortMap);
                 }
             }
 
@@ -378,7 +378,7 @@ public class IndexBrowse
             {
                 log.debug("Indexing for item " + item.getID() + ", for index: " + bis[i].getTableName());
                 
-                if (bis[i].isSingle())
+                if (bis[i].isMetadataIndex())
                 {
                     // remove old metadata from the item index
                     removeIndex(item.getID(), bis[i]);
@@ -401,7 +401,7 @@ public class IndexBrowse
                                 
                                 dao.insertIndex(bis[i].getTableName(), item.getID(), values[x].value, nVal, sortMap);
                                 
-                                if (bis[i].isSingle())
+                                if (bis[i].isMetadataIndex())
                                 {
                                     int distinctID = dao.getDistinctID(bis[i].getTableName(true, false, false), values[x].value, nVal);
                                     dao.createDistinctMapping(bis[i].getMapName(), item.getID(), distinctID);
@@ -764,35 +764,8 @@ public class IndexBrowse
     			i++;
     		}
 
-            if (dao.testTableExistance(BrowseIndex.ITEM_INDEX))
-            {
-                String colViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, false, true, false, false);
-                String comViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, true, false, false, false);
-                String dropper = dao.dropIndexAndRelated(BrowseIndex.ITEM_INDEX, this.execute());
-                String dropSeq = dao.dropSequence(BrowseIndex.ITEM_INDEX_SEQ, this.execute());
-                String dropColView = dao.dropView( colViewName, this.execute() );
-                String dropComView = dao.dropView( comViewName, this.execute() );
-
-                output.sql(dropper);
-                output.sql(dropSeq);
-                output.sql(dropColView);
-                output.sql(dropComView);
-            }
-    		
-            if (dao.testTableExistance(BrowseIndex.WITHDRAWN_INDEX))
-            {
-                String colViewName = BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, false, true, false, false);
-                String comViewName = BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, true, false, false, false);
-                String dropper = dao.dropIndexAndRelated(BrowseIndex.WITHDRAWN_INDEX, this.execute());
-                String dropSeq = dao.dropSequence(BrowseIndex.WITHDRAWN_INDEX_SEQ, this.execute());
-                String dropColView = dao.dropView( colViewName, this.execute() );
-                String dropComView = dao.dropView( comViewName, this.execute() );
-
-                output.sql(dropper);
-                output.sql(dropSeq);
-                output.sql(dropColView);
-                output.sql(dropComView);
-            }
+            dropItemTables(BrowseIndex.getItemIndex());
+            dropItemTables(BrowseIndex.getWithdrawnIndex());
             
     		if (execute())
     		{
@@ -806,13 +779,39 @@ public class IndexBrowse
     	}
 	}
 
+    /**
+     * drop the tables and related database entries for the internal
+     * 'item' tables
+     * @param bix
+     * @throws BrowseException
+     */
+    private void dropItemTables(BrowseIndex bix) throws BrowseException
+    {
+        if (dao.testTableExistance(bix.getTableName()))
+        {
+            String tableName = bix.getTableName(false, false, false, false);
+            String colViewName = bix.getTableName(false, true, false, false);
+            String comViewName = bix.getTableName(true, false, false, false);
+            String dropper = dao.dropIndexAndRelated(tableName, this.execute());
+            String dropSeq = dao.dropSequence( bix.getSequenceName(false, false), this.execute() );
+            String dropColView = dao.dropView( colViewName, this.execute() );
+            String dropComView = dao.dropView( comViewName, this.execute() );
+
+            output.sql(dropper);
+            output.sql(dropSeq);
+            output.sql(dropColView);
+            output.sql(dropComView);
+        }
+    }
+
+    /**
+     * Create the internal full item tables
+     * @throws BrowseException
+     */
     private void createItemTables() throws BrowseException
     {
         try
         {
-            String colViewName;
-            String comViewName;
-
             // prepare the array list of sort options
             List<Integer> sortCols = new ArrayList<Integer>();
             for (SortOption so : SortOption.getSortOptions())
@@ -820,41 +819,8 @@ public class IndexBrowse
                 sortCols.add(new Integer(so.getNumber()));
             }
 
-            colViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, false, true, false, false);
-            comViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, true, false, false, false);
-            
-            String itemSeq   = dao.createSequence(BrowseIndex.ITEM_INDEX_SEQ, this.execute());
-            String itemTable = dao.createPrimaryTable(BrowseIndex.ITEM_INDEX, sortCols, execute);
-            String[] itemIndices = dao.createDatabaseIndices(BrowseIndex.ITEM_INDEX, sortCols, false, this.execute());
-            String itemColView = dao.createCollectionView(BrowseIndex.ITEM_INDEX, colViewName, this.execute());
-            String itemComView = dao.createCommunityView(BrowseIndex.ITEM_INDEX, comViewName, this.execute());
-
-            colViewName = BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, false, true, false, false);
-            comViewName = BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, true, false, false, false);
-
-            output.sql(itemSeq);
-            output.sql(itemTable);
-            for (int i = 0; i < itemIndices.length; i++)
-            {
-                output.sql(itemIndices[i]);
-            }
-            output.sql(itemColView);
-            output.sql(itemComView);
-            
-            String withdrawnSeq   = dao.createSequence(BrowseIndex.WITHDRAWN_INDEX_SEQ, this.execute());
-            String withdrawnTable = dao.createPrimaryTable(BrowseIndex.WITHDRAWN_INDEX, sortCols, execute);
-            String[] withdrawnIndices = dao.createDatabaseIndices(BrowseIndex.WITHDRAWN_INDEX, sortCols, false, this.execute());
-            String withdrawnColView = dao.createCollectionView(BrowseIndex.WITHDRAWN_INDEX, colViewName, this.execute());
-            String withdrawnComView = dao.createCommunityView(BrowseIndex.WITHDRAWN_INDEX, comViewName, this.execute());
-            
-            output.sql(withdrawnSeq);
-            output.sql(withdrawnTable);
-            for (int i = 0; i < withdrawnIndices.length; i++)
-            {
-                output.sql(withdrawnIndices[i]);
-            }
-            output.sql(withdrawnColView);
-            output.sql(withdrawnComView);
+            createItemTables(BrowseIndex.getItemIndex(), sortCols);
+            createItemTables(BrowseIndex.getWithdrawnIndex(), sortCols);
             
             if (execute())
             {
@@ -866,6 +832,36 @@ public class IndexBrowse
             log.error("caught exception: ", e);
             throw new BrowseException(e);
         }
+    }
+
+    /**
+     * Create the internal full item tables for a particular index
+     * (ie. withdrawn / in archive)
+     * @param bix
+     * @param sortCols
+     * @throws BrowseException
+     */
+    private void createItemTables(BrowseIndex bix, List<Integer> sortCols)
+            throws BrowseException
+    {
+        String tableName = bix.getTableName(false, false, false, false);
+        String colViewName = bix.getTableName(false, true, false, false);
+        String comViewName = bix.getTableName(true, false, false, false);
+        
+        String itemSeq   = dao.createSequence(bix.getSequenceName(false, false), this.execute());
+        String itemTable = dao.createPrimaryTable(tableName, sortCols, execute);
+        String[] itemIndices = dao.createDatabaseIndices(tableName, sortCols, false, this.execute());
+        String itemColView = dao.createCollectionView(tableName, colViewName, this.execute());
+        String itemComView = dao.createCommunityView(tableName, comViewName, this.execute());
+
+        output.sql(itemSeq);
+        output.sql(itemTable);
+        for (int i = 0; i < itemIndices.length; i++)
+        {
+            output.sql(itemIndices[i]);
+        }
+        output.sql(itemColView);
+        output.sql(itemComView);
     }
     /**
      * Create the browse tables for the given browse index
@@ -892,7 +888,7 @@ public class IndexBrowse
 			String comViewName = bi.getTableName(true, false);
 			
 			// if this is a single view, create the DISTINCT tables and views
-			if (bi.isSingle())
+			if (bi.isMetadataIndex())
 			{
 	            String createSeq = dao.createSequence(sequence, this.execute());
 	            String createTable = dao.createSecondaryTable(tableName, sortCols, this.execute());
@@ -1052,15 +1048,15 @@ public class IndexBrowse
     		// index list
     		for (int k = 0; k < bis.length; k++)
     		{
-                if (bis[k].isSingle())
+                if (bis[k].isMetadataIndex())
                 {
                     dao.pruneExcess(bis[k].getTableName(false, false, false, false), bis[k].getTableName(false, false, false, true), false);
     				dao.pruneDistinct(bis[k].getTableName(false, false, true, false), bis[k].getTableName(false, false, false, true));
     			}
     		}
 
-            dao.pruneExcess(BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, false, false, false, false), null, false);
-            dao.pruneExcess(BrowseIndex.getTableName(BrowseIndex.WITHDRAWN_INDEX, false, false, false, false), null, true);
+            dao.pruneExcess(BrowseIndex.getItemIndex().getTableName(false, false, false, false), null, false);
+            dao.pruneExcess(BrowseIndex.getWithdrawnIndex().getTableName(false, false, false, false), null, true);
             
             // Make sure the deletes are written back
             context.commit();

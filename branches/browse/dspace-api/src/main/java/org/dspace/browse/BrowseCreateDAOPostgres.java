@@ -342,7 +342,7 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
         try
         {
             String createPriView = "CREATE VIEW " + view + " as " +
-                    "SELECT * FROM " + BrowseIndex.ITEM_INDEX + ";";
+                    "SELECT * FROM " + BrowseIndex.getItemIndex().getTableName() + ";";
 
             if (execute)
             {

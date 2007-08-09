@@ -185,7 +185,7 @@ public class BrowserServlet extends DSpaceServlet
         	// need to set it as a default
         	if (value != null && sortBy == -1)
         	{
-        	    if (bi.isFull())
+        	    if (bi.isItemIndex())
         	        sortBy = bi.getSortOption().getNumber();
         	}
         	
@@ -236,11 +236,11 @@ public class BrowserServlet extends DSpaceServlet
         	BrowserScope scope = new BrowserScope(context);
         	scope.setBrowseIndex(bi);
         	scope.setOrder(order);
-        	scope.setValue(value);
-            scope.setValueLang(valueLang);
-        	scope.setFocus(focus);
-        	scope.setValueFocus(valueFocus);
-            scope.setValueFocusLang(valueFocusLang);
+        	scope.setFilterValue(value);
+            scope.setFilterValueLang(valueLang);
+        	scope.setJumpToItem(focus);
+        	scope.setJumpToValue(valueFocus);
+            scope.setJumpToValueLang(valueFocusLang);
         	scope.setStartsWith(startsWith);
         	scope.setResultsPerPage(resultsperpage);
         	scope.setSortBy(sortBy);
@@ -267,7 +267,7 @@ public class BrowserServlet extends DSpaceServlet
         	
         	if (binfo.hasResults())
         	{
-        		if (bi.isSingle() && !scope.isSecondLevel())
+        		if (bi.isMetadataIndex() && !scope.isSecondLevel())
         		{
         			showSinglePage(context, request, response);
         		}

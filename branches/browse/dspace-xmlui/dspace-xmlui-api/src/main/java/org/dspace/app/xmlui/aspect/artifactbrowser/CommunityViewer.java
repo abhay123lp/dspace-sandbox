@@ -363,7 +363,7 @@ public class CommunityViewer extends AbstractDSpaceTransformer implements Cachea
         // FIXME Exception Handling
         try
         {
-        	scope.setBrowseIndex(BrowseIndex.getBrowseIndex("dateaccessioned"));
+        	scope.setBrowseIndex(BrowseIndex.getItemIndex());
 
         	BrowseEngine be = new BrowseEngine(context);
         	this.recentSubmittedItems = be.browse(scope).getResults();

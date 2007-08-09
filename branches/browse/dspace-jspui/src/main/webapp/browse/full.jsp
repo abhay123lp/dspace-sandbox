@@ -176,7 +176,7 @@
 	// the message key for the type
 	String typeKey;
 
-	if (bix.isSingle())
+	if (bix.isMetadataIndex())
 		typeKey = "browse.type.metadata." + bix.getName();
 	else if (bi.getSortOption() != null)
 		typeKey = "browse.type.item." + bi.getSortOption().getName();
@@ -462,7 +462,7 @@
 	
     <%-- output the results using the browselist tag --%>
     <%
-    	if (bix.isSingle())
+    	if (bix.isMetadataIndex())
     	{
     %>
 	<dspace:browselist browseInfo="<%= bi %>" emphcolumn="<%= bix.getMetadata() %>" />
