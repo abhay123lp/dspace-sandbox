@@ -175,9 +175,11 @@
 	
 	// the message key for the type
 	String typeKey;
-	
+
 	if (bix.isSingle())
 		typeKey = "browse.type.metadata." + bix.getName();
+	else if (bi.getSortOption() != null)
+		typeKey = "browse.type.item." + bi.getSortOption().getName();
 	else
 		typeKey = "browse.type.item." + bix.getSortOption().getName();
 %>

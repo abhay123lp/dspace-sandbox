@@ -84,9 +84,6 @@ public class BrowseIndex
     /** the display type of the metadata, as specified in the config */
     private String displayType;
     
-    /** the message key to use to generate the UI component */
-    private String messageKey;
-    
     /** a three part array of the metadata bits (e.g. dc.contributor.author) */
     private String[] mdBits;
     
@@ -120,7 +117,7 @@ public class BrowseIndex
         
         if (matcher.matches())
         {
-            messageKey = name = matcher.group(1);
+            name = matcher.group(1);
             displayType = matcher.group(2);
             
             if (isSingle())
@@ -212,22 +209,6 @@ public class BrowseIndex
 //	public void setMdBits(String[] mdBits)
 //	{
 //		this.mdBits = mdBits;
-//	}
-
-	/**
-	 * @return Returns the messageKey.
-	 */
-	public String getMessageKey()
-	{
-		return messageKey;
-	}
-
-	/**
-	 * @param messageKey The messageKey to set.
-	 */
-//	public void setMessageKey(String messageKey)
-//	{
-//		this.messageKey = messageKey;
 //	}
 
 	/**

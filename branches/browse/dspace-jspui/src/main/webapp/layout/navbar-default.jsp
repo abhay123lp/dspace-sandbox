@@ -98,7 +98,7 @@
         // Only highlight the current browse, only if it is a metadata index,
         // or the selected sort option is the default for the index
         if (bix.isSingle() || bix.getSortOption() == binfo.getSortOption())
-    		browseCurrent = binfo.getBrowseIndex().getName();
+    		browseCurrent = bix.getName();
     }
 %>
 
@@ -180,7 +180,7 @@
 	for (int i = 0; i < bis.length; i++)
 	{
 		BrowseIndex bix = bis[i];
-		String key = "browse.menu." + bix.getMessageKey();
+		String key = "browse.menu." + bix.getName();
 	%>
 		<tr class="navigationBarItem">
     		<td>

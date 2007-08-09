@@ -113,10 +113,13 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
     /** Cached validity object */
     private SourceValidity validity;
 
-    /** Cached UI parameters and results */
+    /** Cached UI parameters, results and messages */
     private BrowseParams userParams;
 
     private BrowseInfo browseInfo;
+
+    private Message titleMessage = null;
+    private Message trailMessage = null;
 
     public Serializable getKey()
     {
@@ -191,28 +194,12 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
     public void addPageMeta(PageMeta pageMeta) throws SAXException, WingException, UIException,
             SQLException, IOException, AuthorizeException
     {
-        BrowseParams params = getUserParams();
+        BrowseInfo info = getBrowseInfo();
 
         // Get the name of the index
-        String type = params.scope.getBrowseIndex().getName();
-
-        // For a second level browse (ie. items for author),
-        // get the value we are focussing on (ie. author).
-        // (empty string if none).
-        String value = (params.scope.getValue() != null ? "\"" + params.scope.getValue() + "\"" : "");
-
-        // Get the name of any scoping element (collection / community)
-        String scopeName = "";
-        if (params.scope.getCollection() != null)
-            scopeName = params.scope.getCollection().getName();
-        else if (params.scope.getCommunity() != null)
-            scopeName = params.scope.getCommunity().getName();
-        else
-            scopeName = "";
-
-        pageMeta.addMetadata("title").addContent(
-                message("xmlui.ArtifactBrowser.ConfigurableBrowse." + type + ".title")
-                        .parameterize(scopeName, value));
+        String type = info.getBrowseIndex().getName();
+        
+        pageMeta.addMetadata("title").addContent(getTitleMessage(info));
 
         DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
 
@@ -220,9 +207,7 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
         if (dso != null)
             HandleUtil.buildHandleTrail(dso, pageMeta, contextPath);
 
-        pageMeta.addTrail().addContent(
-                message("xmlui.ArtifactBrowser.ConfigurableBrowse." + type + ".trail")
-                        .parameterize(scopeName));
+        pageMeta.addTrail().addContent(getTrailMessage(info));
     }
 
     /**
@@ -239,10 +224,7 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
         // Build the DRI Body
         Division div = body.addDivision("browse-by-" + type, "primary");
 
-        div.setHead(message("xmlui.ArtifactBrowser.ConfigurableBrowse." + type + ".title")
-                .parameterize(
-                        (info.getBrowseContainer() != null ? info.getBrowseContainer().getName() : ""),
-                        (info.getValue() != null ? "\"" + info.getValue() + "\"" : "")));
+        div.setHead(getTitleMessage(info));
 
         // Build the internal navigation (jump lists)
         addBrowseJumpNavigation(div, info, params);
@@ -304,6 +286,8 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
         this.validity = null;
         this.userParams = null;
         this.browseInfo = null;
+        this.titleMessage = null;
+        this.trailMessage = null;
         super.recycle();
     }
 
@@ -425,8 +409,8 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
 
         Para controlsForm = controls.addPara();
 
-        // If we are browsing a 'second level' list of items
-        if (isItemBrowse(info) && info.isSecondLevel())
+        // If we are browsing a list of items
+        if (isItemBrowse(info)) //  && info.isSecondLevel()
         {
             try
             {
@@ -704,6 +688,79 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
     {
         return info.getSortOption().isDate() ||
             (info.getBrowseIndex().isDate() && info.getSortOption().isDefault());
+    }
+
+    private Message getTitleMessage(BrowseInfo info)
+    {
+        if (titleMessage == null)
+        {
+            BrowseIndex bix = info.getBrowseIndex();
+
+            // For a second level browse (ie. items for author),
+            // get the value we are focussing on (ie. author).
+            // (empty string if none).
+            String value = (info.hasValue() ? "\"" + info.getValue() + "\"" : "");
+
+            // Get the name of any scoping element (collection / community)
+            String scopeName = "";
+            
+            if (info.getBrowseContainer() != null)
+                scopeName = info.getBrowseContainer().getName();
+            else
+                scopeName = "";
+            
+            if (bix.isSingle())
+            {
+                titleMessage = message("xmlui.ArtifactBrowser.ConfigurableBrowse.title.metadata." + bix.getName())
+                        .parameterize(scopeName, value);
+            }
+            else if (info.getSortOption() != null)
+            {
+                titleMessage = message("xmlui.ArtifactBrowser.ConfigurableBrowse.title.item." + info.getSortOption().getName())
+                        .parameterize(scopeName, value);
+            }
+            else
+            {
+                titleMessage = message("xmlui.ArtifactBrowser.ConfigurableBrowse.title.item." + bix.getSortOption().getName())
+                        .parameterize(scopeName, value);
+            }
+        }
+        
+        return titleMessage;
+    }
+
+    private Message getTrailMessage(BrowseInfo info)
+    {
+        if (trailMessage == null)
+        {
+            BrowseIndex bix = info.getBrowseIndex();
+
+            // Get the name of any scoping element (collection / community)
+            String scopeName = "";
+            
+            if (info.getBrowseContainer() != null)
+                scopeName = info.getBrowseContainer().getName();
+            else
+                scopeName = "";
+
+            if (bix.isSingle())
+            {
+                titleMessage = message("xmlui.ArtifactBrowser.ConfigurableBrowse.trail.metadata." + bix.getName())
+                        .parameterize(scopeName);
+            }
+            else if (info.getSortOption() != null)
+            {
+                titleMessage = message("xmlui.ArtifactBrowser.ConfigurableBrowse.trail.item." + info.getSortOption().getName())
+                        .parameterize(scopeName);
+            }
+            else
+            {
+                titleMessage = message("xmlui.ArtifactBrowser.ConfigurableBrowse.trail.item." + bix.getSortOption().getName())
+                        .parameterize(scopeName);
+            }
+        }
+        
+        return trailMessage;
     }
 }
 
