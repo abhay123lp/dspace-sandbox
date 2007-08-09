@@ -94,7 +94,11 @@
     String browseCurrent = "";
     if (binfo != null)
     {
-    	browseCurrent = binfo.getBrowseIndex().getName();
+        BrowseIndex bix = binfo.getBrowseIndex();
+        // Only highlight the current browse, only if it is a metadata index,
+        // or the selected sort option is the default for the index
+        if (bix.isSingle() || bix.getSortOption() == binfo.getSortOption())
+    		browseCurrent = binfo.getBrowseIndex().getName();
     }
 %>
 

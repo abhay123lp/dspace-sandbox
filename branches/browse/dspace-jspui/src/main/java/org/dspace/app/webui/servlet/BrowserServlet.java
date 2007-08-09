@@ -42,6 +42,7 @@ package org.dspace.app.webui.servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -56,6 +57,7 @@ import org.dspace.browse.BrowseException;
 import org.dspace.browse.BrowseIndex;
 import org.dspace.browse.BrowseInfo;
 import org.dspace.browse.BrowserScope;
+import org.dspace.browse.SortOption;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.core.ConfigurationManager;
@@ -183,16 +185,8 @@ public class BrowserServlet extends DSpaceServlet
         	// need to set it as a default
         	if (value != null && sortBy == -1)
         	{
-        		Map map = bi.getSortOptions();
-        		if (map == null)
-        		{
-        			throw new BrowseException("Value browse cannot complete without a sortable column");
-        		}
-        		if (map.size() == 0)
-        		{
-        			throw new BrowseException("Value browse cannot complete without a sortable column");
-        		}
-        		sortBy = ((Integer) map.keySet().iterator().next()).intValue();
+        	    if (bi.isFull())
+        	        sortBy = bi.getSortOption().getNumber();
         	}
         	
         	// if sortBy is still not set, set it to 0, which is default to use the primary index value

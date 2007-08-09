@@ -209,19 +209,12 @@ public class BrowserScope
 
         if (sortBy > 0 && browseIndex.isFull())
         {
-            String sortName = browseIndex.getMetadata();
-            
-            Map<Integer, SortOption> sortMap = BrowseIndex.getSortOptions();
-            SortOption newSo = sortMap.get(new Integer(sortBy));
-            
-            if (!newSo.getName().equalsIgnoreCase(sortName))
+            for (BrowseIndex bi : browseIndex.getBrowseIndices())
             {
-                BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
-                
-                for (BrowseIndex bi : bis)
+                if (bi.isFull() && bi.getSortOption().getNumber() == sortBy)
                 {
-                    if (bi.isFull() && bi.getMetadata().equalsIgnoreCase(newSo.getName()))
-                        this.browseIndex = bi;
+                    this.browseIndex = bi;
+                    this.sortBy = -1;
                 }
             }
         }
@@ -371,29 +364,21 @@ public class BrowserScope
 	public void setSortBy(int sortBy)
 	    throws BrowseException
 	{
+        this.sortBy = sortBy;
 	    if (browseIndex != null)
 	    {
 	        if (sortBy > 0 && browseIndex.isFull())
 	        {
-	            String sortName = browseIndex.getMetadata();
-	            
-                Map<Integer, SortOption> sortMap = BrowseIndex.getSortOptions();
-                SortOption newSo = sortMap.get(new Integer(sortBy));
-                
-                if (!newSo.getName().equalsIgnoreCase(sortName))
-                {
-                    BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
-                    
-                    for (BrowseIndex bi : bis)
-                    {
-                        if (bi.isFull() && bi.getMetadata().equalsIgnoreCase(newSo.getName()))
-                            browseIndex = bi;
-                    }
-                }
+	            for (BrowseIndex bi : browseIndex.getBrowseIndices())
+	            {
+	                if (bi.isFull() && bi.getSortOption().getNumber() == sortBy)
+	                {
+	                    this.browseIndex = bi;
+	                    this.sortBy = -1;
+	                }
+	            }
 	        }
 	    }
-	    
-		this.sortBy = sortBy;
 	}
 
 	/**
@@ -417,26 +402,28 @@ public class BrowserScope
 				}
 				else
 				{
-					Map<Integer, SortOption> sortMap = BrowseIndex.getSortOptions();
-					
 	                if (sortBy <= 0)
 	                {
-	                    String sortName = browseIndex.getDefaultSortColumn();
+	                    // Get the associated sort option from the index
+	                    sortOption = browseIndex.getSortOption();
 	                    
-                        java.util.Collection<SortOption> sOc = sortMap.values();
-                        
-                        for (SortOption so : sOc)
-                        {
-                            if (so.getName().equalsIgnoreCase(browseIndex.getMetadata()))
-                                sortOption = so;
-                            else if (sortOption == null)    // Ensure that we take the first one if we don't match anything
-                                sortOption = so;
-                        }
+	                    if (sortOption == null)
+	                    {
+	                        // No sort option, so take the first one.
+	                        for (SortOption so : SortOption.getSortOptions())
+	                        {
+	                            sortOption = so;
+	                            break;
+	                        }
+	                    }
 	                }
 					else
 					{
-    					SortOption so = sortMap.get(new Integer(sortBy));
-    					sortOption = so;
+                        for (SortOption so : SortOption.getSortOptions())
+                        {
+                            if (so.getNumber() == sortBy)
+                                sortOption = so;
+                        }
 					}
 				}
 			}

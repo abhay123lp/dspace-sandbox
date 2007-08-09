@@ -36,9 +36,16 @@
 package org.dspace.browse;
 
 import java.io.IOException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.dspace.core.ConfigurationManager;
 
 /**
  * Class to mediate with the sort configuration
@@ -62,6 +69,10 @@ public class SortOption
 	
 	/** the metadata broken down into bits for convenience */
 	private String[] mdBits;
+
+    /** the sort options available for this index */
+    private static Set<SortOption> sortOptionsSet = null;
+    private static Map<Integer, SortOption> sortOptionsMap = null;
 	
 	/**
 	 * Construct a new SortOption object with the given parameters
@@ -261,5 +272,55 @@ public class SortOption
     		return true;
     	}
     	return false;
+    }
+
+    /**
+     * @return	the SortOptions object for this index
+     */
+    public static Map<Integer, SortOption> getSortOptionsMap() throws BrowseException
+    {
+        if (SortOption.sortOptionsMap != null)
+            return SortOption.sortOptionsMap;
+        
+        SortOption.sortOptionsMap = new HashMap<Integer, SortOption>();
+        synchronized (SortOption.sortOptionsMap)
+        {
+            for (SortOption so : SortOption.getSortOptions())
+            {
+                SortOption.sortOptionsMap.put(new Integer(so.getNumber()), so);
+            }
+        }
+        
+    	return SortOption.sortOptionsMap;
+    }
+
+    public static Set<SortOption> getSortOptions() throws BrowseException
+    {
+        if (SortOption.sortOptionsSet != null)
+            return SortOption.sortOptionsSet;
+        
+        SortOption.sortOptionsSet = new HashSet<SortOption>();
+        synchronized (SortOption.sortOptionsSet)
+        {
+            Enumeration en = ConfigurationManager.propertyNames();
+            
+            String rx = "webui\\.browse\\.sort-option\\.(\\d+)";
+            Pattern pattern = Pattern.compile(rx);
+            
+            while (en.hasMoreElements())
+            {
+                String property = (String) en.nextElement();
+                Matcher matcher = pattern.matcher(property);
+                if (matcher.matches())
+                {
+                    int number = Integer.parseInt(matcher.group(1));
+                    String option = ConfigurationManager.getProperty(property);
+                    SortOption so = new SortOption(number, option);
+                    SortOption.sortOptionsSet.add(so);
+                }
+            }
+        }
+
+        return SortOption.sortOptionsSet;
     }
 }

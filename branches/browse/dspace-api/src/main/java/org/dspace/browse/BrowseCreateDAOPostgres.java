@@ -40,6 +40,7 @@
 package org.dspace.browse;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +50,8 @@ import org.dspace.core.Context;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
+
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
 
 /**
  * This class implements the BrowseCreateDAO interface for the PostgreSQL database
@@ -146,35 +149,33 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#createDatabaseIndices(java.lang.String, boolean)
      */
-    public String[] createDatabaseIndices(String table, boolean value, boolean execute)
+    public String[] createDatabaseIndices(String table, List<Integer> sortCols, boolean value, boolean execute)
         throws BrowseException
     {
         try
         {
-            String sortIndexName = table + "_value_index";
-            String itemIndexName = table + "_item_id_idx";
+            ArrayList<String> array = new ArrayList<String>();
             
-            String createSortIndex = "CREATE INDEX " + sortIndexName + " on " 
-                                    + table + "(sort_value);";
-            String createItemIndex = "CREATE INDEX " + itemIndexName + " ON " 
-                                    + table + "(item_id);";
+            array.add("CREATE INDEX " + table + "_item_id_idx ON " + table + "(item_id);");
+
+            if (value)
+                array.add("CREATE INDEX " + table + "_value_index ON " + table + "(sort_value);");
+
+            for (Integer i : sortCols)
+            {
+                array.add("CREATE INDEX " + table + "_s" + i + "_idx ON " + table + "(sort_" + i + ");");
+            }
             
             if (execute)
             {
-                if (value)
-                    DatabaseManager.updateQuery(context, createSortIndex);
-                
-                DatabaseManager.updateQuery(context, createItemIndex);
+                for (String query : array)
+                {
+                    DatabaseManager.updateQuery(context, query);
+                }
             }
             
-            if (value)
-            {
-                String[] array = { createSortIndex, createItemIndex };
-                return array;
-            }
-            
-            String[] array = { createItemIndex };
-            return array;
+            String[] arr = new String[array.size()];
+            return array.toArray(arr);
         }
         catch (SQLException e)
         {

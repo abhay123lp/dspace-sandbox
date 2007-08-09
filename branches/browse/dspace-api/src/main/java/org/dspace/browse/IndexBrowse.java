@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.cli.CommandLine;
@@ -351,7 +352,7 @@ public class IndexBrowse
     {
         // Map to store the metadata from the Item
         // so that we don't grab it multiple times
-        Map itemMDMap = new HashMap();
+        Map<String, String> itemMDMap = new HashMap<String, String>();
         
         try
         {
@@ -363,12 +364,12 @@ public class IndexBrowse
             {
                 if (item.isWithdrawn())
                 {
-                    Map sortMap = getSortValues(item, itemMDMap);
+                    Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
                     dao.insertIndex(BrowseIndex.WITHDRAWN_INDEX, item.getID(), sortMap);
                 }
                 else
                 {
-                    Map sortMap = getSortValues(item, itemMDMap);
+                    Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
                     dao.insertIndex(BrowseIndex.ITEM_INDEX, item.getID(), sortMap);
                 }
             }
@@ -418,17 +419,14 @@ public class IndexBrowse
         }
     }
 
-    private Map getSortValues(ItemMetadataProxy item, Map itemMDMap)
+    private Map<Integer, String> getSortValues(ItemMetadataProxy item, Map itemMDMap)
             throws BrowseException, SQLException
     {
         // now obtain the sort order values that we will use
-        Map map = BrowseIndex.getSortOptions();
-        Map sortMap = new HashMap();
-        Iterator itr = map.keySet().iterator();
-        while (itr.hasNext())
+        Map<Integer, String> sortMap = new HashMap<Integer, String>();
+        for (SortOption so : SortOption.getSortOptions())
         {
-            Integer key = (Integer) itr.next();
-            SortOption so = (SortOption) map.get(key);
+            Integer key = new Integer(so.getNumber());
             String metadata = so.getMetadata();
             
             // If we've already used the metadata for this Item
@@ -653,12 +651,8 @@ public class IndexBrowse
     		
     		// prepare some CLI output
     		StringBuffer logMe = new StringBuffer();
-    		Map sortBy = bis[i].getSortOptions();
-    		Iterator itr = sortBy.keySet().iterator();
-    		while (itr.hasNext())
+    		for (SortOption so : SortOption.getSortOptions())
     		{
-    			Integer key = (Integer) itr.next();
-    			SortOption so = (SortOption) sortBy.get(key);
     			logMe.append(" " + so.getMetadata() + " ");
     		}
     		
@@ -820,12 +814,10 @@ public class IndexBrowse
             String comViewName;
 
             // prepare the array list of sort options
-            Map<Integer, SortOption> cols = BrowseIndex.getSortOptions();
-            Iterator<Integer> itr = (Iterator<Integer>)cols.keySet().iterator();
             List<Integer> sortCols = new ArrayList<Integer>();
-            while (itr.hasNext())
+            for (SortOption so : SortOption.getSortOptions())
             {
-                sortCols.add(itr.next());
+                sortCols.add(new Integer(so.getNumber()));
             }
 
             colViewName = BrowseIndex.getTableName(BrowseIndex.ITEM_INDEX, false, true, false, false);
@@ -833,7 +825,7 @@ public class IndexBrowse
             
             String itemSeq   = dao.createSequence(BrowseIndex.ITEM_INDEX_SEQ, this.execute());
             String itemTable = dao.createPrimaryTable(BrowseIndex.ITEM_INDEX, sortCols, execute);
-            String[] itemIndices = dao.createDatabaseIndices(BrowseIndex.ITEM_INDEX, false, this.execute());
+            String[] itemIndices = dao.createDatabaseIndices(BrowseIndex.ITEM_INDEX, sortCols, false, this.execute());
             String itemColView = dao.createCollectionView(BrowseIndex.ITEM_INDEX, colViewName, this.execute());
             String itemComView = dao.createCommunityView(BrowseIndex.ITEM_INDEX, comViewName, this.execute());
 
@@ -851,7 +843,7 @@ public class IndexBrowse
             
             String withdrawnSeq   = dao.createSequence(BrowseIndex.WITHDRAWN_INDEX_SEQ, this.execute());
             String withdrawnTable = dao.createPrimaryTable(BrowseIndex.WITHDRAWN_INDEX, sortCols, execute);
-            String[] withdrawnIndices = dao.createDatabaseIndices(BrowseIndex.WITHDRAWN_INDEX, false, this.execute());
+            String[] withdrawnIndices = dao.createDatabaseIndices(BrowseIndex.WITHDRAWN_INDEX, sortCols, false, this.execute());
             String withdrawnColView = dao.createCollectionView(BrowseIndex.WITHDRAWN_INDEX, colViewName, this.execute());
             String withdrawnComView = dao.createCommunityView(BrowseIndex.WITHDRAWN_INDEX, comViewName, this.execute());
             
@@ -887,13 +879,11 @@ public class IndexBrowse
 		try
 		{
 	        // prepare the array list of sort options
-	        Map<Integer, SortOption> cols = BrowseIndex.getSortOptions();
-	        Iterator<Integer> itr = (Iterator<Integer>)cols.keySet().iterator();
-	        List<Integer> sortCols = new ArrayList<Integer>();
-	        while (itr.hasNext())
-	        {
-	            sortCols.add(itr.next());
-	        }
+            List<Integer> sortCols = new ArrayList<Integer>();
+            for (SortOption so : SortOption.getSortOptions())
+            {
+                sortCols.add(new Integer(so.getNumber()));
+            }
 
 	        // get the table names that the browse index is in charge of
 			String tableName   = bi.getTableName();
@@ -906,7 +896,7 @@ public class IndexBrowse
 			{
 	            String createSeq = dao.createSequence(sequence, this.execute());
 	            String createTable = dao.createSecondaryTable(tableName, sortCols, this.execute());
-	            String[] databaseIndices = dao.createDatabaseIndices(tableName, true, this.execute());
+	            String[] databaseIndices = dao.createDatabaseIndices(tableName, sortCols, true, this.execute());
                 String createColView = dao.createCollectionView(tableName, colViewName, this.execute());
                 String createComView = dao.createCommunityView(tableName, comViewName, this.execute());
 	            

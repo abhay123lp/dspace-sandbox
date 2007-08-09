@@ -40,6 +40,7 @@
 package org.dspace.browse;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -169,26 +170,32 @@ public class BrowseCreateDAOOracle implements BrowseCreateDAO
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#createDatabaseIndices(java.lang.String, boolean)
      */
-    public String[] createDatabaseIndices(String table, boolean value, boolean execute) throws BrowseException
+    public String[] createDatabaseIndices(String table, List<Integer> sortCols, boolean value, boolean execute) throws BrowseException
     {
         try
         {
-            String sortIndexName = table + "_value_idx";
-            String itemIndexName = table + "_item_id_idx";
+            ArrayList<String> array = new ArrayList<String>();
             
-            String createSortIndex = "CREATE INDEX " + sortIndexName + " ON " 
-                                    + table + "(sort_value)";
-            String createItemIndex = "CREATE INDEX " + itemIndexName + " ON " 
-                                    + table + "(item_id)";
+            array.add("CREATE INDEX " + table + "_item_id_idx ON " + table + "(item_id)");
+    
+            if (value)
+                array.add("CREATE INDEX " + table + "_value_index ON " + table + "(sort_value)");
+    
+            for (Integer i : sortCols)
+            {
+                array.add("CREATE INDEX " + table + "_s" + i + "_idx ON " + table + "(sort_" + i + ")");
+            }
             
             if (execute)
             {
-                DatabaseManager.updateQuery(context, createSortIndex);
-                DatabaseManager.updateQuery(context, createItemIndex);
+                for (String query : array)
+                {
+                    DatabaseManager.updateQuery(context, query);
+                }
             }
             
-            String[] array = { createSortIndex + ";", createItemIndex + ";" };
-            return array;
+            String[] arr = new String[array.size()];
+            return array.toArray(arr);
         }
         catch (SQLException e)
         {

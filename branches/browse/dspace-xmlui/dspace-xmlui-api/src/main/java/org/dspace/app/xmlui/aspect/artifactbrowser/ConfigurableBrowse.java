@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.cocoon.caching.CacheableProcessingComponent;
 import org.apache.cocoon.environment.ObjectModelHelper;
@@ -427,21 +428,27 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
         // If we are browsing a 'second level' list of items
         if (isItemBrowse(info) && info.isSecondLevel())
         {
-            // Create a drop down of the different sort columns available
-            Map<Integer, SortOption> sortOptions = info.getBrowseIndex().getSortOptions();
-            
-            // Only generate the list if we have multiple columns
-            if (sortOptions.size() > 1)
+            try
             {
-                controlsForm.addContent(T_sort_by);
-                Select sortSelect = controlsForm.addSelect(BrowseParams.SORT_BY);
-
-                for (Integer sortKey : sortOptions.keySet())
+                // Create a drop down of the different sort columns available
+                Set<SortOption> sortOptions = SortOption.getSortOptions();
+                
+                // Only generate the list if we have multiple columns
+                if (sortOptions.size() > 1)
                 {
-                    SortOption sort = sortOptions.get(sortKey);
-                    sortSelect.addOption(sort.equals(info.getSortOption()), sort.getNumber(),
-                            message("xmlui.ArtifactBrowser.ConfigurableBrowse.sort_by." + sort.getName()));
+                    controlsForm.addContent(T_sort_by);
+                    Select sortSelect = controlsForm.addSelect(BrowseParams.SORT_BY);
+    
+                    for (SortOption so : sortOptions)
+                    {
+                        sortSelect.addOption(so.equals(info.getSortOption()), so.getNumber(),
+                                message("xmlui.ArtifactBrowser.ConfigurableBrowse.sort_by." + so.getName()));
+                    }
                 }
+            }
+            catch (BrowseException be)
+            {
+                throw new WingException("Unable to get sort options", be);
             }
         }
 

@@ -257,8 +257,8 @@ public interface BrowseCreateDAO
     public String createPrimaryTable(String table, List sortCols, boolean execute) throws BrowseException;
 	
 	public String createPrimaryView(String table, List sortCols, boolean execute) throws BrowseException;
-	
-	/**
+
+    /**
 	 * Create any indices that the implementing DAO sees fit to maximise performance.
 	 * If the boolean execute is true this operation should be carried out, and if it is false
 	 * it should not.  The returned string array should contain the SQL (if relevant) that the caller
@@ -266,11 +266,12 @@ public interface BrowseCreateDAO
 	 * you can return each bit of SQL as an element if you want.
 	 * 
 	 * @param table		the table upon which to create indices
+	 * @param sortCols TODO
 	 * @param execute	whether to action the create or not
 	 * @return			the instructions (SQL) that effect the indices
 	 * @throws BrowseException
 	 */
-	public String[] createDatabaseIndices(String table, boolean value, boolean execute) throws BrowseException;
+	public String[] createDatabaseIndices(String table, List<Integer> sortCols, boolean value, boolean execute) throws BrowseException;
 	
 	/**
 	 * Create the View of the full item index as seen from a collection.

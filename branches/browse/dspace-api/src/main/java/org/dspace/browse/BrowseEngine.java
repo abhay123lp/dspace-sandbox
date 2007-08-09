@@ -183,7 +183,7 @@ public class BrowseEngine
 		dao.setLimit(scope.getResultsPerPage());
 		
 		// assemble the ORDER BY clause
-		String orderBy = "sort_value";
+        String orderBy = browseIndex.getDefaultSortColumn();
 		if (scope.getSortBy() > 0)
 		{
 			orderBy = "sort_" + Integer.toString(scope.getSortBy());
