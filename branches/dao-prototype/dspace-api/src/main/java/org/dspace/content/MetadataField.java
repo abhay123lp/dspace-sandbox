@@ -300,8 +300,7 @@ public class MetadataField
      * @throws AuthorizeException
      */
     public static MetadataField findByElement(Context context, int schemaID,
-            String element, String qualifier) throws SQLException,
-            AuthorizeException
+            String element, String qualifier) throws SQLException
     {
         // Grab rows from DB
         TableRowIterator tri;
