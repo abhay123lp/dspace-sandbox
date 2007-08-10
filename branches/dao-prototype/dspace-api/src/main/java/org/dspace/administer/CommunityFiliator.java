@@ -59,7 +59,6 @@ import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.storage.rdbms.DatabaseManager;
 
 /**
  * A command-line tool for setting/removing community/sub-community
@@ -230,7 +229,6 @@ public class CommunityFiliator
     }
 
     private Community resolveCommunity(Context c, String communityID)
-            throws SQLException
     {
         ExternalIdentifierDAO identifierDAO =
             ExternalIdentifierDAOFactory.getInstance(c);

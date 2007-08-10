@@ -97,10 +97,10 @@ public class ItemDAOPostgres extends ItemDAO
 
     /** query to obtain all the items from the database */
     private final String findAll = "SELECT * FROM item";
-    
+
     /** query to check the existance of an item id */
     private final String getByID = "SELECT id FROM item WHERE item_id = ?";
-        
+
     /** query to get the text value of a metadata element only (qualifier is NULL) */
     private final String getByMetadataElement =
         "SELECT text_value FROM metadatavalue " +
@@ -112,7 +112,7 @@ public class ItemDAOPostgres extends ItemDAO
         "        WHERE short_id = ? " +
         "    )" +
         ")";
-    
+
     /** query to get the text value of a metadata element and qualifier */
     private final String getByMetadata =
         "SELECT text_value FROM metadatavalue " +
@@ -124,7 +124,7 @@ public class ItemDAOPostgres extends ItemDAO
         "        WHERE short_id = ? " +
         "    )" +
         ")";
-    
+
     /** query to get the text value of a metadata element with the wildcard
      * qualifier (*) */
     private final String getByMetadataAnyQualifier =
@@ -402,7 +402,8 @@ public class ItemDAOPostgres extends ItemDAO
         try
         {
             TableRowIterator tri = DatabaseManager.queryTable(context, "item",
-                    "SELECT item_id FROM item WHERE in_archive = '1'");
+                    "SELECT item_id FROM item " +
+                    "WHERE in_archive = '1' AND withdrawn = '0'");
 
             return returnAsList(tri);
         }
@@ -428,12 +429,12 @@ public class ItemDAOPostgres extends ItemDAO
                 "i.withdrawn, i.last_modified " +
                 "FROM externalidentifier p, item i";
 
-            // We are building a complex query that may contain a variable 
-            // about of input data points. To accomidate this while still 
-            // providing type safty we build a list of parameters to be 
+            // We are building a complex query that may contain a variable
+            // about of input data points. To accomidate this while still
+            // providing type safty we build a list of parameters to be
             // plugged into the query at the database level.
             List parameters = new ArrayList();
-            
+
             if (scope != null)
             {
                 if (scope.getType() == Constants.COLLECTION)
@@ -444,7 +445,7 @@ public class ItemDAOPostgres extends ItemDAO
                 {
                     query += ", community2item cm2i";
                 }
-            }       
+            }
 
             query += " WHERE p.resource_type_id=" + Constants.ITEM +
                 " AND p.resource_id = i.item_id ";
@@ -463,8 +464,8 @@ public class ItemDAOPostgres extends ItemDAO
                              " AND cm2i.item_id = p.resource_id";
                     parameters.add(new Integer(scope.getID()));
                 }
-            }      
-                    
+            }
+
             if (startDate != null)
             {
                 query = query + " AND i.last_modified >= ? ";
@@ -475,20 +476,20 @@ public class ItemDAOPostgres extends ItemDAO
             {
                 /*
                  * If the end date has seconds precision, e.g.:
-                 * 
+                 *
                  * 2004-04-29T13:45:43Z
-                 * 
+                 *
                  * we need to add 999 milliseconds to this. This is because SQL
                  * TIMESTAMPs have millisecond precision, and so might have a value:
-                 * 
+                 *
                  * 2004-04-29T13:45:43.952Z
-                 * 
+                 *
                  * and so <= '2004-04-29T13:45:43Z' would not pick this up. Reading
                  * things out of the database, TIMESTAMPs are rounded down, so the
                  * above value would be read as '2004-04-29T13:45:43Z', and
                  * therefore a caller would expect <= '2004-04-29T13:45:43Z' to
                  * include that value.
-                 * 
+                 *
                  * Got that? ;-)
                  */
                 boolean selfGenerated = false;
@@ -501,7 +502,7 @@ public class ItemDAOPostgres extends ItemDAO
                 query += " AND i.last_modified <= ? ";
                 parameters.add(toTimestamp(endDate, selfGenerated));
             }
-            
+
             if (withdrawn == false)
             {
                 // Exclude withdrawn items
@@ -522,11 +523,127 @@ public class ItemDAOPostgres extends ItemDAO
             query += " ORDER BY p.resource_id";
 
             log.debug(LogManager.getHeader(context, "harvest SQL", query));
-            
+
             // Execute
             Object[] parametersArray = parameters.toArray();
             TableRowIterator tri = DatabaseManager.query(context, query,
                     parametersArray);
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<Item> getItems(MetadataSchema schema, MetadataField field,
+            MetadataValue value, Date startDate, Date endDate)
+    {
+        // FIXME: Of course, this should actually go somewhere else
+        boolean oracle = false;
+        if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+        {
+            oracle = true;
+        }
+
+        // FIXME: this method is clearly not optimised
+
+        String valueQuery = null;
+
+        if (value != null)
+        {
+            valueQuery =
+                "SELECT item_id FROM metadatavalue " +
+                "WHERE text_value LIKE ? " +
+                "AND metadata_field_id = (" +
+                    "SELECT metadata_field_id FROM metadatafieldregistry " +
+                    "WHERE element = ? AND qualifier = ?" +
+                    "AND metadata_schema_id = ?" +
+                ")";
+        }
+
+        // start the date constraint query buffer
+        StringBuffer dateQuery = new StringBuffer();
+        // FIXME: This is a little DC-specific, but I suppose that's OK.
+        dateQuery.append(
+                "SELECT item_id FROM metadatavalue " +
+                "WHERE metadata_field_id = (" +
+                    "SELECT metadata_field_id " +
+                    "FROM metadatafieldregistry " +
+                    "WHERE element = 'date' " +
+                    "AND qualifier = 'accessioned' " +
+                ")");
+
+        if (startDate != null)
+        {
+            if (oracle)
+            {
+                dateQuery.append(" AND TO_TIMESTAMP( TO_CHAR(text_value), "+
+                        "'yyyy-mm-dd\"T\"hh24:mi:ss\"Z\"' ) > TO_DATE('" +
+                        unParseDate(startDate) + "', 'yyyy-MM-dd') ");
+            }
+            else
+            {
+                dateQuery.append(" AND text_value::timestamp > '" +
+                        unParseDate(startDate) + "'::timestamp ");
+            }
+        }
+
+        if (endDate != null)
+        {
+            if (oracle)
+            {
+                dateQuery.append(" AND TO_TIMESTAMP( TO_CHAR(text_value), "+
+                        "'yyyy-mm-dd\"T\"hh24:mi:ss\"Z\"' ) < TO_DATE('" +
+                        unParseDate(endDate) + "', 'yyyy-MM-dd') ");
+            }
+            else
+            {
+                dateQuery.append(" AND text_value::timestamp < '" +
+                        unParseDate(endDate) + "'::timestamp ");
+            }
+        }
+
+        // build the final query
+        StringBuffer query = new StringBuffer();
+
+        query.append(
+                "SELECT item_id FROM item " +
+                "WHERE in_archive = " + (oracle ? "1 " : "true ") +
+                "AND withdrawn = " + (oracle ? "0 " : "false "));
+
+        if (startDate != null || endDate != null)
+        {
+            query.append(" AND item_id IN ( " + dateQuery.toString() + ") ");
+        }
+
+        if (value != null)
+        {
+            query.append(" AND item_id IN ( " + valueQuery + ") ");
+        }
+
+        try
+        {
+            TableRowIterator tri = null;
+
+            if (value == null)
+            {
+                tri = DatabaseManager.query(context, "item", query.toString());
+            }
+            else
+            {
+                Object[] params = {
+                    value.toString(),
+                    field.getElement(),
+                    field.getQualifier(),
+                    schema.getSchemaID()
+                };
+
+                tri = DatabaseManager.query(context, "item", query.toString(),
+                        params);
+            }
 
             return returnAsList(tri);
         }
@@ -544,8 +661,8 @@ public class ItemDAOPostgres extends ItemDAO
             TableRowIterator tri = DatabaseManager.queryTable(context, "item",
                     "SELECT i.item_id " +
                     "FROM item i, collection2item c2i " +
-                    "WHERE i.item_id = c2i.item_id "+ 
-                    "AND c2i.collection_id = ? " + 
+                    "WHERE i.item_id = c2i.item_id "+
+                    "AND c2i.collection_id = ? " +
                     "AND i.in_archive = '1'",
                     collection.getID());
 
@@ -778,17 +895,17 @@ public class ItemDAOPostgres extends ItemDAO
             throw new RuntimeException(sqle);
         }
     }
-    
+
     /**
      * Perform a database query to obtain the string array of values
      * corresponding to the passed parameters. This is only really called from
-     * 
+     *
      * <code>
      * getMetadata(schema, element, qualifier, lang);
      * </code>
-     * 
+     *
      * which will obtain the value from cache if available first.
-     * 
+     *
      * @param schema
      * @param element
      * @param qualifier
@@ -802,7 +919,7 @@ public class ItemDAOPostgres extends ItemDAO
         try
         {
             TableRowIterator tri;
-            
+
             if (qualifier == null)
             {
                 Object[] params = { item.getID(), element, schema };
@@ -820,7 +937,7 @@ public class ItemDAOPostgres extends ItemDAO
                 Object[] params = { item.getID(), element, qualifier, schema };
                 tri = DatabaseManager.query(context, getByMetadata, params);
             }
-            
+
             while (tri.hasNext())
             {
                 TableRow tr = tri.next();
@@ -846,21 +963,21 @@ public class ItemDAOPostgres extends ItemDAO
                 "DELETE FROM MetadataValue WHERE item_id= ? ",
                 itemId);
     }
-    
+
     /**
      * Convert a String to a java.sql.Timestamp object
-     * 
+     *
      * @param t The timestamp String
      * @param selfGenerated Is this a self generated timestamp (e.g. it has
      *                      .999 on the end)
      * @return The converted Timestamp
-     * @throws ParseException 
+     * @throws ParseException
      */
     private static Timestamp toTimestamp(String t, boolean selfGenerated)
         throws ParseException
     {
         SimpleDateFormat df;
-        
+
         // Choose the correct date format based on string length
         if (t.length() == 10)
         {
@@ -878,9 +995,23 @@ public class ItemDAOPostgres extends ItemDAO
             // Not self generated, and not in a guessable format
             throw new ParseException("", 0);
         }
-        
+
         // Parse the date
         df.setCalendar(Calendar.getInstance(TimeZone.getTimeZone("UTC")));
         return new Timestamp(df.parse(t).getTime());
-    }    
+    }
+
+    /**
+     * Take the date object and convert it into a string of the form YYYY-MM-DD
+     *
+     * @param   date    the date to be converted
+     *
+     * @return          A string of the form YYYY-MM-DD
+     */
+    private static String unParseDate(Date date)
+    {
+        // Use SimpleDateFormat
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd");
+        return sdf.format(date);
+    }
 }

@@ -57,6 +57,9 @@ import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -249,11 +252,39 @@ public abstract class ItemDAO extends ContentDAO
         }
     }
 
+    /**
+     * Returns a list of items that are both in the archive and not withdrawn.
+     */
     public abstract List<Item> getItems();
+
+    /**
+     * This function primarily exists to service the Harvest class. See that
+     * class for documentation on usage.
+     */
     public abstract List<Item> getItems(DSpaceObject scope,
             String startDate, String endDate, int offset, int limit,
             boolean items, boolean collections, boolean withdrawn)
         throws ParseException;
+
+    /**
+     * This is a simple 'search' function that returns Items that are in the
+     * archive, are not withdrawn, and match the given schema, field, and
+     * value.
+     */
+    public List<Item> getItems(MetadataSchema schema, MetadataField field,
+            MetadataValue value)
+    {
+        return getItems(schema, field, value, null, null);
+    }
+
+    /**
+     * The dates passed in here are used to limit the results by ingest date
+     * (dc.date.accessioned).
+     */
+    public abstract List<Item> getItems(MetadataSchema schema,
+            MetadataField field, MetadataValue value,
+            Date startDate, Date endDate);
+    
     public abstract List<Item> getItemsByCollection(Collection collection);
     public abstract List<Item> getItemsBySubmitter(EPerson eperson);
 

@@ -70,9 +70,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.search.DSIndexer;
 
-/**
- * This class could really do with a CLI...
- */
 public class ArchiveManager
 {
     private static Logger log = Logger.getLogger(ArchiveManager.class);
@@ -478,7 +475,6 @@ public class ArchiveManager
             c = new Context();
             CommandLineParser parser = new PosixParser();
             Options options = new Options();
-            ArchiveManager am = new ArchiveManager();
             ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
 
             options.addOption("a", "all", false, "print all items");
@@ -490,19 +486,17 @@ public class ArchiveManager
             options.addOption("g", "group", false, "print the group info");
             CommandLine line = parser.parse(options, argv);
 
-
-
             if (line.hasOption("a"))
             {
-                am.printItems(itemDAO.getItems());
+                printItems(itemDAO.getItems());
             }
             else if (line.hasOption('g')) 
             {
-                am.printGroups(Group.findAll(c, 1));
+                printGroups(Group.findAll(c, 1));
             }
             else if (line.hasOption("m") && line.hasOption("i"))
             {
-                am.printItemMetadata(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
+                printItemMetadata(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
             }
             else if (line.hasOption("p") && line.hasOption("i"))
             {
@@ -512,12 +506,13 @@ public class ArchiveManager
             else if (line.hasOption("z") && line.hasOption("i"))
             {
                 System.out.println("id go");
-                am.printExternalIdentifiers(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
+                printExternalIdentifiers(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
             }
             c.complete();
         }
         catch (Exception e)
         {
+            System.err.println(e);
             throw new RuntimeException(e);
         }
     }
@@ -526,7 +521,7 @@ public class ArchiveManager
      * Prints out the list of items using item.toString()
      * @param items List<Item>
      */
-    private void printItems(List<Item> items)
+    private static void printItems(List<Item> items)
     {
         for (Item i : items)
         {
@@ -538,7 +533,7 @@ public class ArchiveManager
      * Prints out the list of groups using toString()
      * @param g Group[]
      */
-    private void printGroups(Group[] groups)
+    private static void printGroups(Group[] groups)
     {
         for (Group g : groups)
         {
@@ -551,7 +546,7 @@ public class ArchiveManager
      * 
      * @param item Item
      */
-    private void printItemMetadata(Item item)
+    private static void printItemMetadata(Item item)
     {
         System.out.println(item.getMetadata().toString());
         for (Object o : item.getMetadata())
@@ -565,7 +560,7 @@ public class ArchiveManager
      * 
      * @param item item
      */
-    private void printExternalIdentifiers(Item item)
+    private static void printExternalIdentifiers(Item item)
     {
     	System.out.println("one pi: " + item.getExternalIdentifier().getCanonicalForm());
         System.out.println(item.getExternalIdentifiers().toString());
