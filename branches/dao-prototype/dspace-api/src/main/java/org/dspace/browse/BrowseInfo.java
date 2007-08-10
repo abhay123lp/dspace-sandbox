@@ -784,7 +784,7 @@ public class BrowseInfo
     		ItemListConfig config = new ItemListConfig();
     		
     		// some information about the columns to be displayed
-    		if (browseIndex.isFull())
+    		if (browseIndex.isItemIndex())
     		{
     			sb.append("Listing over " + Integer.toString(config.numCols()) + " columns: ");
     			for (int k = 1; k <= config.numCols(); k++)
@@ -811,7 +811,7 @@ public class BrowseInfo
     				sb.append(" sort column focus: " + focus);
     			}
     		}
-    		else if (browseIndex.isSingle())
+    		else if (browseIndex.isMetadataIndex())
     		{
     			sb.append("Listing single column: " + browseIndex.getMetadata());
     			if (isStartsWith())
@@ -833,11 +833,11 @@ public class BrowseInfo
     		sb.append("||");
     		
     		// output the results
-    		if (browseIndex.isSingle() && !isSecondLevel())
+    		if (browseIndex.isMetadataIndex() && !isSecondLevel())
     		{
     			sb.append(valueListingString());
     		}
-    		else if (browseIndex.isFull() || isSecondLevel())
+    		else if (browseIndex.isItemIndex() || isSecondLevel())
     		{
     			sb.append(fullListingString(config));
     		}
@@ -848,11 +848,11 @@ public class BrowseInfo
     		sb.append("Top of next page: ");
     		if (hasNextPage())
     		{
-    			if (browseIndex.isSingle() && !isSecondLevel())
+    			if (browseIndex.isMetadataIndex() && !isSecondLevel())
     			{
     				sb.append(this.nextValue);
     			}
-    			else if (browseIndex.isFull() || isSecondLevel())
+    			else if (browseIndex.isItemIndex() || isSecondLevel())
     			{
     				sb.append("Item ID: " + Integer.toString(this.nextItem));
     			}
@@ -866,11 +866,11 @@ public class BrowseInfo
     		sb.append("Top of previous page: ");
     		if (hasPrevPage())
     		{
-    			if (browseIndex.isSingle() && !isSecondLevel())
+    			if (browseIndex.isMetadataIndex() && !isSecondLevel())
     			{
     				sb.append(this.prevValue);
     			}
-    			else if (browseIndex.isFull() || isSecondLevel())
+    			else if (browseIndex.isItemIndex() || isSecondLevel())
     			{
     				sb.append("Item ID: " + Integer.toString(this.prevItem));
     			}

@@ -43,11 +43,11 @@ package org.dspace.browse;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 
@@ -119,7 +119,7 @@ public class BrowseEngine
 		browseIndex = scope.getBrowseIndex();
 		
 		// now make the decision as to how to browse
-		if (browseIndex.isSingle() && !scope.isSecondLevel())
+		if (browseIndex.isMetadataIndex() && !scope.isSecondLevel())
 		{
 			// this is a single value browse type that has not gone to
 			// the second level (i.e. authors, not items by a given author)
@@ -183,7 +183,7 @@ public class BrowseEngine
 		dao.setLimit(scope.getResultsPerPage());
 		
 		// assemble the ORDER BY clause
-		String orderBy = "sort_value";
+        String orderBy = browseIndex.getSortField();
 		if (scope.getSortBy() > 0)
 		{
 			orderBy = "sort_" + Integer.toString(scope.getSortBy());
@@ -218,7 +218,7 @@ public class BrowseEngine
 	
 	/**
 	 * Browse the archive by the full item browse mechanism.  This produces a
-	 * BrowseInfo object which contains full Item objects as its result
+	 * BrowseInfo object which contains full BrowseItem objects as its result
 	 * set.
 	 * 
 	 * @param bs		the scope of the browse
@@ -240,17 +240,18 @@ public class BrowseEngine
 			// prepare the parameters for the focus clause if we are to have one
 			String focusValue = null;
 			String rawFocusValue = null;
-			String focusField = "sort_value";
-			if (scope.hasFocus() || scope.hasValueFocus() || scope.hasStartsWith())
+			String focusField = browseIndex.getSortField();
+			
+			if (scope.hasJumpToItem() || scope.hasJumpToValue() || scope.hasStartsWith())
 			{
-				focusValue = getFocusValue();
+				focusValue = getJumpToValue();
 			
 				// store the value to tell the Browse Info object which value we are browsing on
 				// (we do it here because we may append a "%" in a moment)
 				rawFocusValue = focusValue;
 				
 				// make sure the incoming value is normalised
-				focusValue = getFocusValueNormalized(focusValue);
+				focusValue = normalizeJumpToValue(focusValue);
 				
 				// if the value was a "starts with" value, we need to append the
 				// regular expression wildcard
@@ -270,25 +271,25 @@ public class BrowseEngine
 				}
 				
 				// pass the values into the BrowseQuery
-				dao.setFocusField(focusField);
-				dao.setFocusValue(focusValue);
+				dao.setJumpToField(focusField);
+				dao.setJumpToValue(focusValue);
 			}
 			
 			// assemble the value clause if we are to have one
 			String value = null;
 			String rawValue = null;
-			if (scope.hasValue())
+			if (scope.hasFilterValue() && scope.isSecondLevel())
 			{
-				value = scope.getValue();
+				value = scope.getFilterValue();
 				rawValue = value;
 				
 				// make sure the incoming value is normalised
-                value = BrowseOrder.makeSortString(value, scope.getValueLang(),
+                value = BrowseOrder.makeSortString(value, scope.getFilterValueLang(),
                             scope.getBrowseIndex().getDataType());
 				
 				// set the values in the Browse Query
-				dao.setValueField("sort_value");
-				dao.setValue(value);
+				dao.setFilterValueField("sort_value");
+				dao.setFilterValue(value);
 			}
 			
 			// define a clause for the WHERE clause which will allow us to constraine
@@ -310,7 +311,7 @@ public class BrowseEngine
 			}
 			
 			// assemble the ORDER BY clause
-			String orderBy = "sort_value";
+			String orderBy = browseIndex.getSortField();
 			if (scope.getSortBy() > 0)
 			{
 				orderBy = "sort_" + Integer.toString(scope.getSortBy());
@@ -340,11 +341,11 @@ public class BrowseEngine
 			// previous queries
 			
 			// NEXT PAGE
-			Item next = null;
+			BrowseItem next = null;
 			int lastIndex = results.size() - 1;
 			if (lastIndex >= scope.getResultsPerPage())
 			{
-				next = (Item) results.get(lastIndex);
+				next = (BrowseItem) results.get(lastIndex);
 				results.remove(lastIndex);
 			}
 			
@@ -352,8 +353,8 @@ public class BrowseEngine
 			// this involves some slightly complex messing around, so delegated to
 			// its own method.  remember to only do this when there is a focus
 			// value, otherwise we are just on the first page
-			Item prev = null;
-			if (scope.hasFocus() || scope.hasValueFocus() || scope.hasStartsWith())
+			BrowseItem prev = null;
+			if (scope.hasJumpToItem() || scope.hasJumpToValue() || scope.hasStartsWith())
 			{
 				int prevID = -1;
 				if (showLast)
@@ -366,7 +367,7 @@ public class BrowseEngine
 				}
 				if (prevID != -1)
 				{
-					prev = new Item(context, prevID);
+					prev = new BrowseItem(context, prevID);
 				}
 			}
 			
@@ -431,9 +432,9 @@ public class BrowseEngine
 			// set the focus value if there is one
 			browseInfo.setFocus(rawFocusValue);
 			
-			if (scope.hasFocus())
+			if (scope.hasJumpToItem())
 			{
-				browseInfo.setFocusItem(scope.getFocus());
+				browseInfo.setFocusItem(scope.getJumpToItem());
 			}
 			
 			// tell the browse info if it is working from a starts with parameter
@@ -468,7 +469,7 @@ public class BrowseEngine
 	private BrowseInfo browseByValue(BrowserScope bs)
 		throws BrowseException
 	{
-		log.info(LogManager.getHeader(context, "browse_by_value", "focus=" + bs.getValueFocus()));
+		log.info(LogManager.getHeader(context, "browse_by_value", "focus=" + bs.getJumpToValue()));
 		
 		try
 		{
@@ -487,18 +488,18 @@ public class BrowseEngine
 			// it will look like one of the following
 			// - sort_value < myvalue
 			// = sort_1 > myvalue
-			dao.setFocusField("sort_value");
+			dao.setJumpToField("sort_value");
 			String focusValue = null;
 			String rawFocusValue = null;
-			if (scope.hasValueFocus() || scope.hasStartsWith())
+			if (scope.hasJumpToValue() || scope.hasStartsWith())
 			{
-				focusValue = getFocusValue();
+				focusValue = getJumpToValue();
 				
 				// store the value to tell the Browse Info object which value we are browsing on
 				rawFocusValue = focusValue;
                 
                 // make sure the incoming value is normalised
-                focusValue = getFocusValueNormalized(focusValue);
+                focusValue = normalizeJumpToValue(focusValue);
 				
 				// if the value was a "starts with" and also a date, we need to
 				// append -32, so that the sorted search works
@@ -508,7 +509,7 @@ public class BrowseEngine
 				}
 				
 				// set the value at which the browse will start
-				dao.setFocusValue(focusValue);
+				dao.setJumpToValue(focusValue);
 			}
 			
 			// set our constraints on community or collection
@@ -567,7 +568,7 @@ public class BrowseEngine
 			// PREVIOUS PAGE
 			// this requires some work, so delegating to its own method
 			String prev = null;
-			if (scope.hasValueFocus() || scope.hasStartsWith())
+			if (scope.hasJumpToValue() || scope.hasStartsWith())
 			{
 				if (showLast)
 				{
@@ -652,16 +653,16 @@ public class BrowseEngine
 	 * @return	the focus value to use
 	 * @throws BrowseException
 	 */
-	private String getFocusValue()
+	private String getJumpToValue()
 		throws BrowseException
 	{
 		log.debug(LogManager.getHeader(context, "get_focus_value", ""));
 		
 		// if the focus is by value, just return it
-		if (scope.hasValueFocus())
+		if (scope.hasJumpToValue())
 		{
-			log.debug(LogManager.getHeader(context, "get_focus_value_return", "return=" + scope.getValueFocus()));
-			return scope.getValueFocus();
+			log.debug(LogManager.getHeader(context, "get_focus_value_return", "return=" + scope.getJumpToValue()));
+			return scope.getJumpToValue();
 		}
 		
 		// if the focus is to start with, then we need to return the value of the starts with
@@ -674,7 +675,7 @@ public class BrowseEngine
 		// since the focus is not by value, we need to obtain it
 		
 		// get the id of the item to focus on
-		int id = scope.getFocus();
+		int id = scope.getJumpToItem();
 		
 		// get the table name.  We don't really need to care about whether we are in a
 		// community or collection at this point.  This is only for full or second
@@ -711,20 +712,20 @@ public class BrowseEngine
      * @return  the normalized focus value
      * @throws BrowseException
      */
-    private String getFocusValueNormalized(String focusValue)
+    private String normalizeJumpToValue(String value)
         throws BrowseException
     {
         // If the scope has a focus value (focus by value)
-        if (scope.hasValueFocus())
+        if (scope.hasJumpToValue())
         {
             // Normalize it based on the specified language as appropriate for this index
-            return BrowseOrder.makeSortString(scope.getValueFocus(), scope.getValueFocusLang(), scope.getBrowseIndex().getDataType());
+            return BrowseOrder.makeSortString(scope.getJumpToValue(), scope.setJumpToValueLang(), scope.getBrowseIndex().getDataType());
         }
         
         // No focus value on the scope (ie. focus by id), so just return the passed focus value
         // This is useful in cases where we have pulled a focus value from the index
         // which will already be normalized, and avoids another DB lookup
-        return focusValue;
+        return value;
     }
     
 	/**
@@ -768,14 +769,14 @@ public class BrowseEngine
 		// FIXME: it would be nice to have a good way of doing this in the DAO
 		// now reset all of the fields that we don't want to have constraining
 		// our count, storing them locally to reinstate later
-		String focusField = dao.getFocusField();
-		String focusValue = dao.getFocusValue();
+		String focusField = dao.getJumpToField();
+		String focusValue = dao.getJumpToValue();
 		String orderField = dao.getOrderField();
 		int limit = dao.getLimit();
 		int offset = dao.getOffset();
 		
-		dao.setFocusField(null);
-		dao.setFocusValue(null);
+		dao.setJumpToField(null);
+		dao.setJumpToValue(null);
 		dao.setOrderField(null);
 		dao.setLimit(-1);
 		dao.setOffset(-1);
@@ -784,8 +785,8 @@ public class BrowseEngine
 		int count = dao.doCountQuery();
 		
 		// now put back the values we removed for this method
-		dao.setFocusField(focusField);
-		dao.setFocusValue(focusValue);
+		dao.setJumpToField(focusField);
+		dao.setJumpToValue(focusValue);
 		dao.setOrderField(orderField);
 		dao.setLimit(limit);
 		dao.setOffset(offset);
@@ -812,7 +813,7 @@ public class BrowseEngine
 		log.debug(LogManager.getHeader(context, "get_position", "distinct=" + distinct));
 		
 		// if there isn't a focus then we are at the start
-		if (dao.getFocusValue() == null)
+		if (dao.getJumpToValue() == null)
 		{
 			log.debug(LogManager.getHeader(context, "get_position_return", "return=0"));
 			return 0;
@@ -866,7 +867,7 @@ public class BrowseEngine
 	 * some previous results to pad out the full number of results per page).  If the
 	 * callback is null, then no results are kept
 	 * 
-	 * @param callback	A List object for holding Item objects indexed numerically in the correct order
+	 * @param callback	A List object for holding BrowseItem objects indexed numerically in the correct order
 	 * @return			the database id of the top of the previous page
 	 * @throws SQLException
 	 * @throws BrowseException
@@ -924,10 +925,10 @@ public class BrowseEngine
 		// work our way through the list, capturing if necessary, and finally
 		// having the last result, which will be the top of the previous page
 		int i = 0;
-		Item prev = null;
+		BrowseItem prev = null;
 		while (itr.hasNext())
 		{
-			Item browseItem = (Item) itr.next();
+			BrowseItem browseItem = (BrowseItem) itr.next();
 			
 			// we need to copy this, because of the scoping vs by-reference issue
 			prev = browseItem;
