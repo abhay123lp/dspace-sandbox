@@ -24,3 +24,6 @@ alter table bitstreamformatregistry add column uuid varchar(36);
 alter table resourcepolicy add column uuid varchar(36);
 alter table workflowitem add column uuid varchar(36);
 alter table subscription add column uuid varchar(36);
+alter table metadataschemaregistry add column uuid varchar(36);
+alter table metadatafieldregistry add column uuid varchar(36);
+alter table metadatavalue add column uuid varchar(36);

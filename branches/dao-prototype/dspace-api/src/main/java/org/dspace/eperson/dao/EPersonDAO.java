@@ -50,14 +50,14 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.EPersonDeletionException;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.EPerson.EPersonMetadataField;
+import org.dspace.storage.dao.CRUD;
 
 /**
  * @author James Rutherford
  */
-public abstract class EPersonDAO
+public abstract class EPersonDAO implements CRUD<EPerson>
 {
     protected Logger log = Logger.getLogger(EPersonDAO.class);
 
@@ -124,8 +124,7 @@ public abstract class EPersonDAO
                 "eperson_id=" + eperson.getID()));
     }
 
-    public void delete(int id)
-        throws AuthorizeException, EPersonDeletionException
+    public void delete(int id) throws AuthorizeException
     {
         EPerson eperson = retrieve(id);
         update(eperson); // Sync in-memory object before removal

@@ -100,7 +100,6 @@ public abstract class ItemDAO extends ContentDAO
 
     public Item retrieve(int id)
     {
-        // Check the cache
         return (Item) context.fromCache(Item.class, id);
     }
 

@@ -709,21 +709,14 @@ public class ItemDAOPostgres extends ItemDAO
         }
     }
 
-    private List<Item> returnAsList(TableRowIterator tri)
+    private List<Item> returnAsList(TableRowIterator tri) throws SQLException
     {
         List<Item> items = new ArrayList<Item>();
 
-        try
+        for (TableRow row : tri.toList())
         {
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("item_id");
-                items.add(retrieve(id));
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            int id = row.getIntColumn("item_id");
+            items.add(retrieve(id));
         }
 
         return items;

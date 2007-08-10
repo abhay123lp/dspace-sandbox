@@ -324,20 +324,14 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     }
 
     private List<Bitstream> returnAsList(TableRowIterator tri)
+        throws SQLException
     {
         List <Bitstream> bitstreams = new ArrayList<Bitstream>();
 
-        try
+        for (TableRow row : tri.toList())
         {
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("bitstream_id");
-                bitstreams.add(retrieve(id));
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            int id = row.getIntColumn("bitstream_id");
+            bitstreams.add(retrieve(id));
         }
 
         return bitstreams;

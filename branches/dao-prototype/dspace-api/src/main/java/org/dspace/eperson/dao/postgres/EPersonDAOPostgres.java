@@ -245,8 +245,7 @@ public class EPersonDAOPostgres extends EPersonDAO
      * FIXME We need link() and unlink() for EPerson <--> Group mapping
      */
     @Override
-    public void delete(int id)
-        throws AuthorizeException, EPersonDeletionException
+    public void delete(int id) throws AuthorizeException
     {
         super.delete(id);
 
@@ -258,7 +257,8 @@ public class EPersonDAOPostgres extends EPersonDAO
         // on eperson, throw an exception
         if (!constraintList.isEmpty())
         {
-            throw new EPersonDeletionException(constraintList);
+            throw new RuntimeException(
+                    new EPersonDeletionException(constraintList));
         }
 
         try

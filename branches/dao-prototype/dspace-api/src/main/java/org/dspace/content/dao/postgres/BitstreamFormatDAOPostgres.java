@@ -376,20 +376,14 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     }
 
     private List<BitstreamFormat> returnAsList(TableRowIterator tri)
+        throws SQLException
     {
         List<BitstreamFormat> formats = new ArrayList<BitstreamFormat>();
 
-        try
+        for (TableRow row : tri.toList())
         {
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("bitstream_format_id");
-                formats.add(retrieve(id));
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            int id = row.getIntColumn("bitstream_format_id");
+            formats.add(retrieve(id));
         }
 
         return formats;

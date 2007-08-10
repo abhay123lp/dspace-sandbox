@@ -357,23 +357,17 @@ public class CommunityDAOPostgres extends CommunityDAO
     }
 
     private List<Community> returnAsList(TableRowIterator tri)
+        throws SQLException
     {
-        try
-        {
-            List<Community> communities = new ArrayList<Community>();
+        List<Community> communities = new ArrayList<Community>();
 
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("community_id");
-                communities.add(retrieve(id));
-            }
-
-            return communities;
-        }
-        catch (SQLException sqle)
+        for (TableRow row : tri.toList())
         {
-            throw new RuntimeException(sqle);
+            int id = row.getIntColumn("community_id");
+            communities.add(retrieve(id));
         }
+
+        return communities;
     }
 
     /**

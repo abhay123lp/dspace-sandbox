@@ -303,20 +303,14 @@ public class CollectionDAOPostgres extends CollectionDAO
     }
 
     private List<Collection> returnAsList(TableRowIterator tri)
+        throws SQLException
     {
         List<Collection> collections = new ArrayList<Collection>();
 
-        try
+        for (TableRow row : tri.toList())
         {
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("collection_id");
-                collections.add(retrieve(id));
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
+            int id = row.getIntColumn("collection_id");
+            collections.add(retrieve(id));
         }
 
         return collections;
