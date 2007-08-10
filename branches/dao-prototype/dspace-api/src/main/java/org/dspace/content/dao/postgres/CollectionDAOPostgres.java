@@ -259,41 +259,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    /**
-     * Returns a List of collections that user has a given permission on.
-     * Useful for trimming 'select to collection' list, or figuring out which
-     * collections a person is an editor for.
-     */
-    @Override
-    public List<Collection> getCollectionsByAuthority(Community parent,
-            int actionID)
-    {
-        List<Collection> results = new ArrayList<Collection>();
-
-        Collection[] collections = null;
-
-        if (parent != null)
-        {
-            collections = parent.getCollections();
-        }
-        else
-        {
-            collections =
-                (Collection[]) getCollections().toArray(new Collection[0]);
-        }
-
-        for (Collection collection : collections)
-        {
-            if (AuthorizeManager.authorizeActionBoolean(context,
-                    collection, actionID))
-            {
-                results.add(collection);
-            }
-        }
-
-        return results;
-    }
-
     @Override
     public List<Collection> getParentCollections(Item item)
     {
