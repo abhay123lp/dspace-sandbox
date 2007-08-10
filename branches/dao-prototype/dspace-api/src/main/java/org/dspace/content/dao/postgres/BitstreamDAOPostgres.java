@@ -66,7 +66,6 @@ import org.dspace.search.DSIndexer;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
-import org.dspace.storage.bitstore.BitstreamStorageManager;
 
 /**
  * @author James Rutherford
@@ -101,26 +100,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    @Override
-    public Bitstream store(InputStream is)
-        throws AuthorizeException, IOException
-    {
-        Bitstream bs = create();
-        BitstreamStorageManager.store(context, bs, is);
-
-        return super.create(bs);
-    }
-
-    @Override
-    public Bitstream register(int store, String path)
-        throws AuthorizeException, IOException
-    {
-        Bitstream bs = create();
-        BitstreamStorageManager.register(context, bs, store, path);
-
-        return super.create(bs);
     }
 
     /**

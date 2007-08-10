@@ -54,6 +54,7 @@ import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.storage.bitstore.BitstreamStorageManager;
 import org.dspace.storage.dao.CRUD;
 
 /**
@@ -81,8 +82,14 @@ public abstract class BitstreamDAO extends ContentDAO
      * @return the newly created bitstream
      * @throws AuthorizeException
      */
-    public abstract Bitstream store(InputStream is)
-        throws AuthorizeException, IOException;
+    public Bitstream store(InputStream is)
+        throws AuthorizeException, IOException
+    {
+        Bitstream bs = create();
+        BitstreamStorageManager.store(context, bs, is);
+
+        return create(bs);
+    }
 
     /**
      * Register a new bitstream, with a new ID. The checksum and file size are
@@ -96,8 +103,14 @@ public abstract class BitstreamDAO extends ContentDAO
      * @return the newly created bitstream
      * @throws AuthorizeException
      */
-    public abstract Bitstream register(int assetstore, String path)
-        throws AuthorizeException, IOException;
+    public Bitstream register(int assetstore, String path)
+        throws AuthorizeException, IOException
+    {
+        Bitstream bs = create();
+        BitstreamStorageManager.register(context, bs, assetstore, path);
+
+        return create(bs);
+    }
 
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we

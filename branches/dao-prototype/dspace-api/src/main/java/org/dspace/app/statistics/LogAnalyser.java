@@ -1173,7 +1173,7 @@ public class LogAnalyser
             MetadataValue value = new MetadataValue(field);
             value.setValue(type);
 
-            items = dao.getItems(schema, field, value);
+            items = dao.getItems(field, value);
         }
 
         return items.size();

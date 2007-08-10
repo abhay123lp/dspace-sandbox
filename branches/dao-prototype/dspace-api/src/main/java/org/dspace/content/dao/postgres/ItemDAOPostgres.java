@@ -538,8 +538,8 @@ public class ItemDAOPostgres extends ItemDAO
     }
 
     @Override
-    public List<Item> getItems(MetadataSchema schema, MetadataField field,
-            MetadataValue value, Date startDate, Date endDate)
+    public List<Item> getItems(MetadataField field, MetadataValue value,
+            Date startDate, Date endDate)
     {
         // FIXME: Of course, this should actually go somewhere else
         boolean oracle = false;
@@ -556,12 +556,13 @@ public class ItemDAOPostgres extends ItemDAO
         {
             valueQuery =
                 "SELECT item_id FROM metadatavalue " +
-                "WHERE text_value LIKE ? " +
-                "AND metadata_field_id = (" +
-                    "SELECT metadata_field_id FROM metadatafieldregistry " +
-                    "WHERE element = ? AND qualifier = ?" +
-                    "AND metadata_schema_id = ?" +
-                ")";
+                "WHERE metadata_field_id = ? " +
+                "AND text_value LIKE ?";
+//                "AND metadata_field_id = (" +
+//                    "SELECT metadata_field_id FROM metadatafieldregistry " +
+//                    "WHERE element = ? AND qualifier = ?" +
+//                    "AND metadata_schema_id = ?" +
+//                ")";
         }
 
         // start the date constraint query buffer
@@ -630,19 +631,14 @@ public class ItemDAOPostgres extends ItemDAO
 
             if (value == null)
             {
-                tri = DatabaseManager.query(context, "item", query.toString());
+                tri = DatabaseManager.query(context, query.toString());
             }
             else
             {
-                Object[] params = {
-                    value.toString(),
-                    field.getElement(),
-                    field.getQualifier(),
-                    schema.getSchemaID()
-                };
-
-                tri = DatabaseManager.query(context, "item", query.toString(),
-                        params);
+                System.out.println(query.toString());
+                System.out.println(field.getFieldID() + ":" + value.getValue());
+                tri = DatabaseManager.query(context, query.toString(),
+                        field.getFieldID(), value.getValue());
             }
 
             return returnAsList(tri);
