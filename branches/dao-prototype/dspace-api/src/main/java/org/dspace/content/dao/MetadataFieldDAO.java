@@ -50,12 +50,10 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-//import org.dspace.storage.dao.CRUD;
+import org.dspace.storage.dao.CRUD;
 
 public abstract class MetadataFieldDAO extends ContentDAO
-// We can't CRUD because create() needs a schema ID to satisfy the NOT NULL
-// constraint in the current DB schema.
-//    implements CRUD<MetadataField>
+    implements CRUD<MetadataField>
 {
     protected Logger log = Logger.getLogger(MetadataFieldDAO.class);
 
