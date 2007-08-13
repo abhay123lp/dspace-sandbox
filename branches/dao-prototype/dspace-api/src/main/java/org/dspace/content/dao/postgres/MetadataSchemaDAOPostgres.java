@@ -84,7 +84,6 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
         {
             throw new RuntimeException(sqle);
         }
-        return null;
     }
 
     @Override

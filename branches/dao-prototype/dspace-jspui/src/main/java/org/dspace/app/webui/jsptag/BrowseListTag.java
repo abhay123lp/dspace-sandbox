@@ -75,7 +75,7 @@ import javax.servlet.jsp.JspWriter;
 import javax.servlet.jsp.jstl.fmt.LocaleSupport;
 import javax.servlet.jsp.tagext.TagSupport;
 
-import org.dspace.browse.BrowseItem;
+//import org.dspace.browse.BrowseItem;
 import org.dspace.browse.Thumbnail;
 import org.dspace.browse.CrossLinks;
 import org.dspace.browse.BrowseIndex;
@@ -94,7 +94,8 @@ public class BrowseListTag extends TagSupport
     private static Logger log = Logger.getLogger(BrowseListTag.class);
     
     /** Items to display */
-    private BrowseItem[] items;
+//    private BrowseItem[] items;
+    private Item[] items;
 
     /** Row to highlight, -1 for no row */
     private int highlightRow = -1;
@@ -312,9 +313,12 @@ public class BrowseListTag extends TagSupport
                         // format the title field correctly                        
                         else if (field.equals(titleField))
                         {
-                            metadata = "<a href=\"" + hrq.getContextPath() + "/handle/" 
-                            + items[i].getHandle() + "\">" 
-                            + Utils.addEntities(metadataArray[0].value)
+//                            metadata = "<a href=\"" + hrq.getContextPath() + "/handle/" 
+//                            + items[i].getHandle() + "\">" 
+//                            + Utils.addEntities(metadataArray[0].value)
+//                            + "</a>";
+                            metadata = "<a href=\""
+                            + items[i].getIdentifier().getURL().toString() + "\">" 
                             + "</a>";
                         }
                         // format all other fields
@@ -430,10 +434,6 @@ public class BrowseListTag extends TagSupport
         {
             throw new JspException(ie);
         }
-        catch (SQLException e)
-        {
-        	throw new JspException(e);
-        }
         catch (BrowseException e)
         {
         	throw new JspException(e);
@@ -459,7 +459,8 @@ public class BrowseListTag extends TagSupport
      * 
      * @return the items
      */
-    public BrowseItem[] getItems()
+//    public BrowseItem[] getItems()
+    public Item[] getItems()
     {
         return items;
     }
@@ -470,7 +471,8 @@ public class BrowseListTag extends TagSupport
      * @param itemsIn
      *            the items
      */
-    public void setItems(BrowseItem[] itemsIn)
+//    public void setItems(BrowseItem[] itemsIn)
+    public void setItems(Item[] itemsIn)
     {
         items = itemsIn;
     }
@@ -643,7 +645,8 @@ public class BrowseListTag extends TagSupport
     }
 
     /* generate the (X)HTML required to show the thumbnail */
-    private String getThumbMarkup(HttpServletRequest hrq, BrowseItem item)
+//    private String getThumbMarkup(HttpServletRequest hrq, BrowseItem item)
+    private String getThumbMarkup(HttpServletRequest hrq, Item item)
             throws JspException
     {
     	try
@@ -659,13 +662,14 @@ public class BrowseListTag extends TagSupport
         	if (linkToBitstream)
         	{
         		Bitstream original = thumbnail.getOriginal();
-        		String link = hrq.getContextPath() + "/bitstream/" + item.getHandle() + "/" + original.getSequenceID() + "/" +
-        						UIUtil.encodeBitstreamName(original.getName(), Constants.DEFAULT_ENCODING);
+//        		String link = hrq.getContextPath() + "/bitstream/" + item.getHandle() + "/" + original.getSequenceID() + "/" +
+        		String link = original.getIdentifier().getURL().toString();
         		thumbFrag.append("<a target=\"_blank\" href=\"" + link + "\" />");
         	}
         	else
         	{
-        		String link = hrq.getContextPath() + "/handle/" + item.getHandle();
+//        		String link = hrq.getContextPath() + "/handle/" + item.getHandle();
+        		String link = item.getIdentifier().getURL().toString();
         		thumbFrag.append("<a href=\"" + link + "\" />");
         	}
         	
@@ -676,10 +680,6 @@ public class BrowseListTag extends TagSupport
         	thumbFrag.append("<img src=\"" + img + "\" alt=\"" + alt + "\" /></a>");
         	
         	return thumbFrag.toString();
-        }
-        catch (SQLException sqle)
-        {
-        	throw new JspException(sqle.getMessage());
         }
         catch (UnsupportedEncodingException e)
         {

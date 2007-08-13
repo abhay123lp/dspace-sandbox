@@ -72,12 +72,16 @@ public abstract class MetadataSchemaDAO extends ContentDAO
             throw new AuthorizeException(
                     "Only administrators may modify the metadata registry");
         }
+
+        return null;
     }
 
     public MetadataSchema create(MetadataSchema schema)
     {
         log.info(LogManager.getHeader(context, "create_metadata_schema",
                     "metadata_schema_id=" + schema.getID()));
+
+        return schema;
     }
 
     public MetadataSchema retrieve(int id)

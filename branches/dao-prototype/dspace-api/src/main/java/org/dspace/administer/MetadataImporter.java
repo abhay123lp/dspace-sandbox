@@ -55,6 +55,8 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.NonUniqueMetadataException;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 
@@ -195,8 +197,14 @@ public class MetadataImporter
         if (s == null)
         {
             // Schema does not exist - create
-            MetadataSchema schema = new MetadataSchema(namespace, name);
-            schema.create(context);
+//            MetadataSchema schema = new MetadataSchema(namespace, name);
+//            schema.create(context);
+
+            MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
+            MetadataSchema schema = dao.create();
+            schema.setName(name);
+            schema.setNamespace(namespace);
+            dao.update(schema);
             System.out.println("created");
         }
         else

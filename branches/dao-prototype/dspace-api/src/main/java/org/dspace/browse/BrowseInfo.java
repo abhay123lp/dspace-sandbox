@@ -531,10 +531,10 @@ public class BrowseInfo
      * 
      * @return The results of the Browse as an Item array.
      */
-    public Item[] getItemResults(Context context)
+    public Item[] getBrowseItemResults(Context context)
     	throws BrowseException
     {
-        Item[] bis = getItemResults();
+        Item[] bis = getBrowseItemResults();
         Item[] items = new Item[bis.length];
         for (int i = 0; i < bis.length; i++)
         {
@@ -548,7 +548,7 @@ public class BrowseInfo
      * 
      * @return		the results of the browse as a Item array
      */
-    public Item[] getItemResults()
+    public Item[] getBrowseItemResults()
     {
         return (Item[]) results.toArray(new Item[results.size()]);
     }

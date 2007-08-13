@@ -434,7 +434,7 @@ public class FeedServlet extends DSpaceServlet
     		
     		BrowseEngine be = new BrowseEngine(context);
     		BrowseInfo bi = be.browseMini(scope);
-    		Item[] results = bi.getItemResults(context);
+    		Item[] results = bi.getBrowseItemResults(context);
     		List items = new ArrayList();
     		for (int i = 0; i < results.length; i++)
     		{

@@ -54,7 +54,9 @@ import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataSchema;
-import org.dspace.content.NonUniqueMetadataException;
+//import org.dspace.content.NonUniqueMetadataException;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.core.Context;
 
 /**
@@ -82,6 +84,7 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
             SQLException, AuthorizeException
     {
         String button = UIUtil.getSubmitButton(request, "submit");
+        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
 
         if (button.equals("submit_add"))
         {
@@ -97,44 +100,71 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
                 return;
             }
 
-            try
-            {
+            String name = request.getParameter("short_name");
+            String namespace = request.getParameter("namespace");
+            MetadataSchema schema = null;
+//            try
+//            {
                 if (id.equals(""))
                 {
                     // Create a new metadata schema
-                    MetadataSchema schema = new MetadataSchema();
-                    schema.setNamespace(request.getParameter("namespace"));
-                    schema.setName(request.getParameter("short_name"));
-                    schema.create(context);
+//                    MetadataSchema schema = new MetadataSchema();
+//                    schema.setNamespace(request.getParameter("namespace"));
+//                    schema.setName(request.getParameter("short_name"));
+//                    schema.create(context);
+                    schema = dao.retrieveByName(name);
+                    if (schema == null)
+                    {
+                        schema = dao.retrieveByNamespace(namespace);
+                    }
+                    if (schema != null)
+                    {
+                        request.setAttribute("error",
+                                "Please make the namespace and short name unique.");
+                        showSchemas(context, request, response);
+                        context.abort();
+                        return;
+                    }
+                    schema = dao.create();
+                    schema.setName(name);
+                    schema.setNamespace(namespace);
+                    dao.update(schema);
                     showSchemas(context, request, response);
                     context.complete();
                 }
                 else
                 {
                     // Update an existing schema
-                    MetadataSchema schema = MetadataSchema.find(context,
-                            UIUtil.getIntParameter(request, "dc_schema_id"));
-                    schema.setNamespace(request.getParameter("namespace"));
-                    schema.setName(request.getParameter("short_name"));
-                    schema.update(context);
+//                    MetadataSchema schema = MetadataSchema.find(context,
+//                            UIUtil.getIntParameter(request, "dc_schema_id"));
+//                    schema.setNamespace(request.getParameter("namespace"));
+//                    schema.setName(request.getParameter("short_name"));
+//                    schema.update(context);
+                    schema = dao.retrieve(Integer.parseInt(id));
+                    schema.setName(name);
+                    schema.setNamespace(namespace);
+                    dao.update(schema);
                     showSchemas(context, request, response);
                     context.complete();
                 }
-            }
-            catch (NonUniqueMetadataException e)
-            {
-                request.setAttribute("error",
-                        "Please make the namespace and short name unique.");
-                showSchemas(context, request, response);
-                context.abort();
-                return;
-            }
+//            }
+//            catch (NonUniqueMetadataException e)
+//            else
+//            {
+//                request.setAttribute("error",
+//                        "Please make the namespace and short name unique.");
+//                showSchemas(context, request, response);
+//                context.abort();
+//                return;
+//            }
         }
         else if (button.equals("submit_delete"))
         {
             // Start delete process - go through verification step
-            MetadataSchema schema = MetadataSchema.find(context, UIUtil
-                    .getIntParameter(request, "dc_schema_id"));
+//            MetadataSchema schema = MetadataSchema.find(context, UIUtil
+//                    .getIntParameter(request, "dc_schema_id"));
+            MetadataSchema schema =
+                dao.retrieve(UIUtil.getIntParameter(request, "dc_schema_id"));
             request.setAttribute("schema", schema);
             JSPManager.showJSP(request, response,
                     "/dspace-admin/confirm-delete-mdschema.jsp");
@@ -142,9 +172,9 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
         else if (button.equals("submit_confirm_delete"))
         {
             // User confirms deletion of type
-            MetadataSchema dc = MetadataSchema.find(context, UIUtil
-                    .getIntParameter(request, "dc_schema_id"));
-            dc.delete(context);
+//            MetadataSchema dc = MetadataSchema.find(context, UIUtil
+//                    .getIntParameter(request, "dc_schema_id"));
+            dao.delete(UIUtil.getIntParameter(request, "dc_schema_id"));
             showSchemas(context, request, response);
             context.complete();
         }

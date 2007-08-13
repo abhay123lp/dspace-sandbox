@@ -53,8 +53,11 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
+
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Context;
 
 /**
@@ -136,7 +139,7 @@ public class IndexBrowse
      * @throws BrowseException
      */
     public IndexBrowse(Context context)
-    	throws SQLException, BrowseException
+    	throws BrowseException
     {
     	this.context = context;
     	this.context.setIgnoreAuthorization(true);
@@ -1041,20 +1044,24 @@ public class IndexBrowse
     		}
     		
     		// now get the ids of ALL the items in the database
-    		BrowseItem bi = new BrowseItem(context, -1);
-    		Integer[] ids = bi.findAll();
+//    		BrowseItem bi = new BrowseItem(context, -1);
+//    		Integer[] ids = bi.findAll();
 
     		// go through every item id, grab the relevant metadata
     		// and write it into the database
     		
-    		for (int j = 0; j < ids.length; j++)
+//    		for (int j = 0; j < ids.length; j++)
+            int numItems = 0;
+            for (Item item : ItemDAOFactory.getInstance(context).getItems())
     		{
-    			BrowseItem item = new BrowseItem(context, ids[j].intValue());
-                indexItem(new ItemMetadataProxy(ids[j].intValue(), item));
+//    			BrowseItem item = new BrowseItem(context, ids[j].intValue());
+//                indexItem(new ItemMetadataProxy(ids[j].intValue(), item));
+                indexItem(new ItemMetadataProxy(item));
     			
     			// after each item we commit the context and clear the cache
     			context.commit();
     			context.clearCache();
+                numItems++;
     		}
     		
     		// penultimately we have to delete any items that couldn't be located in the
@@ -1074,7 +1081,8 @@ public class IndexBrowse
             // Make sure the deletes are written back
             context.commit();
     		
-    		return ids.length;
+//    		return ids.length;
+    		return numItems;
     	}
     	catch (SQLException e)
     	{
@@ -1130,22 +1138,22 @@ public class IndexBrowse
 	private class ItemMetadataProxy
 	{
 	    private Item item;
-	    private BrowseItem browseItem;
+//	    private BrowseItem browseItem;
 	    private int id;
 	    
 	    ItemMetadataProxy(Item item)
 	    {
 	        this.item       = item;
-	        this.browseItem = null;
+//	        this.browseItem = null;
 	        this.id         = 0;
 	    }
 
-	    ItemMetadataProxy(int id, BrowseItem browseItem)
-	    {
-	        this.item       = null;
-	        this.browseItem = browseItem;
-	        this.id         = id;
-	    }
+//	    ItemMetadataProxy(int id, BrowseItem browseItem)
+//	    {
+//	        this.item       = null;
+//	        this.browseItem = browseItem;
+//	        this.id         = id;
+//	    }
 
 	    public DCValue[] getMetadata(String schema, String element, String qualifier, String lang)
 	        throws SQLException
@@ -1155,7 +1163,8 @@ public class IndexBrowse
 	            return item.getMetadata(schema, element, qualifier, lang);
 	        }
 	        
-	        return browseItem.getMetadata(schema, element, qualifier, lang);
+            throw new IllegalStateException("this shouldn't have happened");
+//	        return browseItem.getMetadata(schema, element, qualifier, lang);
 	    }
 	    
 	    public int getID()

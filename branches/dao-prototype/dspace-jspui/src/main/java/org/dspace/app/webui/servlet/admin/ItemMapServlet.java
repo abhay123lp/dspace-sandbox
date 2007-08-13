@@ -323,7 +323,7 @@ public class ItemMapServlet extends DSpaceServlet
     			
     			BrowseEngine be = new BrowseEngine(context);
     			BrowseInfo results = be.browse(bs);
-    			Item[] browseItems = results.getItemResults(context);
+    			Item[] browseItems = results.getBrowseItemResults(context);
     			
     			// FIXME: oh god this is so annoying - what an API /Richard
     			// we need to deduplicate against existing items in this collection
