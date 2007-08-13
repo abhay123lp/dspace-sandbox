@@ -149,13 +149,27 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
 
         try
         {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "metadatafieldregistry",
-                    "SELECT metadata_field_id FROM metadatafieldregistry " +
-                    "WHERE metadata_schema_id = ? " + 
-                    "AND element = ? AND qualifier " +
-                    ((qualifier == null) ? "is NULL" : "= ?" + qualifier),
-                    schemaID, element);
+            TableRowIterator tri = null;
+
+            String query =
+                "SELECT metadata_field_id FROM metadatafieldregistry " +
+                "WHERE metadata_schema_id = ? " +
+                "AND element = ? AND qualifier ";
+
+            if (qualifier == null)
+            {
+                query = query + "is NULL";
+                tri = DatabaseManager.queryTable(context,
+                        "metadatafieldregistry", query,
+                        schemaID, element);
+            }
+            else
+            {
+                query = query + "= ?";
+                tri = DatabaseManager.queryTable(context,
+                        "metadatafieldregistry", query,
+                        schemaID, element, qualifier);
+            }
 
             TableRow row = null;
             if (tri.hasNext())
@@ -175,12 +189,13 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
     @Override
     public void update(MetadataField field) throws AuthorizeException
     {
+        log.info(field);
         try
         {
             int id = field.getID();
             TableRow row = DatabaseManager.find(context,
                     "metadatafieldregistry", id);
-            
+
             if (row == null)
             {
                 log.warn("Couldn't find metadata field " + id);
@@ -192,6 +207,15 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
                 String qualifier = field.getQualifier();
                 String scopeNote = field.getScopeNote();
 
+                if (schemaID <= 0)
+                {
+                    throw new RuntimeException("schema cannot be null");
+                }
+                else
+                {
+                    row.setColumn("metadata_schema_id", schemaID);
+                }
+
                 if ((element == null) || (element.equals("")))
                 {
                     throw new RuntimeException("element cannot be null");
@@ -200,6 +224,26 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
                 {
                     row.setColumn("element", element);
                 }
+
+                if ((qualifier == null) || (qualifier.equals("")))
+                {
+                    row.setColumnNull("qualifier");
+                }
+                else
+                {
+                    row.setColumn("qualifier", qualifier);
+                }
+
+                if ((scopeNote == null) || (scopeNote.equals("")))
+                {
+                    row.setColumnNull("scope_note");
+                }
+                else
+                {
+                    row.setColumn("scope_note", scopeNote);
+                }
+
+                DatabaseManager.update(context, row);
             }
         }
         catch (SQLException sqle)
@@ -325,7 +369,7 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
         {
             Connection con = context.getDBConnection();
             TableRow reg = DatabaseManager.row("metadatafieldregistry");
-            
+
             String qualifierClause = "";
 
             if (qualifier == null)
@@ -338,20 +382,20 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
             }
 
             String query = "SELECT COUNT(*) FROM " + reg.getTable()
-                + " WHERE metadata_schema_id= ? "
-                + " and metadata_field_id != ? "
-                + " and element= ? " + qualifierClause;
+                + " WHERE metadata_schema_id = ? "
+                + " AND metadata_field_id != ? "
+                + " AND element = ? " + qualifierClause;
 
             PreparedStatement statement = con.prepareStatement(query);
             statement.setInt(1, schemaID);
             statement.setInt(2, fieldID);
             statement.setString(3, element);
-            
+
             if (qualifier != null)
             {
-                statement.setString(4,qualifier);
+                statement.setString(4, qualifier);
             }
-            
+
             ResultSet rs = statement.executeQuery();
 
             int count = 0;

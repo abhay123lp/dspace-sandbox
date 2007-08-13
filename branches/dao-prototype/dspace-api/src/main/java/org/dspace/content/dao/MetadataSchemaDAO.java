@@ -46,6 +46,7 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.core.Context;
@@ -130,7 +131,7 @@ public abstract class MetadataSchemaDAO extends ContentDAO
                     new NonUniqueMetadataException("Please make the name " + name
                     + " unique"));
         }
-        
+
         // Ensure the schema namespace is unique
         if (!uniqueNamespace(id, namespace))
         {
@@ -160,6 +161,12 @@ public abstract class MetadataSchemaDAO extends ContentDAO
         // but it's not desperately important.
         log.info(LogManager.getHeader(context, "delete_metadata_schema",
                 "metadata_schema_id=" + id));
+
+        MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
+        for (MetadataField field : dao.getMetadataFields(id))
+        {
+            dao.delete(field.getID());
+        }
 
         context.removeCached(schema, id);
     }

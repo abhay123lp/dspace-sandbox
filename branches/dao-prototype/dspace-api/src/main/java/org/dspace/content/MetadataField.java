@@ -43,7 +43,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
+
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.dao.MetadataFieldDAO;
@@ -238,5 +243,25 @@ public class MetadataField
     public static MetadataField find(Context context, int id)
     {
         return MetadataFieldDAOFactory.getInstance(context).retrieve(id);
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    public boolean equals(Object o)
+    {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 }
