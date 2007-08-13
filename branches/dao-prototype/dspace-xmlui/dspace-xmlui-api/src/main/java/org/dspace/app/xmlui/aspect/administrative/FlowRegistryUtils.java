@@ -203,7 +203,7 @@ public class FlowRegistryUtils
 				result.setContinue(true);
 				result.setOutcome(true);
 				result.setMessage(T_add_metadata_field_success_notice);
-				result.setParameter("fieldID", field.getFieldID());
+				result.setParameter("fieldID", field.getID());
 			} 
 			catch (NonUniqueMetadataException nume)
 			{
@@ -240,7 +240,7 @@ public class FlowRegistryUtils
 		
 		// Check to make sure the field is unique, sometimes the NonUniqueMetadataException is not thrown.
 		MetadataField possibleDuplicate = MetadataField.findByElement(context, schemaID, element, qualifier);
-		if (possibleDuplicate != null && possibleDuplicate.getFieldID() != fieldID)
+		if (possibleDuplicate != null && possibleDuplicate.getID() != fieldID)
 			result.addError("duplicate_field");
 		
 		if (result.getErrors() == null)

@@ -128,7 +128,7 @@ public class MoveMetadataFields extends AbstractDSpaceTransformer
     	
     	for (MetadataField field : fields) 
     	{
-    		String fieldID = String.valueOf(field.getFieldID());
+    		String fieldID = String.valueOf(field.getID());
 			String fieldEelement = field.getElement();
 			String fieldQualifier = field.getQualifier();
 			

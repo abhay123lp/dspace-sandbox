@@ -75,9 +75,6 @@ public class MetadataSchema
     private String namespace;
     private String name;
 
-    /**
-     * Default constructor.
-     */
     public MetadataSchema(Context context, int id)
     {
         this.context = context;

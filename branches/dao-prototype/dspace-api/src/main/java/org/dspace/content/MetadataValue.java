@@ -121,7 +121,7 @@ public class MetadataValue
      */
     public MetadataValue(MetadataField field)
     {
-        this.fieldId = field.getFieldID();
+        this.fieldId = field.getID();
     }
 
     /**

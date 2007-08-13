@@ -55,6 +55,10 @@ import org.dspace.content.BitstreamFormat;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.NonUniqueMetadataException;
+import org.dspace.content.dao.MetadataFieldDAO;
+import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.w3c.dom.Document;
@@ -256,9 +260,14 @@ public class RegistryLoader
      * @throws NonUniqueMetadataException
      */
     private static void loadDCType(Context context, Node node)
-            throws SQLException, IOException, TransformerException,
-            AuthorizeException, NonUniqueMetadataException
+        throws TransformerException, AuthorizeException,
+                          NonUniqueMetadataException
     {
+        MetadataSchemaDAO schemaDAO =
+            MetadataSchemaDAOFactory.getInstance(context);
+        MetadataFieldDAO fieldDAO =
+            MetadataFieldDAOFactory.getInstance(context);
+
         // Get the values
         String schema = getElementData(node, "schema");
         String element = getElementData(node, "element");
@@ -272,14 +281,14 @@ public class RegistryLoader
         }
 
         // Find the matching schema object
-        MetadataSchema schemaObj = MetadataSchema.find(context, schema);
+        MetadataSchema schemaObj = schemaDAO.retrieveByName(schema);
         
-        MetadataField field = new MetadataField();
+        MetadataField field = fieldDAO.create();
         field.setSchemaID(schemaObj.getSchemaID());
         field.setElement(element);
         field.setQualifier(qualifier);
         field.setScopeNote(scopeNote);
-        field.create(context);
+        fieldDAO.update(field);
     }
 
     // ===================== XML Utility Methods =========================

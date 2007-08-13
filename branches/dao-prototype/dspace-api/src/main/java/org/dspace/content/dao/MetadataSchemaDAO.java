@@ -147,6 +147,9 @@ public abstract class MetadataSchemaDAO extends ContentDAO
 
     public void delete(int id) throws AuthorizeException
     {
+        MetadataSchema schema = retrieve(id);
+        update(schema); // Sync in-memory object before removal
+
         if (!AuthorizeManager.isAdmin(context))
         {
             throw new AuthorizeException(
@@ -157,6 +160,8 @@ public abstract class MetadataSchemaDAO extends ContentDAO
         // but it's not desperately important.
         log.info(LogManager.getHeader(context, "delete_metadata_schema",
                 "metadata_schema_id=" + id));
+
+        context.removeCached(schema, id);
     }
 
     /**

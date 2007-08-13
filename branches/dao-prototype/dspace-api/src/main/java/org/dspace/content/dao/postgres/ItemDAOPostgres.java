@@ -344,7 +344,7 @@ public class ItemDAOPostgres extends ItemDAO
                     // Write DCValue
                     MetadataValue metadata = new MetadataValue();
                     metadata.setItemId(item.getID());
-                    metadata.setFieldId(field.getFieldID());
+                    metadata.setFieldId(field.getID());
                     metadata.setValue(dcv.value);
                     metadata.setLanguage(dcv.language);
                     metadata.setPlace(current);
@@ -625,9 +625,9 @@ public class ItemDAOPostgres extends ItemDAO
             else
             {
                 System.out.println(query.toString());
-                System.out.println(field.getFieldID() + ":" + value.getValue());
+                System.out.println(field.getID() + ":" + value.getValue());
                 tri = DatabaseManager.query(context, query.toString(),
-                        field.getFieldID(), value.getValue());
+                        field.getID(), value.getValue());
             }
 
             return returnAsList(tri);
