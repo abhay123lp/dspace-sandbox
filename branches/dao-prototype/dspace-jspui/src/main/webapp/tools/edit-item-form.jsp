@@ -283,7 +283,7 @@
                     <select name="addfield_dctype">
 <%  for (int i = 0; i < dcTypes.length; i++) 
     { 
-    	Integer fieldID = new Integer(dcTypes[i].getFieldID());
+    	Integer fieldID = new Integer(dcTypes[i].getID());
     	String displayName = (String)metadataFields.get(fieldID);
 %>
                         <option value="<%= fieldID.intValue() %>"><%= displayName %></option>
