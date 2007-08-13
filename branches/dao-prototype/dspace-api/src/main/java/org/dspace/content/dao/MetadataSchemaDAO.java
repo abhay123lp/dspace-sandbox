@@ -55,7 +55,7 @@ import org.dspace.storage.dao.CRUD;
 public abstract class MetadataSchemaDAO extends ContentDAO
     implements CRUD<MetadataSchema>
 {
-    protected Logger log = Logger.getLogger(ItemDAO.class);
+    protected Logger log = Logger.getLogger(MetadataSchemaDAO.class);
 
     protected Context context;
 

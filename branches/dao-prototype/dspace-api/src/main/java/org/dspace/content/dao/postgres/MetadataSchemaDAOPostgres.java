@@ -161,7 +161,7 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
-                    "metadataschemaregistry", "name", name);
+                    "metadataschemaregistry", "short_id", name);
 
             if (row == null)
             {
@@ -274,7 +274,7 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
 
         try
         {
-            DatabaseManager.delete(context, "item", id);
+            DatabaseManager.delete(context, "metadataschemaregistry", id);
         }
         catch (SQLException sqle)
         {
