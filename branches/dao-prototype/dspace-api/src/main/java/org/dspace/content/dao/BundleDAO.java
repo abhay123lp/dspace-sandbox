@@ -66,6 +66,13 @@ public abstract class BundleDAO extends ContentDAO
     protected Context context;
     protected BitstreamDAO bitstreamDAO;
 
+    public BundleDAO(Context context)
+    {
+        this.context = context;
+
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+    }
+
     public abstract Bundle create() throws AuthorizeException;
 
     // FIXME: This should be called something else, but I can't think of

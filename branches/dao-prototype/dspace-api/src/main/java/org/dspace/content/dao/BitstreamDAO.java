@@ -51,6 +51,7 @@ import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -67,6 +68,13 @@ public abstract class BitstreamDAO extends ContentDAO
 
     protected Context context;
     protected ExternalIdentifierDAO identifierDAO;
+
+    public BitstreamDAO(Context context)
+    {
+        this.context = context;
+
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
+    }
 
     public abstract Bitstream create();
 

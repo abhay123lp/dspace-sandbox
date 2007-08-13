@@ -50,17 +50,10 @@ import org.dspace.content.Collection;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
-import org.dspace.content.dao.BitstreamDAOFactory;
-import org.dspace.content.dao.CollectionDAO;
-import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
-import org.dspace.eperson.dao.GroupDAO;
-import org.dspace.eperson.dao.GroupDAOFactory;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -69,15 +62,7 @@ public class CommunityDAOPostgres extends CommunityDAO
 {
     public CommunityDAOPostgres(Context context)
     {
-        if (context != null)
-        {
-            this.context = context;
-
-            bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-            collectionDAO = CollectionDAOFactory.getInstance(context);
-            groupDAO = GroupDAOFactory.getInstance(context);
-            identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
-        }
+        super(context);
     }
 
     @Override

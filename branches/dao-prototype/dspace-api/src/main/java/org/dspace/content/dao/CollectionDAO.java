@@ -59,12 +59,14 @@ import org.dspace.content.ItemIterator;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
+import org.dspace.eperson.dao.GroupDAOFactory;
 import org.dspace.search.DSIndexer;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.storage.dao.CRUD;
@@ -109,6 +111,16 @@ public abstract class CollectionDAO extends ContentDAO
         {
             return name;
         }
+    }
+
+    public CollectionDAO(Context context)
+    {
+        this.context = context;
+
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        itemDAO = ItemDAOFactory.getInstance(context);
+        groupDAO = GroupDAOFactory.getInstance(context);
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
     public abstract Collection create() throws AuthorizeException;

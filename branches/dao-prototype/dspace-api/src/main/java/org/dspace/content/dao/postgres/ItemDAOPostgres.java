@@ -69,14 +69,10 @@ import org.dspace.content.ItemIterator;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.dao.BitstreamDAOFactory;
-import org.dspace.content.dao.BundleDAOFactory;
-import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.proxy.ItemProxy;
+import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -93,8 +89,6 @@ import org.dspace.storage.rdbms.TableRowIterator;
  */
 public class ItemDAOPostgres extends ItemDAO
 {
-    private ExternalIdentifierDAO identifierDAO;
-
     /** query to obtain all the items from the database */
     private final String findAll = "SELECT * FROM item";
 
@@ -138,14 +132,9 @@ public class ItemDAOPostgres extends ItemDAO
         "    )" +
         ")";
 
-
     public ItemDAOPostgres(Context context)
     {
-        this.context = context;
-
-        bundleDAO = BundleDAOFactory.getInstance(context);
-        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
+        super(context);
     }
 
     @Override

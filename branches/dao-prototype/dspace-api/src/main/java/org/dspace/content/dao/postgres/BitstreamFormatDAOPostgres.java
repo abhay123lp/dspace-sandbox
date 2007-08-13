@@ -63,7 +63,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
 {
     public BitstreamFormatDAOPostgres(Context context)
     {
-        this.context = context;
+        super(context);
     }
 
     @Override

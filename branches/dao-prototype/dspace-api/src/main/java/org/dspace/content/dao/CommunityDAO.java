@@ -53,11 +53,13 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
+import org.dspace.eperson.dao.GroupDAOFactory;
 import org.dspace.search.DSIndexer;
 import org.dspace.storage.dao.CRUD;
 import org.dspace.storage.dao.Link;
@@ -102,6 +104,16 @@ public abstract class CommunityDAO extends ContentDAO
         {
             return name;
         }
+    }
+
+    public CommunityDAO(Context context)
+    {
+        this.context = context;
+
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        collectionDAO = CollectionDAOFactory.getInstance(context);
+        groupDAO = GroupDAOFactory.getInstance(context);
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
     public abstract Community create() throws AuthorizeException;

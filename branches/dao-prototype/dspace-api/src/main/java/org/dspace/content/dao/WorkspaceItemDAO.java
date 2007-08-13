@@ -55,6 +55,8 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.GroupDAO;
+import org.dspace.eperson.dao.GroupDAOFactory;
 import org.dspace.storage.dao.CRUD;
 import org.dspace.workflow.WorkflowItem;
 
@@ -68,6 +70,13 @@ public abstract class WorkspaceItemDAO extends ContentDAO
 
     protected Context context;
     protected ItemDAO itemDAO;
+
+    public WorkspaceItemDAO(Context context)
+    {
+        this.context = context;
+
+        itemDAO = ItemDAOFactory.getInstance(context);
+    }
 
     public abstract WorkspaceItem create() throws AuthorizeException;
 
@@ -252,6 +261,13 @@ public abstract class WorkspaceItemDAO extends ContentDAO
                 "workspace_item_id=" + wsi.getID() +
                 "item_id=" + item.getID() +
                 "collection_id=" + collection.getID()));
+
+        // Remove any Group <-> WorkspaceItem mappings
+        GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
+        for (Group group : groupDAO.getSupervisorGroups(wsi))
+        {
+            groupDAO.unlink(group, wsi);
+        }
 
         delete(id);
         itemDAO.delete(wsi.getItem().getID());

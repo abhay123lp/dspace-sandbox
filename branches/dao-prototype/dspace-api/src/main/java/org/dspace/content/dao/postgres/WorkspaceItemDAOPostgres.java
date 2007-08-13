@@ -72,9 +72,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
 {
     public WorkspaceItemDAOPostgres(Context context)
     {
-        this.context = context;
-
-        itemDAO = ItemDAOFactory.getInstance(context);
+        super(context);
     }
 
     @Override

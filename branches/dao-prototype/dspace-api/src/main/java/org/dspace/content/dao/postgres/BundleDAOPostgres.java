@@ -65,9 +65,7 @@ public class BundleDAOPostgres extends BundleDAO
 {
     public BundleDAOPostgres(Context context)
     {
-        this.context = context;
-
-        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        super(context);
     }
 
     @Override

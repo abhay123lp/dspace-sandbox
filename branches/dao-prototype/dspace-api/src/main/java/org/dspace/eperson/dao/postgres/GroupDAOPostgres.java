@@ -332,7 +332,7 @@ public class GroupDAOPostgres extends GroupDAO
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "epersongroup",
                     "SELECT eg.eperson_group_id " +
-                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi" +
+                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
                     "WHERE eg2wsi.eperson_group_id = eg.eperson_group_id " +
                     "ORDER BY eg.name");
 
@@ -352,7 +352,7 @@ public class GroupDAOPostgres extends GroupDAO
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "epersongroup",
                     "SELECT eg.eperson_group_id " +
-                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi" +
+                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
                     "WHERE eg2wsi.workspace_item_id = ? " +
                     "AND eg2wsi.eperson_group_id = eg.eperson_group_id " +
                     "ORDER BY eg.name",

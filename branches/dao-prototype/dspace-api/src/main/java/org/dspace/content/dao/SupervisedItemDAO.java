@@ -60,6 +60,13 @@ public abstract class SupervisedItemDAO extends ContentDAO
     protected Context context;
     protected WorkspaceItemDAO dao;
 
+    public SupervisedItemDAO(Context context)
+    {
+        this.context = context;
+
+        dao = WorkspaceItemDAOFactory.getInstance(context);
+    }
+
     /**
      * Get all workspace items that are being supervised.
      */

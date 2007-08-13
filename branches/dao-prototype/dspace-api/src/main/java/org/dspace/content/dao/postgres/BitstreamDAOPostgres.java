@@ -56,7 +56,6 @@ import org.dspace.content.Item;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -74,9 +73,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
 {
     public BitstreamDAOPostgres(Context context)
     {
-        this.context = context;
-
-        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
+        super(context);
     }
 
     @Override

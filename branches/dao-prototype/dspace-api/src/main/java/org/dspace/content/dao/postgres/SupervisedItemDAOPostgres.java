@@ -57,9 +57,7 @@ public class SupervisedItemDAOPostgres extends SupervisedItemDAO
 {
     public SupervisedItemDAOPostgres(Context context)
     {
-        this.context = context;
-
-        dao = WorkspaceItemDAOFactory.getInstance(context);
+        super(context);
     }
 
     @Override

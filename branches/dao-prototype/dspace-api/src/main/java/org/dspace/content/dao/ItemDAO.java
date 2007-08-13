@@ -60,6 +60,8 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -79,6 +81,16 @@ public abstract class ItemDAO extends ContentDAO
     protected Context context;
     protected BundleDAO bundleDAO;
     protected BitstreamDAO bitstreamDAO;
+    protected ExternalIdentifierDAO identifierDAO;
+
+    public ItemDAO(Context context)
+    {
+        this.context = context;
+
+        bundleDAO = BundleDAOFactory.getInstance(context);
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
+    }
 
     public abstract Item create() throws AuthorizeException;
 

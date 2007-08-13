@@ -61,6 +61,11 @@ public abstract class BitstreamFormatDAO extends ContentDAO
 
     protected Context context;
 
+    public BitstreamFormatDAO(Context context)
+    {
+        this.context = context;
+    }
+
     public BitstreamFormat create() throws AuthorizeException
     {
         if (!AuthorizeManager.isAdmin(context))
