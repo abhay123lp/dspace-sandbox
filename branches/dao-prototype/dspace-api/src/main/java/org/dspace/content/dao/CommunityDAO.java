@@ -323,6 +323,8 @@ public abstract class CommunityDAO extends ContentDAO
         }
     }
 
+    public abstract boolean linked(DSpaceObject parent, DSpaceObject child);
+
     // Everything below this line is debatable & needs rethinking
 
     public abstract int itemCount(Community community);

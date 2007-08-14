@@ -57,9 +57,12 @@ import org.dspace.storage.dao.CRUD;
 import org.dspace.storage.dao.Link;
 
 /**
+ * FIXME: We actually implement the Link interface for two other pairs of
+ * classes as well, but we can't cleanly express this below.
+ *
  * @author James Rutherford
  */
-public abstract class GroupDAO implements CRUD<Group>, Link<Group, EPerson>
+public abstract class GroupDAO implements CRUD<Group>, Link<Group, Group>
 {
     protected Logger log = Logger.getLogger(GroupDAO.class);
 
@@ -278,9 +281,11 @@ public abstract class GroupDAO implements CRUD<Group>, Link<Group, EPerson>
     // FIXME: All of these should probably check authorization
     public abstract void link(Group parent, Group child);
     public abstract void unlink(Group parent, Group child);
+    public abstract boolean linked(Group parent, Group child);
 
     public abstract void link(Group group, EPerson eperson);
     public abstract void unlink(Group group, EPerson eperson);
+    public abstract boolean linked(Group group, EPerson eperson);
 
     public abstract void link(Group group, InProgressSubmission ips);
     public abstract void unlink(Group group, InProgressSubmission ips);

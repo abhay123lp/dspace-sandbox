@@ -337,6 +337,8 @@ public abstract class ItemDAO extends ContentDAO
         AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
     }
 
+    public abstract boolean linked(Item item, Bundle bundle);
+
     // Everything below this line needs to be re-thought
 
     public abstract void loadMetadata(Item item);

@@ -379,10 +379,6 @@ public class CommunityDAOPostgres extends CommunityDAO
         return total;
     }
 
-    /**
-     * Create a database layer association between the given Community and
-     * Collection.
-     */
     @Override
     public void link(DSpaceObject parent, DSpaceObject child)
         throws AuthorizeException
@@ -435,10 +431,6 @@ public class CommunityDAOPostgres extends CommunityDAO
         }
     }
 
-    /**
-     * Remove any existing database layer association between the given Item
-     * and Collection.
-     */
     @Override
     public void unlink(DSpaceObject parent, DSpaceObject child)
         throws AuthorizeException
@@ -473,11 +465,8 @@ public class CommunityDAOPostgres extends CommunityDAO
         }
     }
 
-    /**
-     * Determine whether or not there is an established link between the given
-     * Community and Collection in the database.
-     */
-    private boolean linked(DSpaceObject parent, DSpaceObject child)
+    @Override
+    public boolean linked(DSpaceObject parent, DSpaceObject child)
     {
         try
         {

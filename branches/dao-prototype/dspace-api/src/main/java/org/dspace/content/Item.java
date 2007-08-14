@@ -131,8 +131,6 @@ public class Item extends DSpaceObject
         bundles = new ArrayList<Bundle>();
         metadata = new ArrayList<DCValue>();
         metadataChanged = false;
-
-        context.cache(this, id);
     }
 
     /**

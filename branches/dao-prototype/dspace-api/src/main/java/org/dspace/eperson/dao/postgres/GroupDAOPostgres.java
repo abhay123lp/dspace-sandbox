@@ -572,7 +572,8 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
-    private boolean linked(Group parent, Group child)
+    @Override
+    public boolean linked(Group parent, Group child)
     {
         try
         {
@@ -634,7 +635,8 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
-    private boolean linked(Group group, EPerson eperson)
+    @Override
+    public boolean linked(Group group, EPerson eperson)
     {
         try
         {
@@ -698,6 +700,7 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
+    @Override
     public boolean linked(Group group, InProgressSubmission ips)
     {
         try

@@ -39,7 +39,6 @@
  */
 package org.dspace.eperson;
 
-import java.sql.SQLException;
 import java.util.Hashtable;
 
 import javax.naming.NamingEnumeration;
@@ -137,7 +136,6 @@ public class LDAPAuthentication
                             String password,
                             String realm,
                             HttpServletRequest request)
-        throws SQLException
     {
         log.info(LogManager.getHeader(context, "auth", "attempting trivial auth of user="+netid));
 
@@ -189,7 +187,14 @@ public class LDAPAuthentication
 	                        context.setIgnoreAuthorization(true);
 	                        eperson.setNetid(netid);
 	                        eperson.update();
-	                        context.commit();
+                            try
+                            {
+	                            context.commit();
+                            }
+                            catch (java.sql.SQLException sqle)
+                            {
+                                throw new RuntimeException(sqle);
+                            }
 	                        context.setIgnoreAuthorization(false);
 	                        context.setCurrentUser(eperson);
 	                        return SUCCESS;
@@ -218,6 +223,10 @@ public class LDAPAuthentication
 	                            {
 	                                return NO_SUCH_USER;
 	                            }
+                                catch (java.sql.SQLException sqle)
+                                {
+                                    throw new RuntimeException(sqle);
+                                }
 	                            finally
 	                            {
 	                                context.setIgnoreAuthorization(false);

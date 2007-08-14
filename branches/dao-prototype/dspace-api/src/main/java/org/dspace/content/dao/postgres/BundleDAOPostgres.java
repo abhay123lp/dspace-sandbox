@@ -308,7 +308,8 @@ public class BundleDAOPostgres extends BundleDAO
         }
     }
 
-    private boolean linked(Bundle bundle, Bitstream bitstream)
+    @Override
+    public boolean linked(Bundle bundle, Bitstream bitstream)
     {
         try
         {

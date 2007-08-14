@@ -355,6 +355,10 @@ public abstract class CollectionDAO extends ContentDAO
     public abstract List<Collection> getParentCollections(Item item);
     public abstract List<Collection> getChildCollections(Community community);
 
+    /**
+     * Create a storage layer association between the given Item and
+     * Collection.
+     */
     public void link(Collection collection, Item item)
         throws AuthorizeException
     {
@@ -371,6 +375,10 @@ public abstract class CollectionDAO extends ContentDAO
 
     }
 
+    /**
+     * Remove any existing storage layer association between the given Item and
+     * Collection.
+     */
     public void unlink(Collection collection, Item item)
         throws AuthorizeException
     {
@@ -381,6 +389,12 @@ public abstract class CollectionDAO extends ContentDAO
                 "collection_id=" + collection.getID() + 
                 ",item_id=" + item.getID()));
     }
+
+    /**
+     * Determine whether or not there is an established link between the given
+     * Item and Collection in the storage layer.
+     */
+    public abstract boolean linked(Collection collection, Item item);
 
     // Everything below this line is debatable & needs rethinking
 

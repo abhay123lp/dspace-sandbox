@@ -100,8 +100,6 @@ public class WorkspaceItem implements InProgressSubmission
         dao = WorkspaceItemDAOFactory.getInstance(context);
         itemDAO = ItemDAOFactory.getInstance(context);
         collectionDAO = CollectionDAOFactory.getInstance(context);
-
-        context.cache(this, id);
     }
     
     public int getID()

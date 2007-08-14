@@ -196,4 +196,6 @@ public abstract class BundleDAO extends ContentDAO
                     "bundle_id=" + bundle.getID() +
                     ",bitstream_id=" + bitstream.getID()));
     }
+
+    public abstract boolean linked(Bundle bundle, Bitstream bitstream);
 }

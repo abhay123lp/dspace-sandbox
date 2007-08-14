@@ -39,8 +39,6 @@
  */
 package org.dspace.eperson;
 
-import java.sql.SQLException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -87,7 +85,6 @@ public class PasswordAuthentication
     public boolean canSelfRegister(Context context,
                                    HttpServletRequest request,
                                    String email)
-                                                 throws SQLException
     {
         // Is there anything set in authentication.password.domain.valid?
         String domains = ConfigurationManager.getProperty("authentication.password.domain.valid");
@@ -122,7 +119,6 @@ public class PasswordAuthentication
      */
     public void initEPerson(Context context, HttpServletRequest request,
             EPerson eperson)
-        throws SQLException
     {
     }
 
@@ -132,7 +128,6 @@ public class PasswordAuthentication
     public boolean allowSetPassword(Context context,
                                     HttpServletRequest request,
                                     String username)
-        throws SQLException
     {
         return true;
     }
@@ -193,7 +188,6 @@ public class PasswordAuthentication
                             String password,
                             String realm,
                             HttpServletRequest request)
-        throws SQLException
     {
         if (username != null && password != null)
         {

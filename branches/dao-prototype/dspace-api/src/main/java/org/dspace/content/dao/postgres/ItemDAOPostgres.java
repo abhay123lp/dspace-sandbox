@@ -767,7 +767,8 @@ public class ItemDAOPostgres extends ItemDAO
         }
     }
 
-    private boolean linked(Item item, Bundle bundle)
+    @Override
+    public boolean linked(Item item, Bundle bundle)
     {
         try
         {
@@ -835,10 +836,13 @@ public class ItemDAOPostgres extends ItemDAO
     @Override
     public void loadMetadata(Item item)
     {
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+
         try
         {
             TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "MetadataValue",
+                    "metadatavalue",
                     "SELECT * FROM MetadataValue " +
                     "WHERE item_id = ? " +
                     "ORDER BY metadata_field_id, place",
@@ -850,7 +854,7 @@ public class ItemDAOPostgres extends ItemDAO
             {
                 // Get the associated metadata field and schema information
                 int fieldID = row.getIntColumn("metadata_field_id");
-                MetadataField field = MetadataField.find(context, fieldID);
+                MetadataField field = mfDAO.retrieve(fieldID);
 
                 if (field == null)
                 {
@@ -859,8 +863,8 @@ public class ItemDAOPostgres extends ItemDAO
                 }
                 else
                 {
-                    MetadataSchema schema = MetadataSchema.find(
-                            context, field.getSchemaID());
+                    MetadataSchema schema =
+                        msDAO.retrieve(field.getSchemaID());
 
                     // Make a DCValue object
                     DCValue dcv = new DCValue();

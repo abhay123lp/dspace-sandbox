@@ -133,8 +133,6 @@ public class Collection extends DSpaceObject
         metadata = new TreeMap<String, String>();
         workflowGroups = new Group[3];
 
-        context.cache(this, id);
-
         modified = modifiedMetadata = false;
         clearDetails();
     }

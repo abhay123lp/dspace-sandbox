@@ -108,8 +108,6 @@ public class Community extends DSpaceObject
         identifiers = new ArrayList<ExternalIdentifier>();
         metadata = new TreeMap<String, String>();
 
-        context.cache(this, id);
-
         modified = modifiedMetadata = false;
         clearDetails();
     }

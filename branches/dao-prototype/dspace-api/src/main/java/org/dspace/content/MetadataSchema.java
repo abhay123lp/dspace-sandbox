@@ -81,8 +81,6 @@ public class MetadataSchema
         this.id = id;
 
         dao = MetadataSchemaDAOFactory.getInstance(context);
-
-        context.cache(this, id);
     }
 
     public int getID()

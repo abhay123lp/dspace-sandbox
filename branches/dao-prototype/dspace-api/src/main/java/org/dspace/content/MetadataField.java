@@ -82,10 +82,6 @@ public class MetadataField
     {
         this.context = context;
         this.id = id;
-
-        dao = MetadataFieldDAOFactory.getInstance(context);
-
-        context.cache(this, id);
     }
 
     /**

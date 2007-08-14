@@ -337,10 +337,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    /**
-     * Create a database layer association between the given Item and
-     * Collection.
-     */
     @Override
     public void link(Collection collection, Item item)
         throws AuthorizeException
@@ -366,10 +362,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    /**
-     * Remove any existing database layer association between the given Item
-     * and Collection.
-     */
     @Override
     public void unlink(Collection collection, Item item)
         throws AuthorizeException
@@ -392,11 +384,8 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    /**
-     * Determine whether or not there is an established link between the given
-     * Item and Collection in the database.
-     */
-    private boolean linked(Collection collection, Item item)
+    @Override
+    public boolean linked(Collection collection, Item item)
     {
         try
         {

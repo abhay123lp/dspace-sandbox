@@ -39,9 +39,7 @@
  */
 package org.dspace.eperson;
 
-
 import javax.servlet.http.HttpServletRequest;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -184,15 +182,8 @@ public class AuthenticationManager
         {
             if (!implicitOnly || methodStack[i].isImplicit())
             {
-                int ret = 0;
-                try
-                {
-                    ret = methodStack[i].authenticate(context, username, password, realm, request);
-                }
-                catch (SQLException e)
-                {
-                    ret = AuthenticationMethod.NO_SUCH_USER;
-                }
+                int ret = methodStack[i].authenticate(context, username, password, realm, request);
+
                 if (ret == AuthenticationMethod.SUCCESS)
                     return ret;
                 if (ret < bestRet)
@@ -218,7 +209,6 @@ public class AuthenticationManager
     public static boolean canSelfRegister(Context context,
                                    HttpServletRequest request,
                                    String username)
-        throws SQLException
     {
         for (int i = 0; i < methodStack.length; ++i)
             if (methodStack[i].canSelfRegister(context, request, username))
@@ -242,7 +232,6 @@ public class AuthenticationManager
     public static boolean allowSetPassword(Context context,
                                     HttpServletRequest request,
                                     String username)
-        throws SQLException
     {
         for (int i = 0; i < methodStack.length; ++i)
             if (methodStack[i].allowSetPassword(context, request, username))
@@ -266,7 +255,6 @@ public class AuthenticationManager
     public static void initEPerson(Context context,
                                    HttpServletRequest request,
                                    EPerson eperson)
-        throws SQLException
     {
         for (int i = 0; i < methodStack.length; ++i)
             methodStack[i].initEPerson(context, request, eperson);

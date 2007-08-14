@@ -101,8 +101,6 @@ public class Bitstream extends DSpaceObject
         dao = BitstreamDAOFactory.getInstance(context);
         bundleDAO = BundleDAOFactory.getInstance(context);
 
-        context.cache(this, id);
-
         modified = modifiedMetadata = false;
         clearDetails();
     }

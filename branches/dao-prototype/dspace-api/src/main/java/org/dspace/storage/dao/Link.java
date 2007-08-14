@@ -45,4 +45,5 @@ public interface Link<S, T>
 {
     public void link(S s, T t) throws AuthorizeException;
     public void unlink(S s, T t) throws AuthorizeException;
+    public boolean linked(S s, T t);
 }

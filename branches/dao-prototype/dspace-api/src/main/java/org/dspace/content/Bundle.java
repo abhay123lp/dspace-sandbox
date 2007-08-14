@@ -102,7 +102,6 @@ public class Bundle extends DSpaceObject
         primaryBitstreamId = -1;
         bitstreams = new ArrayList<Bitstream>();
 
-        context.cache(this, id);
         modified = modifiedMetadata = false;
     }
 
