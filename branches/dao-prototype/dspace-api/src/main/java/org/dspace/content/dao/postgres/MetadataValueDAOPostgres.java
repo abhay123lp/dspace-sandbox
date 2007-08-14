@@ -133,6 +133,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
     @Override
     public void update(MetadataValue value) throws AuthorizeException
     {
+        log.info(value);
         try
         {
             int id = value.getID();
@@ -168,7 +169,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     row.setColumn("metadata_field_id", fieldID);
                 }
 
-                if ((textValue.equals("")) || (textValue == null))
+                if ((textValue == null) || (textValue.equals("")))
                 {
                     throw new RuntimeException("text_value cannot be null");
                 }
@@ -177,7 +178,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     row.setColumn("text_value", textValue);
                 }
 
-                if ((language.equals("")) || (language == null))
+                if ((language == null) || (language.equals("")))
                 {
                     row.setColumnNull("text_lang");
                 }

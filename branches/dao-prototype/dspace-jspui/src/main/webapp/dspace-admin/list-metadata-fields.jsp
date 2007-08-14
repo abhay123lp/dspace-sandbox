@@ -158,7 +158,7 @@ if (error!=null) {
  </table>
 
       <form method="post" action="">
-        <input type="hidden" name="dc_schema_id" value="<%= schema.getSchemaID() %>"/>
+        <input type="hidden" name="dc_schema_id" value="<%= schema.getID() %>"/>
         <table align="center" width="650">
               <tr><td colspan="2"><h2><fmt:message key="jsp.dspace-admin.list-metadata-fields.addfield"/></h2></td></tr>
               <tr>
@@ -205,9 +205,9 @@ if (error!=null) {
 <%
     for (int i = 0; i < schemas.length; i++)
     {
-              if (schemas[i].getSchemaID() != schema.getSchemaID())
+              if (schemas[i].getID() != schema.getID())
               {
-%>      <option value="<%= schemas[i].getSchemaID() %>"><%= schemas[i].getNamespace() %></option>
+%>      <option value="<%= schemas[i].getID() %>"><%= schemas[i].getNamespace() %></option>
 <%            }
     }
 %>
