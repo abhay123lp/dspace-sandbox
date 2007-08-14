@@ -2,6 +2,8 @@ package org.purl.sword.base;
 
 import java.io.File;
 
+import org.apache.commons.fileupload.FileItem;
+
 /**
  * Represents a deposit. 
  * 
@@ -12,7 +14,7 @@ public class Deposit
 {
    
    /** The File deposited */
-   private File file;
+   private FileItem file;
    
    private String contentType;
    
@@ -111,14 +113,14 @@ public class Deposit
    /**
     * @return the file
     */
-   public File getFile() {
+   public FileItem getFile() {
       return file;
    }
 
    /**
     * @param file the file to set
     */
-   public void setFile(File file) {
+   public void setFile(FileItem file) {
       this.file = file;
    }
 
