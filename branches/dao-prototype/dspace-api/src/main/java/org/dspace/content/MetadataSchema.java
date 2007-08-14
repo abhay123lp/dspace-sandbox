@@ -111,12 +111,6 @@ public class MetadataSchema
     }
 
     @Deprecated
-    public int getSchemaID()
-    {
-        return getID();
-    }
-
-    @Deprecated
     public void update(Context context) throws AuthorizeException
     {
         dao.update(this);

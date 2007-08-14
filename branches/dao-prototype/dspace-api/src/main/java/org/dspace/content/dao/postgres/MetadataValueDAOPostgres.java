@@ -39,18 +39,21 @@
  */
 package org.dspace.content.dao.postgres;
 
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.MetadataValueDAO;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.storage.dao.CRUD;
+import org.dspace.storage.rdbms.DatabaseManager;
+import org.dspace.storage.rdbms.TableRow;
+import org.dspace.storage.rdbms.TableRowIterator;
 
 public class MetadataValueDAOPostgres extends MetadataValueDAO
 {
@@ -59,31 +62,215 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
         super(context);
     }
 
+    @Override
     public MetadataValue create() throws AuthorizeException
     {
-        return null;
+        UUID uuid = UUID.randomUUID();
+
+        try
+        {
+            TableRow row = DatabaseManager.create(context, "metadatavalue");
+            row.setColumn("uuid", uuid.toString());
+            DatabaseManager.update(context, row);
+
+            int id = row.getIntColumn("metadata_value_id");
+            MetadataValue value = new MetadataValue(context, id);
+
+            return value;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
-    public MetadataValue create(MetadataValue value)
-    {
-        return value;
-    }
-
+    @Override
     public MetadataValue retrieve(int id)
     {
-        return (MetadataValue) context.fromCache(MetadataValue.class, id);
+        MetadataValue value = super.retrieve(id);
+
+        if (value != null)
+        {
+            return value;
+        }
+
+        try
+        {
+            TableRow row = DatabaseManager.find(context,
+                    "metadatavalueregistry", id);
+
+            return retrieve(row);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
+    @Override
     public MetadataValue retrieve(UUID uuid)
     {
-        return null;
+        MetadataValue value = super.retrieve(uuid);
+
+        if (value != null)
+        {
+            return value;
+        }
+
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context,
+                    "metadatavalueregistry", "uuid", uuid.toString());
+
+            return retrieve(row);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
+    @Override
     public void update(MetadataValue value) throws AuthorizeException
     {
+        try
+        {
+            int id = value.getID();
+            TableRow row = DatabaseManager.find(context, "metadatavalue", id);
+
+            if (row == null)
+            {
+                log.warn("Couldn't find metadata value " + id);
+            }
+            else
+            {
+                int itemID = value.getItemID();
+                int fieldID = value.getFieldID();
+                String textValue = value.getValue();
+                String language = value.getLanguage();
+                int place = value.getPlace();
+
+                if (itemID <= 0)
+                {
+                    throw new RuntimeException("item_id cannot be null");
+                }
+                else
+                {
+                    row.setColumn("item_id", itemID);
+                }
+
+                if (fieldID <= 0)
+                {
+                    throw new RuntimeException("metadata_field_id cannot be null");
+                }
+                else
+                {
+                    row.setColumn("metadata_field_id", fieldID);
+                }
+
+                if ((textValue.equals("")) || (textValue == null))
+                {
+                    throw new RuntimeException("text_value cannot be null");
+                }
+                else
+                {
+                    row.setColumn("text_value", textValue);
+                }
+
+                if ((language.equals("")) || (language == null))
+                {
+                    row.setColumnNull("text_lang");
+                }
+                else
+                {
+                    row.setColumn("text_lang", language);
+                }
+
+                if (place <= 0)
+                {
+                    throw new RuntimeException("place cannot be null");
+                }
+                else
+                {
+                    row.setColumn("place", place);
+                }
+
+                DatabaseManager.update(context, row);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
+        super.delete(id);
+
+        try
+        {
+            DatabaseManager.delete(context, "metadatavalue", id);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<MetadataValue> getMetadataValues(int fieldID)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "metadatavalue",
+                    "SELECT metadata_value_id FROM MetadataValue " +
+                    "WHERE metadata_field_id = ? ",
+                    fieldID);
+
+            List<MetadataValue> values = new ArrayList<MetadataValue>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("metadata_value_id");
+                values.add(retrieve(id));
+            }
+
+            return values;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private MetadataValue retrieve(TableRow row) throws SQLException
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("metadata_value_id");
+        int fieldID = row.getIntColumn("metadata_field_id");
+        int itemID = row.getIntColumn("item_id");
+        String textValue = row.getStringColumn("text_value");
+        String language = row.getStringColumn("text_lang");
+        int place = row.getIntColumn("place");
+
+        MetadataValue value = new MetadataValue(context, id);
+        value.setFieldID(fieldID);
+        value.setItemID(itemID);
+        value.setValue(textValue);
+        value.setLanguage(language);
+        value.setPlace(place);
+
+        return value;
     }
 }

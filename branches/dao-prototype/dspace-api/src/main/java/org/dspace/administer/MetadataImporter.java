@@ -285,7 +285,7 @@ public class MetadataImporter
         }
         
         MetadataField mf =
-            fieldDAO.retrieve(schemaObj.getSchemaID(), element, qualifier);
+            fieldDAO.retrieve(schemaObj.getID(), element, qualifier);
 
         if (mf != null)
         {
@@ -294,7 +294,7 @@ public class MetadataImporter
         }
         
         MetadataField field = fieldDAO.create();
-        field.setSchemaID(schemaObj.getSchemaID());
+        field.setSchemaID(schemaObj.getID());
         field.setElement(element);
         field.setQualifier(qualifier);
         field.setScopeNote(scopeNote);

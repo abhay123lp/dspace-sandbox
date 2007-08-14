@@ -64,15 +64,7 @@ public abstract class MetadataValueDAO extends ContentDAO
         this.context = context;
     }
 
-    public MetadataValue create() throws AuthorizeException
-    {
-        return null;
-    }
-
-    public MetadataValue create(MetadataValue value)
-    {
-        return value;
-    }
+    public abstract MetadataValue create() throws AuthorizeException;
 
     public MetadataValue retrieve(int id)
     {
@@ -84,6 +76,20 @@ public abstract class MetadataValueDAO extends ContentDAO
         return null;
     }
 
-    public abstract void update(MetadataValue value) throws AuthorizeException;
-    public abstract void delete(int id) throws AuthorizeException;
+    public void update(MetadataValue value) throws AuthorizeException
+    {
+        log.info(LogManager.getHeader(context, "update_metadatavalue",
+                    "metadata_value_id=" + value.getID()));
+    }
+
+    public void delete(int id) throws AuthorizeException
+    {
+        log.info(LogManager.getHeader(context, "delete_metadata_value",
+                    "metadata_value_id=" + id));
+    }
+    
+    /**
+     * FIXME: This should really take a MetadataField object.
+     */
+    public abstract List<MetadataValue> getMetadataValues(int fieldID);
 }

@@ -1169,7 +1169,7 @@ public class LogAnalyser
         {
             MetadataSchema schema = MetadataSchema.find(context, "dc");
             MetadataField field = MetadataField.findByElement(context,
-                    schema.getSchemaID(), "type", null);
+                    schema.getID(), "type", null);
             MetadataValue value = new MetadataValue(field);
             value.setValue(type);
 

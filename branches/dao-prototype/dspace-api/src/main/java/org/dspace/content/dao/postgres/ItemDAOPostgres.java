@@ -69,6 +69,12 @@ import org.dspace.content.ItemIterator;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.dao.MetadataFieldDAO;
+import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
+import org.dspace.content.dao.MetadataValueDAO;
+import org.dspace.content.dao.MetadataValueDAOFactory;
 import org.dspace.content.proxy.ItemProxy;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.uri.ObjectIdentifier;
@@ -266,6 +272,10 @@ public class ItemDAOPostgres extends ItemDAO
      */
     private void update(Item item, TableRow itemRow) throws AuthorizeException
     {
+        MetadataValueDAO mvDAO = MetadataValueDAOFactory.getInstance(context);
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+
         try
         {
             // Fill out the TableRow and save it
@@ -290,8 +300,7 @@ public class ItemDAOPostgres extends ItemDAO
                 {
                     // Get the DC Type
                     int schemaID;
-                    MetadataSchema schema =
-                        MetadataSchema.find(context, dcv.schema);
+                    MetadataSchema schema = msDAO.retrieveByName(dcv.schema);
 
                     if (schema == null)
                     {
@@ -299,11 +308,11 @@ public class ItemDAOPostgres extends ItemDAO
                     }
                     else
                     {
-                        schemaID = schema.getSchemaID();
+                        schemaID = schema.getID();
                     }
 
-                    MetadataField field = MetadataField.findByElement(context,
-                            schemaID, dcv.element, dcv.qualifier);
+                    MetadataField field =
+                        mfDAO.retrieve(schemaID, dcv.element, dcv.qualifier);
 
                     if (field == null)
                     {
@@ -341,14 +350,14 @@ public class ItemDAOPostgres extends ItemDAO
                     current++;
                     elementCount.put(key, new Integer(current));
 
-                    // Write DCValue
-                    MetadataValue metadata = new MetadataValue();
-                    metadata.setItemId(item.getID());
-                    metadata.setFieldId(field.getID());
+                    // Write metadata
+                    MetadataValue metadata = mvDAO.create();
+                    metadata.setItemID(item.getID());
+                    metadata.setFieldID(field.getID());
                     metadata.setValue(dcv.value);
                     metadata.setLanguage(dcv.language);
                     metadata.setPlace(current);
-                    metadata.create(context);
+                    mvDAO.update(metadata);
                 }
 
 //                dublinCoreChanged = false;

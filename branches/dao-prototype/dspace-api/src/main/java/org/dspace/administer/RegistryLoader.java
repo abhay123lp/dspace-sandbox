@@ -284,7 +284,7 @@ public class RegistryLoader
         MetadataSchema schemaObj = schemaDAO.retrieveByName(schema);
         
         MetadataField field = fieldDAO.create();
-        field.setSchemaID(schemaObj.getSchemaID());
+        field.setSchemaID(schemaObj.getID());
         field.setElement(element);
         field.setQualifier(qualifier);
         field.setScopeNote(scopeNote);

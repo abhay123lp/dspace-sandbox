@@ -76,7 +76,7 @@ public abstract class MetadataFieldDAO extends ContentDAO
         return null;
     }
 
-    public MetadataField create(MetadataField field)
+    protected final MetadataField create(MetadataField field)
     {
         int id = field.getID();
         int schemaID = field.getSchemaID();

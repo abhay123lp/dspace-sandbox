@@ -356,7 +356,7 @@ public class EditItemServlet extends DSpaceServlet
         {
             String schemaName = schemas[i].getName();
             // Get all fields for the given schema
-            MetadataField[] fields = MetadataField.findAllInSchema(context, schemas[i].getSchemaID());
+            MetadataField[] fields = MetadataField.findAllInSchema(context, schemas[i].getID());
             for (int j = 0; j < fields.length; j++)
             {
                 Integer fieldID = new Integer(fields[j].getID());

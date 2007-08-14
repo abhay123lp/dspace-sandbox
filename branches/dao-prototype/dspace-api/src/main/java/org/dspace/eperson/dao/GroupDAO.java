@@ -59,8 +59,7 @@ import org.dspace.storage.dao.Link;
 /**
  * @author James Rutherford
  */
-public abstract class GroupDAO
-    implements CRUD<Group>, Link<Group, EPerson>
+public abstract class GroupDAO implements CRUD<Group>, Link<Group, EPerson>
 {
     protected Logger log = Logger.getLogger(GroupDAO.class);
 
