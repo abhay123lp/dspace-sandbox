@@ -45,9 +45,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.MetadataValue;
-import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.storage.dao.CRUD;

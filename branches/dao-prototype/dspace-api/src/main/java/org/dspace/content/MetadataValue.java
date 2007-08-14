@@ -39,8 +39,6 @@
  */
 package org.dspace.content;
 
-import java.util.List;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -51,7 +49,6 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.dao.MetadataValueDAO;
 import org.dspace.content.dao.MetadataValueDAOFactory;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 
 /**
  * Class representing a metadata value. It represents a value of a given
