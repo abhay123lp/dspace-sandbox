@@ -130,7 +130,6 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
     @Override
     public void update(MetadataValue value) throws AuthorizeException
     {
-        log.info(value);
         try
         {
             int id = value.getID();
