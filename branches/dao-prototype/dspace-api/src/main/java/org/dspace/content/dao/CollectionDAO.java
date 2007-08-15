@@ -327,17 +327,15 @@ public abstract class CollectionDAO extends ContentDAO
             int actionID)
     {
         List<Collection> results = new ArrayList<Collection>();
-
-        Collection[] collections = null;
+        List<Collection> collections = null;
 
         if (parent != null)
         {
-            collections = parent.getCollections();
+            collections = getChildCollections(parent);
         }
         else
         {
-            collections =
-                (Collection[]) getCollections().toArray(new Collection[0]);
+            collections = getCollections();
         }
 
         for (Collection collection : collections)

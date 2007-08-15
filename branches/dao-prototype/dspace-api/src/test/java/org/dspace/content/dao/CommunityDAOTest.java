@@ -64,6 +64,7 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
 {
     private static Context context;
     private CommunityDAO instance;
+
     private static final String ADMIN_EMAIL = "james.rutherford@hp.com";
     private static final String CONFIG = "/opt/dspace-dao/config/dspace.cfg";
 
@@ -78,12 +79,6 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
         ConfigurationManager.loadConfig(CONFIG);
 
         context = new Context();
-
-        EPersonDAO epersonDAO = EPersonDAOFactory.getInstance(context);
-        EPerson me = epersonDAO.retrieve(EPerson.EPersonMetadataField.EMAIL,
-                ADMIN_EMAIL);
-
-        context.setCurrentUser(me);
     }
 
     @AfterClass
@@ -95,6 +90,13 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
     @Before
     public void setUp() throws Exception
     {
+        // We set the EPerson in the Context before each test, just in case one
+        // of them needs to alter it.
+        EPersonDAO epersonDAO = EPersonDAOFactory.getInstance(context);
+        EPerson admin = epersonDAO.retrieve(EPerson.EPersonMetadataField.EMAIL,
+                ADMIN_EMAIL);
+
+        context.setCurrentUser(admin);
     }
 
     @After
@@ -315,7 +317,7 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
     }
 
     @Test
-    public void itemCount()
+    public void itemCount() throws Exception
     {
         /**
          * Testing this is going to be a little more complicated than with the
