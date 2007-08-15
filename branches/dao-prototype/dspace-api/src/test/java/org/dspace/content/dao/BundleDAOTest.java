@@ -63,6 +63,7 @@ public class BundleDAOTest implements CRUDTest, LinkTest
 {
     private static Context context;
     private BundleDAO instance;
+    private BitstreamDAO bitstreamDAO;
     private ItemDAO itemDAO;
 
     private static final String ADMIN_EMAIL = "james.rutherford@hp.com";
@@ -71,6 +72,7 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     public BundleDAOTest()
     {
         instance = BundleDAOFactory.getInstance(context);
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
         itemDAO = ItemDAOFactory.getInstance(context);
     }
 
@@ -191,11 +193,17 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     @Test
     public void getBundlesByBitstream() throws Exception
     {
-        /**
-         * We need to create some Bitstreams to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Bitstream bitstream = bitstreamDAO.create();
+        Bundle bundle = instance.create();
+        List<Bundle> bundles = null;
+
+        bundles = instance.getBundlesByBitstream(bitstream);
+        assertEquals(bundles.size(), 0);
+
+        instance.link(bundle, bitstream);
+        bundles = instance.getBundlesByBitstream(bitstream);
+        assertEquals(bundles.size(), 1);
+        assertTrue(bundle.equals(bundles.get(0)));
     }
 
     @Test

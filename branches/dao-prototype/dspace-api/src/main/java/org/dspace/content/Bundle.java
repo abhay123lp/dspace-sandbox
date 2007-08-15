@@ -195,12 +195,9 @@ public class Bundle extends DSpaceObject
 
     public void addBitstream(Bitstream b) throws AuthorizeException
     {
-        log.info(LogManager.getHeader(context, "add_bitstream", "bundle_id="
-                + getID() + ",bitstream_id=" + b.getID()));
-
         for (Bitstream bitstream : bitstreams)
         {
-            if (b.getID() == bitstream.getID())
+            if (bitstream.equals(b))
             {
                 return;
             }
@@ -212,24 +209,42 @@ public class Bundle extends DSpaceObject
         
     }
 
-    public void removeBitstream(Bitstream b) throws AuthorizeException,
-            IOException
+    public void removeBitstream(Bitstream b) throws AuthorizeException
     {
-        log.info(LogManager.getHeader(context, "remove_bitstream",
-                "bundle_id=" + getID() + ",bitstream_id=" + b.getID()));
-
-        Iterator<Bitstream> i = bitstreams.iterator();
-        while (i.hasNext())
+        synchronized(bitstreams)
         {
-            Bitstream bitstream = i.next();
-            if (bitstream.getID() == b.getID())
+            List<Bitstream> tmp = new ArrayList<Bitstream>();
+
+            // List.remove() doesn't work because it uses Object.equals() which
+            // will fail even when the objects are actually equal.
+            for (Bitstream bitstream : bitstreams)
             {
-                i.remove();
-                
-                context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
-                           
+                if (!bitstream.equals(b))
+                {
+                    tmp.add(bitstream);
+                }
             }
+
+            if (bitstreams.size() > tmp.size())
+            {
+                context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
+            }
+
+            this.bitstreams = tmp;
         }
+
+
+//        Iterator<Bitstream> i = bitstreams.iterator();
+//        while (i.hasNext())
+//        {
+//            Bitstream bitstream = i.next();
+//            if (bitstream.getID() == b.getID())
+//            {
+//                i.remove();
+//                
+//                context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
+//            }
+//        }
     }
 
     ////////////////////////////////////////////////////////////////////
