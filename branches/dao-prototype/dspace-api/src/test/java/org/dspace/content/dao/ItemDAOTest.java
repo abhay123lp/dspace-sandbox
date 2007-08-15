@@ -60,10 +60,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-/**
- *
- * @author jim
- */
 public class ItemDAOTest implements CRUDTest, LinkTest
 {
     private static Context context;
