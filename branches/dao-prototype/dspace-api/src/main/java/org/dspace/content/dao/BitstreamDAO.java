@@ -160,6 +160,8 @@ public abstract class BitstreamDAO extends ContentDAO
     public void delete(int id) throws AuthorizeException
     {
         Bitstream bitstream = retrieve(id);
+        bitstream.setDeleted(true);
+        update(bitstream);
 
         log.info(LogManager.getHeader(context, "delete_bitstream",
                 "bitstream_id=" + id));

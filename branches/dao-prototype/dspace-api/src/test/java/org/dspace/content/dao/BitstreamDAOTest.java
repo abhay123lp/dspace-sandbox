@@ -1,5 +1,5 @@
 /*
- * BundleDAOTest.java
+ * BitstreamDAOTest.java
  *
  * Version: $Revision: 1727 $
  *
@@ -39,11 +39,11 @@
  */
 package org.dspace.content.dao;
 
+import java.io.InputStream;
 import java.util.List;
 
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
-import org.dspace.content.Item;
 import org.dspace.core.Context;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.eperson.EPerson;
@@ -59,19 +59,19 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class BundleDAOTest implements CRUDTest, LinkTest
+public class BitstreamDAOTest implements CRUDTest
 {
     private static Context context;
-    private BundleDAO instance;
-    private ItemDAO itemDAO;
+    private BitstreamDAO instance;
+    private BundleDAO bundleDAO;
 
     private static final String ADMIN_EMAIL = "james.rutherford@hp.com";
     private static final String CONFIG = "/opt/dspace-dao/config/dspace.cfg";
     
-    public BundleDAOTest()
+    public BitstreamDAOTest()
     {
-        instance = BundleDAOFactory.getInstance(context);
-        itemDAO = ItemDAOFactory.getInstance(context);
+        instance = BitstreamDAOFactory.getInstance(context);
+        bundleDAO = BundleDAOFactory.getInstance(context);
     }
 
     @BeforeClass
@@ -108,7 +108,7 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     @Test
     public void create() throws Exception
     {
-        Bundle result = instance.create();
+        Bitstream result = instance.create();
 
         int id = result.getID();
 
@@ -116,10 +116,32 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     }
 
     @Test
+    public void store() throws Exception
+    {
+        /**
+         * Testing this would get pretty hairy as it would actually involve
+         * placing files on disk, so I'm going to put this off until I can
+         * think of a good way of doing it.
+         */
+        assertTrue(true);
+    }
+
+    @Test
+    public void register() throws Exception
+    {
+        /**
+         * Testing this would get pretty hairy as it would actually involve
+         * placing files on disk, so I'm going to put this off until I can
+         * think of a good way of doing it.
+         */
+        assertTrue(true);
+    }
+
+    @Test
     public void retrieve() throws Exception
     {
-        Bundle existing = instance.create();
-        Bundle result = instance.retrieve(existing.getID());
+        Bitstream existing = instance.create();
+        Bitstream result = instance.retrieve(existing.getID());
 
         assertEquals(existing.getID(), result.getID());
     }
@@ -127,58 +149,65 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     @Test
     public void update() throws Exception
     {
-        Bundle bundle = instance.create();
-        bundle.setName("Bundle Test");
-        instance.update(bundle);
+        Bitstream bitstream = instance.create();
+        bitstream.setName("Bitstream Test");
+        instance.update(bitstream);
         
-        Bundle retrieved = instance.retrieve(bundle.getID());
-        assertEquals("Bundle Test", retrieved.getName());
+        Bitstream retrieved = instance.retrieve(bitstream.getID());
+        assertEquals("Bitstream Test", retrieved.getName());
     }
 
     @Test
     public void delete() throws Exception
     {
-        Bundle result = instance.create();
+        Bitstream result = instance.create();
         int id = result.getID();
 
         instance.delete(id);
+
+        Bitstream retrieved = instance.retrieve(id);
+        assertTrue(retrieved.isDeleted());
+    }
+
+    @Test
+    public void remove() throws Exception
+    {
+        Bitstream result = instance.create();
+        int id = result.getID();
+
+        instance.remove(id);
 
         assertNull(instance.retrieve(id));
     }
 
     @Test
-    public void getBundles() throws Exception
+    public void getBitstreamsByBundle() throws Exception
     {
-        /**
-         * This deprecated method just defers to getBundlesByItem() so I'm
-         * going to be kind and just let it pass.
-         */
-        assertTrue(true);
-    }
-
-    @Test
-    public void getBundlesByItem() throws Exception
-    {
-        Item item = itemDAO.create();
-        Bundle bundleOne = instance.create();
-        Bundle bundleTwo = instance.create();
+        Bundle bundle = bundleDAO.create();
+        Bitstream bitstreamOne = instance.create();
+        Bitstream bitstreamTwo = instance.create();
         boolean containsOne = false;
         boolean containsTwo = false;
+        List<Bitstream> bitstreams = null;
 
-        itemDAO.link(item, bundleOne);
-        itemDAO.link(item, bundleTwo);
-        List<Bundle> bundles = instance.getBundlesByItem(item);
+        bitstreams = instance.getBitstreamsByBundle(bundle);
+        assertEquals(bitstreams.size(), 0);
 
+        bundleDAO.link(bundle, bitstreamOne);
+        bundleDAO.link(bundle, bitstreamTwo);
+        bitstreams = instance.getBitstreamsByBundle(bundle);
+        assertEquals(bitstreams.size(), 2);
+        
         // We have to do it this way because even though we have a type-safe
         // List, Java insists on using Object.equals() which will fail, even
         // though the objects are actually equal.
-        for (Bundle b : bundles)
+        for (Bitstream b : bitstreams)
         {
-            if (bundleOne.equals(b))
+            if (bitstreamOne.equals(b))
             {
                 containsOne = true;
             }
-            if (bundleTwo.equals(b))
+            if (bitstreamTwo.equals(b))
             {
                 containsTwo = true;
             }
@@ -189,42 +218,50 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     }
 
     @Test
-    public void getBundlesByBitstream() throws Exception
+    public void getDeletedBitstreams() throws Exception
     {
-        /**
-         * We need to create some Bitstreams to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
-    }
+        Bitstream bitstreamOne = instance.create();
+        Bitstream bitstreamTwo = instance.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+        List<Bitstream> bitstreams = null;
 
-    @Test
-    public void link() throws Exception
-    {
-        /**
-         * We need to create some Bitstreams to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
-    }
+        bitstreams = instance.getDeletedBitstreams();
 
-    @Test
-    public void unlink() throws Exception
-    {
-        /**
-         * We need to create some Bitstreams to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
-    }
+        // We have to do it this way because even though we have a type-safe
+        // List, Java insists on using Object.equals() which will fail, even
+        // though the objects are actually equal.
+        for (Bitstream b : bitstreams)
+        {
+            if (bitstreamOne.equals(b))
+            {
+                fail(); // Not deleted yet
+            }
+            if (bitstreamTwo.equals(b))
+            {
+                fail(); // Not deleted yet
+            }
+        }
 
-    @Test
-    public void linked() throws Exception
-    {
-        /**
-         * We need to create some Bitstreams to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        bitstreamOne.setDeleted(true);
+        bitstreamTwo.setDeleted(true);
+        instance.update(bitstreamOne);
+        instance.update(bitstreamTwo);
+        bitstreams = instance.getDeletedBitstreams();
+        
+        for (Bitstream b : bitstreams)
+        {
+            if (bitstreamOne.equals(b))
+            {
+                containsOne = true;
+            }
+            if (bitstreamTwo.equals(b))
+            {
+                containsTwo = true;
+            }
+        }
+
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
     }
 }

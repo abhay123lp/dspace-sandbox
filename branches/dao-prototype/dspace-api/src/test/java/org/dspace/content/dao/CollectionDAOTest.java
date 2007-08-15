@@ -142,8 +142,8 @@ public class CollectionDAOTest implements CRUDTest, LinkTest
     @Test
     public void delete() throws Exception
     {
-        Collection collection = instance.create();
-        int id = collection.getID();
+        Collection result = instance.create();
+        int id = result.getID();
 
         instance.delete(id);
 

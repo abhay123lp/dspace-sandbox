@@ -135,8 +135,8 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
     @Test
     public void delete() throws Exception
     {
-        Community community = instance.create();
-        int id = community.getID();
+        Community result = instance.create();
+        int id = result.getID();
 
         instance.delete(id);
 

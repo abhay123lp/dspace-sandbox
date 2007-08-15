@@ -207,7 +207,6 @@ public class Item extends DSpaceObject
     {
         this.owningCollection = owningCollection;
         modified = true;
-        modified = true;
     }
 
     public void setOwningCollectionId(int owningCollectionId)
@@ -463,7 +462,6 @@ public class Item extends DSpaceObject
     public void setSubmitter(EPerson submitter)
     {
         this.submitter = submitter;
-        modified = true;
         modified = true;
     }
 

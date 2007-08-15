@@ -151,8 +151,6 @@ public class Bitstream extends DSpaceObject
         this.name = name;
         modifiedMetadata = true;
         addDetails("Name");
-        modifiedMetadata = true;
-        addDetails("Name");
     }
 
     /**
@@ -172,8 +170,6 @@ public class Bitstream extends DSpaceObject
         this.source = source;
         modifiedMetadata = true;
         addDetails("Source");
-        modifiedMetadata = true;
-        addDetails("Source");
     }
 
     public String getDescription()
@@ -184,8 +180,6 @@ public class Bitstream extends DSpaceObject
     public void setDescription(String description)
     {
         this.description = description;
-        modifiedMetadata = true;
-        addDetails("Description");
         modifiedMetadata = true;
         addDetails("Description");
     }
@@ -248,8 +242,6 @@ public class Bitstream extends DSpaceObject
     {
         setFormat(null);
         this.userFormatDescription = desc;
-        modifiedMetadata = true;
-        addDetails("UserFormatDescription");
         modifiedMetadata = true;
         addDetails("UserFormatDescription");
     }
@@ -322,7 +314,6 @@ public class Bitstream extends DSpaceObject
 
         // Remove user type description
         userFormatDescription = null;
-        modified = true;
         modified = true;
     }
 
