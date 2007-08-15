@@ -215,7 +215,7 @@ public class CollectionDAOPostgres extends CollectionDAO
         {
             // remove subscriptions - hmm, should this be in Subscription.java?
             DatabaseManager.updateQuery(context,
-                    "DELETE FROM subscription WHERE collection_id= ? ", id);
+                    "DELETE FROM subscription WHERE collection_id = ? ", id);
 
             // Delete collection row
             DatabaseManager.delete(context, "collection", id);
@@ -236,7 +236,7 @@ public class CollectionDAOPostgres extends CollectionDAO
         {
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "collection",
-                    "SELECT * FROM collection ORDER BY name");
+                    "SELECT collection_id FROM collection ORDER BY name");
 
             return returnAsList(tri);
         }
@@ -272,8 +272,8 @@ public class CollectionDAOPostgres extends CollectionDAO
     {
         try
         {
-            TableRowIterator tri = DatabaseManager.queryTable(
-                    context,"collection",
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "collection",
                     "SELECT c.collection_id, c.name " +
                     "FROM collection c, community2collection c2c " +
                     "WHERE c2c.collection_id = c.collection_id " +
