@@ -43,10 +43,10 @@ import static java.lang.System.*;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.dspace.core.Context;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.Context;
+import org.dspace.core.ConfigurationManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;

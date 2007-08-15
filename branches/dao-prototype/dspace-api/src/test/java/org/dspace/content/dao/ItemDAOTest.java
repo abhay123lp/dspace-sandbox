@@ -1,5 +1,5 @@
 /*
- * CommunityDAOTest.java
+ * ItemDAOTest.java
  *
  * Version: $Revision: 1727 $
  *
@@ -43,18 +43,17 @@ import static java.lang.System.*;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.dspace.core.Context;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.Context;
+import org.dspace.core.ConfigurationManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.storage.dao.CRUDTest;
 import org.dspace.storage.dao.LinkTest;
-import org.dspace.eperson.EPerson;
 
 import org.junit.After;
 import org.junit.AfterClass;
