@@ -39,7 +39,6 @@
  */
 package org.dspace.content.dao;
 
-import java.io.InputStream;
 import java.util.List;
 
 import org.dspace.content.Bitstream;
@@ -50,7 +49,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.storage.dao.CRUDTest;
-import org.dspace.storage.dao.LinkTest;
 
 import org.junit.After;
 import org.junit.AfterClass;
