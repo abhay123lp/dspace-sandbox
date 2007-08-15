@@ -312,11 +312,14 @@ public class CommunityDAOPostgres extends CommunityDAO
     public List<Community> getAllParentCommunities(DSpaceObject dso)
     {
         List<Community> parents = getParentCommunities(dso);
+        List<Community> superParents = new ArrayList<Community>(parents);
+
         for (Community parent : parents)
         {
-            parents.addAll(getParentCommunities(parent));
+            superParents.addAll(getAllParentCommunities(parent));
         }
-        return parents;
+
+        return superParents;
     }
 
     @Override
