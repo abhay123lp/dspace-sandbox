@@ -338,8 +338,27 @@ public abstract class CommunityDAO extends ContentDAO
 
     public abstract boolean linked(DSpaceObject parent, DSpaceObject child);
 
-    // Everything below this line is debatable & needs rethinking
+    /**
+     * Straightforward utility method for counting the number of Items in the
+     * given Community. There is probably a way to be smart about this. Also,
+     * this strikes me as the kind of method that shouldn't really be in here.
+     */
+    public int itemCount(Community community)
+    {
+    	int total = 0;
 
-    public abstract int itemCount(Community community);
+        for (Collection collection :
+                collectionDAO.getChildCollections(community))
+        {
+        	total += collectionDAO.itemCount(collection);
+        }
+
+        for (Community child : getChildCommunities(community))
+        {
+        	total += itemCount(child);
+        }
+
+        return total;
+    }
 }
 

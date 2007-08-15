@@ -211,7 +211,6 @@ public class CommunityDAOPostgres extends CommunityDAO
     {
         try
         {
-            // Delete community row
             DatabaseManager.delete(context, "community", id);
         }
         catch (SQLException sqle)
@@ -342,30 +341,6 @@ public class CommunityDAOPostgres extends CommunityDAO
         }
 
         return communities;
-    }
-
-    /**
-     * Straightforward utility method for counting the number of Items in the
-     * given Community. There is probably a way to be smart about this. Also,
-     * this strikes me as the kind of method that shouldn't really be in here.
-     */
-    @Override
-    public int itemCount(Community community)
-    {
-    	int total = 0;
-
-        for (Collection collection :
-                collectionDAO.getChildCollections(community))
-        {
-        	total += collectionDAO.itemCount(collection);
-        }
-
-        for (Community child : getChildCommunities(community))
-        {
-        	total += itemCount(child);
-        }
-
-        return total;
     }
 
     @Override
