@@ -209,30 +209,42 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     @Test
     public void link() throws Exception
     {
-        /**
-         * We need to create some Bitstreams to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Bitstream bitstream = bitstreamDAO.create();
+        Bundle bundle = instance.create();
+
+        assertTrue(!instance.linked(bundle, bitstream));
+
+        instance.link(bundle, bitstream);
+        assertTrue(instance.linked(bundle, bitstream));
     }
 
     @Test
     public void unlink() throws Exception
     {
-        /**
-         * We need to create some Bitstreams to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Bitstream bitstream = bitstreamDAO.create();
+        Bundle bundle = instance.create();
+
+        assertTrue(!instance.linked(bundle, bitstream));
+
+        instance.link(bundle, bitstream);
+        assertTrue(instance.linked(bundle, bitstream));
+
+        instance.unlink(bundle, bitstream);
+        assertTrue(!instance.linked(bundle, bitstream));
     }
 
     @Test
     public void linked() throws Exception
     {
-        /**
-         * We need to create some Bitstreams to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Bitstream bitstream = bitstreamDAO.create();
+        Bundle bundle = instance.create();
+
+        assertTrue(!instance.linked(bundle, bitstream));
+
+        instance.link(bundle, bitstream);
+        assertTrue(instance.linked(bundle, bitstream));
+
+        instance.unlink(bundle, bitstream);
+        assertTrue(!instance.linked(bundle, bitstream));
     }
 }
