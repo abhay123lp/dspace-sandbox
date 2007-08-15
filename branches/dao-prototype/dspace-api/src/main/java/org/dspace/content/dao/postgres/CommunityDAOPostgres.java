@@ -309,20 +309,6 @@ public class CommunityDAOPostgres extends CommunityDAO
     }
 
     @Override
-    public List<Community> getAllParentCommunities(DSpaceObject dso)
-    {
-        List<Community> parents = getParentCommunities(dso);
-        List<Community> superParents = new ArrayList<Community>(parents);
-
-        for (Community parent : parents)
-        {
-            superParents.addAll(getAllParentCommunities(parent));
-        }
-
-        return superParents;
-    }
-
-    @Override
     public List<Community> getChildCommunities(Community community)
     {
         try
