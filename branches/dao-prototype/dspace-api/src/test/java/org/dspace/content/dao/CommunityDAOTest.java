@@ -39,8 +39,6 @@
  */
 package org.dspace.content.dao;
 
-import static java.lang.System.*;
-import java.sql.SQLException;
 import java.util.List;
 
 import org.dspace.content.Community;
