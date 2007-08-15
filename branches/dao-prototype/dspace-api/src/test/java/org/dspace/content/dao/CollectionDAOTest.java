@@ -102,6 +102,7 @@ public class CollectionDAOTest implements CRUDTest, LinkTest
                 ADMIN_EMAIL);
 
         context.setCurrentUser(admin);
+        context.setIgnoreAuthorization(false);
     }
 
     @After
@@ -197,7 +198,7 @@ public class CollectionDAOTest implements CRUDTest, LinkTest
 
         // If the create() failed, this test is meaningless.
         assertFalse(total == 0);
-        
+
         // We're running these tests as an admin, so we should be able to do
         // everything.
         for (int i : actions)
@@ -207,7 +208,7 @@ public class CollectionDAOTest implements CRUDTest, LinkTest
         }
 
         context.setCurrentUser(null);
-        
+
         // We're now effectivelt an anonymous user, so we shouldn't be able to
         // do anything apart from READ.
         for (int i : actions)
@@ -259,43 +260,64 @@ public class CollectionDAOTest implements CRUDTest, LinkTest
     @Test
     public void link() throws Exception
     {
-        /**
-         * We need to create some Items to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Collection collection = instance.create();
+        Item item = itemDAO.create();
+
+        assertTrue(!instance.linked(collection, item));
+
+        instance.link(collection, item);
+        assertTrue(instance.linked(collection, item));
     }
 
     @Test
     public void unlink() throws Exception
     {
-        /**
-         * We need to create some Items to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Collection collection = instance.create();
+        Item item = itemDAO.create();
+
+        assertTrue(!instance.linked(collection, item));
+
+        instance.link(collection, item);
+        assertTrue(instance.linked(collection, item));
+
+        instance.unlink(collection, item);
+        assertTrue(!instance.linked(collection, item));
     }
 
     @Test
     public void linked() throws Exception
     {
-        /**
-         * We need to create some Items to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Collection collection = instance.create();
+        Item item = itemDAO.create();
+
+        assertTrue(!instance.linked(collection, item));
+
+        instance.link(collection, item);
+        assertTrue(instance.linked(collection, item));
+
+        instance.unlink(collection, item);
+        assertTrue(!instance.linked(collection, item));
     }
 
     @Test
     public void itemCount() throws Exception
     {
-        /**
-         * Testing this is going to be a little more complicated than with the
-         * other methods because we'd actually have to create a bunch of
-         * sub-Communities and Collections and actually place Items into them.
-         * Given that this isn't exactly mission-critical functionality, I'm
-         * happy to defer writing the test.
-         */
-        assertTrue(true);
+        Collection collection = instance.create();
+        Item item = itemDAO.create();
+
+        assertEquals(instance.itemCount(collection), 0);
+
+        instance.link(collection, item);
+        assertTrue(instance.linked(collection, item));
+        assertEquals(instance.itemCount(collection), 0);
+
+        // Place the item into the archive so that it shows up in the count
+        item.setArchived(true);
+        item.setWithdrawn(false);
+        itemDAO.update(item);
+        assertEquals(instance.itemCount(collection), 1);
+
+        instance.unlink(collection, item);
+        assertEquals(instance.itemCount(collection), 0);
     }
 }

@@ -101,6 +101,7 @@ public class ItemDAOTest implements CRUDTest, LinkTest
                 ADMIN_EMAIL);
 
         context.setCurrentUser(admin);
+        context.setIgnoreAuthorization(false);
     }
 
     @After

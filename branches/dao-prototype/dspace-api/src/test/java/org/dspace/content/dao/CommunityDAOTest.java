@@ -41,7 +41,9 @@ package org.dspace.content.dao;
 
 import java.util.List;
 
+import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.Item;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.core.ConfigurationManager;
@@ -62,6 +64,8 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
 {
     private static Context context;
     private CommunityDAO instance;
+    private CollectionDAO collectionDAO;
+    private ItemDAO itemDAO;
 
     private static final String ADMIN_EMAIL = "james.rutherford@hp.com";
     private static final String CONFIG = "/opt/dspace-dao/config/dspace.cfg";
@@ -69,6 +73,8 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
     public CommunityDAOTest()
     {
         instance = CommunityDAOFactory.getInstance(context);
+        collectionDAO = CollectionDAOFactory.getInstance(context);
+        itemDAO = ItemDAOFactory.getInstance(context);
     }
 
     @BeforeClass
@@ -95,6 +101,7 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
                 ADMIN_EMAIL);
 
         context.setCurrentUser(admin);
+        context.setIgnoreAuthorization(false);
     }
 
     @After
@@ -281,6 +288,7 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
         Community communityTwo = instance.create();
 
         instance.link(communityOne, communityTwo);
+        assertTrue(instance.linked(communityOne, communityTwo));
         assertTrue(instance.getChildCommunities(communityOne).size() == 1);
         assertTrue(instance.getParentCommunities(communityTwo).size() == 1);
     }
@@ -318,13 +326,24 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
     @Test
     public void itemCount() throws Exception
     {
-        /**
-         * Testing this is going to be a little more complicated than with the
-         * other methods because we'd actually have to create a bunch of
-         * sub-Communities and Collections and actually place Items into them.
-         * Given that this isn't exactly mission-critical functionality, I'm
-         * happy to defer writing the test.
-         */
-        assertTrue(true);
+        Community community = instance.create();
+        Collection collection = collectionDAO.create();
+        Item item = itemDAO.create();
+
+        assertEquals(instance.itemCount(community), 0);
+
+        instance.link(community, collection);
+        collectionDAO.link(collection, item);
+        assertTrue(instance.linked(community, collection));
+        assertEquals(instance.itemCount(community), 0);
+
+        // Place the item into the archive so that it shows up in the count
+        item.setArchived(true);
+        item.setWithdrawn(false);
+        itemDAO.update(item);
+        assertEquals(instance.itemCount(community), 1);
+
+        instance.unlink(community, collection);
+        assertEquals(instance.itemCount(community), 0);
     }
 }

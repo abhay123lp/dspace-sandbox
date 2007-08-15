@@ -98,6 +98,7 @@ public class BitstreamDAOTest implements CRUDTest
                 ADMIN_EMAIL);
 
         context.setCurrentUser(admin);
+        context.setIgnoreAuthorization(false);
     }
 
     @After
