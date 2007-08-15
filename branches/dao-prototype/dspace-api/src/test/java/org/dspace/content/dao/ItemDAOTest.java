@@ -64,6 +64,7 @@ public class ItemDAOTest implements CRUDTest, LinkTest
 {
     private static Context context;
     private ItemDAO instance;
+    private BundleDAO bundleDAO;
     private CollectionDAO collectionDAO;
 
     private static final String ADMIN_EMAIL = "james.rutherford@hp.com";
@@ -72,6 +73,7 @@ public class ItemDAOTest implements CRUDTest, LinkTest
     public ItemDAOTest()
     {
         instance = ItemDAOFactory.getInstance(context);
+        bundleDAO = BundleDAOFactory.getInstance(context);
         collectionDAO = CollectionDAOFactory.getInstance(context);
     }
 
@@ -320,51 +322,83 @@ public class ItemDAOTest implements CRUDTest, LinkTest
     @Test
     public void getParentItems() throws Exception
     {
-        /**
-         * We need to create some Bundles to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
-    }
+        Bundle bundle = bundleDAO.create();
+        Item itemOne = instance.create();
+        Item itemTwo = instance.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+        List<Item> parents = null;
 
-    @Test
-    public void removeBundleFromItem() throws Exception
-    {
-        /**
-         * We need to create some Bundles to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        parents = instance.getParentItems(bundle);
+        assertEquals(parents.size(), 0);
+
+        instance.link(itemOne, bundle);
+        parents = instance.getParentItems(bundle);
+        assertEquals(parents.size(), 1);
+
+        instance.link(itemTwo, bundle);
+        parents = instance.getParentItems(bundle);
+        assertEquals(parents.size(), 2);
+
+        // We have to do it this way because even though we have a type-safe
+        // List, Java insists on using Object.equals() which will fail, even
+        // though the objects are actually equal.
+        for (Item i : parents)
+        {
+            if (itemOne.equals(i))
+            {
+                containsOne = true;
+            }
+            if (itemOne.equals(i))
+            {
+                containsTwo = true;
+            }
+        }
+
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
     }
 
     @Test
     public void link() throws Exception
     {
-        /**
-         * We need to create some Bundles to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Bundle bundle = bundleDAO.create();
+        Item item = instance.create();
+
+        assertTrue(!instance.linked(item, bundle));
+
+        instance.link(item, bundle);
+        assertTrue(instance.linked(item, bundle));
     }
 
     @Test
     public void unlink() throws Exception
     {
-        /**
-         * We need to create some Bundles to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Bundle bundle = bundleDAO.create();
+        Item item = instance.create();
+
+        assertTrue(!instance.linked(item, bundle));
+
+        instance.link(item, bundle);
+        assertTrue(instance.linked(item, bundle));
+
+        instance.unlink(item, bundle);
+        assertTrue(!instance.linked(item, bundle));
     }
 
     @Test
     public void linked() throws Exception
     {
-        /**
-         * We need to create some Bundles to run this test, so I'm going to
-         * postpone it.
-         */
-        assertTrue(true);
+        Bundle bundle = bundleDAO.create();
+        Item item = instance.create();
+
+        assertTrue(!instance.linked(item, bundle));
+
+        instance.link(item, bundle);
+        assertTrue(instance.linked(item, bundle));
+
+        instance.unlink(item, bundle);
+        assertTrue(!instance.linked(item, bundle));
     }
 
     @Test
@@ -386,5 +420,4 @@ public class ItemDAOTest implements CRUDTest, LinkTest
          */
         assertTrue(true);
     }
-    
 }

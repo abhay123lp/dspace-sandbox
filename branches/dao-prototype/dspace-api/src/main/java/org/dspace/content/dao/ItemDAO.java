@@ -151,7 +151,7 @@ public abstract class ItemDAO extends ContentDAO
 
             if (deleted)
             {
-                removeBundleFromItem(item, dbBundle);
+                unlink(item, dbBundle);
             }
         }
 
@@ -233,7 +233,7 @@ public abstract class ItemDAO extends ContentDAO
         for (Bundle bundle : item.getBundles())
         {
             item.removeBundle(bundle);
-            removeBundleFromItem(item, bundle);
+            unlink(item, bundle);
         }
 
         // remove all of our authorization policies
@@ -299,14 +299,15 @@ public abstract class ItemDAO extends ContentDAO
 
     public abstract List<Item> getParentItems(Bundle bundle);
 
-    // FIXME: This is so similar to the usage of ArchiveManager.move() that it
-    // would be pretty silly not to use it. The only issue with that is that we
-    // don't generally want to expose via the API the ability to move Bundles
-    // between Items (or do we? I doubt it).
-    protected final void removeBundleFromItem(Item item, Bundle bundle)
-        throws AuthorizeException
+    public void link(Item item, Bundle bundle) throws AuthorizeException
     {
-        unlink(item, bundle);
+        // FIXME: Pre-DAOs this wasn't checked.
+        AuthorizeManager.authorizeAction(context, item, Constants.ADD);
+    }
+
+    public void unlink(Item item, Bundle bundle) throws AuthorizeException
+    {
+        AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
 
         // If the bundle is now orphaned, delete it.
         if (getParentItems(bundle).size() == 0)
@@ -324,17 +325,6 @@ public abstract class ItemDAO extends ContentDAO
             // The bundle is an orphan, delete it
             bundleDAO.delete(bundle.getID());
         }
-    }
-
-    public void link(Item item, Bundle bundle) throws AuthorizeException
-    {
-        // FIXME: Pre-DAOs this wasn't checked.
-        AuthorizeManager.authorizeAction(context, item, Constants.ADD);
-    }
-
-    public void unlink(Item item, Bundle bundle) throws AuthorizeException
-    {
-        AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
     }
 
     public abstract boolean linked(Item item, Bundle bundle);
