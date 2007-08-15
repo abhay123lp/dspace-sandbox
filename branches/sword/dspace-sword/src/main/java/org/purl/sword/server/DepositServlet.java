@@ -140,6 +140,9 @@ public class DepositServlet extends HttpServlet {
 					if (!md5.equals(receivedMD5)) {
 						response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
 					} else {
+						// Set the file
+						d.setFile(fi.getInputStream());
+						
 						// Set the X-On-Behalf-Of header
 						d.setOnBehalfOf(request.getHeader(HttpHeaders.X_ON_BEHALF_OF.toString()));
 						
@@ -165,10 +168,10 @@ public class DepositServlet extends HttpServlet {
 						// Set the IP address
 						d.setIPAddress(request.getRemoteAddr());
 						
-				        // Get the ServiceDocument
+				        // Get the DepositResponse
 						DepositResponse dr = myRepository.doDeposit(d);
 						
-						// Print out the Service Document
+						// Print out the Deposit Response
 						// response.setContentType("application/atomserv+xml");
 						response.setContentType("application/xml");
 						PrintWriter out = response.getWriter();
