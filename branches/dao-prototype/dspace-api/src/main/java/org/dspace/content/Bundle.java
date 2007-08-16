@@ -211,40 +211,17 @@ public class Bundle extends DSpaceObject
 
     public void removeBitstream(Bitstream b) throws AuthorizeException
     {
-        synchronized(bitstreams)
+        Iterator<Bitstream> i = bitstreams.iterator();
+        while (i.hasNext())
         {
-            List<Bitstream> tmp = new ArrayList<Bitstream>();
-
-            // List.remove() doesn't work because it uses Object.equals() which
-            // will fail even when the objects are actually equal.
-            for (Bitstream bitstream : bitstreams)
+            Bitstream bitstream = i.next();
+            if (bitstream.getID() == b.getID())
             {
-                if (!bitstream.equals(b))
-                {
-                    tmp.add(bitstream);
-                }
-            }
-
-            if (bitstreams.size() > tmp.size())
-            {
+                i.remove();
+                
                 context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
             }
-
-            this.bitstreams = tmp;
         }
-
-
-//        Iterator<Bitstream> i = bitstreams.iterator();
-//        while (i.hasNext())
-//        {
-//            Bitstream bitstream = i.next();
-//            if (bitstream.getID() == b.getID())
-//            {
-//                i.remove();
-//                
-//                context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
-//            }
-//        }
     }
 
     ////////////////////////////////////////////////////////////////////

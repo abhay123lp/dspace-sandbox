@@ -272,7 +272,13 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
 
             int schemaID = row.getIntColumn("metadata_schema_id");
 
-            return schemaID == field.getSchemaID();
+            // Neither has been set yet, so they are effectively the same.
+            if (schemaID <= 0 && field.getSchemaID() <= 0)
+            {
+                return false;
+            }
+
+            return schemaID != field.getSchemaID();
         }
         catch (SQLException sqle)
         {

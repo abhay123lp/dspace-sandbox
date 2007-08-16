@@ -93,8 +93,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
 
         try
         {
-            TableRow row = DatabaseManager.find(context,
-                    "metadatavalueregistry", id);
+            TableRow row = DatabaseManager.find(context, "metadatavalue", id);
 
             return retrieve(row);
         }
@@ -117,7 +116,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
-                    "metadatavalueregistry", "uuid", uuid.toString());
+                    "metadatavalue", "uuid", uuid.toString());
 
             return retrieve(row);
         }
@@ -223,7 +222,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
         {
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "metadatavalue",
-                    "SELECT metadata_value_id FROM MetadataValue " +
+                    "SELECT metadata_value_id FROM metadatavalue " +
                     "WHERE metadata_field_id = ? ",
                     fieldID);
 

@@ -1,5 +1,5 @@
 /*
- * BundleDAOTest.java
+ * MetadataValueDAOTest.java
  *
  * Version: $Revision: 1727 $
  *
@@ -40,17 +40,18 @@
 package org.dspace.content.dao;
 
 import java.util.List;
+import java.util.UUID;
 
-import org.dspace.content.Bitstream;
-import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.storage.dao.CRUDTest;
-import org.dspace.storage.dao.LinkTest;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -59,20 +60,22 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class BundleDAOTest implements CRUDTest, LinkTest
+public class MetadataValueDAOTest implements CRUDTest
 {
     private static Context context;
-    private BundleDAO instance;
-    private BitstreamDAO bitstreamDAO;
+    private MetadataValueDAO instance;
+    private MetadataFieldDAO fieldDAO;
+    private MetadataSchemaDAO schemaDAO;
     private ItemDAO itemDAO;
 
     private static final String ADMIN_EMAIL = "james.rutherford@hp.com";
     private static final String CONFIG = "/opt/dspace-dao/config/dspace.cfg";
     
-    public BundleDAOTest()
+    public MetadataValueDAOTest()
     {
-        instance = BundleDAOFactory.getInstance(context);
-        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        instance = MetadataValueDAOFactory.getInstance(context);
+        fieldDAO = MetadataFieldDAOFactory.getInstance(context);
+        schemaDAO = MetadataSchemaDAOFactory.getInstance(context);
         itemDAO = ItemDAOFactory.getInstance(context);
     }
 
@@ -111,7 +114,7 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     @Test
     public void create() throws Exception
     {
-        Bundle result = instance.create();
+        MetadataValue result = instance.create();
 
         int id = result.getID();
 
@@ -121,8 +124,8 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     @Test
     public void retrieve() throws Exception
     {
-        Bundle existing = instance.create();
-        Bundle result = instance.retrieve(existing.getID());
+        MetadataValue existing = instance.create();
+        MetadataValue result = instance.retrieve(existing.getID());
 
         assertEquals(existing.getID(), result.getID());
     }
@@ -130,19 +133,31 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     @Test
     public void update() throws Exception
     {
-        Bundle bundle = instance.create();
-        bundle.setName("Bundle Test");
-        instance.update(bundle);
+        Item item = itemDAO.create();
+        MetadataValue value = instance.create();
+        MetadataField field = fieldDAO.create();
+        MetadataSchema schema = schemaDAO.create();
+
+        // Set up the field
+        field.setSchemaID(schema.getID());
+        field.setElement("Element One");
+        fieldDAO.update(field);
+
+        // All of this stuff has to be set
+        value.setFieldID(field.getID());
+        value.setItemID(item.getID());
+        value.setValue("MetadataValue Test");
+        instance.update(value);
         
-        Bundle result = instance.retrieve(bundle.getID());
-        assertEquals("Bundle Test", result.getName());
+        MetadataValue result = instance.retrieve(value.getID());
+        assertEquals("MetadataValue Test", result.getValue());
     }
 
     @Test
     public void delete() throws Exception
     {
-        Bundle result = instance.create();
-        int id = result.getID();
+        MetadataValue value = instance.create();
+        int id = value.getID();
 
         instance.delete(id);
 
@@ -150,38 +165,43 @@ public class BundleDAOTest implements CRUDTest, LinkTest
     }
 
     @Test
-    public void getBundles() throws Exception
-    {
-        /**
-         * This deprecated method just defers to getBundlesByItem() so I'm
-         * going to be kind and just let it pass.
-         */
-        assertTrue(true);
-    }
-
-    @Test
-    public void getBundlesByItem() throws Exception
+    public void getMetadataValues() throws Exception
     {
         Item item = itemDAO.create();
-        Bundle bundleOne = instance.create();
-        Bundle bundleTwo = instance.create();
+        MetadataValue valueOne = instance.create();
+        MetadataValue valueTwo = instance.create();
+        MetadataField field = fieldDAO.create();
+        MetadataSchema schema = schemaDAO.create();
         boolean containsOne = false;
         boolean containsTwo = false;
 
-        itemDAO.link(item, bundleOne);
-        itemDAO.link(item, bundleTwo);
-        List<Bundle> bundles = instance.getBundlesByItem(item);
+        // Set up the field
+        field.setSchemaID(schema.getID());
+        field.setElement("Element One");
+        fieldDAO.update(field);
+
+        // All of this stuff has to be set
+        valueOne.setFieldID(field.getID());
+        valueOne.setItemID(item.getID());
+        valueOne.setValue(UUID.randomUUID().toString());
+        valueTwo.setFieldID(field.getID());
+        valueTwo.setItemID(item.getID());
+        valueTwo.setValue(UUID.randomUUID().toString());
+        instance.update(valueOne);
+        instance.update(valueTwo);
+
+        List<MetadataValue> values = instance.getMetadataValues(field.getID());
 
         // We have to do it this way because even though we have a type-safe
         // List, Java insists on using Object.equals() which will fail, even
         // though the objects are actually equal.
-        for (Bundle b : bundles)
+        for (MetadataValue value : values)
         {
-            if (bundleOne.equals(b))
+            if (valueOne.equals(value))
             {
                 containsOne = true;
             }
-            if (bundleTwo.equals(b))
+            if (valueTwo.equals(value))
             {
                 containsTwo = true;
             }
@@ -190,62 +210,5 @@ public class BundleDAOTest implements CRUDTest, LinkTest
         assertTrue(containsOne);
         assertTrue(containsTwo);
     }
-
-    @Test
-    public void getBundlesByBitstream() throws Exception
-    {
-        Bitstream bitstream = bitstreamDAO.create();
-        Bundle bundle = instance.create();
-        List<Bundle> bundles = null;
-
-        bundles = instance.getBundlesByBitstream(bitstream);
-        assertEquals(bundles.size(), 0);
-
-        instance.link(bundle, bitstream);
-        bundles = instance.getBundlesByBitstream(bitstream);
-        assertEquals(bundles.size(), 1);
-        assertTrue(bundle.equals(bundles.get(0)));
-    }
-
-    @Test
-    public void link() throws Exception
-    {
-        Bitstream bitstream = bitstreamDAO.create();
-        Bundle bundle = instance.create();
-
-        assertTrue(!instance.linked(bundle, bitstream));
-
-        instance.link(bundle, bitstream);
-        assertTrue(instance.linked(bundle, bitstream));
-    }
-
-    @Test
-    public void unlink() throws Exception
-    {
-        Bitstream bitstream = bitstreamDAO.create();
-        Bundle bundle = instance.create();
-
-        assertTrue(!instance.linked(bundle, bitstream));
-
-        instance.link(bundle, bitstream);
-        assertTrue(instance.linked(bundle, bitstream));
-
-        instance.unlink(bundle, bitstream);
-        assertTrue(!instance.linked(bundle, bitstream));
-    }
-
-    @Test
-    public void linked() throws Exception
-    {
-        Bitstream bitstream = bitstreamDAO.create();
-        Bundle bundle = instance.create();
-
-        assertTrue(!instance.linked(bundle, bitstream));
-
-        instance.link(bundle, bitstream);
-        assertTrue(instance.linked(bundle, bitstream));
-
-        instance.unlink(bundle, bitstream);
-        assertTrue(!instance.linked(bundle, bitstream));
-    }
+    
 }

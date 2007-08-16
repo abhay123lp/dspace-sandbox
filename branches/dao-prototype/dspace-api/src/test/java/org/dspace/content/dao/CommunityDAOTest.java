@@ -134,8 +134,8 @@ public class CommunityDAOTest implements CRUDTest, LinkTest
         community.setMetadata("name", "Community Test");
         instance.update(community);
         
-        Community retrieved = instance.retrieve(community.getID());
-        assertEquals("Community Test", retrieved.getMetadata("name"));
+        Community result = instance.retrieve(community.getID());
+        assertEquals("Community Test", result.getMetadata("name"));
     }
 
     @Test

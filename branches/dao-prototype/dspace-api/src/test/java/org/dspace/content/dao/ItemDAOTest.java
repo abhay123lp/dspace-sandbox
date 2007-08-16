@@ -142,8 +142,8 @@ public class ItemDAOTest implements CRUDTest, LinkTest
         item.setSubmitter(submitter);
         instance.update(item);
 
-        Item retrieved = instance.retrieve(item.getID());
-        assertEquals(retrieved.getSubmitter(), submitter);
+        Item result = instance.retrieve(item.getID());
+        assertEquals(result.getSubmitter(), submitter);
     }
 
     @Test

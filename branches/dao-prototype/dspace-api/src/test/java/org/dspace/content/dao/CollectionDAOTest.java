@@ -135,8 +135,8 @@ public class CollectionDAOTest implements CRUDTest, LinkTest
         collection.setMetadata("name", "Collection Test");
         instance.update(collection);
         
-        Collection retrieved = instance.retrieve(collection.getID());
-        assertEquals("Collection Test", retrieved.getMetadata("name"));
+        Collection result = instance.retrieve(collection.getID());
+        assertEquals("Collection Test", result.getMetadata("name"));
     }
 
     @Test
