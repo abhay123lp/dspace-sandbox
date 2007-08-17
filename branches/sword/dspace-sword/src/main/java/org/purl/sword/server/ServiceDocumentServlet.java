@@ -56,7 +56,7 @@ public class ServiceDocumentServlet extends HttpServlet {
 		
 		// Are there any authentcation details?
 		String usernamePassword = getUsernamePassword(request);
-		if (usernamePassword != null) {
+		if ((usernamePassword != null) && (!usernamePassword.equals(""))) {
 			int p = usernamePassword.indexOf(":");
 			if (p != -1) {
 				sdr.setUsername(usernamePassword.substring(0, p));
