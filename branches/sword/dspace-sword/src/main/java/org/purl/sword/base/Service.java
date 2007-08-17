@@ -228,7 +228,7 @@ public class Service extends XmlElement implements SwordElementInterface
       
       if( complianceLevel != ServiceLevel.UNDEFINED )
       {
-    	  System.out.println("The compliance level is: " + complianceLevel );
+    	 //System.out.println("The compliance level is: " + complianceLevel );
          Element compliance = new Element("sword:level", Namespaces.NS_SWORD);
          compliance.appendChild(Integer.toString(complianceLevel.number()));
          service.appendChild(compliance);
