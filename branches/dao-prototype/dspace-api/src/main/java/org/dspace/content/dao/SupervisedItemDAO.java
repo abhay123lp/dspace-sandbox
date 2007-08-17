@@ -51,7 +51,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.storage.dao.CRUD;
 
 public abstract class SupervisedItemDAO extends ContentDAO
-    implements CRUD<SupervisedItem>
 {
     protected Logger log = Logger.getLogger(SupervisedItemDAO.class);
 
@@ -63,31 +62,6 @@ public abstract class SupervisedItemDAO extends ContentDAO
         this.context = context;
 
         dao = WorkspaceItemDAOFactory.getInstance(context);
-    }
-
-    public SupervisedItem create() throws AuthorizeException
-    {
-        return (SupervisedItem) dao.create();
-    }
-
-    public SupervisedItem retrieve(int id)
-    {
-        return (SupervisedItem) dao.retrieve(id);
-    }
-
-    public SupervisedItem retrieve(UUID uuid)
-    {
-        return (SupervisedItem) dao.retrieve(uuid);
-    }
-
-    public void update(SupervisedItem si) throws AuthorizeException
-    {
-        dao.update(si);
-    }
-
-    public void delete(int id) throws AuthorizeException
-    {
-        dao.delete(id);
     }
 
     /**

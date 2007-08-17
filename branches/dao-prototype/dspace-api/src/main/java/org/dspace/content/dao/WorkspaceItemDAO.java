@@ -224,10 +224,19 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         AuthorizeManager.authorizeAction(context, wsi.getItem(),
                 Constants.WRITE);
 
+        // Collection might be null
+        Collection collection = wsi.getCollection();
+        int collectionID = -1;
+
+        if (collection != null)
+        {
+            collectionID = collection.getID();
+        }
+
         log.info(LogManager.getHeader(context, "delete_workspace_item",
                     "workspace_item_id=" + id +
                     "item_id=" + wsi.getItem().getID() +
-                    "collection_id=" + wsi.getCollection().getID()));
+                    "collection_id=" + collectionID));
     }
 
     /**
@@ -257,10 +266,16 @@ public abstract class WorkspaceItemDAO extends ContentDAO
                     + "original submitter to delete a workspace item");
         }
 
+        int collectionID = -1;
+        if (collection != null)
+        {
+            collectionID = collection.getID();
+        }
+
         log.info(LogManager.getHeader(context, "delete_workspace_item",
                 "workspace_item_id=" + wsi.getID() +
                 "item_id=" + item.getID() +
-                "collection_id=" + collection.getID()));
+                "collection_id=" + collectionID));
 
         // Remove any Group <-> WorkspaceItem mappings
         GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
