@@ -582,7 +582,10 @@ public class GroupDAOPostgres extends GroupDAO
                     " WHERE parent_id=" + parent.getID() +
                     " AND child_id=" + child.getID());
 
-            return tri.hasNext();
+            boolean result = tri.hasNext();
+            tri.close();
+
+            return result;
         }
         catch (SQLException sqle)
         {

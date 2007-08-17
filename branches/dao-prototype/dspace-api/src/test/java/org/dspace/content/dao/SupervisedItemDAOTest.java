@@ -88,6 +88,7 @@ public class SupervisedItemDAOTest extends ContentDAOTest
                 fail();
             }
         }
+
         items = instance.getSupervisedItems(eperson);
         for (SupervisedItem item : items)
         {

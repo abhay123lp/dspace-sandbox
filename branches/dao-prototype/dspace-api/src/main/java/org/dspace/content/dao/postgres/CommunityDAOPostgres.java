@@ -457,8 +457,10 @@ public class CommunityDAOPostgres extends CommunityDAO
                 throw new RuntimeException("Not allowed!");
             }
 
-            // FIXME: If true, this will leave the TableRowIterator open
-            return tri.hasNext();
+            boolean result = tri.hasNext();
+            tri.close();
+
+            return result;
         }
         catch (SQLException sqle)
         {

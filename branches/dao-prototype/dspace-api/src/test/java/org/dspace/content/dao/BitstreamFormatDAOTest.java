@@ -39,7 +39,6 @@
  */
 package org.dspace.content.dao;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.dspace.content.BitstreamFormat;

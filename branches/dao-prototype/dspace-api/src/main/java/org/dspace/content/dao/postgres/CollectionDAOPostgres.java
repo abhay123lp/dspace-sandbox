@@ -394,8 +394,10 @@ public class CollectionDAOPostgres extends CollectionDAO
                     "WHERE collection_id = ? AND item_id = ? ",
                     collection.getID(), item.getID());
 
-            // FIXME: If true, this will leave the TableRowIterator open
-            return tri.hasNext();
+            boolean result = tri.hasNext();
+            tri.close();
+
+            return result;
         }
         catch (SQLException sqle)
         {
