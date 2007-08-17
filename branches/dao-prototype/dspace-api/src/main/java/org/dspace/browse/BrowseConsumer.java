@@ -42,7 +42,6 @@ package org.dspace.browse;
 
 import org.apache.log4j.Logger;
 
-import java.sql.SQLException;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -139,7 +138,7 @@ public class BrowseConsumer implements Consumer
             catch (BrowseException e)
             {
             	log.error("caught exception: ", e);
-            	throw new SQLException(e.getMessage());
+            	throw new RuntimeException(e.getMessage());
             }
 
             toUpdate.remove(i);
@@ -164,7 +163,7 @@ public class BrowseConsumer implements Consumer
             catch (BrowseException e)
             {
             	log.error("caught exception: ", e);
-            	throw new SQLException(e.getMessage());
+            	throw new RuntimeException(e.getMessage());
             }
         
             if (log.isDebugEnabled())

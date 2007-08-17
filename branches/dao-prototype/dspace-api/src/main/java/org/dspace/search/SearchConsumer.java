@@ -42,7 +42,6 @@
 
 package org.dspace.search;
 
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -110,16 +109,7 @@ public class SearchConsumer implements Consumer
                             + event.toString());
             return;
         }
-        DSpaceObject dso = null;
-        // EVENT FIXME This call to getSubjectOfEvent is catching a SQLException
-        // but other Consumers don't
-        try
-        {
-            dso = event.getSubject(ctx);
-        }
-        catch (SQLException se)
-        {
-        }
+        DSpaceObject dso = event.getSubject(ctx);
 
         // If event subject is a Bundle and event was Add or Remove,
         // transform the event to be a Modify on the owning Item.

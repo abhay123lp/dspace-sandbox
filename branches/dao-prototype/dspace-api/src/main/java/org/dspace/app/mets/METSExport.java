@@ -46,7 +46,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.Properties;
 
@@ -251,7 +250,7 @@ public class METSExport
      * @param context
      *            DSpace context
      */
-    private static void init(Context context) throws SQLException, IOException
+    private static void init(Context context) throws IOException
     {
         // Don't init again if initialised already
         if (licenseFormat != -1)
@@ -287,7 +286,7 @@ public class METSExport
      *            destination directory
      */
     public static void writeAIP(Context context, Item item, String dest)
-            throws SQLException, IOException, AuthorizeException, MetsException
+            throws IOException, AuthorizeException, MetsException
     {
         System.out.println("Exporting item " + item.getIdentifier().getCanonicalForm());
 
@@ -349,7 +348,7 @@ public class METSExport
      *            only the filename itself will be used.
      */
     public static void writeMETS(Context context, Item item, OutputStream os, boolean fullURL)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         try
         {
@@ -580,7 +579,7 @@ public class METSExport
      *             if the license bitstream can't be read
      */
     private static InputStream findLicense(Context context, Item item)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         Bundle[] bundles = item.getBundles();
 
@@ -612,7 +611,6 @@ public class METSExport
      * @return the corresponding original bitstream (or null)
      */
     private static Bitstream findOriginalBitstream(Item item, Bitstream derived)
-    				throws SQLException
     {
         Bundle[] bundles = item.getBundles();
 

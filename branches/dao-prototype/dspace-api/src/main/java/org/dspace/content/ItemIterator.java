@@ -59,6 +59,9 @@ import org.dspace.content.dao.ItemDAOFactory;
  *
  * Note that this class is not a real Iterator, as it does not implement
  * the Iterator interface
+ *
+ * FIXME: I want to bin this class. It's more or less utterly pointless now we
+ * have ItemProxy. -- James Rutherford
  * 
  * @author Robert Tansley
  * @author Richard Jones

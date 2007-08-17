@@ -39,9 +39,7 @@
  */
 package org.dspace.content;
 
-import java.sql.SQLException;
 import java.io.IOException;
-
 
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
@@ -113,20 +111,17 @@ public class Site extends DSpaceObject
      * @deprecated
      */
     public static DSpaceObject find(Context context, int id)
-        throws SQLException
     {
         if (theSite == null)
             theSite = new Site();
         return theSite;
     }
 
-    void delete()
-        throws SQLException, AuthorizeException, IOException
+    void delete() throws AuthorizeException, IOException
     {
     }
 
-    public void update()
-        throws SQLException, AuthorizeException, IOException
+    public void update() throws AuthorizeException, IOException
     {
     }
 

@@ -445,7 +445,7 @@ public class StructBuilder
             }
             
             // FIXME: at the moment, if the community already exists by name
-            // then this will throw a PSQLException on a duplicate key
+            // then this will throw a SQLException on a duplicate key
             // violation
             // Ideally we'd skip this row and continue to create sub
             // communities and so forth where they don't exist, but it's

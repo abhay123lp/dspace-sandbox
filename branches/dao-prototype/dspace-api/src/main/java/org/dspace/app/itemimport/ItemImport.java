@@ -48,7 +48,6 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -833,8 +832,8 @@ public class ItemImport
 
     // Load all metadata schemas into the item.
     private void loadMetadata(Context c, Item myitem, String path)
-            throws SQLException, IOException, ParserConfigurationException,
-            SAXException, TransformerException
+        throws IOException, ParserConfigurationException, SAXException,
+                          TransformerException
     {
         // Load the dublin core metadata
         loadDublinCore(c, myitem, path + "dublin_core.xml");
@@ -849,8 +848,8 @@ public class ItemImport
     }
 
     private void loadDublinCore(Context c, Item myitem, String filename)
-            throws SQLException, IOException, ParserConfigurationException,
-            SAXException, TransformerException //, AuthorizeException
+        throws IOException, ParserConfigurationException, SAXException,
+                          TransformerException
     {
         Document document = loadXML(filename);
 
@@ -884,7 +883,8 @@ public class ItemImport
         }
     }
 
-    private void addDCValue(Item i, String schema, Node n) throws TransformerException
+    private void addDCValue(Item i, String schema, Node n)
+        throws TransformerException
     {
         String value = getStringValue(n); //n.getNodeValue();
         // compensate for empty value getting read as "null", which won't display
@@ -995,8 +995,7 @@ public class ItemImport
      * contents file
      */
     private void processContentsFile(Context c, Item i, String path,
-            String filename) throws SQLException, IOException,
-            AuthorizeException
+            String filename) throws IOException, AuthorizeException
     {
         String contentspath = path + File.separatorChar + filename;
         String line = "";
@@ -1116,8 +1115,8 @@ public class ItemImport
 
     // each entry represents a bitstream....
     public void processContentFileEntry(Context c, Item i, String path,
-            String fileName, String bundleName) throws SQLException,
-            IOException, AuthorizeException
+            String fileName, String bundleName)
+        throws IOException, AuthorizeException
     {
         String fullpath = path + File.separatorChar + fileName;
 
@@ -1182,13 +1181,12 @@ public class ItemImport
      * @param assetstore
      * @param bitstreamPath the full filepath expressed in the contents file
      * @param bundleName
-     * @throws SQLException
      * @throws IOException
      * @throws AuthorizeException
      */
     public void registerBitstream(Context c, Item i, int assetstore, 
             String bitstreamPath, String bundleName )
-        	throws SQLException, IOException, AuthorizeException
+        throws IOException, AuthorizeException
     {
         // TODO validate assetstore number
         // TODO make sure the bitstream is there
@@ -1320,8 +1318,8 @@ public class ItemImport
      * 
      * @return the DOM representation of the XML file
      */
-    private static Document loadXML(String filename) throws IOException,
-            ParserConfigurationException, SAXException
+    private static Document loadXML(String filename)
+        throws IOException, ParserConfigurationException, SAXException
     {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder();

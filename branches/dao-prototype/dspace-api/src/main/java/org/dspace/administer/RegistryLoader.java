@@ -41,7 +41,6 @@ package org.dspace.administer;
 
 import java.io.File;
 import java.io.IOException;
-import java.sql.SQLException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -157,7 +156,7 @@ public class RegistryLoader
      *            the filename of the XML file to load
      */
     public static void loadBitstreamFormats(Context context, String filename)
-            throws SQLException, IOException, ParserConfigurationException,
+            throws IOException, ParserConfigurationException,
             SAXException, TransformerException, AuthorizeException
     {
         Document document = loadXML(filename);
@@ -187,7 +186,7 @@ public class RegistryLoader
      *            the node in the DOM tree
      */
     private static void loadFormat(Context context, Node node)
-            throws SQLException, IOException, TransformerException,
+            throws IOException, TransformerException,
             AuthorizeException
     {
         // Get the values
@@ -228,7 +227,7 @@ public class RegistryLoader
      * @throws NonUniqueMetadataException
      */
     public static void loadDublinCoreTypes(Context context, String filename)
-            throws SQLException, IOException, ParserConfigurationException,
+            throws IOException, ParserConfigurationException,
             SAXException, TransformerException, AuthorizeException,
             NonUniqueMetadataException
     {

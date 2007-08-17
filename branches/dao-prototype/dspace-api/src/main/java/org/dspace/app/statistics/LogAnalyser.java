@@ -49,7 +49,6 @@ import java.lang.Long;
 import java.lang.StringBuffer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -256,8 +255,7 @@ public class LogAnalyser
      * main method to be run from command line.  See usage information for
      * details as to how to use the command line flags (-help)
      */
-    public static void main(String [] argv)
-        throws Exception, SQLException
+    public static void main(String [] argv) throws Exception
     {
         // first, start the processing clock
         startTime = new GregorianCalendar();
@@ -341,7 +339,7 @@ public class LogAnalyser
                                     String myFileTemplate, String myConfigFile,
                                     String myOutFile, Date myStartDate,
                                     Date myEndDate, boolean myLookUp)
-        throws IOException, SQLException
+        throws IOException
     {
         // FIXME: perhaps we should have all parameters and aggregators put
         // together in a single aggregating object
@@ -1152,7 +1150,6 @@ public class LogAnalyser
      * @return              an integer containing the relevant count
      */
     public static Integer getNumItems(Context context, String type)
-        throws SQLException
     {
         // FIXME: we don't yet collect total statistics, such as number of items
         // withdrawn, number in process of submission etc.  We should probably do
@@ -1190,7 +1187,6 @@ public class LogAnalyser
      *                      archive
      */
     public static Integer getNumItems(Context context)
-        throws SQLException
     {
         return getNumItems(context, null);
     }

@@ -47,7 +47,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -192,8 +191,7 @@ public class ReportGenerator
      * main method to be run from command line.  See usage information for
      * details as to how to use the command line flags
      */
-    public static void main(String [] argv)
-        throws Exception, SQLException
+    public static void main(String [] argv) throws Exception
     {
         // create context as super user
         Context context = new Context();
@@ -250,7 +248,7 @@ public class ReportGenerator
     public static void processReport(Context context, String myFormat, 
                                      String myInput, String myOutput,
                                      String myMap)
-        throws Exception, SQLException
+        throws Exception
     {
         startTime = new GregorianCalendar();
         
@@ -816,7 +814,6 @@ public class ReportGenerator
      *              article
      */
     public static String getItemInfo(Context context, String uri)
-        throws SQLException
     {
         Item item = null;
         
