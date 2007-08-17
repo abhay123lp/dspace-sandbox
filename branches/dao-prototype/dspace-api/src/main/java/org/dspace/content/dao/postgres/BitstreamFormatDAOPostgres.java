@@ -199,7 +199,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
             // NOTE: Avoid internal formats since e.g. "License" also has
             // a MIMEtype of text/plain.
             TableRow row = DatabaseManager.querySingle(context,
-                "SELECT bitstream_format_id FROM bitstreamformatregistry " +
+                "SELECT * FROM bitstreamformatregistry " +
                 "WHERE mimetype LIKE ? AND internal = '0'", mimeType);
 
             if (row == null)
@@ -322,12 +322,11 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         {
             List<BitstreamFormat> formats = new ArrayList<BitstreamFormat>();
 
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "bitstreamformatregistry",
+            TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT bitstream_format_id " +
                     "FROM bitstreamformatregistry " +
                     "ORDER BY bitstream_format_id");
-
+            
             return returnAsList(tri);
         }
         catch (SQLException sqle)

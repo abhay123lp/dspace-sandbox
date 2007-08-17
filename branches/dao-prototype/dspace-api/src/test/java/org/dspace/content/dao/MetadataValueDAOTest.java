@@ -46,30 +46,17 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
-import org.dspace.core.Context;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.dao.EPersonDAO;
-import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.storage.dao.CRUDTest;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class MetadataValueDAOTest implements CRUDTest
+public class MetadataValueDAOTest extends ContentDAOTest implements CRUDTest
 {
-    private static Context context;
     private MetadataValueDAO instance;
     private MetadataFieldDAO fieldDAO;
     private MetadataSchemaDAO schemaDAO;
     private ItemDAO itemDAO;
-
-    private static final String ADMIN_EMAIL = "james.rutherford@hp.com";
-    private static final String CONFIG = "/opt/dspace-dao/config/dspace.cfg";
     
     public MetadataValueDAOTest()
     {
@@ -77,38 +64,6 @@ public class MetadataValueDAOTest implements CRUDTest
         fieldDAO = MetadataFieldDAOFactory.getInstance(context);
         schemaDAO = MetadataSchemaDAOFactory.getInstance(context);
         itemDAO = ItemDAOFactory.getInstance(context);
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception
-    {
-        ConfigurationManager.loadConfig(CONFIG);
-
-        context = new Context();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception
-    {
-        context.abort();
-    }
-
-    @Before
-    public void setUp() throws Exception
-    {
-        // We set the EPerson in the Context before each test, just in case one
-        // of them needs to alter it.
-        EPersonDAO epersonDAO = EPersonDAOFactory.getInstance(context);
-        EPerson admin = epersonDAO.retrieve(EPerson.EPersonMetadataField.EMAIL,
-                ADMIN_EMAIL);
-
-        context.setCurrentUser(admin);
-        context.setIgnoreAuthorization(false);
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
     }
 
     @Test
@@ -210,5 +165,4 @@ public class MetadataValueDAOTest implements CRUDTest
         assertTrue(containsOne);
         assertTrue(containsTwo);
     }
-    
 }

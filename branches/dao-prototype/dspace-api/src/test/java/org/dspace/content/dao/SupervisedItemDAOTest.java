@@ -43,8 +43,6 @@ import java.util.List;
 
 import org.dspace.content.SupervisedItem;
 import org.dspace.content.WorkspaceItem;
-import org.dspace.core.Context;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.EPersonDAO;
@@ -52,23 +50,15 @@ import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class SupervisedItemDAOTest
+public class SupervisedItemDAOTest extends ContentDAOTest
 {
-    private static Context context;
     private SupervisedItemDAO instance;
     private WorkspaceItemDAO wsiDAO;
     private GroupDAO groupDAO;
     private EPersonDAO epersonDAO;
-
-    private static final String ADMIN_EMAIL = "james.rutherford@hp.com";
-    private static final String CONFIG = "/opt/dspace-dao/config/dspace.cfg";
     
     public SupervisedItemDAOTest()
     {
@@ -76,38 +66,6 @@ public class SupervisedItemDAOTest
         wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
         groupDAO = GroupDAOFactory.getInstance(context);
         epersonDAO = EPersonDAOFactory.getInstance(context);
-    }
-
-    @BeforeClass
-    public static void setUpClass() throws Exception
-    {
-        ConfigurationManager.loadConfig(CONFIG);
-
-        context = new Context();
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception
-    {
-        context.abort();
-    }
-
-    @Before
-    public void setUp() throws Exception
-    {
-        // We set the EPerson in the Context before each test, just in case one
-        // of them needs to alter it.
-        EPersonDAO epersonDAO = EPersonDAOFactory.getInstance(context);
-        EPerson admin = epersonDAO.retrieve(EPerson.EPersonMetadataField.EMAIL,
-                ADMIN_EMAIL);
-
-        context.setCurrentUser(admin);
-        context.setIgnoreAuthorization(false);
-    }
-
-    @After
-    public void tearDown() throws Exception
-    {
     }
 
     @Test
