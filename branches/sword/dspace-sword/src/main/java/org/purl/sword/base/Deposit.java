@@ -3,8 +3,6 @@ package org.purl.sword.base;
 import java.io.File;
 import java.io.InputStream;
 
-import org.apache.commons.fileupload.FileItem;
-
 /**
  * Represents a deposit. 
  * 
