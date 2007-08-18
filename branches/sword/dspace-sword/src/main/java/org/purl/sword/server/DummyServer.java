@@ -1,17 +1,24 @@
 package org.purl.sword.server;
 
+import java.io.IOException;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
+
 import org.purl.sword.base.SWORDAuthenticationException;
 import org.purl.sword.server.SWORDServer;
 import org.purl.sword.base.Collection;
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
+import org.purl.sword.base.ErrorCodes;
 import org.purl.sword.base.SWORDEntry;
+import org.purl.sword.base.SWORDException;
 import org.purl.sword.base.Service;
 import org.purl.sword.base.ServiceDocument;
 import org.purl.sword.base.ServiceDocumentRequest;
 import org.purl.sword.base.ServiceLevel;
 import org.purl.sword.base.Workspace;
 import org.w3.atom.Author;
+import org.w3.atom.Summary;
 import org.w3.atom.Title;
 
 /**
@@ -42,9 +49,9 @@ public class DummyServer implements SWORDServer {
 		// Authenticate the user
 		String username = sdr.getUsername();
 		String password = sdr.getPassword();
-		if ((username != null) && 
-		    (password != null) && 
-		    (!username.equalsIgnoreCase(password))) {
+		if ((username != null) && (password != null) && 
+			(((username.equals("")) && (password.equals(""))) || 
+		     (!username.equalsIgnoreCase(password))) ) {
 				// User not authenticated
 				throw new SWORDAuthenticationException("Bad credentials");
 		}
@@ -92,15 +99,27 @@ public class DummyServer implements SWORDServer {
 	    return document;
 	}
 
-	public DepositResponse doDeposit(Deposit deposit) throws SWORDAuthenticationException {
+	public DepositResponse doDeposit(Deposit deposit) throws SWORDAuthenticationException, SWORDException {
 		// Authenticate the user
 		String username = deposit.getUsername();
 		String password = deposit.getPassword();
-		if ((username != null) && 
-		    (password != null) && 
-		    (!username.equalsIgnoreCase(password))) {
-				// User not authenticated
+		if ((username != null) && (password != null) && 
+			(((username.equals("")) && (password.equals(""))) || 
+			 (!username.equalsIgnoreCase(password))) ) {
+			// User not authenticated
 			throw new SWORDAuthenticationException("Bad credentials");
+		}
+		
+		// Get the filenames
+		StringBuffer filenames = new StringBuffer("Deposit file contained:");
+		try {
+			ZipInputStream zip = new ZipInputStream(deposit.getFile());
+			ZipEntry ze;
+			while ((ze = zip.getNextEntry()) != null) {
+				filenames.append(" " + ze.toString());
+			}
+		} catch (IOException ioe) {
+			throw new SWORDException("Failed to open deposited zip file", null, ErrorCodes.ERROR_CONTENT);
 		}
 		
 		// Handle the deposit
@@ -109,6 +128,9 @@ public class DummyServer implements SWORDServer {
 		SWORDEntry se = new SWORDEntry();
 		se.addCategory("Category");
 		se.setId("" + counter);
+		Summary s = new Summary();
+		s.setContent(filenames.toString());
+		se.setSummary(s);
 		Author a = new Author();
 		if (username != null) {
 			a.setName(username);
