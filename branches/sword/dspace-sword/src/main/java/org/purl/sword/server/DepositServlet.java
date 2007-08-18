@@ -1,9 +1,14 @@
 package org.purl.sword.server;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -29,9 +34,11 @@ public class DepositServlet extends HttpServlet {
 	
 	private int maxMemorySize;
 	
-	private File tempDirectory;
+	private String tempDirectory;
 	
 	private int maxRequestSize;
+	
+	private static int counter = 0;
 	
 	private static Logger log = Logger.getLogger(DepositServlet.class);
 	
@@ -63,16 +70,16 @@ public class DepositServlet extends HttpServlet {
 		}
 		log.info("Upload max size to store in memory: " + maxMemorySize + "KB");
 		
-		String tempDir = getServletContext().getInitParameter("upload-temp-directory");
-		if ((tempDir == null) || (tempDir.equals(""))) {
-			tempDir = System.getProperty("java.io.tmpdir");
+		tempDirectory = getServletContext().getInitParameter("upload-temp-directory");
+		if ((tempDirectory == null) || (tempDirectory.equals(""))) {
+			tempDirectory = System.getProperty("java.io.tmpdir");
 		}
-		tempDirectory = new File(tempDir);
+		File tempDir = new File(tempDirectory);
 		log.info("Upload temporary directory set to: " + tempDir);
-		if (!tempDirectory.isDirectory()) {
+		if (!tempDir.isDirectory()) {
 			log.fatal("Upload temporary directory is not a directory: " + tempDir);
 		}
-		if (!tempDirectory.canWrite()) {
+		if (!tempDir.canWrite()) {
 			log.fatal("Upload temporary directory cannot be written to: " + tempDir);
 		}
 		
@@ -117,8 +124,23 @@ public class DepositServlet extends HttpServlet {
 		 
 		// Do the processing
 		try {
+			// Write the file to the temp directory
+			// TODO: Improve the filename creation
+			String filename = tempDirectory + "SWORD-" + 
+			                  request.getRemoteAddr() + "-" + counter++;
+			System.out.println(filename);
+			InputStream inputStream = request.getInputStream();
+			OutputStream outputStream = new FileOutputStream(filename); 
+			int data;
+			while((data = inputStream.read()) != -1)
+			{
+			   outputStream.write(data);
+			}
+			inputStream.close();
+			outputStream.close();
+			
 			// Check the MD5 hash
-			String receivedMD5 = ChecksumUtils.generateMD5(request.getInputStream());
+			String receivedMD5 = ChecksumUtils.generateMD5(filename);
 			log.debug("Received filechecksum: " + receivedMD5);
 			d.setMd5(receivedMD5);
 			String md5 = request.getHeader("Content-MD5"); 
@@ -129,7 +151,9 @@ public class DepositServlet extends HttpServlet {
 				log.debug("Bad MD5 for file. Aborting with appropriate error message");
 			} else {
 				// Set the file
-				d.setFile(request.getInputStream());
+				File f = new File(filename);
+				FileInputStream fis = new FileInputStream(f);
+				d.setFile(fis);
 				
 				// Set the X-On-Behalf-Of header
 				d.setOnBehalfOf(request.getHeader(HttpHeaders.X_ON_BEHALF_OF.toString()));
@@ -164,6 +188,13 @@ public class DepositServlet extends HttpServlet {
 				response.setContentType("application/xml");
 				PrintWriter out = response.getWriter();
 		        out.write(dr.marshall());
+		        
+		        // Close the input stream if it still open
+		        fis.close();
+		        
+		        // Try deleting the temp file
+		        f = new File(filename);
+		        f.delete();
 			}
 		} catch (SWORDAuthenticationException sae) {
 			if (authN.equals("Basic")) {
