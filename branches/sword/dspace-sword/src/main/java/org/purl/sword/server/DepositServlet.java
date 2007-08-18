@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
-import java.util.List;
+import java.util.Date;
 import java.util.StringTokenizer;
 
 import javax.servlet.ServletException;
@@ -13,18 +13,13 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileUploadException;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.log4j.Logger;
 import org.purl.sword.base.ChecksumUtils;
+import org.purl.sword.base.Deposit;
+import org.purl.sword.base.DepositResponse;
 import org.purl.sword.base.HttpHeaders;
 import org.purl.sword.base.SWORDAuthenticationException;
 import org.purl.sword.base.SWORDException;
-import org.purl.sword.server.SWORDServer;
-import org.purl.sword.base.Deposit;
-import org.purl.sword.base.DepositResponse;
 
 public class DepositServlet extends HttpServlet {
 	
@@ -102,10 +97,12 @@ public class DepositServlet extends HttpServlet {
     {
     	// Create the Deposit request
 		Deposit d = new Deposit();
+		Date date = new Date();
+    	log.debug("Starting deposit processing at " + date.toString() + " by " + request.getRemoteAddr());
     	
 		// Are there any authentcation details?
 		String usernamePassword = getUsernamePassword(request);
-		if (usernamePassword != null) {
+		if ((usernamePassword != null) && (!usernamePassword.equals(""))) {
 			int p = usernamePassword.indexOf(":");
 			if (p != -1) {
 				d.setUsername(usernamePassword.substring(0, p));
@@ -115,88 +112,83 @@ public class DepositServlet extends HttpServlet {
 			String s = "Basic realm=\"SWORD\"";
 	    	response.setHeader("WWW-Authenticate", s);
 	    	response.setStatus(401);
+	    	log.debug("No authentication credentials given. Asking for some");
 		}
-		
-		// Is there actually a file?
-		if (!ServletFileUpload.isMultipartContent(request)) {
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST);
-		} else {
-			try {
-				DiskFileItemFactory factory = new DiskFileItemFactory();
-				factory.setSizeThreshold(maxMemorySize);
-				factory.setRepository(tempDirectory);
-				ServletFileUpload upload = new ServletFileUpload(factory);
-				upload.setSizeMax(maxRequestSize);
-				List items = upload.parseRequest(request);
+		 
+		// Do the processing
+		try {
+			// Check the MD5 hash
+			String receivedMD5 = ChecksumUtils.generateMD5(request.getInputStream());
+			log.debug("Received filechecksum: " + receivedMD5);
+			d.setMd5(receivedMD5);
+			String md5 = request.getHeader("Content-MD5"); 
+			log.debug("Received file checksum header: " + md5);
+			if ((md5 != null) && (!md5.equals(receivedMD5))) {
+				response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
+				response.setHeader(HttpHeaders.X_ERROR_CODE, "ErrorChecksumMismatch");
+				log.debug("Bad MD5 for file. Aborting with appropriate error message");
+			} else {
+				// Set the file
+				d.setFile(request.getInputStream());
 				
-				if (items.size() != 1) {
-					response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+				// Set the X-On-Behalf-Of header
+				d.setOnBehalfOf(request.getHeader(HttpHeaders.X_ON_BEHALF_OF.toString()));
+				
+				// Set the X-Format-Namespace header
+				d.setFormatNamespace(request.getHeader(HttpHeaders.X_FORMAT_NAMESPACE));
+	
+				// Set the X-No-Op header
+				String noop = request.getHeader(HttpHeaders.X_NO_OP);
+				if ((noop != null) && (noop.equals("true"))) {
+					d.setNoOp(true);
 				} else {
-					// Check the MD5 hash
-					FileItem fi = (FileItem)items.get(0);
-					String receivedMD5 = ChecksumUtils.generateMD5(fi.get());
-					d.setMd5(receivedMD5);
-					String md5 = request.getHeader("Content-MD5");
-					if (!md5.equals(receivedMD5)) {
-						response.sendError(HttpServletResponse.SC_PRECONDITION_FAILED);
-					} else {
-						// Set the file
-						d.setFile(fi.getInputStream());
-						
-						// Set the X-On-Behalf-Of header
-						d.setOnBehalfOf(request.getHeader(HttpHeaders.X_ON_BEHALF_OF.toString()));
-						
-						// Set the X-Format-Namespace header
-						d.setFormatNamespace(request.getHeader(HttpHeaders.X_FORMAT_NAMESPACE));
-
-						// Set the X-No-Op header
-						String noop = request.getHeader(HttpHeaders.X_NO_OP);
-						if (noop.equals("true")) {
-							d.setNoOp(true);
-						} else {
-							d.setNoOp(false);
-						}
-
-						// Set the X-Verbose header
-						String verbose = request.getHeader(HttpHeaders.X_VERBOSE);
-						if (verbose.equals("true")) {
-							d.setVerbose(true);
-						} else {
-							d.setVerbose(false);
-						}
-						
-						// Set the IP address
-						d.setIPAddress(request.getRemoteAddr());
-						
-				        // Get the DepositResponse
-						DepositResponse dr = myRepository.doDeposit(d);
-						
-						// Print out the Deposit Response
-						// response.setContentType("application/atomserv+xml");
-						response.setContentType("application/xml");
-						PrintWriter out = response.getWriter();
-				        out.write(dr.marshall());
-					}
+					d.setNoOp(false);
 				}
-			} catch (SWORDAuthenticationException sae) {
-				if (authN.equals("Basic")) {
-			    	String s = "Basic realm=\"SWORD\"";
-			    	response.setHeader("WWW-Authenticate", s);
-			    	response.setStatus(401);
+	
+				// Set the X-Verbose header
+				String verbose = request.getHeader(HttpHeaders.X_VERBOSE);
+				if ((verbose != null) && (verbose.equals("true"))) {
+					d.setVerbose(true);
+				} else {
+					d.setVerbose(false);
 				}
-			} catch (SWORDException se) {
-				// Throw a HTTP 500
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				log.error(se.toString());
-			} catch (FileUploadException fee) {
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				log.error(fee.toString());
-			} catch (NoSuchAlgorithmException nsae) {
-				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-				log.error(nsae.toString());
+				
+				// Set the IP address
+				d.setIPAddress(request.getRemoteAddr());
+				
+		        // Get the DepositResponse
+				DepositResponse dr = myRepository.doDeposit(d);
+				
+				// Print out the Deposit Response
+				// response.setContentType("application/atomserv+xml");
+				response.setContentType("application/xml");
+				PrintWriter out = response.getWriter();
+		        out.write(dr.marshall());
 			}
+		} catch (SWORDAuthenticationException sae) {
+			if (authN.equals("Basic")) {
+		    	String s = "Basic realm=\"SWORD\"";
+		    	response.setHeader("WWW-Authenticate", s);
+		    	response.setStatus(401);
+			}
+		} catch (SWORDException se) {
+			// Throw a HTTP 500
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			
+			// Is there an appropriate error header to return?
+			if (se.getErrorCode() != null) {
+				response.setHeader(HttpHeaders.X_ERROR_CODE, se.getErrorCode());
+			}
+			System.out.println(se.toString());
+			log.error(se.toString());
+		} catch (IOException ioe) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			log.error(ioe.toString());
+		} catch (NoSuchAlgorithmException nsae) {
+			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			log.error(nsae.toString());
 		}
-    }
+	}
 	
     /**
      * Utiliy method to return the username and password (separated by a colon ':')
