@@ -66,6 +66,7 @@ public class ServiceDocumentServlet extends HttpServlet {
 			String s = "Basic realm=\"SWORD\"";
 	    	response.setHeader("WWW-Authenticate", s);
 	    	response.setStatus(401);
+	    	return;
 		}
     	
 		// Set the x-on-behalf-of header

@@ -108,8 +108,8 @@ public class DepositServlet extends HttpServlet {
     	log.debug("Starting deposit processing at " + date.toString() + " by " + request.getRemoteAddr());
     	
 		// Are there any authentcation details?
-		String usernamePassword = getUsernamePassword(request);
-		if ((usernamePassword != null) && (!usernamePassword.equals(""))) {
+    	String usernamePassword = getUsernamePassword(request);
+    	if ((usernamePassword != null) && (!usernamePassword.equals(""))) {
 			int p = usernamePassword.indexOf(":");
 			if (p != -1) {
 				d.setUsername(usernamePassword.substring(0, p));
@@ -119,7 +119,7 @@ public class DepositServlet extends HttpServlet {
 			String s = "Basic realm=\"SWORD\"";
 	    	response.setHeader("WWW-Authenticate", s);
 	    	response.setStatus(401);
-	    	log.debug("No authentication credentials given. Asking for some");
+	    	return;
 		}
 		 
 		// Do the processing
@@ -128,7 +128,6 @@ public class DepositServlet extends HttpServlet {
 			// TODO: Improve the filename creation
 			String filename = tempDirectory + "SWORD-" + 
 			                  request.getRemoteAddr() + "-" + counter++;
-			System.out.println(filename);
 			InputStream inputStream = request.getInputStream();
 			OutputStream outputStream = new FileOutputStream(filename); 
 			int data;
