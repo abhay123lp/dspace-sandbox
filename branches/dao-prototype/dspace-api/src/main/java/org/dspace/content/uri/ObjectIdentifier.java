@@ -204,8 +204,10 @@ public class ObjectIdentifier
 
     public URL getURL()
     {
+        // This is a bit of a hack to get an almost-URLEncoded form of the URL.
+        // (See the FIXME below).
         String url = ConfigurationManager.getProperty("dspace.url") +
-            "/resource/" + getCanonicalForm();
+            "/resource/" + getCanonicalForm().replaceAll(":", "%3A");
 
         try
         {

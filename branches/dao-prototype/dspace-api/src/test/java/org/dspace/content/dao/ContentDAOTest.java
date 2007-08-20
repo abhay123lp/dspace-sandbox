@@ -55,7 +55,7 @@ import org.junit.BeforeClass;
 
 public abstract class ContentDAOTest
 {
-    private static final String CONFIG = "/opt/dspace-dao/config/dspace.cfg";
+    private static final String CONFIG = "/opt/dspace-dao_test/config/dspace.cfg";
     protected static EPerson admin;
     protected static Context context;
 

@@ -184,7 +184,6 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
     @Override
     public void update(MetadataField field) throws AuthorizeException
     {
-        log.info(field);
         try
         {
             int id = field.getID();

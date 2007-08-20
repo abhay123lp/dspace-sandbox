@@ -312,7 +312,6 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
             else
             {
                 populateWorkspaceItemFromTableRow(t, row);
-                log.info(t);
             }
         }
         catch (SQLException sqle)
