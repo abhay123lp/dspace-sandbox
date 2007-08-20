@@ -45,12 +45,13 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.storage.dao.CRUDTest;
+import org.dspace.storage.dao.DAOTest;
 import org.dspace.storage.dao.LinkTest;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class BundleDAOTest extends ContentDAOTest implements CRUDTest, LinkTest
+public class BundleDAOTest extends DAOTest implements CRUDTest, LinkTest
 {
     private BundleDAO instance;
     private BitstreamDAO bitstreamDAO;

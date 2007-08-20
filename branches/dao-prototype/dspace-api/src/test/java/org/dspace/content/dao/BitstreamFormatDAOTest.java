@@ -43,11 +43,12 @@ import java.util.UUID;
 
 import org.dspace.content.BitstreamFormat;
 import org.dspace.storage.dao.CRUDTest;
+import org.dspace.storage.dao.DAOTest;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class BitstreamFormatDAOTest extends ContentDAOTest
+public class BitstreamFormatDAOTest extends DAOTest
     implements CRUDTest
 {
     private BitstreamFormatDAO instance;

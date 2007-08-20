@@ -49,11 +49,12 @@ import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
+import org.dspace.storage.dao.DAOTest;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class SupervisedItemDAOTest extends ContentDAOTest
+public class SupervisedItemDAOTest extends DAOTest
 {
     private SupervisedItemDAO instance;
     private WorkspaceItemDAO wsiDAO;

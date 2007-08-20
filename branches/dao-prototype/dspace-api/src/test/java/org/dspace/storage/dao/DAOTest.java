@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.storage.dao;
 
 import org.dspace.core.Context;
 import org.dspace.core.ConfigurationManager;
@@ -53,7 +53,7 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
-public abstract class ContentDAOTest
+public abstract class DAOTest
 {
     private static final String CONFIG = "/opt/dspace-dao_test/config/dspace.cfg";
     protected static EPerson admin;

@@ -47,11 +47,12 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.storage.dao.CRUDTest;
+import org.dspace.storage.dao.DAOTest;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class MetadataValueDAOTest extends ContentDAOTest implements CRUDTest
+public class MetadataValueDAOTest extends DAOTest implements CRUDTest
 {
     private MetadataValueDAO instance;
     private MetadataFieldDAO fieldDAO;

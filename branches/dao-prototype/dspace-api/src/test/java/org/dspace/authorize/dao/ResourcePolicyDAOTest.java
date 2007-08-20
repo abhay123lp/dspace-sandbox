@@ -1,5 +1,5 @@
 /*
- * ExternalIdentifierDAOPostgresTest.java
+ * ResourcePolicyDAOTest.java
  *
  * Version: $Revision: 1727 $
  *
@@ -37,52 +37,81 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.uri.dao;
+package org.dspace.authorize.dao;
 
 import java.util.List;
 
+import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.ExternalIdentifier.Type;
+import org.dspace.core.Context;
+import org.dspace.core.Constants;
+import org.dspace.storage.dao.CRUDTest;
 import org.dspace.storage.dao.DAOTest;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class ExternalIdentifierDAOTest extends DAOTest
+/**
+ * FIXME: ContentDAOTest probably needs to be moved (and renamed) now that
+ * we're using it in different packages.
+ */
+public class ResourcePolicyDAOTest extends DAOTest
 {
-    private ExternalIdentifierDAO instance;
+    private ResourcePolicyDAO instance;
     
-    public ExternalIdentifierDAOTest()
+    public ResourcePolicyDAOTest()
     {
-        instance = ExternalIdentifierDAOFactory.getInstance(context);
+        instance = ResourcePolicyDAOFactory.getInstance(context);
     }
 
     @Test
     public void create()
     {
-        // This should test the following creation scenarios:
-        //  * attach newly minted identifier to DSpaceObject
-        //  * parse given canonical form into an ExternalIdentifier then
-        //    attach to the given DSpaceObject
-        //  * turn given type + value into ExternalIdentifier then attach to
-        //    the given DSpaceObject
+        ResourcePolicy result = instance.create();
+
+        int id = result.getID();
+
+        assertTrue(id > 0);
     }
 
     @Test
     public void retrieve()
     {
-        // This should test the following retrieval methods:
-        //  * canonical form
-        //  * type + value
+        ResourcePolicy existing = instance.create();
+        ResourcePolicy result = instance.retrieve(existing.getID());
+
+        assertEquals(existing.getID(), result.getID());
     }
 
     @Test
-    public void getExternalIdentifiers()
+    public void update()
     {
-        // This should test the following batch-retrieval methods:
-        //  * all for a given DSpaceObject
-        //  * all of a given type
-        //  * all of a given type with a given prefix
+        ResourcePolicy rp = instance.create();
+        rp.setResourceType(Constants.ITEM);
+        instance.update(rp);
+        
+        ResourcePolicy result = instance.retrieve(rp.getID());
+        assertEquals(Constants.ITEM, result.getResourceType());
+    }
+
+    @Test
+    public void delete()
+    {
+        ResourcePolicy result = instance.create();
+        int id = result.getID();
+
+        instance.delete(id);
+
+        assertNull(instance.retrieve(id));
+    }
+
+    @Test
+    public void getPolicies()
+    {
+        // Test for the following arguments:
+        //  * DSpaceObject
+        //  * Group
+        //  * DSpaceObject, Group
+        //  * DSpaceObject, actionID
     }
 }

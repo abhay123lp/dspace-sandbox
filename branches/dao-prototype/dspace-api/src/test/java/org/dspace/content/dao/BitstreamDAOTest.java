@@ -44,11 +44,12 @@ import java.util.List;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.storage.dao.CRUDTest;
+import org.dspace.storage.dao.DAOTest;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class BitstreamDAOTest extends ContentDAOTest implements CRUDTest
+public class BitstreamDAOTest extends DAOTest implements CRUDTest
 {
     private BitstreamDAO instance;
     private BundleDAO bundleDAO;

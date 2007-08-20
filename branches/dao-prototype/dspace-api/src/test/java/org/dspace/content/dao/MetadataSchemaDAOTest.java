@@ -44,11 +44,12 @@ import java.util.UUID;
 
 import org.dspace.content.MetadataSchema;
 import org.dspace.storage.dao.CRUDTest;
+import org.dspace.storage.dao.DAOTest;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class MetadataSchemaDAOTest extends ContentDAOTest implements CRUDTest
+public class MetadataSchemaDAOTest extends DAOTest implements CRUDTest
 {
     private MetadataSchemaDAO instance;
 

@@ -46,12 +46,13 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.core.Constants;
 import org.dspace.storage.dao.CRUDTest;
+import org.dspace.storage.dao.DAOTest;
 import org.dspace.storage.dao.LinkTest;
 
 import org.junit.Test;
 import static org.junit.Assert.*;
 
-public class CollectionDAOTest extends ContentDAOTest
+public class CollectionDAOTest extends DAOTest
     implements CRUDTest, LinkTest
 {
     private CollectionDAO instance;
