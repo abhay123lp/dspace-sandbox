@@ -39,6 +39,7 @@
  */
 package org.dspace.content.uri.dao;
 
+import org.dspace.content.uri.dao.postgres.ExternalIdentifierDAOPostgres;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
