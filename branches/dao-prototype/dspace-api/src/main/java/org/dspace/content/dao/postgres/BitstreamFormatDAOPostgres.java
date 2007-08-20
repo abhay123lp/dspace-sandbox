@@ -199,7 +199,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
             // NOTE: Avoid internal formats since e.g. "License" also has
             // a MIMEtype of text/plain.
             TableRow row = DatabaseManager.querySingle(context,
-                "SELECT * FROM bitstreamformatregistry " +
+                "SELECT bitstream_format_id FROM bitstreamformatregistry " +
                 "WHERE mimetype LIKE ? AND internal = '0'", mimeType);
 
             if (row == null)

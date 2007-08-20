@@ -1287,5 +1287,3 @@ public class Item extends DSpaceObject
         clearMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang);
     }
 }
-
-
