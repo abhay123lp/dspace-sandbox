@@ -120,6 +120,7 @@ public class WorkflowItemDAOTest extends DAOTest implements CRUDTest
     public void createTask() throws Exception
     {
         WorkflowItem wfi = createWorkflowItem();
+        EPerson eperson = epersonDAO.create();
         TaskListItem tli = instance.createTask(wfi, eperson);
 
         int id = tli.getID();
@@ -159,7 +160,7 @@ public class WorkflowItemDAOTest extends DAOTest implements CRUDTest
     {
     }
 
-    private WorkflowItem createWorkFlowItem()
+    private WorkflowItem createWorkflowItem() throws Exception
     {
         WorkflowItem wfi = instance.create();
         Collection collection = collectionDAO.create();
