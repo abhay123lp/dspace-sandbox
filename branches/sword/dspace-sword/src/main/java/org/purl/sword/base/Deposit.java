@@ -1,6 +1,5 @@
 package org.purl.sword.base;
 
-import java.io.File;
 import java.io.InputStream;
 
 /**
