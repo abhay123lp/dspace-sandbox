@@ -53,6 +53,9 @@ public class Subscription
     public Subscription(int id)
     {
         this.id = id;
+
+        epersonID = -1;
+        collectionID = -1;
     }
 
     public int getID()

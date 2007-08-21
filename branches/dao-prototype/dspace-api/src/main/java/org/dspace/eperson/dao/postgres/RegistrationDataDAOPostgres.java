@@ -57,6 +57,7 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
         this.context = context;
     }
 
+    @Override
     public RegistrationData create()
     {
         try
@@ -73,11 +74,19 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
         }
     }
 
+    @Override
+    public RegistrationData retrieve(int id)
+    {
+        return retrieve("registrationdata_id", new Integer(id).toString());
+    }
+
+    @Override
     public RegistrationData retrieveByEmail(String email)
     {
         return retrieve("email", email);
     }
 
+    @Override
     public RegistrationData retrieveByToken(String token)
     {
         return retrieve("token", token);
@@ -87,8 +96,17 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
     {
         try
         {
-            TableRow row = DatabaseManager.findByUnique(context,
-                    "registrationdata", field, value);
+            TableRow row = null;
+            if (field.equals("registrationdata_id"))
+            {
+                row = DatabaseManager.find(context, "registrationdata",
+                        Integer.parseInt(value));
+            }
+            else
+            {
+                row = DatabaseManager.findByUnique(context, "registrationdata",
+                        field, value);
+            }
 
             if (row == null)
             {
@@ -111,6 +129,7 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
         }
     }
 
+    @Override
     public void update(RegistrationData rd)
     {
         try
@@ -131,6 +150,22 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
         }
     }
 
+    @Override
+    public void delete(int id)
+    {
+        super.delete(id);
+
+        try
+        {
+            DatabaseManager.delete(context, "registrationdata", id);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
     public void delete(String token)
     {
         super.delete(token);

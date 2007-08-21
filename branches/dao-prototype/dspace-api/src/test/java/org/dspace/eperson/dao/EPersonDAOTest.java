@@ -1,5 +1,5 @@
 /*
- * RegistrationDataDAO.java
+ * EPersonDAOTest.java
  *
  * Version: $Revision: 1727 $
  *
@@ -39,35 +39,81 @@
  */
 package org.dspace.eperson.dao;
 
-import org.apache.log4j.Logger;
+import java.util.List;
+import java.util.UUID;
 
-import org.dspace.core.Context;
-import org.dspace.eperson.RegistrationData;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+import org.dspace.storage.dao.CRUDTest;
+import org.dspace.storage.dao.DAOTest;
 
-/**
- * @author James Rutherford
- */
-public abstract class RegistrationDataDAO
+import org.junit.Test;
+import static org.junit.Assert.*;
+
+public class EPersonDAOTest extends DAOTest implements CRUDTest
 {
-    protected Logger log = Logger.getLogger(RegistrationDataDAO.class);
-
-    protected Context context;
-
-    public abstract RegistrationData create();
-    public abstract RegistrationData retrieve(int id);
-    public abstract RegistrationData retrieveByEmail(String email);
-    public abstract RegistrationData retrieveByToken(String token);
-    public abstract void update(RegistrationData registrationData);
-
-    public void delete(int id)
+    private EPersonDAO instance;
+    
+    public EPersonDAOTest()
     {
-        RegistrationData rd = retrieve(id);
-        update(rd);
+        instance = EPersonDAOFactory.getInstance(context);
     }
 
-    public void delete(String token)
+    @Test
+    public void create() throws Exception
     {
-        RegistrationData rd = retrieveByToken(token);
-        update(rd);
+        EPerson result = instance.create();
+
+        int id = result.getID();
+
+        assertTrue(id > 0);
+    }
+
+    @Test
+    public void retrieve() throws Exception
+    {
+        EPerson existing = instance.create();
+        EPerson result = instance.retrieve(existing.getID());
+
+        assertEquals(existing.getID(), result.getID());
+    }
+
+    @Test
+    public void update() throws Exception
+    {
+        EPerson eperson = instance.create();
+
+        String email = UUID.randomUUID().toString();
+        eperson.setEmail(email);
+        instance.update(eperson);
+
+        EPerson result = instance.retrieve(eperson.getID());
+        assertEquals(result.getEmail(), email);
+    }
+
+    @Test
+    public void delete() throws Exception
+    {
+        EPerson eperson = instance.create();
+        int id = eperson.getID();
+
+        instance.delete(id);
+
+        assertNull(instance.retrieve(id));
+    }
+
+    @Test
+    public void getEPeople() throws Exception
+    {
+    }
+
+    @Test
+    public void getAllEPeople() throws Exception
+    {
+    }
+
+    @Test
+    public void search() throws Exception
+    {
     }
 }

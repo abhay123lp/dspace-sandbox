@@ -2,3 +2,5 @@ Stuff that needs fixin':
  * think about where to cache objects in the Context. currently happens in
    constructors, but should maybe happen elsewhere (should objects be
    responsible for cacheing themselves? probably not).
+ * CommunityDAOTest sometimes hangs for no apparent reason during test runs.
+   Could be a db connection thing, but it should be investigated.

@@ -205,15 +205,7 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
                     "SELECT subscription_id FROM subscription " +
                     "ORDER BY eperson_id");
 
-            List<Subscription> subscriptions = new ArrayList<Subscription>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("subscription_id");
-                subscriptions.add(retrieve(id));
-            }
-
-            return subscriptions;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -227,22 +219,28 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
         try
         {
             TableRowIterator tri = DatabaseManager.query(context,
-                    "SELECT subscription_id FROM subscription WHERE eperson_id = ?",
-                    eperson.getID());
+                    "SELECT subscription_id FROM subscription " +
+                    "WHERE eperson_id = ?", eperson.getID());
 
-            List<Subscription> subscriptions = new ArrayList<Subscription>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("subscription_id");
-                subscriptions.add(retrieve(id));
-            }
-
-            return subscriptions;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    private List<Subscription> returnAsList(TableRowIterator tri)
+        throws SQLException
+    {
+        List<Subscription> subscriptions = new ArrayList<Subscription>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("subscription_id");
+            subscriptions.add(retrieve(id));
+        }
+
+        return subscriptions;
     }
 }

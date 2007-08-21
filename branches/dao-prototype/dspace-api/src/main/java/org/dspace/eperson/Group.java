@@ -115,8 +115,6 @@ public class Group extends DSpaceObject
         this.name = name;
         modifiedMetadata = true;
         addDetails("name");
-        modifiedMetadata = true;
-        addDetails("name");
     }
 
     public void addMember(EPerson e)
