@@ -262,7 +262,8 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
         try
         {
             TableRowIterator tri = DatabaseManager.query(context,
-                    "SELECT workflow_id FROM workflow ORDER BY workflow_id");
+                    "SELECT workflow_id FROM workflowitem " +
+                    "ORDER BY workflow_id");
 
             return returnAsList(tri);
         }

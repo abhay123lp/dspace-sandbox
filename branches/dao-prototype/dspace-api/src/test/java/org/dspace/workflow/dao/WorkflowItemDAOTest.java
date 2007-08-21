@@ -143,11 +143,103 @@ public class WorkflowItemDAOTest extends DAOTest implements CRUDTest
     @Test
     public void getWorkflowItems() throws Exception
     {
+        WorkflowItem itemOne = createWorkflowItem();
+        WorkflowItem itemTwo = createWorkflowItem();
+        Collection collection = collectionDAO.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        for (WorkflowItem wfi : instance.getWorkflowItems())
+        {
+            if (wfi.equals(itemOne))
+            {
+                containsOne = true;
+            }
+            if (wfi.equals(itemTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
+
+        for (WorkflowItem wfi : instance.getWorkflowItems(collection))
+        {
+            if (wfi.equals(itemOne))
+            {
+                fail();
+            }
+            if (wfi.equals(itemTwo))
+            {
+                fail();
+            }
+        }
+
+        itemOne.setCollection(collection);
+        itemTwo.setCollection(collection);
+        instance.update(itemOne);
+        instance.update(itemTwo);
+
+        for (WorkflowItem wfi : instance.getWorkflowItems(collection))
+        {
+            if (wfi.equals(itemOne))
+            {
+                containsOne = true;
+            }
+            if (wfi.equals(itemTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
     }
 
     @Test
     public void getWorkflowItemsBySubmitter() throws Exception
     {
+        WorkflowItem itemOne = createWorkflowItem();
+        WorkflowItem itemTwo = createWorkflowItem();
+        EPerson eperson = epersonDAO.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        for (WorkflowItem wfi : instance.getWorkflowItemsBySubmitter(eperson))
+        {
+            if (wfi.equals(itemOne))
+            {
+                fail();
+            }
+            if (wfi.equals(itemTwo))
+            {
+                fail();
+            }
+        }
+
+        itemOne.getItem().setSubmitter(eperson);
+        itemTwo.getItem().setSubmitter(eperson);
+        itemDAO.update(itemOne.getItem());
+        itemDAO.update(itemTwo.getItem());
+
+        for (WorkflowItem wfi : instance.getWorkflowItemsBySubmitter(eperson))
+        {
+            if (wfi.equals(itemOne))
+            {
+                containsOne = true;
+            }
+            if (wfi.equals(itemTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
     }
 
     @Test
@@ -164,7 +256,11 @@ public class WorkflowItemDAOTest extends DAOTest implements CRUDTest
     {
         WorkflowItem wfi = instance.create();
         Collection collection = collectionDAO.create();
+        EPerson submitter = epersonDAO.create();
         Item item = itemDAO.create();
+
+        item.setSubmitter(submitter);
+        itemDAO.update(item);
 
         wfi.setCollection(collection);
         wfi.setItem(item);

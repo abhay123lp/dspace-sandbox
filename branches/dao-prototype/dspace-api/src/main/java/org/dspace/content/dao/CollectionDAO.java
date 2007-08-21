@@ -398,4 +398,3 @@ public abstract class CollectionDAO extends ContentDAO
 
     public abstract int itemCount(Collection collection);
 }
-

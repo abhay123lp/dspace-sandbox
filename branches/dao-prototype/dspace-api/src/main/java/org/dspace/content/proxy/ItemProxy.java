@@ -297,12 +297,14 @@ public class ItemProxy extends Item
     public void setSubmitter(EPerson submitter)
     {
         this.submitterId = submitter.getID();
+        this.submitter = null;
     }
 
     @Override
     public void setSubmitter(int submitterId)
     {
         this.submitterId = submitterId;
+        submitter = null;
     }
 
     @Override

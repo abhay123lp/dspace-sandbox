@@ -462,14 +462,13 @@ public class Item extends DSpaceObject
     public void setSubmitter(EPerson submitter)
     {
         this.submitter = submitter;
+        submitterId = submitter.getID();
         modified = true;
     }
 
     public void setSubmitter(int submitterId)
     {
-        this.submitterId = submitterId;
-
-        submitter = epersonDAO.retrieve(submitterId);
+        setSubmitter(epersonDAO.retrieve(submitterId));
     }
 
     /**
