@@ -245,11 +245,97 @@ public class WorkflowItemDAOTest extends DAOTest implements CRUDTest
     @Test
     public void getWorkflowItemsByOwner() throws Exception
     {
+        WorkflowItem itemOne = createWorkflowItem();
+        WorkflowItem itemTwo = createWorkflowItem();
+        EPerson owner = epersonDAO.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        for (WorkflowItem wfi : instance.getWorkflowItemsByOwner(owner))
+        {
+            if (wfi.equals(itemOne))
+            {
+                fail();
+            }
+            if (wfi.equals(itemTwo))
+            {
+                fail();
+            }
+        }
+
+        itemOne.setOwner(owner);
+        itemTwo.setOwner(owner);
+        instance.update(itemOne);
+        instance.update(itemTwo);
+
+        for (WorkflowItem wfi : instance.getWorkflowItemsByOwner(owner))
+        {
+            if (wfi.equals(itemOne))
+            {
+                containsOne = true;
+            }
+            if (wfi.equals(itemTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
     }
 
     @Test
     public void getTaskListItems() throws Exception
     {
+        WorkflowItem wfi = createWorkflowItem();
+        EPerson eperson = context.getCurrentUser();
+        EPerson epersonOne = epersonDAO.create();
+        EPerson epersonTwo = epersonDAO.create();
+        TaskListItem tliOne = instance.createTask(wfi, epersonOne);
+        TaskListItem tliTwo = instance.createTask(wfi, epersonTwo);
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        for (TaskListItem tli : instance.getTaskListItems(eperson))
+        {
+            if (tli.equals(tliOne))
+            {
+                fail();
+            }
+            if (tli.equals(tliTwo))
+            {
+                fail();
+            }
+        }
+
+        for (TaskListItem tli : instance.getTaskListItems(epersonOne))
+        {
+            if (tli.equals(tliOne))
+            {
+                containsOne = true;
+            }
+            if (tli.equals(tliTwo))
+            {
+                fail();
+            }
+        }
+        assertTrue(containsOne);
+        containsOne = false;
+
+        for (TaskListItem tli : instance.getTaskListItems(epersonTwo))
+        {
+            if (tli.equals(tliOne))
+            {
+                fail();
+            }
+            if (tli.equals(tliTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsTwo);
+        containsTwo = false;
     }
 
     private WorkflowItem createWorkflowItem() throws Exception
