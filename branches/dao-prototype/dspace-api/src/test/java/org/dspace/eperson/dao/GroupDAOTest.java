@@ -55,10 +55,12 @@ import static org.junit.Assert.*;
 public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
 {
     private GroupDAO instance;
+    private EPersonDAO epersonDAO;
     
     public GroupDAOTest()
     {
         instance = GroupDAOFactory.getInstance(context);
+        epersonDAO = EPersonDAOFactory.getInstance(context);
     }
 
     @Test
@@ -153,6 +155,30 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     @Test
     public void getGroups() throws Exception
     {
+        Group groupOne = instance.create();
+        Group groupTwo = instance.create();
+        EPerson eperson = epersonDAO.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        List<Group> groups = instance.getGroups();
+
+        for (Group group : groups)
+        {
+            if (groupOne.equals(group))
+            {
+                containsOne = true;
+            }
+            if (groupTwo.equals(group))
+            {
+                containsTwo = true;
+            }
+        }
+
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
     }
 
     @Test

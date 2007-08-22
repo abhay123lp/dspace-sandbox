@@ -197,6 +197,13 @@ public abstract class GroupDAO implements CRUD<Group>, Link<Group, Group>
         context.removeCached(group, id);
     }
 
+    public List<Group> getGroups()
+    {
+        // default to sorting by id. it's a bit arbitrary, but i don't think
+        // anyone will care.
+        return getGroups(Group.ID);
+    }
+
     public abstract List<Group> getGroups(int sortField);
 
     /**
