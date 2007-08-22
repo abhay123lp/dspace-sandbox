@@ -105,6 +105,21 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     }
 
     @Test
+    public void link() throws Exception
+    {
+    }
+
+    @Test
+    public void unlink() throws Exception
+    {
+    }
+
+    @Test
+    public void linked() throws Exception
+    {
+    }
+
+    @Test
     public void getGroups() throws Exception
     {
     }
@@ -135,22 +150,9 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     }
 
     @Test
-    public void link() throws Exception
-    {
-    }
-
-    @Test
-    public void unlink() throws Exception
-    {
-    }
-
-    @Test
-    public void linked() throws Exception
-    {
-    }
-
-    @Test
     public void cleanSupervisionOrders() throws Exception
     {
+        // I'm not 100% sure this is testable. Really, this kind of thing
+        // shouldn't be necessary.
     }
 }

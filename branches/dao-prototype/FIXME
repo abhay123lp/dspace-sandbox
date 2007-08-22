@@ -7,3 +7,9 @@ Stuff that needs fixin':
    A few others (MetadataFieldDAOTest, WorkspaceItemDAOTest) could potentially
    be suffering from the same problem, which suggests it's probably a general
    issue with connection pooling or some such.
+ * Bar.addFoo() vs. BarDAO.link(bar, foo). We need to *either* use the
+   link/unlink/linked methods of the DAOs (where they exist) *or* use the
+   add/remove methods of the "parent" objects. I'm personally in favour of the
+   former because it means we don't hold more in memory than is absolutely
+   necessary, and the data layer is always up-to-date. It also removes the
+   responsibility for objects to know what is associated with them.

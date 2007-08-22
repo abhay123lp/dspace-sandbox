@@ -169,9 +169,26 @@ public abstract class EPersonDAO implements CRUD<EPerson>
     /**
      * FIXME: For consistency, this should take a sort parameter. The
      * difference between this and getEPeople(Group group) is that this one
-     * recurses into subgroups, whereas the other doesn't.
+     * recurses into subgroups, whereas the other doesn't. It would be possible
+     * to implement this in an implementation-agnostic way, but that would
+     * incur a performance penalty, at least for the (default) RDBMS
+     * implementation.
      */
     public abstract List<EPerson> getAllEPeople(Group group);
+
+    // For reference, here's how we'd do it in a storage-layer agnostic way.
+//    public List<EPerson> getAllEPeople(Group group)
+//    {
+//        List<EPerson> epeople = getEPeople(group);
+//
+//        for (Group subGroup :
+//                GroupDAOFactory.getInstance(context).getMemberGroups(group))
+//        {
+//            epeople.addAll(getAllEPeople(subGroup));
+//        }
+//
+//        return epeople;
+//    }
 
     /**
      * Find the epeople that match the search query across firstname, lastname

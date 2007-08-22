@@ -53,10 +53,12 @@ import static org.junit.Assert.*;
 public class EPersonDAOTest extends DAOTest implements CRUDTest
 {
     private EPersonDAO instance;
+    private GroupDAO groupDAO;
     
     public EPersonDAOTest()
     {
         instance = EPersonDAOFactory.getInstance(context);
+        groupDAO = GroupDAOFactory.getInstance(context);
     }
 
     @Test
@@ -105,15 +107,209 @@ public class EPersonDAOTest extends DAOTest implements CRUDTest
     @Test
     public void getEPeople() throws Exception
     {
+        EPerson epersonOne = instance.create();
+        EPerson epersonTwo = instance.create();
+        Group groupOne = groupDAO.create();
+        Group groupTwo = groupDAO.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        for (EPerson eperson : instance.getEPeople())
+        {
+            if (eperson.equals(epersonOne))
+            {
+                containsOne = true;
+            }
+            if (eperson.equals(epersonTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
+
+        for (EPerson eperson : instance.getEPeople(groupOne))
+        {
+            if (eperson.equals(epersonOne))
+            {
+                fail();
+            }
+            if (eperson.equals(epersonTwo))
+            {
+                fail();
+            }
+        }
+
+        groupDAO.link(groupOne, epersonOne);
+        groupDAO.link(groupTwo, epersonTwo);
+
+        for (EPerson eperson : instance.getEPeople(groupOne))
+        {
+            if (eperson.equals(epersonOne))
+            {
+                containsOne = true;
+            }
+            if (eperson.equals(epersonTwo))
+            {
+                fail();
+            }
+        }
+        assertTrue(containsOne);
+        containsOne = false;
+
+        for (EPerson eperson : instance.getEPeople(groupTwo))
+        {
+            if (eperson.equals(epersonOne))
+            {
+                fail();
+            }
+            if (eperson.equals(epersonTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsTwo);
+        containsTwo = false;
     }
 
     @Test
     public void getAllEPeople() throws Exception
     {
+        EPerson epersonOne = instance.create();
+        EPerson epersonTwo = instance.create();
+        Group groupOne = groupDAO.create();
+        Group groupTwo = groupDAO.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        for (EPerson eperson : instance.getAllEPeople(groupOne))
+        {
+            if (eperson.equals(epersonOne))
+            {
+                fail();
+            }
+            if (eperson.equals(epersonTwo))
+            {
+                fail();
+            }
+        }
+
+        groupDAO.link(groupOne, epersonOne);
+        groupDAO.link(groupTwo, epersonTwo);
+
+        for (EPerson eperson : instance.getAllEPeople(groupOne))
+        {
+            if (eperson.equals(epersonOne))
+            {
+                containsOne = true;
+            }
+            if (eperson.equals(epersonTwo))
+            {
+                fail();
+            }
+        }
+        assertTrue(containsOne);
+        containsOne = false;
+
+        for (EPerson eperson : instance.getAllEPeople(groupTwo))
+        {
+            if (eperson.equals(epersonOne))
+            {
+                fail();
+            }
+            if (eperson.equals(epersonTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsTwo);
+        containsTwo = false;
+
+        // Now make groupTwo a subgroup of groupOne
+        groupDAO.link(groupOne, groupTwo);
+
+        for (EPerson eperson : instance.getAllEPeople(groupOne))
+        {
+            if (eperson.equals(epersonOne))
+            {
+                containsOne = true;
+            }
+            if (eperson.equals(epersonTwo))
+            {
+                containsTwo = true;
+            }
+        }
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
     }
 
     @Test
     public void search() throws Exception
     {
+        // Search is used to query the first name, last name, and email
+        // address of EPeople.
+        EPerson eperson = instance.create();
+        String firstName = UUID.randomUUID().toString();
+        String lastName = UUID.randomUUID().toString();
+        String email = UUID.randomUUID().toString();
+        boolean success = false;
+
+        String queryOne = firstName.substring(3,14);
+        String queryTwo = lastName.substring(4,10);
+        String queryThree = email.substring(2, 20);
+
+        // First, we test everything to make sure that nothing matches our
+        // EPerson yet.
+        String queries[] = { queryOne, queryTwo, queryThree };
+        for (String query : queries)
+        {
+            for (EPerson result : instance.search(query))
+            {
+                if (result.equals(eperson))
+                {
+                    fail();
+                }
+            }
+        }
+
+        eperson.setFirstName(firstName);
+        instance.update(eperson);
+        for (EPerson result : instance.search(queryOne))
+        {
+            if (result.equals(eperson))
+            {
+                success = true;
+            }
+        }
+        assertTrue(success);
+        success = false;
+
+        eperson.setLastName(lastName);
+        instance.update(eperson);
+        for (EPerson result : instance.search(queryTwo))
+        {
+            if (result.equals(eperson))
+            {
+                success = true;
+            }
+        }
+        assertTrue(success);
+        success = false;
+
+        eperson.setEmail(email);
+        instance.update(eperson);
+        for (EPerson result : instance.search(queryThree))
+        {
+            if (result.equals(eperson))
+            {
+                success = true;
+            }
+        }
+        assertTrue(success);
+        success = false;
     }
 }
