@@ -107,16 +107,47 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     @Test
     public void link() throws Exception
     {
+        Group parent = instance.create();
+        Group child = instance.create();
+
+        assertTrue(!instance.linked(parent, child));
+        assertTrue(!instance.linked(child, parent));
+
+        instance.link(parent, child);
+
+        assertTrue(instance.linked(parent, child));
+        assertTrue(!instance.linked(child, parent));
     }
 
     @Test
     public void unlink() throws Exception
     {
+        Group parent = instance.create();
+        Group child = instance.create();
+
+        instance.link(parent, child);
+
+        assertTrue(instance.linked(parent, child));
+        assertTrue(!instance.linked(child, parent));
+
+        instance.unlink(parent, child);
+
+        assertTrue(!instance.linked(parent, child));
     }
 
     @Test
     public void linked() throws Exception
     {
+        Group parent = instance.create();
+        Group child = instance.create();
+
+        assertTrue(!instance.linked(parent, child));
+        assertTrue(!instance.linked(child, parent));
+
+        instance.link(parent, child);
+
+        assertTrue(instance.linked(parent, child));
+        assertTrue(!instance.linked(child, parent));
     }
 
     @Test
