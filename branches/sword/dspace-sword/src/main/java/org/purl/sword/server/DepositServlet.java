@@ -183,10 +183,12 @@ public class DepositServlet extends HttpServlet {
 				DepositResponse dr = myRepository.doDeposit(d);
 				
 				// Print out the Deposit Response
+				response.setStatus(HttpServletResponse.SC_ACCEPTED);
 				// response.setContentType("application/atomserv+xml");
 				response.setContentType("application/xml");
 				PrintWriter out = response.getWriter();
 		        out.write(dr.marshall());
+		        out.flush();
 		        
 		        // Close the input stream if it still open
 		        fis.close();

@@ -84,6 +84,7 @@ public class ServiceDocumentServlet extends HttpServlet {
 			response.setContentType("application/xml");
 			PrintWriter out = response.getWriter();
 	        out.write(sd.marshall());
+	        out.flush();
 		} catch (SWORDAuthenticationException sae) {
 			if (authN.equals("Basic")) {
 		    	String s = "Basic realm=\"SWORD\"";
