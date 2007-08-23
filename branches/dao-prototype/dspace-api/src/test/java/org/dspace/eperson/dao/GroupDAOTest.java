@@ -161,9 +161,27 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
         boolean containsOne = false;
         boolean containsTwo = false;
 
-        List<Group> groups = instance.getGroups();
+        for (Group group : instance.getGroups())
+        {
+            if (groupOne.equals(group))
+            {
+                containsOne = true;
+            }
+            if (groupTwo.equals(group))
+            {
+                containsTwo = true;
+            }
+        }
 
-        for (Group group : groups)
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
+
+        instance.link(groupOne, eperson);
+        instance.link(groupTwo, eperson);
+
+        for (Group group : instance.getGroups(eperson))
         {
             if (groupOne.equals(group))
             {
@@ -184,6 +202,31 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     @Test
     public void getGroupIDs() throws Exception
     {
+        Group groupOne = instance.create();
+        Group groupTwo = instance.create();
+        EPerson eperson = epersonDAO.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        instance.link(groupOne, eperson);
+        instance.link(groupTwo, eperson);
+
+        for (Integer id : instance.getGroupIDs(eperson))
+        {
+            if (groupOne.getID() == id)
+            {
+                containsOne = true;
+            }
+            if (groupTwo.getID() == id)
+            {
+                containsTwo = true;
+            }
+        }
+
+        assertTrue(containsOne);
+        assertTrue(containsTwo);
+        containsOne = false;
+        containsTwo = false;
     }
 
     @Test
@@ -194,11 +237,39 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     @Test
     public void getMemberGroups() throws Exception
     {
+        Group parentOne = instance.create();
+        Group parentTwo = instance.create();
+        Group childOne = instance.create();
+        Group childTwo = instance.create();
+        boolean containsOne = false;
+        boolean containsTwo = false;
+
+        instance.link(parentOne, childOne);
+        instance.link(parentTwo, childTwo);
+        instance.link(parentOne, parentTwo);
+
+        for (Group group : instance.getMemberGroups(parentOne))
+        {
+            if (childOne.equals(group))
+            {
+                containsOne = true;
+            }
+            if (childTwo.equals(group))
+            {
+                fail();
+            }
+        }
+
+        assertTrue(containsOne);
+        containsOne = false;
     }
 
     @Test
     public void search() throws Exception
     {
+        // According to the API, search() should cover name & id. I think maybe
+        // this should be binned in favour of retrieve(int id) and
+        // retrieve(String name), although.
     }
 
     @Test
