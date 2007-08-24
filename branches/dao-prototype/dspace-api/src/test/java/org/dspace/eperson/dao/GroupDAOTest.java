@@ -43,6 +43,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import org.dspace.content.SupervisedItem;
+import org.dspace.content.WorkspaceItem;
+import org.dspace.content.dao.WorkspaceItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.storage.dao.CRUDTest;
@@ -56,11 +60,13 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
 {
     private GroupDAO instance;
     private EPersonDAO epersonDAO;
+    private WorkspaceItemDAO wsiDAO;
     
     public GroupDAOTest()
     {
         instance = GroupDAOFactory.getInstance(context);
         epersonDAO = EPersonDAOFactory.getInstance(context);
+        wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
     }
 
     @Test
@@ -232,6 +238,35 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     @Test
     public void getSupervisorGroups() throws Exception
     {
+        WorkspaceItem wsi = wsiDAO.create();
+        Group group = instance.create();
+        EPerson eperson = epersonDAO.create();
+
+        // Put the eperson into the supervising group
+        instance.link(group, eperson);
+
+        // No supervisions defined yet
+        for (Group g : instance.getSupervisorGroups(wsi))
+        {
+            if (g.equals(group))
+            {
+                fail();
+            }
+        }
+
+        // Now establish the supervision of the workspace item by the above
+        // group
+        instance.link(group, wsi);
+
+        boolean success = false;
+        for (Group g : instance.getSupervisorGroups(wsi))
+        {
+            if (g.equals(group))
+            {
+                success = true;
+            }
+        }
+        assertTrue(success);
     }
 
     @Test
