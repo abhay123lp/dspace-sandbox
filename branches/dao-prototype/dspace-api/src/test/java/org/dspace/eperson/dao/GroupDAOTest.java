@@ -310,6 +310,19 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     @Test
     public void currentUserInGroup() throws Exception
     {
+        Group group = instance.create();
+
+        if (instance.currentUserInGroup(group.getID()))
+        {
+            fail();
+        }
+
+        instance.link(group, context.getCurrentUser());
+
+        if (!instance.currentUserInGroup(group.getID()))
+        {
+            fail();
+        }
     }
 
     @Test
