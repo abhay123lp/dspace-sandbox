@@ -6,6 +6,8 @@
  */
 package org.purl.sword.base;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Definition of the additional HTTP Header tags that will be used in 
  * the SWORD protocol. 
@@ -55,4 +57,14 @@ public interface HttpHeaders
    * The Slug header.
    */
   public static final String SLUG = "Slug";
+ 
+  /**
+   * Submission created
+   */
+  public static final int CREATED = HttpServletResponse.SC_CREATED;
+  
+  /**
+   * Submission accepted.
+   */
+  public static final int ACCEPTED = HttpServletResponse.SC_ACCEPTED; 
 }

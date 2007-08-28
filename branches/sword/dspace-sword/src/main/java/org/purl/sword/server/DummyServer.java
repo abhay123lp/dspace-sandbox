@@ -8,10 +8,13 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.purl.sword.base.Collection;
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
 import org.purl.sword.base.ErrorCodes;
+import org.purl.sword.base.HttpHeaders;
 import org.purl.sword.base.SWORDAuthenticationException;
 import org.purl.sword.base.SWORDEntry;
 import org.purl.sword.base.SWORDException;
@@ -135,7 +138,7 @@ public class DummyServer implements SWORDServer {
 		if (!deposit.isNoOp()) {
 			counter++;
 		}
-		DepositResponse dr = new DepositResponse();
+		DepositResponse dr = new DepositResponse(HttpHeaders.ACCEPTED);
 		SWORDEntry se = new SWORDEntry();
 		
 		Title t = new Title();

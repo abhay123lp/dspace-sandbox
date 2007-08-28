@@ -10,6 +10,8 @@ package org.purl.sword.base;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletResponse;
+
 import nu.xom.Builder;
 import nu.xom.Document;
 import nu.xom.Element;
@@ -25,10 +27,13 @@ import nu.xom.Serializer;
 public class DepositResponse 
 {
    private SWORDEntry entry; 
+   
+   private int httpResponse;
 
-   public DepositResponse() 
+   public DepositResponse( int httpResponse ) 
    {
       entry = new SWORDEntry();  
+      this.httpResponse = httpResponse;
    }
       
    /**
@@ -47,6 +52,14 @@ public class DepositResponse
    public SWORDEntry getEntry( )
    {
       return entry;
+   }
+   
+   public int getHttpResponse() {
+	   return httpResponse;
+   }
+   
+   public void setHttpResponse(int httpResponse) {
+	   this.httpResponse = httpResponse;
    }
    
    /**
@@ -88,11 +101,11 @@ public class DepositResponse
    {
 	   try
 	   {  
-         Builder builder = new Builder(); 
+		   Builder builder = new Builder(); 
 		   Document doc = builder.build(xml, "http://something.com/here");
 		   Element root = doc.getRootElement(); 
 
-         entry = new SWORDEntry( );
+		   entry = new SWORDEntry( );
 		   entry.unmarshall(root);
 		   
 	   }
@@ -110,71 +123,5 @@ public class DepositResponse
    {
       return marshall();
    }  
-   
-   /*public String toString() {
-      StringBuffer response = new StringBuffer();
-      response.append("<?xml version=\"1.0\"?>");
-      response.append("<entry xmlns:atom=\"http://www.w3.org/2005/Atom\" " +
-                       "xmlns:sword=\"http://purl.org/sword/\" " +
-                       "xmlns:dcterms=\"http://purl.org/dc/terms/\">");
-      if (title != null) {
-         response.append("<title>" + title + "</title>");
-      }
-      if (id != null) {
-         response.append("<id>" + id + "</id>");
-      }
-      if (updated != null) {
-         response.append("<updated>" + updated + "</updated>");
-      }
-      if (author != null) {
-         response.append("<author><name>" + author + "</name></author>");
-      }
-      if (contributor != null) {
-         response.append("<contributor><name>" + contributor + "</name></contributor>");
-      }
-      if (summary != null) {
-         response.append("<summary type=\"text\">" + summary + "</summary>");
-      } else {
-         response.append("<summary type=\"text\" />");
-      }
-      response.append("<content type=\"" + contentType + "\" " +
-                        "src=\"" + contentSource + "\"/>");
-      response.append("<link rel=\"edit-media\" " +
-                        "href=\"" + editMediaLink + "\" />");
-      response.append("<link rel=\"edit\" " +
-                        "href=\"" + editLink + "\" />");
-      if ((generatorText != null) || (generatorVersion != null) || (generatorURI != null)) {
-         response.append("<source>");
-         response.append("<generator");
-         if (generatorVersion != null) {
-            response.append(" version=\"" + generatorVersion + "\"");
-         }
-         if (generatorURI != null) {
-            response.append(" version=\"" + generatorURI + "\"");
-         }
-         response.append(">");
-         if (generatorText != null) {
-            response.append(generatorText);
-         }
-         response.append("</generator>");
-         response.append("</source>");
-      } else {
-         response.append("<source />");
-      }
-      if (treatment != null) {
-         response.append("<sword:treatment>" + treatment + "</sword:treatment>");
-      }
-      if (verboseDescription != null) {
-         response.append("<sword:verboseDescription>" + verboseDescription + "</sword:verboseDescription>");
-      }
-      if (noOpStatus != null) {
-         response.append("<sword:noOp>" + noOpStatus + "</sword:noOp>");
-      }
-      if (formatNamespace != null) {
-         response.append("<sword:formatNamespace>" + formatNamespace + "</sword:formatNamespace>");
-      }
-      response.append("</entry>");
-      
-      return response.toString();
-   }*/
+
 }
