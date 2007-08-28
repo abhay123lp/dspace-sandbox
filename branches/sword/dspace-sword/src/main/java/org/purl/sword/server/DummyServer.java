@@ -1,15 +1,18 @@
 package org.purl.sword.server;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.purl.sword.base.SWORDAuthenticationException;
-import org.purl.sword.server.SWORDServer;
 import org.purl.sword.base.Collection;
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
 import org.purl.sword.base.ErrorCodes;
+import org.purl.sword.base.SWORDAuthenticationException;
 import org.purl.sword.base.SWORDEntry;
 import org.purl.sword.base.SWORDException;
 import org.purl.sword.base.Service;
@@ -18,6 +21,12 @@ import org.purl.sword.base.ServiceDocumentRequest;
 import org.purl.sword.base.ServiceLevel;
 import org.purl.sword.base.Workspace;
 import org.w3.atom.Author;
+import org.w3.atom.Content;
+import org.w3.atom.Contributor;
+import org.w3.atom.Generator;
+import org.w3.atom.InvalidMediaTypeException;
+import org.w3.atom.Link;
+import org.w3.atom.Source;
 import org.w3.atom.Summary;
 import org.w3.atom.Title;
 
@@ -123,12 +132,36 @@ public class DummyServer implements SWORDServer {
 		}
 		
 		// Handle the deposit
-		counter++;
+		if (!deposit.isNoOp()) {
+			counter++;
+		}
 		DepositResponse dr = new DepositResponse();
 		SWORDEntry se = new SWORDEntry();
+		
+		Title t = new Title();
+		t.setContent("DummyServer Deposit: #" + counter);
+		se.setTitle(t);
+		
 		se.addCategory("Category");
-		se.setId("" + counter);
-		Summary s = new Summary();
+		
+		if (deposit.getSlug() != null) {
+			se.setId(deposit.getSlug() + " - ID: " + counter);
+		} else {
+			se.setId("ID: " + counter);
+		}
+		
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+		TimeZone utc = TimeZone.getTimeZone("UTC");
+		sdf.setTimeZone (utc);
+		String milliFormat = sdf.format(new Date());
+		try {
+			se.setUpdated(milliFormat);
+		} catch (ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+	    Summary s = new Summary();
 		s.setContent(filenames.toString());
 		se.setSummary(s);
 		Author a = new Author();
@@ -138,9 +171,50 @@ public class DummyServer implements SWORDServer {
 			a.setName("unknown");
 		}
 		se.addAuthors(a);
-		Title t = new Title();
-		t.setContent("Title: " + counter);
-		se.setTitle(t);
+		
+		Link em = new Link();
+		em.setRel("edit-media");
+		em.setHref("http://www.myrepository.ac.uk/sdl/workflow/my deposit");
+		se.addLink(em);
+		
+		Link e = new Link();
+		e.setRel("edit");
+		e.setHref("http://www.myrepository.ac.uk/sdl/workflow/my deposit.atom");
+		se.addLink(e);
+		
+		if (deposit.getOnBehalfOf() != null) {
+			Contributor c = new Contributor();
+			c.setName(deposit.getOnBehalfOf());
+			c.setEmail(deposit.getOnBehalfOf() + "@myrepository.ac.uk");
+			se.addContributor(c);
+		}
+		
+		Source source = new Source();
+		Generator generator = new Generator();
+		generator.setContent("org.purl.sword.server.DummyServer");
+		source.setGenerator(generator);
+		se.setSource(source);
+		
+		Content content = new Content();
+		try {
+			content.setType("application/zip");
+		} catch (InvalidMediaTypeException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		content.setSource("http://www.myrepository.ac.uk/sdl/uploads/upload-" + counter + ".zip");
+		se.setContent(content);
+		
+		se.setTreatment("Short back and sides");
+		
+		if (deposit.isVerbose()) {
+			se.setVerboseDescription("I've done a lot of hard work to get this far!");
+		}
+		
+		se.setNoOp(deposit.isNoOp());
+		
+		se.setFormatNamespace("http://www.standards-body.com/standardXYZ/v1/");
+		
 		dr.setEntry(se);
 		
 		return dr;

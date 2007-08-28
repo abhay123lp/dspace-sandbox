@@ -51,4 +51,8 @@ public interface HttpHeaders
    */
   public static final String X_ERROR_CODE = "X-Error-Code";
   
+  /**
+   * The Slug header.
+   */
+  public static final String SLUG = "Slug";
 }

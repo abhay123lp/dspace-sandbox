@@ -176,6 +176,12 @@ public class DepositServlet extends HttpServlet {
 					d.setVerbose(false);
 				}
 				
+				// Set the slug
+				String slug = request.getHeader(HttpHeaders.SLUG);
+				if (slug != null) {
+					d.setSlug(slug);
+				}
+				
 				// Set the IP address
 				d.setIPAddress(request.getRemoteAddr());
 				
