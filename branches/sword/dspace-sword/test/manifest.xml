@@ -1,0 +1,50 @@
+<mets:mets OBJID="sword-mets" 
+	xsi:schemaLocation="http://www.loc.gov/METS/ 
+						http://www.loc.gov/mets/mets.xsd">
+
+	<mets:dmdSec ID="sword-mets-dmd-1">
+		<mets:mdWrap LABEL="SWAP Metadata" MDTYPE="OTHER" OTHERMDTYPE="SWAP" MIMETYPE="text/xml">
+			<mets:xmlData>
+				<dc:dc>
+					<dc:title>Example SWORD Import</dc:title>
+					<dc:creator>Jones, Richard</dc:creator>
+				</dc:dc>
+			</mets:xmlData>
+		</mets:mdWrap>
+	</mets:dmdSec>
+
+	<mets:amdSec ID="sword-mets-amd-1">
+		<mets:rightsMD ID="sword-mets-rights-1">
+			<mets:mdRef LOCTYPE="URL" xlink:type="simple" xlink:href="licence.txt" MDTYPE="OTHER" OTHERMDTYPE="Deposit License" MIMETYPE="text/plain"/>
+		</mets:rightsMD>
+	</mets:amdSec>
+
+	<mets:fileSec>
+		<mets:fileGrp ID="sword-mets-fgrp-1">
+			 <mets:file GROUPID="sword-mets-fgid-0" ID="sword-mets-file-1" MIMETYPE="application/pdf">
+				<mets:FLocat LOCTYPE="URL" xlink:href="pdf1.pdf"/>
+			 </mets:file>
+			 <mets:file GROUPID="sword-mets-fgid-1" ID="sword-mets-file-2" MIMETYPE="application/pdf">
+				<mets:FLocat LOCTYPE="URL" xlink:href="pdf2.pdf"/>
+			 </mets:file>
+			 <mets:file GROUPID="sword-mets-fgid-2" ID="sword-mets-file-3" MIMETYPE="application/pdf">
+				<mets:FLocat LOCTYPE="URL" xlink:href="pdf3.pdf"/>
+			 </mets:file>
+		</mets:fileGrp>
+	</mets:fileSec>
+	
+	<mets:structMap ID="sword-mets-struct-1" LABEL="structure" TYPE="LOGICAL">
+		<mets:div ID="sword-mets-div-1" DMDID="sword-mets-dmd-1" ADMID="sword-mets-amd-1" TYPE="SWORD Object">
+			<mets:div ID="sword-mets-div-2" TYPE="File">
+				<mets:fptr FILEID="sword-mets-file-1"/>
+			</mets:div>
+			<mets:div ID="sword-mets-div-3" TYPE="File">
+				<mets:fptr FILEID="sword-mets-file-2"/>
+			</mets:div>
+			<mets:div ID="sword-mets-div-4" TYPE="File">
+				<mets:fptr FILEID="sword-mets-file-3"/>
+			</mets:div>
+		</mets:div>
+	</mets:structMap>
+	
+</mets:mets>
