@@ -1,0 +1,40 @@
+DSpace SWORD Implementation Documentation
+=========================================
+
+Required Configuration
+----------------------
+
+# tell the SWORD METS implementation which package ingester to use
+# to install deposited content.  This should refer to one of the
+# classes configured for:
+#
+# plugin.named.org.dspace.content.packager.PackageIngester
+#
+# The value of sword.mets-ingester.package-ingester tells the 
+# system which named plugin for this interface should be used 
+# to ingest SWORD METS packages
+#
+# The default is METS
+#
+# sword.mets-ingester.package-ingester = METS
+
+# Define the metadata type SWAP (Scholarly Works Application Profile)
+# to be handled by the SWORD crosswalk configuration
+#
+mets.submission.crosswalk.SWAP = SWORD
+
+# define the stylesheet which will be used by the self-named
+# XSLTIngestionCrosswalk class when asked to load the SWORD
+# configuration (as specified above).  This will use the
+# specified stylesheet to crosswalk the incoming SWAP metadata
+# to the DIM format for ingestion
+#
+crosswalk.submission.SWORD.stylesheet = crosswalks/sword-swap.xsl
+
+# The base URL of the SWORD deposit.  This is the URL from
+# which DSpace will construct the deposit location urls for
+# collections.
+#
+# The default is {dspace.url}/dspace-sword/deposit
+#
+# sword.deposit.url = http://www.myu.ac.uk/dspace-sword/deposit
