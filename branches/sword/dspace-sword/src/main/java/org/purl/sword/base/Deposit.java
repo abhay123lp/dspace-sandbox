@@ -2,6 +2,8 @@ package org.purl.sword.base;
 
 import java.io.InputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * Represents a deposit. 
  * 
@@ -40,6 +42,15 @@ public class Deposit
    
    private String location;
    
+   /**
+    * Submission created
+    */
+   public static final int CREATED = HttpServletResponse.SC_CREATED;
+   
+   /**
+    * Submission accepted.
+    */
+   public static final int ACCEPTED = HttpServletResponse.SC_ACCEPTED; 
 
    /**
     * @return the authenticatedUserName

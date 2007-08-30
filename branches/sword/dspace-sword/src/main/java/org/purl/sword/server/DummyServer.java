@@ -138,7 +138,7 @@ public class DummyServer implements SWORDServer {
 		if (!deposit.isNoOp()) {
 			counter++;
 		}
-		DepositResponse dr = new DepositResponse(HttpHeaders.ACCEPTED);
+		DepositResponse dr = new DepositResponse(Deposit.ACCEPTED);
 		SWORDEntry se = new SWORDEntry();
 		
 		Title t = new Title();

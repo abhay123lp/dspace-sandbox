@@ -59,7 +59,7 @@ public class DepositManager
 		}
 		
 		// now construct the deposit response
-		DepositResponse response = new DepositResponse(HttpHeaders.CREATED);
+		DepositResponse response = new DepositResponse(Deposit.CREATED);
 		SWORDEntry entry = new SWORDEntry();
 		entry.setNoOp(deposit.isNoOp());
 		
