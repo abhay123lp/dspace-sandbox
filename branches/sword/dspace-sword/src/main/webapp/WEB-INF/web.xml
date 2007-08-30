@@ -55,12 +55,21 @@
     <servlet-class>org.purl.sword.server.ServiceDocumentServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>deposit</servlet-name>
+    <servlet-class>org.purl.sword.server.DepositServlet</servlet-class>
+  </servlet>
 
   <!-- Servlet Mappings -->
 
   <servlet-mapping>
     <servlet-name>servicedocument</servlet-name>
     <url-pattern>/servicedocument</url-pattern>
+  </servlet-mapping>
+  
+  <servlet-mapping>
+    <servlet-name>deposit</servlet-name>
+    <url-pattern>/deposit</url-pattern>
   </servlet-mapping>
 
 </web-app>
