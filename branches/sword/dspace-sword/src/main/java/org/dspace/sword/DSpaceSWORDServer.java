@@ -66,6 +66,14 @@ public class DSpaceSWORDServer implements SWORDServer
 			log.error("caught exception: ", e);
 			throw new SWORDException("The DSpace SWORD interface experienced an error", e);
 		}
+		finally
+		{
+			// this is a read operation only, so there's never any need to commit the context
+			if (context != null)
+			{
+				context.abort();
+			}
+		}
 	}
 	
 	/* (non-Javadoc)
@@ -74,24 +82,52 @@ public class DSpaceSWORDServer implements SWORDServer
 	public DepositResponse doDeposit(Deposit deposit)
 		throws SWORDAuthenticationException, SWORDException
 	{
-		if (log.isDebugEnabled())
+		try
 		{
-			log.debug(LogManager.getHeader(context, "sword_do_deposit", ""));
+			if (log.isDebugEnabled())
+			{
+				log.debug(LogManager.getHeader(context, "sword_do_deposit", ""));
+			}
+			
+			// first authenticate the request
+			// note: this will build our context for us
+			this.authenticate(deposit);
+			
+			// log the request
+			log.info(LogManager.getHeader(context, "sword_deposit_request", "username=" + deposit.getUsername() + ",on_behalf_of=" + deposit.getOnBehalfOf()));
+			
+			DepositManager dm = new DepositManager();
+			dm.setContext(context);
+			dm.setDeposit(deposit);
+			DepositResponse response = dm.deposit();
+			
+			// if something hasn't killed it already (allowed), then complete the transaction
+			if (context != null && context.isValid())
+			{
+				context.commit();
+			}
+			
+			return response;
 		}
-		
-		// first authenticate the request
-		// note: this will build our context for us
-		this.authenticate(deposit);
-		
-		// log the request
-		log.info(LogManager.getHeader(context, "sword_deposit_request", "username=" + deposit.getUsername() + ",on_behalf_of=" + deposit.getOnBehalfOf()));
-		
-		DepositManager dm = new DepositManager();
-		dm.setContext(context);
-		dm.setDeposit(deposit);
-		DepositResponse response = dm.deposit();
-		
-		return response;
+		catch (DSpaceSWORDException e)
+		{
+			log.error("caught exception:", e);
+			throw new SWORDAuthenticationException("There was a problem depositing the item", e);
+		}
+		catch (SQLException e)
+		{
+			log.error("caught exception: ", e);
+			throw new SWORDException("There was a problem completing the transaction", e);
+		}
+		finally
+		{
+			// if, for some reason, we wind up here with a not null context
+			// then abort it (the above should commit it if everything works fine)
+			if (context != null)
+			{
+				context.abort();
+			}
+		}
 	}
 	
 	// internal methods

@@ -69,12 +69,14 @@ public class SWORDService
 	}
 	
 	private org.purl.sword.base.Collection buildSwordCollection(Collection col)
+		throws DSpaceSWORDException
 	{
 		org.purl.sword.base.Collection scol = new org.purl.sword.base.Collection();
 		
 		// prepare the parameters to be put in the sword collection
 		// FIXME: is this the URL it wants?  Or do we want a URL to publish to
-		String location = HandleManager.getCanonicalForm(col.getHandle()); 
+		CollectionLocation cl = new CollectionLocation();
+		String location = cl.getLocation(col);
 		
 		// collection title is just its name
 		String title = col.getMetadata("name");
@@ -108,5 +110,21 @@ public class SWORDService
 		scol.addAccepts(zip);
 		
 		return scol;
+	}
+	
+	private String getDepositURL(Collection collection)
+		throws DSpaceSWORDException
+	{
+		String depositUrl = ConfigurationManager.getProperty("sword.deposit.url");
+		if (depositUrl == null || "".equals(depositUrl))
+		{
+			String dspaceUrl = ConfigurationManager.getProperty("dspace.url");
+			if (dspaceUrl == null || "".equals(dspaceUrl))
+			{
+				throw new DSpaceSWORDException("Unable to construct deposit urls, due to missing/invalid config in sword.deposit.url and/or dspace.url");
+			}
+			depositUrl = dspaceUrl + "/dspace-sword/deposit";
+		}
+		return depositUrl + "/" + collection.getHandle();
 	}
 }

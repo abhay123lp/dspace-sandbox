@@ -6,5 +6,5 @@ import org.purl.sword.base.DepositResponse;
 
 public interface SWORDIngester
 {
-	DepositResponse ingest(Context context, Deposit deposit) throws DSpaceSWORDException;
+	DepositResult ingest(Context context, Deposit deposit) throws DSpaceSWORDException;
 }

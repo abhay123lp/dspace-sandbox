@@ -5,6 +5,8 @@ import org.dspace.core.Context;
 
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
+import org.purl.sword.base.HttpHeaders;
+import org.purl.sword.base.SWORDEntry;
 
 import java.io.File;
 import java.io.InputStream;
@@ -45,8 +47,22 @@ public class DepositManager
 
 		// Obtain the relevant ingester from the factory
 		SWORDIngester si = SWORDIngesterFactory.getInstance(context, deposit);
-		DepositResponse response = si.ingest(context, deposit);
+		
+		// do the deposit
+		DepositResult result = si.ingest(context, deposit);
 
+		// if this was a no-op, we need to remove the files we just
+		// deposited, and remove abort the transaction
+		if (deposit.isNoOp())
+		{
+			this.undoDeposit(result);
+		}
+		
+		// now construct the deposit response
+		DepositResponse response = new DepositResponse(HttpHeaders.CREATED);
+		SWORDEntry entry = new SWORDEntry();
+		entry.setNoOp(deposit.isNoOp());
+		
 		return response;
 	}
 	
@@ -54,5 +70,12 @@ public class DepositManager
 		throws DSpaceSWORDException
 	{
 		// FIXME: please implement
+		
+		// is this going to be done elsewhere (in the front end implementation)?
+	}
+	
+	private void undoDeposit(DepositResult result)
+	{
+		// FIXME: what do we need to do to know how to do this?
 	}
 }
