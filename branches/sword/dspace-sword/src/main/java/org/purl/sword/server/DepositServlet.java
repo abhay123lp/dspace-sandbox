@@ -185,6 +185,9 @@ public class DepositServlet extends HttpServlet {
 				// Set the IP address
 				d.setIPAddress(request.getRemoteAddr());
 				
+				// Set the deposit location
+				d.setLocation(getUrl(request));
+				
 		        // Get the DepositResponse
 				DepositResponse dr = myRepository.doDeposit(d);
 				
@@ -266,4 +269,19 @@ public class DepositServlet extends HttpServlet {
 			return false;
 		}
 	}
+	
+	/**
+	 * Utility method to construct the URL called for this Servlet
+	 * 
+	 * @param req The request object
+	 * @return The URL
+	 */
+	private static String getUrl(HttpServletRequest req) {
+        String reqUrl = req.getRequestURL().toString();
+        String queryString = req.getQueryString();   // d=789
+        if (queryString != null) {
+            reqUrl += "?"+queryString;
+        }
+        return reqUrl;
+    }
 }

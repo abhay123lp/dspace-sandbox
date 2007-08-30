@@ -37,6 +37,9 @@ public class Deposit
    private String depositID;
    
    private String IPAddress;
+   
+   private String location;
+   
 
    /**
     * @return the authenticatedUserName
@@ -209,7 +212,7 @@ public class Deposit
    /**
     * Get the IP address of the user
     * 
-    * @return the the IP address
+    * @return the IP address
     */
    public String getIPAddress() {
 	   return IPAddress;
@@ -222,5 +225,23 @@ public class Deposit
     */
    public void setIPAddress(String IPAddress) {
 	   this.IPAddress = IPAddress;
+   }
+   
+   /**
+    * Get the location of the deposit
+    * 
+    * @return the location of the deposit
+    */
+   public String getLocation() {
+	   return location;
+   }
+   
+   /**
+    * Set the location of the deposit
+    *
+    * @param String the location
+    */
+   public void setLocation(String location) {
+	   this.location = location;
    }
 }
