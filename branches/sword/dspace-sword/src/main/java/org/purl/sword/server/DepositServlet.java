@@ -188,6 +188,15 @@ public class DepositServlet extends HttpServlet {
 				// Set the deposit location
 				d.setLocation(getUrl(request));
 				
+				// Set the content type
+				d.setContentType(request.getContentType());
+				
+				// Set the content length
+				String cl = request.getHeader(HttpHeaders.CONTENT_LENGTH);
+				if ((cl != null) && (!cl.equals(""))) {
+					d.setContentLength(Integer.parseInt(cl));	
+				}
+				
 		        // Get the DepositResponse
 				DepositResponse dr = myRepository.doDeposit(d);
 				
