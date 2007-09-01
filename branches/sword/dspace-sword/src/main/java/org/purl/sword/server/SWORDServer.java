@@ -3,6 +3,7 @@ package org.purl.sword.server;
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
 import org.purl.sword.base.SWORDAuthenticationException;
+import org.purl.sword.base.SWORDContentTypeException;
 import org.purl.sword.base.SWORDException;
 import org.purl.sword.base.ServiceDocument;
 import org.purl.sword.base.ServiceDocumentRequest;
@@ -43,5 +44,5 @@ public interface SWORDServer {
 	 * @return The response to the deposit
 	 */
 	public DepositResponse doDeposit(Deposit deposit)
-		throws SWORDAuthenticationException, SWORDException;
+		throws SWORDAuthenticationException, SWORDContentTypeException, SWORDException;
 }

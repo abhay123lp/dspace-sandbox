@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.security.NoSuchAlgorithmException;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
 
@@ -24,6 +23,7 @@ import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
 import org.purl.sword.base.HttpHeaders;
 import org.purl.sword.base.SWORDAuthenticationException;
+import org.purl.sword.base.SWORDContentTypeException;
 import org.purl.sword.base.SWORDException;
 
 public class DepositServlet extends HttpServlet {
@@ -216,11 +216,15 @@ public class DepositServlet extends HttpServlet {
 		        f.delete();
 			}
 		} catch (SWORDAuthenticationException sae) {
+			// Ask for credentials
 			if (authN.equals("Basic")) {
 		    	String s = "Basic realm=\"SWORD\"";
 		    	response.setHeader("WWW-Authenticate", s);
 		    	response.setStatus(401);
 			}
+		} catch (SWORDContentTypeException scte) {
+			// Throw a 415
+			response.sendError(HttpServletResponse.SC_UNSUPPORTED_MEDIA_TYPE);
 		} catch (SWORDException se) {
 			// Throw a HTTP 500
 			response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
