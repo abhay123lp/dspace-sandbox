@@ -103,13 +103,23 @@ public class Workspace extends XmlElement implements SwordElementInterface
    }
    
    /**
-    * Get a list of collections. 
+    * Get an Iterator over the collections. 
     * 
     * @return An iterator. 
     */
    public Iterator<Collection> collectionIterator( )
    {
       return collections.iterator();
+   }
+   
+   /**
+    * Get a list of the collections
+    * 
+    * @ return A list.
+    */
+   public List<Collection> getCollections( )
+   {
+	   return collections;
    }
    
    /**

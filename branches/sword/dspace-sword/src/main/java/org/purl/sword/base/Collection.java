@@ -250,13 +250,12 @@ public class Collection extends XmlElement implements SwordElementInterface
     */
    public void setTitle( String title )
    {
-      if( this.title == null)
+	  if( this.title == null)
       {
          this.title = new Title();
       }
       this.title.setContent(title);
       this.title.setType(ContentType.TEXT);
-      
    }
    
    /**
@@ -270,7 +269,6 @@ public class Collection extends XmlElement implements SwordElementInterface
       {
          return null;
       }
-      
       return title.getContent(); 
    }
 
@@ -313,11 +311,11 @@ public class Collection extends XmlElement implements SwordElementInterface
    {
       // convert data into XOM elements and return the 'root', i.e. the one 
       // that represents the collection. 
-	   Element collection = new Element(ELEMENT_NAME, Namespaces.NS_APP);
-	   Attribute href = new Attribute("href", location);
+	  Element collection = new Element(ELEMENT_NAME, Namespaces.NS_APP);
+	  Attribute href = new Attribute("href", location);
       collection.addAttribute(href);
 
-      title = new Title();
+      //title = new Title();
       collection.appendChild(title.marshall());
       
       Element acceptsElement = null; 
