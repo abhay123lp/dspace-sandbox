@@ -79,6 +79,10 @@ public class DummyServer implements SWORDServer {
 	    collection.setTitle("Anonymous submitters collection");
 	    collection.setLocation("http://" + sdr.getIPAddress() + "/anon");
 	    workspace.addCollection(collection);
+	    collection = new Collection(); 
+	    collection.setTitle("Anonymous submitters other collection");
+	    collection.setLocation("http://" + sdr.getIPAddress() + "/anon-other");
+	    workspace.addCollection(collection);
 	    service.addWorkspace(workspace);
 	     
 	    if (sdr.getUsername() != null) {
@@ -88,11 +92,15 @@ public class DummyServer implements SWORDServer {
 		    collection.setTitle("Authenticated collection for " + username);
 		    collection.setLocation("http://www.example.com/authenticated");
 		    workspace.addCollection(collection);
+		    collection = new Collection(); 
+		    collection.setTitle("Second authenticated collection for " + username);
+		    collection.setLocation("http://www.example.com/authenticated-2");
+		    workspace.addCollection(collection);
 		    service.addWorkspace(workspace);
 	    }
 	    
 	    String onBehalfOf = sdr.getOnBehalfOf();
-	    if (onBehalfOf != null) {
+	    if ((onBehalfOf != null) && (!onBehalfOf.equals(""))) {
 		    workspace = new Workspace();
 		    workspace.setTitle("Personal workspace for " + onBehalfOf);
 		    collection = new Collection(); 
