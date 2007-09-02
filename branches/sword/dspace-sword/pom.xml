@@ -8,7 +8,7 @@
    <packaging>war</packaging>
    <name>DSpace SWORD Web Application</name>
    <version>1.5-SNAPSHOT</version>
-   <description>DSpace SWORD Deposit Service Provider Webapplication</description>
+   <description>DSpace SWORD Deposit Service Provider Web Application</description>
    <url>http://www.ukoln.ac.uk/repositories/digirep/index/SWORD</url>
 
    <!-- 
@@ -54,9 +54,9 @@
          <artifactId>dspace-api</artifactId>
          <version>1.5-SNAPSHOT</version>
       </dependency>
-      <!-- maybe? -->
+      
       <dependency>
-         <groupId>sword-common</groupId>
+         <groupId>org.dspace</groupId>
          <artifactId>sword-common</artifactId>
          <version>1.0.0</version>
       </dependency>
