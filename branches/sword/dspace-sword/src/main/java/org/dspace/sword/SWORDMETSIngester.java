@@ -74,11 +74,20 @@ public class SWORDMETSIngester implements SWORDIngester
 			WorkspaceItem wsi = pi.ingest(context, collection, is, params, licence);
 			if (wsi == null)
 			{
+				message("Failed to ingest the package; throwing exception");
 				throw new DSpaceSWORDException("Package Ingest failed");
+			}
+			
+			message("Ingest successful");
+			message("Item created with internal identifier: " + wsi.getItem().getID());
+			if (wsi.getItem().getHandle() != null)
+			{
+				message("Item created with external identifier: " + wsi.getItem().getHandle());
 			}
 			
 			DepositResult dr = new DepositResult();
 			dr.setItem(wsi.getItem());
+			dr.setVerboseDescription(verboseDesc.toString());
 			
 			return dr;
 		}

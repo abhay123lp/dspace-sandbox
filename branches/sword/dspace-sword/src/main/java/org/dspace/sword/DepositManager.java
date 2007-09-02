@@ -62,6 +62,7 @@ public class DepositManager
 		DepositResponse response = new DepositResponse(Deposit.CREATED);
 		SWORDEntry entry = new SWORDEntry();
 		entry.setNoOp(deposit.isNoOp());
+		entry.setVerboseDescription(result.getVerboseDescription());
 		
 		return response;
 	}
