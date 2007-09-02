@@ -69,7 +69,7 @@
   
   <servlet-mapping>
     <servlet-name>deposit</servlet-name>
-    <url-pattern>/deposit</url-pattern>
+    <url-pattern>/deposit/*</url-pattern>
   </servlet-mapping>
 
 </web-app>
