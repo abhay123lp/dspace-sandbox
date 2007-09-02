@@ -9,6 +9,9 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
+import org.dspace.content.Item;
+import org.dspace.content.DCValue;
+import org.dspace.content.DCDate;
 
 import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.packager.PackageIngester;
@@ -22,6 +25,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.WorkspaceItem;
 
 import java.util.Date;
+import java.util.StringTokenizer;
 
 public class SWORDMETSIngester implements SWORDIngester
 {
@@ -78,6 +82,10 @@ public class SWORDMETSIngester implements SWORDIngester
 				throw new DSpaceSWORDException("Package Ingest failed");
 			}
 			
+			// update the item metadata to inclue the current time as
+			// the updated date
+			this.setUpdatedDate(wsi.getItem());
+			
 			message("Ingest successful");
 			message("Item created with internal identifier: " + wsi.getItem().getID());
 			if (wsi.getItem().getHandle() != null)
@@ -106,4 +114,38 @@ public class SWORDMETSIngester implements SWORDIngester
 			verboseDesc.append(msg);
 		}
 	}
+	
+	private void setUpdatedDate(Item item)
+		throws DSpaceSWORDException
+	{
+		String field = ConfigurationManager.getProperty("sword.updated.field");
+		if (field == null || "".equals(field))
+		{
+			throw new DSpaceSWORDException("No configuration, or configuration is invalid for: sword.updated.field");
+		}
+		
+		DCValue dc = this.configToDC(field, null);
+		item.clearMetadata(dc.schema, dc.element, dc.qualifier, Item.ANY);
+		DCDate date = new DCDate(new Date());
+		item.addMetadata(dc.schema, dc.element, dc.qualifier, null, date.toString());
+	}
+	
+	private DCValue configToDC(String config, String def)
+	{
+		DCValue dcv = new DCValue();
+		dcv.schema = def;
+		dcv.element= def;
+		dcv.qualifier = def;
+		
+		StringTokenizer stz = new StringTokenizer(config, ".");
+		dcv.schema = stz.nextToken();
+		dcv.element = stz.nextToken();
+		if (stz.hasMoreTokens())
+		{
+			dcv.qualifier = stz.nextToken();
+		}
+		
+		return dcv;
+	}
+	
 }

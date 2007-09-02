@@ -2,6 +2,7 @@ package org.dspace.sword;
 
 import org.apache.log4j.Logger;
 import org.dspace.core.Context;
+import org.dspace.content.Item;
 
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
@@ -51,18 +52,20 @@ public class DepositManager
 		// do the deposit
 		DepositResult result = si.ingest(context, deposit);
 
+		// now construct the deposit response
+		DepositResponse response = new DepositResponse(Deposit.CREATED);
+		DSpaceATOMEntry dsatom = new DSpaceATOMEntry();
+		SWORDEntry entry = dsatom.getSWORDEntry(result.getItem());
+		entry.setNoOp(deposit.isNoOp());
+		entry.setVerboseDescription(result.getVerboseDescription());
+		response.setEntry(entry);
+		
 		// if this was a no-op, we need to remove the files we just
 		// deposited, and remove abort the transaction
 		if (deposit.isNoOp())
 		{
 			this.undoDeposit(result);
 		}
-		
-		// now construct the deposit response
-		DepositResponse response = new DepositResponse(Deposit.CREATED);
-		SWORDEntry entry = new SWORDEntry();
-		entry.setNoOp(deposit.isNoOp());
-		entry.setVerboseDescription(result.getVerboseDescription());
 		
 		return response;
 	}
@@ -79,4 +82,6 @@ public class DepositManager
 	{
 		// FIXME: what do we need to do to know how to do this?
 	}
+	
+	
 }
