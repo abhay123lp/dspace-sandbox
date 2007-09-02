@@ -64,7 +64,7 @@
     	
     	<!-- language element: dc.language.iso -->
     	<xsl:when test="./@propertyURI='http://purl.org/dc/elements/1.1/creator' and ./@vesURI='http://purl.org/dc/terms/RFC3066'">
-    		<dim:field mdschema="dc" element="language" qualifier="iso">
+    		<dim:field mdschema="dc" element="language" qualifier="rfc3066">
     			<xsl:value-of select="epdcx:valueString"/>
     		</dim:field>
     	</xsl:when>
