@@ -39,6 +39,15 @@ crosswalk.submission.SWORD.stylesheet = crosswalks/sword-swap-ingest.xsl
 #
 # sword.deposit.url = http://www.myu.ac.uk/dspace-sword/deposit
 
+# The metadata field in which to store the updated date for 
+# items deposited via SWORD.
+#
+sword.updated.field = dc.date.updated
 
 Installation
 ------------
+
+- Ensure that you have included the configuration required
+
+- Import the metadata registry entries required using the file
+  config/registries/sword-metadata.xml
