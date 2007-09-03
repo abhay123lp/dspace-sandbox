@@ -36,8 +36,6 @@ public class Deposit
    
    private String formatNamespace;
    
-   private String depositID;
-   
    private String IPAddress;
    
    private String location;
@@ -106,20 +104,6 @@ public class Deposit
     */
    public void setContentType(String contentType) {
       this.contentType = contentType;
-   }
-
-   /**
-    * @return the depositID
-    */
-   public String getDepositID() {
-      return depositID;
-   }
-
-   /**
-    * @param depositID the depositID to set
-    */
-   public void setDepositID(String depositID) {
-      this.depositID = depositID;
    }
 
    /**

@@ -186,13 +186,23 @@ public class Service extends XmlElement implements SwordElementInterface
    }
    
    /**
-    * Get a list of workspaces. 
+    * Get an Iterator over the workspaces. 
     * 
     * @return The workspace. 
     */
    public Iterator<Workspace> getWorkspaces()
    {
       return workspaces.iterator();
+   }
+   
+   /**
+    * Get a List of workspaces
+    * 
+    * @return The workspaces in a List
+    */
+   public List<Workspace> getWorkspacesList()
+   {
+	   return workspaces;
    }
 
    /**

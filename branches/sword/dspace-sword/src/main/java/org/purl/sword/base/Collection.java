@@ -112,6 +112,18 @@ public class Collection extends XmlElement implements SwordElementInterface
       String[] values = new String[this.accepts.size()];
       return (String[])accepts.toArray(values);
    }
+   
+   /**
+    * Retrieve an array that holds all of the Accept details. 
+    * 
+    * @return An array of strings. Each string represents an 
+    *         individual accept element. The array will have a length
+    *         of 0 if no accepts elements are stored in this collection. 
+    */
+   public List<String> getAcceptsList() 
+   {
+      return accepts;
+   }   
 
    /**
     * Add an accepts entry. 

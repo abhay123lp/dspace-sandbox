@@ -24,12 +24,6 @@ public interface HttpHeaders
 	 */
 	public static final String X_ON_BEHALF_OF = "X-On-Behalf-Of";
   
-	/**
-     * The HTTP Header label that specifies the Deposit ID. 
-     * @deprecated
-     */
-    public static final String X_DEPOSIT_ID = "X-Deposit-ID";
-  
     /**
      * The HTTP Header label that specifies the Format Namespace information.
      */
