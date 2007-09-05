@@ -68,8 +68,8 @@ public class SearchConsumer implements Consumer
     // collect Items, Collections, Communities that need indexing
     private Set<DSpaceObject> objectsToUpdate = null;
 
-    // handles to delete since IDs are not useful by now.
-    private Set<String> handlesToDelete = null;
+    // oid to delete since IDs are not useful by now.
+    private Set<ObjectIdentifier> objectsToDelete = null;
 
     public void initialize() throws Exception
     {
@@ -92,16 +92,16 @@ public class SearchConsumer implements Consumer
         if (objectsToUpdate == null)
         {
             objectsToUpdate = new HashSet<DSpaceObject>();
-            handlesToDelete = new HashSet<String>();
+            objectsToDelete = new HashSet<ObjectIdentifier>();
         }
 
         int st = event.getSubjectType();
         if (!(st == Constants.ITEM || st == Constants.BUNDLE
                 || st == Constants.COLLECTION || st == Constants.COMMUNITY))
         {
-            log
-                    .warn("SearchConsumer should not have been given this kind of Subject in an event, skipping: "
-                            + event.toString());
+            log.warn("SearchConsumer should not have been given this "
+                    + "kind of Subject in an event, skipping: "
+                    + event.toString());
             return;
         }
         DSpaceObject dso = event.getSubject(ctx);
@@ -121,7 +121,7 @@ public class SearchConsumer implements Consumer
                 dso = ((Bundle) dso).getItems()[0];
                 if (log.isDebugEnabled())
                     log.debug("Transforming Bundle event into MODIFY of Item "
-//                            + dso.getHandle());
+                    // + dso.getHandle());
                             + dso.getID());
             }
             else
@@ -134,7 +134,8 @@ public class SearchConsumer implements Consumer
         case Event.MODIFY:
         case Event.MODIFY_METADATA:
             if (dso == null)
-                log.warn(event.getEventTypeAsString() + " event, could not get object for "
+                log.warn(event.getEventTypeAsString()
+                        + " event, could not get object for "
                         + event.getSubjectTypeAsString() + " id="
                         + String.valueOf(event.getSubjectID())
                         + ", perhaps it has been deleted.");
@@ -149,11 +150,9 @@ public class SearchConsumer implements Consumer
                 objectsToDelete.add(ObjectIdentifier.fromString(detail));
             break;
         default:
-            log
-                    .warn("SearchConsumer should not have been given a event of type="
-                            + event.getEventTypeAsString()
-                            + " on subject="
-                            + event.getSubjectTypeAsString());
+            log.warn("SearchConsumer should not have been "
+                    + "given a event of type=" + event.getEventTypeAsString()
+                    + " on subject=" + event.getSubjectTypeAsString());
             break;
         }
     }
@@ -165,53 +164,60 @@ public class SearchConsumer implements Consumer
      */
     public void end(Context ctx) throws Exception
     {
-        
-        if(objectsToUpdate != null && handlesToDelete != null)
+
+        if (objectsToUpdate != null && objectsToDelete != null)
         {
-         
-            // update the changed Items not deleted because they were on create list
+
+            // update the changed Items not deleted because they were on create
+            // list
             for (DSpaceObject iu : objectsToUpdate)
             {
                 if (iu.getType() != Constants.ITEM || ((Item) iu).isArchived())
                 {
                     // if handle is NOT in list of deleted objects, index it:
-                    String hdl = iu.getHandle();
-                    if (hdl != null && !handlesToDelete.contains(hdl))
+                    ObjectIdentifier oid = iu.getIdentifier();
+                    if (oid != null && !objectsToDelete.contains(oid))
                     {
                         try
                         {
-                            DSIndexer.indexContent(ctx, iu);
+                            DSIndexer.reIndexContent(ctx, iu);
                             if (log.isDebugEnabled())
-                                log.debug("Indexed "
+                                log.debug("RE-Indexed "
                                         + Constants.typeText[iu.getType()]
                                         + ", id=" + String.valueOf(iu.getID())
-                                        + ", handle=" + hdl);
+                                        + ", oid=" + oid.getCanonicalForm());
                         }
                         catch (Exception e)
                         {
-                            log.error("Failed while indexing object: ", e);
+                            log.error("Failed while RE-indexing object: ", e);
+                            objectsToUpdate = null;
+                            objectsToDelete = null;
                         }
                     }
                 }
             }
 
-            for (String hdl : handlesToDelete)
+            for (ObjectIdentifier oid : objectsToDelete)
             {
                 try
                 {
-                    DSIndexer.unIndexContent(ctx, hdl);
+                    DSIndexer.unIndexContent(ctx, oid.getObject(ctx));
                     if (log.isDebugEnabled())
-                        log.debug("UN-Indexed Item, handle=" + hdl);
+                        log.debug("UN-Indexed Item, oid="
+                                + oid.getCanonicalForm());
                 }
                 catch (Exception e)
                 {
-                    log.error("Failed while UN-indexing object: " + hdl, e);
+                    log.error("Failed while UN-indexing object: "
+                            + oid.getCanonicalForm(), e);
+                    objectsToUpdate = new HashSet<DSpaceObject>();
+                    objectsToDelete = new HashSet<ObjectIdentifier>();
                 }
 
             }
 
         }
-        
+
         // "free" the resources
         objectsToUpdate = null;
         objectsToDelete = null;
