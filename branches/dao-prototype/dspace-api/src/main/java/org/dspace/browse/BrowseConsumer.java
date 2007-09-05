@@ -146,9 +146,10 @@ public class BrowseConsumer implements Consumer
                 }
 
                 if (log.isDebugEnabled())
-                    log.debug("Updated browse indices for Item id="
-                            + String.valueOf(i.getID()) + ", hdl="
-                            + i.getHandle());
+                {
+                    log.debug("Updated browse indices for Item id=" + i.getID()
+                            + ", oid=" + i.getIdentifier().getCanonicalForm());
+                }
             }
 
             // NOTE: Removed items are necessarily handled inline (ugh).
@@ -164,5 +165,7 @@ public class BrowseConsumer implements Consumer
     
     public void finish(Context ctx) {
     	
+    	toUpdate = null;
+    	return;
     }
 }
