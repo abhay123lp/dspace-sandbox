@@ -186,7 +186,10 @@ public class GenerateSitemaps
 
         File outputDir = new File(ConfigurationManager
                 .getProperty("dspace.dir"), "sitemaps");
-
+        if (!outputDir.exists()) {
+        	outputDir.mkdir();
+        }
+        
         AbstractGenerator html = null;
         AbstractGenerator sitemapsOrg = null;
 

@@ -37,12 +37,18 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.eperson;
+package org.dspace.authenticate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.dspace.core.Context;
+import org.dspace.eperson.EPersonsp.PageContext;
+import java.sql.SQLException;
+
+import org.apache.log4j.Logger;
+import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 
 
 /**
@@ -172,7 +178,8 @@ public interface AuthenticationMethod {
      * @param request
      *  The request that started this operation, or null if not applicable.
      *
-     * @return array of EPerson-group IDs, possibly 0-length, but
+     * @return array of EPerson-group ID
+        throws SQLExceptions, possibly 0-length, but
      * never <code>null</code>.
      */
     public int[] getSpecialGroups(Context context, HttpServletRequest request);
@@ -246,9 +253,4 @@ public interface AuthenticationMethod {
      * selection menu, when there are multiple ways to login.
      *
      * @param context
-     *  DSpace context, will be modified (ePerson set) upon success.
-     *
-     * @return title text.
-     */
-    public String loginPageTitle(Context context);
-}
+     *  DSpace conte

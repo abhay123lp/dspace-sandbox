@@ -48,21 +48,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
 import org.dspace.app.webui.util.JSPManager;
-import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.browse.BrowseEngine;
 import org.dspace.browse.BrowseException;
-import org.dspace.browse.BrowseIndex;
-import org.dspace.browse.BrowseInfo;
 import org.dspace.browse.BrowserScope;
-import org.dspace.browse.SortOption;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
-import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 
 /**
  * Servlet for browsing through indices, as they are defined in 
@@ -84,54 +74,18 @@ import org.dspace.core.LogManager;
  * @author Richard Jones
  * @version $Revision:  $
  */
-public class BrowserServlet extends DSpaceServlet
+public class BrowserServlet extends AbstractBrowserServlet
 {
-    /** log4j category */
-    private static Logger log = Logger.getLogger(BrowserServlet.class);
-
     /**
      * Do the usual DSpace GET method.  You will notice that browse does not currently
      * respond to POST requests.
      */
-    protected void doDSGet(Context context, HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException,
-            SQLException, AuthorizeException
+    protected void doDSGet(Context context, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException,
+            AuthorizeException
     {
-    	try
-    	{
-    		// all browse requests currently come to GET.
-    		
-    		// first, lift all the stuff out of the request that we might need
-    		String type = request.getParameter("type");
-    		String order = request.getParameter("order");
-    		String value = request.getParameter("value");
-            String valueLang = request.getParameter("value_lang");
-    		String month = request.getParameter("month");
-            String year = request.getParameter("year");
-            String startsWith = request.getParameter("starts_with");
-            String valueFocus = request.getParameter("vfocus");
-            String valueFocusLang = request.getParameter("vfocus_lang");
-            int focus = UIUtil.getIntParameter(request, "focus");
-    		int resultsperpage = UIUtil.getIntParameter(request, "rpp");
-    		int sortBy = UIUtil.getIntParameter(request, "sort_by");
-    		int etAl = UIUtil.getIntParameter(request, "etal");
-    		
-    		// get the community or collection location for the browse request
-    		// Note that we are only interested in getting the "smallest" container,
-    		// so if we find a collection, we don't bother looking up the community
-    		Collection collection = null;
-    		Community community = null;
-    		collection = UIUtil.getCollectionLocation(request);
-    		if (collection == null)
-    		{
-    			community = UIUtil.getCommunityLocation(request);
-    		}
-    		
-    		// process the input, performing some inline validation
-    		if (type == null || "".equals(type))
-        	{
-    			showError(context, request, response);
-        	}
+        // all browse requests currently come to GET.
+        BrowserScope scope = getBrowserScopeForRequest(context, request, response);
 
         	BrowseIndex bi = BrowseIndex.getBrowseIndex(type);
         	if (bi == null)
@@ -307,10 +261,13 @@ public class BrowserServlet extends DSpaceServlet
         }
         catch (BrowseException e)
         {
-            log.error("caught exception: ", e);
-            throw new ServletException(e);
+            throw new ServletException("There is no browse index for the request");
         }
+        
+        // execute browse request
+        processBrowse(context, scope, request, response);
     }
+
     
     /**
      * Display the error page
@@ -323,13 +280,13 @@ public class BrowserServlet extends DSpaceServlet
      * @throws SQLException
      * @throws AuthorizeException
      */
-    protected void showError(Context context, HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException,
-            SQLException, AuthorizeException
+    protected void showError(Context context, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException,
+            AuthorizeException
     {
-    	JSPManager.showJSP(request, response, "/browse/error.jsp");
+        JSPManager.showJSP(request, response, "/browse/error.jsp");
     }
-    
+
     /**
      * Display the No Results page
      * 
@@ -341,14 +298,14 @@ public class BrowserServlet extends DSpaceServlet
      * @throws SQLException
      * @throws AuthorizeException
      */
-    protected void showNoResultsPage(Context context, HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException,
-            SQLException, AuthorizeException
+    protected void showNoResultsPage(Context context, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException,
+            AuthorizeException
     {
-    	
-    	JSPManager.showJSP(request, response, "/browse/no-results.jsp");
+        
+        JSPManager.showJSP(request, response, "/browse/no-results.jsp");
     }
-    
+
     /**
      * Display the single page.  This is the page which lists just the single values of a 
      * metadata browse, not individual items.  Single values are links through to all the items
@@ -362,14 +319,14 @@ public class BrowserServlet extends DSpaceServlet
      * @throws SQLException
      * @throws AuthorizeException
      */
-    protected void showSinglePage(Context context, HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException,
-            SQLException, AuthorizeException
+    protected void showSinglePage(Context context, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException,
+            AuthorizeException
     {
-    	
-    	JSPManager.showJSP(request, response, "/browse/single.jsp");
+        
+        JSPManager.showJSP(request, response, "/browse/single.jsp");
     }
-    
+
     /**
      * Display a full item listing.
      * 
@@ -381,11 +338,11 @@ public class BrowserServlet extends DSpaceServlet
      * @throws SQLException
      * @throws AuthorizeException
      */
-    protected void showFullPage(Context context, HttpServletRequest request,
-            HttpServletResponse response) throws ServletException, IOException,
-            SQLException, AuthorizeException
+    protected void showFullPage(Context context, HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException, SQLException,
+            AuthorizeException
     {
-    	
-    	JSPManager.showJSP(request, response, "/browse/full.jsp");
+        
+        JSPManager.showJSP(request, response, "/browse/full.jsp");
     }
 }

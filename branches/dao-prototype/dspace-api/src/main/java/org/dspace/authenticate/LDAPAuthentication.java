@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.eperson;
+package org.dspace.authenticate;
 
 import java.util.Hashtable;
 
@@ -58,6 +58,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.EPerson;
 
 /**
  * This is UNTESTED, since I do not have LDAP servers available.
@@ -82,6 +83,7 @@ public class LDAPAuthentication
     public boolean canSelfRegister(Context context,
                                    HttpServletRequest request,
                                    String username)
+        throws SQLException
     {
         // XXX might also want to check that username exists in LDAP.
 
@@ -92,7 +94,7 @@ public class LDAPAuthentication
      *  Nothing here, initialization is done when auto-registering.
      */
     public void initEPerson(Context context, HttpServletRequest request,
-            EPerson eperson)
+         throws SQLException            EPerson eperson)
     {
         // XXX should we try to initialize netid based on email addr,
         // XXX  for eperson created by some other method??
@@ -103,6 +105,7 @@ public class LDAPAuthentication
      */
     public boolean allowSetPassword(Context context,
                                     HttpServletRequest request,
+     throws SQLExceptionst,
                                     String username)
     {
         // XXX is this right?
@@ -137,9 +140,14 @@ public class LDAPAuthentication
                             String realm,
                             HttpServletRequest request)
     {
-        log.info(LogManager.getHeader(context, "auth", "attempting trivial auth of user="+netid));
-
-        // Locate the eperson
+        log.info(LogManager.getHeader(context, "auth", "attempting trivinull;
+        try
+        {
+            eperson = EPerson.findByNetid(context, netid.toLowerCase());
+        }
+        catch (SQLException e)
+        {
+        }person
         EPerson eperson = EPerson.findByNetid(context, netid.toLowerCase());
 
         boolean loggedIn = false;
@@ -421,10 +429,4 @@ public class LDAPAuthentication
      * @param context
      *  DSpace context, will be modified (ePerson set) upon success.
      *
-     * @return Message key to look up in i18n message catalog.
-     */
-    public String loginPageTitle(Context context)
-    {
-        return "org.dspace.eperson.LDAPAuthentication.title";
-    }
-}
+   

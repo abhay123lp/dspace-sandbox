@@ -44,7 +44,7 @@ import java.util.Map;
 
 import org.apache.avalon.framework.parameters.Parameters;
 import org.apache.cocoon.selection.Selector;
-import org.dspace.eperson.AuthenticationManager;
+import org.dspace.authenticate.AuthenticationManager;
 
 /**
  * Selector will count the number of AuthenticationMethods defined in the 

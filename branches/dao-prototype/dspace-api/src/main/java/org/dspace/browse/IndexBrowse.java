@@ -40,10 +40,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.StringTokenizer;
 
 import org.apache.commons.cli.CommandLine;
@@ -333,6 +331,26 @@ public class IndexBrowse
     }
 
     /**
+     * Prune indexes - called from the public interfaces or at the end of a batch indexing process
+     */
+    private void pruneIndexes() throws BrowseException
+    {
+        // go over the indices and prune
+        for (int i = 0; i < bis.length; i++)
+        {
+            if (bis[i].isMetadataIndex())
+            {
+                log.debug("Pruning metadata index: " + bis[i].getTableName());
+                dao.pruneExcess(bis[i].getTableName(false, false, false, false), bis[i].getTableName(false, false, false, true), false);
+                dao.pruneDistinct(bis[i].getTableName(false, false, true, false), bis[i].getTableName(false, false, false, true));
+            }
+        }
+
+        dao.pruneExcess(BrowseIndex.getItemBrowseIndex().getTableName(false, false, false, false), null, false);
+        dao.pruneExcess(BrowseIndex.getWithdrawnBrowseIndex().getTableName(false, false, false, false), null, true);
+    }
+
+    /**
      * Index the given item
      * 
      * @param item	the item to index
@@ -342,6 +360,9 @@ public class IndexBrowse
     	throws BrowseException
     {
         indexItem(new ItemMetadataProxy(item));
+
+        // Ensure that we remove any invalid entries
+        pruneIndexes();
     }
     
        /**
@@ -363,21 +384,17 @@ public class IndexBrowse
             removeIndex(item.getID(), BrowseIndex.getItemBrowseIndex().getTableName());
             removeIndex(item.getID(), BrowseIndex.getWithdrawnBrowseIndex().getTableName());
 
-            // Index any archived item
-            if (item.isArchived())
+            // Index any archived item that isn't withdrawn
+            if (item.isArchived() && !item.isWithdrawn())
+            {
+                Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
+                dao.insertIndex(BrowseIndex.getItemBrowseIndex().getTableName(), item.getID(), sortMap);
+            }
+            else if (item.isWithdrawn())
             {
                 // If it's withdrawn, add it to the withdrawn items index
-                if (item.isWithdrawn())
-                {
-                    Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
-                    dao.insertIndex(BrowseIndex.getWithdrawnBrowseIndex().getTableName(), item.getID(), sortMap);
-                }
-                else
-                {
-                    // Otherwise, add it to the main item index
-                    Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
-                    dao.insertIndex(BrowseIndex.getItemBrowseIndex().getTableName(), item.getID(), sortMap);
-                }
+                Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
+                dao.insertIndex(BrowseIndex.getWithdrawnBrowseIndex().getTableName(), item.getID(), sortMap);
             }
 
             // Now update the metadata indexes
@@ -527,8 +544,11 @@ public class IndexBrowse
 			log.debug("Removing indexing for removed item " + item.getID() + ", for index: " + bis[i].getTableName());
 			removeIndex(item, bis[i]);
 	    }
-	    
-	    return true;
+
+        // Ensure that we remove any invalid entries
+        pruneIndexes();
+
+        return true;
 	}
 
 	/**
@@ -1044,19 +1064,15 @@ public class IndexBrowse
     		}
     		
     		// now get the ids of ALL the items in the database
-//    		BrowseItem bi = new BrowseItem(context, -1);
-//    		Integer[] ids = bi.findAll();
+            BrowseItemDAO biDao = BrowseDAOFactory.getItemInstance(context);
+            BrowseItem[] items = biDao.findAll();
 
     		// go through every item id, grab the relevant metadata
     		// and write it into the database
     		
-//    		for (int j = 0; j < ids.length; j++)
-            int numItems = 0;
-            for (Item item : ItemDAOFactory.getInstance(context).getItems())
+    		for (int j = 0; j < items.length; j++)
     		{
-//    			BrowseItem item = new BrowseItem(context, ids[j].intValue());
-//                indexItem(new ItemMetadataProxy(ids[j].intValue(), item));
-                indexItem(new ItemMetadataProxy(item));
+                indexItem(new ItemMetadataProxy(items[j].getID(), items[j]));
     			
     			// after each item we commit the context and clear the cache
     			context.commit();
@@ -1066,23 +1082,12 @@ public class IndexBrowse
     		
     		// penultimately we have to delete any items that couldn't be located in the
     		// index list
-    		for (int k = 0; k < bis.length; k++)
-    		{
-                if (bis[k].isMetadataIndex())
-                {
-                    dao.pruneExcess(bis[k].getTableName(false, false, false, false), bis[k].getTableName(false, false, false, true), false);
-    				dao.pruneDistinct(bis[k].getTableName(false, false, true, false), bis[k].getTableName(false, false, false, true));
-    			}
-    		}
-
-            dao.pruneExcess(BrowseIndex.getItemBrowseIndex().getTableName(false, false, false, false), null, false);
-            dao.pruneExcess(BrowseIndex.getWithdrawnBrowseIndex().getTableName(false, false, false, false), null, true);
+            pruneIndexes();
             
             // Make sure the deletes are written back
             context.commit();
     		
-//    		return ids.length;
-    		return numItems;
+    		return items.length;
     	}
     	catch (SQLException e)
     	{
@@ -1179,7 +1184,6 @@ public class IndexBrowse
 	    
 	    /**
 	     * Is the Item archived?
-	     * If we only have a cut down BrowseItem, assume that it is
 	     * @return
 	     */
 	    public boolean isArchived()
@@ -1189,12 +1193,11 @@ public class IndexBrowse
 	    		return item.isArchived();
 	    	}
 	    	
-	    	return true;
+	    	return browseItem.isArchived();
 	    }
 	    
         /**
          * Is the Item withdrawn?
-         * If we only have a cut down BrowseItem, assume that it is not
          * @return
          */
         public boolean isWithdrawn()
@@ -1204,7 +1207,7 @@ public class IndexBrowse
             	return item.isWithdrawn();
             }
             
-            return false;
+            return browseItem.isWithdrawn();
         }
 	}
 }

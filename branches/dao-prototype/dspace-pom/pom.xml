@@ -14,8 +14,75 @@
 		<url>http://www.dspace.org</url>
 	</organization>
 
+    <profiles>
+        <!-- 
+            This profile is used by all children such that
+            when activated a dspace.config configuration
+            file location passed on the commandline 
+            (-Ddspace.config=...) can be passed through 
+            to be used as a filter source by projects for 
+            tasks such as updating the ${dspace.dir} in
+            web.xml etc.
+            
+            When activated, the child project will inherit
+            the configuration.
+         -->
+       <profile>
+           <activation>
+               <property>
+                   <name>dspace.config</name>
+               </property>
+           </activation>
+           <build>
+               <filters>
+                   <filter>${dspace.config}</filter>
+               </filters>
+           </build>
+       </profile>
+ 
+      <profile>
+         <id>postgres</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+            <property>
+              <name>db.name</name>
+              <value>postgres</value>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>postgresql</groupId>
+               <artifactId>postgresql</artifactId>
+               <version>8.1-404.jdbc3</version>
+            </dependency>
+         </dependencies>
+      </profile>
+      
+      <profile>
+         <id>oracle</id>
+         <activation>
+            <property>
+               <name>db.name</name>
+               <value>oracle</value>
+            </property>
+         </activation>
+         <dependencies>
+            <dependency>
+               <groupId>com.oracle</groupId>
+               <artifactId>ojdbc14</artifactId>
+               <version>10.2.0.2.0</version>
+            </dependency>
+         </dependencies>
+      </profile>
+      
+   </profiles>
+   
 	<build>
 		<plugins>
+            <!-- 
+                Java 1.5 is our officially endorsed build target
+                platform.  
+            -->
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
@@ -36,19 +103,20 @@
 				<checksumPolicy>fail</checksumPolicy>
 			</releases>
 			<snapshots>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>always</updatePolicy>
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
 		</repository>
 		<repository>
 			<id>central</id>
+            <name>Central Maven Repository</name>
 			<url>http://repo1.maven.org/maven2</url>
 			<releases>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>fail</checksumPolicy>
 			</releases>
 			<snapshots>
-				<updatePolicy>never</updatePolicy>
+				<updatePolicy>daily</updatePolicy>
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
 		</repository>
@@ -64,23 +132,6 @@
 				<checksumPolicy>fail</checksumPolicy>
 			</releases>
 			<snapshots>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</pluginRepository>
-		<pluginRepository>
-			<id>m2-snapshot-repository</id>
-			<name>DSpace Maven Repository</name>
-			<url>
-				http://people.apache.org/repo/m2-snapshot-repository
-			</url>
-			<releases>
-				<enabled>false</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
 				<updatePolicy>never</updatePolicy>
 				<checksumPolicy>fail</checksumPolicy>
 			</snapshots>
@@ -146,7 +197,11 @@
 				<artifactId>dspace-xmlui-wing</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
+            <dependency>
+                <groupId>org.apache.ant</groupId>
+                <artifactId>ant</artifactId>
+                <version>1.7.0</version>
+            </dependency>
 			<dependency>
 				<groupId>org.dspace</groupId>
 				<artifactId>jena</artifactId>
@@ -344,7 +399,16 @@
       			<artifactId>icu4j</artifactId>
       			<version>3.4.4</version>
 		    </dependency>
-
+            <dependency>
+                <groupId>postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>8.1-404.jdbc3</version>
+            </dependency>
+            <dependency>
+                <groupId>com.oracle</groupId>
+                <artifactId>ojdbc14</artifactId>
+                <version>10.2.0.2.0</version>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 
@@ -558,16 +622,27 @@
 		</contributor>
 	</contributors>
 
+    <!-- 
+        The Subversion repository location is used by Continuum to update against
+        when changes have occured, this spawns a new build cycle and releases snapshots
+        into the snapshot repository below.
+    -->
 	<scm>
 		<connection>
-			scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/trunk
+			scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/trunk/dspace-pom
 		</connection>
 		<developerConnection>
-			scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/trunk
+			scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/trunk/dspace-pom
 		</developerConnection>
-		<url>http://dspace.svn.sourceforge.net/viewvc/dspace/trunk</url>
+		<url>http://dspace.svn.sourceforge.net/viewvc/dspace/trunk/dspace-pom</url>
 	</scm>
 
+    <!-- 
+        Distribution Management is currently used by the Continuum server
+        to update snapshots it generates. This will also be used on 
+        release to deploy release versions to the repository by the
+        release manager.
+    -->
 	<distributionManagement>
 		<repository>
 			<id>maven.dspace.org</id>

@@ -140,6 +140,11 @@ public class BrowseDAOOracle implements BrowseDAO
     /** whether the query (above) needs to be regenerated */
     private boolean rebuildQuery = true;
 
+    // FIXME Would be better to join to item table and get the correct values
+    /** flags for what the items represent */
+    private boolean itemsInArchive = true;
+    private boolean itemsWithdrawn = false;
+    
     public BrowseDAOOracle(Context context)
     	throws BrowseException
     {
@@ -257,9 +262,10 @@ public class BrowseDAOOracle implements BrowseDAO
             while (tri.hasNext())
             {
                 TableRow row = tri.next();
-//                BrowseItem browseItem = new BrowseItem(context, row.getIntColumn("item_id"));
-//                results.add(browseItem);
-                results.add(itemDAO.retrieve(row.getIntColumn("item_id")));
+                BrowseItem browseItem = new BrowseItem(context, row.getIntColumn("item_id"),
+                                                  itemsInArchive,
+                                                  itemsWithdrawn);
+                results.add(browseItem);
             }
             
             return results;
@@ -583,6 +589,21 @@ public class BrowseDAOOracle implements BrowseDAO
     public void setTable(String table)
     {
         this.table = table;
+
+        // FIXME Rather than assume from the browse table, join the query to item to get the correct values
+        // Check to see if this is the withdrawn browse index - if it is,
+        // we need to set the flags appropriately for when we create the BrowseItems
+        if (table.equals(BrowseIndex.getWithdrawnBrowseIndex().getTableName()))
+        {
+            itemsInArchive = false;
+            itemsWithdrawn = true;
+        }
+        else
+        {
+            itemsInArchive = true;
+            itemsWithdrawn = false;
+        }
+
         this.rebuildQuery = true;
     }
 

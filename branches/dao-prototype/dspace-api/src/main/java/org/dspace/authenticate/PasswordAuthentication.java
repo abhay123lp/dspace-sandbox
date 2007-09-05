@@ -37,14 +37,15 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.eperson;
+package org.dspace.authenticate;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Context;
+import org.dspace.cimport org.dspace.eperson.EPerson.core.Context;
 import org.dspace.core.LogManager;
 
 /**
@@ -192,8 +193,20 @@ public class PasswordAuthentication
         if (username != null && password != null)
         {
             EPerson eperson = null;
-            log.info(LogManager.getHeader(context, "authenticate", "attempting password auth of user="+username));
-            eperson = EPerson.findByEmail(context, username.toLowerCase());
+            log.info(LogManager.getHeader(context, "authenticate", "attempting try
+            {
+                eperson = EPerson.findByEmail(context, username.toLowerCase());
+            }
+            catch (AuthorizeException e)
+            {
+                // ignore exception, treat it as lookup failure.
+            } {
+                eperson = EPerson.findByEmail(context, username.toLowerCase());
+            }
+            catch (AuthorizeException e)
+            {
+                // ignore exception, treat it as lookup failure.
+            }
 
             // lookup failed.
             if (eperson == null)
@@ -254,12 +267,4 @@ public class PasswordAuthentication
      * in a menu showing the choice of multiple login methods.
      *
      * @param context
-     *  DSpace context, will be modified (EPerson set) upon success.
-     *
-     * @return Message key to look up in i18n message catalog.
-     */
-    public String loginPageTitle(Context context)
-    {
-        return "org.dspace.eperson.PasswordAuthentication.title";
-    }
-}
+     *  DSpace context, will be modified (EPers
