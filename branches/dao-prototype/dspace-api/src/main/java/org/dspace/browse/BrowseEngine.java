@@ -375,12 +375,13 @@ public class BrowseEngine
 				}
 				if (prevID != -1)
 				{
+                    prev = itemDAO.retrieve(prevID);
                     // If we are browsing the withdrawn index, create a 'withdrawn' browse item
                     // Otherwise, assume that the item is in the archive and not withdrawn
-                    if (bs.getBrowseIndex() == BrowseIndex.getWithdrawnBrowseIndex())
-                        prev = new BrowseItem(context, prevID, false, true);
-                    else
-                        prev = new BrowseItem(context, prevID, true, false);
+//                    if (bs.getBrowseIndex() == BrowseIndex.getWithdrawnBrowseIndex())
+//                        prev = new BrowseItem(context, prevID, false, true);
+//                    else
+//                        prev = new BrowseItem(context, prevID, true, false);
                 }
 			}
 			
