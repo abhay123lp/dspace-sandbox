@@ -1064,20 +1064,23 @@ public class IndexBrowse
     		}
     		
     		// now get the ids of ALL the items in the database
-            BrowseItemDAO biDao = BrowseDAOFactory.getItemInstance(context);
-            BrowseItem[] items = biDao.findAll();
+//            BrowseItemDAO biDao = BrowseDAOFactory.getItemInstance(context);
+//            BrowseItem[] items = biDao.findAll();
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+            List<Item> items = itemDAO.getItems();
 
     		// go through every item id, grab the relevant metadata
     		// and write it into the database
     		
-    		for (int j = 0; j < items.length; j++)
+//    		for (int j = 0; j < items.length; j++)
+    		for (Item item : items)
     		{
-                indexItem(new ItemMetadataProxy(items[j].getID(), items[j]));
+//                indexItem(new ItemMetadataProxy(items[j].getID(), items[j]));
+                indexItem(new ItemMetadataProxy(item));
     			
     			// after each item we commit the context and clear the cache
     			context.commit();
     			context.clearCache();
-                numItems++;
     		}
     		
     		// penultimately we have to delete any items that couldn't be located in the
@@ -1087,7 +1090,8 @@ public class IndexBrowse
             // Make sure the deletes are written back
             context.commit();
     		
-    		return items.length;
+//    		return items.length;
+    		return items.size();
     	}
     	catch (SQLException e)
     	{
@@ -1140,6 +1144,7 @@ public class IndexBrowse
 	// private inner class
 	//	 Hides the Item / BrowseItem in such a way that we can remove
 	//	 the duplication in indexing an item.
+    // FIXME: I (JR) think this is pointless now that BrowseItem doesn't exist.
 	private class ItemMetadataProxy
 	{
 	    private Item item;
@@ -1174,12 +1179,12 @@ public class IndexBrowse
 	    
 	    public int getID()
 	    {
-	        if (item != null)
-	        {
+//	        if (item != null)
+//	        {
 	            return item.getID();
-	        }
-	        
-	        return id;
+//	        }
+//	        
+//	        return id;
 	    }
 	    
 	    /**
@@ -1188,12 +1193,12 @@ public class IndexBrowse
 	     */
 	    public boolean isArchived()
 	    {
-	    	if (item != null)
-	    	{
+//	    	if (item != null)
+//	    	{
 	    		return item.isArchived();
-	    	}
-	    	
-	    	return browseItem.isArchived();
+//	    	}
+//	    	
+//	    	return browseItem.isArchived();
 	    }
 	    
         /**
@@ -1202,12 +1207,12 @@ public class IndexBrowse
          */
         public boolean isWithdrawn()
         {
-            if (item != null)
-            {
+//            if (item != null)
+//            {
             	return item.isWithdrawn();
-            }
-            
-            return browseItem.isWithdrawn();
+//            }
+//            
+//            return browseItem.isWithdrawn();
         }
 	}
 }
