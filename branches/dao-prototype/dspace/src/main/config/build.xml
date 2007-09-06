@@ -297,7 +297,7 @@ Common usage:
 		<java classname="org.dspace.storage.rdbms.InitializeDatabase" classpathref="class.path" fork="yes" failonerror="yes">
 			<sysproperty key="log4j.configuration" value="file:config/log4j-console.properties" />
 			<sysproperty key="dspace.configuration" value="${config}" />
-			<arg value="database_schema.sql" />
+			<arg value="dspace-dao.sql" />
 		</java>
 
 		<!-- Add the browse tables -->
