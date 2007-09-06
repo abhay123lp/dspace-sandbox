@@ -262,10 +262,11 @@ public class BrowseDAOOracle implements BrowseDAO
             while (tri.hasNext())
             {
                 TableRow row = tri.next();
-                BrowseItem browseItem = new BrowseItem(context, row.getIntColumn("item_id"),
-                                                  itemsInArchive,
-                                                  itemsWithdrawn);
-                results.add(browseItem);
+//                BrowseItem browseItem = new BrowseItem(context, row.getIntColumn("item_id"),
+//                                                  itemsInArchive,
+//                                                  itemsWithdrawn);
+//                results.add(browseItem);
+                results.add(itemDAO.retrieve(row.getIntColumn("item_id")));
             }
             
             return results;

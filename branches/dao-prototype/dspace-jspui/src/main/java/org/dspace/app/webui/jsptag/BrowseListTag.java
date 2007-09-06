@@ -454,7 +454,8 @@ public class BrowseListTag extends TagSupport
                     frags[idx] = "<td headers=\"" + id + "\" class=\""
                     	+ rOddOrEven + "Row" + cOddOrEven + "Col\" nowrap>"
                     	+ "<form method=get action=\"" + hrq.getContextPath() + "/tools/edit-item\">"
-                        + "<input type=\"hidden\" name=\"handle\" value=\"" + items[i].getHandle() + "\" />"
+//                        + "<input type=\"hidden\" name=\"handle\" value=\"" + items[i].getHandle() + "\" />"
+                        + "<input type=\"hidden\" name=\"uri\" value=\"" + items[i].getIdentifier().getCanonicalForm() + "\" />"
                         + "<input type=\"submit\" value=\"Edit Item\" /></form>"
                     	+ "</td>";
                 }
