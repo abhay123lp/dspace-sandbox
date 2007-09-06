@@ -1001,11 +1001,10 @@ public class Item extends DSpaceObject
     /**
      * Moves the item from one collection to another one
      * 
-     * @throws SQLException
      * @throws AuthorizeException
      * @throws IOException
      */
-    public void move (Collection from, Collection to) throws SQLException, AuthorizeException, IOException 
+    public void move (Collection from, Collection to) throws AuthorizeException, IOException 
     {
     	if (isOwningCollection(from))
     	{
@@ -1021,11 +1020,10 @@ public class Item extends DSpaceObject
      * Get the collections this item is not in.
      * 
      * @return the collections this item is not in, if any.
-     * @throws SQLException
      */
-    public Collection[] getCollectionsNotLinked() throws SQLException
+    public Collection[] getCollectionsNotLinked()
     {
-    	Collection[] allCollections = Collection.findAll(ourContext);
+    	Collection[] allCollections = Collection.findAll(context);
        	Collection[] linkedCollections = getCollections();
        	Collection[] notLinkedCollections = new Collection[allCollections.length - linkedCollections.length];
 

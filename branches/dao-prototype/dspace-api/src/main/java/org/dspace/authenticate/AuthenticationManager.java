@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.authenticate;
+package org.dspace.eperson;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -47,19 +47,6 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
-import org.dspace.core.LogManager;
-import org.dspace.eperson.EPersonimport java.util.Arrays;
-import java.util.List;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-
-import org.apache.log4j.Logger;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Context;
-import org.dspace.core.PluginManager;
-import org.dspace.core.LogManager;
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.AuthenticationMethod;
 
 /**
  * Access point for the stackable authentication methods.
@@ -282,7 +269,7 @@ public class AuthenticationManager
      *  A valid DSpace context.
      *
      * @param request
-     *  The r    throws SQLExceptionThe request that started this operation, or null if not applicable.
+     *  The request that started this operation, or null if not applicable.
      *
      * @return Returns IDs of any groups the user authenticated by this
      * request is in implicitly -- checks for e.g. network-address dependent
@@ -323,4 +310,19 @@ public class AuthenticationManager
                 for (int j = 0; j < gl.length; ++j)
                     result[k++] = gl[j];
             }
-            return resul
+            return result;
+        }
+    }
+
+    /**
+     * Get stack of authentication methods.
+     * Return an <code>Iterator</code> that steps through each configured
+     * authentication method, in order of precedence.
+     *
+     * @return Iterator object.
+     */
+    public static Iterator authenticationMethodIterator()
+    {
+        return Arrays.asList(methodStack).iterator();
+    }
+}
