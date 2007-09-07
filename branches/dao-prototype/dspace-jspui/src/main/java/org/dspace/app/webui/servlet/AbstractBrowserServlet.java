@@ -216,7 +216,7 @@ public abstract class AbstractBrowserServlet extends DSpaceServlet
             if (collection != null)
             {
 //                colHandle = collection.getHandle();
-                colHandle = community.getIdentifier().getCanonicalForm();
+                colHandle = collection.getIdentifier().getCanonicalForm();
             }
             
             String arguments = "type=" + type + ",order=" + order + ",value=" + value + 
