@@ -1,19 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  
-  <parent>
-    <artifactId>dspace-pom</artifactId>
-    <groupId>org.dspace</groupId>
-    <version>1.5-SNAPSHOT</version>
-    <relativePath>../dspace-pom</relativePath>
-  </parent>
-  
+
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.apache.maven.plugins</groupId>
   <artifactId>maven-dspace-plugin</artifactId>
   <packaging>maven-plugin</packaging>
   <name>Maven DSpace Plugin</name>
+  <version>1.5-SNAPSHOT</version>
   
+  <organization>
+      <name>The DSpace Foundation</name>
+      <url>http://www.dspace.org</url>
+   </organization>
+    
+   <build>
+      <plugins>
+            <!-- 
+                Java 1.5 is our officially endorsed build target
+                platform.  
+            -->
+         <plugin>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+               <source>1.5</source>
+               <target>1.5</target>
+            </configuration>
+         </plugin>
+      </plugins>
+   </build>
+
+    <!-- 
+        The Subversion repository location is used by Continuum to update against
+        when changes have occured, this spawns a new build cycle and releases snapshots
+        into the snapshot repository below.
+    -->
+   <scm>
+      <connection>
+         scm:svn:http://dspace-sandbox.googlecode.com/svn/branches/maven-support/maven-dspace-plugin
+      </connection>
+      <developerConnection>
+         scm:svn:https://dspace-sandbox.googlecode.com/svn/branches/maven-support/maven-dspace-plugin
+      </developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/branches/maven-support/maven-dspace-plugin</url>
+   </scm>
+   
+    <!-- 
+        Distribution Management is currently used by the Continuum server
+        to update snapshots it generates. This will also be used on 
+        release to deploy release versions to the repository by the
+        release manager.
+    -->
+   <distributionManagement>
+      <repository>
+         <id>maven.dspace.org</id>
+         <name>DSpace Maven Repository</name>
+         <url>scp://maven.dspace.org/var/maven</url>
+      </repository>
+      <snapshotRepository>
+         <id>maven.dspace.org</id>
+         <name>DSpace Maven Repository</name>
+         <url>scp://maven.dspace.org/var/maven</url>
+      </snapshotRepository>
+      <site>
+         <id>website</id>
+         <url>
+            scp://projects.dspace.org/var/www/projects.dspace.org/htdocs
+         </url>
+      </site>
+   </distributionManagement>
+   
+   <repositories>
+      <repository>
+         <id>maven.dspace.org</id>
+         <name>DSpace Maven Repository</name>
+         <url>http://maven.dspace.org</url>
+         <releases>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+      <repository>
+         <id>central</id>
+            <name>Central Maven Repository</name>
+         <url>http://repo1.maven.org/maven2</url>
+         <releases>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
+
+   <pluginRepositories>
+      <pluginRepository>
+         <id>maven.dspace.org</id>
+         <name>DSpace Maven Repository</name>
+         <url>http://maven.dspace.org</url>
+         <releases>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </pluginRepository>
+   </pluginRepositories>
+   
   <developers>
     <developer>
       <id>mdiggory</id>
