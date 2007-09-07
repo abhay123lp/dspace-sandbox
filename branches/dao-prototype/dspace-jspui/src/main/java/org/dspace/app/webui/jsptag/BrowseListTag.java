@@ -332,6 +332,7 @@ public class BrowseListTag extends TagSupport
 //                            + "</a>";
                             metadata = "<a href=\""
                             + items[i].getIdentifier().getURL().toString() + "\">" 
+                            + Utils.addEntities(metadataArray[0].value)
                             + "</a>";
                         }
                         // format all other fields
@@ -455,7 +456,7 @@ public class BrowseListTag extends TagSupport
                     	+ rOddOrEven + "Row" + cOddOrEven + "Col\" nowrap>"
                     	+ "<form method=get action=\"" + hrq.getContextPath() + "/tools/edit-item\">"
 //                        + "<input type=\"hidden\" name=\"handle\" value=\"" + items[i].getHandle() + "\" />"
-                        + "<input type=\"hidden\" name=\"uri\" value=\"" + items[i].getIdentifier().getCanonicalForm() + "\" />"
+                        + "<input type=\"hidden\" name=\"item_id\" value=\"" + items[i].getID() + "\" />"
                         + "<input type=\"submit\" value=\"Edit Item\" /></form>"
                     	+ "</td>";
                 }
