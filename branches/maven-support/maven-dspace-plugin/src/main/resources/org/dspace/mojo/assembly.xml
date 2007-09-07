@@ -69,7 +69,7 @@
          </includes>
          <binaries>
             <includeDependencies>false</includeDependencies>
-            <outputDirectory>/dspace/webapps-test</outputDirectory>
+            <outputDirectory>webapps</outputDirectory>
             <outputFileNameMapping>
                ${artifactId}
             </outputFileNameMapping>
