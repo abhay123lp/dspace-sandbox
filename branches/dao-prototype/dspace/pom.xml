@@ -19,7 +19,7 @@
     <parent>
         <groupId>org.dspace</groupId>
         <artifactId>dspace-pom</artifactId>
-        <version>1.5-SNAPSHOT</version>
+        <version>1.6-SNAPSHOT</version>
         <relativePath>../dspace-pom</relativePath>
     </parent>
 
@@ -426,7 +426,7 @@
             <!--  overall project assembly -->
             <plugin>
                 <artifactId>maven-dspace-plugin</artifactId>
-                <version>1.5-SNAPSHOT</version>
+                <version>1.6-SNAPSHOT</version>
                 <configuration>
                     <descriptors>
                         <descriptor>
