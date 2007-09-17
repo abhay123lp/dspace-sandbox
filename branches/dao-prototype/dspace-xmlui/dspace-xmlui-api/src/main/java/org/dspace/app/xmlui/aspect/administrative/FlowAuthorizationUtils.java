@@ -54,9 +54,9 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
-import org.dspace.handle.HandleManager;
 
 import org.dspace.core.Constants;
 
@@ -91,7 +91,9 @@ public class FlowAuthorizationUtils {
 		result.setContinue(false);
 		//Check whether it's a handle or internal id (by check ing if it has a slash in the string)
 		if (identifier.contains("/")) {
-			DSpaceObject dso = HandleManager.resolveToObject(context, identifier);
+//			DSpaceObject dso = HandleManager.resolveToObject(context, identifier);
+			DSpaceObject dso =
+                ObjectIdentifier.fromString(identifier).getObject(context);
 			
 			if (dso != null && dso.getType() == Constants.ITEM) { 
 				result.setParameter("itemID", dso.getID());

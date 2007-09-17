@@ -62,6 +62,7 @@ public abstract class DAOTest
     @BeforeClass
     public static void setUpClass() throws Exception
     {
+        try {
         ConfigurationManager.loadConfig(CONFIG);
 
         context = new Context();
@@ -81,6 +82,7 @@ public abstract class DAOTest
         groupDAO.update(admins);
 
         context.setIgnoreAuthorization(false);
+        } catch (Throwable t) { t.printStackTrace(); }
     }
 
     @AfterClass

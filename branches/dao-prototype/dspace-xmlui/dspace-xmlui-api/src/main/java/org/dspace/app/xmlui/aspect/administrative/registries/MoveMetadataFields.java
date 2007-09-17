@@ -153,7 +153,7 @@ public class MoveMetadataFields extends AbstractDSpaceTransformer
     	Select toSchema = cell.addSelect("to_schema");
     	for (MetadataSchema schema : schemas)
     	{
-    		toSchema.addOption(schema.getSchemaID(), schema.getNamespace());
+    		toSchema.addOption(schema.getID(), schema.getNamespace());
     	}
     	
     	Para buttons = moved.addPara();

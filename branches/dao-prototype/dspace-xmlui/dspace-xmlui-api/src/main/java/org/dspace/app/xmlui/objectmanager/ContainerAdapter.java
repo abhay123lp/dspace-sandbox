@@ -123,8 +123,8 @@ public class ContainerAdapter extends AbstractAdapter
      */
     protected String getMETSOBJID()
     {
-    	if (dso.getHandle() != null)
-    		return contextPath+"/handle/" + dso.getHandle();
+    	if (dso.getIdentifier().getCanonicalForm() != null)
+    		return contextPath+"/handle/" + dso.getIdentifier().getCanonicalForm();
     	return null;
     }
 
@@ -141,7 +141,7 @@ public class ContainerAdapter extends AbstractAdapter
      */
     protected String getMETSID()
     {
-    	if (dso.getHandle() == null)
+    	if (dso.getIdentifier().getCanonicalForm() == null)
     	{
         	if (dso instanceof Collection)
         		return "collection:"+dso.getID();
@@ -149,7 +149,7 @@ public class ContainerAdapter extends AbstractAdapter
         		return "community:"+dso.getID();
     	}
         else
-        	return "hdl:"+dso.getHandle();
+        	return "hdl:"+dso.getIdentifier().getCanonicalForm();
     }
 
     /**
@@ -269,7 +269,7 @@ public class ContainerAdapter extends AbstractAdapter
                 String description = collection.getMetadata("introductory_text");
                 String description_abstract = collection.getMetadata("short_description");
                 String description_table = collection.getMetadata("side_bar_text");
-                String identifier_uri = "http://hdl.handle.net/" + collection.getHandle();
+                String identifier_uri = "http://hdl.handle.net/" + collection.getIdentifier().getCanonicalForm();
                 String provenance = collection.getMetadata("provenance_description");
                 String rights = collection.getMetadata("copyright_text");
                 String rights_license = collection.getMetadata("license");
@@ -291,7 +291,7 @@ public class ContainerAdapter extends AbstractAdapter
                 String description = community.getMetadata("introductory_text");
                 String description_abstract = community.getMetadata("short_description");
                 String description_table = community.getMetadata("side_bar_text");
-                String identifier_uri = "http://hdl.handle.net/" + community.getHandle();
+                String identifier_uri = "http://hdl.handle.net/" + community.getIdentifier().getCanonicalForm();
                 String rights = community.getMetadata("copyright_text");
                 String title = community.getMetadata("name");
                 

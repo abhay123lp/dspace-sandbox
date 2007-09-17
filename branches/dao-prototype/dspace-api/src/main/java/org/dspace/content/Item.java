@@ -1092,6 +1092,12 @@ public class Item extends DSpaceObject
         return false;
     }
 
+    public String getName()
+    {
+        DCValue t[] = getMetadata("dc", "title", null, Item.ANY);
+        return (t.length >= 1) ? t[0].value : null;
+    }
+
     /**
      * Utility method for pattern-matching metadata elements.  This
      * method will return <code>true</code> if the given schema,

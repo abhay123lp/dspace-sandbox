@@ -170,6 +170,15 @@ public abstract class DSpaceObject
         this.identifiers = identifiers;
     }
 
+    /**
+     * Get a proper name for the object. This may return <code>null</code>.
+     * Name should be suitable for display in a user interface.
+     *
+     * @return Name for the object, or <code>null</code> if it doesn't have
+     *         one
+     */
+    public abstract String getName();
+
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////

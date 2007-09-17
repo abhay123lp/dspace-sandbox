@@ -118,7 +118,7 @@ public class RestrictedItem extends AbstractDSpaceTransformer //implements Cache
         } 
         else 
         {
-        	String handle = dso.getHandle();
+        	String handle = dso.getIdentifier().getCanonicalForm();
         	
         	if (handle == null || "".equals(handle))
         	{

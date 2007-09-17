@@ -67,10 +67,10 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.handle.HandleManager;
 import org.xml.sax.SAXException;
 
 /**
@@ -165,6 +165,11 @@ public class BitstreamReader extends AbstractReader implements Recyclable
      * Set up the bitstream reader.
      * 
      * See the class description for information on configuration options.
+     *
+     * FIXME: This should use the parameter "uri" rather than "handle" to be
+     * consistent with the JSPUI. Unfortunately, I have no idea how this works
+     * right now, so I'll have to do that later. It should still work for now
+     * though. --JR
      */
     public void setup(SourceResolver resolver, Map objectModel, String src,
             Parameters par) throws ProcessingException, SAXException,
@@ -212,7 +217,9 @@ public class BitstreamReader extends AbstractReader implements Recyclable
             else if (handle != null)
             {
             	// Reference by an item's handle.
-            	DSpaceObject dso = HandleManager.resolveToObject(context,handle);
+//            	DSpaceObject dso = HandleManager.resolveToObject(context,handle);
+                DSpaceObject dso =
+                    ObjectIdentifier.fromString(handle).getObject(context);
             	
             	if (dso instanceof Item && sequence > -1)
             	{
