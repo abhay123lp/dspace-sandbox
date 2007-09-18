@@ -42,25 +42,22 @@ package org.dspace.app.webui.servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 
-import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.dspace.app.webui.util.Authenticate;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
+import org.dspace.authenticate.AuthenticationManager;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.AccountManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.AuthenticationManager;
 
 import com.sun.mail.smtp.SMTPAddressFailedException;
 

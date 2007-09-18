@@ -73,11 +73,17 @@ import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
+import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BundleDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.handle.HandleManager;
-import org.dspace.search.DSIndexer;
 import org.dspace.license.CreativeCommons;
 
 /**
@@ -106,6 +112,12 @@ public class EditItemServlet extends DSpaceServlet
     /** User reinstates a withdrawn item */
     public static final int REINSTATE = 6;
 
+    /** User starts the movement of an item */
+    public static final int START_MOVE_ITEM = 7;
+
+    /** User confirms the movement of the item */
+    public static final int CONFIRM_MOVE_ITEM = 8;
+
     /** Logger */
     private static Logger log = Logger.getLogger(EditCommunitiesServlet.class);
 
@@ -113,35 +125,40 @@ public class EditItemServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        ExternalIdentifierDAO identifierDAO =
+            ExternalIdentifierDAOFactory.getInstance(context);
+
         /*
-         * GET with no parameters displays "find by handle/id" form parameter
+         * GET with no parameters displays "find by URI/id" form parameter
          * item_id -> find and edit item with internal ID item_id parameter
-         * handle -> find and edit corresponding item if internal ID or Handle
-         * are invalid, "find by handle/id" form is displayed again with error
+         * URI -> find and edit corresponding item if internal ID or URI
+         * are invalid, "find by URI/id" form is displayed again with error
          * message
          */
-        int internalID = UIUtil.getIntParameter(request, "item_id");
-        String handle = request.getParameter("handle");
+        int itemID = UIUtil.getIntParameter(request, "item_id");
+        String uri = request.getParameter("uri");
         boolean showError = false;
 
-        // See if an item ID or Handle was passed in
-        Item itemToEdit = null;
-
-        if (internalID > 0)
+        // See if an item ID or URI was passed in
+        Item item = null;
+        if (itemID > 0)
         {
-            itemToEdit = Item.find(context, internalID);
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+            item = itemDAO.retrieve(itemID);
 
-            showError = (itemToEdit == null);
+            showError = (item == null);
         }
-        else if ((handle != null) && !handle.equals(""))
+        else if ((uri != null) && !uri.equals(""))
         {
-            // resolve handle
-            DSpaceObject dso = HandleManager.resolveToObject(context, handle.trim());
+            // resolve uri
+            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
+            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            DSpaceObject dso = oi.getObject(context);
 
             // make sure it's an ITEM
             if ((dso != null) && (dso.getType() == Constants.ITEM))
             {
-                itemToEdit = (Item) dso;
+                item = (Item) dso;
                 showError = false;
             }
             else
@@ -151,11 +168,11 @@ public class EditItemServlet extends DSpaceServlet
         }
 
         // Show edit form if appropriate
-        if (itemToEdit != null)
+        if (item != null)
         {
             // now check to see if person can edit item
-            checkEditAuthorization(context, itemToEdit);
-            showEditForm(context, request, response, itemToEdit);
+            checkEditAuthorization(context, item);
+            showEditForm(context, request, response, item);
         }
         else
         {
@@ -186,7 +203,7 @@ public class EditItemServlet extends DSpaceServlet
 
         /*
          * Then we check for a "cancel" button - if it's been pressed, we simply
-         * return to the "find by handle/id" page
+         * return to the "find by URI/id" page
          */
         if (request.getParameter("submit_cancel") != null)
         {
@@ -201,16 +218,19 @@ public class EditItemServlet extends DSpaceServlet
          */
         int action = UIUtil.getIntParameter(request, "action");
 
-        Item item = Item.find(context, UIUtil.getIntParameter(request,
-                "item_id"));
- 
-        String handle = HandleManager.findHandle(context, item);
+        int itemID = UIUtil.getIntParameter(request, "item_id");
+
+        Item item = null;
+        if (itemID > 0)
+        {
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+            item = itemDAO.retrieve(itemID);
+        }
 
         // now check to see if person can edit item
         checkEditAuthorization(context, item);
 
         request.setAttribute("item", item);
-        request.setAttribute("handle", handle);
 
         switch (action)
         {
@@ -226,7 +246,7 @@ public class EditItemServlet extends DSpaceServlet
 
             // Delete the item - if "cancel" was pressed this would be
             // picked up above
-            // FIXME: Don't know if this does all it should - remove Handle?
+            // FIXME: Don't know if this does all it should - remove URI?
             Collection[] collections = item.getCollections();
 
             // Remove item from all the collections it's in
@@ -269,6 +289,47 @@ public class EditItemServlet extends DSpaceServlet
 
             break;
 
+        case START_MOVE_ITEM:
+        	if (AuthorizeManager.isAdmin(context))
+        	{
+	        	// Display move collection page with fields of collections and communities
+	        	Collection[] notLinkedCollections = item.getCollectionsNotLinked();
+	        	Collection[] linkedCollections = item.getCollections();
+	            	
+	        	request.setAttribute("linkedCollections", linkedCollections);
+	        	request.setAttribute("notLinkedCollections", notLinkedCollections);
+	            	            
+	        	JSPManager.showJSP(request, response, "/tools/move-item.jsp");
+        	} else
+        	{
+        		throw new ServletException("You must be an administrator to move an item");
+        	}
+        	
+        	break;
+            	        
+        case CONFIRM_MOVE_ITEM:
+        	if (AuthorizeManager.isAdmin(context))
+        	{
+	        	Collection fromCollection = Collection.find(context, UIUtil.getIntParameter(request, "collection_from_id"));
+	        	Collection toCollection = Collection.find(context, UIUtil.getIntParameter(request, "collection_to_id"));
+	            	            
+	        	if (fromCollection == null || toCollection == null)
+	        	{
+	        		throw new ServletException("Missing or incorrect collection IDs for moving item");
+	        	}
+	            	            
+	        	item.move(fromCollection, toCollection);
+	            
+	            showEditForm(context, request, response, item);
+	
+	            context.complete();
+        	} else
+        	{
+        		throw new ServletException("You must be an administrator to move an item");
+        	}
+        	
+        	break;
+            	
         default:
 
             // Erm... weird action value received.
@@ -326,9 +387,6 @@ public class EditItemServlet extends DSpaceServlet
                    request.getParameter("cc_license_url") );
         	context.commit();
         }
-  
-        // Get the handle, if any
-        String handle = HandleManager.findHandle(context, item);
 
         // Collections
         Collection[] collections = item.getCollections();
@@ -345,10 +403,10 @@ public class EditItemServlet extends DSpaceServlet
         {
             String schemaName = schemas[i].getName();
             // Get all fields for the given schema
-            MetadataField[] fields = MetadataField.findAllInSchema(context, schemas[i].getSchemaID());
+            MetadataField[] fields = MetadataField.findAllInSchema(context, schemas[i].getID());
             for (int j = 0; j < fields.length; j++)
             {
-                Integer fieldID = new Integer(fields[j].getFieldID());
+                Integer fieldID = new Integer(fields[j].getID());
                 String displayName = "";
                 displayName = schemaName + "." + fields[j].getElement() + (fields[j].getQualifier() == null ? "" : "." + fields[j].getQualifier());
                 metadataFields.put(fieldID, displayName);
@@ -356,7 +414,6 @@ public class EditItemServlet extends DSpaceServlet
         }
 
         request.setAttribute("item", item);
-        request.setAttribute("handle", handle);
         request.setAttribute("collections", collections);
         request.setAttribute("dc.types", types);
         request.setAttribute("metadataFields", metadataFields);
@@ -477,8 +534,10 @@ public class EditItemServlet extends DSpaceServlet
                 int bundleID = Integer.parseInt(st.nextToken());
                 int bitstreamID = Integer.parseInt(st.nextToken());
 
-                Bundle bundle = Bundle.find(context, bundleID);
-                Bitstream bitstream = Bitstream.find(context, bitstreamID);
+                Bundle bundle =
+                    BundleDAOFactory.getInstance(context).retrieve(bundleID);
+                Bitstream bitstream =
+                    BitstreamDAOFactory.getInstance(context).retrieve(bitstreamID);
 
                 // Get the string "(bundleID)_(bitstreamID)" for finding other
                 // parameters related to this bitstream
@@ -531,8 +590,7 @@ public class EditItemServlet extends DSpaceServlet
                     bitstream.setName(name);
                     bitstream.setSource(source);
                     bitstream.setDescription(desc);
-                    bitstream
-                            .setFormat(BitstreamFormat.find(context, formatID));
+                    bitstream.setFormat(BitstreamFormat.find(context, formatID));
 
                     if (primaryBitstreamID > 0)
                     {
@@ -598,9 +656,6 @@ public class EditItemServlet extends DSpaceServlet
             showEditForm(context, request, response, item);
         }
         
-        // update the item index
-        DSIndexer.reIndexContent(context, item);
-
         // Complete transaction
         context.complete();
     }
@@ -617,15 +672,20 @@ public class EditItemServlet extends DSpaceServlet
      */
     private void processUploadBitstream(Context context,
             HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException, SQLException,
-            AuthorizeException
+        throws ServletException, IOException, SQLException, AuthorizeException
     {
         // Wrap multipart request to get the submission info
         FileUploadRequest wrapper = new FileUploadRequest(request);
         Bitstream b = null;
 
-        Item item = Item.find(context, UIUtil.getIntParameter(wrapper,
-                "item_id"));
+        int itemID = UIUtil.getIntParameter(wrapper, "item_id");
+
+        Item item = null;
+        if (itemID > 0)
+        {
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+            item = itemDAO.retrieve(itemID);
+        }
 
         File temp = wrapper.getFile("file");
 

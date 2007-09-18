@@ -42,6 +42,7 @@ package org.dspace.core;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -49,9 +50,14 @@ import java.util.Locale;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.storage.rdbms.DatabaseManager;
+import org.dspace.storage.dao.GlobalDAO;
+import org.dspace.storage.dao.GlobalDAOFactory;
+import org.dspace.event.Event;
+import org.dspace.event.EventManager;
+import org.dspace.event.Dispatcher;
 
 /**
  * Class representing the context of a particular DSpace operation. This stores
@@ -68,15 +74,15 @@ import org.dspace.storage.rdbms.DatabaseManager;
  * The context object is also used as a cache for CM API objects.
  * 
  * 
- * @author Robert Tansley
+ * @author James Rutherford
  * @version $Revision$
  */
 public class Context
 {
     private static final Logger log = Logger.getLogger(Context.class);
 
-    /** Database connection */
-    private Connection connection;
+    /** Global DAO object */
+    private GlobalDAO dao;
 
     /** Current user - null means anonymous access */
     private EPerson currentUser;
@@ -95,6 +101,12 @@ public class Context
 
     /** Group IDs of special groups user is a member of */
     private List specialGroups;
+    
+    /** Content events */
+    private List<Event> events = null;
+
+    /** Event dispatcher name */
+    private String dispName = null;
 
     /**
      * Construct a new context object. A database connection is opened. No user
@@ -105,9 +117,7 @@ public class Context
      */
     public Context() throws SQLException
     {
-        // Obtain a non-auto-committing connection
-        connection = DatabaseManager.getConnection();
-        connection.setAutoCommit(false);
+        dao = GlobalDAOFactory.getInstance();
 
         currentUser = null;
         currentLocale = I18nUtil.DEFAULTLOCALE;
@@ -119,13 +129,24 @@ public class Context
     }
 
     /**
+     * Get the top-level DAO associated with the context
+     * 
+     * @return the dao
+     */
+    public GlobalDAO getGlobalDAO()
+    {
+        return dao;
+    }
+
+    /**
      * Get the database connection associated with the context
      * 
      * @return the database connection
      */
+    @Deprecated
     public Connection getDBConnection()
     {
-        return connection;
+        return dao.getConnection();
     }
 
     /**
@@ -236,19 +257,11 @@ public class Context
      */
     public void complete() throws SQLException
     {
-        // FIXME: Might be good not to do a commit() if nothing has actually
-        // been written using this connection
-        try
-        {
-            // Commit any changes made as part of the transaction
-            connection.commit();
-        }
-        finally
-        {
-            // Free the connection
-            DatabaseManager.freeConnection(connection);
-            connection = null;
-        }
+        // We need to commit first to complete the event processing
+        // TODO this may be temporary - MRD
+        commit();
+        
+        dao.endTransaction();
     }
 
     /**
@@ -261,10 +274,95 @@ public class Context
      */
     public void commit() throws SQLException
     {
-        // Commit any changes made as part of the transaction
-        connection.commit();
+        
+
+        Dispatcher dispatcher = null;
+
+        try
+        {
+            if (events != null)
+            {    
+                if (dispName == null)
+                {
+                    dispName = EventManager.DEFAULT_DISPATCHER;
+                }
+                
+                dispatcher = EventManager.getDispatcher(dispName);
+                
+                // Commit any changes made as part of the transaction
+                dao.saveTransaction();
+                
+                dispatcher.dispatch(this);
+            }
+            else
+            {
+                // Commit any changes made as part of the transaction
+                dao.saveTransaction();
+            }
+        }
+        finally
+        {
+            if (events != null)
+            {
+                synchronized (events)
+                {
+                    events = null;
+                }
+            }
+            if(dispatcher != null)
+            {
+            	/* 
+            	 * TODO return dispatcher via internal method dispatcher.close();
+            	 * and remove the returnDispatcher method from EventManager.
+            	 */
+                EventManager.returnDispatcher(dispName, dispatcher);
+            }
+        }
+
     }
 
+    /**
+     * Select an event dispatcher, <code>null</code> selects the default
+     * 
+     */
+    public void setDispatcher(String dispatcher)
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug(this.toString() + ": setDispatcher(\"" + dispatcher + "\")");
+        }
+        dispName = dispatcher;
+    }
+
+    /**
+     * Add an event to be dispatched when this context is committed.
+     * 
+     * @param event
+     */
+    public synchronized void addEvent(Event event)
+    {
+        if (events == null)
+        {
+            events = Collections.synchronizedList(new ArrayList<Event>());
+        }
+        
+        events.add(event);
+    }
+
+    /**
+     * Get the current event list. If there is a separate list of events from
+     * already-committed operations combine that with current list.
+     * 
+     * @return List of all available events.
+     */
+    public synchronized List<Event> getEvents()
+    {
+        List<Event> tmp = events;
+        events = null;
+        return tmp;
+    }
+
+    
     /**
      * Close the context, without committing any of the changes performed using
      * this context. The database connection is freed. No exception is thrown if
@@ -274,23 +372,12 @@ public class Context
      */
     public void abort()
     {
-        try
-        {
-            connection.rollback();
-        }
-        catch (SQLException se)
-        {
-            log.error(se.getMessage());
-            se.printStackTrace();
-        }
-        finally
-        {
-            DatabaseManager.freeConnection(connection);
-            connection = null;
-        }
+        dao.abortTransaction();
+        events = null;
     }
 
     /**
+     * 
      * Find out if this context is valid. Returns <code>false</code> if this
      * context has been aborted or completed.
      * 
@@ -300,7 +387,7 @@ public class Context
     public boolean isValid()
     {
         // Only return true if our DB connection is live
-        return (connection != null);
+        return dao.transactionOpen();
     }
 
     /**
@@ -354,7 +441,7 @@ public class Context
      */
     public void clearCache()
     {
-    	objectCache.clear();
+        objectCache.clear();
     }
     
     /**
@@ -395,7 +482,7 @@ public class Context
      * @return
      * @throws SQLException
      */
-    public Group[] getSpecialGroups() throws SQLException
+    public Group[] getSpecialGroups()
     {
         List myGroups = new ArrayList();
 
@@ -415,7 +502,7 @@ public class Context
          * If a context is garbage-collected, we roll back and free up the
          * database connection if there is one.
          */
-        if (connection != null)
+        if (dao.transactionOpen())
         {
             abort();
         }

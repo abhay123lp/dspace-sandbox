@@ -63,6 +63,9 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.CommunityDAO;
+import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -122,6 +125,8 @@ public class EditCommunitiesServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        CommunityDAO dao = CommunityDAOFactory.getInstance(context);
+
         // First, see if we have a multipart request (uploading a logo)
         String contentType = request.getContentType();
 
@@ -145,12 +150,14 @@ public class EditCommunitiesServlet extends DSpaceServlet
          * get null if we try and find something with ID -1, we'll just try and
          * find both here to save hassle later on
          */
-        Community community = Community.find(context, UIUtil.getIntParameter(
-                request, "community_id"));
-        Community parentCommunity = Community.find(context, UIUtil
-                .getIntParameter(request, "parent_community_id"));
-        Collection collection = Collection.find(context, UIUtil
-                .getIntParameter(request, "collection_id"));
+        Community community = dao.retrieve(UIUtil.getIntParameter(request,
+                    "community_id"));
+        Community parentCommunity =
+            dao.retrieve(UIUtil.getIntParameter(request,
+                        "parent_community_id"));
+        Collection collection =
+            CollectionDAOFactory.getInstance(context).retrieve(
+                    UIUtil.getIntParameter(request, "collection_id"));
 
         // Just about every JSP will need the values we received
         request.setAttribute("community", community);
@@ -249,9 +256,8 @@ public class EditCommunitiesServlet extends DSpaceServlet
             else
             // redirect to parent community page
             {
-                response.sendRedirect(response.encodeRedirectURL(request
-                        .getContextPath()
-                        + "/handle/" + parent.getHandle()));
+                response.sendRedirect(response.encodeRedirectURL(
+                            parent.getIdentifier().getURL().toString()));
             }
 
             // Show main control page
@@ -312,9 +318,8 @@ public class EditCommunitiesServlet extends DSpaceServlet
 
         if (community != null)
         {
-            response.sendRedirect(response.encodeRedirectURL(request
-                    .getContextPath()
-                    + "/handle/" + community.getHandle()));
+            response.sendRedirect(response.encodeRedirectURL(
+                        community.getIdentifier().getURL().toString()));
         }
         else
         {
@@ -323,9 +328,8 @@ public class EditCommunitiesServlet extends DSpaceServlet
 
             if (parent != null)
             {
-                response.sendRedirect(response.encodeRedirectURL(request
-                        .getContextPath()
-                        + "/handle/" + parent.getHandle()));
+                response.sendRedirect(response.encodeRedirectURL(
+                            parent.getIdentifier().getURL().toString()));
             }
             else
             {
@@ -356,14 +360,16 @@ public class EditCommunitiesServlet extends DSpaceServlet
     {
         if (request.getParameter("create").equals("true"))
         {
+            CommunityDAO dao = CommunityDAOFactory.getInstance(context);
+
             // if there is a parent community id specified, create community
             // as its child; otherwise, create it as a top-level community
-            int parentCommunityID = UIUtil.getIntParameter(request,
+            int parentID = UIUtil.getIntParameter(request,
                     "parent_community_id");
 
-            if (parentCommunityID != -1)
+            if (parentID != -1)
             {
-                Community parent = Community.find(context, parentCommunityID);
+                Community parent = dao.retrieve(parentID);
 
                 if (parent != null)
                 {
@@ -372,7 +378,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             }
             else
             {
-                community = Community.create(null, context);
+                community = dao.create();
             }
 
             // Set attribute
@@ -688,10 +694,12 @@ public class EditCommunitiesServlet extends DSpaceServlet
         // Wrap multipart request to get the submission info
         FileUploadRequest wrapper = new FileUploadRequest(request);
 
-        Community community = Community.find(context, UIUtil.getIntParameter(
-                wrapper, "community_id"));
-        Collection collection = Collection.find(context, UIUtil
-                .getIntParameter(wrapper, "collection_id"));
+        int id = UIUtil.getIntParameter(wrapper, "community_id");
+        Community community =
+            CommunityDAOFactory.getInstance(context).retrieve(id);
+        Collection collection =
+            CollectionDAOFactory.getInstance(context).retrieve(
+                    UIUtil.getIntParameter(wrapper, "collection_id"));
 
         File temp = wrapper.getFile("file");
 

@@ -48,7 +48,6 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -76,11 +75,18 @@ import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.handle.HandleManager;
 import org.dspace.workflow.WorkflowManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
@@ -116,6 +122,12 @@ public class ItemImport
 
     static PrintWriter mapOut = null;
 
+    private static CollectionDAO collectionDAO;
+
+    private static ItemDAO itemDAO;
+
+    private static ExternalIdentifierDAO identifierDAO;
+
     // File listing filter to look for metadata files
     static FilenameFilter metadataFileFilter = new FilenameFilter()
     {
@@ -135,7 +147,6 @@ public class ItemImport
         }
     };
 
-
     public static void main(String[] argv) throws Exception
     {
         // create an options object and populate it
@@ -149,7 +160,7 @@ public class ItemImport
                 "delete items listed in mapfile");
         options.addOption("s", "source", true, "source of items (directory)");
         options.addOption("c", "collection", true,
-                "destination collection(s) Handle or database ID");
+                "destination collection(s) URIs (canonical form) or database ID");
         options.addOption("m", "mapfile", true, "mapfile items in mapfile");
         options.addOption("e", "eperson", true,
                 "email of eperson doing importing");
@@ -169,7 +180,8 @@ public class ItemImport
         String sourcedir = null;
         String mapfile = null;
         String eperson = null; // db ID or email
-        String[] collections = null; // db ID or handles
+        String[] collections = null; // db ID or URIs
+        int status = 0;
 
         if (line.hasOption('h'))
         {
@@ -329,6 +341,10 @@ public class ItemImport
         // create a context
         Context c = new Context();
 
+        collectionDAO = CollectionDAOFactory.getInstance(c);
+        itemDAO = ItemDAOFactory.getInstance(c);
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(c);
+
         // find the EPerson, assign to context
         EPerson myEPerson = null;
 
@@ -363,13 +379,22 @@ public class ItemImport
             // validate each collection arg to see if it's a real collection
             for (int i = 0; i < collections.length; i++)
             {
-                // is the ID a handle?
+                // is the ID a uri?
                 if (collections[i].indexOf('/') != -1)
                 {
-                    // string has a / so it must be a handle - try and resolve
-                    // it
-                    mycollections[i] = (Collection) HandleManager
-                            .resolveToObject(c, collections[i]);
+                    if (collections[i].indexOf(':') == -1)
+                    {
+                        // has no : must be a handle
+                        collections[i] = "hdl:" + collections[i];
+                        System.out.println("no namespace provided. assuming handles.");
+                    }
+
+                    // string has a / so it must be a persistent identifier in
+                    // canonical form - try to resolve it
+                    ExternalIdentifier identifier =
+                        identifierDAO.retrieve(collections[i]);
+                    ObjectIdentifier oi = identifier.getObjectIdentifier();
+                    mycollections[i] = (Collection) oi.getObject(c);
 
                     // resolved, now make sure it's a collection
                     if ((mycollections[i] == null)
@@ -378,12 +403,12 @@ public class ItemImport
                         mycollections[i] = null;
                     }
                 }
-                // not a handle, try and treat it as an integer collection
+                // not a uri, try and treat it as an integer collection
                 // database ID
                 else if (collections[i] != null)
                 {
-                    mycollections[i] = Collection.find(c, Integer
-                            .parseInt(collections[i]));
+                    mycollections[i] =
+                        collectionDAO.retrieve(Integer.parseInt(collections[i]));
                 }
 
                 // was the collection valid?
@@ -439,6 +464,7 @@ public class ItemImport
             c.abort();
             e.printStackTrace();
             System.out.println(e);
+            status = 1;
         }
 
         if (mapOut != null)
@@ -450,6 +476,7 @@ public class ItemImport
         {
             System.out.println("***End of Test Run***");
         }
+        System.exit(status);
     }
 
     private void addItems(Context c, Collection[] mycollections,
@@ -522,55 +549,71 @@ public class ItemImport
             System.exit(1);
         }
 
-        // read in HashMap first, to get list of handles & source dirs
+        // read in HashMap first, to get list of uris & source dirs
         Map myhash = readMapFile(mapFile);
 
-        // for each handle, re-import the item, discard the new handle
-        // and re-assign the old handle
+        // for each uri, re-import the item, discard the new uri
+        // and re-assign the old uri
         Iterator i = myhash.keySet().iterator();
         ArrayList itemsToDelete = new ArrayList();
 
         while (i.hasNext())
         {
-            // get the old handle
+            // get the old uri
             String newItemName = (String) i.next();
-            String oldHandle = (String) myhash.get(newItemName);
+            String oldURI = (String) myhash.get(newItemName);
 
             Item oldItem = null;
             Item newItem = null;
 
-            if (oldHandle.indexOf('/') != -1)
+            if (oldURI.indexOf('/') != -1)
             {
-                System.out.println("\tReplacing:  " + oldHandle);
+                if (oldURI.indexOf(':') == -1)
+                {
+                    // has no : must be a handle
+                    oldURI = "hdl:" + oldURI;
+                    System.out.println("no namespace provided. assuming handles.");
+                }
+
+                System.out.println("\tReplacing:  " + oldURI);
 
                 // add new item, locate old one
-                oldItem = (Item) HandleManager.resolveToObject(c, oldHandle);
+                ExternalIdentifier identifier =
+                    identifierDAO.retrieve(oldURI);
+                ObjectIdentifier oi = identifier.getObjectIdentifier();
+                oldItem = (Item) oi.getObject(c);
             }
             else
             {
-                oldItem = Item.find(c, Integer.parseInt(oldHandle));
+                oldItem = itemDAO.retrieve(Integer.parseInt(oldURI));
             }
             
-            /* Rather than exposing public item methods to change handles -- 
-             * two handles can't exist at the same time due to key constraints
-             * so would require temp handle being stored, old being copied to new and
-             * new being copied to old, all a bit messy -- a handle file is written to
-             * the import directory containing the old handle, the existing item is 
-             * deleted and then the import runs as though it were loading an item which 
-             * had already been assigned a handle (so a new handle is not even assigned).
-             * As a commit does not occur until after a successful add, it is safe to 
-             * do a delete as any error results in an aborted transaction without harming
-             * the original item */
-            File handleFile = new File(sourceDir + File.separatorChar + newItemName + File.separatorChar + "handle");
-            PrintWriter handleOut = new PrintWriter(new FileWriter(handleFile, true));
+            /*
+             * FIXME: This isn't true any more, now that we have persistent
+             * identifiers, and items can have as many as they need.
+             *
+             * Rather than exposing public item methods to change persistent
+             * identifiers -- two handles can't exist at the same time due to
+             * key constraints so would require temp handle being stored, old
+             * being copied to new and new being copied to old, all a bit messy
+             * -- a handle file is written to the import directory containing
+             * the old handle, the existing item is deleted and then the
+             * import runs as though it were loading an item which had already
+             * been assigned a handle (so a new handle is not even assigned).
+             * As a commit does not occur until after a successful add, it is
+             * safe to do a delete as any error results in an aborted
+             * transaction without harming the original item
+             */
+            File uriFile = new File(sourceDir + File.separatorChar + newItemName + File.separatorChar + "uri");
+            PrintWriter uriOut = new PrintWriter(new FileWriter(uriFile, true));
 
-            if (handleOut == null)
+            if (uriOut == null)
             {
-                throw new Exception("can't open handle file: " + handleFile.getCanonicalPath());
+                throw new Exception("can't open uri file: " + uriFile.getCanonicalPath());
             }
             
-            handleOut.println(oldHandle);
-            handleOut.close();
+            uriOut.println(oldURI);
+            uriOut.close();
             
             deleteItem(c, oldItem);
             
@@ -594,14 +637,21 @@ public class ItemImport
 
             if (itemID.indexOf('/') != -1)
             {
-                String myhandle = itemID;
-                System.out.println("Deleting item " + myhandle);
-                deleteItem(c, myhandle);
+                if (itemID.indexOf(':') == -1)
+                {
+                    // has no : must be a handle
+                    itemID = "hdl:" + itemID;
+                    System.out.println("no namespace provided. assuming handles.");
+                }
+
+                String myURI = itemID;
+                System.out.println("Deleting item " + myURI);
+                deleteItem(c, myURI);
             }
             else
             {
                 // it's an ID
-                Item myitem = Item.find(c, Integer.parseInt(itemID));
+                Item myitem = itemDAO.retrieve(Integer.parseInt(itemID));
                 System.out.println("Deleting item " + itemID);
                 deleteItem(c, myitem);
             }
@@ -609,9 +659,9 @@ public class ItemImport
     }
 
     /**
-     * item? try and add it to the archive c mycollection path itemname handle -
-     * non-null means we have a pre-defined handle already mapOut - mapfile
-     * we're writing
+     * item? try and add it to the archive c mycollection path itemname URI -
+     * non-null means we have a pre-defined URI already mapOut - mapfile we're
+     * writing
      */
     private Item addItem(Context c, Collection[] mycollections, String path,
             String itemname, PrintWriter mapOut, boolean template) throws Exception
@@ -641,7 +691,7 @@ public class ItemImport
 
         if (useWorkflow)
         {
-            // don't process handle file
+            // don't process URI file
             // start up a workflow
             if (!isTest)
             {
@@ -653,19 +703,18 @@ public class ItemImport
         }
         else
         {
-            // only process handle file if not using workflow system
-            String myhandle = processHandleFile(c, myitem, path
-                    + File.separatorChar + itemname, "handle");
+            // only process URI file if not using workflow system
+            String uri = processURIFile(c, myitem, path
+                    + File.separatorChar + itemname, "uri");
 
             // put item in system
             if (!isTest)
             {
-                InstallItem.installItem(c, wi, myhandle);
+                Item item = InstallItem.installItem(c, wi, uri);
 
-                // find the handle, and output to map file
-                myhandle = HandleManager.findHandle(c, myitem);
+                uri = item.getIdentifier().getCanonicalForm();
 
-                mapOutput = itemname + " " + myhandle;
+                mapOutput = itemname + " " + uri;
             }
         }
 
@@ -707,12 +756,14 @@ public class ItemImport
         }
     }
 
-    // remove, given a handle
-    private void deleteItem(Context c, String myhandle) throws Exception
+    // remove, given a uri
+    private void deleteItem(Context c, String uri) throws Exception
     {
         // bit of a hack - to remove an item, you must remove it
         // from all collections it's a part of, then it will be removed
-        Item myitem = (Item) HandleManager.resolveToObject(c, myhandle);
+        ExternalIdentifier identifier = identifierDAO.retrieve(uri);
+        ObjectIdentifier oi = identifier.getObjectIdentifier();
+        Item myitem = (Item) oi.getObject(c);
 
         if (myitem == null)
         {
@@ -727,7 +778,7 @@ public class ItemImport
     ////////////////////////////////////
     // utility methods
     ////////////////////////////////////
-    // read in the map file and generate a hashmap of (file,handle) pairs
+    // read in the map file and generate a hashmap of (file,uri) pairs
     private Map readMapFile(String filename) throws Exception
     {
         Map myhash = new HashMap();
@@ -742,9 +793,9 @@ public class ItemImport
             while ((line = is.readLine()) != null)
             {
                 String myfile;
-                String myhandle;
+                String myURI;
 
-                // a line should be archive filename<whitespace>handle
+                // a line should be archive filename<whitespace>uri
                 StringTokenizer st = new StringTokenizer(line);
 
                 if (st.hasMoreTokens())
@@ -758,14 +809,14 @@ public class ItemImport
 
                 if (st.hasMoreTokens())
                 {
-                    myhandle = st.nextToken();
+                    myURI = st.nextToken();
                 }
                 else
                 {
                     throw new Exception("Bad mapfile line:\n" + line);
                 }
 
-                myhash.put(myfile, myhandle);
+                myhash.put(myfile, myURI);
             }
         }
         finally
@@ -781,8 +832,8 @@ public class ItemImport
 
     // Load all metadata schemas into the item.
     private void loadMetadata(Context c, Item myitem, String path)
-            throws SQLException, IOException, ParserConfigurationException,
-            SAXException, TransformerException
+        throws IOException, ParserConfigurationException, SAXException,
+                          TransformerException
     {
         // Load the dublin core metadata
         loadDublinCore(c, myitem, path + "dublin_core.xml");
@@ -797,8 +848,8 @@ public class ItemImport
     }
 
     private void loadDublinCore(Context c, Item myitem, String filename)
-            throws SQLException, IOException, ParserConfigurationException,
-            SAXException, TransformerException //, AuthorizeException
+        throws IOException, ParserConfigurationException, SAXException,
+                          TransformerException
     {
         Document document = loadXML(filename);
 
@@ -832,7 +883,8 @@ public class ItemImport
         }
     }
 
-    private void addDCValue(Item i, String schema, Node n) throws TransformerException
+    private void addDCValue(Item i, String schema, Node n)
+        throws TransformerException
     {
         String value = getStringValue(n); //n.getNodeValue();
         // compensate for empty value getting read as "null", which won't display
@@ -892,16 +944,16 @@ public class ItemImport
     }
 
     /**
-     * Read in the handle file or return null if empty or doesn't exist
+     * Read in the URI file or return null if empty or doesn't exist
      */
-    private String processHandleFile(Context c, Item i, String path,
+    private String processURIFile(Context c, Item i, String path,
             String filename)
     {
         String filePath = path + File.separatorChar + filename;
         String line = "";
         String result = null;
 
-        System.out.println("Processing handle file: " + filename);
+        System.out.println("Processing URI file: " + filename);
         BufferedReader is = null;
         try
         {
@@ -910,14 +962,14 @@ public class ItemImport
             // result gets contents of file, or null
             result = is.readLine();
 
-            System.out.println("read handle: '" + result + "'");
+            System.out.println("read URI: '" + result + "'");
 
         }
         catch (Exception e)
         {
-            // probably no handle file, just return null
-            System.out
-                    .println("It appears there is no handle file -- generating one");
+            // probably no URI file, just return null
+            System.out.println(
+                    "It appears there is no URI file -- generating one");
         }
         finally
         {
@@ -943,8 +995,7 @@ public class ItemImport
      * contents file
      */
     private void processContentsFile(Context c, Item i, String path,
-            String filename) throws SQLException, IOException,
-            AuthorizeException
+            String filename) throws IOException, AuthorizeException
     {
         String contentspath = path + File.separatorChar + filename;
         String line = "";
@@ -1064,8 +1115,8 @@ public class ItemImport
 
     // each entry represents a bitstream....
     public void processContentFileEntry(Context c, Item i, String path,
-            String fileName, String bundleName) throws SQLException,
-            IOException, AuthorizeException
+            String fileName, String bundleName)
+        throws IOException, AuthorizeException
     {
         String fullpath = path + File.separatorChar + fileName;
 
@@ -1130,13 +1181,12 @@ public class ItemImport
      * @param assetstore
      * @param bitstreamPath the full filepath expressed in the contents file
      * @param bundleName
-     * @throws SQLException
      * @throws IOException
      * @throws AuthorizeException
      */
     public void registerBitstream(Context c, Item i, int assetstore, 
             String bitstreamPath, String bundleName )
-        	throws SQLException, IOException, AuthorizeException
+        throws IOException, AuthorizeException
     {
         // TODO validate assetstore number
         // TODO make sure the bitstream is there
@@ -1268,8 +1318,8 @@ public class ItemImport
      * 
      * @return the DOM representation of the XML file
      */
-    private static Document loadXML(String filename) throws IOException,
-            ParserConfigurationException, SAXException
+    private static Document loadXML(String filename)
+        throws IOException, ParserConfigurationException, SAXException
     {
         DocumentBuilder builder = DocumentBuilderFactory.newInstance()
                 .newDocumentBuilder();

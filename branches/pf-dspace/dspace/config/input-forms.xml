@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<!DOCTYPE input-forms >
+<!DOCTYPE input-forms SYSTEM "input-forms.dtd">
 
 
 <input-forms>
@@ -14,7 +14,7 @@
  <!-- the mapping for handle "default".                                    -->
 
  <form-map>
-   <name-map collection-handle="default" form-name="traditional" />
+   <name-map collection-uri="default" form-name="traditional" />
  </form-map>
 
 
@@ -44,7 +44,7 @@
          <dc-qualifier>author</dc-qualifier>
          <repeatable>true</repeatable>
          <label>Authors</label>
-                 <input-type>name</input-type>
+         <input-type>name</input-type>
          <hint>Enter the names of the authors of this item below.</hint>
          <required></required>
        </field>

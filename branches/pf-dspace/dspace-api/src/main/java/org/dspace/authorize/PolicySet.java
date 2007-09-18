@@ -39,13 +39,15 @@
  */
 package org.dspace.authorize;
 
-import java.sql.SQLException;
+import java.util.List;
 
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
-import org.dspace.content.ItemIterator;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
@@ -99,6 +101,7 @@ public class PolicySet
                 groupID, isReplace, false);
 
         c.complete();
+        System.exit(0);
     }
 
     /**
@@ -123,34 +126,32 @@ public class PolicySet
      * @param clearOnly
      *            if <code>true</code>, just delete policies for matching
      *            objects
-     * @throws SQLException
      *             if database problem
      * @throws AuthorizeException
      *             if current user is not authorized to change these policies
      */
     public static void setPolicies(Context c, int containerType,
             int containerID, int contentType, int actionID, int groupID,
-            boolean isReplace, boolean clearOnly) throws SQLException,
-            AuthorizeException
+            boolean isReplace, boolean clearOnly) throws AuthorizeException
     {
         if (containerType == Constants.COLLECTION)
         {
-            Collection collection = Collection.find(c, containerID);
+            Collection collection =
+                CollectionDAOFactory.getInstance(c).retrieve(containerID);
             Group group = Group.find(c, groupID);
 
-            ItemIterator i = collection.getItems();
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
+            List<Item> items = itemDAO.getItemsByCollection(collection);
 
-            if (contentType == Constants.ITEM)
+            for (Item item : itemDAO.getItemsByCollection(collection))
             {
                 // build list of all items in a collection
-                while (i.hasNext())
+                if (contentType == Constants.ITEM)
                 {
-                    Item myitem = i.next();
-
                     // is this a replace? delete policies first
                     if (isReplace || clearOnly)
                     {
-                        AuthorizeManager.removeAllPolicies(c, myitem);
+                        AuthorizeManager.removeAllPolicies(c, item);
                     }
 
                     if (!clearOnly)
@@ -158,23 +159,18 @@ public class PolicySet
                         // now add the policy
                         ResourcePolicy rp = ResourcePolicy.create(c);
 
-                        rp.setResource(myitem);
+                        rp.setResource(item);
                         rp.setAction(actionID);
                         rp.setGroup(group);
 
                         rp.update();
                     }
                 }
-            }
-            else if (contentType == Constants.BUNDLE)
-            {
-                // build list of all items in a collection
-                // build list of all bundles in those items
-                while (i.hasNext())
+                else if (contentType == Constants.BUNDLE)
                 {
-                    Item myitem = i.next();
-
-                    Bundle[] bundles = myitem.getBundles();
+                    // build list of all items in a collection
+                    // build list of all bundles in those items
+                    Bundle[] bundles = item.getBundles();
 
                     for (int j = 0; j < bundles.length; j++)
                     {
@@ -199,17 +195,13 @@ public class PolicySet
                         }
                     }
                 }
-            }
-            else if (contentType == Constants.BITSTREAM)
-            {
-                // build list of all bitstreams in a collection
-                // iterate over items, bundles, get bitstreams
-                while (i.hasNext())
+                else if (contentType == Constants.BITSTREAM)
                 {
-                    Item myitem = i.next();
-                    System.out.println("Item " + myitem.getID());
+                    // build list of all bitstreams in a collection
+                    // iterate over items, bundles, get bitstreams
+                    System.out.println("Item " + item.getID());
 
-                    Bundle[] bundles = myitem.getBundles();
+                    Bundle[] bundles = item.getBundles();
 
                     for (int j = 0; j < bundles.length; j++)
                     {

@@ -56,7 +56,9 @@
 <%@ page import="org.dspace.content.Community" %>
 <%@ page import="org.dspace.eperson.EPerson" %>
 <%@ page import="org.dspace.core.ConfigurationManager" %>
-
+<%@ page import="org.dspace.browse.BrowseIndex" %>
+<%@ page import="org.dspace.browse.BrowseInfo" %>
+<%@ page import="java.util.Map" %>
 <%
     // Is anyone logged in?
     EPerson user = (EPerson) request.getAttribute("dspace.current.user");
@@ -82,6 +84,23 @@
         if (navbarEmail.length() > 18)
         {
             navbarEmail = navbarEmail.substring(0, 17) + "...";
+        }
+    }
+    
+    // get the browse indices
+    
+	BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
+    BrowseInfo binfo = (BrowseInfo) request.getAttribute("browse.info");
+    String browseCurrent = "";
+    if (binfo != null)
+    {
+        BrowseIndex bix = binfo.getBrowseIndex();
+        // Only highlight the current browse, only if it is a metadata index,
+        // or the selected sort option is the default for the index
+        if (bix.isMetadataIndex() || bix.getSortOption() == binfo.getSortOption())
+        {
+            if (bix.getName() != null)
+    			browseCurrent = bix.getName();
         }
     }
 %>
@@ -157,41 +176,28 @@
     </td>
   </tr>
 
-  <tr class="navigationBarItem">
-    <td>
-      <img alt="" src="<%= request.getContextPath() %>/image/<%= ( currentPage.endsWith( "/browse-title" ) ? "arrow-highlight" : "arrow" ) %>.gif" width="16" height="16" />
-    </td>
-    <td nowrap="nowrap" class="navigationBarItem">
-      <a href="<%= request.getContextPath() %>/browse-title"><fmt:message key="jsp.layout.navbar-default.titles"/></a>
-    </td>
-  </tr>
 
-  <tr class="navigationBarItem">
-    <td>
-      <img alt="" src="<%= request.getContextPath() %>/image/<%= ( currentPage.endsWith( "/browse-author" ) ? "arrow-highlight" : "arrow" ) %>.gif" width="16" height="16"/>
-    </td>
-    <td nowrap="nowrap" class="navigationBarItem">
-      <a href="<%= request.getContextPath() %>/browse-author"><fmt:message key="jsp.layout.navbar-default.authors"/></a>
-    </td>
-  </tr>
+<%-- Insert the dynamic browse indices here --%>
 
-  <tr class="navigationBarItem">
-    <td>
-      <img alt="" src="<%= request.getContextPath() %>/image/<%= ( currentPage.endsWith( "/browse-subject" ) ? "arrow-highlight" : "arrow" ) %>.gif" width="16" height="16" />
-    </td>
-    <td nowrap="nowrap" class="navigationBarItem">
-      <a href="<%= request.getContextPath() %>/browse-subject"><fmt:message key="jsp.layout.navbar-default.subjects"/></a>
-    </td>
-  </tr>
+<%
+	for (int i = 0; i < bis.length; i++)
+	{
+		BrowseIndex bix = bis[i];
+		String key = "browse.menu." + bix.getName();
+	%>
+		<tr class="navigationBarItem">
+    		<td>
+      			<img alt="" src="<%= request.getContextPath() %>/image/<%= ( browseCurrent.equals(bix.getName()) ? "arrow-highlight" : "arrow" ) %>.gif" width="16" height="16"/>
+    		</td>
+    		<td nowrap="nowrap" class="navigationBarItem">
+      			<a href="<%= request.getContextPath() %>/browse?type=<%= bix.getName() %>"><fmt:message key="<%= key %>"/></a>
+    		</td>
+  		</tr>
+	<%	
+	}
+%>
 
-  <tr class="navigationBarItem">
-    <td>
-      <img alt="" src="<%= request.getContextPath() %>/image/<%= ( currentPage.endsWith( "/browse-date" ) ? "arrow-highlight" : "arrow" ) %>.gif" width="16" height="16"/>
-    </td>
-    <td nowrap="nowrap" class="navigationBarItem">
-      <a href="<%= request.getContextPath() %>/browse-date"><fmt:message key="jsp.layout.navbar-default.date"/></a>
-    </td>
-  </tr>
+<%-- End of dynamic browse indices --%>
 
   <tr>
     <td colspan="2">&nbsp;</td>

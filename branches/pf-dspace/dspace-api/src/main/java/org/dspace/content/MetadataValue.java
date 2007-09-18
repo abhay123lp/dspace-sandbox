@@ -39,78 +39,58 @@
  */
 package org.dspace.content;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.ArrayList;
-
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
+
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.dao.MetadataValueDAO;
+import org.dspace.content.dao.MetadataValueDAOFactory;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
-import org.dspace.storage.rdbms.TableRowIterator;
 
 /**
- * Database access class representing a Dublin Core metadata value.
- * It represents a value of a given <code>MetadataField</code> on an Item.
- * (The Item can have many values of the same field.)  It contains                                           element, qualifier, value and language.
- * the field (which names the schema, element, and qualifer), language,
- * and a value.
+ * Class representing a metadata value. It represents a value of a given
+ * <code>MetadataField</code> on an Item. (The Item can have many values of the
+ * same field.) It contains element, qualifier, value and language. The field
+ * (which names the schema, element, and qualifer), language, and a value.
  *
  * @author Martin Hald
+ * @author James Rutherford
  * @see org.dspace.content.MetadataSchema, org.dspace.content.MetadataField
  */
 public class MetadataValue
 {
-    /** The reference to the metadata field */
-    private int fieldId = 0;
-
-    /** The primary key for the metadata value */
-    private int valueId = 0;
-
-    /** The reference to the DSpace item */
-    private int itemId;
-
-    /** The value of the field */
-    public String value;
-
-    /** The language of the field, may be <code>null</code> */
-    public String language;
-
-    /** The position of the record. */
-    public int place = 1;
-
-    /** log4j logger */
     private static Logger log = Logger.getLogger(MetadataValue.class);
 
-    /** The row in the table representing this type */
-    private TableRow row;
+    private Context context;
+    private MetadataValueDAO dao;
 
-    /**
-     * Construct the metadata object from the matching database row.
-     *
-     * @param row database row to use for contents
-     */
-    public MetadataValue(TableRow row)
-    {
-        if (row != null)
-        {
-            fieldId = row.getIntColumn("metadata_field_id");
-            valueId = row.getIntColumn("metadata_value_id");
-            itemId = row.getIntColumn("item_id");
-            value = row.getStringColumn("text_value");
-            language = row.getStringColumn("text_lang");
-            place = row.getIntColumn("place");
-            this.row = row;
-        }
-    }
+    private int id;
 
-    /**
-     * Default constructor.
-     */
-    public MetadataValue()
+    /** The reference to the metadata field */
+    private int fieldID;
+
+    /** The reference to the DSpace item */
+    private int itemID;
+
+    /** The value of the field */
+    private String value;
+
+    /** The language of the field, may be <code>null</code> */
+    private String language;
+
+    /** The position of the record. */
+    private int place;
+
+    public MetadataValue(Context context, int id)
     {
+        this.context = context;
+        this.id = id;
+
+        dao = MetadataValueDAOFactory.getInstance(context);
+        place = 1;
     }
 
     /**
@@ -120,7 +100,7 @@ public class MetadataValue
      */
     public MetadataValue(MetadataField field)
     {
-        this.fieldId = field.getFieldID();
+        this.fieldID = field.getID();
     }
 
     /**
@@ -128,19 +108,19 @@ public class MetadataValue
      *
      * @return metadata field ID
      */
-    public int getFieldId()
+    public int getFieldID()
     {
-        return fieldId;
+        return fieldID;
     }
 
     /**
      * Set the field ID that the metadata value represents.
      *
-     * @param fieldId new field ID
+     * @param fieldID new field ID
      */
-    public void setFieldId(int fieldId)
+    public void setFieldID(int fieldID)
     {
-        this.fieldId = fieldId;
+        this.fieldID = fieldID;
     }
 
     /**
@@ -148,19 +128,19 @@ public class MetadataValue
      *
      * @return item ID
      */
-    public int getItemId()
+    public int getItemID()
     {
-        return itemId;
+        return itemID;
     }
 
     /**
      * Set the item ID.
      *
-     * @param itemId new item ID
+     * @param itemID new item ID
      */
-    public void setItemId(int itemId)
+    public void setItemID(int itemID)
     {
-        this.itemId = itemId;
+        this.itemID = itemID;
     }
 
     /**
@@ -208,9 +188,9 @@ public class MetadataValue
      *
      * @return value ID
      */
-    public int getValueId()
+    public int getID()
     {
-        return valueId;
+        return id;
     }
 
     /**
@@ -233,132 +213,51 @@ public class MetadataValue
         this.value = value;
     }
 
-    /**
-     * Creates a new metadata value.
-     *
-     * @param context
-     *            DSpace context object
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public void create(Context context) throws SQLException, AuthorizeException
+    @Deprecated
+    public static java.util.Collection findByField(Context context, int fieldID)
+            throws AuthorizeException
     {
-        // Create a table row and update it with the values
-        row = DatabaseManager.row("MetadataValue");
-        row.setColumn("item_id", itemId);
-        row.setColumn("metadata_field_id", fieldId);
-        row.setColumn("text_value", value);
-        row.setColumn("text_lang", language);
-        row.setColumn("place", place);
-        DatabaseManager.insert(context, row);
-
-        // Remember the new row number
-        this.valueId = row.getIntColumn("metadata_value_id");
-
-//        log.info(LogManager.getHeader(context, "create_metadata_value",
-//                "metadata_value_id=" + valueId));
+        MetadataValueDAO dao = MetadataValueDAOFactory.getInstance(context);
+        return dao.getMetadataValues(fieldID);
     }
 
-    /**
-     * Retrieves the metadata value from the database.
-     *
-     * @param context dspace context
-     * @param valueId database key id of value
-     * @return recalled metadata value
-     * @throws IOException
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public static MetadataValue find(Context context, int valueId)
-            throws IOException, SQLException, AuthorizeException
+    @Deprecated
+    public void update(Context context) throws AuthorizeException
     {
-        // Grab rows from DB
-        TableRowIterator tri = DatabaseManager.queryTable(context, "MetadataValue",
-                "SELECT * FROM MetadataValue where metadata_value_id= ? ",
-                valueId);
-
-        TableRow row = null;
-        if (tri.hasNext())
-        {
-            row = tri.next();
-        }
-
-        // close the TableRowIterator to free up resources
-        tri.close();
-
-        if (row == null)
-        {
-            return null;
-        }
-        else
-        {
-            return new MetadataValue(row);
-        }
+        dao.update(this);
     }
 
-    /**
-     * Retrieves the metadata values for a given field from the database.
-     *
-     * @param context dspace context
-     * @param fieldId field whose values to look for
-     * @return a collection of metadata values
-     * @throws IOException
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public static java.util.Collection findByField(Context context, int fieldId)
-            throws IOException, SQLException, AuthorizeException
+    @Deprecated
+    public void delete(Context context) throws AuthorizeException
     {
-        // Grab rows from DB
-        TableRowIterator tri = DatabaseManager.queryTable(context, "MetadataValue",
-                "SELECT * FROM MetadataValue WHERE metadata_field_id= ? ",
-                fieldId);
-
-        TableRow row = null;
-        java.util.Collection ret = new ArrayList();
-        while (tri.hasNext())
-        {
-            row = tri.next();
-            ret.add(new MetadataValue(row));
-        }
-
-        // close the TableRowIterator to free up resources
-        tri.close();
-
-        return ret;
+        dao.delete(getID());
     }
 
-    /**
-     * Update the metadata value in the database.
-     *
-     * @param context dspace context
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public void update(Context context) throws SQLException, AuthorizeException
+    @Deprecated
+    public static MetadataValue find(Context context, int id)
+            throws AuthorizeException
     {
-        row.setColumn("item_id", itemId);
-        row.setColumn("metadata_field_id", fieldId);
-        row.setColumn("text_value", value);
-        row.setColumn("text_lang", language);
-        row.setColumn("place", place);
-        DatabaseManager.update(context, row);
-
-        log.info(LogManager.getHeader(context, "update_metadatavalue",
-                "metadata_value_id=" + getValueId()));
+        MetadataValueDAO dao = MetadataValueDAOFactory.getInstance(context);
+        return dao.retrieve(id);
     }
 
-    /**
-     * Delete the metadata field.
-     *
-     * @param context dspace context
-     * @throws SQLException
-     * @throws AuthorizeException
-     */
-    public void delete(Context context) throws SQLException, AuthorizeException
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    public String toString()
     {
-        log.info(LogManager.getHeader(context, "delete_metadata_value",
-                " metadata_value_id=" + getValueId()));
-        DatabaseManager.delete(context, row);
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    public boolean equals(Object o)
+    {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 }

@@ -284,7 +284,8 @@ CREATE TABLE MetadataSchemaRegistry
 CREATE TABLE MetadataFieldRegistry
 (
   metadata_field_id   INTEGER PRIMARY KEY DEFAULT NEXTVAL('metadatafieldregistry_seq'),
-  metadata_schema_id  INTEGER NOT NULL REFERENCES MetadataSchemaRegistry(metadata_schema_id),
+--  metadata_schema_id  INTEGER NOT NULL REFERENCES MetadataSchemaRegistry(metadata_schema_id),
+  metadata_schema_id  INTEGER REFERENCES MetadataSchemaRegistry(metadata_schema_id),
   element             VARCHAR(64),
   qualifier           VARCHAR(64),
   scope_note          TEXT
@@ -299,9 +300,6 @@ CREATE TABLE MetadataValue
   text_lang          VARCHAR(24),
   place              INTEGER
 );
-
--- Create the DC schema
-INSERT INTO MetadataSchemaRegistry VALUES (getnextid('metadataschemaregistry'),'http://dublincore.org/documents/dcmi-terms/','dc');
 
 -- Create a dcvalue view for backwards compatibilty
 CREATE VIEW dcvalue AS
@@ -457,7 +455,8 @@ CREATE TABLE WorkspaceItem
   published_before  BOOL,
   multiple_files    BOOL,
   -- How for the user has got in the submit process
-  stage_reached     INTEGER
+  stage_reached     INTEGER,
+  page_reached      INTEGER
 );
 
 -------------------------------------------------------

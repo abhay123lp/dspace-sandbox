@@ -61,10 +61,17 @@ import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.MetadataSchema;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
-import org.dspace.handle.HandleManager;
 
 /**
  * Item exporter to create simple AIPs for DSpace content. Currently exports
@@ -88,6 +95,12 @@ public class ItemExport
 {
     private static final int SUBDIR_LIMIT = 0;
 
+    private static CollectionDAO collectionDAO;
+
+    private static ItemDAO itemDAO;
+
+    private static ExternalIdentifierDAO identifierDAO;
+
     /*
      *  
      */
@@ -99,7 +112,7 @@ public class ItemExport
         Options options = new Options();
 
         options.addOption("t", "type", true, "type: COLLECTION or ITEM");
-        options.addOption("i", "id", true, "ID or handle of thing to export");
+        options.addOption("i", "id", true, "ID or URI (canonical form) of thing to export");
         options.addOption("d", "dest", true,
                 "destination where you want items to go");
         options.addOption("n", "number", true,
@@ -183,19 +196,37 @@ public class ItemExport
         if (myIDString == null)
         {
             System.out
-                    .println("ID must be set to either a database ID or a handle (-h for help)");
+                    .println("ID must be set to either a database ID or a canonical form of a URI (-h for help)");
             System.exit(1);
         }
 
         Context c = new Context();
         c.setIgnoreAuthorization(true);
 
+        collectionDAO = CollectionDAOFactory.getInstance(c);
+        itemDAO = ItemDAOFactory.getInstance(c);
+        identifierDAO = ExternalIdentifierDAOFactory.getInstance(c);
+
+        // First, add the namespace if necessary
+        if (myIDString.indexOf('/') != -1)
+        {
+            if (myIDString.indexOf(':') == -1)
+            {
+                // has no : must be a handle
+                myIDString = "hdl:" + myIDString;
+                System.out.println("no namespace provided. assuming handles.");
+            }
+        }
+
+        ExternalIdentifier identifier = identifierDAO.retrieve(myIDString);
+        ObjectIdentifier oi = identifier.getObjectIdentifier();
+
         if (myType == Constants.ITEM)
         {
-            // first, is myIDString a handle?
-            if (myIDString.indexOf('/') != -1)
+            // first, do we have a persistent identifier for the item?
+            if (identifier != null)
             {
-                myItem = (Item) HandleManager.resolveToObject(c, myIDString);
+                myItem = (Item) oi.getObject(c);
 
                 if ((myItem == null) || (myItem.getType() != Constants.ITEM))
                 {
@@ -204,7 +235,7 @@ public class ItemExport
             }
             else
             {
-                myItem = Item.find(c, Integer.parseInt(myIDString));
+                myItem = itemDAO.retrieve(Integer.parseInt(myIDString));
             }
 
             if (myItem == null)
@@ -217,9 +248,7 @@ public class ItemExport
         {
             if (myIDString.indexOf('/') != -1)
             {
-                // has a / must be a handle
-                mycollection = (Collection) HandleManager.resolveToObject(c,
-                        myIDString);
+                mycollection = (Collection) oi.getObject(c);
 
                 // ensure it's a collection
                 if ((mycollection == null)
@@ -230,7 +259,7 @@ public class ItemExport
             }
             else if (myIDString != null)
             {
-                mycollection = Collection.find(c, Integer.parseInt(myIDString));
+                mycollection = collectionDAO.retrieve(Integer.parseInt(myIDString));
             }
 
             if (mycollection == null)
@@ -324,7 +353,7 @@ public class ItemExport
                 // make it this far, now start exporting
                 writeMetadata(c, myItem, itemDir);
                 writeBitstreams(c, myItem, itemDir);
-                writeHandle(c, myItem, itemDir);
+                writeURI(c, myItem, itemDir);
             }
             else
             {
@@ -426,11 +455,12 @@ public class ItemExport
         }
     }
 
-    // create the file 'handle' which contains the handle assigned to the item
-    private static void writeHandle(Context c, Item i, File destDir)
+    // create the file 'handle' which contains (one of the) the URI(s) assigned
+    // to the item
+    private static void writeURI(Context c, Item i, File destDir)
             throws Exception
     {
-        String filename = "handle";
+        String filename = "uri";
 
         File outFile = new File(destDir, filename);
 
@@ -438,7 +468,7 @@ public class ItemExport
         {
             PrintWriter out = new PrintWriter(new FileWriter(outFile));
 
-            out.println(i.getHandle());
+            out.println(i.getIdentifier().getCanonicalForm());
 
             // close the contents file
             out.close();

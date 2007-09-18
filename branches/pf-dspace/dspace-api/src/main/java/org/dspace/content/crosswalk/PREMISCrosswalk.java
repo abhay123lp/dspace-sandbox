@@ -41,30 +41,25 @@
 package org.dspace.content.crosswalk;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.Enumeration;
-import java.net.URLEncoder;
-
-import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
-
-import org.dspace.core.Context;
-import org.dspace.core.Constants;
-import org.dspace.core.ConfigurationManager;
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
-import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Bundle;
-import org.dspace.content.Item;
 import org.dspace.content.DSpaceObject;
-import org.dspace.authorize.AuthorizeException;
-
-import org.jdom.*;
+import org.dspace.content.FormatIdentifier;
+import org.dspace.content.Item;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Constants;
+import org.dspace.core.Context;
+import org.jdom.Element;
+import org.jdom.Namespace;
 
 /**
  * PREMIS Crosswalk
@@ -252,14 +247,14 @@ public class PREMISCrosswalk
         //  c. made-up name based on sequence ID and extension.
         String sid = String.valueOf(bitstream.getSequenceID());
         String baseUrl = ConfigurationManager.getProperty("dspace.url");
-        String handle = null;
-        // get handle of parent Item of this bitstream, if there is one:
+        String uri = null;
+        // get uri of parent Item of this bitstream, if there is one:
         Bundle[] bn = bitstream.getBundles();
         if (bn.length > 0)
         {
             Item bi[] = bn[0].getItems();
             if (bi.length > 0)
-                handle = bi[0].getHandle();
+                uri = bi[0].getIdentifier().getCanonicalForm();
         }
         // get or make up name for bitstream:
         String bsName = bitstream.getName();
@@ -268,10 +263,10 @@ public class PREMISCrosswalk
             String ext[] = bitstream.getFormat().getExtensions();
             bsName = "bitstream_"+sid+ (ext.length > 0 ? ext[0] : "");
         }
-        if (handle != null && baseUrl != null)
+        if (uri != null && baseUrl != null)
             oiv.setText(baseUrl
                     + "/bitstream/"
-                    + URLEncoder.encode(handle, "UTF-8")
+                    + URLEncoder.encode(uri, "UTF-8")
                     + "/"
                     + sid
                     + "/"

@@ -79,27 +79,6 @@
         intro = community.getMetadata("introductory_text");
         copy = community.getMetadata("copyright_text");
         side = community.getMetadata("side_bar_text");
-       
-       	if (shortDesc == null)
-        {
-            shortDesc = "";
-        }
-        
-        if (copy == null)
-        {
-            copy = "";
-        }
-        
-        if (side == null)
-        {
-            side = "";
-        }
-        
-		if (intro == null)
-		{
-			intro = "";
-		}
-
         logo = community.getLogo();
     }
 %>
@@ -124,7 +103,7 @@
     {
 %>
     <h1><fmt:message key="jsp.tools.edit-community.heading2">
-        <fmt:param><%= community.getHandle() %></fmt:param>
+        <fmt:param><%= community.getIdentifier().getCanonicalForm() %></fmt:param>
         </fmt:message>
     </h1>
     <% if(admin_button ) { %>

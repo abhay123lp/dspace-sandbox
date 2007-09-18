@@ -45,7 +45,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.SQLException;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
@@ -110,7 +109,7 @@ public class CreativeCommons
         // create the CC bundle if it doesn't exist
         // If it does, remove it and create a new one.
     private static Bundle getCcBundle(Item item)
-        throws SQLException, AuthorizeException, IOException
+        throws AuthorizeException, IOException
     {
         Bundle[] bundles = item.getBundles(CC_BUNDLE_NAME);
 
@@ -126,7 +125,7 @@ public class CreativeCommons
      * This is a bit of the "do-the-right-thing" method for CC stuff in an item
      */
     public static void setLicense(Context context, Item item,
-            String cc_license_url) throws SQLException, IOException,
+            String cc_license_url) throws IOException,
             AuthorizeException
     {
         Bundle bundle = getCcBundle(item);
@@ -171,7 +170,7 @@ public class CreativeCommons
 
     public static void setLicense(Context context, Item item,
                                   InputStream licenseStm, String mimeType)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         Bundle bundle = getCcBundle(item);
 
@@ -190,7 +189,7 @@ public class CreativeCommons
         }
 
     public static void removeLicense(Context context, Item item)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         // remove CC license bundle if one exists
         Bundle[] bundles = item.getBundles(CC_BUNDLE_NAME);
@@ -202,7 +201,7 @@ public class CreativeCommons
     }
 
     public static boolean hasLicense(Context context, Item item)
-            throws SQLException, IOException
+            throws IOException
     {
         // try to find CC license bundle
         Bundle[] bundles = item.getBundles(CC_BUNDLE_NAME);
@@ -229,20 +228,20 @@ public class CreativeCommons
         return true;
     }
 
-    public static String getLicenseURL(Item item) throws SQLException,
-            IOException, AuthorizeException
+    public static String getLicenseURL(Item item)
+        throws IOException, AuthorizeException
     {
         return getStringFromBitstream(item, BSN_LICENSE_URL);
     }
 
-    public static String getLicenseText(Item item) throws SQLException,
-            IOException, AuthorizeException
+    public static String getLicenseText(Item item)
+        throws IOException, AuthorizeException
     {
         return getStringFromBitstream(item, BSN_LICENSE_TEXT);
     }
 
-    public static String getLicenseRDF(Item item) throws SQLException,
-            IOException, AuthorizeException
+    public static String getLicenseRDF(Item item)
+        throws IOException, AuthorizeException
     {
         return getStringFromBitstream(item, BSN_LICENSE_RDF);
     }
@@ -251,8 +250,8 @@ public class CreativeCommons
      * Get Creative Commons license RDF, returning Bitstream object.
      * @return bitstream or null.
      */
-    public static Bitstream getLicenseRdfBitstream(Item item) throws SQLException,
-            IOException, AuthorizeException
+    public static Bitstream getLicenseRdfBitstream(Item item)
+        throws IOException, AuthorizeException
     {
         return getBitstream(item, BSN_LICENSE_RDF);
     }
@@ -261,8 +260,8 @@ public class CreativeCommons
      * Get Creative Commons license Text, returning Bitstream object.
      * @return bitstream or null.
      */
-    public static Bitstream getLicenseTextBitstream(Item item) throws SQLException,
-            IOException, AuthorizeException
+    public static Bitstream getLicenseTextBitstream(Item item)
+        throws IOException, AuthorizeException
     {
         return getBitstream(item, BSN_LICENSE_TEXT);
     }
@@ -297,7 +296,7 @@ public class CreativeCommons
      */
     private static void setBitstreamFromBytes(Item item, Bundle bundle,
             String bitstream_name, BitstreamFormat format, byte[] bytes)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         Bitstream bs = bundle.createBitstream(bais);
@@ -316,8 +315,7 @@ public class CreativeCommons
      * bitstream method further down
      */
     private static String getStringFromBitstream(Item item,
-            String bitstream_name) throws SQLException, IOException,
-            AuthorizeException
+            String bitstream_name) throws IOException, AuthorizeException
     {
         byte[] bytes = getBytesFromBitstream(item, bitstream_name);
 
@@ -334,7 +332,7 @@ public class CreativeCommons
      * the CC bundle, with the given bitstream name
      */
     private static Bitstream getBitstream(Item item, String bitstream_name)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         Bundle cc_bundle = null;
 
@@ -363,7 +361,7 @@ public class CreativeCommons
     }
 
     private static byte[] getBytesFromBitstream(Item item, String bitstream_name)
-            throws SQLException, IOException, AuthorizeException
+            throws IOException, AuthorizeException
     {
         Bitstream bs = getBitstream(item, bitstream_name);
 

@@ -39,11 +39,73 @@
  */
 package org.dspace.content;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import org.dspace.core.Context;
+
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.log4j.Logger;
+
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.ObjectIdentifier;
+
 /**
  * Abstract base class for DSpace objects
  */
 public abstract class DSpaceObject
 {
+    private static Logger log = Logger.getLogger(DSpaceObject.class);
+    
+    // accumulate information to add to "detail" element of content Event,
+    // e.g. to document metadata fields touched, etc.
+    private StringBuffer eventDetails = null;
+
+    protected Context context;
+    protected int id;
+    protected UUID uuid;
+    protected ObjectIdentifier oid;
+    protected List<ExternalIdentifier> identifiers;
+    
+    /**
+     * Reset the cache of event details.
+     */
+    protected void clearDetails()
+    {
+        eventDetails = null;
+    }
+
+    /**
+     * Add a string to the cache of event details.  Automatically
+     * separates entries with a comma.
+     * Subclass can just start calling addDetails, since it creates
+     * the cache if it needs to.
+     * @param detail detail string to add.
+     */
+    protected void addDetails(String d)
+    {
+        if (eventDetails == null)
+        {
+            eventDetails = new StringBuffer(d);
+        }
+        else
+        {
+            eventDetails.append(", ").append(d);
+        }
+    }
+
+    /**
+     * @returns summary of event details, or null if there are none.
+     */
+    protected String getDetails()
+    {
+        return (eventDetails == null ? null : eventDetails.toString());
+    }
+
     /**
      * Get the type of this object, found in Constants
      * 
@@ -56,13 +118,97 @@ public abstract class DSpaceObject
      * 
      * @return internal ID of object
      */
-    public abstract int getID();
+    public int getID()
+    {
+        return id;
+    }
+
+    public ObjectIdentifier getIdentifier()
+    {
+        return oid;
+    }
+
+    public void setIdentifier(ObjectIdentifier oid)
+    {
+        this.oid = oid;
+    }
 
     /**
-     * Get the Handle of the object. This may return <code>null</code>
-     * 
-     * @return Handle of the object, or <code>null</code> if it doesn't have
+     * For those cases where you only want one, and you don't care what sort.
+     */
+    public ExternalIdentifier getExternalIdentifier()
+    {
+        if ((identifiers != null) && (identifiers.size() > 0))
+        {
+            return identifiers.get(0);
+        }
+        else
+        {
+            log.warn("no external identifiers found. type=" + getType() +
+                    ", id=" + getID());
+            return null;
+        }
+    }
+
+    public List<ExternalIdentifier> getExternalIdentifiers()
+    {
+        if (identifiers == null)
+        {
+            identifiers = new ArrayList<ExternalIdentifier>();
+        }
+
+        return identifiers;
+    }
+
+    public void addExternalIdentifier(ExternalIdentifier identifier)
+    {
+        this.identifiers.add(identifier);
+    }
+
+    public void setExternalIdentifiers(List<ExternalIdentifier> identifiers)
+    {
+        this.identifiers = identifiers;
+    }
+
+    /**
+     * Get a proper name for the object. This may return <code>null</code>.
+     * Name should be suitable for display in a user interface.
+     *
+     * @return Name for the object, or <code>null</code> if it doesn't have
      *         one
      */
-    public abstract String getHandle();
+    public abstract String getName();
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    public boolean equals(Object o)
+    {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    public boolean equals(DSpaceObject other)
+    {
+        if (this.getType() == other.getType())
+        {
+            if (this.getID() == other.getID())
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
 }

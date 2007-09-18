@@ -40,7 +40,6 @@
 package org.dspace.app.webui.util;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Iterator;
 
 import javax.servlet.ServletException;
@@ -49,12 +48,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.dspace.authenticate.AuthenticationManager;
+import org.dspace.authenticate.AuthenticationMethod;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.AuthenticationManager;
-import org.dspace.eperson.AuthenticationMethod;
 
 /**
  * Methods for authenticating the user. This is DSpace platform code, as opposed
@@ -256,19 +255,8 @@ public class Authenticate
         
         boolean isAdmin = false;
         
-        try
-        {
-            isAdmin = AuthorizeManager.isAdmin(context);
-        }
-        catch (SQLException se)
-        {
-            log.warn("Unable to use AuthorizeManager " + se);
-        }
-        finally 
-        {
-            request.setAttribute("is.admin", new Boolean(isAdmin));
-        }
-    
+        isAdmin = AuthorizeManager.isAdmin(context);
+        request.setAttribute("is.admin", new Boolean(isAdmin));
 
         // We store the current user in the request as an EPerson object...
         request.setAttribute("dspace.current.user", eperson);

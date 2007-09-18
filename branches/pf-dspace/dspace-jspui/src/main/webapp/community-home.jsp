@@ -63,6 +63,12 @@
 <%@ page import="org.dspace.content.Collection" %>
 <%@ page import="org.dspace.core.Utils" %>
 <%@ page import="org.dspace.core.ConfigurationManager" %>
+<%@ page import="org.dspace.browse.BrowseIndex" %>
+ 
+<%@ page import="org.dspace.app.webui.components.RecentSubmissions" %>
+<%@ page import="org.dspace.content.Item" %>
+<%@ page import="org.dspace.content.DCValue" %>
+
 
 
 <%
@@ -72,11 +78,9 @@
         (Collection[]) request.getAttribute("collections");
     Community[] subcommunities =
         (Community[]) request.getAttribute("subcommunities");
-
-    String[] lastSubmittedTitles = (String[])
-        request.getAttribute("last.submitted.titles");
-    String[] lastSubmittedURLs = (String[])
-        request.getAttribute("last.submitted.urls");
+    
+    RecentSubmissions rs = (RecentSubmissions) request.getAttribute("recently.submitted");
+    
     Boolean editor_b = (Boolean)request.getAttribute("editor_button");
     boolean editor_button = (editor_b == null ? false : editor_b.booleanValue());
     Boolean add_b = (Boolean)request.getAttribute("add_button");
@@ -84,23 +88,14 @@
     Boolean remove_b = (Boolean)request.getAttribute("remove_button");
     boolean remove_button = (remove_b == null ? false : remove_b.booleanValue());
 
+	// get the browse indices
+    BrowseIndex[] bis = BrowseIndex.getBrowseIndices();
 
     // Put the metadata values into guaranteed non-null variables
     String name = community.getMetadata("name");
     String intro = community.getMetadata("introductory_text");
-    if (intro == null)
-    {
-        intro = "";
-    }
     String copyright = community.getMetadata("copyright_text");
-    if (copyright == null)
-    {
-        copyright = "";
-    }
     String sidebar = community.getMetadata("side_bar_text");
-    if(sidebar == null)
-    sidebar = "";
-
     Bitstream logo = community.getLogo();
     
     boolean feedEnabled = ConfigurationManager.getBooleanProperty("webui.feed.enable");
@@ -128,23 +123,22 @@
 
 
   <%-- Search/Browse --%>
-  <form method="get" action="">
+  
     <table class="miscTable" align="center" summary="This table allows you to search through all communities held in the repository">
       <tr>
         <td class="evenRowEvenCol" colspan="2">
+        <form method="get" action="">
           <table>
             <tr>
               <td class="standard" align="center">
-                <%--<small><strong>In:</strong></small>&nbsp;<select name="location">--%>
                 <small><label for="tlocation"><strong><fmt:message key="jsp.general.location"/></strong></label></small>&nbsp;<select name="location" id="tlocation"> 
-                 <%--<option value="/">All of DSpace</option>--%>
 				 <option value="/"><fmt:message key="jsp.general.genericScope"/></option>
-                 <option selected="selected" value="<%= community.getHandle() %>"><%= name %></option>
+                 <option selected="selected" value="<%= community.getIdentifier().getCanonicalForm() %>"><%= name %></option>
 <%
     for (int i = 0; i < collections.length; i++)
     {
 %>    
-                  <option value="<%= collections[i].getHandle() %>"><%= collections[i].getMetadata("name") %></option>
+                  <option value="<%= collections[i].getIdentifier().getCanonicalForm() %>"><%= collections[i].getMetadata("name") %></option>
 <%
     }
 %>
@@ -152,7 +146,7 @@
     for (int j = 0; j < subcommunities.length; j++)
     {
 %>    
-                  <option value="<%= subcommunities[j].getHandle() %>"><%= subcommunities[j].getMetadata("name") %></option>
+                  <option value="<%= subcommunities[j].getIdentifier().getCanonicalForm() %>"><%= subcommunities[j].getMetadata("name") %></option>
 <%
     }
 %>
@@ -164,16 +158,32 @@
                 <small><label for="tquery"><strong><fmt:message key="jsp.general.searchfor"/>&nbsp;</strong></label></small><input type="text" name="query" id="tquery" />&nbsp;<input type="submit" name="submit_search" value="<fmt:message key="jsp.general.go"/>" /> 
 			  </td>
             </tr>
+            </table>
+            </form>
+            </td>
+            </tr>
             <tr>
-              <td align="center" class="standard">
-                <small><fmt:message key="jsp.general.orbrowse"/>&nbsp;</small><input type="submit" name="submit_titles" value="<fmt:message key="jsp.general.titles.button"/>" />&nbsp;<input type="submit" name="submit_authors" value="<fmt:message key="jsp.general.authors.button"/>" />&nbsp;<input type="submit" name="submit_subjects" value="<fmt:message key="jsp.general.subjects.button"/>" />&nbsp;<input type="submit" name="submit_dates" value="<fmt:message key="jsp.general.date.button"/>" />
+              <td align="center" class="standard" valign="middle">
+                <small><fmt:message key="jsp.general.orbrowse"/>&nbsp;</small>
+   				<%-- Insert the dynamic list of browse options --%>
+<%
+	for (int i = 0; i < bis.length; i++)
+	{
+		String key = "browse.menu." + bis[i].getName();
+%>
+	<div class="browse_buttons">
+	<form method="get" action="<%= community.getIdentifier().getURL().toString() %>/browse">
+		<input type="hidden" name="type" value="<%= bis[i].getName() %>"/>
+		<%-- <input type="hidden" name="community" value="<%= community.getHandle() %>" /> --%>
+		<input type="submit" name="submit_browse" value="<fmt:message key="<%= key %>"/>"/>
+	</form>
+	</div>
+<%	
+	}
+%>
 			  </td>
             </tr>
           </table>
-        </td>
-      </tr>
-    </table>
-  </form>
     
   <%= intro %>
 
@@ -193,7 +203,7 @@
 	    <table>
 	    <tr>
 	    <td>
-	      <a href="<%= request.getContextPath() %>/handle/<%= collections[i].getHandle() %>">
+	      <a href="<%= collections[i].getIdentifier().getURL().toString() %>">
 	      <%= collections[i].getMetadata("name") %></a>
 <%
             if(ConfigurationManager.getBooleanProperty("webui.strengths.show"))
@@ -243,7 +253,7 @@
 			    <table>
 			    <tr>
 			    <td>
-	                <a href="<%= request.getContextPath() %>/handle/<%= subcommunities[j].getHandle() %>">
+	                <a href="<%= subcommunities[j].getIdentifier().getURL().toString() %>">
 	                <%= subcommunities[j].getMetadata("name") %></a>
 <%
                 if (ConfigurationManager.getBooleanProperty("webui.strengths.show"))
@@ -327,18 +337,27 @@
       </tr>
     </table>
     <% } %>
+    
+    <%-- Recently Submitted items --%>
 	<h3><fmt:message key="jsp.community-home.recentsub"/></h3>
 <%
-    for (int i = 0; i < lastSubmittedTitles.length; i++)
-    {
-    	String displayTitle = (lastSubmittedTitles[i] == null
-    		? LocaleSupport.getLocalizedMessage(pageContext, "jsp.general.untitled")
-    		: Utils.addEntities(lastSubmittedTitles[i]));
-    		
-%>
-    <p class="recentItem"><a href="<%= request.getContextPath() %><%= lastSubmittedURLs[i] %>"><%= displayTitle %></a></p>
-<%
-  }
+	if (rs != null)
+	{
+		Item[] items = rs.getRecentSubmissions();
+		for (int i = 0; i < items.length; i++)
+		{
+			DCValue[] dcv = items[i].getMetadata("dc", "title", null, Item.ANY);
+			String displayTitle = "Untitled";
+			if (dcv != null)
+			{
+				if (dcv.length > 0)
+				{
+					displayTitle = dcv[0].value;
+				}
+			}
+			%><p class="recentItem"><a href="<%= items[i].getIdentifier().getURL().toString() %>"><%= displayTitle %></a></p><%
+		}
+	}
 %>
     <p>&nbsp;</p>    
 <%
@@ -369,7 +388,7 @@
     	       width = 36;
     	    }
 %>
-    <a href="<%= request.getContextPath() %>/feed/<%= fmts[j] %>/<%= community.getHandle() %>"><img src="<%= request.getContextPath() %>/image/<%= icon %>" alt="RSS Feed" width="<%= width %>" height="15" vspace="3" border="0" /></a>
+    <a href="<%= request.getContextPath() %>/feed/<%= fmts[j] %>/<%= community.getIdentifier().getCanonicalForm() %>"><img src="<%= request.getContextPath() %>/image/<%= icon %>" alt="RSS Feed" width="<%= width %>" height="15" vspace="3" border="0" /></a>
 <%
     	}
 %>
