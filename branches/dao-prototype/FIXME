@@ -13,3 +13,8 @@ Stuff that needs fixin':
    former because it means we don't hold more in memory than is absolutely
    necessary, and the data layer is always up-to-date. It also removes the
    responsibility for objects to know what is associated with them.
+ * Update the clean-database.sql script to account for all the new tables &
+   sequences
+ * After approving a workflow item, it says "...has been assigned the following
+   identifier" and then gives the URL. Either change the text, or change the
+   link to the actual identifier.

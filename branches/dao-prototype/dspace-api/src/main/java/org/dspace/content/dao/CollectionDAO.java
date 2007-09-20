@@ -228,28 +228,22 @@ public abstract class CollectionDAO extends ContentDAO
             collection.removeTemplateItem();
             
             // Remove items
-            ItemIterator items = collection.getAllItems();
-
-            while (items.hasNext())
+            for (Item item = itemDAO.getItemsByCollection(collection))
             {
-                Item item = items.next();
-                
                 if (item.isOwningCollection(collection))
                 {
-                    // the collection to be deletd is the owning collection,
+                    // the collection to be deleted is the owning collection,
                     // thus remove the item from all collections it belongs to
-                    int itemId = item.getID();
-                    Collection[] collections = item.getCollections();
-                    for (int i = 0; i < collections.length; i++)
+                    for (Collection c : itemDAO.getParentCollections(item))
                     {
+                        // Move the item out of all parent collections
                         ArchiveManager.move(context, item, collections[i],
                                 null);
-
-                        //notify Browse of removing item.
-                        IndexBrowse ib = new IndexBrowse(context);
-                        ib.itemRemoved(item);
-                        
                     }
+                    //notify Browse of removing item.
+                    IndexBrowse ib = new IndexBrowse(context);
+                    ib.itemRemoved(item);
+                    itemDAO.delete(item);
                 } 
                 else
                 {
