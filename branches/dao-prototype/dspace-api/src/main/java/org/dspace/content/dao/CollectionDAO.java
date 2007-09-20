@@ -228,22 +228,21 @@ public abstract class CollectionDAO extends ContentDAO
             collection.removeTemplateItem();
             
             // Remove items
-            for (Item item = itemDAO.getItemsByCollection(collection))
+            for (Item item : itemDAO.getItemsByCollection(collection))
             {
                 if (item.isOwningCollection(collection))
                 {
                     // the collection to be deleted is the owning collection,
                     // thus remove the item from all collections it belongs to
-                    for (Collection c : itemDAO.getParentCollections(item))
+                    for (Collection c : getParentCollections(item))
                     {
                         // Move the item out of all parent collections
-                        ArchiveManager.move(context, item, collections[i],
-                                null);
+                        ArchiveManager.move(context, item, c, null);
                     }
                     //notify Browse of removing item.
                     IndexBrowse ib = new IndexBrowse(context);
                     ib.itemRemoved(item);
-                    itemDAO.delete(item);
+                    itemDAO.delete(item.getID());
                 } 
                 else
                 {
@@ -299,10 +298,6 @@ public abstract class CollectionDAO extends ContentDAO
         catch (IOException ioe)
         {
             throw new RuntimeException(ioe);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
         }
         catch (BrowseException e)
         {
