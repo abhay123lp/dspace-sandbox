@@ -150,12 +150,6 @@
          <groupId>com.ibm.icu</groupId>
          <artifactId>icu4j</artifactId>
       </dependency>
-      <dependency>
-         <groupId>junit</groupId>
-         <artifactId>junit</artifactId>
-         <version>4.1</version>
-         <scope>test</scope>
-       </dependency>
    </dependencies>
 
 </project>

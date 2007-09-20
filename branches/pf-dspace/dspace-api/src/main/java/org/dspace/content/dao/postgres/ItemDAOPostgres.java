@@ -358,6 +358,7 @@ public class ItemDAOPostgres extends ItemDAO
                     metadata.setLanguage(dcv.language);
                     metadata.setPlace(current);
                     mvDAO.update(metadata);
+                    log.info(metadata);
                 }
 
 //                dublinCoreChanged = false;

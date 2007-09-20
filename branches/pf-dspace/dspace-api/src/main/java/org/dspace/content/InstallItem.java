@@ -39,8 +39,7 @@
  */
 package org.dspace.content;
 
-import java.io.IOException;
-
+import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
@@ -48,6 +47,9 @@ import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
+
+import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * Support to install item in the archive
@@ -57,6 +59,8 @@ import org.dspace.core.Context;
  */
 public class InstallItem
 {
+    private static Logger log = Logger.getLogger(InstallItem.class);
+    
     /**
      * Take an InProgressSubmission and turn it into a fully-archived Item,
      * creating a new Handle
@@ -80,14 +84,37 @@ public class InstallItem
      * @param c  current context
      * @param is
      *            submission to install
-     * @param value
+     * @param uri
      *            the existing identifier to give the installed item in
      *            canonical form
      * 
      * @return the fully archived Item
      */
     public static Item installItem(Context c, InProgressSubmission is,
-            String value) throws IOException, AuthorizeException
+            String uri) throws IOException, AuthorizeException
+    {
+        return installItem(c, is, uri, false);
+    }
+
+    /**
+     * Take an InProgressSubmission and turn it into a fully-archived Item.
+     * 
+     * @param c  current context
+     * @param is
+     *            submission to install
+     * @param uri
+     *            the existing identifier to give the installed item in
+     *            canonical form
+     * @param isCopy
+     *            if <code>true</code>, the item is being replicated from
+     *            another repository*
+     *            FIXME: We don't actually do anything with this information
+     *            yet.
+     * 
+     * @return the fully archived Item
+     */
+    public static Item installItem(Context c, InProgressSubmission is,
+            String uri, boolean isCopy) throws IOException, AuthorizeException
     {
         ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
         ExternalIdentifierDAO identifierDAO =
@@ -110,7 +137,7 @@ public class InstallItem
         }
 
         // if no previous identifier supplied, create one
-        if (value == null)
+        if (uri == null)
         {
             // Create persistent identifier. Note that this will create an
             // identifier of the default type (as specified in the
@@ -119,13 +146,11 @@ public class InstallItem
         }
         else
         {
-            identifier = identifierDAO.create(item, value);
+            identifier = identifierDAO.create(item, uri);
         }
 
-        String uri = identifier.getURI().toString();
-
         // Add uri as identifier.uri DC value
-        item.addDC("identifier", "uri", null, uri);
+        item.addDC("identifier", "uri", null, identifier.getURI().toString());
 
         String provDescription = "Made available in DSpace on " + now
                 + " (GMT). " + getBitstreamProvenanceMessage(item);

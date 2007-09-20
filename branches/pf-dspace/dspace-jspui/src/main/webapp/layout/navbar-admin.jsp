@@ -177,6 +177,15 @@
       <a href="<%= request.getContextPath() %>/statistics"><fmt:message key="jsp.layout.navbar-admin.statistics"/></a>
     </td>
   </tr>
+
+  <tr class="navigationBarItem">
+    <td>
+      <img alt="" src="<%= request.getContextPath() %>/image/<%= (currentPage.endsWith("/remote-repositories") ? "arrow-highlight" : "arrow") %>.gif" width="16" height="16">
+    </td>
+    <td nowrap class="navigationBarItem">
+      <a href="<%= request.getContextPath() %>/dspace-admin/remote-repositories"><fmt:message key="jsp.layout.navbar-admin.remote-repositories"/></a>
+    </td>
+  </tr>
   
   <tr>
      <td colspan="2">&nbsp;</td>
