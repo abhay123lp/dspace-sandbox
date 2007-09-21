@@ -1,7 +1,7 @@
 /*
  * DCInputSet.java
  *
- * Version: $Revision$
+ * Version: $Revision: 191 $
  *
  * Date: $Date: 2007-07-07 14:41:04 +0100 (Sat, 07 Jul 2007) $
  *
@@ -49,7 +49,7 @@ import java.util.Map;
  * Class representing all DC inputs required for a submission, organized into pages
  *
  * @author Brian S. Hughes, based on work by Jenny Toves, OCLC
- * @version $Revision$
+ * @version $Revision: 191 $
  */
 
 public class DCInputSet

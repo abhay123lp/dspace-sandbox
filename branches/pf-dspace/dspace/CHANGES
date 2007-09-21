@@ -1,3 +1,6 @@
+(Brian Helm)
+SF Patch 1794700  Bug fix for stat-monthly and stat-report-monthly
+
 (Robert Tansley / Barhatov Andrew)
 - Authentication code moved to new org.dspace.authenticate package
 - Added IP Authentication (SF patch #1566820)
@@ -63,6 +66,7 @@
 
 (Chris yates)
 - SF Patch #1724330 Removes "null" being displayed in community-home.jsp
+- SF Patch #1763535 Alert DSpace administrator of new user registration
 
 (Robert Tansley / Stuart Lewis)
 - SF Patch #1587225 Google and html sitemap generator

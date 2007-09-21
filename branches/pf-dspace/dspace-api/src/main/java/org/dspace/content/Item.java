@@ -201,7 +201,7 @@ public class Item extends DSpaceObject
     /**
      * List the owning Collection for the item
      * 
-     * @param owningCollection Collection
+     * @param c Collection
      */
     public void setOwningCollection(Collection owningCollection)
     {
@@ -456,7 +456,7 @@ public class Item extends DSpaceObject
      * package. <code>update</code> must be called to write the change to the
      * database.
      * 
-     * @param submitter
+     * @param sub
      *            the submitter
      */
     public void setSubmitter(EPerson submitter)

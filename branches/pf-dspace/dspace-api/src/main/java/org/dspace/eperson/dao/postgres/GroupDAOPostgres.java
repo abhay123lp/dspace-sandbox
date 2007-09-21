@@ -756,6 +756,7 @@ public class GroupDAOPostgres extends GroupDAO
 
     private void populateGroupFromTableRow(Group group, TableRow row)
     {
+        System.out.println(row);
         UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
 
         group.setName(row.getStringColumn("name"));

@@ -79,16 +79,10 @@
 <%= s %>&nbsp;&gt;
 <%
         }
-        else if (u.equals("/"))
-        {
-%>
-<a href="<%= request.getContextPath() %>"><%= s %></a>&nbsp;&gt;
-<%
-        }
         else
         {
 %>
-<a href="<%= u %>"><%= s %></a>&nbsp;&gt;
+<a href="<%= request.getContextPath() %><%= u %>"><%= s %></a>&nbsp;&gt;
 <%
         }
 }

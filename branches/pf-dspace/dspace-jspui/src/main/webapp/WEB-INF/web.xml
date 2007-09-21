@@ -150,6 +150,11 @@
   </servlet>
 
   <servlet>
+    <servlet-name>bitstream</servlet-name>
+    <servlet-class>org.dspace.app.webui.servlet.BitstreamServlet</servlet-class>
+  </servlet>
+
+  <servlet>
     <servlet-name>browse</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.BrowserServlet</servlet-class>
   </servlet>
@@ -374,11 +379,7 @@
     <servlet-name>subject-search</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.ControlledVocabularySearchServlet</servlet-class>
   </servlet>  
-
-  <servlet>
-    <servlet-name>remote-repositories</servlet-name>
-    <servlet-class>org.dspace.app.webui.servlet.admin.RemoteRepositoryAdminServlet</servlet-class>
-  </servlet>
+  
 
   <!-- Servlet Mappings -->
 
@@ -390,6 +391,11 @@
   <servlet-mapping>
     <servlet-name>advanced-search</servlet-name>
     <url-pattern>/advanced-search</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>bitstream</servlet-name>
+    <url-pattern>/bitstream/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -524,12 +530,8 @@
 
   <servlet-mapping>
     <servlet-name>openURL</servlet-name>
-    <url-pattern>/openurl</url-pattern>
-  </servlet-mapping>
-    
-  <servlet-mapping>
-    <servlet-name>openURL</servlet-name>
     <url-pattern>/openURL</url-pattern>
+    <url-pattern>/openurl</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -605,11 +607,6 @@
   <servlet-mapping>
     <servlet-name>workspace</servlet-name>
     <url-pattern>/workspace</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>remote-repositories</servlet-name>
-    <url-pattern>/dspace-admin/remote-repositories</url-pattern>
   </servlet-mapping>
   
   <servlet-mapping>
