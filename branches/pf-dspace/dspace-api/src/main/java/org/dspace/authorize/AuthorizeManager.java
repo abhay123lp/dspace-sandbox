@@ -426,34 +426,8 @@ public class AuthorizeManager
      * @return List of <code>ResourcePolicy</code> objects
      */
     public static List<ResourcePolicy> getPoliciesForGroup(Context c, Group g)
-            throws SQLException
     {
-    	TableRowIterator tri = DatabaseManager.queryTable(c, "resourcepolicy",
-                "SELECT * FROM resourcepolicy WHERE epersongroup_id= ? ",
-                g.getID());
-
-        List<ResourcePolicy> policies = new ArrayList<ResourcePolicy>();
-
-        while (tri.hasNext())
-        {
-            TableRow row = tri.next();
-
-            // first check the cache (FIXME: is this right?)
-            ResourcePolicy cachepolicy = (ResourcePolicy) c.fromCache(
-                    ResourcePolicy.class, row.getIntColumn("policy_id"));
-
-            if (cachepolicy != null)
-            {
-                policies.add(cachepolicy);
-            }
-            else
-            {
-                policies.add(new ResourcePolicy(c, row));
-            }
-        }
-        tri.close();
-
-        return policies;
+        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(g);
     }
     
     /**
