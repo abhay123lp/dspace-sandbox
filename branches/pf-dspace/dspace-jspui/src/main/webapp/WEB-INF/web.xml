@@ -150,11 +150,6 @@
   </servlet>
 
   <servlet>
-    <servlet-name>bitstream</servlet-name>
-    <servlet-class>org.dspace.app.webui.servlet.BitstreamServlet</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>browse</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.BrowserServlet</servlet-class>
   </servlet>
@@ -394,11 +389,6 @@
   </servlet-mapping>
 
   <servlet-mapping>
-    <servlet-name>bitstream</servlet-name>
-    <url-pattern>/bitstream/*</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
     <servlet-name>browse</servlet-name>
     <url-pattern>/browse</url-pattern>
   </servlet-mapping>
@@ -529,9 +519,13 @@
   </servlet-mapping>
 
   <servlet-mapping>
+      <servlet-name>openURL</servlet-name>
+      <url-pattern>/openurl</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
     <servlet-name>openURL</servlet-name>
     <url-pattern>/openURL</url-pattern>
-    <url-pattern>/openurl</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

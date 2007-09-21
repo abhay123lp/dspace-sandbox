@@ -64,7 +64,7 @@
 	int id = repo.getID();
 	Community community = repo.getCommunity();
 	String name = repo.getName();
-	URL url = repo.getHarvestURL();
+	URL url = repo.getBaseURL();
 	String baseURL = "";
 	if (url != null)
 	{
