@@ -325,9 +325,14 @@
     </init-param>
   </servlet>
 
+    <servlet>
+        <servlet-name>statistics</servlet-name>
+        <servlet-class>org.dspace.app.webui.servlet.StatisticsServlet</servlet-class>
+    </servlet>
+
   <servlet>
-    <servlet-name>statistics</servlet-name>
-    <servlet-class>org.dspace.app.webui.servlet.StatisticsServlet</servlet-class>
+    <servlet-name>remote-repositories</servlet-name>
+    <servlet-class>org.dspace.app.webui.servlet.admin.RemoteRepositoryAdminServlet</servlet-class>
   </servlet>
 
   <servlet>
@@ -563,9 +568,14 @@
     <url-pattern>/sitemap</url-pattern>
   </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>statistics</servlet-name>
+        <url-pattern>/statistics</url-pattern>
+    </servlet-mapping>
+
   <servlet-mapping>
-    <servlet-name>statistics</servlet-name>
-    <url-pattern>/statistics</url-pattern>
+    <servlet-name>remote-repositories</servlet-name>
+    <url-pattern>/remote-repositories</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
