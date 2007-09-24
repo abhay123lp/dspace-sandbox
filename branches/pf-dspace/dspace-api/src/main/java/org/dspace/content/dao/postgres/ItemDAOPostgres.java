@@ -633,8 +633,6 @@ public class ItemDAOPostgres extends ItemDAO
             }
             else
             {
-                System.out.println(query.toString());
-                System.out.println(field.getID() + ":" + value.getValue());
                 tri = DatabaseManager.query(context, query.toString(),
                         field.getID(), value.getValue());
             }
