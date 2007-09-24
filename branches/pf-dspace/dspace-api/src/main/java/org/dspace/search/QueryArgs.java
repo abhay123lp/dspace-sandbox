@@ -39,16 +39,16 @@
  */
 package org.dspace.search;
 
+import org.apache.oro.text.perl.Perl5Util;
+import org.dspace.core.Constants;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import javax.servlet.http.HttpServletRequest;
-
-import org.dspace.core.Constants;
-
-import org.apache.oro.text.perl.Perl5Util;
+import java.util.List;
 
 /**
  * Contains the arguments for a query. Fill it out and pass to the query engine
@@ -196,6 +196,62 @@ public class QueryArgs
         
         newquery = newquery + ")";
         return (newquery);
+    }
+
+    /**
+     * Builds an advanced-query description string.
+	 *
+	 * FIXME: This should really be tied in tighter with
+	 * buildQuery(HttpServletRequest request).
+     *
+     * @param queries
+	 * @param fields
+	 * @param modes
+     *
+     * @return the query description string built
+     */
+	public String buildQuery(List<String> queries, List<String> fields,
+			List<String> modes)
+    {
+        String newquery = "(";
+        
+        Iterator<String> queryIterator = queries.iterator();
+        Iterator<String> fieldIterator = fields.iterator();
+        Iterator<String> modeIterator = null;
+		if (modes != null)
+		{
+			modeIterator = modes.iterator();
+		}
+        
+        String mode = "";
+        while (queryIterator.hasNext())
+        {
+			newquery = newquery + mode;
+        	String query = queryIterator.next();
+        	String field = fieldIterator.next();
+
+			if (query != null && !query.equals(""))
+			{
+				if (field == null)
+				{
+					field = "ANY";
+				}
+
+				newquery = newquery + buildQueryPart(query, field);
+				
+				if (modeIterator == null)
+				{
+					mode = " AND ";
+				}
+				else if (modeIterator.hasNext())
+				{
+					mode = " " + modeIterator.next() + " ";
+				}
+			}
+        }
+        
+        newquery = newquery + ")";
+        return newquery;
     }
 
     /**

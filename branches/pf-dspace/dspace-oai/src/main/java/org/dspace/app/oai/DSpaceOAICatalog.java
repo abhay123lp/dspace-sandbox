@@ -41,6 +41,7 @@ package org.dspace.app.oai;
 
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -50,11 +51,18 @@ import java.util.NoSuchElementException;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.dspace.app.federate.RemoteRepository;
+import org.dspace.app.federate.dao.RemoteRepositoryDAO;
+import org.dspace.app.federate.dao.postgres.RemoteRepositoryDAOPostgres;
+import org.dspace.core.Constants;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAO;
@@ -64,6 +72,9 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
+import org.dspace.search.DSQuery;
+import org.dspace.search.QueryArgs;
+import org.dspace.search.QueryResults;
 import org.dspace.search.Harvest;
 import org.dspace.search.HarvestedItemInfo;
 
@@ -560,11 +571,36 @@ public class DSpaceOAICatalog extends AbstractCatalog
             context = new Context();
 
             // Get the relevant HarvestedItemInfo objects to make headers
-            DSpaceObject scope = resolveSet(context, set);
-            List itemInfos = Harvest.harvest(context, scope, from, until,
-                    offset, MAX_RECORDS, // Limit amount returned from one
-                                         // request
-                    true, true, true); // Need items, containers + withdrawals
+            List itemInfos = new ArrayList();
+
+            if (set == null || !set.startsWith("OAI-SQ"))
+            {
+                DSpaceObject scope = resolveSet(context, set);
+                itemInfos = Harvest.harvest(context, scope, from, until,
+                        offset, MAX_RECORDS, // Limit amount returned from one
+                                             // request
+                        true, true, true); // Need items, containers + withdrawals
+            }
+            else
+            {
+                // If we're dealing with an OAI-SQ(-F) query, then the result
+                // set is created dynamically from the parameters, and so we
+                // don't have a Collection scope to work with.
+                List itemIDs = buildSet(context, set, metadataPrefix);
+                itemInfos = Harvest.harvest(context, null, from, until,
+                        offset, MAX_RECORDS, // Limit amount returned from one
+                                             // request
+                        true, true, true); // Need items, containers + withdrawals
+                Iterator i = itemInfos.iterator();
+                while (i.hasNext())
+                {
+                    HarvestedItemInfo itemInfo = (HarvestedItemInfo) i.next();
+                    if (itemIDs.indexOf(new Integer(itemInfo.itemID)) == -1)
+                    {
+                        i.remove();
+                    }
+                }
+            }
 
             // Build list of XML records from item info objects
             Iterator i = itemInfos.iterator();
@@ -725,6 +761,13 @@ public class DSpaceOAICatalog extends AbstractCatalog
                 spec.append("</set>");
                 sets.add(spec.toString());
             }
+
+			StringBuffer sb = new StringBuffer();
+			sb.append("<set><setSpec>OAI-SQ</setSpec>");
+			sb.append("<setName>OAI-SQ</setName></set>");
+			sb.append("<set><setSpec>OAI-SQ-F</setSpec>");
+			sb.append("<setName>OAI-SQ-F</setName></set>");
+			sets.add(sb.toString());
         }
         catch (SQLException se)
         {
@@ -768,6 +811,29 @@ public class DSpaceOAICatalog extends AbstractCatalog
         throw new BadResumptionTokenException();
     }
 
+	/**
+	 * Add extra <description> tags to the Identify response.
+	 *
+	 * @return a String containing all the extra <description>s (up to the
+	 * maximum of 10).
+	 */
+	public String getDescriptions()
+	{
+		StringBuffer descriptions = new StringBuffer();
+
+		try
+		{
+			descriptions.append(getFriendsList());
+		}
+		catch (SQLException sqle)
+		{
+			// Pass the exception back up the stack
+			log.error(sqle);
+		}
+
+		return descriptions.toString();
+	}
+
     /**
      * close the repository
      */
@@ -778,6 +844,53 @@ public class DSpaceOAICatalog extends AbstractCatalog
     // ******************************************
     // Internal DSpace utility methods below here
     // ******************************************
+	
+	/**
+	 * This returns a String containing a <description> element containing a
+	 * <friends> element containing the base URLs of all the repositories we
+	 * know about and have declared to be public (being public is the sole
+	 * condition of being published in this list). This is only really intended
+	 * to be called from getDescriptions().
+	 *
+	 * @return The <description> element containing the list of <friends>.
+	 */
+	private String getFriendsList() throws SQLException
+	{
+		Context context = new Context();
+		RemoteRepositoryDAO dao = new RemoteRepositoryDAOPostgres(context);
+		List friends = dao.getPublicRemoteRepositories();
+		context.complete();
+
+		if (friends.isEmpty())
+		{
+			return new String();
+		}
+
+		StringBuffer friendsList = new StringBuffer();
+		friendsList.append(
+			"<description>" +
+				"<friends xmlns=\"http://www.openarchives.org/OAI/2.0/friends/\" " +
+					"xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+					"xsi:schemaLocation=\"http://www.openarchives.org/OAI/2.0/friends/ " +
+						"http://www.openarchives.org/OAI/2.0/friends.xsd\">"
+		);
+
+		Iterator i = friends.iterator();
+		while (i.hasNext())
+		{
+			RemoteRepository rr = (RemoteRepository) i.next();
+			friendsList.append("<baseURL>");
+			friendsList.append(rr.getBaseURL().toString());
+			friendsList.append("</baseURL>");
+		}
+
+		friendsList.append(
+				"</friends>" +
+			"</description>"
+		);
+
+		return friendsList.toString();
+	}
 
     /**
      * Get the community or collection signified by a set spec.
@@ -822,6 +935,125 @@ public class DSpaceOAICatalog extends AbstractCatalog
         // Either way, a bad set spec, ergo a bad argument
         throw new BadArgumentException();
     }
+
+
+	/**
+	 * Build a result set from a given query.
+	 * 
+	 * @param context
+	 *			DSpace context object
+	 * @param set
+	 *			OAI set spec
+	 * @return the corresponding community or collection, or null if no set
+	 *		 provided
+	 */
+	private List buildSet(Context context, String set, String metadataPrefix)
+			throws SQLException, BadArgumentException
+	{
+		List itemIDs = new ArrayList();
+
+		try
+		{
+			String query = "";
+			QueryArgs qArgs = new QueryArgs();
+			QueryResults qResults = new QueryResults();
+			int start = 0;
+
+			if (set.startsWith("OAI-SQ!"))
+			{
+				query = prepareQueryString(set.substring(7).replace("!"," "));
+
+				qArgs.setQuery(query);
+			}
+			else if (set.startsWith("OAI-SQ-F!"))
+			{
+				query = prepareQueryString(set.substring(9));
+				StringTokenizer st = new StringTokenizer(query, "!");
+
+				if (st.countTokens() % 2 != 0)
+				{
+					// Arguments must be paired
+					throw new BadArgumentException();
+				}
+
+				List<String> fields = new ArrayList();
+				List<String> values = new ArrayList();
+
+				// Build the lookup table for metadata -> search index
+				Map replacementTable = buildReplacementTable();
+
+				while (st.hasMoreTokens())
+				{
+					String field = st.nextToken();
+					String key = "";
+					String wildcardKey = "";
+
+					// This part builds the keys for doing the lookup in
+					// our lookup table.
+					StringTokenizer fieldTokenizer =
+						new StringTokenizer(field, ".");
+					switch (fieldTokenizer.countTokens())
+					{
+						case 2:
+							String element = fieldTokenizer.nextToken();
+							String qualifier = fieldTokenizer.nextToken();
+							key = element + "." + qualifier;
+							wildcardKey = element + ".*";
+							break;
+						case 1:
+							key = field;
+							wildcardKey = field + ".*";
+							break;
+						default:
+							// FIXME: This should at least log an error
+							break;
+					}
+
+					// Now we take the search parameters, and see if we can
+					// find a corresponding search index.
+					if (replacementTable.containsKey(key))
+					{
+						field = (String) replacementTable.get(key);
+					}
+					else if (replacementTable.containsKey(wildcardKey))
+					{
+						field = (String) replacementTable.get(wildcardKey);
+					}
+
+					fields.add(field);
+					values.add(st.nextToken());
+				}
+
+				qArgs.setQuery(qArgs.buildQuery(values, fields, null));
+			}
+
+			qArgs.setStart(start);
+			qResults = DSQuery.doQuery(context, qArgs);
+
+			for (int i = 0; i < qResults.getHitURIs().size(); i++)
+			{
+				String uri = (String) qResults.getHitURIs().get(i);
+				Integer type = (Integer) qResults.getHitTypes().get(i);
+
+				if (type.intValue() == Constants.ITEM)
+				{
+                    ObjectIdentifier oi = ObjectIdentifier.fromString(uri);
+                    Item item = (Item) oi.getObject(context);
+					itemIDs.add(new Integer(item.getID()));
+				}
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Whoops!", e);
+		}
+
+		if (itemIDs == null)
+		{
+			throw new BadArgumentException();
+		}
+		return itemIDs;
+	}
 
     /**
      * Create a resumption token. The relevant parameters for the harvest are
@@ -939,4 +1171,74 @@ public class DSpaceOAICatalog extends AbstractCatalog
 
         return obj;
     }
+
+	/**
+	 * Utility function to convert hexadecimal "~XX"-style constructs into
+	 * their ASCII equivalents.
+	 */
+	private String prepareQueryString(String query)
+	{
+		Pattern p = Pattern.compile("~\\p{XDigit}{2}+");
+		Matcher m = p.matcher(query);
+
+		StringBuffer sb = new StringBuffer();
+		while (m.find())
+		{
+			m.appendReplacement(sb, hexToAscii(m.group().substring(1)));
+		}
+		m.appendTail(sb);
+
+		return sb.toString();
+	}
+
+	/**
+	 * Utility function to convert a 2-digit hex number into the ASCII
+	 * equivalent. Used for OAI-SQ queries.
+	 */
+	private String hexToAscii(String hex)
+	{
+		int n = Integer.parseInt(hex, 16);
+		n &= 0xFF; // In case of a sign extension, n < 0
+		char c = (char) n;
+		return c + "";
+	}
+
+	/**
+	 * This loop reads all of the search indices defined in the configuration
+	 * into a lookup table, so we can translate metadata fields from the URL to
+	 * DSpace search indices with which we can actually perform the search.
+	 */
+	private Map buildReplacementTable()
+	{
+		Map replacementTable = new HashMap();
+
+		for (int i = 1; ; i++)
+		{
+			String index = ConfigurationManager.getProperty("search.index." + i);
+			if (index == null)
+			{
+				break;
+			}
+
+			String[] configLine = index.split(":");
+			String indexName = configLine[0];
+
+			String qualifier = "";
+			String[] parts = configLine[1].split("\\.");
+
+			switch (parts.length)
+			{
+				case 3:
+					qualifier = "." + parts[2];
+				case 2:
+					replacementTable.put(parts[1] + qualifier, indexName);
+					break;
+				default:
+					// FIXME: This should at least log an error
+					break;
+			}
+		}
+
+		return replacementTable;
+	}
 }
