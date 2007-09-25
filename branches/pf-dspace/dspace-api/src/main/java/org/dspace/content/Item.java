@@ -562,7 +562,7 @@ public class Item extends DSpaceObject
         // Check it's not already there
         for (Bundle bundle : getBundles())
         {
-            if ((b.getName() == bundle.getName()) ||
+            if ((b.getName().equals(bundle.getName())) ||
                 (b.getID() == bundle.getID()))
             {
                 // Bundle is a duplicate, do nothing

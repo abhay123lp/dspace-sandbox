@@ -40,16 +40,19 @@
 
 package com.hp.hpl.oaicat.server;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Properties;
-import java.util.StringTokenizer;
+import ORG.oclc.oai.server.catalog.AbstractCatalog;
+import ORG.oclc.oai.server.verb.BadArgumentException;
+import ORG.oclc.oai.server.verb.OAIInternalServerError;
+import ORG.oclc.oai.server.verb.ServerVerb;
+import org.apache.log4j.Logger;
+import org.dspace.app.federate.OAIRepository;
+import org.dspace.app.federate.RemoteRepository;
+import org.dspace.app.federate.dao.RemoteRepositoryDAO;
+import org.dspace.app.federate.dao.RemoteRepositoryDAOFactory;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
+import org.dspace.core.Email;
+import org.jdom.JDOMException;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
@@ -57,23 +60,12 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpUtils;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
-
-import org.apache.log4j.Logger;
-
-import ORG.oclc.oai.server.catalog.AbstractCatalog;
-import ORG.oclc.oai.server.verb.ServerVerb;
-import ORG.oclc.oai.server.verb.BadArgumentException;
-import ORG.oclc.oai.server.verb.OAIInternalServerError;
-
-import org.dspace.core.Context;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Email;
-import org.dspace.app.federate.RemoteRepository;
-import org.dspace.app.federate.dao.RemoteRepositoryDAO;
-import org.dspace.app.federate.dao.postgres.RemoteRepositoryDAOPostgres;
-import org.dspace.app.federate.OAIRepository;
-
-import org.jdom.JDOMException;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * @author James Rutherford
@@ -99,22 +91,16 @@ public class StaticRepositoryHandler extends ServerVerb
 	 * @exception OAINotFoundException an http 404 status code problem
 	 * @exception OAIInternalServerError an http 500 status code problem
 	 */
-	public static String construct(HashMap context, HttpServletRequest request,
+	@SuppressWarnings({"JavadocReference"})
+    public static String construct(HashMap context, HttpServletRequest request,
 			HttpServletResponse response, Transformer serverTransformer)
 		throws OAIInternalServerError, TransformerException
 	{
 		String remoteHost = request.getRemoteAddr();
 		RemoteRepositoryDAO dao = null;
-		try
-		{
-			dao = new RemoteRepositoryDAOPostgres(new Context());
-		}
-		catch (SQLException sqle)
-		{
-			// FIXME: Do something
-		}
+        Context c = null;
 
-		Properties properties = (Properties)context.get("OAIHandler.properties");
+        Properties properties = (Properties)context.get("OAIHandler.properties");
 		AbstractCatalog abstractCatalog =
 			(AbstractCatalog)context.get("OAIHandler.catalog");
 		String baseURL = properties.getProperty("OAIHandler.baseURL");
@@ -171,7 +157,10 @@ public class StaticRepositoryHandler extends ServerVerb
 			{
 				try
 				{
-					RemoteRepository rr = dao.retrieve(url);
+                    c = new Context();
+                    dao = RemoteRepositoryDAOFactory.getInstance(c);
+
+                    RemoteRepository rr = dao.retrieve(url);
 					URL ourURL = new URL(ConfigurationManager.getProperty("dspace.url.oai"));
 					if (rr == null && !url.equals(ourURL))
 					{
@@ -203,11 +192,12 @@ public class StaticRepositoryHandler extends ServerVerb
 					}
 					else
 					{
-					sb.append("<message type=\"warning\">");
-					sb.append(request.getParameter("initiate") +
-							" is already a known node.");
-					sb.append("</message>");
+                        sb.append("<message type=\"warning\">");
+                        sb.append(request.getParameter("initiate") +
+                                " is already a known node.");
+                        sb.append("</message>");
 					}
+                    c.complete();
 				}
 				catch (IOException ioe)
 				{
@@ -223,6 +213,11 @@ public class StaticRepositoryHandler extends ServerVerb
 							request.getParameter("initiate"));
 					sb.append("</message>");
 				}
+                catch (SQLException sqle)
+                {
+                    c.abort();
+                    throw new RuntimeException(sqle);
+                }
 			}
 		}
 		sb.append("<message type=\"information\">");
