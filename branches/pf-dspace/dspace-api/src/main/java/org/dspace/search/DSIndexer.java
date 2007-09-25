@@ -70,9 +70,6 @@ import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -229,9 +226,6 @@ public class DSIndexer
     public static void indexContent(Context context, DSpaceObject dso, boolean force)
     throws IOException
     {
-        ExternalIdentifierDAO identifierDAO =
-            ExternalIdentifierDAOFactory.getInstance(context);
-
         String uri = dso.getIdentifier().getCanonicalForm();
 
         Term t = new Term("uri", uri);
@@ -584,9 +578,6 @@ public class DSIndexer
      */
     public static void cleanIndex(Context context) throws IOException
     {
-        ExternalIdentifierDAO identifierDAO =
-            ExternalIdentifierDAOFactory.getInstance(context);
-        ExternalIdentifier identifier = null;
         ObjectIdentifier oi = null;
 
     	IndexReader reader = DSQuery.getIndexReader();
@@ -598,8 +589,7 @@ public class DSIndexer
     			Document doc = reader.document(i);
         		String uri = doc.get("uri");
         		
-                identifier = identifierDAO.retrieve(uri);
-                oi = identifier.getObjectIdentifier();
+                oi = ObjectIdentifier.fromString(uri);
         		DSpaceObject o = oi.getObject(context);
 
                 if (o == null)

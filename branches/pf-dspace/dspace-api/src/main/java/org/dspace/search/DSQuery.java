@@ -268,6 +268,8 @@ public class DSQuery
 
     static String stripURIs(String myquery)
     {
+        // FIXME: Do we need to strip "local" identifier prefixes as well?
+
         // Drop beginning pieces of full URI strings
         for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
         {

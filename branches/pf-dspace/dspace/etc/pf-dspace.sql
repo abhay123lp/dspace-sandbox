@@ -58,16 +58,16 @@ CREATE TABLE remoterepository
 (  
 	repository_id			INTEGER PRIMARY KEY,
 	community_id			INTEGER,
-	name					VARCHAR(256) NOT NULL,
-	harvest_url				VARCHAR(256) NOT NULL,
-	admin_email				VARCHAR(128) NOT NULL,
-	is_active				BOOL NOT NULL,
-	is_public				BOOL NOT NULL,
-	is_alive				BOOL NOT NULL,
+	name					VARCHAR(256),
+	base_url				VARCHAR(256),
+	admin_email				VARCHAR(128),
+	is_active				BOOL,
+	is_public				BOOL,
+	is_alive				BOOL,
 	distance				INTEGER,
-	date_added				TIMESTAMP WITH TIME ZONE NOT NULL,
-	date_last_harvested		TIMESTAMP WITH TIME ZONE NOT NULL,
-	date_last_seen			TIMESTAMP WITH TIME ZONE NOT NULL,
+	date_added				TIMESTAMP WITH TIME ZONE,
+	date_last_harvested		TIMESTAMP WITH TIME ZONE,
+	date_last_seen			TIMESTAMP WITH TIME ZONE,
 	FOREIGN KEY (community_id) REFERENCES community(community_id)
 );
 
@@ -80,9 +80,5 @@ CREATE TABLE failedimports
 	repository_id		INTEGER REFERENCES RemoteRepository(repository_id),
 	identifier			VARCHAR(256) NOT NULL
 );
-
--- Update the Handle table to hold some extra information
-ALTER TABLE Handle ADD COLUMN state INTEGER;
-ALTER TABLE Handle ADD COLUMN last_modified TIMESTAMP WITH TIME ZONE;
 
 alter table remoterepository add column uuid varchar(36);
