@@ -320,10 +320,7 @@ public class DSQuery
 
         String location = "l" + (coll.getID());
 
-        String newquery = new String("+(" + querystring + ") +location:\""
-                + location + "\"");
-
-        args.setQuery(newquery);
+        args.setQuery("+(" + querystring + ") +location:\"" + location + "\"");
 
         return doQuery(c, args);
     }
@@ -349,10 +346,7 @@ public class DSQuery
 
         String location = "m" + (comm.getID());
 
-        String newquery = new String("+(" + querystring + ") +location:\""
-                + location + "\"");
-
-        args.setQuery(newquery);
+        args.setQuery("+(" + querystring + ") +location:\"" + location + "\"");
 
         return doQuery(c, args);
     }

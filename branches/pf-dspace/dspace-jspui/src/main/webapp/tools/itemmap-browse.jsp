@@ -67,7 +67,7 @@
     Map items              = (Map)request.getAttribute("items");
     Map collections        = (Map)request.getAttribute("collections");
     String browsetext      = (String)request.getAttribute("browsetext");
-    Boolean showcollection = new Boolean(false);
+    boolean showcollection = new Boolean(false);
     String browsetype      = (String)request.getAttribute("browsetype");    // Only "Add" and "Remove" are handled properly
 %>
 

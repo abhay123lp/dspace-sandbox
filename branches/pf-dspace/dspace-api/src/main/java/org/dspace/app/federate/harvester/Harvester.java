@@ -238,7 +238,7 @@ public class Harvester
 		{
 			if (log.isDebugEnabled())
 			{
-				log.debug("Harvesting from URL: " + harvestURL.toString());
+				log.debug("Harvesting from URL: " + harvestURL);
 			}
 
 			HarvestResults results = new HarvestResults();

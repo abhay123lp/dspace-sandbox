@@ -77,7 +77,7 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
     @Override
     public RegistrationData retrieve(int id)
     {
-        return retrieve("registrationdata_id", new Integer(id).toString());
+        return retrieve("registrationdata_id", Integer.toString(id));
     }
 
     @Override

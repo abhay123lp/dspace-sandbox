@@ -500,7 +500,7 @@ public class LogAnalyser
                             Matcher matchItem = itemRX.matcher(uri);
                             uri = matchItem.replaceAll("");
 
-                            uri.trim();
+                            uri = uri.trim();
 
                             // either add the uri to the aggregator or
                             // increment its counter

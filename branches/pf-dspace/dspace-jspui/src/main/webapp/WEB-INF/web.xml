@@ -575,7 +575,7 @@
 
   <servlet-mapping>
     <servlet-name>remote-repositories</servlet-name>
-    <url-pattern>/remote-repositories</url-pattern>
+    <url-pattern>/dspace-admin/remote-repositories</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

@@ -91,7 +91,6 @@ public class StaticRepositoryHandler extends ServerVerb
 	 * @exception OAINotFoundException an http 404 status code problem
 	 * @exception OAIInternalServerError an http 500 status code problem
 	 */
-	@SuppressWarnings({"JavadocReference"})
     public static String construct(HashMap context, HttpServletRequest request,
 			HttpServletResponse response, Transformer serverTransformer)
 		throws OAIInternalServerError, TransformerException

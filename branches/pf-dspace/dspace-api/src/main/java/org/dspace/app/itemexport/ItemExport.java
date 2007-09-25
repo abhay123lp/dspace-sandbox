@@ -313,7 +313,7 @@ public class ItemExport
         {
             if (SUBDIR_LIMIT > 0 && ++counter == SUBDIR_LIMIT)
             {
-                subdir = new Integer(subDirSuffix++).toString();
+                subdir = Integer.toString(subDirSuffix++);
                 fullPath = destDirName + dir.separatorChar + subdir;
                 counter = 0;
 

@@ -180,10 +180,10 @@
 
   <tr class="navigationBarItem">
     <td>
-      <img alt="" src="<%= request.getContextPath() %>/image/<%= (currentPage.endsWith("/remote-repositories") ? "arrow-highlight" : "arrow") %>.gif" width="16" height="16"/>
+      <img alt="" src="<%= request.getContextPath() %>/image/<%= (currentPage.endsWith("/dspace-admin/remote-repositories") ? "arrow-highlight" : "arrow") %>.gif" width="16" height="16"/>
     </td>
     <td nowrap="nowrap" class="navigationBarItem">
-      <a href="<%= request.getContextPath() %>/remote-repositories"><fmt:message key="jsp.layout.navbar-admin.remote-repositories"/></a>
+      <a href="<%= request.getContextPath() %>/dspace-admin/remote-repositories"><fmt:message key="jsp.layout.navbar-admin.remote-repositories"/></a>
     </td>
   </tr>
   

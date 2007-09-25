@@ -858,12 +858,12 @@ public class DSpaceOAICatalog extends AbstractCatalog
 	{
 		Context context = new Context();
 		RemoteRepositoryDAO dao = new RemoteRepositoryDAOPostgres(context);
-		List friends = dao.getPublicRemoteRepositories();
+		List<RemoteRepository> friends = dao.getPublicRemoteRepositories();
 		context.complete();
 
 		if (friends.isEmpty())
 		{
-			return new String();
+			return "";
 		}
 
 		StringBuffer friendsList = new StringBuffer();
@@ -875,10 +875,8 @@ public class DSpaceOAICatalog extends AbstractCatalog
 						"http://www.openarchives.org/OAI/2.0/friends.xsd\">"
 		);
 
-		Iterator i = friends.iterator();
-		while (i.hasNext())
-		{
-			RemoteRepository rr = (RemoteRepository) i.next();
+        for (RemoteRepository rr : friends)
+        {
 			friendsList.append("<baseURL>");
 			friendsList.append(rr.getBaseURL().toString());
 			friendsList.append("</baseURL>");
