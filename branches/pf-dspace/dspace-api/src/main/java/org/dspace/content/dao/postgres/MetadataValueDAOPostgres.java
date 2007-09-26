@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.MetadataValueDAO;
 import org.dspace.core.Context;
@@ -223,8 +224,37 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "metadatavalue",
                     "SELECT metadata_value_id FROM metadatavalue " +
-                    "WHERE metadata_field_id = ? ",
+                            "WHERE metadata_field_id = ? ",
                     fieldID);
+
+            List<MetadataValue> values = new ArrayList<MetadataValue>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("metadata_value_id");
+                values.add(retrieve(id));
+            }
+
+            return values;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<MetadataValue> getMetadataValues(MetadataField field,
+            String value)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "metadatavalue",
+                    "SELECT metadata_value_id FROM metadatavalue " +
+                    "WHERE metadata_field_id = ? " +
+                    "AND text_value LIKE ?",
+                    field.getID(), value);
 
             List<MetadataValue> values = new ArrayList<MetadataValue>();
 

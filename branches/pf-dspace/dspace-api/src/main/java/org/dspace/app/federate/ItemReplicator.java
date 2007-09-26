@@ -39,8 +39,30 @@
  */
 package org.dspace.app.federate;
 
-import org.apache.commons.cli.*;
+import java.io.File;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
+
+import javax.mail.MessagingException;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
+
 import org.dspace.app.federate.dao.RemoteRepositoryDAO;
 import org.dspace.app.federate.dao.postgres.RemoteRepositoryDAOPostgres;
 import org.dspace.app.federate.harvester.HarvestException;
@@ -52,13 +74,28 @@ import org.dspace.app.mets.ImportException;
 import org.dspace.app.mets.MetadataValidationException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
-import org.dspace.content.*;
+import org.dspace.content.Community;
+import org.dspace.content.DCValue;
+import org.dspace.content.InstallItem;
+import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.IngestionCrosswalk;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.dao.MetadataFieldDAO;
+import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
+import org.dspace.content.dao.MetadataValueDAO;
+import org.dspace.content.dao.MetadataValueDAOFactory;
+import org.dspace.content.dao.WorkspaceItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.content.packager.PackageValidationException;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
@@ -67,20 +104,13 @@ import org.dspace.core.PluginManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;
-import org.dspace.storage.rdbms.DatabaseManager;
-import org.dspace.storage.rdbms.TableRow;
+
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
 import org.jdom.input.SAXBuilder;
-import org.xml.sax.SAXException;
 
-import javax.mail.MessagingException;
-import java.io.File;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import org.xml.sax.SAXException;
 
 /**
  * ItemReplicator is responsible for harvesting content from remote
@@ -155,14 +185,14 @@ public class ItemReplicator
 	 * 
 	 * @param repo
 	 *			the remote repository
-	 * @throws SQLException
+	 * @throws java.sql.SQLException
 	 *			 thrown if there is a problem accessing the local database.
 	 *			 This is a local server problem, and not a problem relating to
 	 *			 the connection between the local and remote repository, or
 	 *			 any metadata validation problems.
 	 */
 	public void replicateFrom(RemoteRepository repo, Date date)
-		throws IOException, SQLException, AuthorizeException, MessagingException
+		throws AuthorizeException, IOException, MessagingException, SQLException
 	{
 		// Records currently known to be 'bad'
 		Set<String> currentBadRecords = new HashSet<String>(repo.getFailedImports());
@@ -174,7 +204,7 @@ public class ItemReplicator
 		boolean more = true;
 		boolean fullHarvest = true;
 		String resumptionToken = null;
-		String metadataPrefix = "qdc";
+		String metadataPrefix = "mets";
 
 		try
 		{
@@ -369,19 +399,6 @@ public class ItemReplicator
     }
 
 	/**
-	 * @deprecated Use importFromFile instead
-	 */
-	/*
-	private void importFromMETS(File f, Collection c, String oaiID,
-			Set currentBadRecords, Map newBadRecords)
-		throws PackageValidationException, CrosswalkException, IOException,
-			AuthorizeException, SQLException, MetadataValidationException
-	{
-		importFromFile(f, c, oaiID, currentBadRecords, newBadRecords);
-	}
-	*/
-
-	/**
 	 * Attempt to import the given file. If there is a problem with the import
 	 * that is not an 'internal' or local problem (for example database
 	 * failure), the record is added to the set of new bad records. If the
@@ -408,8 +425,6 @@ public class ItemReplicator
 	 *			the list of records found to be bad during current harvest
 	 * @throws IOException
 	 *			 if there is a <strong>local</strong> I/O problem
-	 * @throws SQLException
-	 *			 if there is a local database problem
 	 * @throws AuthorizeException
 	 *			 if there is an authorisation problem
 	 */
@@ -417,12 +432,18 @@ public class ItemReplicator
 			String metadataPrefix, String oaiIdentifier,
 			Set currentBadRecords, Map newBadRecords)
 		throws PackageValidationException, CrosswalkException, IOException,
-			AuthorizeException, SQLException, MetadataValidationException
+			AuthorizeException, MetadataValidationException, SQLException
 	{
-		log.info("Importing item from " + file.toURL() + 
+		log.info("Importing item from " + file.toURI().toURL() + 
 				" into collection " + collection.getMetadata("name"));
 
-		try
+        ItemDAO dao = ItemDAOFactory.getInstance(context);
+        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+        MetadataValueDAO mvDAO = MetadataValueDAOFactory.getInstance(context);
+
+        try
 		{
 			/*
 			 * Remove the item from the list of *old* bad records. This is so
@@ -437,7 +458,7 @@ public class ItemReplicator
 			Document document = builder.build(file);
 			Element root = document.getRootElement();
 
-			WorkspaceItem wi = WorkspaceItem.create(context, collection, false);
+			WorkspaceItem wi = wsiDAO.create(collection, false);
 			Item tempItem = wi.getItem();
 
 			// Crosswalk the metadata into the Item
@@ -447,31 +468,40 @@ public class ItemReplicator
             log.warn(metadataPrefix.toUpperCase() + " " + xwalk);
             xwalk.ingest(context, tempItem, root);
 
-			// FIXME: I think we have to do this, since oai_dc doesn't allow
-			// qualifiers. This will need to be abstracted to allow for
-			// alternate (ie: non-DC) metadata formats.
+			// FIXME: This will need to be abstracted to allow for alternate
+            // (ie: non-DC) metadata formats.
 //			DCValue values[] = tempItem.getMetadata("dc", "identifier", Item.ANY, Item.ANY);
 			DCValue values[] = tempItem.getMetadata("dc", "identifier", "uri", Item.ANY);
-			Item original = null;
+            MetadataSchema schema = msDAO.retrieveByName("dc");
+            MetadataField field = mfDAO.retrieve(schema.getID(), "identifier", "uri");
 
-			for (int x = 0; x < values.length; x++)
+            Item original = null;
+
+            // FIXME: We should check ObjectIdentifiers and ExternalIdentifiers
+            for (int x = 0; x < values.length; x++)
 			{
 				String identifier = values[x].value;
-				TableRow row = DatabaseManager.findByUnique(
-					context, "metadatavalue", "text_value", identifier);
-				log.info("searching for dc.identifier.* = " + identifier);
-				if (row != null)
-				{
-					int id = row.getIntColumn("item_id");
-					if (id > 0)
-					{
-						original = Item.find(context, id);
-						break;
-					}
-				}
-			}
+                log.info("searching for dc.identifier.uri = " + identifier);
+                List<MetadataValue> metadataValues =
+                        mvDAO.getMetadataValues(field, values[x].value);
 
-            ItemDAO dao = ItemDAOFactory.getInstance(context);
+                if (metadataValues.size() > 1)
+                {
+                    throw new IllegalStateException(
+                            "Found more than one Item with the URI: " +
+                            values[x].value);
+                }
+
+                if (metadataValues.size() == 1)
+                {
+                    int id = metadataValues.get(0).getItemID();
+                    if (id > 0)
+                    {
+                        original = dao.retrieve(id);
+                        break;
+                    }
+                }
+			}
 
             if (original != null)
 			{
@@ -487,7 +517,6 @@ public class ItemReplicator
 				log.info("item doesn't already exist");
                 Item i = InstallItem.installItem(context, wi);
                 dao.update(i);
-                // InstallItem.installItem(context, wi, tempItem.getIdentifier().getCanonicalForm(), true);
 			}
 		}
 		catch (JDOMException ie)
@@ -503,7 +532,7 @@ public class ItemReplicator
 	 * 
 	 */
 	private Collection findDestinationCollection(RemoteRepository rr, Date date)
-		throws SQLException, AuthorizeException, IOException
+		throws AuthorizeException, IOException
 	{
 		Community parent = rr.getCommunity();
         

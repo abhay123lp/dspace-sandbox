@@ -43,8 +43,8 @@ import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -90,4 +90,7 @@ public abstract class MetadataValueDAO extends ContentDAO
      * FIXME: This should really take a MetadataField object.
      */
     public abstract List<MetadataValue> getMetadataValues(int fieldID);
+
+    public abstract List<MetadataValue> getMetadataValues(MetadataField field,
+            String value);
 }
