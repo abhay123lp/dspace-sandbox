@@ -82,7 +82,8 @@
         else
         {
 %>
-<a href="<%= request.getContextPath() %><%= u %>"><%= s %></a>&nbsp;&gt;
+<!-- <a href="<%= request.getContextPath() %><%= u %>"><%= s %></a>&nbsp;&gt; -->
+<a href="<%= u %>"><%= s %></a>&nbsp;&gt;
 <%
         }
 }
