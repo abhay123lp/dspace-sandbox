@@ -67,7 +67,9 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.dao.ExternalIdentifierDAO;
+import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -218,9 +220,11 @@ public class BitstreamReader extends AbstractReader implements Recyclable
             {
             	// Reference by an item's handle.
 //            	DSpaceObject dso = HandleManager.resolveToObject(context,handle);
-                DSpaceObject dso =
-                    ObjectIdentifier.fromString(handle).getObject(context);
-            	
+                ExternalIdentifierDAO identifierDAO =
+                        ExternalIdentifierDAOFactory.getInstance(context);
+                ExternalIdentifier eid = identifierDAO.retrieve(handle);
+                DSpaceObject dso = eid.getObjectIdentifier().getObject(context);
+
             	if (dso instanceof Item && sequence > -1)
             	{
             		bitstream = findBitstreamBySequence((Item) dso,sequence);

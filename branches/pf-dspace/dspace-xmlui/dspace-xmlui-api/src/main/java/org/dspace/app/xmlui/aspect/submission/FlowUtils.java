@@ -457,7 +457,7 @@ public class FlowUtils {
 			//Load the Submission Process for the collection this WSI is associated with
             Collection c = wsi.getCollection();
             SubmissionConfigReader subConfigReader = new SubmissionConfigReader(UI_NAME);
-            SubmissionConfig subConfig = subConfigReader.getSubmissionConfig(c.getIdentifier().getCanonicalForm(), false);
+            SubmissionConfig subConfig = subConfigReader.getSubmissionConfig(c.getExternalIdentifier().getCanonicalForm(), false);
             
             // Set the "stage_reached" column on the workspace item
             // to the LAST page of the LAST step in the submission process 

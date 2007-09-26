@@ -173,7 +173,7 @@ public class ConfigurableBrowse extends AbstractDSpaceTransformer implements
             {
                 DSpaceObject dso = HandleUtil.obtainHandle(objectModel);
                 if (dso != null)
-                    key += "-" + dso.getIdentifier().getCanonicalForm();            
+                    key += "-" + dso.getExternalIdentifier().getCanonicalForm();            
 
                 return HashUtil.hash(key);
             }

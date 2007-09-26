@@ -138,7 +138,7 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer
             // What scope the search is at
             DSpaceObject scope = getScope();
             if (scope != null)
-                key += "-" + scope.getIdentifier().getCanonicalForm();
+                key += "-" + scope.getExternalIdentifier().getCanonicalForm();
             
             // The actualy search query.
             key += "-" + getQuery();
@@ -367,7 +367,7 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer
             scope.setOptionSelected("/");
             for (Community community : Community.findAll(context))
             {
-                scope.addOption(community.getIdentifier().getCanonicalForm(),community.getMetadata("name"));
+                scope.addOption(community.getExternalIdentifier().getCanonicalForm(),community.getMetadata("name"));
             }
         }
         else if (scopeDSO instanceof Community)
@@ -376,12 +376,12 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer
             // within
             Community community = (Community) scopeDSO;
             scope.addOption("/",T_all_of_dspace);
-            scope.addOption(community.getIdentifier().getCanonicalForm(),community.getMetadata("name"));
-            scope.setOptionSelected(community.getIdentifier().getCanonicalForm());
+            scope.addOption(community.getExternalIdentifier().getCanonicalForm(),community.getMetadata("name"));
+            scope.setOptionSelected(community.getExternalIdentifier().getCanonicalForm());
 
             for (Collection collection : community.getCollections())
             {
-                scope.addOption(collection.getIdentifier().getCanonicalForm(),collection.getMetadata("name"));
+                scope.addOption(collection.getExternalIdentifier().getCanonicalForm(),collection.getMetadata("name"));
             }
         }
         else if (scopeDSO instanceof Collection)
@@ -389,14 +389,14 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer
             // The scope is a collection, display all parent collections.
             Collection collection = (Collection) scopeDSO;
             scope.addOption("/",T_all_of_dspace);
-            scope.addOption(collection.getIdentifier().getCanonicalForm(),collection.getMetadata("name"));
-            scope.setOptionSelected(collection.getIdentifier().getCanonicalForm());
+            scope.addOption(collection.getExternalIdentifier().getCanonicalForm(),collection.getMetadata("name"));
+            scope.setOptionSelected(collection.getExternalIdentifier().getCanonicalForm());
             
             Community[] communities = collection.getCommunities()[0]
                     .getAllParents();
             for (Community community : communities)
             {
-                scope.addOption(community.getIdentifier().getCanonicalForm(),community.getMetadata("name"));
+                scope.addOption(community.getExternalIdentifier().getCanonicalForm(),community.getMetadata("name"));
             }
         }
     }

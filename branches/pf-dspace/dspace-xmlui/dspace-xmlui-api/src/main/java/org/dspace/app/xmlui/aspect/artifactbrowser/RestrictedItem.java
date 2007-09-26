@@ -118,7 +118,7 @@ public class RestrictedItem extends AbstractDSpaceTransformer //implements Cache
         } 
         else 
         {
-        	String handle = dso.getIdentifier().getCanonicalForm();
+        	String handle = dso.getExternalIdentifier().getCanonicalForm();
         	
         	if (handle == null || "".equals(handle))
         	{
@@ -126,7 +126,7 @@ public class RestrictedItem extends AbstractDSpaceTransformer //implements Cache
         	}
         	else
         	{
-        		identifier = "hdl:"+handle;
+        		identifier = handle;
         	}
         }
         	

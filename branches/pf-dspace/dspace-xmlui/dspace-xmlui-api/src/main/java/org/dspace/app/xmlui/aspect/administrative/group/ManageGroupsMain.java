@@ -265,7 +265,7 @@ public class ManageGroupsMain extends AbstractDSpaceTransformer
 	        		Highlight highlight = cell.addHighlight("fade");
 	        		
 	        		highlight.addContent("[");
-	        		highlight.addXref(contextPath+"/handle/"+collection.getIdentifier().getCanonicalForm(), T_collection_link);
+	        		highlight.addXref(contextPath+"/handle/"+collection.getExternalIdentifier().getCanonicalForm(), T_collection_link);
 	        		highlight.addContent("]");
         		}
         	}

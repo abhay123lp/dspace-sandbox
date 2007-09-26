@@ -138,8 +138,8 @@ public class ItemAdapter extends AbstractAdapter
      */
     protected String getMETSOBJID()
     {
-    	if (item.getIdentifier().getCanonicalForm() != null)
-    		return contextPath+"/handle/" + item.getIdentifier().getCanonicalForm();
+    	if (item.getExternalIdentifier().getCanonicalForm() != null)
+    		return contextPath+"/handle/" + item.getExternalIdentifier().getCanonicalForm();
     	return null;
     }
 
@@ -156,10 +156,10 @@ public class ItemAdapter extends AbstractAdapter
      */
     protected String getMETSID()
     {
-        if (item.getIdentifier().getCanonicalForm() == null)
+        if (item.getExternalIdentifier().getCanonicalForm() == null)
         	return "item:"+item.getID();
         else
-        	return "hdl:"+item.getIdentifier().getCanonicalForm();
+        	return item.getExternalIdentifier().getCanonicalForm();
     }
 
     /**

@@ -112,7 +112,7 @@ public class DSpaceObjectManager implements ObjectManager
 		if (object instanceof DSpaceObject)
 		{
 			DSpaceObject dso = (DSpaceObject) object;
-			String handle = dso.getIdentifier().getCanonicalForm();
+			String handle = dso.getExternalIdentifier().getCanonicalForm();
 			
 			// If the object has a handle then refrence it by it's handle.
 			if (handle != null)

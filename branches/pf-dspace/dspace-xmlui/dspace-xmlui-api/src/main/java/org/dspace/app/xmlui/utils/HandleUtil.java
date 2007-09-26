@@ -142,7 +142,7 @@ public class HandleUtil
         {
 
             // Check if the current object has the handle we are looking for.
-            if (current.getIdentifier().getCanonicalForm().equals(parent))
+            if (current.getExternalIdentifier().getCanonicalForm().equals(parent))
                 return true;
 
             if (current.getType() == Constants.ITEM)
@@ -228,11 +228,11 @@ public class HandleUtil
             DSpaceObject pop = stack.pop();
             if (pop instanceof Collection)
                 pageMeta.addTrailLink(contextPath + "/handle/"
-                        + pop.getIdentifier().getCanonicalForm(), ((Collection) pop)
+                        + pop.getExternalIdentifier().getCanonicalForm(), ((Collection) pop)
                         .getMetadata("name"));
             else if (pop instanceof Community)
                 pageMeta.addTrailLink(contextPath + "/handle/"
-                        + pop.getIdentifier().getCanonicalForm(), ((Community) pop)
+                        + pop.getExternalIdentifier().getCanonicalForm(), ((Community) pop)
                         .getMetadata("name"));
 
         }
