@@ -150,11 +150,6 @@
   </servlet>
 
   <servlet>
-    <servlet-name>bitstream</servlet-name>
-    <servlet-class>org.dspace.app.webui.servlet.BitstreamServlet</servlet-class>
-  </servlet>
-
-  <servlet>
     <servlet-name>browse</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.BrowserServlet</servlet-class>
   </servlet>
@@ -330,9 +325,14 @@
     </init-param>
   </servlet>
 
+    <servlet>
+        <servlet-name>statistics</servlet-name>
+        <servlet-class>org.dspace.app.webui.servlet.StatisticsServlet</servlet-class>
+    </servlet>
+
   <servlet>
-    <servlet-name>statistics</servlet-name>
-    <servlet-class>org.dspace.app.webui.servlet.StatisticsServlet</servlet-class>
+    <servlet-name>remote-repositories</servlet-name>
+    <servlet-class>org.dspace.app.webui.servlet.admin.RemoteRepositoryAdminServlet</servlet-class>
   </servlet>
 
   <servlet>
@@ -391,11 +391,6 @@
   <servlet-mapping>
     <servlet-name>advanced-search</servlet-name>
     <url-pattern>/advanced-search</url-pattern>
-  </servlet-mapping>
-
-  <servlet-mapping>
-    <servlet-name>bitstream</servlet-name>
-    <url-pattern>/bitstream/*</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -529,9 +524,13 @@
   </servlet-mapping>
 
   <servlet-mapping>
+      <servlet-name>openURL</servlet-name>
+      <url-pattern>/openurl</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
     <servlet-name>openURL</servlet-name>
     <url-pattern>/openURL</url-pattern>
-    <url-pattern>/openurl</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>
@@ -569,9 +568,14 @@
     <url-pattern>/sitemap</url-pattern>
   </servlet-mapping>
 
+    <servlet-mapping>
+        <servlet-name>statistics</servlet-name>
+        <url-pattern>/statistics</url-pattern>
+    </servlet-mapping>
+
   <servlet-mapping>
-    <servlet-name>statistics</servlet-name>
-    <url-pattern>/statistics</url-pattern>
+    <servlet-name>remote-repositories</servlet-name>
+    <url-pattern>/dspace-admin/remote-repositories</url-pattern>
   </servlet-mapping>
 
   <servlet-mapping>

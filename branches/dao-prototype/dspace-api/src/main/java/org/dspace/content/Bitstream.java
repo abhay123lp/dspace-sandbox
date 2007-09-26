@@ -129,12 +129,6 @@ public class Bitstream extends DSpaceObject
         this.internalID = internalID;
     }
 
-    public String getHandle()
-    {
-        // No Handles for bitstreams
-        return null;
-    }
-
     /**
      * Get the name of this bitstream - typically the filename, without any path
      * information

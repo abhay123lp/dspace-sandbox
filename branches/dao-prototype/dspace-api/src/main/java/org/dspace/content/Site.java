@@ -81,17 +81,6 @@ public class Site extends DSpaceObject
     }
 
     /**
-     * Get the Handle of the object. This may return <code>null</code>
-     *
-     * @return Handle of the object, or <code>null</code> if it doesn't have
-     *         one
-     */
-    public String getHandle()
-    {
-        return getSiteHandle();
-    }
-
-    /**
      * Static method to return site Handle without creating a Site.
      * @returns handle of the Site.
      */

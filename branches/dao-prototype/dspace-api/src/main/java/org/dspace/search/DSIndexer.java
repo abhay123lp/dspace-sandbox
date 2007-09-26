@@ -70,9 +70,6 @@ import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -229,9 +226,6 @@ public class DSIndexer
     public static void indexContent(Context context, DSpaceObject dso, boolean force)
     throws IOException
     {
-        ExternalIdentifierDAO identifierDAO =
-            ExternalIdentifierDAOFactory.getInstance(context);
-
         String uri = dso.getIdentifier().getCanonicalForm();
 
         Term t = new Term("uri", uri);
@@ -584,9 +578,6 @@ public class DSIndexer
      */
     public static void cleanIndex(Context context) throws IOException
     {
-        ExternalIdentifierDAO identifierDAO =
-            ExternalIdentifierDAOFactory.getInstance(context);
-        ExternalIdentifier identifier = null;
         ObjectIdentifier oi = null;
 
     	IndexReader reader = DSQuery.getIndexReader();
@@ -598,8 +589,7 @@ public class DSIndexer
     			Document doc = reader.document(i);
         		String uri = doc.get("uri");
         		
-                identifier = identifierDAO.retrieve(uri);
-                oi = identifier.getObjectIdentifier();
+                oi = ObjectIdentifier.fromString(uri);
         		DSpaceObject o = oi.getObject(context);
 
                 if (o == null)
@@ -779,10 +769,10 @@ public class DSIndexer
         int i = 0;
 
         for (i = 0; i < communities.length; i++)
-            location = new String(location + " m" + communities[i].getID());
+            location = location + " m" + communities[i].getID();
 
         for (i = 0; i < collections.length; i++)
-            location = new String(location + " l" + collections[i].getID());
+            location = location + " l" + collections[i].getID();
 
         return location;
     }
@@ -798,7 +788,7 @@ public class DSIndexer
         int i = 0;
 
         for (i = 0; i < communities.length; i++)
-            location = new String(location + " m" + communities[i].getID());
+            location = location + " m" + communities[i].getID();
 
         return location;
     }
@@ -910,7 +900,7 @@ public class DSIndexer
 
                 for (j = 0; j < mydc.length; j++)
                 {
-                    content_text = new String(content_text + mydc[j].value + " ");
+                    content_text = content_text + mydc[j].value + " ";
                 }
 
                 // arranges content with fields in ArrayLists with same index to
@@ -925,8 +915,7 @@ public class DSIndexer
                 }
                 else
                 {
-                    content_text = new String(content_text
-                            + (String) content.get(k) + " ");
+                    content_text = content_text + (String) content.get(k) + " ";
                     content.set(k, content_text);
                 }
             }

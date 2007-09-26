@@ -132,6 +132,11 @@ public class BrowseConsumer implements Consumer
             // Update/Add items
             for (Item i : toUpdate)
             {
+                if (i == null)
+                {
+                    continue;
+                }
+                
                 // FIXME: there is an exception handling problem here
                 try
                 {

@@ -59,9 +59,6 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -95,9 +92,6 @@ public class SimpleSearchServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
-        ExternalIdentifierDAO identifierDAO =
-            ExternalIdentifierDAOFactory.getInstance(context);
-
         // Get the query
         String query = request.getParameter("query");
         int start = UIUtil.getIntParameter(request, "start");
@@ -253,8 +247,7 @@ public class SimpleSearchServlet extends DSpaceServlet
         {
             String uri = (String) itemIdentifiers.get(i);
 
-            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
-            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            ObjectIdentifier oi = ObjectIdentifier.fromString(uri);
             Item item = (Item) oi.getObject(context);
 
             resultsItems[i] = item;
@@ -270,8 +263,7 @@ public class SimpleSearchServlet extends DSpaceServlet
         {
             String uri = (String) collectionIdentifiers.get(i);
 
-            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
-            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            ObjectIdentifier oi = ObjectIdentifier.fromString(uri);
             Collection c = (Collection) oi.getObject(context);
 
             resultsCollections[i] = c;
@@ -287,8 +279,7 @@ public class SimpleSearchServlet extends DSpaceServlet
         {
             String uri = (String) communityIdentifiers.get(i);
 
-            ExternalIdentifier identifier = identifierDAO.retrieve(uri);
-            ObjectIdentifier oi = identifier.getObjectIdentifier();
+            ObjectIdentifier oi = ObjectIdentifier.fromString(uri);
             Community c = (Community) oi.getObject(context);
 
             resultsCommunities[i] = c;

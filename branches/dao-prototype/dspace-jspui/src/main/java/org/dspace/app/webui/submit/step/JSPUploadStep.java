@@ -596,4 +596,3 @@ public class JSPUploadStep extends UploadStep implements JSPStep
         JSPStepManager.showJSP(request, response, subInfo, FILE_DESCRIPTION_JSP);
     }
 }
-

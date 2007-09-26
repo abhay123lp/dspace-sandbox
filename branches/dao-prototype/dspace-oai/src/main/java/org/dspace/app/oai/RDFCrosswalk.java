@@ -200,9 +200,15 @@ public class RDFCrosswalk extends Crosswalk
         	for (int j = 0; j < bitstreams.length; j++)
         	{
         		String tName = bitstreams[j].getName() + ".jpg";
-				Bitstream tb = thumbBundles[0].getBitstreamByName(tName);
-				if (tb != null)
-				{
+                Bitstream tb = null;
+
+                if (thumbBundles.length > 0)
+                {
+                    tb = thumbBundles[0].getBitstreamByName(tName);
+                }
+
+                if (tb != null)
+                {
 					String thumbUrl = null;
 					try
 					{

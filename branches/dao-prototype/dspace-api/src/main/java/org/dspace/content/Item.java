@@ -201,7 +201,7 @@ public class Item extends DSpaceObject
     /**
      * List the owning Collection for the item
      * 
-     * @param c Collection
+     * @param owningCollection Collection
      */
     public void setOwningCollection(Collection owningCollection)
     {
@@ -456,7 +456,7 @@ public class Item extends DSpaceObject
      * package. <code>update</code> must be called to write the change to the
      * database.
      * 
-     * @param sub
+     * @param submitter
      *            the submitter
      */
     public void setSubmitter(EPerson submitter)
@@ -562,7 +562,7 @@ public class Item extends DSpaceObject
         // Check it's not already there
         for (Bundle bundle : getBundles())
         {
-            if ((b.getName() == bundle.getName()) ||
+            if ((b.getName().equals(bundle.getName())) ||
                 (b.getID() == bundle.getID()))
             {
                 // Bundle is a duplicate, do nothing

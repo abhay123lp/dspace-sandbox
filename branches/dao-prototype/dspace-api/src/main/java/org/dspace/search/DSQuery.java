@@ -268,6 +268,8 @@ public class DSQuery
 
     static String stripURIs(String myquery)
     {
+        // FIXME: Do we need to strip "local" identifier prefixes as well?
+
         // Drop beginning pieces of full URI strings
         for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
         {
@@ -320,10 +322,7 @@ public class DSQuery
 
         String location = "l" + (coll.getID());
 
-        String newquery = new String("+(" + querystring + ") +location:\""
-                + location + "\"");
-
-        args.setQuery(newquery);
+        args.setQuery("+(" + querystring + ") +location:\"" + location + "\"");
 
         return doQuery(c, args);
     }
@@ -349,10 +348,7 @@ public class DSQuery
 
         String location = "m" + (comm.getID());
 
-        String newquery = new String("+(" + querystring + ") +location:\""
-                + location + "\"");
-
-        args.setQuery(newquery);
+        args.setQuery("+(" + querystring + ") +location:\"" + location + "\"");
 
         return doQuery(c, args);
     }

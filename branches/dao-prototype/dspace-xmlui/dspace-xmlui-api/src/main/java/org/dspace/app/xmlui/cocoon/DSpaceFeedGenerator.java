@@ -618,18 +618,14 @@ public class DSpaceFeedGenerator extends AbstractGenerator
 		if (ConfigurationManager.getBooleanProperty("webui.feed.localresolve")
                 || dso.getExternalIdentifier() == null)
 		{
-//			Request request = ObjectModelHelper.getRequest(objectModel);
-//			
-//			String url = (request.isSecure()) ? "https://" : "http://";
-//			url += ConfigurationManager.getProperty("dspace.hostname");
-//			url += ":" + request.getServerPort();
-//			url += request.getContextPath();
-//			url += "/handle/" + dso.getIdentifier().getCanonicalForm();
-//			return url;	
+			Request request = ObjectModelHelper.getRequest(objectModel);
 
-            // FIXME: Doesn't deal with https unless it is specified in the
-            // dspace.url.
-			return dso.getIdentifier().getURL().toString();
+			String url = (request.isSecure()) ? "https://" : "http://";
+			url += ConfigurationManager.getProperty("dspace.hostname");
+			url += ":" + request.getServerPort();
+			url += request.getContextPath();
+			url += "/handle/" + dso.getExternalIdentifier().getCanonicalForm();
+			return url;
 		}
 		else
 		{
