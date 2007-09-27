@@ -948,7 +948,7 @@ public class DSpaceOAICatalog extends AbstractCatalog
 	private List buildSet(Context context, String set, String metadataPrefix)
 			throws SQLException, BadArgumentException
 	{
-		List itemIDs = new ArrayList();
+		List<Integer> itemIDs = new ArrayList<Integer>();
 
 		try
 		{
@@ -974,8 +974,8 @@ public class DSpaceOAICatalog extends AbstractCatalog
 					throw new BadArgumentException();
 				}
 
-				List<String> fields = new ArrayList();
-				List<String> values = new ArrayList();
+				List<String> fields = new ArrayList<String>();
+				List<String> values = new ArrayList<String>();
 
 				// Build the lookup table for metadata -> search index
 				Map replacementTable = buildReplacementTable();
@@ -1033,11 +1033,11 @@ public class DSpaceOAICatalog extends AbstractCatalog
 				String uri = (String) qResults.getHitURIs().get(i);
 				Integer type = (Integer) qResults.getHitTypes().get(i);
 
-				if (type.intValue() == Constants.ITEM)
+				if (type == Constants.ITEM)
 				{
                     ObjectIdentifier oi = ObjectIdentifier.fromString(uri);
                     Item item = (Item) oi.getObject(context);
-					itemIDs.add(new Integer(item.getID()));
+					itemIDs.add(item.getID());
 				}
 			}
 		}
