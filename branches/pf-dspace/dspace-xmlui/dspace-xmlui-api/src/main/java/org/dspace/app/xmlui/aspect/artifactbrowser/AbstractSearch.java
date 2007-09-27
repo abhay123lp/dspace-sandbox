@@ -473,7 +473,9 @@ public abstract class AbstractSearch extends AbstractDSpaceTransformer
 
         // Are we in a community or collection?
         DSpaceObject dso;
-        if (scopeString == null || "".equals(scopeString))
+        if (scopeString == null
+                || "".equals(scopeString)
+                || "/".equals(scopeString))
             // get the search scope from the url handle
             dso = HandleUtil.obtainHandle(objectModel);
         else
