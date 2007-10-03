@@ -196,6 +196,8 @@ public class BitstreamReader extends AbstractReader implements Recyclable
 
             // Reslove the bitstream
             Bitstream bitstream = null;
+            Item item = null;
+            DSpaceObject dso = null;
             
             if (bitstreamID > -1)
             {
@@ -204,8 +206,8 @@ public class BitstreamReader extends AbstractReader implements Recyclable
             }
             else if (itemID > -1)
             {
-            	// Refrenced by internal itemID
-            	Item item = Item.find(context, itemID);
+            	// Referenced by internal itemID
+            	item = Item.find(context, itemID);
             	
             	if (sequence > -1)
             	{
@@ -219,11 +221,10 @@ public class BitstreamReader extends AbstractReader implements Recyclable
             else if (handle != null)
             {
             	// Reference by an item's handle.
-//            	DSpaceObject dso = HandleManager.resolveToObject(context,handle);
                 ExternalIdentifierDAO identifierDAO =
                         ExternalIdentifierDAOFactory.getInstance(context);
                 ExternalIdentifier eid = identifierDAO.retrieve(handle);
-                DSpaceObject dso = eid.getObjectIdentifier().getObject(context);
+                dso = eid.getObjectIdentifier().getObject(context);
 
             	if (dso instanceof Item && sequence > -1)
             	{
@@ -242,21 +243,42 @@ public class BitstreamReader extends AbstractReader implements Recyclable
             	throw new ResourceNotFoundException("Unable to locate bitstream");
             }
                 
-            // Does the user have access to read it?
+            // Is there a User logged in and does the user have access to read it?
             if (!AuthorizeManager.authorizeActionBoolean(context, bitstream, Constants.READ))
             {
-            	// The user does not have read access to this bitstream. Inturrupt this current request
-            	// and then forward them to the login page so that they can be authenticated. Once that is
-            	// successfull they will request will be resumed.
-            	AuthenticationUtil.interruptRequest(objectModel, AUTH_REQUIRED_HEADER, AUTH_REQUIRED_MESSAGE, null);
-            	
-            	// Redirect
-            	String redictURL = request.getContextPath() + "/login";
-            	
-            	HttpServletResponse httpResponse = (HttpServletResponse) 
+            	if(this.request.getSession().getAttribute("dspace.current.user.id")!=null){
+            		// A user is logged in, but they are not authorized to read this bitstream, 
+            		// instead of asking them to login again we'll point them to a friendly error 
+            		// message that tells them the bitstream is restricted.
+            		String redictURL = request.getContextPath() + "/handle/";
+            		if (item!=null){
+            			redictURL += item.getHandle();
+            		}
+            		else if(dso!=null){
+            			redictURL += dso.getHandle();
+            		}
+            		redictURL += "/restricted-resource?bitstreamId=" + bitstream.getID();
+
+            		HttpServletResponse httpResponse = (HttpServletResponse) 
             		objectModel.get(HttpEnvironment.HTTP_RESPONSE_OBJECT);
-                httpResponse.sendRedirect(redictURL);
-                return;
+            		httpResponse.sendRedirect(redictURL);
+            		return;
+            	}
+            	else{
+
+            		// The user does not have read access to this bitstream. Inturrupt this current request
+            		// and then forward them to the login page so that they can be authenticated. Once that is
+            		// successfull they will request will be resumed.
+            		AuthenticationUtil.interruptRequest(objectModel, AUTH_REQUIRED_HEADER, AUTH_REQUIRED_MESSAGE, null);
+
+            		// Redirect
+            		String redictURL = request.getContextPath() + "/login";
+
+            		HttpServletResponse httpResponse = (HttpServletResponse) 
+            		objectModel.get(HttpEnvironment.HTTP_RESPONSE_OBJECT);
+            		httpResponse.sendRedirect(redictURL);
+            		return;
+            	}
             }
                 
                 
@@ -274,17 +296,6 @@ public class BitstreamReader extends AbstractReader implements Recyclable
         {
             throw new ProcessingException("Unable to read bitstream.",ae);
         } 
-        finally 
-        {
-			try 
-			{
-				ContextUtil.closeContext(objectModel);
-			} 
-			catch (SQLException sqle) 
-			{
-				throw new ProcessingException("Unable to close DSpace context after reading bitstream",sqle);
-			}
-		}
     }
 
     
@@ -415,9 +426,14 @@ public class BitstreamReader extends AbstractReader implements Recyclable
         response.setDateHeader("Expires", System.currentTimeMillis()
                 + expires);
 
-        response.setHeader("Accept-Ranges", "bytes");
-
-        String ranges = request.getHeader("Range");
+        // Turn off partial downloads, they cause problems
+        // and are only rarely used. Specifically some windows pdf
+        // viewers are incapable of handling this request. By
+        // uncommenting the following two lines you will turn this feature back on.
+        // response.setHeader("Accept-Ranges", "bytes");
+        // String ranges = request.getHeader("Range");
+        String ranges = null;
+        
 
         ByteRange byteRange = null;
         if (ranges != null)
