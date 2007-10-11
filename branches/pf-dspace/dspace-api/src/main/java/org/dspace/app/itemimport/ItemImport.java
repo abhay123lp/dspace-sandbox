@@ -65,6 +65,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.xpath.XPathAPI;
+
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
@@ -73,14 +74,15 @@ import org.dspace.content.Collection;
 import org.dspace.content.FormatIdentifier;
 import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
@@ -88,6 +90,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.workflow.WorkflowManager;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -879,11 +882,11 @@ public class ItemImport
         for (int i = 0; i < dcNodes.getLength(); i++)
         {
             Node n = dcNodes.item(i);
-            addDCValue(myitem, schema, n);
+            addDCValue(c, myitem, schema, n);
         }
     }
 
-    private void addDCValue(Item i, String schema, Node n)
+    private void addDCValue(Context c, Item i, String schema, Node n)
         throws TransformerException
     {
         String value = getStringValue(n); //n.getNodeValue();
@@ -932,7 +935,7 @@ public class ItemImport
         		return;
         	}
         	
-        	int schemaID = foundSchema.getSchemaID();
+        	int schemaID = foundSchema.getID();
         	MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
         	
         	if (foundField == null)

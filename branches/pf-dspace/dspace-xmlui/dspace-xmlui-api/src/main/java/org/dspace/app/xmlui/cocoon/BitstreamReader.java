@@ -219,9 +219,8 @@ public class BitstreamReader extends AbstractReader implements Recyclable
             else if (handle != null)
             {
             	// Reference by an item's handle.
-//            	DSpaceObject dso = HandleManager.resolveToObject(context,handle);
-                DSpaceObject dso =
-                    ObjectIdentifier.fromString(handle).getObject(context);
+//            	dso = HandleManager.resolveToObject(context,handle);
+                dso = ObjectIdentifier.fromString(handle).getObject(context);
 
             	if (dso instanceof Item && sequence > -1)
             	{
@@ -249,10 +248,12 @@ public class BitstreamReader extends AbstractReader implements Recyclable
             		// message that tells them the bitstream is restricted.
             		String redictURL = request.getContextPath() + "/handle/";
             		if (item!=null){
-            			redictURL += item.getHandle();
+//                        redictURL += item.getHandle();
+            			redictURL += item.getExternalIdentifier().getCanonicalForm();
             		}
             		else if(dso!=null){
-            			redictURL += dso.getHandle();
+//            			redictURL += dso.getHandle();
+                        redictURL += dso.getExternalIdentifier().getCanonicalForm();
             		}
             		redictURL += "/restricted-resource?bitstreamId=" + bitstream.getID();
 
