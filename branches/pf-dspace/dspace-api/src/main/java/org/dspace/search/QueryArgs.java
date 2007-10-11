@@ -39,16 +39,17 @@
  */
 package org.dspace.search;
 
-import org.apache.oro.text.perl.Perl5Util;
-import org.dspace.core.Constants;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+
+import org.dspace.core.Constants;
+
+import org.apache.oro.text.perl.Perl5Util;
 
 /**
  * Contains the arguments for a query. Fill it out and pass to the query engine

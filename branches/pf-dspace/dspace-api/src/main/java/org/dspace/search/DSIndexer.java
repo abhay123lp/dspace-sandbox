@@ -262,7 +262,7 @@ public class DSIndexer
                         log.info("Wrote Item: " + uri + " to Index");
                     }
                 }
-                
+
                 break;
                 
             case Constants.COLLECTION :
