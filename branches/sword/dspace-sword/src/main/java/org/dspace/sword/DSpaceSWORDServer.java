@@ -134,6 +134,7 @@ public class DSpaceSWORDServer implements SWORDServer
 	///////////////////
 	
 	private void constructContext(String ip)
+		throws SWORDException
 	{
 		try
 		{
@@ -142,6 +143,7 @@ public class DSpaceSWORDServer implements SWORDServer
 		catch (SQLException e)
 		{
 			log.error("caught exception: ", e);
+			throw new SWORDException("There was a problem with the database", e);
 		}
 		
 		// Set the session ID and IP address
