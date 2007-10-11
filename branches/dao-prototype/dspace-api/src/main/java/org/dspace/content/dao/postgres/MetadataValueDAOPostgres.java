@@ -224,7 +224,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "metadatavalue",
                     "SELECT metadata_value_id FROM metadatavalue " +
-                            "WHERE metadata_field_id = ? ",
+                    "WHERE metadata_field_id = ? ",
                     fieldID);
 
             List<MetadataValue> values = new ArrayList<MetadataValue>();

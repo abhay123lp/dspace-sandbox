@@ -129,7 +129,7 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
             if (dso == null)
                 return "0";
                 
-            return HashUtil.hash(dso.getIdentifier().getCanonicalForm());
+            return HashUtil.hash(dso.getExternalIdentifier().getCanonicalForm());
         }
         catch (SQLException sqle)
         {
@@ -217,7 +217,7 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
 				
 				String feedFormat = parts[0].trim()+"+xml";
 					
-				String feedURL = contextPath+"/feed/"+collection.getIdentifier().getCanonicalForm()+"/"+format.trim();
+				String feedURL = contextPath+"/feed/"+collection.getExternalIdentifier().getCanonicalForm()+"/"+format.trim();
 				pageMeta.addMetadata("feed", feedFormat).addContent(feedURL);
 			}
 		}
@@ -247,7 +247,7 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
 
             // Search query
             Division query = search.addInteractiveDivision("collection-search",
-                    contextPath + "/handle/" + collection.getIdentifier().getCanonicalForm() + "/search", 
+                    contextPath + "/handle/" + collection.getExternalIdentifier().getCanonicalForm() + "/search",
                     Division.METHOD_POST, "secondary search");
             
             Para para = query.addPara("search-query", null);
@@ -262,7 +262,7 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
             List browse = browseDiv.addList("collection-browse", List.TYPE_SIMPLE,
                     "collection-browse");
             browse.setHead(T_head_browse);
-            String url = contextPath + "/handle/" + collection.getIdentifier().getCanonicalForm();
+            String url = contextPath + "/handle/" + collection.getExternalIdentifier().getCanonicalForm();
             browse.addItemXref(url + "/browse-title",T_browse_titles);
             browse.addItemXref(url + "/browse-author",T_browse_authors);
             browse.addItemXref(url + "/browse-date",T_browse_dates);

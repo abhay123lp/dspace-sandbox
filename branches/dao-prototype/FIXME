@@ -18,3 +18,5 @@ Stuff that needs fixin':
  * After approving a workflow item, it says "...has been assigned the following
    identifier" and then gives the URL. Either change the text, or change the
    link to the actual identifier.
+ * Need to forward requests from <url>/handle/ and <url>/bitstream/ to the new
+   URI servlet, and have it mimic the previous behaviour.

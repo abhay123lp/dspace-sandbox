@@ -60,8 +60,7 @@ import org.dspace.workflow.WorkflowItem;
 /**
  * @author James Rutherford
  */
-public abstract class WorkflowItemDAO
-    implements CRUD<WorkflowItem>
+public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
 {
     protected Logger log = Logger.getLogger(WorkflowItemDAO.class);
 

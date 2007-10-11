@@ -262,7 +262,7 @@ public class DSpaceValidity implements SourceValidity
             Community community = (Community) dso;
 
             validityKey.append("Community:");
-            validityKey.append(community.getIdentifier().getCanonicalForm());
+            validityKey.append(community.getExternalIdentifier().getCanonicalForm());
             validityKey.append(community.getMetadata("introductory_text"));
             validityKey.append(community.getMetadata("short_description"));
             validityKey.append(community.getMetadata("side_bar_text"));
@@ -278,7 +278,7 @@ public class DSpaceValidity implements SourceValidity
             Collection collection = (Collection) dso;
             
             validityKey.append("Collection:");
-            validityKey.append(collection.getIdentifier().getCanonicalForm());
+            validityKey.append(collection.getExternalIdentifier().getCanonicalForm());
             validityKey.append(collection.getMetadata("introductory_text"));
             validityKey.append(collection.getMetadata("short_description"));
             validityKey.append(collection.getMetadata("side_bar_text"));
@@ -296,7 +296,7 @@ public class DSpaceValidity implements SourceValidity
             Item item = (Item) dso;
             
             validityKey.append("Item:");
-            validityKey.append(item.getIdentifier().getCanonicalForm());            
+            validityKey.append(item.getExternalIdentifier().getCanonicalForm());
             // Include all metadata values in the validity key.
             DCValue[] dcvs = item.getDC(Item.ANY,Item.ANY,Item.ANY);
             for (DCValue dcv : dcvs)
@@ -319,7 +319,7 @@ public class DSpaceValidity implements SourceValidity
 //        	BrowseItem browseItem = (BrowseItem) dso;
 //        	
 //        	validityKey.append("BrowseItem:");
-//        	validityKey.append(browseItem.getIdentifier().getCanonicalForm());
+//        	validityKey.append(browseItem.getExternalIdentifier().getCanonicalForm());
 //        	DCValue[] dcvs = browseItem.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
 //            for (DCValue dcv : dcvs)
 //            {

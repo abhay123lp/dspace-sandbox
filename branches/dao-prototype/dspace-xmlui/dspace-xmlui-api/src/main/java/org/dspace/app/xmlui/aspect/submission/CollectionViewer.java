@@ -89,7 +89,7 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
             if (dso == null)
                 return "0";
                 
-            return HashUtil.hash(dso.getIdentifier().getCanonicalForm());
+            return HashUtil.hash(dso.getExternalIdentifier().getCanonicalForm());
         }
         catch (SQLException sqle)
         {
@@ -163,7 +163,7 @@ public class CollectionViewer extends AbstractDSpaceTransformer implements Cache
         
         Division home = body.addDivision("collection-home","primary repository collection");
         Division viewer = home.addDivision("collection-view","secondary");
-        String submitURL = contextPath + "/handle/" + collection.getIdentifier().getCanonicalForm() + "/submit";
+        String submitURL = contextPath + "/handle/" + collection.getExternalIdentifier().getCanonicalForm() + "/submit";
         viewer.addPara().addXref(submitURL,"Submit a new item to this collection"); 
         
     }

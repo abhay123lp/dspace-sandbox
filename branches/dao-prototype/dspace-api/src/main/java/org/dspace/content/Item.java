@@ -811,47 +811,14 @@ public class Item extends DSpaceObject
      */
     public boolean isOwningCollection(Collection c)
     {
-        ourContext.addEvent(new Event(Event.DELETE, Constants.ITEM, getID(), getHandle()));
-
-        log.info(LogManager.getHeader(ourContext, "delete_item", "item_id="
-                + getID()));
-
-        // Remove from cache
-        ourContext.removeCached(this, getID());
-
-        // Remove from browse indices, if appropriate
-        /** XXX FIXME
-         ** Although all other Browse index updates are managed through
-         ** Event consumers, removing an Item *must* be done *here* (inline)
-         ** because otherwise, tables are left in an inconsistent state
-         ** and the DB transaction will fail.
-         ** Any fix would involve too much work on Browse code that
-         ** is likely to be replaced soon anyway.   --lcs, Aug 2006
-         **
-         ** NB Do not check to see if the item is archived - withdrawn /
-         ** non-archived items may still be tracked in some browse tables
-         ** for administrative purposes, and these need to be removed.
-         **/
-//        	 FIXME: there is an exception handling problem here
-        try
+        if (owningCollectionId > 0)
         {
-//            	 Remove from indicies
-            IndexBrowse ib = new IndexBrowse(ourContext);
-            ib.itemRemoved(this);
+            if (c.getID() == owningCollectionId)
+            {
+                return true;
+            }
         }
-        catch (BrowseException e)
-        {
-            log.error("caught exception: ", e);
-            throw new SQLException(e.getMessage());
-        }
-
-        // Delete the Dublin Core
-        removeMetadataFromDatabase();
-
-        // Remove bundles
-        Bundle[] bunds = getBundles();
-
-        for (int i = 0; i < bunds.length; i++)
+        else if (owningCollection != null)
         {
             if (c.getID() == owningCollection.getID())
             {

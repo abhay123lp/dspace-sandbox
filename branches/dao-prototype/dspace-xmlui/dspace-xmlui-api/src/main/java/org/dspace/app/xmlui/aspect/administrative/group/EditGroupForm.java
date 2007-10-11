@@ -288,7 +288,7 @@ public class EditGroupForm extends AbstractDSpaceTransformer
 	    {
 	    	Para para = main.addPara();
 	    	para.addContent(T_collection_para);
-	    	para.addXref(contextPath+"/handle/"+collection.getIdentifier().getCanonicalForm(), collection.getMetadata("name"));
+	    	para.addXref(contextPath+"/handle/"+collection.getExternalIdentifier().getCanonicalForm(), collection.getMetadata("name"));
 	    }
 	   
 
@@ -498,7 +498,7 @@ public class EditGroupForm extends AbstractDSpaceTransformer
 	        		
 	        		Highlight highlight = cell.addHighlight("fade");
 	        		highlight.addContent("[");
-	        		highlight.addXref(contextPath+"/handle/"+collection.getIdentifier().getCanonicalForm(), T_groups_collection_link);
+	        		highlight.addXref(contextPath+"/handle/"+collection.getExternalIdentifier().getCanonicalForm(), T_groups_collection_link);
 	        		highlight.addContent("]");
         		}
         	}

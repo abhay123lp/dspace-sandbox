@@ -140,7 +140,7 @@ public class SearchItemForm extends AbstractDSpaceTransformer {
 			if (dcTitles != null && dcTitles.length >= 1)
 				title = dcTitles[0].value;
 
-			String url = contextPath+"/handle/"+item.getIdentifier().getCanonicalForm();
+			String url = contextPath+"/handle/"+item.getExternalIdentifier().getCanonicalForm();
 			
 			Row row = table.addRow();
 			
