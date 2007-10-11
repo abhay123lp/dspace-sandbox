@@ -51,3 +51,22 @@ Installation
 
 - Import the metadata registry entries required using the file
   config/registries/sword-metadata.xml
+  
+- Copy the default ingest crosswalk from the file
+  config/crosswalks/sword-swap-ingest.xsl
+  into the dspace directory config/crosswalks
+  
+Testing
+-------
+
+Supplied along with the source code is a package which can
+be used for testing.  This consists of a manifest.xml file,
+which is a METS document containing a Dublin Core XML section
+of descriptive metadata which conforms to the SWAP standard.
+Thera are additionally 3 example PDF files and a single plain
+text file licence.txt which contains an example deposit licence.
+
+These files are provided additionally inside a zip file which
+should form the content of a deposit request.
+
+These files are all available in the directory: test
