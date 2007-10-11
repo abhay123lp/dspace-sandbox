@@ -46,7 +46,7 @@
        other servlets. -->
   <servlet>
     <servlet-name>load-dspace-config</servlet-name>
-    <servlet-class>org.dspace.app.webui.servlet.LoadDSpaceConfig</servlet-class>
+    <servlet-class>org.dspace.sword.LoadDSpaceConfig</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
 
@@ -72,4 +72,11 @@
     <url-pattern>/deposit/*</url-pattern>
   </servlet-mapping>
 
+<!-- does this work?  how do you set the default servlet if no other urls match -->
+<!-- 
+  <servlet-mapping>
+    <servlet-name>default</servlet-name>
+    <url-pattern>/*</url-pattern>
+  </servlet-mapping> -->
+  
 </web-app>
