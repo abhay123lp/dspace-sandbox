@@ -6,7 +6,7 @@ SF Patch 1794700  Bug fix for stat-monthly and stat-report-monthly
 - Added IP Authentication (SF patch #1566820)
 
 (Richard Jones)
-- S.F. Patch 1670093 More stable metadata and schema registry import 
+- S.F. Patch 1670093 More stable metadata and schema registry import
 
 (Richard Jones / Graham Triggs)
 - New Browse code that allows customisation of the available indexes via dspace.cfg,
@@ -15,7 +15,7 @@ SF Patch 1794700  Bug fix for stat-monthly and stat-report-monthly
   (S.F. Patches 1702233 and 1672065)
 
 (Flavio Botelho)
-- S.F. Patch 1764069 Replace "String" with "Integer" in PreparedStatement 
+- S.F. Patch 1764069 Replace "String" with "Integer" in PreparedStatement
   Parameters where appropriate.
 - SF Patch 1743188 Patch for Request #1145499 - Move Items
 
@@ -46,12 +46,11 @@ SF Patch 1794700  Bug fix for stat-monthly and stat-report-monthly
 (Claudia Juergen)
 - SF Patch #1722557 for SF Bug #1549290 Suggest Features uses hard coded strings
 - SF Patch #1450491 i18n configurable multilingualism support
+- SF Patch #1638569 for SF Bug #1638565 Database Upgrade 12 to 13 missing content on new colums
 
 (James Rutherford)
 - Fixed SF bug #1727034 Method MetadataField.unique() is incorrect for null values
 - Fixed SF bug #1614546 get rid of unused mets_bitstream_id column
-- SF Patch #1638569 for SF Bug #1638565 Database Upgrade 12 to 13 missing content on new colums
-- SF Patch #1620700 Add Community and Sub-Community to OAI Sets
 - Removed unnecessary and unused edu.mit.dspace.MITSpecialGroup
 
 (Tim Donohue)
@@ -69,6 +68,9 @@ SF Patch 1794700  Bug fix for stat-monthly and stat-report-monthly
 
 (Robert Tansley / Stuart Lewis)
 - SF Patch #1587225 Google and html sitemap generator
+
+(Zuki Ebetsu)
+- SF Patch #1620700 Add Community and Sub-Community to OAI Sets
 
 1.4.2 beta
 ===========

@@ -30,20 +30,34 @@
 		</plugins>
 	</build>
 
-	<repositories>
-		<repository>
-			<id>maven.dspace.org</id>
-			<name>DSpace Maven Repository</name>
-			<url>http://maven.dspace.org</url>
-			<releases>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</releases>
-			<snapshots>
-				<updatePolicy>always</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-		</repository>
+    <repositories>
+         <repository>
+            <!--  remove once we have rsync with maven central -->
+            <id>maven.dspace.org</id>
+            <name>DSpace Maven Release Repository</name>
+            <url>http://maven.dspace.org/release</url>
+            <releases>
+                <enabled>true</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>maven.dspace.org</id>
+            <name>DSpace Maven Snapshot Repository</name>
+            <url>http://maven.dspace.org/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
 		<repository>
 			<id>central</id>
             <name>Central Maven Repository</name>
@@ -89,16 +103,6 @@
 				<artifactId>dspace-api</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-            <dependency>
-                <groupId>org.dspace</groupId>
-                <artifactId>dspace-storage-postgres</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.dspace</groupId>
-                <artifactId>dspace-storage-oracle</artifactId>
-                <version>${project.version}</version>
-            </dependency>
              <dependency>
 				<groupId>org.dspace</groupId>
 				<artifactId>language-packs</artifactId>
@@ -106,12 +110,12 @@
 			</dependency>
 			<dependency>
 				<groupId>org.dspace</groupId>
-				<artifactId>jspui</artifactId>
+				<artifactId>dspace-jspui</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.dspace</groupId>
-				<artifactId>oai</artifactId>
+				<artifactId>dspace-oai</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -149,11 +153,11 @@
                 <artifactId>ant</artifactId>
                 <version>1.7.0</version>
             </dependency>
-			<dependency>
-				<groupId>org.dspace</groupId>
-				<artifactId>jena</artifactId>
-				<version>1.4.0</version>
-			</dependency>
+            <dependency>
+               <groupId>org.apache.lucene</groupId>
+               <artifactId>lucene-core</artifactId>
+               <version>2.2.0</version>
+            </dependency>
 			<dependency>
 				<groupId>org.dspace</groupId>
 				<artifactId>handle</artifactId>
@@ -170,22 +174,7 @@
 				<version>1.5.2</version>
 			</dependency>
 			<dependency>
-				<groupId>org.dspace</groupId>
-				<artifactId>bcprov-jdk15</artifactId>
-				<version>136</version>
-			</dependency>
-			<dependency>
-				<groupId>org.dspace</groupId>
-				<artifactId>bcmail-jdk15</artifactId>
-				<version>136</version>
-			</dependency>
-			<dependency>
-				<groupId>org.dspace</groupId>
-				<artifactId>lucene</artifactId>
-				<version>2.1.0</version>
-			</dependency>
-			<dependency>
-				<groupId>org.dspace</groupId>
+				<groupId>org.textmining</groupId>
 				<artifactId>tm-extractors</artifactId>
 				<version>0.4</version>
 			</dependency>
@@ -250,7 +239,8 @@
 				<groupId>javax.servlet</groupId>
 				<artifactId>servlet-api</artifactId>
 				<version>2.3</version>
-			</dependency>
+                <scope>provided</scope>
+            </dependency>
 			
 			<dependency>
 				<groupId>jaxen</groupId>

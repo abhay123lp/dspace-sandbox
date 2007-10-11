@@ -921,6 +921,26 @@ public class ItemImport
         {
             i.addMetadata(schema, element, qualifier, language, value);
         }
+        else
+        {
+        	// If we're just test the import, let's check that the actual metadata field exists.
+        	MetadataSchema foundSchema = MetadataSchema.find(c,schema);
+        	
+        	if (foundSchema == null)
+        	{
+        		System.out.println("ERROR: schema '"+schema+"' was not found in the registry.");
+        		return;
+        	}
+        	
+        	int schemaID = foundSchema.getSchemaID();
+        	MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
+        	
+        	if (foundField == null)
+        	{
+        		System.out.println("ERROR: Metadata field: '"+schema+"."+element+"."+qualifier+"' was not found in the registry.");
+        		return;
+            }		
+        }
     }
 
     /**

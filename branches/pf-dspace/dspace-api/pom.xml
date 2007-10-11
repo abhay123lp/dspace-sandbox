@@ -26,10 +26,6 @@
    <dependencies>
       <dependency>
          <groupId>org.dspace</groupId>
-         <artifactId>jena</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.dspace</groupId>
          <artifactId>handle</artifactId>
       </dependency>
       <dependency>
@@ -41,20 +37,12 @@
          <artifactId>mets</artifactId>
       </dependency>
       <dependency>
-         <groupId>org.dspace</groupId>
-         <artifactId>bcprov-jdk15</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.dspace</groupId>
-         <artifactId>bcmail-jdk15</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.dspace</groupId>
-         <artifactId>lucene</artifactId>
-      </dependency>
-      <dependency>
-         <groupId>org.dspace</groupId>
+         <groupId>org.textmining</groupId>
          <artifactId>tm-extractors</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.apache.lucene</groupId>
+         <artifactId>lucene-core</artifactId>
       </dependency>
       <dependency>
          <groupId>commons-cli</groupId>
@@ -95,6 +83,7 @@
       <dependency>
          <groupId>javax.servlet</groupId>
          <artifactId>servlet-api</artifactId>
+         <scope>provided</scope>
       </dependency>
       <dependency>
          <groupId>jaxen</groupId>

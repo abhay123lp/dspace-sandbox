@@ -17,12 +17,26 @@
    </parent>
    
     <repositories>
-        <repository>
+         <repository>
+            <!--  remove once we have rsync with maven central -->
             <id>maven.dspace.org</id>
-            <name>DSpace Maven Repository</name>
-            <url>http://maven.dspace.org</url>
+            <name>DSpace Maven Release Repository</name>
+            <url>http://maven.dspace.org/release</url>
             <releases>
                 <enabled>true</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>maven.dspace.org</id>
+            <name>DSpace Maven Snapshot Repository</name>
+            <url>http://maven.dspace.org/snapshot</url>
+            <releases>
+                <enabled>false</enabled>
                 <checksumPolicy>fail</checksumPolicy>
             </releases>
             <snapshots>
@@ -43,12 +57,17 @@
          http://dspace.svn.sourceforge.net/viewvc/dspace/trunk/dspace-lni/dspace-lni-webapp
       </url>
    </scm>
-   
+
    <dependencies>
-		<dependency>
-			<groupId>org.dspace</groupId>
-			<artifactId>dspace-lni-core</artifactId>
-		</dependency>
-	</dependencies>
-	
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-lni-core</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>servlet-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+   </dependencies>
+
 </project>

@@ -188,7 +188,7 @@
     <servlet-name>edit-item</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.admin.EditItemServlet</servlet-class>
   </servlet>
-  
+
   <servlet>
     <servlet-name>edit-news</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.admin.NewsEditServlet</servlet-class>
@@ -208,7 +208,7 @@
     <servlet-name>group-select-list</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.admin.GroupListServlet</servlet-class>
   </servlet>
-  
+
   <servlet>
     <servlet-name>feed</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.FeedServlet</servlet-class>
@@ -310,12 +310,12 @@
     <servlet-name>retrieve</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.RetrieveServlet</servlet-class>
   </servlet>
-  
+
   <servlet>
     <servlet-name>simple-search</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.SimpleSearchServlet</servlet-class>
   </servlet>
-  
+
   <servlet>
     <servlet-name>sitemap</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.SitemapServlet</servlet-class>
@@ -344,7 +344,7 @@
     <servlet-name>subscribe</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.SubscribeServlet</servlet-class>
   </servlet>
-  
+
   <servlet>
     <servlet-name>suggest</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.SuggestServlet</servlet-class>
@@ -374,12 +374,12 @@
     <servlet-name>controlledvocabulary</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.ControlledVocabularyServlet</servlet-class>
   </servlet>
-  
+
   <servlet>
     <servlet-name>subject-search</servlet-name>
     <servlet-class>org.dspace.app.webui.servlet.ControlledVocabularySearchServlet</servlet-class>
-  </servlet>  
-  
+  </servlet>
+
 
   <!-- Servlet Mappings -->
 
@@ -432,7 +432,7 @@
     <servlet-name>edit-item</servlet-name>
     <url-pattern>/tools/edit-item</url-pattern>
   </servlet-mapping>
-  
+
   <servlet-mapping>
     <servlet-name>edit-news</servlet-name>
     <url-pattern>/dspace-admin/news-edit</url-pattern>
@@ -447,17 +447,17 @@
     <servlet-name>eperson-list</servlet-name>
     <url-pattern>/tools/eperson-list</url-pattern>
   </servlet-mapping>
-  
+
   <servlet-mapping>
     <servlet-name>group-select-list</servlet-name>
     <url-pattern>/tools/group-select-list</url-pattern>
   </servlet-mapping>
-  
+
  <servlet-mapping>
     <servlet-name>itemmap</servlet-name>
     <url-pattern>/tools/itemmap</url-pattern>
   </servlet-mapping>
-  
+
   <servlet-mapping>
     <servlet-name>feed</servlet-name>
     <url-pattern>/feed/*</url-pattern>
@@ -562,7 +562,7 @@
     <servlet-name>simple-search</servlet-name>
     <url-pattern>/simple-search</url-pattern>
   </servlet-mapping>
-  
+
   <servlet-mapping>
     <servlet-name>sitemap</servlet-name>
     <url-pattern>/sitemap</url-pattern>
