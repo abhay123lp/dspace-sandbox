@@ -42,7 +42,6 @@ public class SWORDService
 
 			// construct a new service document
 			Service service = new Service(sl, noOp, verbose);
-			ServiceDocument sd = new ServiceDocument(service);
 
 			// set the title of the workspace as per the name of the DSpace installation
 			String ws = ConfigurationManager.getProperty("dspace.name");
@@ -59,6 +58,9 @@ public class SWORDService
 				workspace.addCollection(scol);
 			}
 			
+			service.addWorkspace(workspace);
+			
+			ServiceDocument sd = new ServiceDocument(service);
 			return sd;
 		}
 		catch (SQLException e)
