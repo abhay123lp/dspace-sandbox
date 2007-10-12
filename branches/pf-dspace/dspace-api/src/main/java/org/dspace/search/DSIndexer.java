@@ -217,7 +217,7 @@ public class DSIndexer
      * and the "dso" has a lastModified timestamp that is newer than the
      * document in the index then it is updated, otherwise a new document is
      * added.
-     * 
+     *
      * @param context Users Context
      * @param dso DSpace Object (Item, Collection or Community
      * @param force Force update even if not stale.
