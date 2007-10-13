@@ -167,7 +167,7 @@ public class DSpaceSWORDServer implements SWORDServer
 	private void authenticate(String un, String pw, String obo)
 		throws SWORDAuthenticationException, SWORDException
 	{
-		log.info(LogManager.getHeader(context, "sword_authenticate", "username=" + un + "on_behalf_of=" + obo));
+		log.info(LogManager.getHeader(context, "sword_authenticate", "username=" + un + ",on_behalf_of=" + obo));
 		try
 		{
 			// attempt to authenticate the primary user

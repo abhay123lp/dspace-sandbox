@@ -76,7 +76,6 @@ public class SWORDService
 		org.purl.sword.base.Collection scol = new org.purl.sword.base.Collection();
 		
 		// prepare the parameters to be put in the sword collection
-		// FIXME: is this the URL it wants?  Or do we want a URL to publish to
 		CollectionLocation cl = new CollectionLocation();
 		String location = cl.getLocation(col);
 		
@@ -87,9 +86,9 @@ public class SWORDService
 		String collectionPolicy = col.getLicense();
 		
 		// FIXME: what is the treatment?
-		String treatment = "";
+		// String treatment = " ";
 		
-		// FIXME: this might be internal to SWORD - difficult to tell
+		// FIXME: this might be internal to SWORD - difficult to tell.  What is it?
 		// String namespace = "";
 		
 		// abstract is the short description of the collection
@@ -104,29 +103,28 @@ public class SWORDService
 		
 		// load up the sword collection
 		scol.setLocation(location);
-		scol.setTitle(title);
-		scol.setCollectionPolicy(collectionPolicy);
-		scol.setTreatment(treatment);
-		scol.setAbstract(dcAbstract);
+		
+		if (title != null && !"".equals(title))
+		{
+			scol.setTitle(title);
+		}
+		
+		if (collectionPolicy != null && !"".equals(collectionPolicy))
+		{
+			scol.setCollectionPolicy(collectionPolicy);
+		}
+		
+		// FIXME: leave the treatment out for the time being
+		// scol.setTreatment(treatment);
+		
+		if (dcAbstract != null && !"".equals(dcAbstract))
+		{
+			scol.setAbstract(dcAbstract);
+		}
+		
 		scol.setMediation(mediation);
 		scol.addAccepts(zip);
 		
 		return scol;
-	}
-	
-	private String getDepositURL(Collection collection)
-		throws DSpaceSWORDException
-	{
-		String depositUrl = ConfigurationManager.getProperty("sword.deposit.url");
-		if (depositUrl == null || "".equals(depositUrl))
-		{
-			String dspaceUrl = ConfigurationManager.getProperty("dspace.url");
-			if (dspaceUrl == null || "".equals(dspaceUrl))
-			{
-				throw new DSpaceSWORDException("Unable to construct deposit urls, due to missing/invalid config in sword.deposit.url and/or dspace.url");
-			}
-			depositUrl = dspaceUrl + "/dspace-sword/deposit";
-		}
-		return depositUrl + "/" + collection.getHandle();
 	}
 }
