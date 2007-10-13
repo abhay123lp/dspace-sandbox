@@ -49,7 +49,7 @@ public class DSpaceSWORDServer implements SWORDServer
 		{
 			// first authenticate the request
 			// note: this will build our context for us
-			this.authenticate(request);
+			SWORDContext sc = this.authenticate(request);
 			
 			// log the request
 			log.info(LogManager.getHeader(context, "sword_service_document_request", "username=" + request.getUsername() + ",on_behalf_of=" + request.getOnBehalfOf()));
@@ -57,6 +57,7 @@ public class DSpaceSWORDServer implements SWORDServer
 			// prep the service request, then get the service document out of it
 			SWORDService service = new SWORDService();
 			service.setContext(context);
+			service.setSWORDContext(sc);
 			ServiceDocument doc = service.getServiceDocument();
 			
 			return doc;
@@ -123,7 +124,7 @@ public class DSpaceSWORDServer implements SWORDServer
 		{
 			// if, for some reason, we wind up here with a not null context
 			// then abort it (the above should commit it if everything works fine)
-			if (context != null)
+			if (context != null && context.isValid())
 			{
 				context.abort();
 			}
@@ -150,38 +151,39 @@ public class DSpaceSWORDServer implements SWORDServer
         this.context.setExtraLogInfo("session_id=0:ip_addr=" + ip);
 	}
 	
-	private void authenticate(ServiceDocumentRequest request)
+	private SWORDContext authenticate(ServiceDocumentRequest request)
 		throws SWORDAuthenticationException, SWORDException
 	{
 		this.constructContext(request.getIPAddress());
-		this.authenticate(request.getUsername(), request.getPassword(), request.getOnBehalfOf());
+		return this.authenticate(request.getUsername(), request.getPassword(), request.getOnBehalfOf());
 	}
 	
-	private void authenticate(Deposit deposit)
+	private SWORDContext authenticate(Deposit deposit)
 		throws SWORDAuthenticationException, SWORDException
 	{
 		this.constructContext(deposit.getIPAddress());
-		this.authenticate(deposit.getUsername(), deposit.getPassword(), deposit.getOnBehalfOf());
+		return this.authenticate(deposit.getUsername(), deposit.getPassword(), deposit.getOnBehalfOf());
 	}
 	
-	private void authenticate(String un, String pw, String obo)
+	private SWORDContext authenticate(String un, String pw, String obo)
 		throws SWORDAuthenticationException, SWORDException
 	{
 		log.info(LogManager.getHeader(context, "sword_authenticate", "username=" + un + ",on_behalf_of=" + obo));
 		try
 		{
 			// attempt to authenticate the primary user
+			SWORDContext sc = new SWORDContext();
 			SWORDAuthentication auth = new SWORDAuthentication();
 			EPerson ep = null;
 			if (auth.authenticates(this.context, un, pw))
 			{
+				ep = EPerson.findByEmail(context, un);
+				sc.setAuthenticated(ep);
+				
 				if (obo != null)
 				{
-					ep = EPerson.findByEmail(this.context, obo);
-				}
-				else
-				{
-					ep = EPerson.findByEmail(this.context, un);
+					EPerson epObo= EPerson.findByEmail(this.context, obo);
+					sc.setOnBehalfOf(epObo);
 				}
 			}
 			
@@ -196,6 +198,8 @@ public class DSpaceSWORDServer implements SWORDServer
 				log.info(LogManager.getHeader(context, "sword_unable_to_set_user", "username=" + un + ",on_behalf_of=" + obo));
 				throw new SWORDAuthenticationException("Unable to authenticate the supplied used or onBehalfOf account");
 			}
+			
+			return sc;
 		}
 		catch (SQLException e)
 		{

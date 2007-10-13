@@ -1,6 +1,7 @@
 package org.dspace.sword;
 
 import org.apache.log4j.Logger;
+import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 
@@ -11,9 +12,13 @@ import org.purl.sword.base.Workspace;
 
 import org.dspace.content.Collection;
 import java.sql.SQLException;
+import java.util.Set;
+
 import org.dspace.handle.HandleManager;
 
 import org.dspace.core.ConfigurationManager;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.EPerson;
 
 public class SWORDService
 {
@@ -21,9 +26,16 @@ public class SWORDService
 	
 	private Context context;
 	
+	private SWORDContext swordContext;
+	
 	public void setContext(Context context)
 	{
 		this.context = context;
+	}
+	
+	public void setSWORDContext(SWORDContext sc)
+	{
+		this.swordContext = sc;
 	}
 	
 	public ServiceDocument getServiceDocument()
@@ -52,8 +64,22 @@ public class SWORDService
 			Collection[] cols = Collection.findAuthorized(context, null, Constants.ADD);
 			
 			// add the permissable collections to the workspace
+			boolean obo = (swordContext.getOnBehalfOf() == null ? false : true);
 			for (int i = 0; i < cols.length; i++)
 			{
+				// we check each collection to see if the onBehalfOf user
+				// is permitted to deposit
+				if (obo)
+				{
+					// urgh, this is so inefficient, but the authorisation API is
+					// a total hellish nightmare
+					Group subs = cols[i].getSubmitters();
+					if (!isInGroup(subs, swordContext.getOnBehalfOf()) && !isAdmin(swordContext.getOnBehalfOf()))
+					{
+						continue;
+					}
+				}
+				
 				org.purl.sword.base.Collection scol = this.buildSwordCollection(cols[i]);
 				workspace.addCollection(scol);
 			}
@@ -68,6 +94,43 @@ public class SWORDService
 			log.error("caught exception: ", e);
 			throw new DSpaceSWORDException("There was a problem obtaining the list of authorized collections", e);
 		}
+	}
+	
+	private boolean isAdmin(EPerson eperson)
+		throws SQLException
+	{
+		Group admin = Group.find(context, 1);
+		return admin.isMember(eperson);
+	}
+	
+	private boolean isInGroup(Group group, EPerson eperson)
+	{
+		EPerson[] eps = group.getMembers();
+		Group[] groups = group.getMemberGroups();
+		
+		// is the user in the current group
+		for (int i = 0; i < eps.length; i++)
+		{
+			if (eperson.getID() == eps[i].getID())
+			{
+				return true;
+			}
+		}
+		
+		// is the eperson in the sub-groups (recurse)
+		if (groups != null && groups.length > 0)
+		{
+			for (int j = 0; j < groups.length; j++)
+			{
+				if (isInGroup(groups[j], eperson))
+				{
+					return true;
+				}
+			}
+		}
+		
+		// ok, we didn't find you
+		return false;
 	}
 	
 	private org.purl.sword.base.Collection buildSwordCollection(Collection col)
