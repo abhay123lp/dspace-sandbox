@@ -37,6 +37,11 @@ crosswalk.submission.SWORD.stylesheet = crosswalks/sword-swap-ingest.xsl
 #
 # The default is {dspace.url}/dspace-sword/deposit
 #
+# In the event that you are not deploying DSpace as the ROOT
+# application in the servlet container, this will generate
+# incorrect URLs, and you should override the functionality
+# by specifying in full as below:
+#
 # sword.deposit.url = http://www.myu.ac.uk/dspace-sword/deposit
 
 # The metadata field in which to store the updated date for 
