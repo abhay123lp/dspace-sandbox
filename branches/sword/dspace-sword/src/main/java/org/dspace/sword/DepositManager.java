@@ -14,6 +14,11 @@ import java.io.InputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import org.dspace.content.Collection;
+import java.io.IOException;
+import org.dspace.authorize.AuthorizeException;
+import java.sql.SQLException;
+
 public class DepositManager
 {
 	public static Logger log = Logger.getLogger(DepositManager.class);
@@ -53,9 +58,25 @@ public class DepositManager
 		DepositResult result = si.ingest(context, deposit);
 
 		// now construct the deposit response
-		DepositResponse response = new DepositResponse(Deposit.CREATED);
+		String handle = result.getHandle();
+		int state = Deposit.CREATED;
+		if (handle == null || "".equals(handle))
+		{
+			state = Deposit.ACCEPTED;
+		}
+		DepositResponse response = new DepositResponse(state);
 		DSpaceATOMEntry dsatom = new DSpaceATOMEntry();
-		SWORDEntry entry = dsatom.getSWORDEntry(result.getItem(), result.getHandle());
+		SWORDEntry entry = dsatom.getSWORDEntry(result.getItem(), handle, deposit.isNoOp());
+		
+		// if this was a no-op, we need to remove the files we just
+		// deposited, and abort the transaction
+		String nooplog = "";
+		if (deposit.isNoOp())
+		{
+			this.undoDeposit(result);
+			nooplog = "NoOp Requested: Removed all traces of submission; \n\n";
+		}
+		
 		entry.setNoOp(deposit.isNoOp());
 		
 		if (deposit.isVerbose())
@@ -63,18 +84,11 @@ public class DepositManager
 			String verboseness = result.getVerboseDescription();
 			if (verboseness != null && !"".equals(verboseness))
 			{
-				entry.setVerboseDescription(result.getVerboseDescription());
+				entry.setVerboseDescription(result.getVerboseDescription() + nooplog);
 			}
 		}
 		
 		response.setEntry(entry);
-		
-		// if this was a no-op, we need to remove the files we just
-		// deposited, and abort the transaction
-		if (deposit.isNoOp())
-		{
-			this.undoDeposit(result);
-		}
 		
 		return response;
 	}
@@ -88,8 +102,39 @@ public class DepositManager
 	}
 	
 	private void undoDeposit(DepositResult result)
+		throws DSpaceSWORDException
 	{
-		// FIXME: what do we need to do to know how to do this?
+		try
+		{
+			// obtain the item's owning collection (there can be only one)
+			// and ask it to remove the item.  Although we're going to abort
+			// the context, so that this nevers gets written to the db,
+			// it will get rid of the files on the disk
+			Item item = result.getItem();
+			Collection collection = item.getOwningCollection();
+			collection.removeItem(item);
+
+			// abort the context, so no database changes are written
+			if (context != null && context.isValid())
+			{
+				context.abort();
+			}
+		}
+		catch (IOException e)
+		{
+			log.error("caught exception: ", e);
+			throw new DSpaceSWORDException(e);
+		}
+		catch (AuthorizeException e)
+		{
+			log.error("authentication problem; caught exception: ", e);
+			throw new DSpaceSWORDException(e);
+		}
+		catch (SQLException e)
+		{
+			log.error("caught exception: ", e);
+			throw new DSpaceSWORDException(e);
+		}
 	}
 	
 	

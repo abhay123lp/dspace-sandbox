@@ -38,7 +38,7 @@ public class DSpaceATOMEntry
 	
 	protected Item item;
 	
-	public SWORDEntry getSWORDEntry(Item item, String handle)
+	public SWORDEntry getSWORDEntry(Item item, String handle, boolean noOp)
 	{
 		entry = new SWORDEntry();
 		this.item = item;
@@ -55,8 +55,12 @@ public class DSpaceATOMEntry
 		// add contributors (authors plus any other bits) to the sword entry
 		this.addContributors();
 		
-		// add the identifier for the item
-		this.addIdentifier(handle);
+		// add the identifier for the item, if the id is going
+		// to be valid by the end of the request
+		if (!noOp)
+		{
+			this.addIdentifier(handle);
+		}
 		
 		// add any appropriate links
 		this.addLinks();
