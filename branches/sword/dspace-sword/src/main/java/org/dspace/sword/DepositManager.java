@@ -55,13 +55,22 @@ public class DepositManager
 		// now construct the deposit response
 		DepositResponse response = new DepositResponse(Deposit.CREATED);
 		DSpaceATOMEntry dsatom = new DSpaceATOMEntry();
-		SWORDEntry entry = dsatom.getSWORDEntry(result.getItem());
+		SWORDEntry entry = dsatom.getSWORDEntry(result.getItem(), result.getHandle());
 		entry.setNoOp(deposit.isNoOp());
-		entry.setVerboseDescription(result.getVerboseDescription());
+		
+		if (deposit.isVerbose())
+		{
+			String verboseness = result.getVerboseDescription();
+			if (verboseness != null && !"".equals(verboseness))
+			{
+				entry.setVerboseDescription(result.getVerboseDescription());
+			}
+		}
+		
 		response.setEntry(entry);
 		
 		// if this was a no-op, we need to remove the files we just
-		// deposited, and remove abort the transaction
+		// deposited, and abort the transaction
 		if (deposit.isNoOp())
 		{
 			this.undoDeposit(result);

@@ -27,6 +27,10 @@ import org.dspace.content.WorkspaceItem;
 import java.util.Date;
 import java.util.StringTokenizer;
 
+import org.dspace.workflow.WorkflowManager;
+import org.dspace.workflow.WorkflowItem;
+import org.dspace.handle.HandleManager;
+
 public class SWORDMETSIngester implements SWORDIngester
 {
 	public static Logger log = Logger.getLogger(SWORDMETSIngester.class);
@@ -82,19 +86,39 @@ public class SWORDMETSIngester implements SWORDIngester
 				throw new DSpaceSWORDException("Package Ingest failed");
 			}
 			
+			// now we can inject the newly constructed item into the workflow
+			WorkflowItem wfi = WorkflowManager.startWithoutNotify(context, wsi);
+			
+			// pull the item out so that we can report on it
+			Item installedItem = wfi.getItem();
+			
 			// update the item metadata to inclue the current time as
 			// the updated date
-			this.setUpdatedDate(wsi.getItem());
+			this.setUpdatedDate(installedItem);
+			installedItem.update();
+			
+			// for some reason, DSpace will not give you the handle automatically,
+			// so we have to look it up
+			String handle = HandleManager.findHandle(context, installedItem);
+			
+			// now we have to prove something about handle handling (!), by
+			// re-loading the item to ensure that the handle it set
+			// Item installedItem = Item.find(context, item.getID());
 			
 			message("Ingest successful");
-			message("Item created with internal identifier: " + wsi.getItem().getID());
-			if (wsi.getItem().getHandle() != null)
+			message("Item created with internal identifier: " + installedItem.getID());
+			if (handle != null)
 			{
-				message("Item created with external identifier: " + wsi.getItem().getHandle());
+				message("Item created with external identifier: " + handle);
+			}
+			else
+			{
+				message("No external identifier available at this stage (item in workflow)");
 			}
 			
 			DepositResult dr = new DepositResult();
-			dr.setItem(wsi.getItem());
+			dr.setItem(installedItem);
+			dr.setHandle(handle);
 			dr.setVerboseDescription(verboseDesc.toString());
 			
 			return dr;

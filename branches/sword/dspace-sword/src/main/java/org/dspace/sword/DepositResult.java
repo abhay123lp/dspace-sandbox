@@ -4,6 +4,8 @@ import org.dspace.content.Item;
 
 public class DepositResult
 {
+	private String handle;
+	
 	private Item item;
 
 	private String verboseDescription;
@@ -15,7 +17,6 @@ public class DepositResult
 	{
 		return item;
 	}
-
 	
 	/**
 	 * @param item the item to set
@@ -25,8 +26,16 @@ public class DepositResult
 		this.item = item;
 	}
 
+	public String getHandle() 
+	{
+		return handle;
+	}
 
-	
+	public void setHandle(String handle) 
+	{
+		this.handle = handle;
+	}
+
 	/**
 	 * @return the verboseDescription
 	 */

@@ -38,7 +38,7 @@ public class DSpaceATOMEntry
 	
 	protected Item item;
 	
-	public SWORDEntry getSWORDEntry(Item item)
+	public SWORDEntry getSWORDEntry(Item item, String handle)
 	{
 		entry = new SWORDEntry();
 		this.item = item;
@@ -56,7 +56,7 @@ public class DSpaceATOMEntry
 		this.addContributors();
 		
 		// add the identifier for the item
-		this.addIdentifier();
+		this.addIdentifier(handle);
 		
 		// add any appropriate links
 		this.addLinks();
@@ -141,9 +141,18 @@ public class DSpaceATOMEntry
 		}
 	}
 	
-	protected void addIdentifier()
+	protected void addIdentifier(String handle)
 	{
-		entry.setId(HandleManager.getCanonicalForm(item.getHandle()));
+		// it's possible that the item hasn't been assigned a handle yet
+		if (item.getHandle() != null)
+		{
+			handle = item.getHandle();
+		}
+		
+		if (handle != null && !"".equals(handle))
+		{
+			entry.setId(HandleManager.getCanonicalForm(handle));
+		}
 	}
 	
 	protected void addLinks()
