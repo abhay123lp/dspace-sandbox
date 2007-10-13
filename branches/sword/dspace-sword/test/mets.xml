@@ -1,16 +1,28 @@
-<mets:mets OBJID="sword-mets"
-	xsi:schemaLocation="http://www.loc.gov/METS/ 
-						http://www.loc.gov/mets/mets.xsd">
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<mets ID="sort-mets_mets" 
+		OBJID="sword-mets" 
+		LABEL="DSpace SWORD Item" 
+		PROFILE="DSpace METS SIP Profile 1.0" 
+		xmlns="http://www.loc.gov/METS/" 
+		xmlns:xlink="http://www.w3.org/1999/xlink" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:schemaLocation="http://www.loc.gov/METS/ http://www.loc.gov/standards/mets/mets.xsd">
+		
+ <metsHdr CREATEDATE="2007-09-01T00:00:00">
+  <agent ROLE="CUSTODIAN" TYPE="ORGANIZATION">
+   <name>Richard Jones</name>
+  </agent>
+ </metsHdr>
+ <dmdSec ID="sword-mets-dmd-1" GROUPID="sword-mets-dmd-1_group-1">
+  <mdWrap LABEL="SWAP Metadata" MDTYPE="OTHER" OTHERMDTYPE="EPDCX" MIMETYPE="text/xml">
 
-	<mets:dmdSec ID="sword-mets-dmd-1">
-		<mets:mdWrap LABEL="SWAP Metadata" MDTYPE="OTHER" OTHERMDTYPE="EPDCX" MIMETYPE="text/xml">
-			<mets:xmlData>
+<xmlData>
 				<epdcx:descriptionSet
 					xmlns:epdcx="http://purl.org/eprint/epdcx/2006-11-16/"
 					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 					xsi:schemaLocation="http://purl.org/eprint/epdcx/2006-11-16/ http://purl.org/eprint/epdcx/xsd/2006-11-16/epdcx.xsd">
 
-					<epdcx:description epdcx:resourceID="sword-mets-epdcx-1">
+					<epdcx:description epdcx:resourceId="sword-mets-epdcx-1">
 						<epdcx:statement epdcx:propertyURI="http://purl.org/dc/elements/1.1/type" epdcx:valueURI="http://purl.org/eprint/entityType/ScholarlyWork" />
 						<epdcx:statement epdcx:propertyURI="http://purl.org/dc/elements/1.1/title">
 							<epdcx:valueString>
@@ -81,49 +93,83 @@
 						</epdcx:statement>
 					</epdcx:description>
 				</epdcx:descriptionSet>
-			</mets:xmlData>
-		</mets:mdWrap>
-	</mets:dmdSec>
+			</xmlData>
+  </mdWrap>
+ </dmdSec>
+ 
+ <amdSec ID="sword-mets-amd-1">
+  <rightsMD ID="sword-mets-rights-1">
+   <mdRef LOCTYPE="URL" xlink:type="simple" xlink:href="licence.txt" MDTYPE="OTHER" OTHERMDTYPE="Deposit License" MIMETYPE="text/plain"/>
+  </rightsMD>
+ </amdSec>
 
-	<mets:amdSec ID="sword-mets-amd-1">
-		<mets:rightsMD ID="sword-mets-rights-1">
-			<mets:mdRef LOCTYPE="URL" xlink:type="simple"
-				xlink:href="licence.txt" MDTYPE="OTHER"
-				OTHERMDTYPE="Deposit License" MIMETYPE="text/plain" />
-		</mets:rightsMD>
-	</mets:amdSec>
-
-	<mets:fileSec>
-		<mets:fileGrp ID="sword-mets-fgrp-1">
-			<mets:file GROUPID="sword-mets-fgid-0"
+	<fileSec>
+		<fileGrp ID="sword-mets-fgrp-1" USE="CONTENT">
+			<file GROUPID="sword-mets-fgid-0"
 				ID="sword-mets-file-1" MIMETYPE="application/pdf">
-				<mets:FLocat LOCTYPE="URL" xlink:href="pdf1.pdf" />
-			</mets:file>
-			<mets:file GROUPID="sword-mets-fgid-1"
+				<FLocat LOCTYPE="URL" xlink:href="pdf1.pdf" />
+			</file>
+			<file GROUPID="sword-mets-fgid-1"
 				ID="sword-mets-file-2" MIMETYPE="application/pdf">
-				<mets:FLocat LOCTYPE="URL" xlink:href="pdf2.pdf" />
-			</mets:file>
-			<mets:file GROUPID="sword-mets-fgid-2"
+				<FLocat LOCTYPE="URL" xlink:href="pdf2.pdf" />
+			</file>
+			<file GROUPID="sword-mets-fgid-2"
 				ID="sword-mets-file-3" MIMETYPE="application/pdf">
-				<mets:FLocat LOCTYPE="URL" xlink:href="pdf3.pdf" />
-			</mets:file>
-		</mets:fileGrp>
-	</mets:fileSec>
+				<FLocat LOCTYPE="URL" xlink:href="pdf3.pdf" />
+			</file>
+		</fileGrp>
+	</fileSec>
+<!-- 
+ <fileSec>
+  <fileGrp USE="CONTENT">
+   <file ID="bitstream_95" MIMETYPE="application/octet-stream" SEQ="95" SIZE="1789" CHECKSUM="f2ff969bd50e6ec573ff3bbabe9ba936" CHECKSUMTYPE="MD5" ADMID="descMd_for_bitstream_95 techMd_for_bitstream_95" GROUPID="GROUP_bitstream_95">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_95"/>
 
-	<mets:structMap ID="sword-mets-struct-1" LABEL="structure"
+   </file>
+   <file ID="bitstream_96" MIMETYPE="image/png" SEQ="96" SIZE="11322" CHECKSUM="25ef1a49cacca8972d24d7032193fe19" CHECKSUMTYPE="MD5" ADMID="descMd_for_bitstream_96 techMd_for_bitstream_96" GROUPID="GROUP_bitstream_96">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_96.png"/>
+   </file>
+   <file ID="bitstream_97" MIMETYPE="application/msword" SEQ="97" SIZE="649216" CHECKSUM="39cfaaf3b388530cd6618e42ad976eca" CHECKSUMTYPE="MD5" ADMID="techMd_for_bitstream_97 descMd_for_bitstream_97" GROUPID="GROUP_bitstream_97">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_97.doc"/>
+   </file>
+   <file ID="bitstream_98" MIMETYPE="application/msword" SEQ="98" SIZE="663552" CHECKSUM="b1bbbf5a47cc125d0a690fb2585dc909" CHECKSUMTYPE="MD5" ADMID="techMd_for_bitstream_98 descMd_for_bitstream_98" GROUPID="GROUP_bitstream_98">
+    <FLocat LOCTYPE="URL" xlink:type="simple" xlink:href="bitstream_98.doc"/>
+   </file>
+  </fileGrp>
+ </fileSec> -->
+ 
+ <structMap ID="sword-mets-struct-1" LABEL="structure"
 		TYPE="LOGICAL">
-		<mets:div ID="sword-mets-div-1" DMDID="sword-mets-dmd-1"
+		<div ID="sword-mets-div-1" DMDID="sword-mets-dmd-1"
 			ADMID="sword-mets-amd-1" TYPE="SWORD Object">
-			<mets:div ID="sword-mets-div-2" TYPE="File">
-				<mets:fptr FILEID="sword-mets-file-1" />
-			</mets:div>
-			<mets:div ID="sword-mets-div-3" TYPE="File">
-				<mets:fptr FILEID="sword-mets-file-2" />
-			</mets:div>
-			<mets:div ID="sword-mets-div-4" TYPE="File">
-				<mets:fptr FILEID="sword-mets-file-3" />
-			</mets:div>
-		</mets:div>
-	</mets:structMap>
+			<div ID="sword-mets-div-2" TYPE="File">
+				<fptr FILEID="sword-mets-file-1" />
+			</div>
+			<div ID="sword-mets-div-3" TYPE="File">
+				<fptr FILEID="sword-mets-file-2" />
+			</div>
+			<div ID="sword-mets-div-4" TYPE="File">
+				<fptr FILEID="sword-mets-file-3" />
+			</div>
+		</div>
+	</structMap>
+ <!-- 
+ <structMap ID="struct_57" LABEL="DSpace" TYPE="LOGICAL">
+  <div ID="div_58" DMDID="dmd_42" ADMID="license_44" TYPE="DSpace Item">
+   <div ID="div_45" TYPE="DSpace Content Bitstream">
+    <fptr FILEID="bitstream_95"/>
+   </div>
+   <div ID="div_48" TYPE="DSpace Content Bitstream">
 
-</mets:mets>
+    <fptr FILEID="bitstream_96"/>
+   </div>
+   <div ID="div_51" TYPE="DSpace Content Bitstream">
+    <fptr FILEID="bitstream_97"/>
+   </div>
+   <div ID="div_54" TYPE="DSpace Content Bitstream">
+    <fptr FILEID="bitstream_98"/>
+   </div>
+  </div>
+
+ </structMap>-->
+</mets>
