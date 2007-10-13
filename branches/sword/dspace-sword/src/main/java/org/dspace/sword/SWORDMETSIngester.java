@@ -49,8 +49,8 @@ public class SWORDMETSIngester implements SWORDIngester
 		{
 			// set the verbosity of the response
 			this.verbose = deposit.isVerbose();
-			message((new Date()).toString());
-			message("Initialising Verbose Deposit");
+			message((new Date()).toString() + "; ");
+			message("Initialising Verbose Deposit; ");
 			
 			// the DSpaceMETSIngester requires an input stream
 			InputStream is = deposit.getFile();
@@ -59,8 +59,9 @@ public class SWORDMETSIngester implements SWORDIngester
 			String loc = deposit.getLocation();
 			CollectionLocation cl = new CollectionLocation();
 			Collection collection = cl.getCollection(context, loc);
-			message("Performing deposit using location: " + loc);
-			message("Location resolves to collection with handle: " + collection.getHandle());
+			message("Performing deposit using location: " + loc + "; ");
+			message("Location resolves to collection with handle: " + collection.getHandle() + 
+					" and name: " + collection.getMetadata("name") + "; ");
 			
 			// load the plugin manager for the required configuration
 			String cfg = ConfigurationManager.getProperty("sword.mets-ingester.package-ingester");
@@ -105,15 +106,15 @@ public class SWORDMETSIngester implements SWORDIngester
 			// re-loading the item to ensure that the handle it set
 			// Item installedItem = Item.find(context, item.getID());
 			
-			message("Ingest successful");
-			message("Item created with internal identifier: " + installedItem.getID());
+			message("Ingest successful; ");
+			message("Item created with internal identifier: " + installedItem.getID() + "; ");
 			if (handle != null)
 			{
-				message("Item created with external identifier: " + handle);
+				message("Item created with external identifier: " + handle + "; ");
 			}
 			else
 			{
-				message("No external identifier available at this stage (item in workflow)");
+				message("No external identifier available at this stage (item in workflow); ");
 			}
 			
 			DepositResult dr = new DepositResult();

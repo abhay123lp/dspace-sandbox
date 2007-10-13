@@ -83,8 +83,8 @@ public class DepositManager
 		throws DSpaceSWORDException
 	{
 		// FIXME: please implement
-		
-		// is this going to be done elsewhere (in the front end implementation)?
+		// in reality, all this is done higher up the stack, so we don't
+		// need to worry!
 	}
 	
 	private void undoDeposit(DepositResult result)
