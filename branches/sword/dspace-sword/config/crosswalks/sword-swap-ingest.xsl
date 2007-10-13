@@ -29,29 +29,31 @@
     <!-- general matcher for all "statement" elements -->
     <xsl:template match="/epdcx:descriptionSet/epdcx:description/epdcx:statement">
     
+    	
+    
     	<!-- title element: dc.title -->
-    	<xsl:when test="./@propertyURI='http://purl.org/dc/elements/1.1/title'">
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/dc/elements/1.1/title'">
     		<dim:field mdschema="dc" element="title">
     			<xsl:value-of select="epdcx:valueString"/>
     		</dim:field>
-    	</xsl:when>
+    	</xsl:if>
     	
     	<!-- abstract element: dc.description.abstract -->
-    	<xsl:when test="./@propertyURI='http://purl.org/dc/terms/abstract'">
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/dc/terms/abstract'">
     		<dim:field mdschema="dc" element="description" qualifier="abstract">
     			<xsl:value-of select="epdcx:valueString"/>
     		</dim:field>
-    	</xsl:when>
+    	</xsl:if>
     	
     	<!-- creator element: dc.contributor.author -->
-    	<xsl:when test="./@propertyURI='http://purl.org/dc/elements/1.1/creator'">
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/dc/elements/1.1/creator'">
     		<dim:field mdschema="dc" element="contributor" qualifier="author">
     			<xsl:value-of select="epdcx:valueString"/>
     		</dim:field>
-    	</xsl:when>
+    	</xsl:if>
     	
     	<!-- identifier element: dc.identifier.* -->
-    	<xsl:when test="./@propertyURI='http://purl.org/dc/elements/1.1/identifier'">
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/dc/elements/1.1/identifier'">
     		<xsl:element name="dim:field">
     			<xsl:attribute name="mdschema">dc</xsl:attribute>
     			<xsl:attribute name="element">identifier</xsl:attribute>
@@ -60,30 +62,46 @@
     			</xsl:if>
     			<xsl:value-of select="epdcx:valueString"/>
     		</xsl:element>
-    	</xsl:when>
+    	</xsl:if>
     	
     	<!-- language element: dc.language.iso -->
-    	<xsl:when test="./@propertyURI='http://purl.org/dc/elements/1.1/creator' and ./@vesURI='http://purl.org/dc/terms/RFC3066'">
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/dc/elements/1.1/language' and ./@epdcx:vesURI='http://purl.org/dc/terms/RFC3066'">
     		<dim:field mdschema="dc" element="language" qualifier="rfc3066">
     			<xsl:value-of select="epdcx:valueString"/>
     		</dim:field>
-    	</xsl:when>
+    	</xsl:if>
     	
     	<!-- item type element: dc.type -->
-    	<xsl:when test="./@propertyURI='http://purl.org/dc/elements/1.1/type' and ./@vesURI='http://purl.org/eprint/terms/Type'">
-    		<xsl:if test="./@valueURI='http://purl.org/eprint/type/JournalArticle'">
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/dc/elements/1.1/type' and ./@epdcx:vesURI='http://purl.org/eprint/terms/Type'">
+    		<xsl:if test="./@epdcx:valueURI='http://purl.org/eprint/type/JournalArticle'">
     			<dim:field mdschema="dc" element="type">
     				Journal Article
     			</dim:field>
     		</xsl:if>
-    	</xsl:when>
+    	</xsl:if>
     	
     	<!-- date available element: dc.date.issued -->
-    	<xsl:when test="./@propertyURI='http://purl.org/dc/terms/available'">
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/dc/terms/available'">
     		<dim:field mdschema="dc" element="date" qualifier="issued">
     			<xsl:value-of select="epdcx:valueString"/>
     		</dim:field>
-    	</xsl:when>
+    	</xsl:if>
+    	
+    	<!-- publication status element: dc.description.version -->
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/eprint/terms/status' and ./@epdcx:vesURI='http://purl.org/eprint/terms/Status'">
+    		<xsl:if test="./@epdcx:valueURI='http://purl.org/eprint/status/PeerReviewed'">
+	    		<dim:field mdschema="dc" element="description" qualifier="version">
+	    			Peer Reviewed
+	    		</dim:field>
+    		</xsl:if>
+    	</xsl:if>
+    	
+    	<!-- copyright holder element: dc.rights.holder -->
+    	<xsl:if test="./@epdcx:propertyURI='http://purl.org/eprint/terms/copyrightHolder'">
+    		<dim:field mdschema="dc" element="rights" qualifier="holder">
+    			<xsl:value-of select="epdcx:valueString"/>
+    		</dim:field>
+    	</xsl:if>
     	
     </xsl:template>
     
