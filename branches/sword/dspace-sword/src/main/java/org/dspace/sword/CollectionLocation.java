@@ -1,24 +1,90 @@
+/* CollectionLocation.java
+ * 
+ * Copyright (c) 2007, Aberystwyth University
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  - Redistributions of source code must retain the above
+ *    copyright notice, this list of conditions and the
+ *    following disclaimer.
+ *
+ *  - Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ *  - Neither the name of the Centre for Advanced Software and
+ *    Intelligent Systems (CASIS) nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */ 
+
 package org.dspace.sword;
 
 import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
-import org.dspace.content.Collection;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.handle.HandleManager;
-import org.dspace.core.Context;
-import org.dspace.content.DSpaceObject;
 
+import org.dspace.content.Collection;
+import org.dspace.content.DSpaceObject;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
+import org.dspace.handle.HandleManager;
+
+/**
+ * This class provides a single point of contact for
+ * resolving Collections from SWORD Deposit URLs and for
+ * generating SWORD Deposit URLs from Collections
+ * 
+ * @author Richard Jones
+ *
+ */
 public class CollectionLocation
 {
+	/** Log4j logger */
 	public static Logger log = Logger.getLogger(CollectionLocation.class);
 	
+	/**
+	 * Obtain the deposit URL for the given collection.  These URLs
+	 * should not be considered persistent, but will remain consistent
+	 * unless configuration changes are made to DSpace
+	 * 
+	 * @param collection
+	 * @return	The Deposit URL
+	 * @throws DSpaceSWORDException
+	 */
 	public String getLocation(Collection collection)
 		throws DSpaceSWORDException
 	{
 		return this.getBaseUrl() + "/" + collection.getHandle();
 	}
 	
+	/**
+	 * Obtain the collection which is represented by the given 
+	 * URL
+	 * 
+	 * @param context	the DSpace context
+	 * @param location	the URL to resolve to a collection
+	 * @return		The collection to which the url resolves
+	 * @throws DSpaceSWORDException
+	 */
 	public Collection getCollection(Context context, String location)
 		throws DSpaceSWORDException
 	{
@@ -55,6 +121,22 @@ public class CollectionLocation
 		}
 	}
 	
+	/**
+	 * Get the base deposit URL for the DSpace SWORD implementation.  This
+	 * is effectively the URL of the servlet which deals with deposit
+	 * requests, and is used as the basis for the individual Collection
+	 * URLs
+	 * 
+	 * If the configuration sword.deposit.url is set, this will be returned,
+	 * but if not, it will construct the url as follows:
+	 * 
+	 * [dspace.url]/dspace-sword/deposit
+	 * 
+	 * where dspace.url is also in the configuration file.
+	 * 
+	 * @return	the base URL for sword deposit
+	 * @throws DSpaceSWORDException
+	 */
 	private String getBaseUrl()
 		throws DSpaceSWORDException
 	{
