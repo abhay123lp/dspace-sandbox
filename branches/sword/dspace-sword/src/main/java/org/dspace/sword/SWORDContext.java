@@ -1,44 +1,108 @@
+/* SWORDContext.java
+ * 
+ * Copyright (c) 2007, Aberystwyth University
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  - Redistributions of source code must retain the above
+ *    copyright notice, this list of conditions and the
+ *    following disclaimer.
+ *
+ *  - Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ *  - Neither the name of the Centre for Advanced Software and
+ *    Intelligent Systems (CASIS) nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */ 
+
 package org.dspace.sword;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
 import org.dspace.content.Collection;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import java.util.List;
-import java.util.ArrayList;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
 
+/**
+ * This class represents the users who are involved in the
+ * deposit or service document request process.  This is the
+ * authenticated primary user and the potentially null
+ * onBehalfOf user.
+ * 
+ * It can then answer various authorisation questions regarding
+ * those users.
+ * 
+ * @author Richard Jones
+ *
+ */
 public class SWORDContext 
 {
+	/** The primary authenticated user for the request */
 	private EPerson authenticated = null;
 	
+	/** The onBehalfOf user for the request */
 	private EPerson onBehalfOf = null;
 
+	/**
+	 * @return	the authenticated user
+	 */
 	public EPerson getAuthenticated() 
 	{
 		return authenticated;
 	}
 
+	/**
+	 * @param authenticated	the eperson to set
+	 */
 	public void setAuthenticated(EPerson authenticated) 
 	{
 		this.authenticated = authenticated;
 	}
 
+	/**
+	 * @return	the onBehalfOf user
+	 */
 	public EPerson getOnBehalfOf() 
 	{
 		return onBehalfOf;
 	}
 
+	/**
+	 * @param onBehalfOf	the eperson to set
+	 */
 	public void setOnBehalfOf(EPerson onBehalfOf) 
 	{
 		this.onBehalfOf = onBehalfOf;
 	}
 	
 	/**
-	 * Is the given eperson a DSpace administrator?  This translates
-	 * as asking the question of whether the given eperson a member
+	 * Is the authenticated user a DSpace administrator?  This translates
+	 * as asking the question of whether the given eperson is a member
 	 * of the special DSpace group Administrator, with id 1
 	 * 
 	 * @param eperson
@@ -64,8 +128,8 @@ public class SWORDContext
 	}
 	
 	/**
-	 * Is the given eperson a DSpace administrator?  This translates
-	 * as asking the question of whether the given eperson a member
+	 * Is the given onBehalfOf user DSpace administrator?  This translates
+	 * as asking the question of whether the given eperson is a member
 	 * of the special DSpace group Administrator, with id 1
 	 * 
 	 * @param eperson
@@ -90,6 +154,13 @@ public class SWORDContext
 		}
 	}
 	
+	/**
+	 * Is the authenticated user a member of the given group
+	 * or one of its sub groups?
+	 * 
+	 * @param group
+	 * @return
+	 */
 	public boolean isUserInGroup(Group group)
 	{
 		if (this.authenticated != null)
@@ -99,6 +170,13 @@ public class SWORDContext
 		return false;
 	}
 	
+	/**
+	 * Is the onBehalfOf user a member of the given group or
+	 * one of its sub groups
+	 * 
+	 * @param group
+	 * @return
+	 */
 	public boolean isOnBehalfOfInGroup(Group group)
 	{
 		if (this.onBehalfOf != null)
@@ -148,6 +226,14 @@ public class SWORDContext
 		return false;
 	}
 	
+	/**
+	 * Get an array of all the collections that the current SWORD
+	 * context will allow deposit onto in the given DSpace context
+	 * 
+	 * @param context
+	 * @return	the array of allowed collections
+	 * @throws DSpaceSWORDException
+	 */
 	public Collection[] getAllowedCollections(Context context)
 		throws DSpaceSWORDException
 	{
@@ -196,6 +282,15 @@ public class SWORDContext
 		}
 	}
 	
+	/**
+	 * Can the current SWORD Context permit deposit into the given 
+	 * collection in the given DSpace Context
+	 * 
+	 * @param context
+	 * @param collection
+	 * @return
+	 * @throws DSpaceSWORDException
+	 */
 	public boolean canSubmitTo(Context context, Collection collection)
 		throws DSpaceSWORDException
 	{

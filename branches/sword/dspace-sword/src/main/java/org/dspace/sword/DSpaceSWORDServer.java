@@ -1,3 +1,41 @@
+/* DSpaceSWORDServer.java
+ * 
+ * Copyright (c) 2007, Aberystwyth University
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  - Redistributions of source code must retain the above
+ *    copyright notice, this list of conditions and the
+ *    following disclaimer.
+ *
+ *  - Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ *  - Neither the name of the Centre for Advanced Software and
+ *    Intelligent Systems (CASIS) nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */ 
+
 package org.dspace.sword;
 
 import org.apache.log4j.Logger;
@@ -27,8 +65,10 @@ import java.sql.SQLException;
  */
 public class DSpaceSWORDServer implements SWORDServer
 {
+	/** Log4j logger */
 	public static Logger log = Logger.getLogger(DSpaceSWORDServer.class);
 	
+	/** DSpace context */
 	private Context context;
 		
 	// methods required by SWORDServer interface
@@ -97,6 +137,7 @@ public class DSpaceSWORDServer implements SWORDServer
 			// log the request
 			log.info(LogManager.getHeader(context, "sword_deposit_request", "username=" + deposit.getUsername() + ",on_behalf_of=" + deposit.getOnBehalfOf()));
 			
+			// prep and execute the deposit
 			DepositManager dm = new DepositManager();
 			dm.setContext(context);
 			dm.setDeposit(deposit);
@@ -132,9 +173,14 @@ public class DSpaceSWORDServer implements SWORDServer
 		}
 	}
 	
-	// internal methods
-	///////////////////
-	
+	/**
+	 * Construct the context object member variable of this class
+	 * using the passed IP address as part of the loggable
+	 * information
+	 * 
+	 * @param ip	the ip address of the incoming request
+	 * @throws SWORDException
+	 */
 	private void constructContext(String ip)
 		throws SWORDException
 	{
@@ -152,6 +198,16 @@ public class DSpaceSWORDServer implements SWORDServer
         this.context.setExtraLogInfo("session_id=0:ip_addr=" + ip);
 	}
 	
+	/**
+	 * Authenticate the incoming service document request.  Calls:
+	 * 
+	 * authenticatate(username, password, onBehalfOf)
+	 * 
+	 * @param request
+	 * @return	a SWORDContext object containing the relevant users
+	 * @throws SWORDAuthenticationException
+	 * @throws SWORDException
+	 */
 	private SWORDContext authenticate(ServiceDocumentRequest request)
 		throws SWORDAuthenticationException, SWORDException
 	{
@@ -159,6 +215,16 @@ public class DSpaceSWORDServer implements SWORDServer
 		return this.authenticate(request.getUsername(), request.getPassword(), request.getOnBehalfOf());
 	}
 	
+	/**
+	 * Authenticate the incoming deposit request.  Calls:
+	 * 
+	 * authenticate(username, password, onBehalfOf)
+	 * 
+	 * @param deposit
+	 * @return	a SWORDContext object containing the relevant users
+	 * @throws SWORDAuthenticationException
+	 * @throws SWORDException
+	 */
 	private SWORDContext authenticate(Deposit deposit)
 		throws SWORDAuthenticationException, SWORDException
 	{
@@ -166,6 +232,19 @@ public class DSpaceSWORDServer implements SWORDServer
 		return this.authenticate(deposit.getUsername(), deposit.getPassword(), deposit.getOnBehalfOf());
 	}
 	
+	/**
+	 * Authenticate the given username/password pair, in conjunction with
+	 * the onBehalfOf user.  The rules are that the username/password pair
+	 * must successfully authenticate the user, and the onBehalfOf user
+	 * must exist in the user database.
+	 * 
+	 * @param un
+	 * @param pw
+	 * @param obo
+	 * @return	a SWORD context holding the various user information
+	 * @throws SWORDAuthenticationException
+	 * @throws SWORDException
+	 */
 	private SWORDContext authenticate(String un, String pw, String obo)
 		throws SWORDAuthenticationException, SWORDException
 	{
@@ -179,6 +258,7 @@ public class DSpaceSWORDServer implements SWORDServer
 			boolean authenticated = false;
 			if (auth.authenticates(this.context, un, pw))
 			{
+				// if authenticated, obtain the eperson object
 				ep = EPerson.findByEmail(context, un);
 				
 				if (ep != null)
@@ -187,6 +267,9 @@ public class DSpaceSWORDServer implements SWORDServer
 					sc.setAuthenticated(ep);
 				}
 				
+				// if there is an onBehalfOfuser, then find their eperson 
+				// record, and if it exists set it.  If not, then the
+				// authentication process fails
 				if (obo != null)
 				{
 					EPerson epObo= EPerson.findByEmail(this.context, obo);
@@ -209,6 +292,7 @@ public class DSpaceSWORDServer implements SWORDServer
 			}
 			else
 			{
+				// decide what kind of error to throw
 				if (ep != null)
 				{
 					log.info(LogManager.getHeader(context, "sword_unable_to_set_user", "username=" + un));

@@ -1,10 +1,6 @@
 /*
  * LoadDSpaceConfig.java
  *
- * Version: $Revision: 7 $
- *
- * Date: $Date: 2007-05-25 20:23:53 +0000 (Fri, 25 May 2007) $
- *
  * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
  *
@@ -47,8 +43,11 @@ import org.dspace.core.ConfigurationManager;
  * Simple servlet to load in DSpace and log4j configurations. Should always be
  * started up before other servlets (use <loadOnStartup>)
  * 
+ * This class has been duplicated into the DSpace SWORD module from its
+ * original home in the DSpace JSPUI, but authorship and copyright 
+ * ownership are as dictated in this file.
+ * 
  * @author Robert Tansley
- * @version $Revision: 7 $
  */
 public class LoadDSpaceConfig extends HttpServlet
 {	
