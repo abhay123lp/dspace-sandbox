@@ -55,8 +55,11 @@ import org.w3.atom.Author;
 import org.w3.atom.Content;
 import org.w3.atom.ContentType;
 import org.w3.atom.Contributor;
+import org.w3.atom.Generator;
 import org.w3.atom.InvalidMediaTypeException;
+import org.w3.atom.Link;
 import org.w3.atom.Rights;
+import org.w3.atom.Source;
 import org.w3.atom.Summary;
 import org.w3.atom.Title;
 
@@ -90,6 +93,7 @@ public class DSpaceATOMEntry
 	 * @return		the SWORDEntry for the item
 	 */
 	public SWORDEntry getSWORDEntry(Item item, String handle, boolean noOp)
+		throws DSpaceSWORDException
 	{
 		entry = new SWORDEntry();
 		this.item = item;
@@ -101,7 +105,7 @@ public class DSpaceATOMEntry
 		this.addCategories();
 		
 		// add a content element to the sword entry
-		this.addContentElement();
+		this.addContentElement(handle, noOp);
 		
 		// add contributors (authors plus any other bits) to the sword entry
 		this.addContributors();
@@ -110,17 +114,17 @@ public class DSpaceATOMEntry
 		// to be valid by the end of the request
 		if (!noOp)
 		{
-			this.addIdentifier(handle);
+			this.addIdentifier(handle, noOp);
 		}
 		
 		// add any appropriate links
-		this.addLinks();
+		this.addLinks(handle);
 		
 		// add the publish date
 		this.addPublishDate();
 		
 		// add the rights information
-		this.addRights();
+		this.addRights(handle);
 		
 		// add the source infomation
 		this.addSource();
@@ -133,6 +137,9 @@ public class DSpaceATOMEntry
 		
 		// add the date on which the entry was last updated
 		this.addLastUpdatedDate();
+		
+		// set the format namespace for the response
+		this.setFormatNamespace();
 		
 		return entry;
 	}
@@ -179,13 +186,26 @@ public class DSpaceATOMEntry
 	 * "application/zip" in this default implementation.
 	 *
 	 */
-	protected void addContentElement()
+	protected void addContentElement(String handle, boolean noOp)
 	{
 		try
 		{
-			Content content = new Content();
-			content.setType("application/zip");
-			entry.setContent(content);
+			if (!noOp)
+			{
+				if (item.getHandle() != null)
+				{
+					handle = item.getHandle();
+				}
+
+				if (handle != null && !"".equals(handle))
+				{
+					Content content = new Content();
+					// content.setType("application/zip");
+					content.setType("text/html");
+					content.setSource(HandleManager.getCanonicalForm(handle));
+					entry.setContent(content);
+				}
+			}
 		}
 		catch (InvalidMediaTypeException e)
 		{
@@ -222,18 +242,30 @@ public class DSpaceATOMEntry
 	 * 
 	 * @param handle
 	 */
-	protected void addIdentifier(String handle)
+	protected void addIdentifier(String handle, boolean noOp)
 	{
 		// it's possible that the item hasn't been assigned a handle yet
-		if (item.getHandle() != null)
+		if (!noOp)
 		{
-			handle = item.getHandle();
+			if (item.getHandle() != null)
+			{
+				handle = item.getHandle();
+			}
+
+			if (handle != null && !"".equals(handle))
+			{
+				entry.setId(HandleManager.getCanonicalForm(handle));
+				return;
+			}
 		}
 		
-		if (handle != null && !"".equals(handle))
-		{
-			entry.setId(HandleManager.getCanonicalForm(handle));
-		}
+		// if we get this far, then we just use the dspace url as the 
+		// property
+		String cfg = ConfigurationManager.getProperty("dspace.url");
+		entry.setId(cfg);
+		
+		// FIXME: later on we will maybe have a workflow page supplied
+		// by the sword interface?
 	}
 	
 	/**
@@ -242,9 +274,38 @@ public class DSpaceATOMEntry
 	 * nothing
 	 *
 	 */
-	protected void addLinks()
+	protected void addLinks(String handle)
+		throws DSpaceSWORDException
 	{
-		// do nothing
+		try
+		{
+			// if there is no handle, we can't generate links
+			if (handle == null)
+			{
+				return;
+			}
+			
+			String base = ConfigurationManager.getProperty("dspace.url");
+			
+			// in the default set up we just pass urls to all of the 
+			// inidivual files in the item
+			Bundle[] bundles = item.getBundles("ORIGINAL");
+			for (int i = 0; i < bundles.length ; i++)
+			{
+				Bitstream[] bss = bundles[i].getBitstreams();
+				for (int j = 0; j < bss.length; j++)
+				{
+					Link link = new Link();
+					String url = base + "/bitstream/" + handle + "/" + bss[j].getSequenceID() + "/" + bss[j].getName();
+					link.setHref(url);
+					entry.addLink(link);
+				}
+			}
+		}
+		catch (SQLException e)
+		{
+			throw new DSpaceSWORDException(e);
+		}
 	}
 	
 	/**
@@ -275,10 +336,16 @@ public class DSpaceATOMEntry
 	 * of the item's licence file
 	 *
 	 */
-	protected void addRights()
+	protected void addRights(String handle)
 	{
 		try
 		{
+			// if there's no handle, we can't give a link
+			if (handle == null)
+			{
+				return;
+			}
+			
 			String base = ConfigurationManager.getProperty("dspace.url");
 			
 			// if there's no base URL, we are stuck
@@ -294,7 +361,7 @@ public class DSpaceATOMEntry
 				Bitstream[] bss = bundles[i].getBitstreams();
 				for (int j = 0; j < bss.length; j++)
 				{
-					String url = base + "/bitstream/" + item.getHandle() + "/" + bss[j].getSequenceID() + "/" + bss[j].getName();
+					String url = base + "/bitstream/" + handle + "/" + bss[j].getSequenceID() + "/" + bss[j].getName();
 					rightsString.append(url + " ");
 				}
 			}
@@ -311,14 +378,19 @@ public class DSpaceATOMEntry
 	}
 	
 	/**
-	 * Add the source of the bibliographic metadata.  In the default
-	 * implementation, this information is not available, so this
-	 * method does nothing.
+	 * Add the source of the bibliographic metadata.
 	 *
 	 */
 	protected void addSource()
 	{
-		// do nothing
+		String base = ConfigurationManager.getProperty("dspace.url");
+		String name = ConfigurationManager.getProperty("dspace.name");
+		Source source = new Source();
+		Generator gen = new Generator();
+		gen.setUri(base);
+		gen.setContent(name);
+		source.setGenerator(gen);
+		entry.setSource(source);
 	}
 	
 	/**
@@ -382,5 +454,10 @@ public class DSpaceATOMEntry
 		{
 			// do nothing
 		}
+	}
+	
+	protected void setFormatNamespace()
+	{
+		entry.setFormatNamespace("http://www.log.gov/METS");
 	}
 }
