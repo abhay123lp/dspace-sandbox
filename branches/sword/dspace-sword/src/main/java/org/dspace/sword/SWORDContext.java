@@ -297,21 +297,29 @@ public class SWORDContext
 		Group subs = collection.getSubmitters();
 		if (isUserAdmin(context))
 		{
-			if (isOnBehalfOfAdmin(context))
-			{
-				return true;
-			}
-			return isOnBehalfOfInGroup(subs);
-		}
-		else
-		{
-			if (isUserInGroup(subs))
+			if (this.onBehalfOf != null)
 			{
 				if (isOnBehalfOfAdmin(context))
 				{
 					return true;
 				}
 				return isOnBehalfOfInGroup(subs);
+			}
+			return true;
+		}
+		else
+		{
+			if (isUserInGroup(subs))
+			{
+				if (this.onBehalfOf != null)
+				{
+					if (isOnBehalfOfAdmin(context))
+					{
+						return true;
+					}
+					return isOnBehalfOfInGroup(subs);
+				}
+				return true;
 			}
 			return false;
 		}
