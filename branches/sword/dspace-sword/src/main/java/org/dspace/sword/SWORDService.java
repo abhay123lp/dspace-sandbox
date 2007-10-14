@@ -265,8 +265,8 @@ public class SWORDService
 		// FIXME: what is the treatment?  Doesn't seem appropriate for DSpace
 		// String treatment = " ";
 		
-		// FIXME: this might be internal to SWORD - difficult to tell.  What is it?
-		// String namespace = "";
+		// the format namespace is only METS in this implementation
+		String namespace = "http://www.loc.gov/METS";
 		
 		// abstract is the short description of the collection
 		String dcAbstract = col.getMetadata("short_description");
@@ -305,6 +305,7 @@ public class SWORDService
 		
 		scol.setMediation(mediation);
 		scol.addAccepts(zip);
+		scol.setFormatNamespace(namespace);
 		
 		return scol;
 	}

@@ -95,6 +95,10 @@ public class SWORDMETSIngester implements SWORDIngester
 			// the updated date
 			this.setUpdatedDate(installedItem);
 			
+			// DSpace ignores the slug value as suggested identifier, but
+			// it does store it in the metadata
+			this.setSlug(installedItem, deposit.getSlug());
+			
 			// in order to write these changes, we need to bypass the
 			// authorisation briefly, because although the user may be
 			// able to add stuff to the repository, they may not have
@@ -159,6 +163,26 @@ public class SWORDMETSIngester implements SWORDIngester
 		item.clearMetadata(dc.schema, dc.element, dc.qualifier, Item.ANY);
 		DCDate date = new DCDate(new Date());
 		item.addMetadata(dc.schema, dc.element, dc.qualifier, null, date.toString());
+	}
+	
+	private void setSlug(Item item, String slugVal)
+		throws DSpaceSWORDException
+	{
+		// if there isn't a slug value, don't set it
+		if (slugVal == null)
+		{
+			return;
+		}
+		
+		String field = ConfigurationManager.getProperty("sword.slug.field");
+		if (field == null || "".equals(field))
+		{
+			throw new DSpaceSWORDException("No configuration, or configuration is invalid for: sword.slug.field");
+		}
+		
+		DCValue dc = this.configToDC(field, null);
+		item.clearMetadata(dc.schema, dc.element, dc.qualifier, Item.ANY);
+		item.addMetadata(dc.schema, dc.element, dc.qualifier, null, slugVal);
 	}
 	
 	private DCValue configToDC(String config, String def)

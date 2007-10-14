@@ -55,6 +55,13 @@
     <qualifier>uri</qualifier>
     <scope_note>a uri to a copy of the item</scope_note>
   </dc-type>
+  
+  <dc-type>
+	<schema>dc</schema>
+    <element>identifier</element>
+    <qualifier>slug</qualifier>
+    <scope_note>a uri supplied via the sword slug header, as a suggested uri for the item</scope_note>
+  </dc-type>
 
   <dc-type>
 	<schema>dc</schema>
