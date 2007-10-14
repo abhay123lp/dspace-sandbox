@@ -1,42 +1,74 @@
+/* SWORDMETSIngester.java
+ * 
+ * Copyright (c) 2007, Aberystwyth University
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  - Redistributions of source code must retain the above
+ *    copyright notice, this list of conditions and the
+ *    following disclaimer.
+ *
+ *  - Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ *  - Neither the name of the Centre for Advanced Software and
+ *    Intelligent Systems (CASIS) nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */ 
+
 package org.dspace.sword;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
-
-import org.apache.log4j.Logger;
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.core.Context;
-import org.purl.sword.base.Deposit;
-import org.purl.sword.base.DepositResponse;
-import org.dspace.content.Item;
-import org.dspace.content.DCValue;
-import org.dspace.content.DCDate;
-
-import org.dspace.content.crosswalk.CrosswalkException;
-import org.dspace.content.packager.PackageIngester;
-import org.dspace.core.PluginInstantiationException;
-import org.dspace.core.PluginManager;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.content.packager.PackageException;
-import org.dspace.content.packager.PackageIngester;
-import org.dspace.content.packager.PackageParameters;
-import org.dspace.content.Collection;
-import org.dspace.content.WorkspaceItem;
-
 import java.util.Date;
 import java.util.StringTokenizer;
 
-import org.dspace.workflow.WorkflowManager;
-import org.dspace.workflow.WorkflowItem;
+import org.apache.log4j.Logger;
+
+import org.dspace.content.Collection;
+import org.dspace.content.DCDate;
+import org.dspace.content.DCValue;
+import org.dspace.content.Item;
+import org.dspace.content.WorkspaceItem;
+import org.dspace.content.packager.PackageIngester;
+import org.dspace.content.packager.PackageParameters;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
+import org.dspace.core.PluginManager;
 import org.dspace.handle.HandleManager;
+import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.WorkflowManager;
+
+import org.purl.sword.base.Deposit;
 
 public class SWORDMETSIngester implements SWORDIngester
 {
+	/** Log4j logger */
 	public static Logger log = Logger.getLogger(SWORDMETSIngester.class);
 	
+	/** holder for the messages that may be delivered back to the user */
 	private StringBuilder verboseDesc = new StringBuilder();
 	
+	/** is this a verbose deposit request */
 	private boolean verbose = false;
 	
 	/* (non-Javadoc)
@@ -78,6 +110,7 @@ public class SWORDMETSIngester implements SWORDIngester
 			// We don't need to include any parameters
 			PackageParameters params = new PackageParameters();
 			
+			// ingest the item
 			WorkspaceItem wsi = pi.ingest(context, collection, is, params, licence);
 			if (wsi == null)
 			{
@@ -112,10 +145,6 @@ public class SWORDMETSIngester implements SWORDIngester
 			// so we have to look it up
 			String handle = HandleManager.findHandle(context, installedItem);
 			
-			// now we have to prove something about handle handling (!), by
-			// re-loading the item to ensure that the handle it set
-			// Item installedItem = Item.find(context, item.getID());
-			
 			message("Ingest successful; ");
 			message("Item created with internal identifier: " + installedItem.getID() + "; ");
 			if (handle != null)
@@ -141,6 +170,14 @@ public class SWORDMETSIngester implements SWORDIngester
 		}
 	}
 	
+	/**
+	 * shortcut to registering a message with the verboseDescription
+	 * member variable.  This checks to see if the request is
+	 * verbose, meaning we don't have to do it inline and break nice
+	 * looking code up
+	 * 
+	 * @param msg
+	 */
 	private void message(String msg)
 	{
 		if (this.verbose)
@@ -150,6 +187,14 @@ public class SWORDMETSIngester implements SWORDIngester
 		}
 	}
 	
+	/**
+	 * Add the current date to the item metadata.  This looks up
+	 * the field in which to store this metadata in the configuration
+	 * sword.updated.field
+	 * 
+	 * @param item
+	 * @throws DSpaceSWORDException
+	 */
 	private void setUpdatedDate(Item item)
 		throws DSpaceSWORDException
 	{
@@ -165,6 +210,16 @@ public class SWORDMETSIngester implements SWORDIngester
 		item.addMetadata(dc.schema, dc.element, dc.qualifier, null, date.toString());
 	}
 	
+	/**
+	 * Store the given slug value (which is used for suggested identifiers,
+	 * and which DSpace ignores) in the item metadata.  This looks up the
+	 * field in which to store this metadata in the configuration
+	 * sword.slug.field
+	 * 
+	 * @param item
+	 * @param slugVal
+	 * @throws DSpaceSWORDException
+	 */
 	private void setSlug(Item item, String slugVal)
 		throws DSpaceSWORDException
 	{
@@ -185,6 +240,18 @@ public class SWORDMETSIngester implements SWORDIngester
 		item.addMetadata(dc.schema, dc.element, dc.qualifier, null, slugVal);
 	}
 	
+	/**
+	 * utility method to turn given metadata fields of the form
+	 * schema.element.qualifier into DCValue objects which can be 
+	 * used to access metadata in items.
+	 * 
+	 * The def parameter should be null, * or "" depending on how
+	 * you intend to use the DCValue object
+	 * 
+	 * @param config
+	 * @param def
+	 * @return
+	 */
 	private DCValue configToDC(String config, String def)
 	{
 		DCValue dcv = new DCValue();

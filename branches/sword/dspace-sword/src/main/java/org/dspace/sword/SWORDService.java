@@ -104,80 +104,46 @@ public class SWORDService
 	public ServiceDocument getServiceDocument()
 		throws DSpaceSWORDException
 	{
-		/*try
-		{*/
-			// first check that the context and sword context have
-			// been set
-			if (context == null)
-			{
-				throw new DSpaceSWORDException("The Context is null; please set it before calling getServiceDocument");
-			}
-			
-			if (swordContext == null)
-			{
-				throw new DSpaceSWORDException("The SWORD Context is null; please set it before calling getServiceDocument");
-			}
-			
-			// DSpace will support the top level service option
-			ServiceLevel sl = ServiceLevel.ONE;
-			
-			// can we dry-run requests
-			boolean noOp = true;
-			
-			// can we be verbose in our actions
-			boolean verbose = true;
-
-			// construct a new service document
-			Service service = new Service(sl, noOp, verbose);
-
-			// set the title of the workspace as per the name of the DSpace installation
-			String ws = ConfigurationManager.getProperty("dspace.name");
-			Workspace workspace = new Workspace();
-			workspace.setTitle(ws);
-
-			// FIXME: this should probably be moved into an Authorise method of some kind
-			/*
-			// locate the collections to which the authenticated user has ADD rights
-			Collection[] cols = Collection.findAuthorized(context, null, Constants.ADD);
-			
-			// add the permissable collections to the workspace
-			boolean obo = (swordContext.getOnBehalfOf() == null ? false : true);
-			for (int i = 0; i < cols.length; i++)
-			{
-				// we check each collection to see if the onBehalfOf user
-				// is permitted to deposit
-				if (obo)
-				{
-					// urgh, this is so inefficient, but the authorisation API is
-					// a total hellish nightmare
-					Group subs = cols[i].getSubmitters();
-					if (!isInGroup(subs, swordContext.getOnBehalfOf()) && !isAdmin(swordContext.getOnBehalfOf()))
-					{
-						continue;
-					}
-				}
-				
-				org.purl.sword.base.Collection scol = this.buildSwordCollection(cols[i]);
-				workspace.addCollection(scol);
-			}
-			 */
-			
-			Collection[] cols = swordContext.getAllowedCollections(context);
-			for (int i = 0; i < cols.length; i++)
-			{
-				org.purl.sword.base.Collection scol = this.buildSwordCollection(cols[i]);
-				workspace.addCollection(scol);
-			}
-			
-			service.addWorkspace(workspace);
-			
-			ServiceDocument sd = new ServiceDocument(service);
-			return sd;
-		/*}
-		catch (SQLException e)
+		// first check that the context and sword context have
+		// been set
+		if (context == null)
 		{
-			log.error("caught exception: ", e);
-			t*/
+			throw new DSpaceSWORDException("The Context is null; please set it before calling getServiceDocument");
+		}
+
+		if (swordContext == null)
+		{
+			throw new DSpaceSWORDException("The SWORD Context is null; please set it before calling getServiceDocument");
+		}
+
+		// DSpace will support the top level service option
+		ServiceLevel sl = ServiceLevel.ONE;
+
+		// can we dry-run requests
+		boolean noOp = true;
+
+		// can we be verbose in our actions
+		boolean verbose = true;
+
+		// construct a new service document
+		Service service = new Service(sl, noOp, verbose);
+
+		// set the title of the workspace as per the name of the DSpace installation
+		String ws = ConfigurationManager.getProperty("dspace.name");
+		Workspace workspace = new Workspace();
+		workspace.setTitle(ws);
+
+		Collection[] cols = swordContext.getAllowedCollections(context);
+		for (int i = 0; i < cols.length; i++)
+		{
+			org.purl.sword.base.Collection scol = this.buildSwordCollection(cols[i]);
+			workspace.addCollection(scol);
+		}
+
+		service.addWorkspace(workspace);
+
+		ServiceDocument sd = new ServiceDocument(service);
+		return sd;
 	}
 	
 	/**
@@ -271,7 +237,7 @@ public class SWORDService
 		// abstract is the short description of the collection
 		String dcAbstract = col.getMetadata("short_description");
 		
-		// FIXME: what does it mean to support mediation?
+		// we just do support mediation
 		boolean mediation = true;
 		
 		// the list of mime types that we accept
