@@ -75,3 +75,19 @@ These files are provided additionally inside a zip file which
 should form the content of a deposit request.
 
 These files are all available in the directory: test
+
+Implementation Notes
+--------------------
+
+- DSpace has no equivalent for the sword term "treatment".  This
+  is therefore always null in Service Document requests
+  
+- The logic of onBehalfOf is as follows:  The list of collections
+  which is supplied during a request which is done onBehalfOf
+  another user is the intersection of the lists of collections
+  that the authenticated user can submit to and the list that the
+  onBehalfOf user can submit to.
+
+- This implementation only supports the default PasswordAuthentication
+  mechanism for DSpace.  Modifications are required to tie it in to
+  alternative authentication mechanisms.
