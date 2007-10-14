@@ -8,13 +8,10 @@ import java.util.TimeZone;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.purl.sword.base.Collection;
 import org.purl.sword.base.Deposit;
 import org.purl.sword.base.DepositResponse;
 import org.purl.sword.base.ErrorCodes;
-import org.purl.sword.base.HttpHeaders;
 import org.purl.sword.base.SWORDAuthenticationException;
 import org.purl.sword.base.SWORDEntry;
 import org.purl.sword.base.SWORDException;
@@ -77,11 +74,11 @@ public class DummyServer implements SWORDServer {
 	    workspace.setTitle("Anonymous submitters workspace");
 	    Collection collection = new Collection(); 
 	    collection.setTitle("Anonymous submitters collection");
-	    collection.setLocation("http://" + sdr.getIPAddress() + "/anon");
+	    collection.setLocation("http://sword.aber.ac.uk/sword/deposit?user=anon");
 	    workspace.addCollection(collection);
 	    collection = new Collection(); 
 	    collection.setTitle("Anonymous submitters other collection");
-	    collection.setLocation("http://" + sdr.getIPAddress() + "/anon-other");
+	    collection.setLocation("http://sword.aber.ac.uk/sword/deposit?user=anonymous");
 	    workspace.addCollection(collection);
 	    service.addWorkspace(workspace);
 	     
@@ -90,11 +87,11 @@ public class DummyServer implements SWORDServer {
 		    workspace.setTitle("Authenticated workspace for " + username);
 		    collection = new Collection(); 
 		    collection.setTitle("Authenticated collection for " + username);
-		    collection.setLocation("http://www.example.com/authenticated");
+		    collection.setLocation("http://sword.aber.ac.uk/sword/deposit?user=" + username);
 		    workspace.addCollection(collection);
 		    collection = new Collection(); 
 		    collection.setTitle("Second authenticated collection for " + username);
-		    collection.setLocation("http://www.example.com/authenticated-2");
+		    collection.setLocation("http://sword.aber.ac.uk/sword/deposit?user=" + username + "-2");
 		    workspace.addCollection(collection);
 		    service.addWorkspace(workspace);
 	    }
@@ -105,7 +102,7 @@ public class DummyServer implements SWORDServer {
 		    workspace.setTitle("Personal workspace for " + onBehalfOf);
 		    collection = new Collection(); 
 		    collection.setTitle("Personal collection for " + onBehalfOf);
-		    collection.setLocation("http://www.example.com/user");
+		    collection.setLocation("http://sword.aber.ac.uk/sword/deposit?user=" + onBehalfOf);
 		    collection.addAccepts("application/zip");
 		    collection.addAccepts("application/xml");
 		    collection.setAbstract("An abstract goes in here");
@@ -131,7 +128,13 @@ public class DummyServer implements SWORDServer {
 		}
 		
 		// Get the filenames
-		StringBuffer filenames = new StringBuffer("Deposit file contained:");
+		StringBuffer filenames = new StringBuffer("Deposit file contained: ");
+		if (deposit.getFilename() != null) {
+			filenames.append("(filename = " + deposit.getFilename() + ") ");
+		}
+		if (deposit.getSlug() != null) {
+			filenames.append("(slug = " + deposit.getSlug() + ") ");
+		}
 		try {
 			ZipInputStream zip = new ZipInputStream(deposit.getFile());
 			ZipEntry ze;

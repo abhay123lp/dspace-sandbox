@@ -32,11 +32,7 @@ public class DepositServlet extends HttpServlet {
 	
 	private String authN;
 	
-	private int maxMemorySize;
-	
 	private String tempDirectory;
-	
-	private int maxRequestSize;
 	
 	private static int counter = 0;
 	
@@ -62,14 +58,6 @@ public class DepositServlet extends HttpServlet {
 		}
 		log.info("Authentication type set to: " + authN);
 		
-		String temp = getServletContext().getInitParameter("upload-max-memory-size");
-		if ((temp == null) || (temp.equals(""))) {
-			maxMemorySize = 10;
-		} else {
-			maxMemorySize = Integer.parseInt(temp);
-		}
-		log.info("Upload max size to store in memory: " + maxMemorySize + "KB");
-		
 		tempDirectory = getServletContext().getInitParameter("upload-temp-directory");
 		if ((tempDirectory == null) || (tempDirectory.equals(""))) {
 			tempDirectory = System.getProperty("java.io.tmpdir");
@@ -81,15 +69,7 @@ public class DepositServlet extends HttpServlet {
 		}
 		if (!tempDir.canWrite()) {
 			log.fatal("Upload temporary directory cannot be written to: " + tempDir);
-		}
-		
-		temp = getServletContext().getInitParameter("upload-max-memory-size");
-		if ((temp == null) || (temp.equals(""))) {
-			maxMemorySize = 10;
-		} else {
-			maxMemorySize = Integer.parseInt(temp);
-		}
-		log.info("Upload max size to store in memory: " + maxMemorySize + "KB");	
+		}		
 	}
 	
 	protected void doGet(HttpServletRequest request,
@@ -107,7 +87,7 @@ public class DepositServlet extends HttpServlet {
 		Date date = new Date();
     	log.debug("Starting deposit processing at " + date.toString() + " by " + request.getRemoteAddr());
     	
-		// Are there any authentcation details?
+		// Are there any authentication details?
     	String usernamePassword = getUsernamePassword(request);
     	if ((usernamePassword != null) && (!usernamePassword.equals(""))) {
 			int p = usernamePassword.indexOf(":");
@@ -181,6 +161,9 @@ public class DepositServlet extends HttpServlet {
 				if (slug != null) {
 					d.setSlug(slug);
 				}
+				
+				// Set the content disposition
+				d.setFilename(request.getHeader(HttpHeaders.CONTENT_DISPOSITION));
 				
 				// Set the IP address
 				d.setIPAddress(request.getRemoteAddr());
