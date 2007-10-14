@@ -1,27 +1,64 @@
+/* DSpaceATOMEntry.java
+ * 
+ * Copyright (c) 2007, Aberystwyth University
+ *
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ *  - Redistributions of source code must retain the above
+ *    copyright notice, this list of conditions and the
+ *    following disclaimer.
+ *
+ *  - Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ *  - Neither the name of the Centre for Advanced Software and
+ *    Intelligent Systems (CASIS) nor the names of its
+ *    contributors may be used to endorse or promote products derived
+ *    from this software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+ * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+ * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+ * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ * ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+ * TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF
+ * THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ * SUCH DAMAGE.
+ */ 
+
 package org.dspace.sword;
 
-import org.dspace.content.Item;
-import org.dspace.content.DCValue;
-import org.dspace.handle.HandleManager;
-import org.dspace.content.Bundle;
+import java.sql.SQLException;
+import java.text.ParseException;
+
 import org.dspace.content.Bitstream;
-import org.dspace.core.ConfigurationManager;
+import org.dspace.content.Bundle;
 import org.dspace.content.DCDate;
+import org.dspace.content.DCValue;
+import org.dspace.content.Item;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.handle.HandleManager;
 
 import org.purl.sword.base.SWORDEntry;
+
 import org.w3.atom.Author;
 import org.w3.atom.Content;
-import org.w3.atom.InvalidMediaTypeException;
-import org.w3.atom.Contributor;
-import org.w3.atom.Rights;
 import org.w3.atom.ContentType;
+import org.w3.atom.Contributor;
+import org.w3.atom.InvalidMediaTypeException;
+import org.w3.atom.Rights;
 import org.w3.atom.Summary;
 import org.w3.atom.Title;
-
-import java.util.List;
-import java.util.ArrayList;
-import java.text.ParseException;
-import java.sql.SQLException;
 
 /**
  * Class to represent a DSpace Item as an ATOM Entry.  This
@@ -34,10 +71,24 @@ import java.sql.SQLException;
  */
 public class DSpaceATOMEntry
 {
+	/** the SWORD ATOM entry which this class effectively decorates */
 	protected SWORDEntry entry;
 	
+	/** the item this ATOM entry represents */
 	protected Item item;
 	
+	/**
+	 * Construct the SWORDEntry object which represents the given
+	 * item with the given handle.  An argument as to whether this
+	 * is a NoOp request is required because in that event the 
+	 * assigned identifier for the item will not be added to the
+	 * SWORDEntry as it will be invalid.
+	 * 
+	 * @param item	the item to represent
+	 * @param handle	the handle for the item
+	 * @param noOp		whether this is a noOp request
+	 * @return		the SWORDEntry for the item
+	 */
 	public SWORDEntry getSWORDEntry(Item item, String handle, boolean noOp)
 	{
 		entry = new SWORDEntry();
@@ -88,7 +139,8 @@ public class DSpaceATOMEntry
 	
 	/**
 	 * add the author names from the bibliographic metadata.  Does
-	 * not supply email addresses or URIs
+	 * not supply email addresses or URIs, both for privacy, and
+	 * because the data is not so readily available in DSpace.
 	 *
 	 */
 	protected void addAuthors()
@@ -105,6 +157,11 @@ public class DSpaceATOMEntry
 		}
 	}
 	
+	/**
+	 * Add all the subject classifications from the bibliographic
+	 * metadata.
+	 *
+	 */
 	protected void addCategories()
 	{
 		DCValue[] dcv = item.getMetadata("dc.subject.*");
@@ -117,6 +174,11 @@ public class DSpaceATOMEntry
 		}
 	}
 	
+	/**
+	 * Set the content type that DSpace received.  This is just
+	 * "application/zip" in this default implementation.
+	 *
+	 */
 	protected void addContentElement()
 	{
 		try
@@ -127,10 +189,16 @@ public class DSpaceATOMEntry
 		}
 		catch (InvalidMediaTypeException e)
 		{
-			// do nothing
+			// do nothing; we'll live without the content type declaration!
 		}
 	}
 	
+	/**
+	 * Add the list of contributors to the item.  This will include
+	 * the authors, and any other contributors that are supplied
+	 * in the bibliographic metadata
+	 *
+	 */
 	protected void addContributors()
 	{
 		DCValue[] dcv = item.getMetadata("dc.contributor.*");
@@ -145,6 +213,15 @@ public class DSpaceATOMEntry
 		}
 	}
 	
+	/**
+	 * Add the identifier for the item.  If the item object has
+	 * a handle already assigned, this is used, otherwise, the 
+	 * passed handle is used.  It is set in the form that
+	 * they can be used to access the resource over http (i.e.
+	 * a real URL).
+	 * 
+	 * @param handle
+	 */
 	protected void addIdentifier(String handle)
 	{
 		// it's possible that the item hasn't been assigned a handle yet
@@ -159,11 +236,21 @@ public class DSpaceATOMEntry
 		}
 	}
 	
+	/**
+	 * Add links associated with this item.  The default implementation
+	 * does not support item linking, so this method currently does
+	 * nothing
+	 *
+	 */
 	protected void addLinks()
 	{
 		// do nothing
 	}
 	
+	/**
+	 * Add the date of publication from the bibliographic metadata
+	 *
+	 */
 	protected void addPublishDate()
 	{
 		try
@@ -179,10 +266,15 @@ public class DSpaceATOMEntry
 		}
 		catch (ParseException e)
 		{
-			// do nothing
+			// do nothing; we'll live without the publication date
 		}
 	}
 	
+	/**
+	 * Add rights information.  This attaches an href to the URL
+	 * of the item's licence file
+	 *
+	 */
 	protected void addRights()
 	{
 		try
@@ -218,11 +310,21 @@ public class DSpaceATOMEntry
 		}
 	}
 	
+	/**
+	 * Add the source of the bibliographic metadata.  In the default
+	 * implementation, this information is not available, so this
+	 * method does nothing.
+	 *
+	 */
 	protected void addSource()
 	{
 		// do nothing
 	}
 	
+	/**
+	 * Add the summary/abstract from the bibliographic metadata
+	 *
+	 */
 	protected void addSummary()
 	{
 		DCValue[] dcv = item.getMetadata("dc.description.abstract");
@@ -238,6 +340,10 @@ public class DSpaceATOMEntry
 		}
 	}
 	
+	/**
+	 * Add the title from the bibliographic metadata
+	 *
+	 */
 	protected void addTitle()
 	{
 		DCValue[] dcv = item.getMetadata("dc.title");
@@ -253,6 +359,10 @@ public class DSpaceATOMEntry
 		}
 	}
 	
+	/**
+	 * Add the date that this item was last updated
+	 *
+	 */
 	protected void addLastUpdatedDate()
 	{
 		try
