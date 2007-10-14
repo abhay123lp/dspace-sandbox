@@ -49,8 +49,6 @@ public class SWORDMETSIngester implements SWORDIngester
 		{
 			// set the verbosity of the response
 			this.verbose = deposit.isVerbose();
-			message((new Date()).toString() + "; ");
-			message("Initialising Verbose Deposit; ");
 			
 			// the DSpaceMETSIngester requires an input stream
 			InputStream is = deposit.getFile();
@@ -96,7 +94,15 @@ public class SWORDMETSIngester implements SWORDIngester
 			// update the item metadata to inclue the current time as
 			// the updated date
 			this.setUpdatedDate(installedItem);
+			
+			// in order to write these changes, we need to bypass the
+			// authorisation briefly, because although the user may be
+			// able to add stuff to the repository, they may not have
+			// WRITE permissions on the archive.
+			boolean ignore = context.ignoreAuthorization();
+			context.setIgnoreAuthorization(true);
 			installedItem.update();
+			context.setIgnoreAuthorization(ignore);
 			
 			// for some reason, DSpace will not give you the handle automatically,
 			// so we have to look it up

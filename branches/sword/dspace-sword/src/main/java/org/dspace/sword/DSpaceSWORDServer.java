@@ -92,7 +92,7 @@ public class DSpaceSWORDServer implements SWORDServer
 			
 			// first authenticate the request
 			// note: this will build our context for us
-			this.authenticate(deposit);
+			SWORDContext sc = this.authenticate(deposit);
 			
 			// log the request
 			log.info(LogManager.getHeader(context, "sword_deposit_request", "username=" + deposit.getUsername() + ",on_behalf_of=" + deposit.getOnBehalfOf()));
@@ -100,6 +100,7 @@ public class DSpaceSWORDServer implements SWORDServer
 			DepositManager dm = new DepositManager();
 			dm.setContext(context);
 			dm.setDeposit(deposit);
+			dm.setSWORDContext(sc);
 			DepositResponse response = dm.deposit();
 			
 			// if something hasn't killed it already (allowed), then complete the transaction
@@ -175,28 +176,49 @@ public class DSpaceSWORDServer implements SWORDServer
 			SWORDContext sc = new SWORDContext();
 			SWORDAuthentication auth = new SWORDAuthentication();
 			EPerson ep = null;
+			boolean authenticated = false;
 			if (auth.authenticates(this.context, un, pw))
 			{
 				ep = EPerson.findByEmail(context, un);
-				sc.setAuthenticated(ep);
+				
+				if (ep != null)
+				{
+					authenticated = true;
+					sc.setAuthenticated(ep);
+				}
 				
 				if (obo != null)
 				{
 					EPerson epObo= EPerson.findByEmail(this.context, obo);
-					sc.setOnBehalfOf(epObo);
+					if (epObo != null)
+					{
+						sc.setOnBehalfOf(epObo);
+					}
+					else
+					{
+						authenticated = false;
+					}
 				}
 			}
 			
 			// deal with the context or throw an authentication exception
-			if (ep != null)
+			if (ep != null && authenticated)
 			{
 				this.context.setCurrentUser(ep);
 				log.info(LogManager.getHeader(context, "sword_set_authenticated_user", "user_id=" + ep.getID()));
 			}
 			else
 			{
-				log.info(LogManager.getHeader(context, "sword_unable_to_set_user", "username=" + un + ",on_behalf_of=" + obo));
-				throw new SWORDAuthenticationException("Unable to authenticate the supplied used or onBehalfOf account");
+				if (ep != null)
+				{
+					log.info(LogManager.getHeader(context, "sword_unable_to_set_user", "username=" + un));
+					throw new SWORDAuthenticationException("Unable to authenticate the supplied used");
+				}
+				else
+				{
+					log.info(LogManager.getHeader(context, "sword_unable_to_set_on_behalf_of", "username=" + un + ",on_behalf_of=" + obo));
+					throw new SWORDAuthenticationException("Unable to authenticate the onBehalfOf account");
+				}
 			}
 			
 			return sc;
