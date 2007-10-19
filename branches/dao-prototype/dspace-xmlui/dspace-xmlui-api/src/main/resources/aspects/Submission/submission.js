@@ -181,9 +181,8 @@ function doSubmission()
        do {
            if (handle != null)
            {
-               ExternalIdentifierDAO dao =
-                       ExternalIdentifierDAOFactory.getInstance(context);
-               ExternalIdentifier identifier = dao.retrieve("hdl": + handle);
+               var dao = ExternalIdentifierDAOFactory.getInstance(getDSContext());
+               var identifier = dao.retrieve(handle);
                var dso = identifier.getObjectIdentifier().getObject(getDSContext());
 
                // Check that the dso is a collection
