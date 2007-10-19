@@ -52,7 +52,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
 import org.dspace.content.Bitstream;
-import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -365,8 +364,8 @@ public class MediaFilterManager
 		            // only update item if bitstream not skipped
 		            if (filterClasses[i].processBitstream(c, myItem, myBitstream))
 		            {
-		           		myItem.update(); // Make sure new bitstream has a sequence
-		                                 	// number
+		           		itemDAO.update(myItem); // Make sure new bitstream has a
+		                                 	    // sequence number
 		           		filtered = true;
 		            }
             	}

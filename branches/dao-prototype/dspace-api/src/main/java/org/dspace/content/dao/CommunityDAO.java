@@ -49,6 +49,8 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.dao.ResourcePolicyDAO;
+import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
@@ -143,11 +145,13 @@ public abstract class CommunityDAO extends ContentDAO
         // of 'anonymous' READ
         Group anonymousGroup = groupDAO.retrieve(0);
 
-        ResourcePolicy policy = ResourcePolicy.create(context);
+        ResourcePolicyDAO policyDAO =
+                ResourcePolicyDAOFactory.getInstance(context);
+        ResourcePolicy policy = policyDAO.create();
         policy.setResource(community);
         policy.setAction(Constants.READ);
         policy.setGroup(anonymousGroup);
-        policy.update();
+        policyDAO.update(policy);
 
         log.info(LogManager.getHeader(context, "create_community",
                 "community_id=" + community.getID()) + ",uri=" +

@@ -42,36 +42,27 @@ package org.dspace.content;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.sql.SQLException;
+import java.util.*;
 
 import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
-import org.dspace.browse.Thumbnail; // FIXME: Move to this package
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.IndexBrowse;
+import org.dspace.browse.Thumbnail;
+import org.dspace.content.dao.*;
+import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.content.dao.BundleDAO;            // Naughty!
-import org.dspace.content.dao.BundleDAOFactory;     // Naughty!
-import org.dspace.content.dao.CollectionDAO;        // Naughty!
-import org.dspace.content.dao.CollectionDAOFactory; // Naughty!
-import org.dspace.content.dao.CommunityDAO;         // Naughty!
-import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
-import org.dspace.content.dao.ItemDAO;              // Naughty!
-import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.event.Event;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.dao.EPersonDAO;           // Naughty!
-import org.dspace.eperson.dao.EPersonDAOFactory;    // Naughty!
+import org.dspace.eperson.dao.EPersonDAO;
+import org.dspace.eperson.dao.EPersonDAOFactory;
+import org.dspace.event.Event;    // Naughty!
 
 /**
  * Class representing an item in DSpace. Note that everything is held in memory
@@ -87,6 +78,8 @@ public class Item extends DSpaceObject
     public static final String ANY = "*";
 
     protected ItemDAO dao;
+    protected BitstreamDAO bitstreamDAO;
+    protected BitstreamFormatDAO bitstreamFormatDAO;
     protected BundleDAO bundleDAO;
     protected CollectionDAO collectionDAO;
     protected CommunityDAO communityDAO;
@@ -122,6 +115,8 @@ public class Item extends DSpaceObject
         clearDetails();
         
         dao = ItemDAOFactory.getInstance(context);
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+        bitstreamFormatDAO = BitstreamFormatDAOFactory.getInstance(context);
         bundleDAO = BundleDAOFactory.getInstance(context);
         collectionDAO = CollectionDAOFactory.getInstance(context);
         communityDAO = CommunityDAOFactory.getInstance(context);
@@ -292,7 +287,7 @@ public class Item extends DSpaceObject
             }
         }
 
-        return (DCValue[]) values.toArray(new DCValue[0]);
+        return values.toArray(new DCValue[0]);
     }
     
     /**
@@ -478,7 +473,7 @@ public class Item extends DSpaceObject
      */
     public Bundle[] getBundles()
     {
-        return (Bundle[]) bundles.toArray(new Bundle[0]);
+        return bundles.toArray(new Bundle[0]);
     }
 
     public void setBundles(List<Bundle> bundles)
@@ -504,7 +499,7 @@ public class Item extends DSpaceObject
                 tmp.add(bundle);
             }
         }
-        return (Bundle[]) tmp.toArray(new Bundle[0]);
+        return tmp.toArray(new Bundle[0]);
     }
 
     /**
@@ -531,6 +526,7 @@ public class Item extends DSpaceObject
         // bitstreams) because bitstreams don't yet use DAOs, they do the
         // creation immediately. Once Bitstreams use DAOs, we *should* be able
         // to replace this code with the following:
+        // Addendum: That didn't seem to do it. Need to figure out why.
         /*
         Bundle b = new Bundle();
         b.setName(name);
@@ -705,11 +701,11 @@ public class Item extends DSpaceObject
         b.setSource("Written by org.dspace.content.Item");
 
         // Find the License format
-        BitstreamFormat bf = BitstreamFormat.findByShortDescription(context,
-                "License");
+        BitstreamFormat bf =
+                bitstreamFormatDAO.retrieveByShortDescription("License");
         b.setFormat(bf);
 
-        b.update();
+        bitstreamDAO.update(b);
     }
 
     /**
@@ -747,8 +743,8 @@ public class Item extends DSpaceObject
             IOException
     {
         // Find the License format
-        BitstreamFormat bf = BitstreamFormat.findByShortDescription(context,
-                "License");
+        BitstreamFormat bf =
+                bitstreamFormatDAO.retrieveByShortDescription("License");
         int licensetype = bf.getID();
 
         // search through bundles, looking for bitstream type license
@@ -996,64 +992,6 @@ public class Item extends DSpaceObject
         }
 
         replaceAllBitstreamPolicies(policies);
-    }
-    
-    /**
-     * Moves the item from one collection to another one
-     * 
-     * @throws AuthorizeException
-     * @throws IOException
-     */
-    public void move (Collection from, Collection to) throws AuthorizeException, IOException 
-    {
-    	if (isOwningCollection(from))
-    	{
-    		setOwningCollection(to);
-    		update();
-    	}
-    	
-    	to.addItem(this);
-    	from.removeItem(this);
-    }
-    
-    /**
-     * Get the collections this item is not in.
-     * 
-     * @return the collections this item is not in, if any.
-     */
-    public Collection[] getCollectionsNotLinked()
-    {
-    	Collection[] allCollections = Collection.findAll(context);
-       	Collection[] linkedCollections = getCollections();
-       	Collection[] notLinkedCollections = new Collection[allCollections.length - linkedCollections.length];
-
-       	if ((allCollections.length - linkedCollections.length) == 0)
-       	{
-       		return notLinkedCollections;
-       	}
-       	
-       	int i = 0;
-           	 
-       	for (Collection collection : allCollections)
-        {
-           	 boolean alreadyLinked = false;
-           		 
-           	 for (Collection linkedCommunity : linkedCollections)
-           	 {
-           		 if (collection.getID() == linkedCommunity.getID())
-           		 {
-           			 alreadyLinked = true;
-           			 break;
-           		 }
-           	 }
-           		 
-           	 if (!alreadyLinked)
-           	 {
-           		 notLinkedCollections[i++] = collection;
-          	 }
-        }   	 
-       	
-       	return notLinkedCollections;
     }
 
     /**
@@ -1344,5 +1282,65 @@ public class Item extends DSpaceObject
     public void clearDC(String element, String qualifier, String lang)
     {
         clearMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang);
+    }
+
+    /**
+     * Moves the item from one collection to another one
+     *
+     * @throws AuthorizeException
+     * @throws IOException
+     */
+    @Deprecated
+    public void move (Collection from, Collection to) throws AuthorizeException, IOException
+    {
+        if (isOwningCollection(from))
+        {
+            setOwningCollection(to);
+            update();
+        }
+
+        to.addItem(this);
+        from.removeItem(this);
+    }
+
+    /**
+     * Get the collections this item is not in.
+     *
+     * @return the collections this item is not in, if any.
+     */
+    @Deprecated
+    public Collection[] getCollectionsNotLinked()
+    {
+        Collection[] allCollections = Collection.findAll(context);
+        Collection[] linkedCollections = getCollections();
+        Collection[] notLinkedCollections = new Collection[allCollections.length - linkedCollections.length];
+
+        if ((allCollections.length - linkedCollections.length) == 0)
+        {
+            return notLinkedCollections;
+        }
+
+        int i = 0;
+
+        for (Collection collection : allCollections)
+        {
+            boolean alreadyLinked = false;
+
+            for (Collection linkedCommunity : linkedCollections)
+            {
+                if (collection.getID() == linkedCommunity.getID())
+                {
+                    alreadyLinked = true;
+                    break;
+                }
+            }
+
+            if (!alreadyLinked)
+            {
+                notLinkedCollections[i++] = collection;
+            }
+        }
+
+        return notLinkedCollections;
     }
 }

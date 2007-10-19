@@ -55,6 +55,10 @@ import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
+import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BitstreamFormatDAO;
+import org.dspace.content.dao.BitstreamFormatDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -104,6 +108,9 @@ public class PREMISCrosswalk
     public void ingest(Context context, DSpaceObject dso, List ml)
         throws CrosswalkException, IOException, SQLException, AuthorizeException
     {
+        BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(context);
+        BitstreamFormatDAO bfDAO = BitstreamFormatDAOFactory.getInstance(context);
+
         // we only understand how to crosswalk PREMIS to a Bitstream.
         if (dso.getType() != Constants.BITSTREAM)
             throw new CrosswalkObjectNotSupported("Wrong target object type, PREMISCrosswalk can only crosswalk to a Bitstream.");
@@ -193,7 +200,7 @@ public class PREMISCrosswalk
                 // get it from that, otherwise try to divine from file extension
                 // (guessFormat() looks at bitstream Name, which we just set)
                 BitstreamFormat bf = (MIMEType == null) ? null :
-                        BitstreamFormat.findByMIMEType(context, MIMEType);
+                        bfDAO.retrieveByMimeType(MIMEType);
                 if (bf == null)
                     bf = FormatIdentifier.guessFormat(context, bitstream);
                 if (bf != null)
@@ -202,7 +209,8 @@ public class PREMISCrosswalk
             else
                 log.debug("Skipping element: "+me.toString());
         }
-        bitstream.update();
+
+        bsDAO.update(bitstream);
     }
 
     /*----------- Dissemination functions -------------------*/

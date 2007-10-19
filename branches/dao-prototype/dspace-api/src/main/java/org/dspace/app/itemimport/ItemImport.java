@@ -77,10 +77,14 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BitstreamDAOFactory;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.dao.WorkspaceItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
@@ -120,7 +124,7 @@ public class ItemImport
     static boolean isTest = false;
 
     static boolean isResume = false;
-    
+
     static boolean template = false;
 
     static PrintWriter mapOut = null;
@@ -227,7 +231,7 @@ public class ItemImport
             isTest = true;
             System.out.println("**Test Run** - not actually importing items.");
         }
-        
+
         if (line.hasOption('p'))
         {
             template = true;
@@ -590,7 +594,7 @@ public class ItemImport
             {
                 oldItem = itemDAO.retrieve(Integer.parseInt(oldURI));
             }
-            
+
             /*
              * FIXME: This isn't true any more, now that we have persistent
              * identifiers, and items can have as many as they need.
@@ -614,12 +618,12 @@ public class ItemImport
             {
                 throw new Exception("can't open uri file: " + uriFile.getCanonicalPath());
             }
-            
+
             uriOut.println(oldURI);
             uriOut.close();
-            
+
             deleteItem(c, oldItem);
-            
+
             newItem = addItem(c, mycollections, sourceDir, newItemName, null, template);
         }
     }
@@ -669,6 +673,7 @@ public class ItemImport
     private Item addItem(Context c, Collection[] mycollections, String path,
             String itemname, PrintWriter mapOut, boolean template) throws Exception
     {
+        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(c);
         String mapOutput = null;
 
         System.out.println("Adding item from directory " + itemname);
@@ -679,7 +684,7 @@ public class ItemImport
 
         if (!isTest)
         {
-            wi = WorkspaceItem.create(c, mycollections[0], template);
+            wi = wsiDAO.create(mycollections[0], template);
             myitem = wi.getItem();
         }
 
@@ -871,7 +876,7 @@ public class ItemImport
         {
             schema = schemaAttr.getNodeValue();
         }
-         
+
         // Get the nodes corresponding to formats
         NodeList dcNodes = XPathAPI.selectNodeList(document,
                 "/dublin_core/dcvalue");
@@ -928,21 +933,21 @@ public class ItemImport
         {
         	// If we're just test the import, let's check that the actual metadata field exists.
         	MetadataSchema foundSchema = MetadataSchema.find(c,schema);
-        	
+
         	if (foundSchema == null)
         	{
         		System.out.println("ERROR: schema '"+schema+"' was not found in the registry.");
         		return;
         	}
-        	
+
         	int schemaID = foundSchema.getID();
         	MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
-        	
+
         	if (foundField == null)
         	{
         		System.out.println("ERROR: Metadata field: '"+schema+"."+element+"."+qualifier+"' was not found in the registry.");
         		return;
-            }		
+            }
         }
     }
 
@@ -1044,7 +1049,7 @@ public class ItemImport
             	    // line should be one of these two:
             	    // -r -s n -f filepath
             	    // -r -s n -f filepath\tbundle:bundlename
-            	    // where 
+            	    // where
             	    //		n is the assetstore number
             	    //  	filepath is the path of the file to be registered
             	    //  	bundlename is an optional bundle name
@@ -1052,11 +1057,11 @@ public class ItemImport
             	    int iAssetstore = -1;
             	    String sFilePath = null;
             	    String sBundle = null;
-                    StringTokenizer tokenizer = 
+                    StringTokenizer tokenizer =
                         	new StringTokenizer(sRegistrationLine);
                     while (tokenizer.hasMoreTokens())
                     {
-                        String sToken = tokenizer.nextToken(); 
+                        String sToken = tokenizer.nextToken();
                         if (sToken.equals("-r"))
                         {
                             continue;
@@ -1065,9 +1070,9 @@ public class ItemImport
                         {
                             try
                             {
-                                iAssetstore = 
+                                iAssetstore =
                                     Integer.parseInt(tokenizer.nextToken());
-                            } 
+                            }
                             catch (NumberFormatException e)
                             {
                                 // ignore - iAssetstore remains -1
@@ -1082,12 +1087,12 @@ public class ItemImport
                         {
                             sBundle = sToken.substring(7);
                         }
-                        else 
+                        else
                         {
                             // unrecognized token - should be no problem
                         }
                     } // while
-                    if (iAssetstore == -1 || sFilePath == null) 
+                    if (iAssetstore == -1 || sFilePath == null)
                     {
                         System.out.println("\tERROR: invalid contents file line");
                         System.out.println("\t\tSkipping line: "
@@ -1096,7 +1101,7 @@ public class ItemImport
                     }
                     registerBitstream(c, i, iAssetstore, sFilePath, sBundle);
                     System.out.println("\tRegistering Bitstream: " + sFilePath
-                            + "\tAssetstore: " + iAssetstore 
+                            + "\tAssetstore: " + iAssetstore
                             + "\tBundle: " + sBundle);
                     continue;				// process next line in contents file
             	}
@@ -1119,7 +1124,7 @@ public class ItemImport
                             + bundleMarker.length());
                     String bitstreamName = line.substring(0, markerIndex);
                     bitstreamName = bitstreamName.trim();
-                    
+
                     processContentFileEntry(c, i, path, bitstreamName,
                             bundleName);
                     System.out.println("\tBitstream: " + bitstreamName
@@ -1141,6 +1146,7 @@ public class ItemImport
             String fileName, String bundleName)
         throws IOException, AuthorizeException
     {
+        BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(c);
         String fullpath = path + File.separatorChar + fileName;
 
         // get an input stream
@@ -1192,7 +1198,7 @@ public class ItemImport
             BitstreamFormat bf = FormatIdentifier.guessFormat(c, bs);
             bs.setFormat(bf);
 
-            bs.update();
+            bsDAO.update(bs);
         }
     }
 

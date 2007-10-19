@@ -418,8 +418,6 @@ public class Collection extends DSpaceObject
      * @return the default group of editors associated with this collection
      * @throws AuthorizeException
      */
-    // FIXME: Need to do this cleanly without interrogating the data layer
-    // directly. We need DAOs for Groups too!
     public Group createAdministrators() throws AuthorizeException
     {
         // Check authorisation
@@ -427,9 +425,9 @@ public class Collection extends DSpaceObject
 
         if (admins == null)
         {
-            admins = Group.create(context);
+            admins = groupDAO.create();
             admins.setName("COLLECTION_" + getID() + "_ADMIN");
-            admins.update();
+            groupDAO.update(admins);
         }
 
         AuthorizeManager.addPolicy(context, this, Constants.COLLECTION_ADMIN,
@@ -443,8 +441,6 @@ public class Collection extends DSpaceObject
         }
 
         modified = true;
-        // register this as the admin group
-        this.admins = admins;
 
         return admins;
     }
@@ -553,6 +549,10 @@ public class Collection extends DSpaceObject
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
+    //
+    // FIXME: I see no reason why canEdit() and canEditBoolean() should
+    // be separate methods. just a simple public boolean canEdit() would
+    // suffice, surely.
     ////////////////////////////////////////////////////////////////////
 
     public boolean canEditBoolean()
@@ -571,17 +571,15 @@ public class Collection extends DSpaceObject
 
     public void canEdit() throws AuthorizeException
     {
-        Community[] parents = getCommunities();
-
-        for (int i = 0; i < parents.length; i++)
+        for (Community parent : communityDAO.getParentCommunities(this))
         {
-            if (AuthorizeManager.authorizeActionBoolean(context, parents[i],
+            if (AuthorizeManager.authorizeActionBoolean(context, parent,
                     Constants.WRITE))
             {
                 return;
             }
 
-            if (AuthorizeManager.authorizeActionBoolean(context, parents[i],
+            if (AuthorizeManager.authorizeActionBoolean(context, parent,
                     Constants.ADD))
             {
                 return;
@@ -599,6 +597,9 @@ public class Collection extends DSpaceObject
 
     ////////////////////////////////////////////////////////////////////
     // Deprecated methods
+    //
+    // FIXME: All the addEvent() code in the deprecated methods below
+    // should be moved to the appropriate replacement methods.
     ////////////////////////////////////////////////////////////////////
 
     @Deprecated
@@ -621,7 +622,7 @@ public class Collection extends DSpaceObject
         CollectionDAO dao = CollectionDAOFactory.getInstance(context);
         List<Collection> collections = dao.getCollections();
 
-        return (Collection[]) collections.toArray(new Collection[0]);
+        return collections.toArray(new Collection[0]);
     }
 
     @Deprecated
@@ -667,7 +668,7 @@ public class Collection extends DSpaceObject
     public Community[] getCommunities()
     {
         List<Community> communities = communityDAO.getParentCommunities(this);
-        return (Community[]) communities.toArray(new Community[0]);
+        return communities.toArray(new Community[0]);
     }
 
     @Deprecated
@@ -678,7 +679,7 @@ public class Collection extends DSpaceObject
         List<Collection> collections =
             dao.getCollectionsByAuthority(parent, actionID);
 
-        return (Collection[]) collections.toArray(new Collection[0]);
+        return collections.toArray(new Collection[0]);
     }
 
     @Deprecated

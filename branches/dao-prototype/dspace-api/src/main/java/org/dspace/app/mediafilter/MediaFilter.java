@@ -45,6 +45,10 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BitstreamFormatDAO;
+import org.dspace.content.dao.BitstreamFormatDAOFactory;
 import org.dspace.core.Context;
 
 public abstract class MediaFilter
@@ -112,6 +116,9 @@ public abstract class MediaFilter
     public boolean processBitstream(Context c, Item item, Bitstream source)
             throws Exception
     {
+        BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(c);
+        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(c);
+
         boolean overWrite = MediaFilterManager.isForce;
         
         this.item = item;
@@ -174,10 +181,9 @@ public abstract class MediaFilter
         b.setDescription(getDescription());
 
         // Find the proper format
-        BitstreamFormat bf = BitstreamFormat.findByShortDescription(c,
-                getFormatString());
+        BitstreamFormat bf = dao.retrieveByShortDescription(getFormatString());
         b.setFormat(bf);
-        b.update();
+        bsDAO.update(b);
 
         // fixme - set date?
         // we are overwriting, so remove old bitstream

@@ -218,6 +218,8 @@ public class Community extends DSpaceObject
      * Create a new collection within this community. The collection is created
      * without any workflow groups or default submitter group.
      *
+     * FIXME: This feels like it should be in the DAO.
+     *
      * @return the new collection
      */
     public Collection createCollection() throws AuthorizeException
@@ -233,6 +235,8 @@ public class Community extends DSpaceObject
 
     /**
      * Create a new sub-community within this community.
+     *
+     * FIXME: This feels like it should be in the DAO.
      *
      * @return the new community
      */

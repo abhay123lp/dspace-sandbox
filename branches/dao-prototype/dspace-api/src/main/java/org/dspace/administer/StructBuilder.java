@@ -55,6 +55,9 @@ import org.apache.xpath.XPathAPI;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -409,6 +412,7 @@ public class StructBuilder
     private static Element[] handleCommunities(Context context, NodeList communities, Community parent)
     	throws TransformerException, SQLException, Exception
     {
+        CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
         Element[] elements = new Element[communities.getLength()];
         
         for (int i = 0; i < communities.getLength(); i++)
@@ -423,7 +427,7 @@ public class StructBuilder
             }
             else
             {
-                community = CommunityDAOFactory.getInstance(context).create();
+                community = communityDAO.create();
             }
             
             // default the short description to be an empty string
@@ -451,7 +455,7 @@ public class StructBuilder
             // communities and so forth where they don't exist, but it's
             // proving difficult to isolate the community that already exists
             // without hitting the database directly.
-            community.update();
+            communityDAO.update(community);
             
             // build the element with the URI that identifies the new community
             // along with all the information that we imported here
@@ -529,6 +533,7 @@ public class StructBuilder
     private static Element[] handleCollections(Context context, NodeList collections, Community parent)
     	throws TransformerException, SQLException, AuthorizeException, IOException, Exception
     {
+        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
         Element[] elements = new Element[collections.getLength()];
         
         for (int i = 0; i < collections.getLength(); i++)
@@ -554,7 +559,7 @@ public class StructBuilder
                 }
             }
             
-            collection.update();
+            collectionDAO.update(collection);
             
             element.setAttribute("uri", collection.getIdentifier().getCanonicalForm());
             
