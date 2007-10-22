@@ -136,9 +136,9 @@ CREATE VIEW dcvalue AS
   WHERE MetadataValue.metadata_field_id = MetadataFieldRegistry.metadata_field_id
   AND MetadataFieldRegistry.metadata_schema_id = 1;
 
-SELECT setval('metadatafieldregistry_seq', max(metadata_field_id)) FROM metadatafieldregistry;
-SELECT setval('metadatavalue_seq', max(metadata_value_id)) FROM metadatavalue;
-SELECT setval('metadataschemaregistry_seq', max(metadata_schema_id)) FROM metadataschemaregistry;
+@updateseq.sql metadatafieldregistry_seq metadatafieldregistry metadata_field_id;
+@updateseq.sql metadatavalue_seq metadatavalue metadata_value_id;
+@updateseq.sql metadataschemaregistry_seq metadataschemaregistry metadata_schema_id;
 
 DROP TABLE dctyperegistry;
 
@@ -156,7 +156,7 @@ CREATE INDEX metadatafield_schema_idx ON MetadataFieldRegistry(metadata_schema_i
 
 CREATE TABLE checksum_results
 (
-    result_code VARCHAR PRIMARY KEY,
+    result_code VARCHAR(64) PRIMARY KEY,
     result_description VARCHAR2(2000)
 );
 
@@ -282,8 +282,8 @@ select
     '1', 
     CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, 
     CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, 
-    date_trunc('milliseconds', now()),
-    date_trunc('milliseconds', now()),
+    TO_TIMESTAMP(TO_CHAR(current_timestamp, 'DD-MM-RRRR HH24:MI:SS'), 'DD-MM-RRRR HH24:MI:SS'),
+    TO_TIMESTAMP(TO_CHAR(current_timestamp, 'DD-MM-RRRR HH24:MI:SS'), 'DD-MM-RRRR HH24:MI:SS'),
     CASE WHEN bitstream.checksum_algorithm IS NULL THEN 'MD5' ELSE bitstream.checksum_algorithm END,
     '1'
 from bitstream; 
@@ -294,7 +294,7 @@ from bitstream;
 -- deleted from the system
 
 update most_recent_checksum
-set to_be_processed = false
+set to_be_processed = 0
 where most_recent_checksum.bitstream_id in (
 select bitstream_id
 from bitstream where deleted = '1' );
@@ -314,9 +314,10 @@ insert into checksum_history
 )
 select most_recent_checksum.bitstream_id,
      most_recent_checksum.last_process_end_date,
-     date_trunc('milliseconds', now()),
+     TO_TIMESTAMP(TO_CHAR(current_timestamp, 'DD-MM-RRRR HH24:MI:SS'), 'DD-MM-RRRR HH24:MI:SS'),
       most_recent_checksum.expected_checksum,
-      most_recent_checksum.expected_checksum;
+      most_recent_checksum.expected_checksum
+FROM most_recent_checksum;
 
 -- update the history to indicate that this was 
 -- the first time the software was installed

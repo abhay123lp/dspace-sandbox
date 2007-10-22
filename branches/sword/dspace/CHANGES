@@ -1,16 +1,80 @@
+(Brian Helm)
+SF Patch 1794700  Bug fix for stat-monthly and stat-report-monthly
+
+(Robert Tansley / Barhatov Andrew)
+- Authentication code moved to new org.dspace.authenticate package
+- Added IP Authentication (SF patch #1566820)
+
+(Richard Jones)
+- S.F. Patch 1670093 More stable metadata and schema registry import 
+
+(Richard Jones / Graham Triggs)
+- New Browse code that allows customisation of the available indexes via dspace.cfg,
+  and pluggable normalisation of the sort strings.
+  Integration with both JSP-UI and XML-UI included.
+  (S.F. Patches 1702233 and 1672065)
+
+(Flavio Botelho)
+- S.F. Patch 1764069 Replace "String" with "Integer" in PreparedStatement 
+  Parameters where appropriate.
+- SF Patch 1743188 Patch for Request #1145499 - Move Items
+
+(Mark Diggory)
+- Guard against output invalid unqualified Dublin Core in OAIDCCrosswalk.
+
+(Graham Triggs / Brad Teale / Ed Yu)
+- S.F. Patch 1679972 OAIDCCrosswalk NPE and invalid character fix
+
+(Graham Triggs)
+- Metadata Exporter (Implements request: #1444364)
+- ConfigurationManager fix to honour log4j.configuration
+- S.F. Patch 1749196 Oracle SQL in Bitstream Checker
+- S.F. Patch 1740579 Patch for bug 1740454 (Concurrency)
+- Admin browser for withdrawn items (implements feature request #1221957)
+
+(Larry Stone, Richard Rodgers, Sands Fish, Mark Diggory)
+- S.F. Patch 1633596 Event System for DSpace 1.5
+
+(Conal Tuohy)
+- S.F. Patch 1751638 Set http disposition header to force download of large bitstreams
+
 (Mark Diggory/Scott Phillips)
 - Restructure Codebase and Build Process to support Addon functionality for DSpace
 - Integrate Maven build into projects
+- Add XMLUI and LNI to Endorsed Addons
 
 (Claudia Juergen)
 - SF Patch #1722557 for SF Bug #1549290 Suggest Features uses hard coded strings
 - SF Patch #1450491 i18n configurable multilingualism support
+- SF Patch #1638569 for SF Bug #1638565 Database Upgrade 12 to 13 missing content on new colums
 
 (James Rutherford)
 - Fixed SF bug #1727034 Method MetadataField.unique() is incorrect for null values
 - Fixed SF bug #1614546 get rid of unused mets_bitstream_id column
-- SF Patch #1638569 for SF Bug #1638565 Database Upgrade 12 to 13 missing content on new colums
+- Removed unnecessary and unused edu.mit.dspace.MITSpecialGroup
+
+(Tim Donohue)
+- Added Configurable Submission to JSP-UI and XML-UI (updated version of SF Patch #1691345)
+
+(Stuart Lewis)
+- SF Patch #1737792 Patch for bug 1552760 - Submit interface looks bad in Safari
+- Removal of message for Netscape users in choose-file.jsp + removal of supporting text and images in the help file
+- SF Patch #1591871 Docs for google and html sitemaps
+- SF Patch #1799575 New EPersonConsumer event consumer
+
+(Chris yates)
+- SF Patch #1724330 Removes "null" being displayed in community-home.jsp
+- SF Patch #1763535 Alert DSpace administrator of new user registration
+- SF Patch #1759438 Multilingualism Language Switch - DSpace Header
+
+(Robert Tansley / Stuart Lewis)
+- SF Patch #1587225 Google and html sitemap generator
+
+(Zuki Ebetsu)
 - SF Patch #1620700 Add Community and Sub-Community to OAI Sets
+
+(Robert Tansley)
+- SF Patch #1566572 Item metadata in XHTML head <meta> elements
 
 1.4.2 beta
 ===========
@@ -61,7 +125,6 @@
 (Stuart Lewis)
 - SF Patch #1670110 for SF Bug #1670106 Onebox and textarea fail when visibility set to workflow
 - SF Patch #1628889 Improve file size descriptions in ItemTag
-- SF Patch #1587225 Google and html sitemap generator
 - SF Patch #1641678 [dspace]/bin scripts for import and export
 - SF Patch #1642336 Restrict domains of self-registered users
 
@@ -93,6 +156,8 @@
 (Chris Yates)
 - SF Patch #1711982 Updates to short_description (null) field when editing/creat
 
+(Kyle Brentnell)
+- SF Patch #1720105 Add SMTP port as configurable parameter
 
 1.4.1 final
 ===========
