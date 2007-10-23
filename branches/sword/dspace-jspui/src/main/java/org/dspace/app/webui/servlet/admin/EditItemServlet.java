@@ -77,7 +77,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.handle.HandleManager;
-import org.dspace.search.DSIndexer;
 import org.dspace.license.CreativeCommons;
 
 /**
@@ -105,6 +104,12 @@ public class EditItemServlet extends DSpaceServlet
 
     /** User reinstates a withdrawn item */
     public static final int REINSTATE = 6;
+
+    /** User starts the movement of an item */
+    public static final int START_MOVE_ITEM = 7;
+
+    /** User confirms the movement of the item */
+    public static final int CONFIRM_MOVE_ITEM = 8;
 
     /** Logger */
     private static Logger log = Logger.getLogger(EditCommunitiesServlet.class);
@@ -269,6 +274,47 @@ public class EditItemServlet extends DSpaceServlet
 
             break;
 
+        case START_MOVE_ITEM:
+        	if (AuthorizeManager.isAdmin(context))
+        	{
+	        	// Display move collection page with fields of collections and communities
+	        	Collection[] notLinkedCollections = item.getCollectionsNotLinked();
+	        	Collection[] linkedCollections = item.getCollections();
+	            	
+	        	request.setAttribute("linkedCollections", linkedCollections);
+	        	request.setAttribute("notLinkedCollections", notLinkedCollections);
+	            	            
+	        	JSPManager.showJSP(request, response, "/tools/move-item.jsp");
+        	} else
+        	{
+        		throw new ServletException("You must be an administrator to move an item");
+        	}
+        	
+        	break;
+            	        
+        case CONFIRM_MOVE_ITEM:
+        	if (AuthorizeManager.isAdmin(context))
+        	{
+	        	Collection fromCollection = Collection.find(context, UIUtil.getIntParameter(request, "collection_from_id"));
+	        	Collection toCollection = Collection.find(context, UIUtil.getIntParameter(request, "collection_to_id"));
+	            	            
+	        	if (fromCollection == null || toCollection == null)
+	        	{
+	        		throw new ServletException("Missing or incorrect collection IDs for moving item");
+	        	}
+	            	            
+	        	item.move(fromCollection, toCollection);
+	            
+	            showEditForm(context, request, response, item);
+	
+	            context.complete();
+        	} else
+        	{
+        		throw new ServletException("You must be an administrator to move an item");
+        	}
+        	
+        	break;
+            	
         default:
 
             // Erm... weird action value received.
@@ -598,9 +644,6 @@ public class EditItemServlet extends DSpaceServlet
             showEditForm(context, request, response, item);
         }
         
-        // update the item index
-        DSIndexer.reIndexContent(context, item);
-
         // Complete transaction
         context.complete();
     }

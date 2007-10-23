@@ -1,11 +1,11 @@
 /*
- * SubmissionInfo.java
+ * RecentCommunitySubmissions.java
  *
- * Version: $Revision$
+ * Version: $Revision:  $
  *
- * Date: $Date$
+ * Date: $Date:  $
  *
- * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
+ * Copyright (c) 2002-2007, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,44 +37,55 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.app.webui.util;
+package org.dspace.app.webui.components;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-import org.dspace.content.Bitstream;
-import org.dspace.content.Bundle;
-import org.dspace.content.InProgressSubmission;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Community;
+import org.dspace.core.Context;
+import org.dspace.plugin.CommunityHomeProcessor;
+import org.dspace.plugin.PluginException;
+
+import org.dspace.app.webui.components.RecentSubmissionsManager;
 
 /**
- * Information about an item being editing with the submission UI
+ * This class obtains recent submissions to the given community by
+ * implementing the CommunityHomeProcessor.
  * 
- * @author Robert Tansley
- * @version $Revision$
+ * @author Richard Jones
+ *
  */
-public class SubmissionInfo
+public class RecentCommunitySubmissions implements CommunityHomeProcessor
 {
-    /** The submission */
-    public InProgressSubmission submission;
+	/**
+	 * blank constructor - does nothing
+	 *
+	 */
+	public RecentCommunitySubmissions()
+	{
+		
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.dspace.plugin.CommunityHomeProcessor#process(org.dspace.core.Context, javax.servlet.http.HttpServletRequest, javax.servlet.http.HttpServletResponse, org.dspace.content.Community)
+	 */
+	public void process(Context context, HttpServletRequest request, HttpServletResponse response, Community community) 
+		throws PluginException, AuthorizeException
+	{
+		try
+		{
+			RecentSubmissionsManager rsm = new RecentSubmissionsManager(context);
+			RecentSubmissions recent = rsm.getRecentSubmissions(community);
+			request.setAttribute("recently.submitted", recent);
+		}
+		catch (RecentSubmissionsException e)
+		{
+			throw new PluginException(e);
+		}
+	}
 
-    /** The step reached in the submission process (where the user can jump) */
-    public int stepReached;
+	
 
-    /** The element or element_qualifier to show more input boxes for */
-    public String moreBoxesFor;
-
-    /** The element or element_qualifier to scroll to initially using anchor */
-    public String jumpToField;
-
-    /** If non-empty, form-relative indices of missing fields */
-    public List missingFields;
-
-    /** Specific bundle we're dealing with */
-    public Bundle bundle;
-
-    /** Specific bitstream we're dealing with */
-    public Bitstream bitstream;
-    
-    /** The number of metadata entry/edit pages */
-    public int numMetadataPages;
 }
-

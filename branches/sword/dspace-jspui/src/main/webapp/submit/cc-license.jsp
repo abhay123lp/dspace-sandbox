@@ -46,12 +46,11 @@
 
 <%@ page contentType="text/html;charset=UTF-8" %>
 
-<%@ page import="org.dspace.app.webui.servlet.SubmitServlet" %>
-<%@ page import="org.dspace.app.webui.util.SubmissionInfo" %>
-
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
 <%
+    request.setAttribute("LanguageSwitch", "hide");
+
     String cc_license_url = (String) request.getParameter("license_url");
 %>
 <script type="text/javascript">
