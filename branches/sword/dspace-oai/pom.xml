@@ -1,3 +1,4 @@
+
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -6,8 +7,7 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-oai</artifactId>
    <packaging>war</packaging>
-   <name>DSpace OAI Web Application</name>
-   <version>1.5-SNAPSHOT</version>
+   <name>DSpace OAI :: Web Application</name>
    <description>DSpace OAI Service Provider Webapplication</description>
    <url>http://projects.dspace.org/dspace-oai</url>
 
@@ -17,9 +17,9 @@
    -->
    <parent>
       <groupId>org.dspace</groupId>
-      <artifactId>dspace-pom</artifactId>
+      <artifactId>dspace</artifactId>
       <version>1.5-SNAPSHOT</version>
-      <relativePath>../dspace-pom</relativePath>
+      <relativePath>../dspace</relativePath>
    </parent>
    
    <build>
@@ -52,12 +52,20 @@
       <dependency>
          <groupId>org.dspace</groupId>
          <artifactId>dspace-api</artifactId>
-         <version>1.5-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>language-packs</artifactId>
       </dependency>
       <dependency>
          <groupId>org.dspace</groupId>
          <artifactId>oaicat</artifactId>
          <version>1.5.48</version>
+      </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>servlet-api</artifactId>
+         <scope>provided</scope>
       </dependency>
    </dependencies>
 
