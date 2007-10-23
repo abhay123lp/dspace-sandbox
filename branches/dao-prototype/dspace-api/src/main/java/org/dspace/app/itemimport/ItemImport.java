@@ -718,7 +718,8 @@ public class ItemImport
             // put item in system
             if (!isTest)
             {
-                Item item = InstallItem.installItem(c, wi, uri);
+                Item item = InstallItem.installItem(c, wi);
+//                Item item = InstallItem.installItem(c, wi, uri);
 
                 uri = item.getIdentifier().getCanonicalForm();
 

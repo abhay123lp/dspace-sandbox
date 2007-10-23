@@ -20,3 +20,6 @@ Stuff that needs fixin':
    link to the actual identifier.
  * Need to forward requests from <url>/handle/ and <url>/bitstream/ to the new
    URI servlet, and have it mimic the previous behaviour.
+ * Need a way to import items (and any other 'content') that have existing
+   UUIDs / identifiers. One approach would be to just add the value of the
+   identifier as a dc:identifier.uri, but that's not ideal.

@@ -76,7 +76,10 @@ public class InstallItem
 
     /**
      * Take an InProgressSubmission and turn it into a fully-archived Item.
-     * 
+     *
+     * FIXME: This needs to be more flexible about what kind of existing
+     * identifiers may be passed in.
+     *
      * @param c  current context
      * @param is
      *            submission to install
