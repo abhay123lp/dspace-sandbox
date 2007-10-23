@@ -52,7 +52,6 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.history.HistoryManager;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -286,9 +285,6 @@ public class WorkspaceItem implements InProgressSubmission
 
         WorkspaceItem wi = new WorkspaceItem(c, row);
 
-        HistoryManager.saveHistory(c, wi, HistoryManager.CREATE, c
-                .getCurrentUser(), c.getExtraLogInfo());
-
         return wi;
     }
 
@@ -458,13 +454,34 @@ public class WorkspaceItem implements InProgressSubmission
     }
 
     /**
+     * Get the value of the page reached column (which represents the page
+     * reached within a stage/step)
+     * 
+     * @return the value of the page reached column
+     */
+    public int getPageReached()
+    {
+        return wiRow.getIntColumn("page_reached");
+    }
+
+    /**
+     * Set the value of the page reached column (which represents the page
+     * reached within a stage/step)
+     * 
+     * @param v
+     *            the value of the page reached column
+     */
+    public void setPageReached(int v)
+    {
+        wiRow.setColumn("page_reached", v);
+    }
+
+    /**
      * Update the workspace item, including the unarchived item.
      */
     public void update() throws SQLException, AuthorizeException, IOException
     {
         // Authorisation is checked by the item.update() method below
-        HistoryManager.saveHistory(ourContext, this, HistoryManager.MODIFY,
-                ourContext.getCurrentUser(), ourContext.getExtraLogInfo());
 
         log.info(LogManager.getHeader(ourContext, "update_workspace_item",
                 "workspace_item_id=" + getID()));
@@ -499,9 +516,6 @@ public class WorkspaceItem implements InProgressSubmission
                     + "original submitter to delete a workspace item");
         }
 
-        HistoryManager.saveHistory(ourContext, this, HistoryManager.REMOVE,
-                ourContext.getCurrentUser(), ourContext.getExtraLogInfo());
-
         log.info(LogManager.getHeader(ourContext, "delete_workspace_item",
                 "workspace_item_id=" + getID() + "item_id=" + item.getID()
                         + "collection_id=" + collection.getID()));
@@ -535,9 +549,6 @@ public class WorkspaceItem implements InProgressSubmission
     {
         // Check authorisation. We check permissions on the enclosed item.
         AuthorizeManager.authorizeAction(ourContext, item, Constants.WRITE);
-
-        HistoryManager.saveHistory(ourContext, this, HistoryManager.REMOVE,
-                ourContext.getCurrentUser(), ourContext.getExtraLogInfo());
 
         log.info(LogManager.getHeader(ourContext, "delete_workspace_item",
                 "workspace_item_id=" + getID() + "item_id=" + item.getID()

@@ -39,9 +39,15 @@
  */
 package org.dspace.storage.rdbms;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 import org.apache.log4j.Logger;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.IndexBrowse;
+import org.dspace.core.ConfigurationManager;
 
 /**
  * Command-line executed class for initializing the DSpace database. This should
@@ -64,11 +70,48 @@ public class InitializeDatabase
             System.exit(1);
         }
 
+        ConfigurationManager.loadConfig(null);
         log.info("Initializing Database");
 
         try
         {
-            DatabaseManager.loadSql(new FileReader(argv[0]));
+            if("clean-database.sql".equals(argv[0]))
+            {
+                try
+                {
+                    IndexBrowse browse = new IndexBrowse();
+                    browse.setDelete(true);
+                    browse.setExecute(true);
+                    browse.clearDatabase();
+                }
+                catch (BrowseException e)
+                {
+                    log.error(e.getMessage(),e);
+                    throw new RuntimeException(e.getMessage(),e);
+                }
+                
+                DatabaseManager.loadSql(getScript(argv[0]));
+                
+            }
+            else if("database_schema.sql".equals(argv[0]))
+            {
+                
+                DatabaseManager.loadSql(getScript(argv[0]));
+                
+                try
+                {
+                    IndexBrowse browse = new IndexBrowse();
+                    browse.setRebuild(true);
+                    browse.setExecute(true);
+                    browse.initBrowse();
+                }
+                catch (BrowseException e)
+                {
+                    log.error(e.getMessage(),e);
+                    throw new RuntimeException(e.getMessage(),e);
+                }
+            }
+            
             System.exit(0);
         }
         catch (Exception e)
@@ -76,5 +119,30 @@ public class InitializeDatabase
             log.fatal("Caught exception:", e);
             System.exit(1);
         }
+    }
+
+    /**
+     * Attempt to get the named script, with the following rules:
+     * etc/<db.name>/<name>
+     * etc/<name>
+     * <name>
+     */
+    private static FileReader getScript(String name) throws FileNotFoundException, IOException
+    {
+        String dbName = ConfigurationManager.getProperty("db.name");
+        File myFile = null;
+        
+        if (dbName != null)
+        {
+            myFile = new File("etc/" + dbName + "/" + name);
+            if (myFile.exists())
+                return new FileReader(myFile.getCanonicalPath());
+        }
+        
+        myFile = new File("etc/" + name);
+        if (myFile.exists())
+            return new FileReader(myFile.getCanonicalPath());
+        
+        return new FileReader(name);
     }
 }

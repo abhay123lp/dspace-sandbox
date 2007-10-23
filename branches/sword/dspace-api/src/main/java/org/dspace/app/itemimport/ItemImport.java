@@ -74,6 +74,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.FormatIdentifier;
 import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.ConfigurationManager;
@@ -170,6 +171,7 @@ public class ItemImport
         String mapfile = null;
         String eperson = null; // db ID or email
         String[] collections = null; // db ID or handles
+        int status = 0;
 
         if (line.hasOption('h'))
         {
@@ -439,6 +441,7 @@ public class ItemImport
             c.abort();
             e.printStackTrace();
             System.out.println(e);
+            status = 1;
         }
 
         if (mapOut != null)
@@ -450,6 +453,7 @@ public class ItemImport
         {
             System.out.println("***End of Test Run***");
         }
+        System.exit(status);
     }
 
     private void addItems(Context c, Collection[] mycollections,
@@ -782,7 +786,7 @@ public class ItemImport
     // Load all metadata schemas into the item.
     private void loadMetadata(Context c, Item myitem, String path)
             throws SQLException, IOException, ParserConfigurationException,
-            SAXException, TransformerException
+            SAXException, TransformerException, AuthorizeException
     {
         // Load the dublin core metadata
         loadDublinCore(c, myitem, path + "dublin_core.xml");
@@ -798,7 +802,7 @@ public class ItemImport
 
     private void loadDublinCore(Context c, Item myitem, String filename)
             throws SQLException, IOException, ParserConfigurationException,
-            SAXException, TransformerException //, AuthorizeException
+            SAXException, TransformerException, AuthorizeException
     {
         Document document = loadXML(filename);
 
@@ -828,11 +832,11 @@ public class ItemImport
         for (int i = 0; i < dcNodes.getLength(); i++)
         {
             Node n = dcNodes.item(i);
-            addDCValue(myitem, schema, n);
+            addDCValue(c, myitem, schema, n);
         }
     }
 
-    private void addDCValue(Item i, String schema, Node n) throws TransformerException
+    private void addDCValue(Context c, Item i, String schema, Node n) throws TransformerException, SQLException, AuthorizeException
     {
         String value = getStringValue(n); //n.getNodeValue();
         // compensate for empty value getting read as "null", which won't display
@@ -868,6 +872,26 @@ public class ItemImport
         if (!isTest)
         {
             i.addMetadata(schema, element, qualifier, language, value);
+        }
+        else
+        {
+        	// If we're just test the import, let's check that the actual metadata field exists.
+        	MetadataSchema foundSchema = MetadataSchema.find(c,schema);
+        	
+        	if (foundSchema == null)
+        	{
+        		System.out.println("ERROR: schema '"+schema+"' was not found in the registry.");
+        		return;
+        	}
+        	
+        	int schemaID = foundSchema.getSchemaID();
+        	MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
+        	
+        	if (foundField == null)
+        	{
+        		System.out.println("ERROR: Metadata field: '"+schema+"."+element+"."+qualifier+"' was not found in the registry.");
+        		return;
+            }		
         }
     }
 
