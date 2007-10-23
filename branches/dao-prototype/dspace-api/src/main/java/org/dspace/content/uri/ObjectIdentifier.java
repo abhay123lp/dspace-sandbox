@@ -134,8 +134,10 @@ public class ObjectIdentifier
             }
         }
 
-        throw new IllegalArgumentException(canonicalForm +
-                "not recognised as an object identifier");
+        return null;
+
+//        throw new IllegalArgumentException(canonicalForm +
+//                "not recognised as an object identifier");
     }
 
     public DSpaceObject getObject(Context context)

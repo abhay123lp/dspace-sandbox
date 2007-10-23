@@ -414,9 +414,11 @@ public class EPersonDAOPostgres extends EPersonDAO
     @Override
     public List<EPerson> search(String query, int offset, int limit)
     {
-        if (query == null || "".equals(query))
+        List<EPerson> results = super.search(query, offset, limit);
+
+        if (results != null)
         {
-            return new ArrayList<EPerson>();
+            return results;
         }
 
         String params = "%" + query.toLowerCase() + "%";

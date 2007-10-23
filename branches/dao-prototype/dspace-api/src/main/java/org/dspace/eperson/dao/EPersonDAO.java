@@ -39,6 +39,7 @@
  */
 package org.dspace.eperson.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,8 +51,8 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
 import org.dspace.eperson.EPerson.EPersonMetadataField;
+import org.dspace.eperson.Group;
 import org.dspace.storage.dao.CRUD;
 
 /**
@@ -222,5 +223,44 @@ public abstract class EPersonDAO implements CRUD<EPerson>
      *
      * @return array of EPerson objects
      */
-    public abstract List<EPerson> search(String query, int offset, int limit);
+    public List<EPerson> search(String query, int offset, int limit)
+    {
+        if (limit == 0)
+        {
+            return new ArrayList<EPerson>();
+        }
+        
+        if (query == null || "".equals(query))
+        {
+            List<EPerson> epeople = getEPeople();
+
+            if ((offset > -1) || (limit > -1))
+            {
+                int toIndex = epeople.size();
+
+                if (offset < 0)
+                {
+                    offset = 0;
+                }
+                if (limit != -1)
+                {
+                    // If the limit is set to -1 that means there is no limit,
+                    // and we use the toIndex from above, otherwise we just add
+                    // the limit to the offset to get the toIndex.
+                    if ((offset + limit) <= epeople.size())
+                    {
+                        toIndex = offset + limit;
+                    }
+                }
+
+                return epeople.subList(offset, toIndex);
+            }
+            else
+            {
+                return epeople;
+            }
+        }
+
+        return null;
+    }
 }
