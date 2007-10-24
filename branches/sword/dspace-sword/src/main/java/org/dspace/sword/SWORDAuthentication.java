@@ -39,8 +39,8 @@
 package org.dspace.sword;
 
 import org.dspace.core.Context;
-import org.dspace.eperson.AuthenticationManager;
-import org.dspace.eperson.AuthenticationMethod;
+import org.dspace.authenticate.AuthenticationManager;
+import org.dspace.authenticate.AuthenticationMethod;
 
 /**
  * This class offers a thin wrapper for the default DSpace
