@@ -111,6 +111,24 @@ public class InitializeDatabase
                     throw new RuntimeException(e.getMessage(),e);
                 }
             }
+            else if("dspace-dao.sql".equals(argv[0]))
+            {
+
+                DatabaseManager.loadSql(getScript(argv[0]));
+
+                try
+                {
+                    IndexBrowse browse = new IndexBrowse();
+                    browse.setRebuild(true);
+                    browse.setExecute(true);
+                    browse.initBrowse();
+                }
+                catch (BrowseException e)
+                {
+                    log.error(e.getMessage(),e);
+                    throw new RuntimeException(e.getMessage(),e);
+                }
+            }
             
             System.exit(0);
         }
