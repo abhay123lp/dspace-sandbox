@@ -248,6 +248,13 @@ public class DSpaceSWORDServer implements SWORDServer
 	private SWORDContext authenticate(String un, String pw, String obo)
 		throws SWORDAuthenticationException, SWORDException
 	{
+		// smooth out the OnBehalfOf request, so that empty strings are
+		// treated as null
+		if ("".equals(obo))
+		{
+			obo = null;
+		}
+		
 		log.info(LogManager.getHeader(context, "sword_authenticate", "username=" + un + ",on_behalf_of=" + obo));
 		try
 		{
