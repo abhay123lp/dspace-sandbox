@@ -55,12 +55,8 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.apache.log4j.Logger;
 
 import org.dspace.app.webui.util.UIUtil;
-import org.dspace.content.Bitstream;
-import org.dspace.content.Bundle;
-import org.dspace.content.Collection;
-import org.dspace.content.DCDate;
-import org.dspace.content.DCValue;
-import org.dspace.content.Item;
+import org.dspace.browse.BrowseException;
+import org.dspace.content.*;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Utils;
@@ -155,11 +151,23 @@ public class ItemTag extends TagSupport
     /** log4j logger */
     private static Logger log = Logger.getLogger(ItemTag.class);
 
+    /** Hashmap of linked metadata to browse, from dspace.cfg */
+    private Map<String,String> linkedMetadata;
+
     public ItemTag()
     {
         super();
         getThumbSettings();
         collectionStyles = null;
+        linkedMetadata = new HashMap<String, String>();
+        String linkMetadata;
+        for (int i = 1; null != (linkMetadata = ConfigurationManager.getProperty("webui.browse.link."+i)); i++)
+        {
+            String[] linkedMetadataSplit = linkMetadata.split(":");
+            String indexName = linkedMetadataSplit[0].trim();
+            String metadataName = linkedMetadataSplit[1].trim();
+            linkedMetadata.put(indexName, metadataName);
+        }
     }
 
     public int doStartTag() throws JspException
@@ -298,8 +306,16 @@ public class ItemTag extends TagSupport
         	String field = st.nextToken().trim();
             boolean isDate = false;
             boolean isLink = false;
-            boolean isAuthor = isAuthor(field);
-            boolean isSubject = isSubject(field);
+            String browseIndex;
+            try
+            {
+                browseIndex = getBrowseField(field);
+            }
+            catch (BrowseException e)
+            {
+                log.error(e);
+                browseIndex = null;
+            }
 
             // Find out if the field should rendered as a date or link
 
@@ -357,36 +373,13 @@ public class ItemTag extends TagSupport
                         DCDate dd = new DCDate(values[j].value);
 
                         // Parse the date
-                        out.print(UIUtil.displayDate(dd, false, false,
-                                    (HttpServletRequest)pageContext.getRequest()));
+                        out.print(UIUtil.displayDate(dd, false, false, (HttpServletRequest)pageContext.getRequest()));
                     }
-                    else if (isAuthor)
+                    else if (browseIndex != null)
                     {
-                    	String bType = ConfigurationManager.getProperty("webui.authorlinks.browse");
-                    	if (bType != null)
-                    	{
-                    		out.print("<a href=\"" + request.getContextPath() + "/browse?type=" + bType + "&value="
+                    	out.print("<a href=\"" + request.getContextPath() + "/browse?type=" + browseIndex + "&value="
                     				+ URLEncoder.encode(values[j].value, "UTF-8") + "\">" + Utils.addEntities(values[j].value)
                     				+ "</a>");
-                    	}
-                    	else
-                    	{
-                    		out.print(Utils.addEntities(values[j].value));
-                    	}
-                    }
-                    else if (isSubject)
-                    {
-                    	String sType = ConfigurationManager.getProperty("webui.authorlinks.browse");
-                    	if (sType != null)
-                    	{
-                    		out.print("<a href=\"" + request.getContextPath() + "/browse?type=" + sType + "&value="
-                    				+ URLEncoder.encode(values[j].value, "UTF-8") + "\">" + Utils.addEntities(values[j].value)
-                    				+ "</a>");
-                    	}
-                    	else
-                    	{
-                    		out.print(Utils.addEntities(values[j].value));
-                    	}
                     }
                     else
                     {
@@ -506,6 +499,7 @@ public class ItemTag extends TagSupport
         if (collections != null)
         {
             out.print("<tr><td class=\"metadataFieldLabel\">");
+            // FIXME: Is this actually what we want to check here?
             if (!item.isArchived())
             {
                 out.print(LocaleSupport.getLocalizedMessage(pageContext,
@@ -558,8 +552,6 @@ public class ItemTag extends TagSupport
         else
         {
             boolean html = false;
-            // FIXME: This is inconsistent with other URLs, and will leave
-            // commas in the URL :(
             String uri = item.getIdentifier().getURL().toString();
 
             Bitstream primaryBitstream = null;
@@ -859,119 +851,53 @@ public class ItemTag extends TagSupport
     }
     
     /**
-     * Is the given field name an Author field? 
-     * 
-     * If undefined in dspace.cfg (webui.browse.index.author) it defaults
-     * to using any field containing 'creator'.
-     * 
+     * Return the browse index related to the field. <code>null</code> if the field is not a browse field
+     * (look for <cod>webui.browse.link.<n></code> in dspace.cfg)
+     *
      * @param field
-     * @return Whether or not the given String is an author 
+     * @return the browse index related to the field. Null otherwise
+     * @throws BrowseException
      */
-    private boolean isAuthor(String field)
+    private String getBrowseField(String field) throws BrowseException
     {
-        // Does the user want to link to authors?
-        if (ConfigurationManager.getBooleanProperty("webui.authorlinks.enable", true) == false)
+        for (String indexName : linkedMetadata.keySet())
         {
-           return false; 
-        }
-        
-        //Check whether a given metadata field should be considered an author field.
-        String authorField = ConfigurationManager.getProperty("webui.browse.index.author");
-        if (authorField == null)
-        {
-            if (field.indexOf("contributor") > 0 || field.indexOf("creator") > 0)
-                return true;
-            else
-                return false;
-        }
-        else
-        {
-            StringTokenizer st = new StringTokenizer(authorField, ",");
-            String aField;
+            StringTokenizer bw_dcf = new StringTokenizer(linkedMetadata.get(indexName), ".");
 
-            while (st.hasMoreTokens())
+            String[] bw_tokens = { "", "", "" };
+            int i = 0;
+            while(bw_dcf.hasMoreTokens())
             {
-                aField = st.nextToken().trim();
-                // does dspace.cfg allow all qualifiers for this element?
-                if (aField.endsWith(".*"))
-                {
-                    // does the field have a qualifier?
-                    int i = field.lastIndexOf(".");
-                    if (i != field.indexOf("."))
-                    {
-                        // lop off qualifier
-                        field = field.substring(0, i);
-                    }
-                }
-                // check field against dspace.cfg
-                if (aField.indexOf(field) >= 0)
-                    return true;
+                bw_tokens[i] = bw_dcf.nextToken().toLowerCase().trim();
+                i++;
             }
-            //no match found
-            return false;
-        }
-    }
-    
-    /**
-     * Is the given field name a Subject field? 
-     * 
-     * If undefined in dspace.cfg (webui.browse.index.subject) it defaults
-     * to using any field containing 'subject'.
-     * 
-     * @param field
-     * @return Whether or not the given String is a subject 
-     */
-    private boolean isSubject(String field)
-    {
-        // Does the user want to link to subjects?
-        if (ConfigurationManager.getBooleanProperty("webui.subjectlinks.enable", false) == false)
-        {
-           return false; 
-        }
-        
-        // Check whether a given metadata field should be considered a subject field
-        String subjectField = ConfigurationManager.getProperty("webui.browse.index.subject");
-        
-        if (subjectField == null)
-        {
-            if (field.indexOf("subject") > 0)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        else
-        {
-            StringTokenizer st = new StringTokenizer(subjectField, ",");
-            String sField;
-            
-            while (st.hasMoreTokens())
-            {
-                sField = st.nextToken().trim();
-                // does dspace.cfg allow all qualifiers for this element?
-                if (sField.endsWith(".*"))
-                {
-                    // does the field have a qualifier?
-                    int i = field.lastIndexOf(".");
-                    if (i != field.indexOf("."))
-                    {
-                        // lop off qualifier
-                        field = field.substring(0, i);
-                    }
-                }
+            String bw_schema = bw_tokens[0];
+            String bw_element = bw_tokens[1];
+            String bw_qualifier = bw_tokens[2];
 
-                // check field against dspace.cfg
-                if (sField.indexOf(field) >= 0)
-                {
-                    return true;
-                }
+            StringTokenizer dcf = new StringTokenizer(field, ".");
+
+            String[] tokens = { "", "", "" };
+            int j = 0;
+            while(dcf.hasMoreTokens())
+            {
+                tokens[j] = dcf.nextToken().toLowerCase().trim();
+                j++;
             }
-            
-            //no match found
-            return false;
+            String schema = tokens[0];
+            String element = tokens[1];
+            String qualifier = tokens[2];
+            if (schema.equals(bw_schema) // schema match
+                    && element.equals(bw_element) // element match
+                    && (
+                              (bw_qualifier != null) && ((qualifier != null && qualifier.equals(bw_qualifier)) // both not null and equals
+                                      || bw_qualifier.equals("*")) // browse link with jolly
+                           || (bw_qualifier == null && qualifier == null)) // both null
+                        )
+            {
+                return indexName;
+            }
         }
+        return null;
     }
 }
