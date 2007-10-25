@@ -39,16 +39,16 @@
  */
 package org.dspace.storage.rdbms;
 
-import org.apache.log4j.Logger;
-import org.dspace.browse.BrowseException;
-import org.dspace.browse.IndexBrowse;
-import org.dspace.core.ConfigurationManager;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.sql.SQLException;
+
+import org.apache.log4j.Logger;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.IndexBrowse;
+import org.dspace.core.ConfigurationManager;
 
 /**
  * Command-line executed class for initializing the DSpace database. This should
@@ -92,7 +92,6 @@ public class InitializeDatabase
                 }
                 
                 DatabaseManager.loadSql(getScript(argv[0]));
-                
             }
             else if("database_schema.sql".equals(argv[0]))
             {
@@ -116,6 +115,7 @@ public class InitializeDatabase
             {
                 DatabaseManager.loadSql(getScript(argv[0]));
             }
+
             System.exit(0);
         }
         catch (IOException ioe)
