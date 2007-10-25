@@ -39,15 +39,16 @@
  */
 package org.dspace.storage.rdbms;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-
 import org.apache.log4j.Logger;
 import org.dspace.browse.BrowseException;
 import org.dspace.browse.IndexBrowse;
 import org.dspace.core.ConfigurationManager;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.sql.SQLException;
 
 /**
  * Command-line executed class for initializing the DSpace database. This should
@@ -111,30 +112,20 @@ public class InitializeDatabase
                     throw new RuntimeException(e.getMessage(),e);
                 }
             }
-            else if("dspace-dao.sql".equals(argv[0]))
+            else
             {
-
                 DatabaseManager.loadSql(getScript(argv[0]));
-
-                try
-                {
-                    IndexBrowse browse = new IndexBrowse();
-                    browse.setRebuild(true);
-                    browse.setExecute(true);
-                    browse.initBrowse();
-                }
-                catch (BrowseException e)
-                {
-                    log.error(e.getMessage(),e);
-                    throw new RuntimeException(e.getMessage(),e);
-                }
             }
-            
             System.exit(0);
         }
-        catch (Exception e)
+        catch (IOException ioe)
         {
-            log.fatal("Caught exception:", e);
+            log.fatal("Caught IOException:", ioe);
+            System.exit(1);
+        }
+        catch (SQLException sqle)
+        {
+        log.fatal("Caught SQLException:", sqle);
             System.exit(1);
         }
     }
