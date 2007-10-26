@@ -39,8 +39,6 @@
  */
 package org.dspace.content.dao.postgres;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -58,14 +56,11 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.BrowseException;
 import org.dspace.browse.IndexBrowse;
-import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
-import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
-import org.dspace.content.ItemIterator;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
@@ -84,7 +79,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -292,11 +286,13 @@ public class ItemDAOPostgres extends ItemDAO
             // FIXME: We need to be cunning about what we write to the database
 //            if (dublinCoreChanged)
 //            {
+            List<DCValue> allMetadata = item.getMetadata();
+
                 // Remove existing metadata
                 removeMetadataFromDatabase(item.getID());
 
                 // Add in-memory metadata
-                for (DCValue dcv : item.getMetadata())
+                for (DCValue dcv : allMetadata)
                 {
                     // Get the DC Type
                     int schemaID;
