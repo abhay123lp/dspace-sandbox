@@ -96,7 +96,7 @@ public class BrowseConsumer implements Consumer
     {
         if(toUpdate == null)
         {
-            toUpdate = new HashSet();
+            toUpdate = new HashSet<Item>();
         }
         
         DSpaceObject subj = event.getSubject(ctx);
@@ -109,14 +109,14 @@ public class BrowseConsumer implements Consumer
 
         // If an Item is created or modified..
         case Constants.ITEM:
-            toUpdate.add(subj);
+            toUpdate.add((Item)subj);
             break;
         // track ADD and REMOVE from collections, that changes browse index.
         case Constants.COLLECTION:
             if (event.getObjectType() == Constants.ITEM
                     && (et == Event.ADD || et == Event.REMOVE))
             {
-                DSpaceObject obj = event.getObject(ctx);
+                Item obj = (Item)event.getObject(ctx);
                 if (obj != null)
                     toUpdate.add(obj);
             }
@@ -136,9 +136,8 @@ public class BrowseConsumer implements Consumer
         {
 
             // Update/Add items
-            for (Iterator ui = toUpdate.iterator(); ui.hasNext();)
+            for (Item i : toUpdate)
             {
-                Item i = (Item) ui.next();
                 // FIXME: there is an exception handling problem here
                 try
                 {
