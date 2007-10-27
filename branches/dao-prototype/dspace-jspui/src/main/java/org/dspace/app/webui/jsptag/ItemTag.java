@@ -39,6 +39,22 @@
  */
 package org.dspace.app.webui.jsptag;
 
+import org.apache.log4j.Logger;
+import org.dspace.app.webui.util.UIUtil;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.BrowseIndex;
+
+import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
+import org.dspace.content.Collection;
+import org.dspace.content.DCDate;
+import org.dspace.content.DCValue;
+import org.dspace.content.Item;
+
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Constants;
+import org.dspace.core.Utils;
+
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Enumeration;
@@ -153,7 +169,7 @@ public class ItemTag extends TagSupport
 
     /** Hashmap of linked metadata to browse, from dspace.cfg */
     private Map<String,String> linkedMetadata;
-
+    
     public ItemTag()
     {
         super();
@@ -162,12 +178,12 @@ public class ItemTag extends TagSupport
         linkedMetadata = new HashMap<String, String>();
         String linkMetadata;
         for (int i = 1; null != (linkMetadata = ConfigurationManager.getProperty("webui.browse.link."+i)); i++)
-        {
+        {            
             String[] linkedMetadataSplit = linkMetadata.split(":");
             String indexName = linkedMetadataSplit[0].trim();
             String metadataName = linkedMetadataSplit[1].trim();
             linkedMetadata.put(indexName, metadataName);
-        }
+        }        
     }
 
     public int doStartTag() throws JspException
@@ -852,18 +868,18 @@ public class ItemTag extends TagSupport
     
     /**
      * Return the browse index related to the field. <code>null</code> if the field is not a browse field
-     * (look for <cod>webui.browse.link.<n></code> in dspace.cfg)
-     *
+     * (look for <cod>webui.browse.link.<n></code> in dspace.cfg) 
+     * 
      * @param field
-     * @return the browse index related to the field. Null otherwise
-     * @throws BrowseException
+     * @return the browse index related to the field. Null otherwise 
+     * @throws BrowseException 
      */
     private String getBrowseField(String field) throws BrowseException
     {
         for (String indexName : linkedMetadata.keySet())
-        {
+        {            
             StringTokenizer bw_dcf = new StringTokenizer(linkedMetadata.get(indexName), ".");
-
+            
             String[] bw_tokens = { "", "", "" };
             int i = 0;
             while(bw_dcf.hasMoreTokens())
@@ -874,9 +890,9 @@ public class ItemTag extends TagSupport
             String bw_schema = bw_tokens[0];
             String bw_element = bw_tokens[1];
             String bw_qualifier = bw_tokens[2];
-
+            
             StringTokenizer dcf = new StringTokenizer(field, ".");
-
+            
             String[] tokens = { "", "", "" };
             int j = 0;
             while(dcf.hasMoreTokens())
@@ -890,7 +906,7 @@ public class ItemTag extends TagSupport
             if (schema.equals(bw_schema) // schema match
                     && element.equals(bw_element) // element match
                     && (
-                              (bw_qualifier != null) && ((qualifier != null && qualifier.equals(bw_qualifier)) // both not null and equals
+                              (bw_qualifier != null) && ((qualifier != null && qualifier.equals(bw_qualifier)) // both not null and equals 
                                       || bw_qualifier.equals("*")) // browse link with jolly
                            || (bw_qualifier == null && qualifier == null)) // both null
                         )
