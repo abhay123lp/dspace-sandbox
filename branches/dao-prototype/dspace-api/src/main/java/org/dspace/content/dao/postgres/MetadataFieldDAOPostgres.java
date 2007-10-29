@@ -49,6 +49,7 @@ import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.core.Context;
 import org.dspace.storage.rdbms.DatabaseManager;
@@ -305,13 +306,13 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
     }
 
     @Override
-    public List<MetadataField> getMetadataFields(int schemaID)
+    public List<MetadataField> getMetadataFields(MetadataSchema schema)
     {
         try
         {
             TableRowIterator tri = DatabaseManager.query(context,
                "SELECT metadata_field_id FROM metadatafieldregistry " +
-               "WHERE metadata_schema_id = ?", schemaID);
+               "WHERE metadata_schema_id = ?", schema.getID());
 
             return returnAsList(tri);
         }

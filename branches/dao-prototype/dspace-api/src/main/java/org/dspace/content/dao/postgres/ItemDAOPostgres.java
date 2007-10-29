@@ -272,6 +272,8 @@ public class ItemDAOPostgres extends ItemDAO
 
         try
         {
+            List<DCValue> allMetadata = item.getMetadata();
+
             // Fill out the TableRow and save it
             populateTableRowFromItem(item, itemRow);
             itemRow.setColumn("last_modified", new Date());
@@ -281,13 +283,11 @@ public class ItemDAOPostgres extends ItemDAO
             // Keys are Strings: "element" or "element.qualifier"
             // Values are Integers indicating number of values written for a
             // element/qualifier
-            Map elementCount = new HashMap();
+            Map<String, Integer> elementCount = new HashMap<String, Integer>();
 
             // FIXME: We need to be cunning about what we write to the database
 //            if (dublinCoreChanged)
 //            {
-            List<DCValue> allMetadata = item.getMetadata();
-
                 // Remove existing metadata
                 removeMetadataFromDatabase(item.getID());
 
@@ -340,11 +340,11 @@ public class ItemDAOPostgres extends ItemDAO
 
                     if (currentInteger != null)
                     {
-                        current = currentInteger.intValue();
+                        current = currentInteger;
                     }
 
                     current++;
-                    elementCount.put(key, new Integer(current));
+                    elementCount.put(key, current);
 
                     // Write metadata
                     MetadataValue metadata = mvDAO.create();

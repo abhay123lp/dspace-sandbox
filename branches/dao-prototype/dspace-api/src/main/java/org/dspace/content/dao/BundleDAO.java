@@ -174,7 +174,7 @@ public abstract class BundleDAO extends ContentDAO
             bundle.unsetPrimaryBitstreamID();
         }
 
-        if (bitstream.getBundles().length == 0)
+        if (getBundlesByBitstream(bitstream).size() == 0)
         {
             // The bitstream is an orphan, delete it
             bitstreamDAO.delete(bitstream.getID());

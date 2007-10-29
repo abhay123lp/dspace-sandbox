@@ -83,6 +83,8 @@ import org.dspace.event.Event;
  * submitters is slightly different - creating or removing this has instant
  * effect.
  *
+ * FIXME: Should we store a List of child Items in memory?
+ *
  * @author Robert Tansley
  * @author James Rutherford
  * @version $Revision$
@@ -97,7 +99,6 @@ public class Collection extends DSpaceObject
     private CommunityDAO communityDAO;
     private GroupDAO groupDAO;
 
-    private String identifier;
     private String license;
     private Bitstream logo;
     private Item templateItem;
@@ -298,7 +299,7 @@ public class Collection extends DSpaceObject
         {
             log.info(LogManager.getHeader(context, "remove_logo",
                     "collection_id=" + getID()));
-            logo.delete();
+            bitstreamDAO.delete(logo.getID());
             logo = null;
         }
 
@@ -390,9 +391,9 @@ public class Collection extends DSpaceObject
         if (workflowGroups[step - 1] == null)
         {
             Group g = null;
-            g = Group.create(context);
+            g = groupDAO.create();
             g.setName("COLLECTION_" + getID() + "_WORKFLOW_STEP_" + step);
-            g.update();
+            groupDAO.update(g);
             setWorkflowGroup(step, g);
 
             AuthorizeManager.addPolicy(context, this, Constants.ADD, g);

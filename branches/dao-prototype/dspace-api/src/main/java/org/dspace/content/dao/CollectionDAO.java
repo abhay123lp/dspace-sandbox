@@ -343,6 +343,28 @@ public abstract class CollectionDAO extends ContentDAO
     public abstract List<Collection> getChildCollections(Community community);
 
     /**
+     * Returns a list of all the Collections that are *not* the parent of the
+     * given Item. This would be unnecessary if we used Sets instead of Lists.
+     *
+     * @param item The Item
+     * @return All Collections that are not parent to the given Item.
+     */
+    public List<Collection> getCollectionsNotLinked(Item item)
+    {
+        List<Collection> collections = new ArrayList<Collection>();
+
+        for (Collection collection : getCollections())
+        {
+            if (!linked(collection, item))
+            {
+                collections.add(collection);
+            }
+        }
+        
+        return collections;
+    }
+
+    /**
      * Create a storage layer association between the given Item and
      * Collection.
      */
@@ -359,7 +381,6 @@ public abstract class CollectionDAO extends ContentDAO
         // If we're adding the Item to the Collection, we bequeath the
         // policies unto it.
         AuthorizeManager.inheritPolicies(context, collection, item);
-
     }
 
     /**
@@ -375,6 +396,21 @@ public abstract class CollectionDAO extends ContentDAO
         log.info(LogManager.getHeader(context, "remove_item",
                 "collection_id=" + collection.getID() + 
                 ",item_id=" + item.getID()));
+
+        if (getParentCollections(item).size() == 0)
+        {
+            // make the right to remove the item explicit because the implicit
+            // relation has been removed. This only has to concern the
+            // currentUser because he started the removal process and he will
+            // end it too. also add right to remove from the item to remove
+            // it's bundles.
+            AuthorizeManager.addPolicy(context, item, Constants.DELETE,
+                    context.getCurrentUser());
+            AuthorizeManager.addPolicy(context, item, Constants.REMOVE,
+                    context.getCurrentUser());
+
+            itemDAO.delete(item.getID());
+        }
     }
 
     /**

@@ -39,7 +39,6 @@
  */
 package org.dspace.content.dao;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -58,7 +57,6 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
-import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
@@ -66,7 +64,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.search.DSIndexer;
+import org.dspace.event.Event;
 import org.dspace.storage.dao.CRUD;
 import org.dspace.storage.dao.Link;
 
@@ -310,11 +308,15 @@ public abstract class ItemDAO extends ContentDAO
     {
         // FIXME: Pre-DAOs this wasn't checked.
         AuthorizeManager.authorizeAction(context, item, Constants.ADD);
+
+        item.addBundle(bundle);
     }
 
     public void unlink(Item item, Bundle bundle) throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, item, Constants.REMOVE);
+
+        item.removeBundle(bundle);
 
         // If the bundle is now orphaned, delete it.
         if (getParentItems(bundle).size() == 0)
