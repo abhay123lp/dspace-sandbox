@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.dspace</groupId>
+   <artifactId>dspace-policy</artifactId>
+   <name>DSpace Policy Generator and Store</name>
+   <version>1.5-SNAPSHOT</version>
+
+   <!-- 
+      A Parent POM that Maven inherits DSpace Defaults 
+      POM atrributes from. 
+   -->
+   <parent>
+      <groupId>org.dspace</groupId>
+      <artifactId>dspace-pom</artifactId>
+      <version>1.5-SNAPSHOT</version>
+      <relativePath>../dspace-pom</relativePath>
+   </parent>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.dspace</groupId>
+      <artifactId>dspace-api</artifactId>
+      <version>1.5-SNAPSHOT</version>
+    </dependency>
+        <dependency>
+      <groupId>org.dspace</groupId>
+      <artifactId>dspace-sesame</artifactId>
+      <version>1.5-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+</project>
+
