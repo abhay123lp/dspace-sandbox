@@ -39,48 +39,30 @@
  */
 package org.dspace.app.webui.servlet.admin;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+
 import org.dspace.app.webui.servlet.DSpaceServlet;
 import org.dspace.app.webui.util.FileUploadRequest;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.Bitstream;
-import org.dspace.content.BitstreamFormat;
-import org.dspace.content.Bundle;
+import org.dspace.content.*;
 import org.dspace.content.Collection;
-import org.dspace.content.DSpaceObject;
-import org.dspace.content.FormatIdentifier;
-import org.dspace.content.Item;
-import org.dspace.content.MetadataField;
-import org.dspace.content.MetadataSchema;
-import org.dspace.content.dao.BitstreamDAOFactory;
-import org.dspace.content.dao.BundleDAOFactory;
-import org.dspace.content.dao.ItemDAO;
-import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.content.dao.*;
 import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -189,6 +171,8 @@ public class EditItemServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
+
         // First, see if we have a multipart request (uploading a new bitstream)
         String contentType = request.getContentType();
 
@@ -246,13 +230,14 @@ public class EditItemServlet extends DSpaceServlet
 
             // Delete the item - if "cancel" was pressed this would be
             // picked up above
-            // FIXME: Don't know if this does all it should - remove URI?
-            Collection[] collections = item.getCollections();
+            List<Collection> parents = collectionDAO.getParentCollections(item);
 
-            // Remove item from all the collections it's in
-            for (int i = 0; i < collections.length; i++)
+            // Remove item from all the collections it's in. The current
+            // behaviour is such that once the Item is removed from all parent
+            // Collections, it is deleted (we don't allow orphaned Items).
+            for (Collection parent : parents)
             {
-                collections[i].removeItem(item);
+                collectionDAO.unlink(parent, item);
             }
 
             JSPManager.showJSP(request, response, "/tools/get-item-id.jsp");
@@ -276,14 +261,14 @@ public class EditItemServlet extends DSpaceServlet
         case CONFIRM_WITHDRAW:
 
             // Withdraw the item
-            item.withdraw();
+            ArchiveManager.withdrawItem(context, item);
             JSPManager.showJSP(request, response, "/tools/get-item-id.jsp");
             context.complete();
 
             break;
 
         case REINSTATE:
-            item.reinstate();
+            ArchiveManager.reinstateItem(context, item);
             JSPManager.showJSP(request, response, "/tools/get-item-id.jsp");
             context.complete();
 
@@ -293,11 +278,15 @@ public class EditItemServlet extends DSpaceServlet
         	if (AuthorizeManager.isAdmin(context))
         	{
 	        	// Display move collection page with fields of collections and communities
-	        	Collection[] notLinkedCollections = item.getCollectionsNotLinked();
-	        	Collection[] linkedCollections = item.getCollections();
-	            	
-	        	request.setAttribute("linkedCollections", linkedCollections);
-	        	request.setAttribute("notLinkedCollections", notLinkedCollections);
+	        	List<Collection> notLinkedCollections = collectionDAO.getCollectionsNotLinked(item);
+	        	List<Collection> linkedCollections = collectionDAO.getParentCollections(item);
+
+                // FIXME: Should just pass in the List, rather than converting
+                // to an array.
+                request.setAttribute("linkedCollections",
+                        linkedCollections.toArray(new Collection[0]));
+	        	request.setAttribute("notLinkedCollections",
+                        notLinkedCollections.toArray(new Collection[0]));
 	            	            
 	        	JSPManager.showJSP(request, response, "/tools/move-item.jsp");
         	} else
@@ -310,15 +299,17 @@ public class EditItemServlet extends DSpaceServlet
         case CONFIRM_MOVE_ITEM:
         	if (AuthorizeManager.isAdmin(context))
         	{
-	        	Collection fromCollection = Collection.find(context, UIUtil.getIntParameter(request, "collection_from_id"));
-	        	Collection toCollection = Collection.find(context, UIUtil.getIntParameter(request, "collection_to_id"));
+	        	Collection fromCollection = collectionDAO.retrieve(
+                        UIUtil.getIntParameter(request, "collection_from_id"));
+	        	Collection toCollection = collectionDAO.retrieve(
+                        UIUtil.getIntParameter(request, "collection_to_id"));
 	            	            
 	        	if (fromCollection == null || toCollection == null)
 	        	{
 	        		throw new ServletException("Missing or incorrect collection IDs for moving item");
 	        	}
 	            	            
-	        	item.move(fromCollection, toCollection);
+	        	ArchiveManager.move(context, item, fromCollection, toCollection);
 	            
 	            showEditForm(context, request, response, item);
 	
@@ -345,17 +336,17 @@ public class EditItemServlet extends DSpaceServlet
      * @param context
      * @param item
      */
-    private void checkEditAuthorization(Context c, Item item)
-            throws AuthorizeException, java.sql.SQLException
+    private void checkEditAuthorization(Context context, Item item)
+            throws AuthorizeException
     {
         if (!item.canEdit())
         {
             int userID = 0;
 
             // first, check if userid is set
-            if (c.getCurrentUser() != null)
+            if (context.getCurrentUser() != null)
             {
-                userID = c.getCurrentUser().getID();
+                userID = context.getCurrentUser().getID();
             }
 
             // show an error or throw an authorization exception
@@ -380,6 +371,10 @@ public class EditItemServlet extends DSpaceServlet
             HttpServletResponse response, Item item) throws ServletException,
             IOException, SQLException, AuthorizeException
     {
+        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+
         if ( request.getParameter("cc_license_url") != null )
         {
         	// set or replace existing CC license
@@ -389,33 +384,34 @@ public class EditItemServlet extends DSpaceServlet
         }
 
         // Collections
-        Collection[] collections = item.getCollections();
+        List<Collection> collections = collectionDAO.getParentCollections(item);
 
         // All DC types in the registry
-        MetadataField[] types = MetadataField.findAll(context);
+        List<MetadataField> types = mfDAO.getMetadataFields();
         
         // Get a HashMap of metadata field ids and a field name to display
-        HashMap metadataFields = new HashMap();
+        HashMap<Integer, String> metadataFields = new HashMap<Integer, String>();
         
         // Get all existing Schemas
-        MetadataSchema[] schemas = MetadataSchema.findAll(context);
-        for (int i = 0; i < schemas.length; i++)
+        List<MetadataSchema> schemas = msDAO.getMetadataSchemas();
+        for (MetadataSchema schema : schemas)
         {
-            String schemaName = schemas[i].getName();
+            String schemaName = schema.getName();
             // Get all fields for the given schema
-            MetadataField[] fields = MetadataField.findAllInSchema(context, schemas[i].getID());
-            for (int j = 0; j < fields.length; j++)
+            List<MetadataField> fields = mfDAO.getMetadataFields(schema);
+            for (MetadataField field : fields)
             {
-                Integer fieldID = new Integer(fields[j].getID());
-                String displayName = "";
-                displayName = schemaName + "." + fields[j].getElement() + (fields[j].getQualifier() == null ? "" : "." + fields[j].getQualifier());
-                metadataFields.put(fieldID, displayName);
+                String displayName = schemaName + "." + field.getElement()
+                        + (field.getQualifier() == null ? "" : "." + field.getQualifier());
+                metadataFields.put(field.getID(), displayName);
             }
         }
 
+        // FIXME: Should just pass in the List, rather than converting to an
+        // array.
         request.setAttribute("item", item);
-        request.setAttribute("collections", collections);
-        request.setAttribute("dc.types", types);
+        request.setAttribute("collections", collections.toArray(new Collection[0]));
+        request.setAttribute("dc.types", types.toArray(new MetadataField[0]));
         request.setAttribute("metadataFields", metadataFields);
 
         JSPManager.showJSP(request, response, "/tools/edit-item-form.jsp");
@@ -437,6 +433,12 @@ public class EditItemServlet extends DSpaceServlet
             HttpServletResponse response, Item item) throws ServletException,
             IOException, SQLException, AuthorizeException
     {
+        BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(context);
+        BundleDAO bundleDAO = BundleDAOFactory.getInstance(context);
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+
         String button = UIUtil.getSubmitButton(request, "submit");
         /*
          * "Cancel" handled above, so whatever happens, we need to update the
@@ -450,11 +452,11 @@ public class EditItemServlet extends DSpaceServlet
         Enumeration unsortedParamNames = request.getParameterNames();
 
         // Put them in a list
-        List sortedParamNames = new LinkedList();
+        List<String> sortedParamNames = new LinkedList<String>();
 
         while (unsortedParamNames.hasMoreElements())
         {
-            sortedParamNames.add(unsortedParamNames.nextElement());
+            sortedParamNames.add((String) unsortedParamNames.nextElement());
         }
 
         // Sort the list
@@ -602,13 +604,13 @@ public class EditItemServlet extends DSpaceServlet
                         bitstream.setUserFormatDescription(userFormatDesc);
                     }
 
-                    bitstream.update();
-                    bundle.update();
+                    bsDAO.update(bitstream);
+                    bundleDAO.update(bundle);
                 }
             }
         }
 
-        item.update();
+        itemDAO.update(item);
 
         /*
          * Now respond to button presses, other than "Remove" or "Delete" button
@@ -627,28 +629,27 @@ public class EditItemServlet extends DSpaceServlet
                 lang = null;
             }
 
-            MetadataField field = MetadataField.find(context, dcTypeID);
-            MetadataSchema schema = MetadataSchema.find(context, field
-                    .getSchemaID());
-            item.addMetadata(schema.getName(), field.getElement(), field
-                    .getQualifier(), lang, value);
-            item.update();
+            MetadataField field = mfDAO.retrieve(dcTypeID);
+            MetadataSchema schema = msDAO.retrieve(field.getSchemaID());
+            item.addMetadata(schema.getName(), field.getElement(),
+                    field.getQualifier(), lang, value);
+            itemDAO.update(item);
         }
 
         if (button.equals("submit_addcc"))
         {
             // Show cc-edit page 
             request.setAttribute("item", item);
-            JSPManager
-                    .showJSP(request, response, "/tools/creative-commons-edit.jsp");
+            JSPManager.showJSP(
+                    request, response, "/tools/creative-commons-edit.jsp");
         }
         
         if (button.equals("submit_addbitstream"))
         {
             // Show upload bitstream page
             request.setAttribute("item", item);
-            JSPManager
-                    .showJSP(request, response, "/tools/upload-bitstream.jsp");
+            JSPManager.showJSP(
+                    request, response, "/tools/upload-bitstream.jsp");
         }
         else
         {
@@ -674,6 +675,9 @@ public class EditItemServlet extends DSpaceServlet
             HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException, SQLException, AuthorizeException
     {
+        BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(context);
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+
         // Wrap multipart request to get the submission info
         FileUploadRequest wrapper = new FileUploadRequest(request);
         Bitstream b = null;
@@ -683,7 +687,6 @@ public class EditItemServlet extends DSpaceServlet
         Item item = null;
         if (itemID > 0)
         {
-            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
             item = itemDAO.retrieve(itemID);
         }
 
@@ -729,9 +732,9 @@ public class EditItemServlet extends DSpaceServlet
         // Identify the format
         BitstreamFormat bf = FormatIdentifier.guessFormat(context, b);
         b.setFormat(bf);
-        b.update();
+        bsDAO.update(b);
 
-        item.update();
+        itemDAO.update(item);
 
         // Back to edit form
         showEditForm(context, request, response, item);

@@ -84,7 +84,7 @@
                 <tr class="oddRowEvenCol">
                     <td class="submitFormLabel"><label for="turi"><fmt:message key="jsp.dspace-admin.item-select.uri"/></label></td>
                     <td>
-                            <input type="text" name="uri" id="turi" value="<%= ConfigurationManager.getProperty("uri.prefix") %>/" size=12>
+                            <input type="text" name="uri" id="turi" value="hdl:<%= ConfigurationManager.getProperty("handle.prefix") %>/" size=12>
                             <%-- <input type="submit" name="submit_item_select" value="Find"> --%>
                             <input type="submit" name="submit_item_select" value="<fmt:message key="jsp.dspace-admin.item-select.find"/>" />
                     </td>

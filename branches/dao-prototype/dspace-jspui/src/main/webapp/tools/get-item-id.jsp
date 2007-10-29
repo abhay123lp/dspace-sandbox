@@ -85,7 +85,7 @@
                 <tr class="oddRowEvenCol">
 					<td class="submitFormLabel"><label for="turi"><fmt:message key="jsp.tools.get-item-id.uri"/></label></td>
                       <td>
-                            <input type="text" name="uri" id="turi" value="<%= ConfigurationManager.getProperty("handle.prefix") %>/" size="12"/>
+                            <input type="text" name="uri" id="turi" value="hdl:<%= ConfigurationManager.getProperty("handle.prefix") %>/" size="12"/>
                             <%-- <input type="submit" name="submit" value="Find" /> --%>
 							<input type="submit" name="submit" value="<fmt:message key="jsp.tools.get-item-id.find.button"/>" />
                     </td>
