@@ -13,6 +13,7 @@
       A Parent POM that Maven inherits DSpace Defaults 
       POM atrributes from. 
    -->
+
    <parent>
       <groupId>org.dspace</groupId>
       <artifactId>dspace-pom</artifactId>
