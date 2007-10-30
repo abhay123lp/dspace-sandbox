@@ -111,6 +111,11 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
 
     public ExternalIdentifier retrieve(String canonicalForm)
     {
+        if (canonicalForm.equals("") || canonicalForm == null)
+        {
+            return null;
+        }
+
         Object[] bits = parseCanonicalForm(canonicalForm);
 
         if (bits == null)
