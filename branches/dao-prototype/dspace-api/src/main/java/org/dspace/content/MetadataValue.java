@@ -46,6 +46,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.dao.MetadataFieldDAO;
+import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.content.dao.MetadataValueDAO;
 import org.dspace.content.dao.MetadataValueDAOFactory;
 import org.dspace.core.Context;
@@ -249,6 +253,75 @@ public class MetadataValue
     {
         return ToStringBuilder.reflectionToString(this,
                 ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    /**
+     * FIXME: This assumes that we don't care about ID or placeID or itemID.
+     *
+     * @param other The DCValue object to compare with
+     * @return Whether or not the two values are equal
+     */
+    public boolean equals(DCValue dcv)
+    {
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+
+        MetadataSchema schema = msDAO.retrieveByName(dcv.schema);
+
+        if (schema == null)
+        {
+            schema = msDAO.retrieve(MetadataSchema.DC_SCHEMA_ID);
+        }
+
+        MetadataField field = mfDAO.retrieve(
+                schema.getID(), dcv.element, dcv.qualifier);
+
+        if ((field == null))
+        {
+            if (getFieldID() > 0)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (field.getID() != getFieldID())
+            {
+                return false;
+            }
+        }
+
+        if (value == null)
+        {
+            if (dcv.value != null)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (!value.equals(dcv.value))
+            {
+                return false;
+            }
+        }
+
+        if (language == null)
+        {
+            if (dcv.language != null)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (!language.equals(dcv.value))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public boolean equals(Object o)
