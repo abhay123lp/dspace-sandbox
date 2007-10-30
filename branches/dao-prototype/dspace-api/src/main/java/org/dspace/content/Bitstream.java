@@ -383,8 +383,8 @@ public class Bitstream extends DSpaceObject
     @Deprecated
     public Bundle[] getBundles()
     {
-        List<Bundle> bundles = bundleDAO.getBundlesByBitstream(this);
-        return (Bundle[]) bundles.toArray(new Bundle[0]);
+        List<Bundle> bundles = bundleDAO.getBundles(this);
+        return bundles.toArray(new Bundle[0]);
     }
 
     @Deprecated
