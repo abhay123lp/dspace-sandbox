@@ -71,9 +71,18 @@ public class CollectionStyleSelection extends AKeyBasedStyleSelection
     public String getStyleForItem(Item item)
     {
         Collection c = item.getOwningCollection();
- 
-        // Style specified & exists
-        return getFromMap(c.getIdentifier());
+
+        if (c != null)
+        {
+            // Style specified & exists
+            return getFromMap(c.getIdentifier());
+        }
+        else
+        {
+            // If the Item hasn't hit a Collection yet (most likely an
+            // InProgressSubmission), we don't give it a specific style.
+            return "default";
+        }
     }
     
     /**
