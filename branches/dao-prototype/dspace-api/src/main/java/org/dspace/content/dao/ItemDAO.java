@@ -41,7 +41,9 @@ package org.dspace.content.dao;
 
 import java.text.ParseException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
@@ -53,10 +55,11 @@ import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
-import org.dspace.content.DSpaceObject;
 import org.dspace.content.DCValue;
+import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
@@ -64,7 +67,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.event.Event;
 import org.dspace.storage.dao.CRUD;
 import org.dspace.storage.dao.Link;
 
@@ -127,6 +129,10 @@ public abstract class ItemDAO extends ContentDAO
             AuthorizeManager.authorizeAction(context, item, Constants.WRITE);
         }
 
+        MetadataValueDAO mvDAO = MetadataValueDAOFactory.getInstance(context);
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+
         log.info(LogManager.getHeader(context, "update_item", "item_id="
                 + item.getID()));
 
@@ -164,15 +170,13 @@ public abstract class ItemDAO extends ContentDAO
         int sequence = 0;
 
         // find the highest current sequence number
-        for (int i = 0; i < bundles.length; i++)
+        for (Bundle bundle : bundles)
         {
-            Bitstream[] bitstreams = bundles[i].getBitstreams();
-
-            for (int k = 0; k < bitstreams.length; k++)
+            for (Bitstream bitstream : bundle.getBitstreams())
             {
-                if (bitstreams[k].getSequenceID() > sequence)
+                if (bitstream.getSequenceID() > sequence)
                 {
-                    sequence = bitstreams[k].getSequenceID();
+                    sequence = bitstream.getSequenceID();
                 }
             }
         }
@@ -180,21 +184,135 @@ public abstract class ItemDAO extends ContentDAO
         // start sequencing bitstreams without sequence IDs
         sequence++;
 
-        for (int i = 0; i < bundles.length; i++)
+        for (Bundle bundle : bundles)
         {
-            Bitstream[] bitstreams = bundles[i].getBitstreams();
-
-            for (int k = 0; k < bitstreams.length; k++)
+            for (Bitstream bitstream : bundle.getBitstreams())
             {
-                if (bitstreams[k].getSequenceID() < 0)
+                if (bitstream.getSequenceID() < 0)
                 {
-                    bitstreams[k].setSequenceID(sequence);
+                    bitstream.setSequenceID(sequence);
                     sequence++;
-                    bitstreamDAO.update(bitstreams[k]);
+                    bitstreamDAO.update(bitstream);
                 }
             }
 
-            bundleDAO.update(bundles[i]);
+            bundleDAO.update(bundle);
+        }
+
+        // Next we take care of the metadata
+
+        // First, we figure out what's in memory, and what's in the database
+        List<MetadataValue> dbMetadata = mvDAO.getMetadataValues(item);
+        List<DCValue> memMetadata = item.getMetadata();
+
+        // Now we have Lists of metadata values stored in-memory and in the
+        // database, we can go about saving changes.
+
+        // Step 1: remove any metadata that is no longer in memory (this
+        // includes values that may have changed, but since we allow
+        // multiple values for a given field for an object, we can't tell
+        // what's changed and what's just gone.
+
+        for (MetadataValue dbValue : dbMetadata)
+        {
+            boolean deleted = true;
+
+            for (DCValue memValue : memMetadata)
+            {
+                if (dbValue.equals(memValue))
+                {
+                    deleted = false;
+                }
+            }
+
+            if (deleted)
+            {
+                mvDAO.delete(dbValue.getID());
+            }
+        }
+
+        // Step 2: go through the list of in-memory metadata and save it to
+        // the database if it's not already there.
+
+        // Map counting number of values for each MetadataField
+        // Values are Integers indicating number of values written for a
+        // given MetadataField. Keys are MetadataField IDs.
+        Map<Integer, Integer> elementCount =
+                new HashMap<Integer, Integer>();
+
+        MetadataSchema schema;
+        MetadataField field;
+
+        for (DCValue memValue : memMetadata)
+        {
+            boolean exists = false;
+            MetadataValue storedValue = null;
+
+            schema = msDAO.retrieveByName(memValue.schema);
+
+            if (schema == null)
+            {
+                schema = msDAO.retrieve(MetadataSchema.DC_SCHEMA_ID);
+            }
+
+            field = mfDAO.retrieve(
+                    schema.getID(), memValue.element, memValue.qualifier);
+
+            // Work out the place number for ordering
+            int current = 0;
+
+            Integer key = field.getID();
+            Integer currentInteger = elementCount.get(key);
+
+            if (currentInteger != null)
+            {
+                current = currentInteger;
+            }
+
+            current++;
+            elementCount.put(key, current);
+
+            for (MetadataValue dbValue : dbMetadata)
+            {
+                if (dbValue.equals(memValue))
+                {
+                    // If it already exists, we make a note of the fact and
+                    // hold on to a copy of the object so we can update it
+                    // later.
+                    exists = true;
+                    storedValue = dbValue;
+                    break;
+                }
+            }
+
+            if (!exists)
+            {
+                MetadataValue value = mvDAO.create();
+                value.setFieldID(field.getID());
+                value.setItemID(item.getID());
+                value.setValue(memValue.value);
+                value.setLanguage(memValue.language);
+                value.setPlace(current);
+                mvDAO.update(value);
+            }
+            else
+            {
+                // Even if it already exists, the place may have changed.
+                storedValue.setPlace(current);
+                mvDAO.update(storedValue);
+            }
+        }
+
+        // Update browse indices
+        IndexBrowse ib = null;
+        try
+        {
+            ib = new IndexBrowse(context);
+            ib.indexItem(item);
+        }
+        catch (BrowseException e)
+        {
+            throw new RuntimeException(e);
         }
     }
 

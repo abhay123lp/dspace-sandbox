@@ -248,7 +248,10 @@ public class ItemDAOPostgres extends ItemDAO
 
             if (row != null)
             {
-                update(item, row);
+                // Fill out the TableRow and save it
+                populateTableRowFromItem(item, row);
+                row.setColumn("last_modified", new Date());
+                DatabaseManager.update(context, row);
             }
             else
             {
@@ -258,118 +261,6 @@ public class ItemDAOPostgres extends ItemDAO
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
-        }
-    }
-
-    /**
-     * Very thin adaptation of the old Item.update().
-     */
-    private void update(Item item, TableRow itemRow) throws AuthorizeException
-    {
-        MetadataValueDAO mvDAO = MetadataValueDAOFactory.getInstance(context);
-        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
-        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
-
-        try
-        {
-            List<DCValue> allMetadata = item.getMetadata();
-
-            // Fill out the TableRow and save it
-            populateTableRowFromItem(item, itemRow);
-            itemRow.setColumn("last_modified", new Date());
-            DatabaseManager.update(context, itemRow);
-
-            // Map counting number of values for each element/qualifier.
-            // Keys are Strings: "element" or "element.qualifier"
-            // Values are Integers indicating number of values written for a
-            // element/qualifier
-            Map<String, Integer> elementCount = new HashMap<String, Integer>();
-
-            // FIXME: We need to be cunning about what we write to the database
-//            if (dublinCoreChanged)
-//            {
-                // Remove existing metadata
-                removeMetadataFromDatabase(item.getID());
-
-                // Add in-memory metadata
-                for (DCValue dcv : allMetadata)
-                {
-                    // Get the DC Type
-                    int schemaID;
-                    MetadataSchema schema = msDAO.retrieveByName(dcv.schema);
-
-                    if (schema == null)
-                    {
-                        schemaID = MetadataSchema.DC_SCHEMA_ID;
-                    }
-                    else
-                    {
-                        schemaID = schema.getID();
-                    }
-
-                    MetadataField field =
-                        mfDAO.retrieve(schemaID, dcv.element, dcv.qualifier);
-
-                    if (field == null)
-                    {
-                        // Bad DC field, log and throw exception
-                        log.warn(LogManager.getHeader(context, "bad_dc",
-                            "Bad DC field. SchemaID=" +
-                            String.valueOf(schemaID) +
-                            ", element: \"" + ((dcv.element == null)
-                                ? "null" : dcv.element) +
-                            "\" qualifier: \"" + ((dcv.qualifier == null)
-                                ? "null" : dcv.qualifier) +
-                            "\" value: \"" + ((dcv.value == null)
-                                ? "null" : dcv.value) + "\""));
-
-                        throw new SQLException("bad_dublin_core " +
-                                "SchemaID=" + String.valueOf(schemaID) + ", " +
-                                dcv.element + " " + dcv.qualifier);
-                    }
-
-                    // Work out the place number for ordering
-                    int current = 0;
-
-                    // Key into map is "element" or "element.qualifier"
-                    String key = dcv.element +
-                            ((dcv.qualifier == null)
-                             ? "" : ("." + dcv.qualifier));
-
-                    Integer currentInteger = (Integer) elementCount.get(key);
-
-                    if (currentInteger != null)
-                    {
-                        current = currentInteger;
-                    }
-
-                    current++;
-                    elementCount.put(key, current);
-
-                    // Write metadata
-                    MetadataValue metadata = mvDAO.create();
-                    metadata.setItemID(item.getID());
-                    metadata.setFieldID(field.getID());
-                    metadata.setValue(dcv.value);
-                    metadata.setLanguage(dcv.language);
-                    metadata.setPlace(current);
-                    mvDAO.update(metadata);
-                }
-
-//                dublinCoreChanged = false;
-//            }
-
-            // Update browse indices
-            IndexBrowse ib = new IndexBrowse(context);
-            ib.indexItem(item);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-        catch (BrowseException e)
-        {
-            throw new RuntimeException(e);
         }
     }
 
