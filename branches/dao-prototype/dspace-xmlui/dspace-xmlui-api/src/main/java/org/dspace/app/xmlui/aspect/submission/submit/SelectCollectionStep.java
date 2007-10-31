@@ -109,9 +109,14 @@ public class SelectCollectionStep extends AbstractSubmissionStep
         ExternalIdentifierDAO identifierDAO =
             ExternalIdentifierDAOFactory.getInstance(context);
         ExternalIdentifier eid = identifierDAO.retrieve(handle);
-        DSpaceObject dso = eid.getObjectIdentifier().getObject(context);
 
-		if (dso != null && dso instanceof Community)
+        DSpaceObject dso = null;
+        if (eid != null)
+        {
+            dso = eid.getObjectIdentifier().getObject(context);
+        }
+
+        if (dso != null && dso instanceof Community)
 		{
 			collections = Collection.findAuthorized(context, ((Community) dso), Constants.ADD);   
 		} 
