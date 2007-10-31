@@ -42,17 +42,29 @@ package org.dspace.content;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.StringTokenizer;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
-import org.dspace.browse.BrowseException;
-import org.dspace.browse.IndexBrowse;
 import org.dspace.browse.Thumbnail;
-import org.dspace.content.dao.*;
+import org.dspace.content.dao.BitstreamDAO;
+import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.content.dao.BitstreamFormatDAO;
+import org.dspace.content.dao.BitstreamFormatDAOFactory;
+import org.dspace.content.dao.BundleDAO;
+import org.dspace.content.dao.BundleDAOFactory;
+import org.dspace.content.dao.CollectionDAO;
+import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.content.dao.CommunityDAO;
+import org.dspace.content.dao.CommunityDAOFactory;
+import org.dspace.content.dao.ItemDAO;
+import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
@@ -62,7 +74,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;
-import org.dspace.event.Event;    // Naughty!
+import org.dspace.event.Event;
 
 /**
  * Class representing an item in DSpace. Note that everything is held in memory
@@ -381,13 +393,14 @@ public class Item extends DSpaceObject
             {
                 dcv.value = null;
             }
+            
             if (!metadata.contains(dcv))
             {
                 metadata.add(dcv);
                 metadataChanged = true;
             }
-            addDetails(schema+"."+element+((qualifier==null)? "": "."+qualifier));
 
+            addDetails(schema+"."+element+((qualifier==null)? "": "."+qualifier));
         }
     }
 
