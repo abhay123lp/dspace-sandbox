@@ -87,11 +87,15 @@ public abstract class MetadataValueDAO extends ContentDAO
         log.info(LogManager.getHeader(context, "delete_metadata_value",
                     "metadata_value_id=" + id));
     }
-    
-    /**
-     * FIXME: This should really take a MetadataField object.
-     */
-    public abstract List<MetadataValue> getMetadataValues(int fieldID);
+
+    @Deprecated
+    public List<MetadataValue> getMetadataValues(int fieldID)
+    {
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        return getMetadataValues(mfDAO.retrieve(fieldID));
+    }
+
+    public abstract List<MetadataValue> getMetadataValues(MetadataField field);
 
     public abstract List<MetadataValue> getMetadataValues(MetadataField field,
             String value);

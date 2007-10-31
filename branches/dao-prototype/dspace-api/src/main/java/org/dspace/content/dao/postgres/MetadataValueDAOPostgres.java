@@ -218,7 +218,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
     }
 
     @Override
-    public List<MetadataValue> getMetadataValues(int fieldID)
+    public List<MetadataValue> getMetadataValues(MetadataField field)
     {
         try
         {
@@ -226,7 +226,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     "metadatavalue",
                     "SELECT metadata_value_id FROM metadatavalue " +
                     "WHERE metadata_field_id = ? ",
-                    fieldID);
+                    field.getID());
 
             return returnAsList(tri);
         }
