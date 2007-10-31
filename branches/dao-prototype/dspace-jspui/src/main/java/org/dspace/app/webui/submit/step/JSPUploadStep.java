@@ -232,8 +232,11 @@ public class JSPUploadStep extends UploadStep implements JSPStep
 
                         filePath = wrapper.getFilesystemName("file");
                     }
-                    // remove our temp file
-                    temp.delete();
+                    if (temp != null)
+                    {
+                        // remove our temp file
+                        temp.delete();
+                    }
                     
                     //save file info to request (for UploadStep class)
                     request.setAttribute("file-path", filePath);
