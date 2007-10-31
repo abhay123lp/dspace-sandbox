@@ -45,6 +45,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
@@ -94,4 +95,9 @@ public abstract class MetadataValueDAO extends ContentDAO
 
     public abstract List<MetadataValue> getMetadataValues(MetadataField field,
             String value);
+
+    public abstract List<MetadataValue> getMetadataValues(MetadataField field,
+            String value, String language);
+
+    public abstract List<MetadataValue> getMetadataValues(Item item);
 }

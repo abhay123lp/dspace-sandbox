@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.MetadataValueDAO;
@@ -227,15 +228,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     "WHERE metadata_field_id = ? ",
                     fieldID);
 
-            List<MetadataValue> values = new ArrayList<MetadataValue>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("metadata_value_id");
-                values.add(retrieve(id));
-            }
-
-            return values;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
@@ -245,7 +238,28 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
 
     @Override
     public List<MetadataValue> getMetadataValues(MetadataField field,
-            String value)
+                                                 String value)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "metadatavalue",
+                    "SELECT metadata_value_id FROM metadatavalue " +
+                            "WHERE metadata_field_id = ? " +
+                            "AND text_value LIKE ?",
+                    field.getID(), value);
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<MetadataValue> getMetadataValues(MetadataField field,
+            String value, String language)
     {
         try
         {
@@ -253,23 +267,48 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     "metadatavalue",
                     "SELECT metadata_value_id FROM metadatavalue " +
                     "WHERE metadata_field_id = ? " +
-                    "AND text_value LIKE ?",
-                    field.getID(), value);
+                    "AND text_value LIKE ? AND text_lang LIKE ?",
+                    field.getID(), value, language);
 
-            List<MetadataValue> values = new ArrayList<MetadataValue>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("metadata_value_id");
-                values.add(retrieve(id));
-            }
-
-            return values;
+            return returnAsList(tri);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    @Override
+    public List<MetadataValue> getMetadataValues(Item item)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "metadatavalue",
+                    "SELECT metadata_value_id FROM metadatavalue " +
+                    "WHERE item_id = ? ",
+                    item.getID());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private List<MetadataValue> returnAsList(TableRowIterator tri)
+        throws SQLException
+    {
+        List<MetadataValue> values = new ArrayList<MetadataValue>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("metadata_value_id");
+            values.add(retrieve(id));
+        }
+
+        return values;
     }
 
     ////////////////////////////////////////////////////////////////////
