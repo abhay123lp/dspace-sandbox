@@ -49,9 +49,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.dspace.app.webui.util.JSPManager;
-import org.dspace.app.util.SubmissionConfigReader;
+
 import org.dspace.app.util.SubmissionConfig;
+import org.dspace.app.util.SubmissionConfigReader;
+import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
@@ -59,15 +60,18 @@ import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.SupervisedItem;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.dao.WorkspaceItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.submit.AbstractProcessingStep;
-import org.dspace.submit.AbstractProcessingStep;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowManager;
+import org.dspace.workflow.dao.WorkflowItemDAO;
+import org.dspace.workflow.dao.WorkflowItemDAOFactory;
 
 /**
  * Servlet for constructing the components of the "My DSpace" page
@@ -153,6 +157,9 @@ public class MyDSpaceServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
+        WorkflowItemDAO wfDAO = WorkflowItemDAOFactory.getInstance(context);
+        WorkspaceItemDAO wsDAO = WorkspaceItemDAOFactory.getInstance(context);
+
         String buttonPressed = UIUtil.getSubmitButton(request, "submit_own");
 
         // Get workspace item, if any
@@ -161,7 +168,7 @@ public class MyDSpaceServlet extends DSpaceServlet
         try
         {
             int wsID = Integer.parseInt(request.getParameter("workspace_id"));
-            workspaceItem = WorkspaceItem.find(context, wsID);
+            workspaceItem = wsDAO.retrieve(wsID);
         }
         catch (NumberFormatException nfe)
         {
@@ -174,7 +181,7 @@ public class MyDSpaceServlet extends DSpaceServlet
         try
         {
             int wfID = Integer.parseInt(request.getParameter("workflow_id"));
-            workflowItem = WorkflowItem.find(context, wfID);
+            workflowItem = wfDAO.retrieve(wfID);
         }
         catch (NumberFormatException nfe)
         {
