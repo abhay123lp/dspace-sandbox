@@ -43,19 +43,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bundle;
-import org.dspace.content.Item;
-import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.DCValue;
+import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-
-import org.apache.log4j.Logger;
 
 /**
  * FIXME: This class could be optimized a great deal by being clever about
@@ -99,10 +99,10 @@ public class ItemProxy extends Item
     {
         if (!bundlesLoaded)
         {
-            setBundles(bundleDAO.getBundlesByItem(this));
+            setBundles(bundleDAO.getBundles(this));
         }
 
-        return (Bundle[]) bundles.toArray(new Bundle[0]);
+        return bundles.toArray(new Bundle[0]);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class ItemProxy extends Item
             }
         }
 
-        return (Bundle[]) matchingBundles.toArray(new Bundle[0]);
+        return matchingBundles.toArray(new Bundle[0]);
     }
 
     @Override
@@ -187,6 +187,30 @@ public class ItemProxy extends Item
     }
 
     @Override
+    public List<DCValue> getMetadata()
+    {
+        if (!metadataLoaded)
+        {
+            dao.loadMetadata(this);
+            this.metadataLoaded = true;
+        }
+
+        return metadata;
+    }
+
+    @Override
+    public DCValue[] getMetadata(String mdString)
+    {
+        if (!metadataLoaded)
+        {
+            dao.loadMetadata(this);
+            this.metadataLoaded = true;
+        }
+
+        return super.getMetadata(mdString);
+    }
+
+    @Override
     public DCValue[] getMetadata(String schema, String element,
             String qualifier, String language)
     {
@@ -200,16 +224,7 @@ public class ItemProxy extends Item
             this.metadataLoaded = true;
         }
 
-        List<DCValue> md = new ArrayList<DCValue>();
-        for (DCValue dcv : metadata)
-        {
-            if (match(schema, element, qualifier, language, dcv))
-            {
-                md.add(dcv);
-            }
-        }
-
-        return (DCValue[]) md.toArray(new DCValue[0]);
+        return super.getMetadata(schema, element, qualifier, language);
     }
 
     @Override
@@ -315,5 +330,24 @@ public class ItemProxy extends Item
             submitter = epersonDAO.retrieve(submitterId);
         }
         return submitter;
+    }
+
+    @Override
+    public DCValue[] getDC(String element, String qualifier, String lang)
+    {
+        return getMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang);
+    }
+
+    @Override
+    public void addDC(String element, String qualifier, String lang,
+                      String... values)
+    {
+        addMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang, values);
+    }
+
+    @Override
+    public void clearDC(String element, String qualifier, String lang)
+    {
+        clearMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, lang);
     }
 }
