@@ -106,16 +106,6 @@ public class BundleDAOTest extends DAOTest implements CRUDTest, LinkTest
     }
 
     @Test
-    public void getBundles() throws Exception
-    {
-        /**
-         * This deprecated method just defers to getBundlesByItem() so I'm
-         * going to be kind and just let it pass.
-         */
-        assertTrue(true);
-    }
-
-    @Test
     public void getBundlesByItem() throws Exception
     {
         Item item = itemDAO.create();
@@ -126,7 +116,7 @@ public class BundleDAOTest extends DAOTest implements CRUDTest, LinkTest
 
         itemDAO.link(item, bundleOne);
         itemDAO.link(item, bundleTwo);
-        List<Bundle> bundles = instance.getBundlesByItem(item);
+        List<Bundle> bundles = instance.getBundles(item);
 
         // We have to do it this way because even though we have a type-safe
         // List, Java insists on using Object.equals() which will fail, even
@@ -154,11 +144,11 @@ public class BundleDAOTest extends DAOTest implements CRUDTest, LinkTest
         Bundle bundle = instance.create();
         List<Bundle> bundles = null;
 
-        bundles = instance.getBundlesByBitstream(bitstream);
+        bundles = instance.getBundles(bitstream);
         assertEquals(bundles.size(), 0);
 
         instance.link(bundle, bitstream);
-        bundles = instance.getBundlesByBitstream(bitstream);
+        bundles = instance.getBundles(bitstream);
         assertEquals(bundles.size(), 1);
         assertTrue(bundle.equals(bundles.get(0)));
     }

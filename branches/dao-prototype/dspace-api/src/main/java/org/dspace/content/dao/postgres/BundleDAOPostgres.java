@@ -215,7 +215,7 @@ public class BundleDAOPostgres extends BundleDAO
     }
 
     @Override
-    public List<Bundle> getBundlesByItem(Item item)
+    public List<Bundle> getBundles(Item item)
     {
         try
         {
@@ -232,7 +232,7 @@ public class BundleDAOPostgres extends BundleDAO
     }
 
     @Override
-    public List<Bundle> getBundlesByBitstream(Bitstream bitstream)
+    public List<Bundle> getBundles(Bitstream bitstream)
     {
         try
         {
