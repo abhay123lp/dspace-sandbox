@@ -43,8 +43,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,6 +54,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
@@ -65,8 +66,8 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.uri.IdentifierUtils;
 import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
@@ -218,24 +219,22 @@ public class ItemExport
             }
         }
 
-        ExternalIdentifier identifier = identifierDAO.retrieve(myIDString);
-        ObjectIdentifier oi = identifier.getObjectIdentifier();
+        ObjectIdentifier oi = IdentifierUtils.fromString(c, myIDString);
+
+        if (oi == null)
+        {
+            System.err.println("Identifier " + myIDString + " not recognised.");
+            System.exit(1);
+        }
 
         if (myType == Constants.ITEM)
         {
             // first, do we have a persistent identifier for the item?
-            if (identifier != null)
-            {
-                myItem = (Item) oi.getObject(c);
+            myItem = (Item) oi.getObject(c);
 
-                if ((myItem == null) || (myItem.getType() != Constants.ITEM))
-                {
-                    myItem = null;
-                }
-            }
-            else
+            if ((myItem == null) || (myItem.getType() != Constants.ITEM))
             {
-                myItem = itemDAO.retrieve(Integer.parseInt(myIDString));
+                myItem = null;
             }
 
             if (myItem == null)
@@ -246,20 +245,13 @@ public class ItemExport
         }
         else
         {
-            if (myIDString.indexOf('/') != -1)
-            {
-                mycollection = (Collection) oi.getObject(c);
+            mycollection = (Collection) oi.getObject(c);
 
-                // ensure it's a collection
-                if ((mycollection == null)
-                        || (mycollection.getType() != Constants.COLLECTION))
-                {
-                    mycollection = null;
-                }
-            }
-            else if (myIDString != null)
+            // ensure it's a collection
+            if ((mycollection == null)
+                    || (mycollection.getType() != Constants.COLLECTION))
             {
-                mycollection = collectionDAO.retrieve(Integer.parseInt(myIDString));
+                mycollection = null;
             }
 
             if (mycollection == null)
