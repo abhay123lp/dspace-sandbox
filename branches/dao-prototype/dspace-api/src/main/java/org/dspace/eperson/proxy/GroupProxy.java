@@ -79,14 +79,7 @@ public class GroupProxy extends Group
             loadGroups();
         }
 
-        if ((epeople.size() == 0) && (groups.size() == 0))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return (epeople.size() == 0) && (groups.size() == 0);
     }
 
     @Override

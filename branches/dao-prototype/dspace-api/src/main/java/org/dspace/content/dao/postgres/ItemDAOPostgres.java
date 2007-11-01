@@ -388,7 +388,7 @@ public class ItemDAOPostgres extends ItemDAO
                 parameters.add(toTimestamp(endDate, selfGenerated));
             }
 
-            if (withdrawn == false)
+            if (!withdrawn)
             {
                 // Exclude withdrawn items
                 if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
