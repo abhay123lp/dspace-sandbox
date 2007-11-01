@@ -341,13 +341,13 @@ public class ItemDAOPostgres extends ItemDAO
                 {
                     query += " AND cl2i.collection_id= ? " +
                              " AND cl2i.item_id = p.resource_id ";
-                    parameters.add(new Integer(scope.getID()));
+                    parameters.add(scope.getID());
                 }
                 else if (scope.getType() == Constants.COMMUNITY)
                 {
                     query += " AND cm2i.community_id= ? " +
                              " AND cm2i.item_id = p.resource_id";
-                    parameters.add(new Integer(scope.getID()));
+                    parameters.add(scope.getID());
                 }
             }
 
@@ -423,8 +423,7 @@ public class ItemDAOPostgres extends ItemDAO
     }
 
     @Override
-    public List<Item> getItems(MetadataField field, MetadataValue value,
-            Date startDate, Date endDate)
+    public List<Item> getItems(MetadataValue value, Date startDate, Date endDate)
     {
         // FIXME: Of course, this should actually go somewhere else
         boolean oracle = false;
@@ -521,7 +520,7 @@ public class ItemDAOPostgres extends ItemDAO
             else
             {
                 tri = DatabaseManager.query(context, query.toString(),
-                        field.getID(), value.getValue());
+                        value.getFieldID(), value.getValue());
             }
 
             return returnAsList(tri);

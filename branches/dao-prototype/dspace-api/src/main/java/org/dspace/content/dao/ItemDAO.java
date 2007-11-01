@@ -405,17 +405,17 @@ public abstract class ItemDAO extends ContentDAO
      * archive, are not withdrawn, and match the given schema, field, and
      * value.
      */
-    public List<Item> getItems(MetadataField field, MetadataValue value)
+    public List<Item> getItems(MetadataValue value)
     {
-        return getItems(field, value, null, null);
+        return getItems(value, null, null);
     }
 
     /**
      * The dates passed in here are used to limit the results by ingest date
      * (dc.date.accessioned).
      */
-    public abstract List<Item> getItems(MetadataField field,
-            MetadataValue value, Date startDate, Date endDate);
+    public abstract List<Item> getItems(MetadataValue value,
+            Date startDate, Date endDate);
     
     public abstract List<Item> getItemsByCollection(Collection collection);
     public abstract List<Item> getItemsBySubmitter(EPerson eperson);
