@@ -1033,13 +1033,9 @@ public class Item extends DSpaceObject
         }
 
         // is this person an COLLECTION_EDITOR for the owning collection?
-        if (AuthorizeManager.authorizeActionBoolean(context,
-                getOwningCollection(), Constants.COLLECTION_ADMIN))
-        {
-            return true;
-        }
+        return AuthorizeManager.authorizeActionBoolean(context,
+                getOwningCollection(), Constants.COLLECTION_ADMIN);
 
-        return false;
     }
 
     public String getName()
