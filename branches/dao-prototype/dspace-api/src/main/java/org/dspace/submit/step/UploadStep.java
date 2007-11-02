@@ -482,6 +482,7 @@ public class UploadStep extends AbstractProcessingStep
             AuthorizeException
     {
         BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(context);
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
 
         boolean formatKnown = true;
         boolean fileOK = false;
@@ -566,7 +567,7 @@ public class UploadStep extends AbstractProcessingStep
         
                     // Update to DB
                     bsDAO.update(b);
-                    log.info(item);
+                    itemDAO.update(item);
 
                     if (bf == null || !bf.isInternal())
                     {
