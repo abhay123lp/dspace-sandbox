@@ -15,10 +15,25 @@
    <parent>
       <groupId>org.dspace</groupId>
       <artifactId>dspace-pom</artifactId>
-      <version>1.5-SNAPSHOT</version>
-      <relativePath>../dspace-pom</relativePath>
+      <version>1.5-build-refactored-SNAPSHOT</version>
    </parent>
 
+   <repositories>
+      <repository>
+         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
+   
    <build>
       <plugins>
          <plugin>
@@ -72,7 +87,6 @@
    </build>
 
 	<reporting>
-	
 		<plugins>
 			<plugin>
 				<groupId>org.dspace</groupId>
@@ -81,12 +95,5 @@
 			</plugin>
 		</plugins>
 	</reporting>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.dspace</groupId>
-			<artifactId>dspace-api</artifactId>
-		</dependency>
-	</dependencies>
 	
 </project>

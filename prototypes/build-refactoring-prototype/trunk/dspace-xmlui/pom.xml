@@ -8,15 +8,32 @@
    <packaging>pom</packaging>
    <name>DSpace XMLUI (Manakin)</name>
    <url>http://www.dspace.org</url>
-   <description>DSpace web-based user interface based upon Apache Cocoon.</description>
+   <description>
+      DSpace web-based user interface based upon Apache Cocoon.
+   </description>
 
    <parent>
       <groupId>org.dspace</groupId>
-      <artifactId>dspace</artifactId>
-      <version>1.5-SNAPSHOT</version>
-      <relativePath>../dspace</relativePath>
+      <artifactId>dspace-pom</artifactId>
+      <version>1.5-build-refactored-SNAPSHOT</version>
    </parent>
 
+   <repositories>
+      <repository>
+         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
+   
    <modules>
       <module>dspace-xmlui-wing/</module>
       <module>dspace-xmlui-api/</module>

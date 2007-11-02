@@ -12,15 +12,30 @@
 
    <parent>
       <groupId>org.dspace</groupId>
-      <artifactId>dspace</artifactId>
-      <version>1.5-SNAPSHOT</version>
-      <relativePath>../dspace</relativePath>
+      <artifactId>dspace-pom</artifactId>
+      <version>1.5-build-refactored-SNAPSHOT</version>
    </parent>
+   
+   <repositories>
+      <repository>
+         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
    
    <modules>
       <module>dspace-lni-core</module>
       <module>dspace-lni-webapp</module>
       <module>dspace-lni-client</module>
    </modules>
-	
+    
 </project>

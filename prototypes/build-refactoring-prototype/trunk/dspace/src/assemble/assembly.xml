@@ -2,6 +2,7 @@
    <formats>
       <format>dir</format>
    </formats>
+   <baseDirectory>dspace</baseDirectory>
    <includeBaseDirectory>false</includeBaseDirectory>
  
    <fileSets> 
@@ -45,6 +46,31 @@
          <outputDirectory>lib</outputDirectory>
          <unpack>false</unpack>
          <scope>runtime</scope>
+         <includes>
+            <include>*:jar</include>
+         </includes>
+         <excludes>
+            <exclude>org.dspace:dspace-xmlui-api</exclude>
+            <exclude>org.dspace:dspace-xmlui-wing</exclude>
+            <exclude>org.dspace:dspace-lni-core</exclude>
+         </excludes>
+      </dependencySet>
+      <dependencySet>
+         <outputDirectory>webapps</outputDirectory>
+         <unpack>true</unpack>
+         <outputFileNameMapping>
+               ${artifactId}
+         </outputFileNameMapping>
+         <unpackOptions>
+            <includes>
+               <include>WEB-INF/web.xml</include>
+            </includes>
+            <filtered>true</filtered>
+         </unpackOptions>
+         <scope>runtime</scope>
+         <includes>
+            <include>*:war</include>
+         </includes>
       </dependencySet>
    </dependencySets>
 
@@ -75,6 +101,12 @@
                ${artifactId}
             </outputFileNameMapping>
             <unpack>true</unpack>
+            <unpackOptions>
+               <includes>
+                  <include>WEB-INF/web.xml</include>
+               </includes>
+               <filtered>true</filtered>
+            </unpackOptions>
          </binaries>
       </moduleSet>
    </moduleSets>

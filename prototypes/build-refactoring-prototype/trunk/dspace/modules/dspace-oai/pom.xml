@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.dspace.modules</groupId>
+    <artifactId>dspace-oai</artifactId>
+    <packaging>war</packaging>
+    <name>DSpace :: OAI Web Application Overlay</name>
+    <url>http://www.dspace.org</url>
+    <description>
+        DSpace OAI Webapp Overlay
+    </description>
+    <version>1.5-build-refactored-SNAPSHOT</version>
+
+   <!-- 
+      A Parent POM that Maven inherits DSpace Defaults 
+      POM atrributes from. 
+   -->
+   <parent>
+      <groupId>org.dspace</groupId>
+      <artifactId>modules</artifactId>
+      <version>1.5-build-refactored-SNAPSHOT</version>
+   </parent>
+   
+    <profiles>
+    
+        <!-- 
+            This profile is used by all children such that
+            when activated a dspace.config configuration
+            file location passed on the commandline 
+            (-Ddspace.config=...) can be passed through 
+            to be used as a filter source by projects for 
+            tasks such as updating the ${dspace.dir} in
+            web.xml etc.
+            
+            When activated, the child project will inherit
+            the configuration.
+         -->
+       <profile>
+           <activation>
+               <property>
+                   <name>dspace.config</name>
+               </property>
+           </activation>
+           <build>
+               <filters>
+                   <filter>${dspace.config}</filter>
+               </filters>
+           </build>
+       </profile>
+
+    </profiles>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <archiveClasses>true</archiveClasses>
+                    <webResources>
+                        <resource>
+                            <filtering>true</filtering>
+                            <directory>
+                                ${basedir}/src/main/webapp
+                            </directory>
+                            <includes>
+                                <include>WEB-INF/web.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+    
+    <dependencies>
+
+        <!-- DSpace OAI API -->
+        <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-oai</artifactId>
+            <version>1.5-build-refactored-SNAPSHOT</version>
+            <type>war</type>
+        </dependency>
+        
+    </dependencies>
+    
+</project>

@@ -16,17 +16,58 @@
    -->
    <parent>
       <groupId>org.dspace</groupId>
-      <artifactId>dspace</artifactId>
-      <version>1.5-SNAPSHOT</version>
-      <relativePath>../dspace</relativePath>
+      <artifactId>dspace-pom</artifactId>
+      <version>1.5-build-refactored-SNAPSHOT</version>
    </parent>
+
+   <repositories>
+      <repository>
+         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
+
+   <profiles>
+      <!-- 
+         This profile is used by the project such that
+         when activated a dspace.config configuration
+         file location passed on the commandline 
+         (-Ddspace.config=...) can be passed through 
+         to be used as a filter source by projects for 
+         tasks such as updating the ${dspace.dir} in
+         web.xml etc.
+         
+         When activated, the project will inherit
+         the configuration.
+      -->
+      <profile>
+         <activation>
+            <property>
+               <name>dspace.config</name>
+            </property>
+         </activation>
+         <build>
+            <filters>
+               <filter>${dspace.config}</filter>
+            </filters>
+         </build>
+      </profile>
+   </profiles>
 
    <build>
       <plugins>
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-war-plugin</artifactId>
-            <version>2.0</version>
             <configuration>
                <archiveClasses>true</archiveClasses>
                <webResources>
@@ -49,12 +90,16 @@
    </build>
 
    <dependencies>
-       <dependency>
-           <groupId>javax.servlet</groupId>
-           <artifactId>servlet-api</artifactId>
-           <version>2.3</version>
-           <scope>provided</scope>
-       </dependency>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>servlet-api</artifactId>
+         <version>2.3</version>
+         <scope>provided</scope>
+      </dependency>
       <dependency>
          <groupId>javax.servlet</groupId>
          <artifactId>jstl</artifactId>
