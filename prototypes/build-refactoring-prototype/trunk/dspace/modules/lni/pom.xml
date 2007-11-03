@@ -4,12 +4,12 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.dspace.modules</groupId>
-    <artifactId>ROOT</artifactId>
+    <artifactId>lni</artifactId>
     <packaging>war</packaging>
-    <name>DSpace :: JSPUI Web Application Overlay</name>
+    <name>DSpace :: LNI Web Application Overlay</name>
     <url>http://www.dspace.org</url>
     <description>
-        DSpace JSPUI Webapp Overlay
+        DSpace LNI Webapp Overlay
     </description>
     <version>1.5-build-refactored-SNAPSHOT</version>
 
@@ -23,7 +23,7 @@
       <version>1.5-build-refactored-SNAPSHOT</version>
    </parent>
    
-    <profiles>
+       <profiles>
     
         <!-- 
             This profile is used by all children such that
@@ -85,7 +85,7 @@
         <!-- DSpace OAI API -->
         <dependency>
             <groupId>org.dspace</groupId>
-            <artifactId>dspace-jspui</artifactId>
+            <artifactId>dspace-lni-webapp</artifactId>
             <version>1.5-build-refactored-SNAPSHOT</version>
             <type>war</type>
         </dependency>

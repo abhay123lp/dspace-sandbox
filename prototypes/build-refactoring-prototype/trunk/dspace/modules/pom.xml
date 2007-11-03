@@ -74,10 +74,10 @@
    </scm>
 
    <modules>
-      <module>ROOT</module>
-      <module>dspace-oai</module>
-      <module>dspace-xmlui</module>
-      <module>dspace-lni</module>
+      <module>jspui</module>
+      <module>oai</module>
+      <module>xmlui</module>
+      <module>lni</module>
    </modules>
    
 </project>

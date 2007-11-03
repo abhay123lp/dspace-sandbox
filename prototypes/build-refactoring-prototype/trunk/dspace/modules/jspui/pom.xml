@@ -4,12 +4,12 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.dspace.modules</groupId>
-    <artifactId>dspace-xmlui</artifactId>
+    <artifactId>jspui</artifactId>
     <packaging>war</packaging>
-    <name>DSpace :: XMLUI Web Application Overlay</name>
+    <name>DSpace :: JSPUI Web Application Overlay</name>
     <url>http://www.dspace.org</url>
     <description>
-        DSpace XMLUI Webapp Overlay
+        DSpace JSPUI Webapp Overlay
     </description>
     <version>1.5-build-refactored-SNAPSHOT</version>
 
@@ -82,10 +82,10 @@
     
     <dependencies>
 
-        <!-- DSpace XMLUI API -->
+        <!-- DSpace OAI API -->
         <dependency>
             <groupId>org.dspace</groupId>
-            <artifactId>dspace-xmlui-webapp</artifactId>
+            <artifactId>dspace-jspui</artifactId>
             <version>1.5-build-refactored-SNAPSHOT</version>
             <type>war</type>
         </dependency>

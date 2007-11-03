@@ -4,7 +4,7 @@
     xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.dspace.modules</groupId>
-    <artifactId>dspace-oai</artifactId>
+    <artifactId>oai</artifactId>
     <packaging>war</packaging>
     <name>DSpace :: OAI Web Application Overlay</name>
     <url>http://www.dspace.org</url>
