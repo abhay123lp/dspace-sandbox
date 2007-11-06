@@ -44,6 +44,7 @@ import org.apache.log4j.Logger;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
+import org.dspace.core.LogManager;
 
 /**
  * This class is just a collection of identifier-related utilities.
@@ -76,6 +77,11 @@ public class IdentifierUtils
         else
         {
             oid = ObjectIdentifier.fromString(uri);
+        }
+
+        if (oid == null)
+        {
+            log.warn(LogManager.getHeader(c, "uri_not_found", uri));
         }
 
         return oid;

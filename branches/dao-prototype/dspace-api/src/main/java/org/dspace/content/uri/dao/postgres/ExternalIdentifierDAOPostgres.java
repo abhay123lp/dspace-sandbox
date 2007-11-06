@@ -122,7 +122,7 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
         {
             return null;
         }
-        
+
         ExternalIdentifier.Type type = (ExternalIdentifier.Type) bits[0];
         String value = (String) bits[1];
 
@@ -160,8 +160,7 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
             }
             else
             {
-                throw new RuntimeException("identifier " + type.getNamespace()
-                        + ":" + value + " not found");
+                return null;
             }
         }
         catch (SQLException sqle)

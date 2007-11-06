@@ -125,19 +125,23 @@ public class ObjectIdentifier
 
     public static ObjectIdentifier fromString(String canonicalForm)
     {
+        log.info(canonicalForm);
         for (Type t : Type.values())
         {
             String ns = t.getNamespace();
             if (canonicalForm.startsWith(ns))
             {
-                return new ObjectIdentifier(t, canonicalForm.substring(ns.length() + 1));
+                String value = canonicalForm.substring(ns.length() + 1);
+                if ((value == null) || value.equals(""))
+                {
+                    break;
+                }
+
+                return new ObjectIdentifier(t, value);
             }
         }
 
         return null;
-
-//        throw new IllegalArgumentException(canonicalForm +
-//                "not recognised as an object identifier");
     }
 
     public DSpaceObject getObject(Context context)

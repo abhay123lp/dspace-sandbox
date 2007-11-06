@@ -39,8 +39,8 @@
  */
 package org.dspace.app.webui.servlet;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
@@ -65,10 +65,9 @@ import org.dspace.content.Community;
 import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.content.uri.IdentifierUtils;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -109,89 +108,38 @@ public class URIServlet extends DSpaceServlet
             throw new RuntimeException(uee);
         }
 
+        // Here, we iterate through the path, one slash at a time, to see if we
+        // can match any portion of it (left to right) to an object URI.
         if (path != null)
         {
-            // substring(1) is to remove initial '/'
+            // eliminate leading '/'
             path = path.substring(1);
 
-            try
-            {
-                // Extract the URI
-                int firstSlash = path.indexOf('/');
+            int index = path.indexOf('/');
 
-                if (firstSlash != -1)
-                {
-                    // We have extra path info
-                    // FIXME: this shouldn't exist. if we have extra
-                    // information in the url, it should be parameterised, not
-                    // separated by a slash. If we escaped slashes in
-                    // identifiers to %2F this wouldn't be such an issue, but
-                    // we don't and as such are making assumptions about the
-                    // form of the identifiers.
-                    uri = path.substring(0, firstSlash);
-                    extraPathInfo = path.substring(firstSlash);
-                }
-                else
-                {
-                    // The path is just the URI
-                    uri = path;
-                }
-            }
-            catch (NumberFormatException nfe)
+            while (index != -1 && oi == null)
             {
-                throw new RuntimeException(nfe);
+                String chunk = path.substring(0, index - 1);
+                oi = IdentifierUtils.fromString(context, chunk);
+                index = path.indexOf('/', index + 1);
+            }
+
+            // If we haven't matched a chunk of the patch, try the whole thing.
+            if (oi == null)
+            {
+                oi = IdentifierUtils.fromString(context, path);
             }
         }
 
-        // Find out what the value points to
-        if (uri != null)
-        {
-            boolean internal = true;
-            String namespace = uri.substring(0, uri.indexOf(':'));
-            String value = uri.substring(uri.indexOf(':') + 1);
-
-            // The value of URI will be the persistent identifier in canonical
-            // form, eg: xyz:1234/56
-            for (ExternalIdentifier.Type type : ExternalIdentifier.Type.values())
-            {
-                if (type.getNamespace().equals(namespace))
-                {
-                    internal = false;
-                    break;
-                }
-            }
-
-            if (internal)
-            {
-                for (ObjectIdentifier.Type type : ObjectIdentifier.Type.values())
-                {
-                    if (type.getNamespace().equals(namespace))
-                    {
-                        oi = new ObjectIdentifier(type, value);
-                    }
-                }
-            }
-            else
-            {
-                ExternalIdentifierDAO identifierDAO =
-                    ExternalIdentifierDAOFactory.getInstance(context);
-                identifier = identifierDAO.retrieve(uri);
-                oi = identifier.getObjectIdentifier();
-            }
-
-            dso = oi.getObject(context);
-        }
-
-        if (dso == null)
+        if (oi == null)
         {
             log.info(LogManager
                     .getHeader(context, "invalid_id", "path=" + path));
             JSPManager.showInvalidIDError(request, response, path, -1);
-
-            return;
         }
         else
         {
+            dso = oi.getObject(context);
             processDSpaceObject(context, request, response, dso,
                     extraPathInfo);
         }
