@@ -65,7 +65,6 @@ import org.dspace.content.Community;
 import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.IdentifierUtils;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.ConfigurationManager;
@@ -89,9 +88,7 @@ public class URIServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
-        String uri = null;
         String extraPathInfo = null;
-        ExternalIdentifier identifier = null;
         ObjectIdentifier oi = null;
         DSpaceObject dso = null;
 
@@ -151,8 +148,7 @@ public class URIServlet extends DSpaceServlet
         else
         {
             dso = oi.getObject(context);
-            processDSpaceObject(context, request, response, dso,
-                    extraPathInfo);
+            processDSpaceObject(context, request, response, dso, extraPathInfo);
         }
     }
 
