@@ -39,6 +39,8 @@
  */
 package org.dspace.content.uri;
 
+import org.apache.log4j.Logger;
+
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
@@ -48,6 +50,8 @@ import org.dspace.core.Context;
  */
 public class IdentifierUtils
 {
+    private static Logger log = Logger.getLogger(IdentifierUtils.class);
+
     /**
      * Given a canonical form URI, we attempt to first associate this with
      * either an internal identifier (mostl likely a UUID), or one of the

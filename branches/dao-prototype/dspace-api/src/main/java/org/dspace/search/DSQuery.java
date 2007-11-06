@@ -122,8 +122,8 @@ public class DSQuery
     {
         String querystring = args.getQuery();
         QueryResults qr = new QueryResults();
-        List hitURIs = new ArrayList();
-        List hitTypes = new ArrayList();
+        List<String> hitURIs = new ArrayList<String>();
+        List<Integer> hitTypes = new ArrayList<Integer>();
 
         // set up the QueryResults object
         qr.setHitURIs(hitURIs);
@@ -182,21 +182,21 @@ public class DSQuery
                     Document d = hits.doc(i);
 
                     String uriText = d.get("uri");
-                    String uritype = d.get("type");
+                    String uriType = d.get("type");
 
                     hitURIs.add(uriText);
 
-                    if (uritype.equals("" + Constants.ITEM))
+                    if (uriType.equals("" + Constants.ITEM))
                     {
-                        hitTypes.add(new Integer(Constants.ITEM));
+                        hitTypes.add(Constants.ITEM);
                     }
-                    else if (uritype.equals("" + Constants.COLLECTION))
+                    else if (uriType.equals("" + Constants.COLLECTION))
                     {
-                        hitTypes.add(new Integer(Constants.COLLECTION));
+                        hitTypes.add(Constants.COLLECTION);
                     }
-                    else if (uritype.equals("" + Constants.COMMUNITY))
+                    else if (uriType.equals("" + Constants.COMMUNITY))
                     {
-                        hitTypes.add(new Integer(Constants.COMMUNITY));
+                        hitTypes.add(Constants.COMMUNITY);
                     }
                     else
                     {

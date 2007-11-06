@@ -172,23 +172,23 @@ public class ObjectIdentifier
                 // object it is attached to, so we just keep trying in sequence
                 // until we get something. This isn't an ideal approach, and we
                 // should probably re-order them to minimise lookups.
-                DSpaceObject dso = (Bitstream) bitstreamDAO.retrieve(uuid);
+                DSpaceObject dso = bitstreamDAO.retrieve(uuid);
 
                 if (dso == null)
                 {
-                    dso = (Bundle) bundleDAO.retrieve(uuid);
+                    dso = bundleDAO.retrieve(uuid);
                 }
                 if (dso == null)
                 {
-                    dso = (Item) itemDAO.retrieve(uuid);
+                    dso = itemDAO.retrieve(uuid);
                 }
                 if (dso == null)
                 {
-                    dso = (Collection) collectionDAO.retrieve(uuid);
+                    dso = collectionDAO.retrieve(uuid);
                 }
                 if (dso == null)
                 {
-                    dso = (Community) communityDAO.retrieve(uuid);
+                    dso = communityDAO.retrieve(uuid);
                 }
 
                 if (dso == null)
