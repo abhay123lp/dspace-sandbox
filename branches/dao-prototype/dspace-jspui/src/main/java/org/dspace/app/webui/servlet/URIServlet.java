@@ -119,7 +119,7 @@ public class URIServlet extends DSpaceServlet
 
             while (index != -1 && oi == null)
             {
-                String chunk = path.substring(0, index - 1);
+                String chunk = path.substring(0, index);
                 oi = IdentifierUtils.fromString(context, chunk);
                 index = path.indexOf('/', index + 1);
             }

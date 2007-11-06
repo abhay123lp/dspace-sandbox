@@ -136,6 +136,11 @@ public class ObjectIdentifier
                 {
                     break;
                 }
+                else if (t.equals(Type.INTS) && value.indexOf('/') == -1)
+                {
+                    // String must be of the form x/y with x & y ints
+                    break;
+                }
 
                 return new ObjectIdentifier(t, value);
             }
