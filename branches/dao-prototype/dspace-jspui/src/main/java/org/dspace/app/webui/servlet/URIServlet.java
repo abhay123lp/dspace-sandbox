@@ -117,14 +117,25 @@ public class URIServlet extends DSpaceServlet
 
             int index = path.indexOf('/');
 
-            while (index != -1 && oi == null)
+            while (index != -1)
             {
                 String chunk = path.substring(0, index);
                 oi = IdentifierUtils.fromString(context, chunk);
+                if (oi != null)
+                {
+                    // If we've found an object using a chunk of the URL, we
+                    // check to see if there's anything after that to process
+                    String tail = path.substring(index);
+                    if (tail != null && !tail.equals("") && !tail.equals("/"))
+                    {
+                        extraPathInfo = tail;
+                    }
+                    break;
+                }
                 index = path.indexOf('/', index + 1);
             }
 
-            // If we haven't matched a chunk of the patch, try the whole thing.
+            // If we haven't matched a chunk of the path, try the whole thing.
             if (oi == null)
             {
                 oi = IdentifierUtils.fromString(context, path);
