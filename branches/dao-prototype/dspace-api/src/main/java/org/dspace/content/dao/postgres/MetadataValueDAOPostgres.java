@@ -297,20 +297,6 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
         }
     }
 
-    private List<MetadataValue> returnAsList(TableRowIterator tri)
-        throws SQLException
-    {
-        List<MetadataValue> values = new ArrayList<MetadataValue>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("metadata_value_id");
-            values.add(retrieve(id));
-        }
-
-        return values;
-    }
-
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
@@ -337,5 +323,19 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
         value.setPlace(place);
 
         return value;
+    }
+
+    private List<MetadataValue> returnAsList(TableRowIterator tri)
+            throws SQLException
+    {
+        List<MetadataValue> values = new ArrayList<MetadataValue>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("metadata_value_id");
+            values.add(retrieve(id));
+        }
+
+        return values;
     }
 }

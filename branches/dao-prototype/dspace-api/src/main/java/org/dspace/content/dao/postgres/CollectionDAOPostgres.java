@@ -111,15 +111,7 @@ public class CollectionDAOPostgres extends CollectionDAO
         {
             TableRow row = DatabaseManager.find(context, "collection", id);
 
-            if (row == null)
-            {
-                log.warn("collection " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -142,36 +134,12 @@ public class CollectionDAOPostgres extends CollectionDAO
             TableRow row = DatabaseManager.findByUnique(context, "collection",
                     "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("collection " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private Collection retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("collection_id");
-        Collection collection = new Collection(context, id);
-        populateCollectionFromTableRow(collection, row);
-
-        // FIXME: I'd like to bump the rest of this up into the superclass
-        // so we don't have to do it for every implementation, but I can't
-        // figure out a clean way of doing this yet.
-        List<ExternalIdentifier> identifiers =
-            identifierDAO.getExternalIdentifiers(collection);
-        collection.setExternalIdentifiers(identifiers);
-
-        return collection;
     }
 
     @Override
@@ -289,20 +257,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    private List<Collection> returnAsList(TableRowIterator tri)
-        throws SQLException
-    {
-        List<Collection> collections = new ArrayList<Collection>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("collection_id");
-            collections.add(retrieve(id));
-        }
-
-        return collections;
-    }
-
     /**
      * Straightforward utility method for counting the number of Items in the
      * given Collection. There is probably a way to be smart about this. Also,
@@ -408,6 +362,41 @@ public class CollectionDAOPostgres extends CollectionDAO
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
+
+    private Collection retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("collection_id");
+        Collection collection = new Collection(context, id);
+        populateCollectionFromTableRow(collection, row);
+
+        // FIXME: I'd like to bump the rest of this up into the superclass
+        // so we don't have to do it for every implementation, but I can't
+        // figure out a clean way of doing this yet.
+        List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(collection);
+        collection.setExternalIdentifiers(identifiers);
+
+        return collection;
+    }
+
+    private List<Collection> returnAsList(TableRowIterator tri)
+            throws SQLException
+    {
+        List<Collection> collections = new ArrayList<Collection>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("collection_id");
+            collections.add(retrieve(id));
+        }
+
+        return collections;
+    }
 
     private void populateTableRowFromCollection(Collection collection,
             TableRow row)

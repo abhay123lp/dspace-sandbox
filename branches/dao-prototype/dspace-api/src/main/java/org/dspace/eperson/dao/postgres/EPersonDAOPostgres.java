@@ -112,15 +112,7 @@ public class EPersonDAOPostgres extends EPersonDAO
         {
             TableRow row = DatabaseManager.find(context, "eperson", id);
 
-            if (row == null)
-            {
-                log.warn("eperson " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -143,15 +135,7 @@ public class EPersonDAOPostgres extends EPersonDAO
             TableRow row = DatabaseManager.findByUnique(context, "eperson",
                     "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("eperson " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -179,39 +163,12 @@ public class EPersonDAOPostgres extends EPersonDAO
             TableRow row = DatabaseManager.findByUnique(context, "eperson",
                     field.toString(), value);
 
-            if (row == null)
-            {
-                log.warn("eperson with " + field + " " + value + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private EPerson retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("eperson_id");
-
-        EPerson eperson = super.retrieve(id);
-
-        if (eperson != null)
-        {
-            return eperson;
-        }
-
-        eperson = new EPerson(context, id);
-        populateEPersonFromTableRow(eperson, row);
-
-        context.cache(eperson, id);
-
-        return eperson;
     }
 
     @Override
@@ -461,6 +418,34 @@ public class EPersonDAOPostgres extends EPersonDAO
         }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private EPerson retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("eperson_id");
+
+        EPerson eperson = super.retrieve(id);
+
+        if (eperson != null)
+        {
+            return eperson;
+        }
+
+        eperson = new EPerson(context, id);
+        populateEPersonFromTableRow(eperson, row);
+
+        context.cache(eperson, id);
+
+        return eperson;
+    }
+
     private List<EPerson> returnAsList(TableRowIterator tri)
     {
         try
@@ -480,10 +465,6 @@ public class EPersonDAOPostgres extends EPersonDAO
             throw new RuntimeException(sqle);
         }
     }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
 
     private void populateEPersonFromTableRow(EPerson eperson, TableRow row)
     {

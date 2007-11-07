@@ -174,15 +174,7 @@ public class ItemDAOPostgres extends ItemDAO
         {
             TableRow row = DatabaseManager.find(context, "item", id);
 
-            if (row == null)
-            {
-                log.warn("item " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -205,36 +197,12 @@ public class ItemDAOPostgres extends ItemDAO
             TableRow row = DatabaseManager.findByUnique(context, "item",
                     "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("item " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private Item retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("item_id");
-        Item item = new ItemProxy(context, id);
-        populateItemFromTableRow(item, row);
-
-        // FIXME: I'd like to bump the rest of this up into the superclass
-        // so we don't have to do it for every implementation, but I can't
-        // figure out a clean way of doing this yet.
-        List<ExternalIdentifier> identifiers =
-            identifierDAO.getExternalIdentifiers(item);
-        item.setExternalIdentifiers(identifiers);
-
-        return item;
     }
 
     @Override
@@ -591,19 +559,6 @@ public class ItemDAOPostgres extends ItemDAO
         }
     }
 
-    private List<Item> returnAsList(TableRowIterator tri) throws SQLException
-    {
-        List<Item> items = new ArrayList<Item>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("item_id");
-            items.add(retrieve(id));
-        }
-
-        return items;
-    }
-
     @Override
     public void link(Item item, Bundle bundle) throws AuthorizeException
     {
@@ -675,11 +630,43 @@ public class ItemDAOPostgres extends ItemDAO
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     //
-    // Note: the methods below marked public should really be in the base Item
-    // class (or the proxy), but until DAOs are adopted system-wide, we need to
-    // take care of it here. For instance, getCollection() should really
-    // interrogate CollectionDAO.retrieve(id), but that doesn't exist yet.
+    // Note: the methods below marked public are mostly to serve the
+    // ItemProxy class. The situation isn't really ideal.
     ////////////////////////////////////////////////////////////////////
+
+    private Item retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("item_id");
+        Item item = new ItemProxy(context, id);
+        populateItemFromTableRow(item, row);
+
+        // FIXME: I'd like to bump the rest of this up into the superclass
+        // so we don't have to do it for every implementation, but I can't
+        // figure out a clean way of doing this yet.
+        List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(item);
+        item.setExternalIdentifiers(identifiers);
+
+        return item;
+    }
+
+    private List<Item> returnAsList(TableRowIterator tri) throws SQLException
+    {
+        List<Item> items = new ArrayList<Item>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("item_id");
+            items.add(retrieve(id));
+        }
+
+        return items;
+    }
 
     private void populateTableRowFromItem(Item item, TableRow row)
     {

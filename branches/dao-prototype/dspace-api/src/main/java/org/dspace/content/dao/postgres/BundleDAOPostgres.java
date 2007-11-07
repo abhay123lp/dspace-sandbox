@@ -105,15 +105,7 @@ public class BundleDAOPostgres extends BundleDAO
         {
             TableRow row = DatabaseManager.find(context, "bundle", id);
 
-            if (row == null)
-            {
-                log.warn("bundle " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -136,29 +128,12 @@ public class BundleDAOPostgres extends BundleDAO
             TableRow row = DatabaseManager.findByUnique(context, "bundle",
                     "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("bundle " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private Bundle retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("bundle_id");
-        Bundle bundle = new Bundle(context, id);
-        populateBundleFromTableRow(bundle, row);
-
-        return bundle;
     }
 
     @Override
@@ -249,19 +224,6 @@ public class BundleDAOPostgres extends BundleDAO
         }
     }
 
-    private List<Bundle> returnAsList(TableRowIterator tri) throws SQLException
-    {
-        List<Bundle> bundles = new ArrayList<Bundle>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("bundle_id");
-            bundles.add(retrieve(id));
-        }
-
-        return bundles;
-    }
-
     @Override
     public void link(Bundle bundle, Bitstream bitstream)
         throws AuthorizeException
@@ -333,6 +295,33 @@ public class BundleDAOPostgres extends BundleDAO
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
+
+    private Bundle retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("bundle_id");
+        Bundle bundle = new Bundle(context, id);
+        populateBundleFromTableRow(bundle, row);
+
+        return bundle;
+    }
+
+    private List<Bundle> returnAsList(TableRowIterator tri) throws SQLException
+    {
+        List<Bundle> bundles = new ArrayList<Bundle>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("bundle_id");
+            bundles.add(retrieve(id));
+        }
+
+        return bundles;
+    }
 
     private void populateBundleFromTableRow(Bundle bundle, TableRow row)
     {

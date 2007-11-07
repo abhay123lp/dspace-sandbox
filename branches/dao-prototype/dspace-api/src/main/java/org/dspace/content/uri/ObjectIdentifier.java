@@ -125,7 +125,6 @@ public class ObjectIdentifier
 
     public static ObjectIdentifier fromString(String canonicalForm)
     {
-        log.info(canonicalForm);
         for (Type t : Type.values())
         {
             String ns = t.getNamespace();

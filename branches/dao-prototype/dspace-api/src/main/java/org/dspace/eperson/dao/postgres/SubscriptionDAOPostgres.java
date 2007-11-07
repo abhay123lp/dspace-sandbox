@@ -117,24 +117,6 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
         }
     }
 
-    private Subscription retrieve(TableRow row) throws SQLException
-    {
-        if (row == null)
-        {
-            return null;
-        }
-        else
-        {
-            int id = row.getIntColumn("subscription_id");
-            Subscription sub = new Subscription(id);
-
-            sub.setEPersonID(row.getIntColumn("eperson_id"));
-            sub.setCollectionID(row.getIntColumn("collection_id"));
-
-            return sub;
-        }
-    }
-
     @Override
     public void update(Subscription subscription)
     {
@@ -227,6 +209,28 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private Subscription retrieve(TableRow row) throws SQLException
+    {
+        if (row == null)
+        {
+            return null;
+        }
+        else
+        {
+            int id = row.getIntColumn("subscription_id");
+            Subscription sub = new Subscription(id);
+
+            sub.setEPersonID(row.getIntColumn("eperson_id"));
+            sub.setCollectionID(row.getIntColumn("collection_id"));
+
+            return sub;
         }
     }
 

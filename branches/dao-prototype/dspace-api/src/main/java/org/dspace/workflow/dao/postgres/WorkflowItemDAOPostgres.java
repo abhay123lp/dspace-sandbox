@@ -121,15 +121,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
         {
             TableRow row = DatabaseManager.find(context, "workflowitem", id);
 
-            if (row == null)
-            {
-                log.warn("workflow item " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -152,15 +144,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "workflowitem", "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("workflow item " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -168,15 +152,6 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
         }
     }
 
-    private WorkflowItem retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("workflow_id");
-        WorkflowItem wfi = new WorkflowItem(context, id);
-        populateWorkflowItemFromTableRow(wfi, row);
-
-        return wfi;
-    }
-    
     @Override
     public void update(WorkflowItem wfi) throws AuthorizeException
     {
@@ -329,20 +304,6 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
         }
     }
 
-    private List<WorkflowItem> returnAsList(TableRowIterator tri)
-        throws SQLException
-    {
-        List<WorkflowItem> wfItems = new ArrayList<WorkflowItem>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("workflow_id");
-            wfItems.add(retrieve(id));
-        }
-
-        return wfItems;
-    }
-
     @Override
     public List<TaskListItem> getTaskListItems(EPerson eperson)
     {
@@ -381,6 +342,34 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
+
+    private WorkflowItem retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("workflow_id");
+        WorkflowItem wfi = new WorkflowItem(context, id);
+        populateWorkflowItemFromTableRow(wfi, row);
+
+        return wfi;
+    }
+
+    private List<WorkflowItem> returnAsList(TableRowIterator tri)
+            throws SQLException
+    {
+        List<WorkflowItem> wfItems = new ArrayList<WorkflowItem>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("workflow_id");
+            wfItems.add(retrieve(id));
+        }
+
+        return wfItems;
+    }
 
     private void populateWorkflowItemFromTableRow(WorkflowItem wfi,
             TableRow row)

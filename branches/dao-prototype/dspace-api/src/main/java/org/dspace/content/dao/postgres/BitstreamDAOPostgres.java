@@ -128,15 +128,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         {
             TableRow row = DatabaseManager.find(context, "bitstream", id);
 
-            if (row == null)
-            {
-                log.warn("bitstream " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -159,36 +151,12 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             TableRow row = DatabaseManager.findByUnique(context, "bitstream",
                     "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("bitstream " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private Bitstream retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("bitstream_id");
-        Bitstream bitstream = new Bitstream(context, id);
-        populateBitstreamFromTableRow(bitstream, row);
-
-        // FIXME: I'd like to bump the rest of this up into the superclass
-        // so we don't have to do it for every implementation, but I can't
-        // figure out a clean way of doing this yet.
-        List<ExternalIdentifier> identifiers =
-            identifierDAO.getExternalIdentifiers(bitstream);
-        bitstream.setExternalIdentifiers(identifiers);
-
-        return bitstream;
     }
 
     @Override
@@ -315,8 +283,33 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private Bitstream retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("bitstream_id");
+        Bitstream bitstream = new Bitstream(context, id);
+        populateBitstreamFromTableRow(bitstream, row);
+
+        // FIXME: I'd like to bump the rest of this up into the superclass
+        // so we don't have to do it for every implementation, but I can't
+        // figure out a clean way of doing this yet.
+        List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(bitstream);
+        bitstream.setExternalIdentifiers(identifiers);
+
+        return bitstream;
+    }
+
     private List<Bitstream> returnAsList(TableRowIterator tri)
-        throws SQLException
+            throws SQLException
     {
         List <Bitstream> bitstreams = new ArrayList<Bitstream>();
 
@@ -328,10 +321,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
 
         return bitstreams;
     }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
 
     private void populateBitstreamFromTableRow(Bitstream bitstream,
             TableRow row)
