@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.dspace</groupId>
+   <artifactId>dspace-jspui-webapp</artifactId>
+   <name>DSpace JSPUI :: Web Application</name>
+   <packaging>war</packaging>
+   <url>http://projects.dspace.org/dspace-jspui/dspace-jspui-webapp</url>
+   <description>DSpace JSP Based Webapplication</description>
+
+   <!-- 
+      A Parent POM that Maven inherits DSpace Default 
+      POM atrributes from. 
+   -->
+   <parent>
+      <groupId>org.dspace</groupId>
+      <artifactId>dspace-jspui</artifactId>
+      <version>1.5-build-refactored-SNAPSHOT</version>
+   </parent>
+
+   <repositories>
+      <repository>
+         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
+
+   <profiles>
+      <!-- 
+         This profile is used by the project such that
+         when activated a dspace.config configuration
+         file location passed on the commandline 
+         (-Ddspace.config=...) can be passed through 
+         to be used as a filter source by projects for 
+         tasks such as updating the ${dspace.dir} in
+         web.xml etc.
+         
+         When activated, the project will inherit
+         the configuration.
+      -->
+      <profile>
+         <activation>
+            <property>
+               <name>dspace.config</name>
+            </property>
+         </activation>
+         <build>
+            <filters>
+               <filter>${dspace.config}</filter>
+            </filters>
+         </build>
+      </profile>
+   </profiles>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+               <archiveClasses>true</archiveClasses>
+               <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
+               <warSourceIncludes>WEB-INF/lib/dspace-jspui*.jar</warSourceIncludes>
+               <webResources>
+                  <resource>
+                     <filtering>true</filtering>
+                     <directory>${basedir}/src/main/webapp</directory>
+                     <includes>
+                        <include>WEB-INF/web.xml</include>
+                     </includes>
+                  </resource>
+               </webResources>
+            </configuration>
+            <executions>
+               <execution>
+                  <phase>prepare-package</phase>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-api</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-jspui-core</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>servlet-api</artifactId>
+         <version>2.3</version>
+         <scope>provided</scope>
+      </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>jstl</artifactId>
+         <version>1.1.2</version>
+      </dependency>
+      <dependency>
+         <groupId>taglibs</groupId>
+         <artifactId>standard</artifactId>
+         <version>1.1.2</version>
+      </dependency>
+   </dependencies>
+
+</project>
+
