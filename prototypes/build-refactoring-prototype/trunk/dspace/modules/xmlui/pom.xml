@@ -92,6 +92,13 @@
          <classifier>skinny</classifier>
       </dependency>
 
+      <!-- DSpace XMLUI API -->
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-xmlui-api</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+
    </dependencies>
 
 </project>
