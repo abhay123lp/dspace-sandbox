@@ -4,9 +4,9 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.dspace</groupId>
-   <artifactId>dspace-oai</artifactId>
-   <packaging>pom</packaging>
-   <name>DSpace OAI</name>
+   <artifactId>dspace-oai-core</artifactId>
+   <packaging>jar</packaging>
+   <name>DSpace OAI :: Servlets and Support</name>
    <description>DSpace OAI Service Provider Webapplication</description>
    <url>http://projects.dspace.org/dspace-oai</url>
 
@@ -16,7 +16,7 @@
    -->
    <parent>
       <groupId>org.dspace</groupId>
-      <artifactId>dspace-pom</artifactId>
+      <artifactId>dspace-oai</artifactId>
       <version>1.5-build-refactored-SNAPSHOT</version>
    </parent>
 
@@ -36,8 +36,21 @@
       </repository>
    </repositories>
 
-   <modules>
-      <module>dspace-oai-core</module>
-      <module>dspace-oai-webapp</module>
-   </modules>
+   <dependencies>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>oaicat</artifactId>
+         <version>1.5.48</version>
+      </dependency>
+      <dependency>
+         <groupId>javax.servlet</groupId>
+         <artifactId>servlet-api</artifactId>
+         <scope>provided</scope>
+      </dependency>
+   </dependencies>
+
 </project>

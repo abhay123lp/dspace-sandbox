@@ -21,9 +21,9 @@
 
    <repositories>
       <repository>
-         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <id>maven.dspace.org/snapshot</id>
          <name>DSpace Maven Snapshot Repository</name>
-         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <url>http://maven.dspace.org/snapshot</url>
          <releases>
             <enabled>false</enabled>
             <checksumPolicy>fail</checksumPolicy>
@@ -54,6 +54,7 @@
             <artifactId>maven-war-plugin</artifactId>
             <configuration>
                <archiveClasses>true</archiveClasses>
+               <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
                <webResources>
                   <resource>
                      <filtering>true</filtering>

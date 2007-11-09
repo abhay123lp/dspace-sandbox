@@ -24,9 +24,9 @@
 
    <repositories>
       <repository>
-         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <id>maven.dspace.org/snapshot</id>
          <name>DSpace Maven Snapshot Repository</name>
-         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <url>http://maven.dspace.org/snapshot</url>
          <releases>
             <enabled>false</enabled>
             <checksumPolicy>fail</checksumPolicy>
@@ -40,9 +40,9 @@
 
    <pluginRepositories>
       <pluginRepository>
-         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <id>maven.dspace.org/snapshot</id>
          <name>DSpace Maven Repository</name>
-         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <url>http://maven.dspace.org/snapshot</url>
          <releases>
             <updatePolicy>never</updatePolicy>
             <checksumPolicy>fail</checksumPolicy>
@@ -173,20 +173,6 @@
       
    </profiles>
    
-   <build>
-      <plugins>
-         <!--  overall project assembly --> 
-         <plugin>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <configuration>
-               <descriptors>
-                  <descriptor>src/assemble/assembly.xml</descriptor>
-               </descriptors>
-            </configuration>
-         </plugin>
-      </plugins>
-   </build>
-
    <dependencies>
        <!-- 
          The following jar dependencies assure that all the dependencies

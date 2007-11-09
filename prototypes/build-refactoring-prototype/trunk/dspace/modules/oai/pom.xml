@@ -85,7 +85,7 @@
         <!-- DSpace OAI API -->
         <dependency>
             <groupId>org.dspace</groupId>
-            <artifactId>dspace-oai</artifactId>
+            <artifactId>dspace-oai-webapp</artifactId>
             <version>1.5-build-refactored-SNAPSHOT</version>
             <type>war</type>
         </dependency>
