@@ -58,6 +58,33 @@
                </execution>
             </executions>
          </plugin>
+         
+         <!--  overall project assembly -->
+         <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <configuration>
+               <descriptorRefs>
+                  <descriptorRef>skinny</descriptorRef>
+               </descriptorRefs>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>make-assembly</id><!-- this is used for inheritance merges -->
+                  <phase>package</phase><!-- append to the packaging phase. -->
+                  <goals>
+                     <goal>attached</goal><!-- goals == mojos -->
+                  </goals>
+               </execution>
+            </executions>
+            <dependencies>
+               <dependency>
+                  <groupId>org.dspace.maven.plugins</groupId>
+                  <artifactId>dspace-assembly-plugin</artifactId>
+                  <version>1.5-SNAPSHOT</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+         
       </plugins>
    </build>
    
