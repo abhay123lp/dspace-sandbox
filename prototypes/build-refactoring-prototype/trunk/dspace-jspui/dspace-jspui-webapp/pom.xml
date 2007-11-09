@@ -22,9 +22,9 @@
 
    <repositories>
       <repository>
-         <id>dspace.sourceforge.net/repository/snapshot</id>
+         <id>maven.dspace.org/snapshot</id>
          <name>DSpace Maven Snapshot Repository</name>
-         <url>http://dspace.sourceforge.net/repository/snapshot</url>
+         <url>http://maven.dspace.org/snapshot</url>
          <releases>
             <enabled>false</enabled>
             <checksumPolicy>fail</checksumPolicy>
@@ -35,6 +35,20 @@
          </snapshots>
       </repository>
    </repositories>
+   
+   <pluginRepositories>
+   	  <pluginRepository>
+   	      <id>apache.org</id>
+          <name>Maven Snapshots</name>
+          <url>http://people.apache.org/repo/m2-snapshot-repository</url>
+          <releases>
+            <enabled>false</enabled>
+          </releases>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+   	  </pluginRepository>
+   </pluginRepositories>
 
    <profiles>
       <!-- 
@@ -70,8 +84,6 @@
             <artifactId>maven-war-plugin</artifactId>
             <configuration>
                <archiveClasses>true</archiveClasses>
-               <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
-               <warSourceIncludes>WEB-INF/lib/dspace-jspui*.jar</warSourceIncludes>
                <webResources>
                   <resource>
                      <filtering>true</filtering>
@@ -88,6 +100,35 @@
                </execution>
             </executions>
          </plugin>
+         
+         
+          <!--  overall project assembly -->
+         <plugin>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>2.2-beta-2-SNAPSHOT</version>
+            <configuration>
+                     <descriptorRefs>
+       <descriptorRef>skinny</descriptorRef>
+      </descriptorRefs>
+            </configuration>
+            <executions>
+               <execution>
+                  <id>make-assembly</id><!-- this is used for inheritance merges -->
+                  <phase>package</phase><!-- append to the packaging phase. -->
+                  <goals>
+                     <goal>attached</goal><!-- goals == mojos -->
+                  </goals>
+               </execution>
+            </executions>
+                        <dependencies>
+               <dependency>
+                  <groupId>org.dspace.maven.plugins</groupId>
+                  <artifactId>dspace-assembly-plugin</artifactId>
+                  <version>1.5-SNAPSHOT</version>
+               </dependency>
+            </dependencies>
+         </plugin>
+         
       </plugins>
    </build>
 
