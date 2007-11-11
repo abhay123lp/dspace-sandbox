@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?><project>
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.dspace.xmlui.jcs</groupId>
-  <artifactId>jcs</artifactId>
-  <version>1.2.5-dev-20050313</version>
-  <distributionManagement>
-    <status>deployed</status>
-  </distributionManagement>
-</project>
