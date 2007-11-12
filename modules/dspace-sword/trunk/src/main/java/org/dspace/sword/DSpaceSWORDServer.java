@@ -155,7 +155,11 @@ public class DSpaceSWORDServer implements SWORDServer
 		catch (DSpaceSWORDException e)
 		{
 			log.error("caught exception:", e);
-			throw new SWORDAuthenticationException("There was a problem depositing the item", e);
+			throw new SWORDException("There was a problem depositing the item", e);
+		}
+		catch (AuthorizeException e)
+		{
+			throw new SWORDAuthenticationException("There was a problem authorising one of your actions", e);
 		}
 		catch (SQLException e)
 		{

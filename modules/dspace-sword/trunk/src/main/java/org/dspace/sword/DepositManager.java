@@ -108,7 +108,7 @@ public class DepositManager
 	 * @throws DSpaceSWORDException
 	 */
 	public DepositResponse deposit()
-		throws DSpaceSWORDException
+		throws DSpaceSWORDException, AuthorizeException
 	{
 		// start the timer, and initialise the verboseness of the request
 		Date start = new Date();
@@ -137,7 +137,7 @@ public class DepositManager
 				oboEmail = swordContext.getOnBehalfOf().getEmail();
 			}
 			log.info(LogManager.getHeader(context, "deposit_failed_authorisation", "user=" + swordContext.getAuthenticated().getEmail() + ",on_behalf_of=" + oboEmail));
-			throw new DSpaceSWORDException("Cannot submit to the given collection with this context");
+			throw new AuthorizeException("Cannot submit to the given collection with this context");
 		}
 		
 		// make a note of the authentication in the verbose string
@@ -169,7 +169,7 @@ public class DepositManager
 		}
 		DepositResponse response = new DepositResponse(state);
 		DSpaceATOMEntry dsatom = new DSpaceATOMEntry();
-		SWORDEntry entry = dsatom.getSWORDEntry(result.getItem(), handle, deposit.isNoOp());
+		SWORDEntry entry = dsatom.getSWORDEntry(result.getItem(), handle, deposit.isNoOp(), swordContext);
 		
 		// if this was a no-op, we need to remove the files we just
 		// deposited, and abort the transaction
@@ -214,18 +214,6 @@ public class DepositManager
 		Collection collection = cl.getCollection(context, loc);
 		boolean submit = swordContext.canSubmitTo(context, collection);
 		return submit;
-	}
-	
-	/**
-	 * @deprecated	verification is currently done further up the stack
-	 * @throws DSpaceSWORDException
-	 */
-	private void verify()
-		throws DSpaceSWORDException
-	{
-		// FIXME: please implement
-		// in reality, all this is done higher up the stack, so we don't
-		// need to worry!
 	}
 	
 	/**
