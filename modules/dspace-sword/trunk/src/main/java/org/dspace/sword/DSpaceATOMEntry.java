@@ -45,6 +45,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
+import org.dspace.eperson.EPerson;
 import org.dspace.content.Item;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.handle.HandleManager;
@@ -80,6 +81,9 @@ public class DSpaceATOMEntry
 	/** the item this ATOM entry represents */
 	protected Item item;
 	
+	/** the sword context the deposit was done under */
+	protected SWORDContext context;
+	
 	/**
 	 * Construct the SWORDEntry object which represents the given
 	 * item with the given handle.  An argument as to whether this
@@ -92,7 +96,7 @@ public class DSpaceATOMEntry
 	 * @param noOp		whether this is a noOp request
 	 * @return		the SWORDEntry for the item
 	 */
-	public SWORDEntry getSWORDEntry(Item item, String handle, boolean noOp)
+	public SWORDEntry getSWORDEntry(Item item, String handle, boolean noOp, SWORDContext sc)
 		throws DSpaceSWORDException
 	{
 		entry = new SWORDEntry();
@@ -152,6 +156,7 @@ public class DSpaceATOMEntry
 	 */
 	protected void addAuthors()
 	{
+		/*
 		DCValue[] dcv = item.getMetadata("dc.contributor.author");
 		if (dcv != null)
 		{
@@ -161,6 +166,25 @@ public class DSpaceATOMEntry
 				author.setName(dcv[i].value);
 				entry.addAuthors(author);
 			}
+		}
+		*/
+		EPerson authd = context.getAuthenticated();
+		EPerson obo = context.getOnBehalfOf();
+		
+		if (authd != null)
+		{
+			Author author = new Author();
+			author.setName(authd.getFullName());
+			author.setEmail(authd.getEmail());
+			entry.addAuthors(author);
+		}
+		
+		if (obo != null)
+		{
+			Author author = new Author();
+			author.setName(obo.getFullName());
+			author.setEmail(obo.getEmail());
+			entry.addAuthors(author);
 		}
 	}
 	
