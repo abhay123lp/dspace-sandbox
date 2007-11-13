@@ -1,0 +1,34 @@
+# Validation error email message
+#
+# {0}  Harvesting DSpace name
+# {1}  Harvesting DSpace URL
+# {2}  Admin e-mail address for harvesting DSpace
+# {3}  Remote repository URL
+# {4}  Records with errors
+# {5}  Problem encountered during harvesting
+Subject: Harvesting/Validation Error
+Dear DSpace administrator,
+
+Our data centre: {0}
+
+Has encountered problems replicating items from your DSpace installation:
+
+{3}
+
+{5}
+
+The following items were found to have errors:
+
+{4}
+
+Please check the above items at your earliest convenience; it is possible that
+some of the problems occurred due to external problems, for example broken
+network connection.  Our data centre will automatically attempt to re-retrieve
+items.
+
+Many thanks!
+
+The Administrators
+{0}
+{1}
+{2}
