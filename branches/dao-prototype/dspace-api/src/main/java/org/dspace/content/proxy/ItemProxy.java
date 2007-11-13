@@ -85,13 +85,9 @@ public class ItemProxy extends Item
         else if (owningCollectionId != -1)
         {
             owningCollection = collectionDAO.retrieve(owningCollectionId);
-            return owningCollection;
         }
-        else
-        {
-            log.warn("No owning collection information available!");
-            return null;
-        }
+
+        return super.getOwningCollection();
     }
 
     @Override
@@ -102,88 +98,48 @@ public class ItemProxy extends Item
             setBundles(bundleDAO.getBundles(this));
         }
 
-        return bundles.toArray(new Bundle[0]);
+        return super.getBundles();
     }
 
     @Override
     public void setBundles(List<Bundle> bundles)
     {
-        this.bundles = bundles;
         this.bundlesLoaded = true;
+
+        super.setBundles(bundles);
     }
 
     @Override
     public Bundle[] getBundles(String name)
     {
-        List<Bundle> matchingBundles = new ArrayList<Bundle>();
-
         if (!bundlesLoaded)
         {
             setBundles(bundleDAO.getBundles(this));
         }
 
-        for (Bundle b : bundles)
-        {
-            if (name.equals(b.getName()))
-            {
-                matchingBundles.add(b);
-            }
-        }
-
-        return matchingBundles.toArray(new Bundle[0]);
+        return super.getBundles(name);
     }
 
     @Override
     public void addBundle(Bundle b) throws AuthorizeException
     {
-        AuthorizeManager.authorizeAction(context, this, Constants.ADD);
-
-        log.info(LogManager.getHeader(context, "add_bundle", "item_id="
-                + getID() + ",bundle_id=" + b.getID()));
-
-        if (bundles == null)
-        {
-            bundles = new ArrayList<Bundle>();
-        }
-
         if (!bundlesLoaded)
         {
             setBundles(bundleDAO.getBundles(this));
         }
 
-        for (Bundle bundle : bundles)
-        {
-            if (b.getID() == bundle.getID())
-            {
-                return;
-            }
-        }
-
-        bundles.add(b);
+        super.addBundle(b);
     }
 
     @Override
     public void removeBundle(Bundle b) throws AuthorizeException
     {
-        AuthorizeManager.authorizeAction(context, this, Constants.REMOVE);
-
         if (!bundlesLoaded)
         {
             setBundles(bundleDAO.getBundles(this));
         }
 
-        log.info(LogManager.getHeader(context, "remove_bundle", "item_id="
-                + getID() + ",bundle_id=" + b.getID()));
-
-        Iterator<Bundle> i = bundles.iterator();
-        while (i.hasNext())
-        {
-            Bundle bundle = i.next();
-            if (bundle.getID() == b.getID())
-            {
-                i.remove();
-            }
-        }
+        super.removeBundle(b);
     }
 
     @Override
@@ -195,7 +151,7 @@ public class ItemProxy extends Item
             this.metadataLoaded = true;
         }
 
-        return metadata;
+        return super.getMetadata();
     }
 
     @Override
@@ -243,43 +199,7 @@ public class ItemProxy extends Item
             this.metadataLoaded = true;
         }
 
-        // We will not verify that they are valid entries in the registry
-        // until update() is called.
-        for (int i = 0; i < values.length; i++)
-        {
-            DCValue dcv = new DCValue();
-            dcv.schema = schema;
-            dcv.element = element;
-            dcv.qualifier = qualifier;
-            dcv.language = lang;
-            if (values[i] != null)
-            {
-                // remove control unicode char
-                String temp = values[i].trim();
-                char[] dcvalue = temp.toCharArray();
-                for (int charPos = 0; charPos < dcvalue.length; charPos++)
-                {
-                    if (Character.isISOControl(dcvalue[charPos]) &&
-                        !String.valueOf(dcvalue[charPos]).equals("\u0009") &&
-                        !String.valueOf(dcvalue[charPos]).equals("\n") &&
-                        !String.valueOf(dcvalue[charPos]).equals("\r"))
-                    {
-                        dcvalue[charPos] = ' ';
-                    }
-                }
-                dcv.value = String.valueOf(dcvalue);
-
-                if (!metadata.contains(dcv))
-                {
-                    metadata.add(dcv);
-                    metadataChanged = true;
-                }
-            }
-            else
-            {
-                dcv.value = null;
-            }
-        }
+        super.addMetadata(schema, element, qualifier, lang, values);
     }
 
     @Override
@@ -292,27 +212,14 @@ public class ItemProxy extends Item
             this.metadataLoaded = true;
         }
 
-        if (metadata.size() == 0)
-        {
-            return;
-        }
-
-        Iterator<DCValue> i = metadata.iterator();
-        while (i.hasNext())
-        {
-            if (match(schema, element, qualifier, lang, i.next()))
-            {
-                i.remove();
-                metadataChanged = true;
-            }
-        }
+        super.clearMetadata(schema, element, qualifier, lang);
     }
 
     @Override
     public void setSubmitter(EPerson submitter)
     {
         this.submitterId = submitter.getID();
-        this.submitter = null;
+        this.submitter = submitter;
     }
 
     @Override

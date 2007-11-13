@@ -180,7 +180,6 @@ public abstract class BundleDAO extends ContentDAO
         if (!linked(bundle, bitstream))
         {
             AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
-            AuthorizeManager.inheritPolicies(context, bundle, bitstream);
 
             log.info(LogManager.getHeader(context, "add_bitstream",
                         "bundle_id=" + bundle.getID() +

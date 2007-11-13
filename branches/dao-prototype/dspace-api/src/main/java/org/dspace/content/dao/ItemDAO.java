@@ -122,6 +122,7 @@ public abstract class ItemDAO extends ContentDAO
 
     public void update(Item item) throws AuthorizeException
     {
+        log.info("checkpoint 0");
         // Check authorisation. We only do write authorization if user is
         // not an editor
         if (!item.canEdit())
@@ -201,9 +202,14 @@ public abstract class ItemDAO extends ContentDAO
 
         // Next we take care of the metadata
 
+        log.info("checkpoint 1");
+
         // First, we figure out what's in memory, and what's in the database
         List<MetadataValue> dbMetadata = mvDAO.getMetadataValues(item);
         List<DCValue> memMetadata = item.getMetadata();
+
+        log.info("got " + dbMetadata.size() + " metadata values from the db");
+        log.info("got " + memMetadata.size() + " metadata values from memory");
 
         // Now we have Lists of metadata values stored in-memory and in the
         // database, we can go about saving changes.
@@ -424,10 +430,15 @@ public abstract class ItemDAO extends ContentDAO
 
     public void link(Item item, Bundle bundle) throws AuthorizeException
     {
-        // FIXME: Pre-DAOs this wasn't checked.
-        AuthorizeManager.authorizeAction(context, item, Constants.ADD);
+        if (!linked(item, bundle))
+        {
+            AuthorizeManager.authorizeAction(context, item, Constants.ADD);
 
-        item.addBundle(bundle);
+            log.info(LogManager.getHeader(context, "add_bundle", "item_id="
+                    + item.getID() + ",bundle_id=" + bundle.getID()));
+
+            item.addBundle(bundle);
+        }
     }
 
     public void unlink(Item item, Bundle bundle) throws AuthorizeException

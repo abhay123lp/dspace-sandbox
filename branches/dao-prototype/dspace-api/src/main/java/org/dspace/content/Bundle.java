@@ -157,7 +157,7 @@ public class Bundle extends DSpaceObject
 
     public Bitstream[] getBitstreams()
     {
-        return (Bitstream[]) bitstreams.toArray(new Bitstream[0]);
+        return bitstreams.toArray(new Bitstream[0]);
     }
 
     public void setBitstreams(List<Bitstream> bitstreams)
@@ -202,6 +202,8 @@ public class Bundle extends DSpaceObject
                 return;
             }
         }
+
+        AuthorizeManager.inheritPolicies(context, this, b);
 
         bitstreams.add(b);
         
