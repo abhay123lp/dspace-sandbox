@@ -1,0 +1,42 @@
+<assembly>
+   <formats>
+      <format>zip</format>
+   </formats>
+   
+   <includeBaseDirectory>false</includeBaseDirectory>
+   
+   <dependencySets>
+      <dependencySet>
+         <outputDirectory>lib</outputDirectory>
+         <unpack>false</unpack>
+         <scope>runtime</scope>
+         <includes>
+            <include>*:jar</include>
+         </includes>
+         <excludes>
+            <exclude>org.dspace:dspace-xmlui-api</exclude>
+            <exclude>org.dspace:dspace-xmlui-wing</exclude>
+            <exclude>org.dspace:dspace-lni-core</exclude>
+         </excludes>
+      </dependencySet>
+   </dependencySets>
+
+   <moduleSets>
+      <moduleSet>
+         <includes>
+            <include>*:jar</include>
+         </includes>
+         <excludes>
+         	<exclude>org.dspace:dspace-xmlui-api</exclude>
+         	<exclude>org.dspace:dspace-xmlui-wing</exclude>
+         	<exclude>org.dspace:dspace-lni-core</exclude>
+         </excludes>
+         <binaries>
+            <includeDependencies>true</includeDependencies>
+            <outputDirectory>lib</outputDirectory>
+            <unpack>false</unpack>
+         </binaries>
+      </moduleSet>
+   </moduleSets>
+
+</assembly>
