@@ -286,6 +286,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
     private void populateResourcePolicyFromTableRow(ResourcePolicy rp,
             TableRow row)
     {
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
         int resourceID = row.getIntColumn("resource_id");
         int resourceTypeID = row.getIntColumn("resource_type_id");
         int actionID = row.getIntColumn("action_id");
@@ -294,6 +295,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         Date startDate = row.getDateColumn("start_date");
         Date endDate = row.getDateColumn("end_date");
 
+        rp.setIdentifier(new ObjectIdentifier(uuid));
         rp.setResourceID(resourceID);
         rp.setResourceType(resourceTypeID);
         rp.setAction(actionID);
