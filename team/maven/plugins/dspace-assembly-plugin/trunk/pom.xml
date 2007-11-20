@@ -99,13 +99,13 @@
    -->
    <scm>
       <connection>
-         scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${artifactId}
+         scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${pom.artifactId}
       </connection>
       <developerConnection>
-         scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${artifactId}
+         scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${pom.artifactId}
       </developerConnection>
       <url>
-         http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${artifactId}
+         http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${pom.artifactId}
       </url>
    </scm>
    
