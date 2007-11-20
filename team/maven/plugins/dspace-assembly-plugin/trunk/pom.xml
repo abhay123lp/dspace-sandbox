@@ -1,12 +1,9 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.dspace.maven.plugins</groupId>
    <artifactId>dspace-assembly-plugin</artifactId>
    <version>SNAPSHOT</version>
-   <description></description>
+   <description />
    <url>http://projects.dspace.org/team/maven/plugins</url>
 
    <organization>
@@ -98,15 +95,9 @@
       into the snapshot repository below.
    -->
    <scm>
-      <connection>
-         scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${pom.artifactId}
-      </connection>
-      <developerConnection>
-         scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${pom.artifactId}
-      </developerConnection>
-      <url>
-         http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/${pom.artifactId}
-      </url>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin</url>
    </scm>
    
    <!-- 
