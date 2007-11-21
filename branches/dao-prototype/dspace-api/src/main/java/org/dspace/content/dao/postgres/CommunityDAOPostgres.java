@@ -177,6 +177,8 @@ public class CommunityDAOPostgres extends CommunityDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
+        super.delete(id);
+
         try
         {
             DatabaseManager.delete(context, "community", id);
@@ -355,7 +357,7 @@ public class CommunityDAOPostgres extends CommunityDAO
     {
         if (linked(parent, child))
         {
-            super.link(parent, child);
+            super.unlink(parent, child);
 
             try
             {

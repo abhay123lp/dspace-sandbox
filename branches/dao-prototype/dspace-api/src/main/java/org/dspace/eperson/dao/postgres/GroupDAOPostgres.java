@@ -204,6 +204,8 @@ public class GroupDAOPostgres extends GroupDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
+        super.delete(id);
+
         try
         {
             // Remove any group memberships first
