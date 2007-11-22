@@ -47,11 +47,11 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.proxy.ItemProxy;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
 
 /**
@@ -71,6 +71,8 @@ import org.dspace.eperson.dao.GroupDAOFactory;
  */
 public class AuthorizeManager
 {
+    private static Logger log = Logger.getLogger(AuthorizeManager.class);
+
     /**
      * Utility method, checks that the current user of the given context can
      * perform all of the specified actions on the given object. An
@@ -256,6 +258,8 @@ public class AuthorizeManager
     private static boolean authorize(Context c, DSpaceObject o, int action,
             EPerson e)
     {
+        GroupDAO groupDAO = GroupDAOFactory.getInstance(c);
+
         int userid;
 
         // return FALSE if there is no DSpaceObject
@@ -297,8 +301,8 @@ public class AuthorizeManager
                     return true; // match
                 }
 
-                if ((rp.getGroupID() != -1)
-                        && (Group.isMember(c, rp.getGroupID())))
+                if ((rp.getGroupID() != -1) &&
+                        groupDAO.currentUserInGroup(rp.getGroupID()))
                 {
                     // group was set, and eperson is a member
                     // of that group
@@ -328,6 +332,8 @@ public class AuthorizeManager
      */
     public static boolean isAdmin(Context c)
     {
+        GroupDAO groupDAO = GroupDAOFactory.getInstance(c);
+
         // if we're ignoring authorization, user is member of admin
         if (c.ignoreAuthorization())
         {
@@ -342,7 +348,8 @@ public class AuthorizeManager
         }
         else
         {
-            return Group.isMember(c, 1);
+            // FIXME: horrible assumption about the admin group having ID '1'.
+            return groupDAO.currentUserInGroup(1);
         }
     }
 
@@ -625,6 +632,6 @@ public class AuthorizeManager
             groups.add(rp.getGroup());
         }
 
-        return (Group[]) groups.toArray(new Group[0]);
+        return groups.toArray(new Group[0]);
     }
 }

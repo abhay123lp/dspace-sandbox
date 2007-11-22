@@ -80,6 +80,9 @@ public abstract class ResourcePolicyDAO
         context.removeCached(rp, id);
     }
 
+    // FIXME: Should we have methods that take an object, an action, and an
+    // EPerson / Group?
+
     public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso);
     public abstract List<ResourcePolicy> getPolicies(Group group);
     public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso,

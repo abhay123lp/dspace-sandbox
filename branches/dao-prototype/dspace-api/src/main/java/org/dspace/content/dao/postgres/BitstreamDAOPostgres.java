@@ -77,7 +77,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     }
 
     @Override
-    public Bitstream create()
+    public Bitstream create()throws AuthorizeException
     {
         UUID uuid = UUID.randomUUID();
 
@@ -91,27 +91,12 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             Bitstream bitstream = new Bitstream(context, id);
             bitstream.setIdentifier(new ObjectIdentifier(uuid));
 
-            return bitstream;
+            return super.create(bitstream);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    /**
-     * Because Bitstreams are created in an inherantly different way to the
-     * other DSpaceObjects, we need a kind of "post create update" which is
-     * what this method does.
-     */
-    private Bitstream create(TableRow row) throws AuthorizeException
-    {
-        int id = row.getIntColumn("bitstream_id");
-
-        Bitstream bitstream = new Bitstream(context, id);
-        populateBitstreamFromTableRow(bitstream, row);
-
-        return super.create(bitstream);
     }
 
     @Override

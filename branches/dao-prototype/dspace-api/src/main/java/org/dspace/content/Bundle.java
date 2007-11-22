@@ -208,7 +208,6 @@ public class Bundle extends DSpaceObject
         bitstreams.add(b);
         
         context.addEvent(new Event(Event.ADD, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
-        
     }
 
     public void removeBitstream(Bitstream b) throws AuthorizeException

@@ -76,7 +76,7 @@ public abstract class BitstreamDAO extends ContentDAO
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
-    public abstract Bitstream create();
+    public abstract Bitstream create() throws AuthorizeException;
 
     /**
      * Create a new bitstream, with a new ID. The checksum and file size are
@@ -96,7 +96,7 @@ public abstract class BitstreamDAO extends ContentDAO
         Bitstream bs = create();
         BitstreamStorageManager.store(context, bs, is);
 
-        return create(bs);
+        return bs;
     }
 
     /**
@@ -117,7 +117,7 @@ public abstract class BitstreamDAO extends ContentDAO
         Bitstream bs = create();
         BitstreamStorageManager.register(context, bs, assetstore, path);
 
-        return create(bs);
+        return bs;
     }
 
     // FIXME: This should be called something else, but I can't think of
@@ -128,6 +128,10 @@ public abstract class BitstreamDAO extends ContentDAO
     protected final Bitstream create(Bitstream bitstream)
         throws AuthorizeException
     {
+        // FIXME: Think about this
+        AuthorizeManager.addPolicy(
+                context, bitstream, Constants.WRITE, context.getCurrentUser());
+
         log.info(LogManager.getHeader(context, "create_bitstream",
                 "bitstream_id=" + bitstream.getID()));
 
