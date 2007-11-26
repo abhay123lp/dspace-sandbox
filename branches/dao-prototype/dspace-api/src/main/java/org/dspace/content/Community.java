@@ -52,6 +52,8 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.ArchiveManager;
+import org.dspace.browse.ItemCounter;
+import org.dspace.browse.ItemCountException;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
