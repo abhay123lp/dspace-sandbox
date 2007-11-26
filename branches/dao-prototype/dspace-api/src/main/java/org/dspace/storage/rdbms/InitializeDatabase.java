@@ -112,10 +112,6 @@ public class InitializeDatabase
                     throw new RuntimeException(e.getMessage(),e);
                 }
             }
-            else
-            {
-                DatabaseManager.loadSql(getScript(argv[0]));
-            }
 
             System.exit(0);
         }
