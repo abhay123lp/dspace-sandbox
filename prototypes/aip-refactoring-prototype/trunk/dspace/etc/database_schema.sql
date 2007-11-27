@@ -738,6 +738,19 @@ FROM ItemsBySubject, Communities2Item
 WHERE ItemsBySubject.item_id = Communities2Item.item_id
 ;
 
+-------------------------------------------------------------------------
+-- Tables to manage cache of item counts for communities and collections
+-------------------------------------------------------------------------
+
+CREATE TABLE collection_item_count (
+	collection_id INTEGER REFERENCES collection(collection_id),
+	count INTEGER
+);
+
+CREATE TABLE community_item_count (
+	community_id INTEGER REFERENCES community(community_id),
+	count INTEGER
+);
 
 -------------------------------------------------------
 --  Create 'special' groups, for anonymous access
