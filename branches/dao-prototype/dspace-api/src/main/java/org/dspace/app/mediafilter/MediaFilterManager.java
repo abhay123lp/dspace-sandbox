@@ -40,21 +40,29 @@
 
 package org.dspace.app.mediafilter;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.util.Arrays;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.MissingArgumentException;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
+import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.content.DCDate;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAO;
@@ -67,10 +75,12 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
+import org.dspace.core.SelfNamedPlugin;
+import org.dspace.handle.HandleManager;
 import org.dspace.search.DSIndexer;
 
 /**
- * MediaFilterManager is the class that invokes the media filters over the
+ * MediaFilterManager is the class that invokes the media/format filters over the
  * repository's content. a few command line flags affect the operation of the
  * MFM: -v verbose outputs all extracted text to STDOUT; -f force forces all
  * bitstreams to be processed, even if they have been before; -n noindex does not
@@ -80,6 +90,15 @@ import org.dspace.search.DSIndexer;
  */
 public class MediaFilterManager
 {
+	//key (in dspace.cfg) which lists all enabled filters by name
+    public static String MEDIA_FILTER_PLUGINS_KEY = "filter.plugins";
+	
+    //prefix (in dspace.cfg) for all filter properties
+    public static String FILTER_PREFIX = "filter";
+    
+    //suffix (in dspace.cfg) for input formats supported by each filter
+    public static String INPUT_FORMATS_SUFFIX = "inputFormats";
+    
     public static boolean updateIndex = true; // default to updating index
 
     public static boolean isVerbose = false; // default to not verbose
@@ -88,15 +107,21 @@ public class MediaFilterManager
     
     public static String identifier = null; // object scope limiter
     
-    public static int max2Process = Integer.MAX_VALUE;  // maximum number to process
+    public static int max2Process = Integer.MAX_VALUE;  // maximum number items to process
     
-    public static int processed = 0;   // number processed
+    public static int processed = 0;   // number items processed
     
-    private static MediaFilter[] filterClasses = null;
+    private static Item currentItem = null;   // current item being processed
+    
+    private static FormatFilter[] filterClasses = null;
     
     private static Map filterFormats = new HashMap();
 
     private static ItemDAO itemDAO;
+    
+    //separator in filterFormats Map between a filter class name and a plugin name,
+    //for MediaFilters which extend SelfNamedPlugin (\034 is "file separator" char)
+    public static String FILTER_PLUGIN_SEPARATOR = "\034";
     
     public static void main(String[] argv) throws Exception
     {
@@ -122,12 +147,35 @@ public class MediaFilterManager
 				"process no more than maximum items");
         options.addOption("h", "help", false, "help");
 
-        CommandLine line = parser.parse(options, argv);
+        //create a "plugin" option (to specify specific MediaFilter plugins to run)
+        OptionBuilder.withLongOpt("plugins");
+        OptionBuilder.withValueSeparator(',');
+        OptionBuilder.withDescription(
+                       "ONLY run the specified Media Filter plugin(s)\n" +
+                       "listed from '" + MEDIA_FILTER_PLUGINS_KEY + "' in dspace.cfg.\n" + 
+                       "Separate multiple with a comma (,)\n" +
+                       "(e.g. MediaFilterManager -p \n\"Word Text Extraction\",\"PDF Text Extraction\")");                
+        Option pluginOption = OptionBuilder.create('p');
+        pluginOption.setArgs(Option.UNLIMITED_VALUES); //unlimited number of args
+        options.addOption(pluginOption);                             
+         
+        CommandLine line = null;
+        try
+        {
+            line = parser.parse(options, argv);
+        }
+        catch(MissingArgumentException e)
+        {
+            System.out.println("ERROR: " + e.getMessage());
+            HelpFormatter myhelp = new HelpFormatter();
+            myhelp.printHelp("MediaFilterManager\n", options);
+            System.exit(1);
+        }          
 
         if (line.hasOption('h'))
         {
             HelpFormatter myhelp = new HelpFormatter();
-            myhelp.printHelp("MediaFilter\n", options);
+            myhelp.printHelp("MediaFilterManager\n", options);
 
             System.exit(0);
         }
@@ -168,20 +216,110 @@ public class MediaFilterManager
         	}
         }
 
-        // set up filters
-        filterClasses =
-        	(MediaFilter[])PluginManager.getPluginSequence(MediaFilter.class);
-        for (int i = 0; i < filterClasses.length; i++)
+        String filterNames[] = null;
+        if(line.hasOption('p'))
         {
-        	String filterName = filterClasses[i].getClass().getName();
-        	String formats = ConfigurationManager.getProperty( 
-        					"filter." + filterName + ".inputFormats");
-        	if (formats != null)
-        	{
-        		filterFormats.put(filterName, Arrays.asList(formats.split(",[\\s]*")));
-        	}
-        }
+            //specified which media filter plugins we are using
+            filterNames = line.getOptionValues('p');
         
+            if(filterNames==null || filterNames.length==0)
+            {   //display error, since no plugins specified
+                System.err.println("\nERROR: -p (-plugin) option requires at least one plugin to be specified.\n" +
+                                          "(e.g. MediaFilterManager -p \"Word Text Extractor\",\"PDF Text Extractor\")\n");
+                HelpFormatter myhelp = new HelpFormatter();
+                myhelp.printHelp("MediaFilterManager\n", options);
+                System.exit(1);
+             }
+        }
+        else
+        { 
+            //retrieve list of all enabled media filter plugins!
+            String enabledPlugins = ConfigurationManager.getProperty(MEDIA_FILTER_PLUGINS_KEY);
+            filterNames = enabledPlugins.split(",\\s*");
+        }
+                
+        //initialize an array of our enabled filters
+        List filterList = new ArrayList();
+                
+        //set up each filter
+        for(int i=0; i< filterNames.length; i++)
+        {
+            //get filter of this name & add to list of filters
+            FormatFilter filter = (FormatFilter) PluginManager.getNamedPlugin(FormatFilter.class, filterNames[i]);
+            if(filter==null)
+            {   
+                System.err.println("\nERROR: Unknown MediaFilter specified (either from command-line or in dspace.cfg): '" + filterNames[i] + "'");
+                System.exit(1);
+            }
+            else
+            {   
+                filterList.add(filter);
+                       
+                String filterClassName = filter.getClass().getName();
+                           
+                String pluginName = null;
+                           
+                //If this filter is a SelfNamedPlugin,
+                //then the input formats it accepts may differ for
+                //each "named" plugin that it defines.
+                //So, we have to look for every key that fits the
+                //following format: filter.<class-name>.<plugin-name>.inputFormats
+                if( SelfNamedPlugin.class.isAssignableFrom(filter.getClass()) )
+                {
+                    //Get the plugin instance name for this class
+                    pluginName = ((SelfNamedPlugin) filter).getPluginInstanceName();
+                }
+            
+                
+                //Retrieve our list of supported formats from dspace.cfg
+                //For SelfNamedPlugins, format of key is:  
+                //  filter.<class-name>.<plugin-name>.inputFormats
+                //For other MediaFilters, format of key is: 
+                //  filter.<class-name>.inputFormats
+                String formats = ConfigurationManager.getProperty(
+                    FILTER_PREFIX + "." + filterClassName + 
+                    (pluginName!=null ? "." + pluginName : "") +
+                    "." + INPUT_FORMATS_SUFFIX);
+            
+                //add to internal map of filters to supported formats	
+                if (formats != null)
+                {
+                    //For SelfNamedPlugins, map key is:  
+                    //  <class-name><separator><plugin-name>
+                    //For other MediaFilters, map key is just:
+                    //  <class-name>
+                    filterFormats.put(filterClassName + 
+        	            (pluginName!=null ? FILTER_PLUGIN_SEPARATOR + pluginName : ""),
+        	            Arrays.asList(formats.split(",[\\s]*")));
+                }
+            }//end if filter!=null
+        }//end for
+        
+        //If verbose, print out loaded mediafilter info
+        if(isVerbose)
+        {   
+            System.out.println("The following MediaFilters are enabled: ");
+            java.util.Iterator i = filterFormats.keySet().iterator();
+            while(i.hasNext())
+            {
+                String filterName = (String) i.next();
+                System.out.println("Full Filter Name: " + filterName);
+                String pluginName = null;
+                if(filterName.contains(FILTER_PLUGIN_SEPARATOR))
+                {
+                    String[] fields = filterName.split(FILTER_PLUGIN_SEPARATOR);
+                    filterName=fields[0];
+                    pluginName=fields[1];
+                }
+                 
+                System.out.println(filterName +
+                        (pluginName!=null? " (Plugin: " + pluginName + ")": ""));
+             }
+        }
+              
+        //store our filter list into an internal array
+        filterClasses = (MediaFilter[]) filterList.toArray(new MediaFilter[filterList.size()]);
+            
         Context c = null;
 
         try
@@ -301,6 +439,11 @@ public class MediaFilterManager
        
     public static void applyFiltersItem(Context c, Item item) throws Exception
     {
+        //cache this item in MediaFilterManager
+        //so it can be accessed by MediaFilters as necessary
+        currentItem = item;
+        
+        
           if (filterItem(c, item))
           {
         	  // commit changes after each filtered item
@@ -308,8 +451,9 @@ public class MediaFilterManager
               // increment processed count
               ++processed;
           }
-          // clear item objects from context cache
+          // clear item objects from context cache and internal cache
           item.decache();
+          currentItem = null;
     }
 
     /**
@@ -356,14 +500,33 @@ public class MediaFilterManager
     	// by more than one filter
     	for (int i = 0; i < filterClasses.length; i++)
     	{
-    		List fmts = (List)filterFormats.get(filterClasses[i].getClass().getName());
-    		if (fmts.contains(myBitstream.getFormat().getShortDescription()))
+    		//List fmts = (List)filterFormats.get(filterClasses[i].getClass().getName());
+    	    String pluginName = null;
+    	               
+    	    //if this filter class is a SelfNamedPlugin,
+    	    //its list of supported formats is different for
+    	    //differently named "plugin"
+    	    if( SelfNamedPlugin.class.isAssignableFrom(filterClasses[i].getClass()) )
+    	    {
+    	        //get plugin instance name for this media filter
+    	        pluginName = ((SelfNamedPlugin)filterClasses[i]).getPluginInstanceName();
+    	    }
+    	               
+    	    //Get list of supported formats for the filter (and possibly named plugin)
+    	    //For SelfNamedPlugins, map key is:  
+    	    //  <class-name><separator><plugin-name>
+    	    //For other MediaFilters, map key is just:
+    	    //  <class-name>
+    	    List fmts = (List)filterFormats.get(filterClasses[i].getClass().getName() + 
+    	                       (pluginName!=null ? FILTER_PLUGIN_SEPARATOR + pluginName : ""));
+    	   
+    	    if (fmts.contains(myBitstream.getFormat().getShortDescription()))
     		{
             	try
             	{
 		            // only update item if bitstream not skipped
-		            if (filterClasses[i].processBitstream(c, myItem, myBitstream))
-		            {
+		            if (processBitstream(c, myItem, myBitstream, filterClasses[i]))
+            	    {
 		           		itemDAO.update(myItem); // Make sure new bitstream has a
 		                                 	    // sequence number
 		           		filtered = true;
