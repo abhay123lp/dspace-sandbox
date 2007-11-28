@@ -43,10 +43,9 @@ package org.dspace.app.mediafilter;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -56,9 +55,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
+import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
@@ -67,8 +66,8 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
@@ -76,7 +75,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
 import org.dspace.core.SelfNamedPlugin;
-import org.dspace.handle.HandleManager;
 import org.dspace.search.DSIndexer;
 
 /**
@@ -541,5 +539,132 @@ public class MediaFilterManager
     		}
     	}
         return filtered;
+    }
+
+    /**
+     * processBitstream is a utility class that calls the virtual methods
+     * from the current MediaFilter class.
+     * It scans the bitstreams in an item, and decides if a bitstream has
+     * already been filtered, and if not or if overWrite is set, invokes the
+     * filter.
+     *
+     * @param c
+     *            context
+     * @param item
+     *            item containing bitstream to process
+     * @param source
+     *            source bitstream to process
+     * @param mediaFilter
+     *            MediaFilter to perform filtering
+     *
+     * @return true if new rendition is created, false if rendition already
+     *         exists and overWrite is not set
+     */
+    public static boolean processBitstream(Context c, Item item, Bitstream source, FormatFilter formatFilter)
+            throws Exception
+    {
+        //do pre-processing of this bitstream, and if it fails, skip this bitstream!
+    	if(!formatFilter.preProcessBitstream(c, item, source))
+        	return false;
+
+    	boolean overWrite = MediaFilterManager.isForce;
+
+        // get bitstream filename, calculate destination filename
+        String newName = formatFilter.getFilteredName(source.getName());
+
+        Bitstream existingBitstream = null; // is there an existing rendition?
+        Bundle targetBundle = null; // bundle we're modifying
+
+        Bundle[] bundles = item.getBundles(formatFilter.getBundleName());
+
+        // check if destination bitstream exists
+        if (bundles.length > 0)
+        {
+            // only finds the last match (FIXME?)
+            for (int i = 0; i < bundles.length; i++)
+            {
+                Bitstream[] bitstreams = bundles[i].getBitstreams();
+
+                for (int j = 0; j < bitstreams.length; j++)
+                {
+                    if (bitstreams[j].getName().equals(newName))
+                    {
+                        targetBundle = bundles[i];
+                        existingBitstream = bitstreams[j];
+                    }
+                }
+            }
+        }
+
+        // if exists and overwrite = false, exit
+        if (!overWrite && (existingBitstream != null))
+        {
+            System.out.println("SKIPPED: bitstream " + source.getID()
+                    + " because '" + newName + "' already exists");
+
+            return false;
+        }
+
+        InputStream destStream = formatFilter.getDestinationStream(source.retrieve());
+
+        // create new bundle if needed
+        if (bundles.length < 1)
+        {
+            targetBundle = item.createBundle(formatFilter.getBundleName());
+        }
+        else
+        {
+            // take the first match
+            targetBundle = bundles[0];
+        }
+
+        Bitstream b = targetBundle.createBitstream(destStream);
+
+        // Now set the format and name of the bitstream
+        b.setName(newName);
+        b.setSource("Written by FormatFilter " + formatFilter.getClass().getName() +
+        			" on " + DCDate.getCurrent() + " (GMT).");
+        b.setDescription(formatFilter.getDescription());
+
+        // Find the proper format
+        BitstreamFormat bf = BitstreamFormat.findByShortDescription(c,
+                formatFilter.getFormatString());
+        b.setFormat(bf);
+        b.update();
+
+        //UIUC change - inherit policies from the source bitstream
+        //(first remove any existing policies)
+        AuthorizeManager.removeAllPolicies(c, b);
+        AuthorizeManager.inheritPolicies(c, source, b);
+
+        // fixme - set date?
+        // we are overwriting, so remove old bitstream
+        if (existingBitstream != null)
+        {
+            targetBundle.removeBitstream(existingBitstream);
+        }
+
+        System.out.println("FILTERED: bitstream " + source.getID()
+                + " and created '" + newName + "'");
+
+        //do post-processing of the generated bitstream
+        formatFilter.postProcessBitstream(c, item, b);
+        
+        return true;
+    }
+
+    /**
+     * Return the item that is currently being processed/filtered
+     * by the MediaFilterManager
+     * <p>
+     * This allows FormatFilters to retrieve the Item object
+     * in case they need access to item-level information for their format
+     * transformations/conversions.
+     *
+     * @return current Item being processed by MediaFilterManager
+     */
+    public static Item getCurrentItem()
+    {
+        return currentItem;
     }
 }
