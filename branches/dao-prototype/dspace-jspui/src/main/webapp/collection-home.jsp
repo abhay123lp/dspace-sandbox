@@ -57,22 +57,17 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib uri="http://www.dspace.org/dspace-tags.tld" prefix="dspace" %>
 
-<%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
+<%@ page import="org.dspace.app.webui.components.RecentSubmissions" %>
 
 <%@ page import="org.dspace.app.webui.servlet.admin.EditCommunitiesServlet" %>
-<%@ page import="org.dspace.content.Bitstream" %>
-<%@ page import="org.dspace.content.Community" %>
-<%@ page import="org.dspace.content.Collection"%>
-<%@ page import="org.dspace.core.Utils" %>
-<%@ page import="org.dspace.core.ConfigurationManager" %>
-<%@ page import="org.dspace.eperson.Group" %>
+<%@ page import="org.dspace.app.webui.util.UIUtil" %>
 <%@ page import="org.dspace.browse.BrowseIndex" %>
-<%@ page import="org.dspace.browse.ItemCounter" %>
-
-<%@ page import="org.dspace.app.webui.components.RecentSubmissions" %>
-<%@ page import="org.dspace.content.Item" %>
-<%@ page import="org.dspace.content.DCValue" %>
-
+<%@ page import="org.dspace.browse.ItemCounter"%>
+<%@ page import="org.dspace.content.*"%>
+<%@ page import="org.dspace.core.Utils" %>
+<%@ page import="org.dspace.core.ConfigurationManager"%>
+<%@ page import="org.dspace.eperson.Group"     %>
+<%@ page import="javax.servlet.jsp.jstl.fmt.LocaleSupport" %>
 
 
 <%
@@ -129,7 +124,7 @@
         feedData = "coll:" + ConfigurationManager.getProperty("webui.feed.formats");
     }
     
-    ItemCounter ic = new ItemCounter();
+    ItemCounter ic = new ItemCounter(UIUtil.obtainContext(request));
 %>
 
 <dspace:layout locbar="commLink" title="<%= name %>" feedData="<%= feedData %>">
