@@ -564,7 +564,8 @@ public class IndexBrowse
 	public static void main(String[] argv)
 		throws SQLException, BrowseException, ParseException
 	{
-	    IndexBrowse indexer = new IndexBrowse();
+        Context context = new Context();
+        IndexBrowse indexer = new IndexBrowse(context);
 	    
 	    // create an options object and populate it
 	    CommandLineParser parser = new PosixParser();
@@ -658,6 +659,7 @@ public class IndexBrowse
 	    }
 	    
 	    indexer.usage(options);
+        context.complete();
 	}
 
 	/**
