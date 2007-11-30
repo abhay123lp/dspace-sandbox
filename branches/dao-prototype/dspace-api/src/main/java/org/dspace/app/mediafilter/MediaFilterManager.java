@@ -152,7 +152,7 @@ public class MediaFilterManager
                        "ONLY run the specified Media Filter plugin(s)\n" +
                        "listed from '" + MEDIA_FILTER_PLUGINS_KEY + "' in dspace.cfg.\n" + 
                        "Separate multiple with a comma (,)\n" +
-                       "(e.g. MediaFilterManager -p \n\"Word Text Extraction\",\"PDF Text Extraction\")");                
+                       "(e.g. MediaFilterManager -p \n\"Word Text Extractor\",\"PDF Text Extractor\")");                
         Option pluginOption = OptionBuilder.create('p');
         pluginOption.setArgs(Option.UNLIMITED_VALUES); //unlimited number of args
         options.addOption(pluginOption);                             
@@ -316,7 +316,7 @@ public class MediaFilterManager
         }
               
         //store our filter list into an internal array
-        filterClasses = (MediaFilter[]) filterList.toArray(new MediaFilter[filterList.size()]);
+        filterClasses = (FormatFilter[]) filterList.toArray(new FormatFilter[filterList.size()]);
             
         Context c = null;
 
@@ -554,8 +554,8 @@ public class MediaFilterManager
      *            item containing bitstream to process
      * @param source
      *            source bitstream to process
-     * @param mediaFilter
-     *            MediaFilter to perform filtering
+     * @param formatFilter
+     *            FormatFilter to perform filtering
      *
      * @return true if new rendition is created, false if rendition already
      *         exists and overWrite is not set
