@@ -48,7 +48,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 
 import org.dspace.content.DCDate;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.search.HarvestedItemInfo;
 
 import ORG.oclc.oai.server.catalog.RecordFactory;

@@ -49,7 +49,7 @@ import org.apache.log4j.Logger;
 import org.dspace.content.Bundle;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;

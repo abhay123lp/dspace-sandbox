@@ -535,10 +535,12 @@ public class UploadStep extends AbstractProcessingStep
                     if (bundles.length < 1)
                     {
                         // set bundle's name to ORIGINAL
+                        log.info("creating new bundle and adding bitstream to it");
                         b = item.createSingleBitstream(fileInputStream, "ORIGINAL");
                     }
                     else
                     {
+                        log.info("adding bitstream to existing bundle");
                         // we have a bundle already, just add bitstream
                         b = bundles[0].createBitstream(fileInputStream);
                     }

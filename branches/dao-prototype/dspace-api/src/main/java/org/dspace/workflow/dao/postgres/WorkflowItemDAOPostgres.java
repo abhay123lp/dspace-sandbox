@@ -53,7 +53,7 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;

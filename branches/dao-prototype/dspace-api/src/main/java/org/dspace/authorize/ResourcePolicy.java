@@ -46,7 +46,7 @@ import org.dspace.authorize.dao.ResourcePolicyDAOFactory;   // Naughty!
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.EPersonDAO;

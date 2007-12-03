@@ -1,5 +1,5 @@
 /*
- * ExternalIdentifierDAOFactory.java
+ * HandleType.java
  *
  * Version: $Revision: 1727 $
  *
@@ -37,18 +37,24 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.uri.dao;
+package org.dspace.uri.handle;
 
-import org.dspace.content.uri.dao.postgres.ExternalIdentifierDAOPostgres;
-import org.dspace.core.Context;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.uri.ExternalIdentifierType;
 
 /**
  * @author James Rutherford
  */
-public class ExternalIdentifierDAOFactory
+public class HandleType extends ExternalIdentifierType
 {
-    public static ExternalIdentifierDAO getInstance(Context context)
+    public HandleType()
     {
-        return new ExternalIdentifierDAOPostgres(context);
+        super("hdl", "http", "hdl.handle.net");
+    }
+
+    public String getPrefix()
+    {
+        // FIXME: I'm not sure this is kosher
+        return ConfigurationManager.getProperty("handle.prefix") + "/";
     }
 }

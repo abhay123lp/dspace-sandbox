@@ -1,11 +1,11 @@
 /*
- * IdentifierUtils.java
+ * ExternalIdentifierDAOFactory.java
  *
- * Version: $Revision:$
+ * Version: $Revision: 1727 $
  *
- * Date: $Date:$
+ * Date: $Date: 2007-01-19 10:52:10 +0000 (Fri, 19 Jan 2007) $
  *
- * Copyright (c) 2002-2007, Hewlett-Packard Company and Massachusetts
+ * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,53 +37,18 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.uri;
+package org.dspace.uri.dao;
 
-import org.apache.log4j.Logger;
-
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.uri.dao.postgres.ExternalIdentifierDAOPostgres;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 
 /**
- * This class is just a collection of identifier-related utilities.
+ * @author James Rutherford
  */
-public class IdentifierUtils
+public class ExternalIdentifierDAOFactory
 {
-    private static Logger log = Logger.getLogger(IdentifierUtils.class);
-
-    /**
-     * Given a canonical form URI, we attempt to first associate this with
-     * either an internal identifier (mostl likely a UUID), or one of the
-     * locally supported external identifiers. If we find a match, we return
-     * an ObjectIdentifier that points to the object that was associated with
-     * the given URI.
-     *
-     * @param c Context
-     * @param uri The URI in canonical form (eg: hdl:1234/56)
-     * @return The ObjectIdentifier corresponding to the given URI
-     */
-    public static ObjectIdentifier fromString(Context c, String uri)
+    public static ExternalIdentifierDAO getInstance(Context context)
     {
-        ExternalIdentifierDAO dao = ExternalIdentifierDAOFactory.getInstance(c);
-        ExternalIdentifier eid = dao.retrieve(uri);
-        ObjectIdentifier oid = null;
-
-        if (eid != null)
-        {
-            oid = eid.getObjectIdentifier();
-        }
-        else
-        {
-            oid = ObjectIdentifier.fromString(uri);
-        }
-
-        if (oid == null)
-        {
-            log.warn(LogManager.getHeader(c, "uri_not_found", uri));
-        }
-
-        return oid;
+        return new ExternalIdentifierDAOPostgres(context);
     }
 }

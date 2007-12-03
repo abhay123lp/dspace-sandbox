@@ -94,7 +94,6 @@ public class ItemCounter
 	 */
 	public ItemCounter(Context context)
 		throws ItemCountException
-		
 	{
 		this.context = context;
 		this.dao = ItemCountDAOFactory.getInstance(this.context);

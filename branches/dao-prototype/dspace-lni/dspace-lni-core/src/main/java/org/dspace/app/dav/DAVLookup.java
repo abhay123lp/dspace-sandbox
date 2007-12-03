@@ -52,7 +52,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
-import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifier;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.jdom.Element;

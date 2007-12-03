@@ -43,7 +43,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.dspace.content.Item;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.core.Context;
 
 /**

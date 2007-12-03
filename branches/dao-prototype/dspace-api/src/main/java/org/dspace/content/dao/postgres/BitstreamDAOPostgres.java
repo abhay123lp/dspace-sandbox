@@ -39,29 +39,20 @@
  */
 package org.dspace.content.dao.postgres;
 
-import java.io.InputStream;
-import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
-import org.dspace.content.Item;
 import org.dspace.content.dao.BitstreamDAO;
-import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.uri.ObjectIdentifier;
+import org.dspace.uri.ExternalIdentifier;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
-import org.dspace.eperson.EPerson;
-import org.dspace.search.DSIndexer;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;

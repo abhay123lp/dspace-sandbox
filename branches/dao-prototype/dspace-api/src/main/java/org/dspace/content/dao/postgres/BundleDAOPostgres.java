@@ -45,15 +45,14 @@ import java.util.List;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
-import org.dspace.core.Context;
-import org.dspace.core.Constants;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.dao.BitstreamDAOFactory;
 import org.dspace.content.dao.BundleDAO;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
+import org.dspace.core.Context;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -63,9 +62,22 @@ import org.dspace.storage.rdbms.TableRowIterator;
  */
 public class BundleDAOPostgres extends BundleDAO
 {
+    private BitstreamDAO bitstreamDAO;
+
     public BundleDAOPostgres(Context context)
     {
         super(context);
+
+        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+    }
+
+    public BundleDAO getChild()
+    {
+        return null;
+    }
+
+    public void setChild(BundleDAO childDAO)
+    {
     }
 
     @Override
@@ -83,7 +95,7 @@ public class BundleDAOPostgres extends BundleDAO
             Bundle bundle = new Bundle(context, id);
             bundle.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(bundle);
+            return bundle;
         }
         catch (SQLException sqle)
         {
@@ -94,13 +106,6 @@ public class BundleDAOPostgres extends BundleDAO
     @Override
     public Bundle retrieve(int id)
     {
-        Bundle bundle = super.retrieve(id);
-
-        if (bundle != null)
-        {
-            return bundle;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context, "bundle", id);
@@ -116,13 +121,6 @@ public class BundleDAOPostgres extends BundleDAO
     @Override
     public Bundle retrieve(UUID uuid)
     {
-        Bundle bundle = super.retrieve(uuid);
-
-        if (bundle != null)
-        {
-            return bundle;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "bundle",
@@ -139,8 +137,6 @@ public class BundleDAOPostgres extends BundleDAO
     @Override
     public void update(Bundle bundle) throws AuthorizeException
     {
-        super.update(bundle);
-
         try
         {
             TableRow row =
@@ -177,8 +173,6 @@ public class BundleDAOPostgres extends BundleDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         try
         {
             DatabaseManager.delete(context, "bundle", id);
@@ -230,8 +224,6 @@ public class BundleDAOPostgres extends BundleDAO
     {
         if (!linked(bundle, bitstream))
         {
-            super.link(bundle, bitstream);
-
             try
             {
                 TableRow row = DatabaseManager.create(context,
@@ -253,8 +245,6 @@ public class BundleDAOPostgres extends BundleDAO
     {
         if (linked(bundle, bitstream))
         {
-            super.unlink(bundle, bitstream);
-
             try
             {
                 // Delete the mapping row

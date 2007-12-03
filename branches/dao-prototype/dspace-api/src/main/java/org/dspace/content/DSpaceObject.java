@@ -51,8 +51,8 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 
 /**
  * Abstract base class for DSpace objects

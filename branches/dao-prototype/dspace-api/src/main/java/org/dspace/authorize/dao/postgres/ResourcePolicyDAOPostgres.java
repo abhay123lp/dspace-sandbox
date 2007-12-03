@@ -50,7 +50,7 @@ import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.core.Context;
 import org.dspace.content.DSpaceObject;
 import org.dspace.eperson.Group;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;

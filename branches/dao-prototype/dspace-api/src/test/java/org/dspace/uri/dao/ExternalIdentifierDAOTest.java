@@ -37,17 +37,11 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.uri.dao;
+package org.dspace.uri.dao;
 
-import java.util.List;
-
-import org.dspace.content.DSpaceObject;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.ExternalIdentifier.Type;
 import org.dspace.storage.dao.DAOTest;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class ExternalIdentifierDAOTest extends DAOTest
 {

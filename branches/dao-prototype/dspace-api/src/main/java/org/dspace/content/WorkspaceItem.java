@@ -55,7 +55,7 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 

@@ -44,10 +44,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
@@ -56,8 +53,7 @@ import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
-import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.core.Constants;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.storage.rdbms.DatabaseManager;

@@ -58,13 +58,14 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.CrosswalkObjectNotSupported;
-import org.dspace.content.crosswalk.MetadataValidationException;
 import org.dspace.content.crosswalk.IngestionCrosswalk;
-import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.crosswalk.MetadataValidationException;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifierType;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.JDOMException;
@@ -865,12 +866,17 @@ public class METSManifest
 
         if (uri != null)
         {
-            for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
+            Object[] types =
+                    PluginManager.getPluginSequence(ExternalIdentifierType.class);
+            if (types != null)
             {
-                if (uri.startsWith(t.getNamespace() + ":"))
+                for (ExternalIdentifierType t : (ExternalIdentifierType[]) types)
                 {
-                    // It's something we understand.
-                    return uri;
+                    if (uri.startsWith(t.getNamespace() + ":"))
+                    {
+                        // It's something we understand.
+                        return uri;
+                    }
                 }
             }
         }

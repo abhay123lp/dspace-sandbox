@@ -1,11 +1,11 @@
 /*
- * BundleDAOFactory.java
+ * IdentifierUtils.java
  *
- * Version: $Revision: 1727 $
+ * Version: $Revision:$
  *
- * Date: $Date: 2007-01-19 10:52:10 +0000 (Fri, 19 Jan 2007) $
+ * Date: $Date:$
  *
- * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
+ * Copyright (c) 2002-2007, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -37,41 +37,53 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.uri;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import org.apache.log4j.Logger;
 
-import org.dspace.content.dao.postgres.BundleDAOPostgres;
-import org.dspace.core.ConfigurationManager;
+import org.dspace.uri.dao.ExternalIdentifierDAO;
+import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
-import org.dspace.core.PluginManager;
+import org.dspace.core.LogManager;
 
 /**
- * @author James Rutherford
+ * This class is just a collection of identifier-related utilities.
  */
-public class BundleDAOFactory extends ContentDAOFactory
+public class IdentifierUtils
 {
-    public static BundleDAO getInstance(Context context)
+    private static Logger log = Logger.getLogger(IdentifierUtils.class);
+
+    /**
+     * Given a canonical form URI, we attempt to first associate this with
+     * either an internal identifier (mostl likely a UUID), or one of the
+     * locally supported external identifiers. If we find a match, we return
+     * an ObjectIdentifier that points to the object that was associated with
+     * the given URI.
+     *
+     * @param c Context
+     * @param uri The URI in canonical form (eg: hdl:1234/56)
+     * @return The ObjectIdentifier corresponding to the given URI
+     */
+    public static ObjectIdentifier fromString(Context c, String uri)
     {
-        List<BundleDAO> list = new ArrayList<BundleDAO>();
+        ExternalIdentifierDAO dao = ExternalIdentifierDAOFactory.getInstance(c);
+        ExternalIdentifier eid = dao.retrieve(uri);
+        ObjectIdentifier oid = null;
 
-        list.add(new BundleDAOCore(context));
-        if (ConfigurationManager.getBooleanProperty("dao.stack.bundle.enabled"))
+        if (eid != null)
         {
-            Object[] hooks = PluginManager.getPluginSequence(BundleDAO.class);
-            list.addAll(Arrays.asList((BundleDAO[]) hooks));
+            oid = eid.getObjectIdentifier();
         }
-        list.add(new BundleDAOPostgres(context));
-
-        BundleDAO[] daos = list.toArray(new BundleDAO[list.size()]);
-        for (int i = 0; i < daos.length - 2; i++)
+        else
         {
-            daos[i] = (BundleDAO) getInstance(daos[i], context);
-            daos[i].setChild(daos[i+1]);
+            oid = ObjectIdentifier.fromString(uri);
         }
 
-        return daos[0];
+        if (oid == null)
+        {
+            log.warn(LogManager.getHeader(c, "uri_not_found", uri));
+        }
+
+        return oid;
     }
 }

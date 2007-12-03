@@ -37,22 +37,22 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.uri.dao.postgres;
+package org.dspace.uri.dao.postgres;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Context;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifierType;
+import org.dspace.uri.ObjectIdentifier;
+import org.dspace.uri.dao.ExternalIdentifierDAO;
 import org.dspace.core.Constants;
+import org.dspace.core.Context;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
-import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
 
 /**
  * @author James Rutherford
@@ -65,32 +65,20 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
     }
 
     public ExternalIdentifier create(DSpaceObject dso, String value,
-            ExternalIdentifier.Type type)
+            ExternalIdentifierType type)
     {
         try
         {
             TableRow row = DatabaseManager.create(context, "handle");
 
-            switch (type)
-            {
-                case HANDLE:
-                    if (value.equals(""))
-                    {
-                        String prefix =
-                            ConfigurationManager.getProperty("handle.prefix");
-                        value = prefix + "/" + row.getIntColumn("handle_id");
-                    }
-                    break;
-                default:
-                    throw new RuntimeException(":(");
-            }
+            value = type.getPrefix() + row.getIntColumn("handle_id");
 
             ExternalIdentifier identifier = getInstance(dso, type, value);
 
             row.setColumn("handle", value);
             row.setColumn("resource_type_id", dso.getType());
             row.setColumn("resource_id", dso.getID());
-            row.setColumn("type_id", identifier.getTypeID());
+            row.setColumn("namespace", type.getNamespace());
             DatabaseManager.update(context, row);
 
             if (log.isDebugEnabled())
@@ -123,13 +111,13 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
             return null;
         }
 
-        ExternalIdentifier.Type type = (ExternalIdentifier.Type) bits[0];
+        ExternalIdentifierType type = (ExternalIdentifierType) bits[0];
         String value = (String) bits[1];
 
         return retrieve(type, value);
     }
 
-    public ExternalIdentifier retrieve(ExternalIdentifier.Type type,
+    public ExternalIdentifier retrieve(ExternalIdentifierType type,
             String value)
     {
         DSpaceObject dso = null;
@@ -148,8 +136,8 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
                     "externalidentifier",
                     "SELECT resource_id, resource_type_id " +
                     "FROM externalidentifier " +
-                    "WHERE value = ? AND type_id = ?",
-                    value, type.getID());
+                    "WHERE value = ? AND namespace = ?",
+                    value, type.getNamespace());
 
             List<TableRow> list = tri.toList();
             if (list.size() == 1)
@@ -183,7 +171,7 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
 
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "externalidentifier",
-                    "SELECT type_id, value FROM externalidentifier " +
+                    "SELECT namespace, value FROM externalidentifier " +
                     "WHERE resource_id = ? " +
                     "AND resource_type_id = ?",
                     dso.getID(), dso.getType());
@@ -193,13 +181,13 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
             for (TableRow row : tri.toList())
             {
                 value = row.getStringColumn("value");
-                int id = row.getIntColumn("type_id");
+                String id = row.getStringColumn("namespace");
 
                 // FIXME: Maybe throw an error if the value stored in the db
                 // isn't in the enum?
                 for (ExternalIdentifier pid : pids)
                 {
-                    if (pid.getTypeID() == id)
+                    if (pid.getType().getNamespace().equals(id))
                     {
                         list.add(getInstance(dso, pid.getType(), value));
                         break;
@@ -216,7 +204,7 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
     }
 
     public List<ExternalIdentifier>
-        getExternalIdentifiers(ExternalIdentifier.Type type, String prefix)
+        getExternalIdentifiers(ExternalIdentifierType type, String prefix)
     {
         try
         {
@@ -227,9 +215,9 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
                     "externalidentifier",
                     "SELECT resource_id, resource_type_id, value " +
                     "FROM externalidentifier " +
-                    "WHERE type_id = ? " +
+                    "WHERE namespace = ? " +
                     "AND value LIKE ?",
-                    type.getID(), prefix + "%");
+                    type.getNamespace(), prefix + "%");
 
             for (TableRow row : tri.toList())
             {

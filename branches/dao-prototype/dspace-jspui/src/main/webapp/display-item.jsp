@@ -66,7 +66,7 @@
 <%@ page import="org.dspace.content.Community" %>
 <%@ page import="org.dspace.content.DCValue" %>
 <%@ page import="org.dspace.content.Item" %>
-<%@ page import="org.dspace.content.uri.ExternalIdentifier" %>
+<%@ page import="org.dspace.uri.ExternalIdentifier" %>
 <%@ page import="org.dspace.core.ConfigurationManager" %>
 <%@ page import="org.dspace.license.CreativeCommons" %>
 
@@ -238,7 +238,7 @@
     {
 %>
     <p align="center">
-        <a href="<dspace:sfxlink item="<%= item %>"/>" /><img src="<%= request.getContextPath() %>/image/sfx-link.gif" border="0" alt="SFX Query" /></a>
+        <a href="<dspace:sfxlink item="<%= item %>"/>"><img src="<%= request.getContextPath() %>/image/sfx-link.gif" border="0" alt="SFX Query" /></a>
     </p>
 <%
     }

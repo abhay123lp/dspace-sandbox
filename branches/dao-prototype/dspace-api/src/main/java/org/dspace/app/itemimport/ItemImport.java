@@ -48,6 +48,7 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -66,10 +67,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.xpath.XPathAPI;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.dao.ResourcePolicyDAO;
+import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
@@ -88,17 +90,18 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.GroupDAO;
+import org.dspace.eperson.dao.GroupDAOFactory;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ObjectIdentifier;
+import org.dspace.uri.dao.ExternalIdentifierDAO;
+import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.workflow.WorkflowManager;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1366,7 +1369,7 @@ public class ItemImport
      * @throws AuthorizeException
      */
     private void processOptions(Context c, Item myItem, Vector options)
-            throws SQLException, AuthorizeException
+            throws AuthorizeException
     {
         for (int i = 0; i < options.size(); i++)
         {
@@ -1441,16 +1444,8 @@ public class ItemImport
                     actionID = Constants.WRITE;
                 }
 
-                try
-                {
-                    myGroup = Group.findByName(c, groupName);
-                }
-                catch (SQLException sqle)
-                {
-                    System.out.println("SQL Exception finding group name: "
-                            + groupName);
-                    // do nothing, will check for null group later
-                }
+                GroupDAO groupDAO = GroupDAOFactory.getInstance(c);
+                myGroup = groupDAO.retrieve(groupName);
             }
 
             String thisDescription = "";
@@ -1527,21 +1522,23 @@ public class ItemImport
      * @throws AuthorizeException
      */
     private void setPermission(Context c, Group g, int actionID, Bitstream bs)
-            throws SQLException, AuthorizeException
+            throws AuthorizeException
     {
         if (!isTest)
         {
+            ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(c);
+
             // remove the default policy
             AuthorizeManager.removeAllPolicies(c, bs);
 
             // add the policy
-            ResourcePolicy rp = ResourcePolicy.create(c);
+            ResourcePolicy rp = rpDAO.create();
 
             rp.setResource(bs);
             rp.setAction(actionID);
             rp.setGroup(g);
 
-            rp.update();
+            rpDAO.update(rp);
         }
         else
         {

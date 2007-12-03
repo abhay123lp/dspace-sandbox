@@ -37,9 +37,8 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.uri.dao;
+package org.dspace.uri.dao;
 
-import org.dspace.content.uri.dao.postgres.ExternalIdentifierDAOPostgres;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
@@ -49,11 +48,12 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
-
 import org.dspace.content.DSpaceObject;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifierType;
+import org.dspace.uri.dao.postgres.ExternalIdentifierDAOPostgres;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
-import org.dspace.content.uri.ExternalIdentifier;
 
 /**
  * @author James Rutherford
@@ -79,29 +79,29 @@ public abstract class ExternalIdentifierDAO
     public ExternalIdentifier create(DSpaceObject dso, String canonicalForm)
     {
         Object[] bits = parseCanonicalForm(canonicalForm);
-        ExternalIdentifier.Type type = (ExternalIdentifier.Type) bits[0];
+        ExternalIdentifierType type = (ExternalIdentifierType) bits[0];
         String value = (String) bits[1];
 
         return create(dso, value, type);
     }
 
     public abstract ExternalIdentifier create(DSpaceObject dso, String value,
-            ExternalIdentifier.Type type);
+            ExternalIdentifierType type);
 
     public abstract ExternalIdentifier retrieve(String canonicalForm);
-    public abstract ExternalIdentifier retrieve(ExternalIdentifier.Type type,
+    public abstract ExternalIdentifier retrieve(ExternalIdentifierType type,
             String value);
 
     public abstract List<ExternalIdentifier> getExternalIdentifiers(DSpaceObject dso);
 
     public List<ExternalIdentifier>
-        getExternalIdentifiers(ExternalIdentifier.Type type)
+        getExternalIdentifiers(ExternalIdentifierType type)
     {
         return getExternalIdentifiers(type, "");
     }
 
     public abstract List<ExternalIdentifier>
-        getExternalIdentifiers(ExternalIdentifier.Type type, String prefix);
+        getExternalIdentifiers(ExternalIdentifierType type, String prefix);
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
@@ -112,7 +112,7 @@ public abstract class ExternalIdentifierDAO
      * references the desired DSpaceObject.
      */
     protected ExternalIdentifier getInstance(DSpaceObject dso,
-            ExternalIdentifier.Type type, String value)
+            ExternalIdentifierType type, String value)
     {
         try
         {
@@ -125,7 +125,7 @@ public abstract class ExternalIdentifierDAO
                     Class pidClass = pid.getClass();
                     Constructor c = pidClass.getDeclaredConstructor(
                             Context.class, DSpaceObject.class,
-                            ExternalIdentifier.Type.class, String.class);
+                            ExternalIdentifierType.class, String.class);
                     identifier = (ExternalIdentifier)
                         c.newInstance(context, dso, type, value);
                     break;
@@ -167,16 +167,21 @@ public abstract class ExternalIdentifierDAO
             throw new RuntimeException(canonicalForm + " isn't canonical form!");
         }
 
-        ExternalIdentifier.Type type = null;
+        ExternalIdentifierType type = null;
         String namespace = canonicalForm.substring(0, pos);
         String value = canonicalForm.substring(pos + 1);
 
-        for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
+        Object[] types =
+                PluginManager.getPluginSequence(ExternalIdentifierType.class);
+        if (types != null)
         {
-            if (t.getNamespace().equals(namespace))
+            for (ExternalIdentifierType t : (ExternalIdentifierType[]) types)
             {
-                type = t;
-                break;
+                if (t.getNamespace().equals(namespace))
+                {
+                    type = t;
+                    break;
+                }
             }
         }
 

@@ -73,9 +73,9 @@
         (Collection[]) request.getAttribute("collections");
     Community[] subcommunities =
         (Community[]) request.getAttribute("subcommunities");
-    
+
     RecentSubmissions rs = (RecentSubmissions) request.getAttribute("recently.submitted");
-    
+
     Boolean editor_b = (Boolean)request.getAttribute("editor_button");
     boolean editor_button = (editor_b == null ? false : editor_b.booleanValue());
     Boolean add_b = (Boolean)request.getAttribute("add_button");
@@ -92,14 +92,14 @@
     String copyright = community.getMetadata("copyright_text");
     String sidebar = community.getMetadata("side_bar_text");
     Bitstream logo = community.getLogo();
-    
+
     boolean feedEnabled = ConfigurationManager.getBooleanProperty("webui.feed.enable");
     String feedData = "NONE";
     if (feedEnabled)
     {
         feedData = "comm:" + ConfigurationManager.getProperty("webui.feed.formats");
     }
-    
+
     ItemCounter ic = new ItemCounter(UIUtil.obtainContext(request));
 %>
 

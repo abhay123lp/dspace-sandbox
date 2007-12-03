@@ -39,22 +39,13 @@
  */
 package org.dspace.content.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.dspace.browse.IndexBrowse;
-import org.dspace.content.Bundle;
-import org.dspace.content.Collection;
-import org.dspace.content.DCValue;
 import org.dspace.content.Item;
-import org.dspace.eperson.EPerson;
-import org.dspace.storage.dao.CRUDTest;
 import org.dspace.storage.dao.DAOTest;
-import org.dspace.storage.dao.LinkTest;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class ContentDAOPerformanceTest extends DAOTest
 {

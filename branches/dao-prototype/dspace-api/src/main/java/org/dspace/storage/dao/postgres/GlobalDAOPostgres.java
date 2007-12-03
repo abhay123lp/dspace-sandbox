@@ -50,7 +50,6 @@ import org.dspace.storage.rdbms.DatabaseManager;
  */
 public class GlobalDAOPostgres extends GlobalDAO
 {
-    
     private Connection connection;
 
     // FIXME: This should be a GlobalDAOException

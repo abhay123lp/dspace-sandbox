@@ -58,11 +58,13 @@ import org.apache.lucene.search.Searcher;
 import org.apache.oro.text.perl.Perl5Util;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.core.PluginManager;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifierType;
 
 // issues
 // need to filter query string for security
@@ -270,18 +272,22 @@ public class DSQuery
     {
         // FIXME: Do we need to strip "local" identifier prefixes as well?
 
-        // Drop beginning pieces of full URI strings
-        for (ExternalIdentifier.Type t : ExternalIdentifier.Type.values())
+        Object[] types =
+                PluginManager.getPluginSequence(ExternalIdentifierType.class);
+        if (types != null)
         {
-            if (myquery.startsWith(t.getBaseURI() + "/"))
+            for (ExternalIdentifierType t : (ExternalIdentifierType[]) types)
             {
-                int urlPos = myquery.indexOf(t.getBaseURI() + "/");
-                return myquery.substring(urlPos + 1);
-            }
-            if (myquery.startsWith(t.getNamespace() + ":"))
-            {
-                int namespacePos = myquery.indexOf(t.getNamespace() + ":");
-                return myquery.substring(namespacePos + 1);
+                if (myquery.startsWith(t.getBaseURI() + "/"))
+                {
+                    int urlPos = myquery.indexOf(t.getBaseURI() + "/");
+                    return myquery.substring(urlPos + 1);
+                }
+                if (myquery.startsWith(t.getNamespace() + ":"))
+                {
+                    int namespacePos = myquery.indexOf(t.getNamespace() + ":");
+                    return myquery.substring(namespacePos + 1);
+                }
             }
         }
 

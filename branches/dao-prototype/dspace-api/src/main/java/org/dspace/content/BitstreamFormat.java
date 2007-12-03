@@ -51,7 +51,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.dao.BitstreamFormatDAO;
 import org.dspace.content.dao.BitstreamFormatDAOFactory;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.core.Context;
 
 /**

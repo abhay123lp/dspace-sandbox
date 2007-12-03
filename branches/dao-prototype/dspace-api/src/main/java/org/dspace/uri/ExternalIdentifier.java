@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.uri;
+package org.dspace.uri;
 
 import java.net.URISyntaxException;
 import java.net.URI;
@@ -63,21 +63,19 @@ public class ExternalIdentifier
     protected Context context;
     protected String value;
     protected ObjectIdentifier oid;
-
-    private Type type;
+    protected ExternalIdentifierType type;
 
     public ExternalIdentifier()
     {
-        this(ExternalIdentifier.Type.NULL);
     }
 
-    protected ExternalIdentifier(ExternalIdentifier.Type type)
+    protected ExternalIdentifier(ExternalIdentifierType type)
     {
         this.type = type;
     }
 
     public ExternalIdentifier(Context context, DSpaceObject dso,
-            ExternalIdentifier.Type type, String value)
+            ExternalIdentifierType type, String value)
     {
         this(type);
         this.context = context;
@@ -91,12 +89,7 @@ public class ExternalIdentifier
         return oid;
     }
 
-    public int getTypeID()
-    {
-        return type.getID();
-    }
-
-    public Type getType()
+    public ExternalIdentifierType getType()
     {
         return type;
     }
@@ -140,40 +133,6 @@ public class ExternalIdentifier
     public List<String> getMetadata(String field)
     {
         return null;
-    }
-
-    /**
-     * This enum holds the required information about all supported types of
-     * persistent identifier. Once the persistent identifier mechanism has
-     * settled down, this information should be stored in a database registry
-     * so that it can be administered via the UI.
-     */
-    public enum Type
-    {
-        // FIXME: Including a "type id" is a bit naughty, but it enables the
-        // getID() method which is far better than ordinal(). Also, this
-        // information will eventually live in the database (probably), and
-        // when that happens, ordinal() will become useless.
-        NULL (0, "", "", ""),
-        HANDLE (1, "http", "hdl", "hdl.handle.net");
-
-        private final int id;
-        private final String protocol;
-        private final String namespace;
-        private final String baseURI;
-
-        private Type(int id, String protocol, String namespace, String baseURI)
-        {
-            this.id = id;
-            this.protocol = protocol;
-            this.namespace = namespace;
-            this.baseURI = baseURI;
-        }
-
-        public int getID() { return id; }
-        public String getProtocol() { return protocol; }
-        public String getNamespace() { return namespace; }
-        public String getBaseURI() { return baseURI; }
     }
 
     ////////////////////////////////////////////////////////////////////

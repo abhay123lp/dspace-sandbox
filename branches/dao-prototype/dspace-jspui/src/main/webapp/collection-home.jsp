@@ -77,7 +77,7 @@
     Group      submitters = (Group) request.getAttribute("submitters");
 
     RecentSubmissions rs = (RecentSubmissions) request.getAttribute("recently.submitted");
-    
+
     boolean loggedIn =
         ((Boolean) request.getAttribute("logged.in")).booleanValue();
     boolean subscribed =
@@ -116,14 +116,14 @@
     String communityLink = community.getIdentifier().getURL().toString();
 
     Bitstream logo = collection.getLogo();
-    
+
     boolean feedEnabled = ConfigurationManager.getBooleanProperty("webui.feed.enable");
     String feedData = "NONE";
     if (feedEnabled)
     {
         feedData = "coll:" + ConfigurationManager.getProperty("webui.feed.formats");
     }
-    
+
     ItemCounter ic = new ItemCounter(UIUtil.obtainContext(request));
 %>
 

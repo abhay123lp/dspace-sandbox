@@ -44,9 +44,9 @@ import java.io.IOException;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.dao.ExternalIdentifierDAO;
+import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Context;
 
 /**

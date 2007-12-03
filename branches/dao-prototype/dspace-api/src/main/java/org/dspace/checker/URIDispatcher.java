@@ -39,10 +39,10 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
-import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.uri.ObjectIdentifier;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.dao.ExternalIdentifierDAO;
+import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 

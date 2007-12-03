@@ -54,6 +54,7 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
@@ -64,16 +65,16 @@ import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
-import org.dspace.content.uri.ObjectIdentifier;
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.PluginManager;
 import org.dspace.core.Utils;
-import org.dspace.app.util.Util;
-
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifierType;
+import org.dspace.uri.ObjectIdentifier;
+import org.dspace.uri.dao.ExternalIdentifierDAO;
+import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
 import edu.harvard.hul.ois.mets.Agent;
 import edu.harvard.hul.ois.mets.AmdSec;
 import edu.harvard.hul.ois.mets.BinData;
@@ -708,18 +709,25 @@ public class METSExport
      * Get the persistent identifier from the command line in the form
      * xyz:123.456/789.
      *
+     * FIXME: I think this is totally broken.
+     *
      * @param original
      *            Persistent identifier as passed in by user
      * @return Canonical form
      */
     private static String getCanonicalForm(String original)
     {
-        for (ExternalIdentifier.Type type : ExternalIdentifier.Type.values())
+        Object[] types =
+                PluginManager.getPluginSequence(ExternalIdentifierType.class);
+        if (types != null)
         {
-            String url = type.getProtocol() + "://" + type.getBaseURI();
-            if (original.startsWith(url))
+            for (ExternalIdentifierType type : (ExternalIdentifierType[]) types)
             {
-                original = type.getNamespace() + ":" + original.substring(url.length());
+                String url = type.getProtocol() + "://" + type.getBaseURI();
+                if (original.startsWith(url))
+                {
+                    original = type.getNamespace() + ":" + original.substring(url.length());
+                }
             }
         }
 

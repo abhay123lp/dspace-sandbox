@@ -23,3 +23,5 @@ Stuff that needs fixin':
  * Need a way to import items (and any other 'content') that have existing
    UUIDs / identifiers. One approach would be to just add the value of the
    identifier as a dc:identifier.uri, but that's not ideal.
+ * When a Collection is deleted, should any WorkspaceItems that are being
+   submitted to that Collection be deleted?

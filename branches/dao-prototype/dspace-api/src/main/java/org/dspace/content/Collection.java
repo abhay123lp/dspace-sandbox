@@ -53,8 +53,6 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.ArchiveManager;
-import org.dspace.browse.ItemCounter;
-import org.dspace.browse.ItemCountException;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -68,7 +66,7 @@ import org.dspace.content.dao.CommunityDAO;         // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
 import org.dspace.content.dao.ItemDAO;              // Naughty!
 import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
-import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifier;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;             // Naughty!
 import org.dspace.eperson.dao.GroupDAOFactory;      // Naughty!

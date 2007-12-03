@@ -37,7 +37,7 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.handle;
+package org.dspace.uri.handle;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,6 +47,13 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifierType;
+import org.dspace.uri.dao.ExternalIdentifierDAO;
+import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
 import net.handle.hdllib.Encoder;
 import net.handle.hdllib.HandleException;
 import net.handle.hdllib.HandleStorage;
@@ -55,19 +62,11 @@ import net.handle.hdllib.ScanCallback;
 import net.handle.hdllib.Util;
 import net.handle.util.StreamTable;
 
-import org.apache.log4j.Logger;
-
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.content.uri.dao.ExternalIdentifierDAO;
-import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Context;
-
 /**
  * Extension to the CNRI Handle Server that translates requests to resolve
  * handles into DSpace API calls. The implementation simply stubs out most of
  * the methods, and delegates the rest to the
- * {@link org.dspace.content.uri.ExternalIdentifierDAO}. This only provides
+ * {@link org.dspace.uri.ExternalIdentifierDAO}. This only provides
  * some of the functionality (namely, the resolving of handles to URLs) of the
  * CNRI HandleStorage interface.
  * 
@@ -399,7 +398,7 @@ public class HandlePlugin implements HandleStorage
             ExternalIdentifierDAO identifierDAO =
                 ExternalIdentifierDAOFactory.getInstance(context);
 
-            ExternalIdentifier.Type type = ExternalIdentifier.Type.HANDLE;
+            ExternalIdentifierType type = new HandleType();
 
             List<String> handles = new ArrayList<String>();
 

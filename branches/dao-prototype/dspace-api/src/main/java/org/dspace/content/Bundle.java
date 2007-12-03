@@ -172,8 +172,6 @@ public class Bundle extends DSpaceObject
 
         Bitstream b = bitstreamDAO.store(is);
 
-        // FIXME: Set permissions for bitstream
-
         addBitstream(b);
 
         return b;
@@ -185,8 +183,6 @@ public class Bundle extends DSpaceObject
         AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
         Bitstream b = bitstreamDAO.register(assetstore, bitstreamPath);
-
-        // FIXME: Set permissions for bitstream
 
         addBitstream(b);
 
@@ -203,6 +199,7 @@ public class Bundle extends DSpaceObject
             }
         }
 
+        AuthorizeManager.addPolicy(context, b, Constants.WRITE, context.getCurrentUser());
         AuthorizeManager.inheritPolicies(context, this, b);
 
         bitstreams.add(b);

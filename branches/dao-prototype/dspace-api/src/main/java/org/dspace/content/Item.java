@@ -65,7 +65,7 @@ import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifier;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -628,8 +628,11 @@ public class Item extends DSpaceObject
     {
         // Authorisation is checked by methods below
         // Create a bundle
+        log.info("creating bundle " + name);
         Bundle bnd = createBundle(name);
+        log.info("creating bitstream");
         Bitstream bitstream = bnd.createBitstream(is);
+        log.info("adding bundle to item");
         addBundle(bnd);
 
         // FIXME: Create permissions for new bundle + bitstream

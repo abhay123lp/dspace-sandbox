@@ -1,7 +1,7 @@
 /*
- * BundleDAOFactory.java
+ * DAOStack.java
  *
- * Version: $Revision: 1727 $
+ * Version: $Revision:$
  *
  * Date: $Date: 2007-01-19 10:52:10 +0000 (Fri, 19 Jan 2007) $
  *
@@ -37,41 +37,10 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.dao;
+package org.dspace.storage.dao;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import org.dspace.content.dao.postgres.BundleDAOPostgres;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Context;
-import org.dspace.core.PluginManager;
-
-/**
- * @author James Rutherford
- */
-public class BundleDAOFactory extends ContentDAOFactory
+public interface DAOStack<T>
 {
-    public static BundleDAO getInstance(Context context)
-    {
-        List<BundleDAO> list = new ArrayList<BundleDAO>();
-
-        list.add(new BundleDAOCore(context));
-        if (ConfigurationManager.getBooleanProperty("dao.stack.bundle.enabled"))
-        {
-            Object[] hooks = PluginManager.getPluginSequence(BundleDAO.class);
-            list.addAll(Arrays.asList((BundleDAO[]) hooks));
-        }
-        list.add(new BundleDAOPostgres(context));
-
-        BundleDAO[] daos = list.toArray(new BundleDAO[list.size()]);
-        for (int i = 0; i < daos.length - 2; i++)
-        {
-            daos[i] = (BundleDAO) getInstance(daos[i], context);
-            daos[i].setChild(daos[i+1]);
-        }
-
-        return daos[0];
-    }
+    public T getChild();
+    public void setChild(T t);
 }

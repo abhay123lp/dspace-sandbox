@@ -52,8 +52,6 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.ArchiveManager;
-import org.dspace.browse.ItemCounter;
-import org.dspace.browse.ItemCountException;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
@@ -64,7 +62,7 @@ import org.dspace.content.dao.CollectionDAO;        // Naughty!
 import org.dspace.content.dao.CollectionDAOFactory; // Naughty!
 import org.dspace.content.dao.CommunityDAO;         // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
-import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.uri.ExternalIdentifier;
 import org.dspace.event.Event;
 
 /**
@@ -358,7 +356,7 @@ public class Community extends DSpaceObject
         CommunityDAO dao = CommunityDAOFactory.getInstance(context);
         List<Community> communities = dao.getCommunities();
 
-        return (Community[]) communities.toArray(new Community[0]);
+        return communities.toArray(new Community[0]);
     }
 
     @Deprecated
@@ -367,7 +365,7 @@ public class Community extends DSpaceObject
         CommunityDAO dao = CommunityDAOFactory.getInstance(context);
         List<Community> communities = dao.getTopLevelCommunities();
 
-        return (Community[]) communities.toArray(new Community[0]);
+        return communities.toArray(new Community[0]);
     }
 
     @Deprecated
@@ -387,21 +385,21 @@ public class Community extends DSpaceObject
     public Community[] getAllParents()
     {
         List<Community> parents = dao.getAllParentCommunities(this);
-        return (Community[]) parents.toArray(new Community[0]);
+        return parents.toArray(new Community[0]);
     }
 
     @Deprecated
     public Collection[] getCollections()
     {
         List<Collection> collections = collectionDAO.getChildCollections(this);
-        return (Collection[]) collections.toArray(new Collection[0]);
+        return collections.toArray(new Collection[0]);
     }
 
     @Deprecated
     public Community[] getSubcommunities()
     {
         List<Community> communities = dao.getChildCommunities(this);
-        return (Community[]) communities.toArray(new Community[0]);
+        return communities.toArray(new Community[0]);
     }
 
     @Deprecated

@@ -1,5 +1,5 @@
 /*
- * Handle.java
+ * ExternalIdentifierType.java
  *
  * Version: $Revision: 1727 $
  *
@@ -37,39 +37,65 @@
  * USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  */
-package org.dspace.content.uri;
+package org.dspace.uri;
 
-import java.util.List;
-import java.util.Map;
-
-import org.dspace.core.Context;
-import org.dspace.content.DSpaceObject;
+import org.apache.commons.lang.builder.EqualsBuilder;
+import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * @author James Rutherford
  */
-public class Handle extends ExternalIdentifier
+public abstract class ExternalIdentifierType
 {
-    public Handle()
+    private String namespace;
+    private String protocol;
+    private String baseURI;
+
+    public ExternalIdentifierType(
+            String namespace, String protocol, String baseURI)
     {
-        super(ExternalIdentifier.Type.HANDLE);
+        this.protocol = protocol;
+        this.namespace = namespace;
+        this.baseURI = baseURI;
     }
 
-    public Handle(Context context, DSpaceObject dso,
-            ExternalIdentifier.Type type, String value)
+    public String getNamespace()
     {
-        super(context, dso, type, value);
+        return namespace;
     }
 
-    @Override
-    public Map<String, List<String>> getMetadata()
+    public String getProtocol()
     {
-        return null;
+        return protocol;
     }
 
-    @Override
-    public List<String> getMetadata(String field)
+    public String getBaseURI()
     {
-        return null;
+        return baseURI;
+    }
+
+    public abstract String getPrefix();
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this,
+                ToStringStyle.MULTI_LINE_STYLE);
+    }
+
+    public boolean equals(Object o)
+    {
+        return EqualsBuilder.reflectionEquals(this, o);
+    }
+
+    public int hashCode()
+    {
+        return HashCodeBuilder.reflectionHashCode(this);
     }
 }
+
