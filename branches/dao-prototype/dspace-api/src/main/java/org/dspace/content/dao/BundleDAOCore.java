@@ -69,6 +69,16 @@ public class BundleDAOCore extends BundleDAO {
         bitstreamDAO = BitstreamDAOFactory.getInstance(context);
     }
 
+    public BundleDAO getChild()
+    {
+        return childDAO;
+    }
+
+    public void setChild(BundleDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
+
     public Bundle create() throws AuthorizeException
     {
         Bundle bundle = null;
@@ -85,12 +95,19 @@ public class BundleDAOCore extends BundleDAO {
 
     public Bundle retrieve(int id)
     {
-        return (Bundle) context.fromCache(Bundle.class, id);
+        Bundle bundle = (Bundle) context.fromCache(Bundle.class, id);
+
+        if (bundle == null)
+        {
+            bundle = childDAO.retrieve(id);
+        }
+
+        return bundle;
     }
 
     public Bundle retrieve(UUID uuid)
     {
-        return null;
+        return childDAO.retrieve(uuid);
     }
 
     // FIXME: Check authorization? Or do we count on this only ever happening
@@ -126,6 +143,8 @@ public class BundleDAOCore extends BundleDAO {
         {
             link(bundle, bitstream);
         }
+
+        childDAO.update(bundle);
     }
 
     public void delete(int id) throws AuthorizeException
@@ -145,26 +164,8 @@ public class BundleDAOCore extends BundleDAO {
 
         // remove our authorization policies
         AuthorizeManager.removeAllPolicies(context, bundle);
-    }
 
-    private void removeBitstreamFromBundle(Bundle bundle,
-            Bitstream bitstream) throws AuthorizeException
-    {
-        unlink(bundle, bitstream);
-
-        // In the event that the bitstream to remove is actually
-        // the primary bitstream, be sure to unset the primary
-        // bitstream.
-        if (bitstream.getID() == bundle.getPrimaryBitstreamID())
-        {
-            bundle.unsetPrimaryBitstreamID();
-        }
-
-        if (getBundles(bitstream).size() == 0)
-        {
-            // The bitstream is an orphan, delete it
-            bitstreamDAO.delete(bitstream.getID());
-        }
+        childDAO.delete(id);
     }
 
     public List<Bundle> getBundles(Item item)
@@ -189,6 +190,8 @@ public class BundleDAOCore extends BundleDAO {
 
             bundle.addBitstream(bitstream);
         }
+
+        childDAO.link(bundle, bitstream);
     }
 
     public void unlink(Bundle bundle, Bitstream bitstream) throws AuthorizeException
@@ -203,9 +206,12 @@ public class BundleDAOCore extends BundleDAO {
                         ",bitstream_id=" + bitstream.getID()));
 
             bundle.removeBitstream(bitstream);
+
+            childDAO.unlink(bundle, bitstream);
         }
     }
 
+    // FIXME: Where do we do the check? In memory or in the storage layer?
     public boolean linked(Bundle bundle, Bitstream bitstream)
     {
         for (Bitstream b : bundle.getBitstreams())
@@ -217,5 +223,29 @@ public class BundleDAOCore extends BundleDAO {
         }
 
         return false;
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private void removeBitstreamFromBundle(Bundle bundle,
+                                           Bitstream bitstream) throws AuthorizeException
+    {
+        unlink(bundle, bitstream);
+
+        // In the event that the bitstream to remove is actually
+        // the primary bitstream, be sure to unset the primary
+        // bitstream.
+        if (bitstream.getID() == bundle.getPrimaryBitstreamID())
+        {
+            bundle.unsetPrimaryBitstreamID();
+        }
+
+        if (getBundles(bitstream).size() == 0)
+        {
+            // The bitstream is an orphan, delete it
+            bitstreamDAO.delete(bitstream.getID());
+        }
     }
 }

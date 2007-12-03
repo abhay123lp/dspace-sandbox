@@ -66,7 +66,7 @@ public class BundleDAOFactory extends ContentDAOFactory
         list.add(new BundleDAOPostgres(context));
 
         BundleDAO[] daos = list.toArray(new BundleDAO[list.size()]);
-        for (int i = 0; i < daos.length - 2; i++)
+        for (int i = 0; i < daos.length - 1; i++)
         {
             daos[i] = (BundleDAO) getInstance(daos[i], context);
             daos[i].setChild(daos[i+1]);

@@ -42,10 +42,10 @@ package org.dspace.uri.handle;
 import java.util.List;
 import java.util.Map;
 
-import org.dspace.core.Context;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.Context;
 import org.dspace.uri.ExternalIdentifier;
-import org.dspace.uri.handle.HandleType;
+import org.dspace.uri.ExternalIdentifierType;
 
 /**
  * @author James Rutherford
@@ -60,6 +60,12 @@ public class Handle extends ExternalIdentifier
     public Handle(Context context, DSpaceObject dso, String value)
     {
         super(context, dso, new HandleType(), value);
+    }
+
+    public Handle(Context context, DSpaceObject dso,
+                  ExternalIdentifierType type, String value)
+    {
+        super(context, dso, type, value);
     }
 
     @Override

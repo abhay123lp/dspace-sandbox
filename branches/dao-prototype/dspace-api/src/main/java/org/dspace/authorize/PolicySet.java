@@ -39,11 +39,8 @@
  */
 package org.dspace.authorize;
 
-import java.util.List;
-
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
-import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.dao.ResourcePolicyDAO;
+import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
@@ -54,6 +51,8 @@ import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.dao.GroupDAO;
+import org.dspace.eperson.dao.GroupDAOFactory;
 
 /**
  * Was Hack/Tool to set policies for items, bundles, and bitstreams. Now has
@@ -170,24 +169,23 @@ public class PolicySet
      *            objects
      * @param filter
      *            if non-null, only process bitstreams whose names contain filter
-     * @throws SQLException
-     *             if database problem
      * @throws AuthorizeException
      *             if current user is not authorized to change these policies
      */
     public static void setPoliciesFilter(Context c, int containerType,
             int containerID, int contentType, int actionID, int groupID,
-            boolean isReplace, boolean clearOnly, String filter) throws SQLException,
-            AuthorizeException
+            boolean isReplace, boolean clearOnly, String filter)
+        throws AuthorizeException
     {
         if (containerType == Constants.COLLECTION)
         {
+            GroupDAO groupDAO = GroupDAOFactory.getInstance(c);
+            ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
+            ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(c);
+
             Collection collection =
                 CollectionDAOFactory.getInstance(c).retrieve(containerID);
-            Group group = Group.find(c, groupID);
-
-            ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
-            List<Item> items = itemDAO.getItemsByCollection(collection);
+            Group group = groupDAO.retrieve(groupID);
 
             for (Item item : itemDAO.getItemsByCollection(collection))
             {
@@ -203,13 +201,13 @@ public class PolicySet
                     if (!clearOnly)
                     {
                         // now add the policy
-                        ResourcePolicy rp = ResourcePolicy.create(c);
+                        ResourcePolicy rp = rpDAO.create();
 
                         rp.setResource(item);
                         rp.setAction(actionID);
                         rp.setGroup(group);
 
-                        rp.update();
+                        rpDAO.update(rp);
                     }
                 }
                 else if (contentType == Constants.BUNDLE)
@@ -231,13 +229,13 @@ public class PolicySet
                         if (!clearOnly)
                         {
                             // now add the policy
-                            ResourcePolicy rp = ResourcePolicy.create(c);
+                            ResourcePolicy rp = rpDAO.create();
 
                             rp.setResource(t);
                             rp.setAction(actionID);
                             rp.setGroup(group);
 
-                            rp.update();
+                            rpDAO.update(rp);
                         }
                     }
                 }
@@ -271,13 +269,13 @@ public class PolicySet
                                 if (!clearOnly)
                                 {
                                         // now add the policy
-                                        ResourcePolicy rp = ResourcePolicy.create(c);
+                                        ResourcePolicy rp = rpDAO.create();
 
                                         rp.setResource(t);
                                         rp.setAction(actionID);
                                         rp.setGroup(group);
 
-                                        rp.update();
+                                        rpDAO.update(rp);
                                 }
                             }
                         }
