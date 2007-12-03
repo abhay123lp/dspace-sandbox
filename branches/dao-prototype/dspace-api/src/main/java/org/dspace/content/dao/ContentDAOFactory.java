@@ -1,8 +1,13 @@
 package org.dspace.content.dao;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
+import org.dspace.core.PluginManager;
 
 public class ContentDAOFactory
 {
@@ -32,5 +37,35 @@ public class ContentDAOFactory
         }
 
         return instantiated;
+    }
+
+    public static <T extends ContentDAO> T prepareStack(Context context,
+            T first, T last, String configLine)
+    {
+        if (first == null || last == null)
+        {
+            throw new IllegalArgumentException(
+                    "DAO stack must contain at least two elements");
+        }
+
+        List<T> list = new ArrayList<T>();
+
+        list.add(first);
+        if (ConfigurationManager.getBooleanProperty(configLine))
+        {
+            Object[] hooks = PluginManager.getPluginSequence(first.getClass());
+            list.addAll(Arrays.asList((T[]) hooks));
+        }
+        list.add(last);
+
+        first.setChild(list.get(1));
+        for (int i = 1; i < list.size() - 1; i++)
+        {
+            T dao = list.get(i);
+            dao = (T) getInstance(dao, context);
+            dao.setChild(list.get(i+1));
+        }
+
+        return first;
     }
 }

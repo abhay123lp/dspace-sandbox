@@ -324,12 +324,15 @@ public class URIServlet extends DSpaceServlet
         request.setAttribute("dspace.collection", item.getOwningCollection());
 
         Community[] comms = item.getOwningCollection().getCommunities();
-        request.setAttribute("dspace.community", comms[0]);
+        if (comms.length > 0)
+        {
+            request.setAttribute("dspace.community", comms[0]);
 
-        /*
-         * Find all the "parent" communities for the collection
-         */
-        request.setAttribute("dspace.communities", getParents(comms[0], true));
+            /*
+             * Find all the "parent" communities for the collection
+             */
+            request.setAttribute("dspace.communities", getParents(comms[0], true));
+        }
 
         // Full or simple display?
         boolean displayAll = false;

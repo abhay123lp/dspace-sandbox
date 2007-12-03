@@ -3,7 +3,6 @@ package org.dspace.content.dao;
 import java.util.UUID;
 import java.util.List;
 
-import org.dspace.storage.dao.DAOStack;
 import org.dspace.storage.dao.CRUD;
 import org.dspace.storage.dao.Link;
 import org.dspace.content.Bundle;
@@ -12,27 +11,19 @@ import org.dspace.content.Item;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.core.Context;
 
-public abstract class BundleDAO extends ContentDAO
-        implements DAOStack<BundleDAO>, CRUD<Bundle>, Link<Bundle, Bitstream>
+public abstract class BundleDAO extends ContentDAO<BundleDAO>
+        implements CRUD<Bundle>, Link<Bundle, Bitstream>
 {
     protected Context context;
-
-    private BundleDAO childDAO;
 
     public BundleDAO(Context context)
     {
         this.context = context;
     }
 
-    public BundleDAO getChild()
-    {
-        return childDAO;
-    }
+    public abstract BundleDAO getChild();
 
-    public void setChild(BundleDAO childDAO)
-    {
-        this.childDAO = childDAO;
-    }
+    public abstract void setChild(BundleDAO childDAO);
 
     public abstract Bundle create() throws AuthorizeException;
 
