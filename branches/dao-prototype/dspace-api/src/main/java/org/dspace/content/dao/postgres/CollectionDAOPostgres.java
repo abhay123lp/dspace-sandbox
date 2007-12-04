@@ -218,10 +218,9 @@ public class CollectionDAOPostgres extends CollectionDAO
         {
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "collection",
-                    "SELECT c.collection_id " +
-                    "FROM collection c, collection2item c2i " +
-                    "WHERE c2i.collection_id = c.collection_id " +
-                    "AND c2i.item_id = ? ",
+                    "SELECT collection_id " +
+                    "FROM collection2item " +
+                    "WHERE item_id = ? ",
                     item.getID());
 
             return returnAsList(tri);

@@ -172,6 +172,7 @@ public class EditItemServlet extends DSpaceServlet
             SQLException, AuthorizeException
     {
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
 
         // First, see if we have a multipart request (uploading a new bitstream)
         String contentType = request.getContentType();
@@ -207,7 +208,6 @@ public class EditItemServlet extends DSpaceServlet
         Item item = null;
         if (itemID > 0)
         {
-            ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
             item = itemDAO.retrieve(itemID);
         }
 
@@ -235,9 +235,16 @@ public class EditItemServlet extends DSpaceServlet
             // Remove item from all the collections it's in. The current
             // behaviour is such that once the Item is removed from all parent
             // Collections, it is deleted (we don't allow orphaned Items).
-            for (Collection parent : parents)
+            if (parents.size() > 0)
             {
-                collectionDAO.unlink(parent, item);
+                for (Collection parent : parents)
+                {
+                    collectionDAO.unlink(parent, item);
+                }
+            }
+            else
+            {
+                itemDAO.delete(item.getID());
             }
 
             JSPManager.showJSP(request, response, "/tools/get-item-id.jsp");

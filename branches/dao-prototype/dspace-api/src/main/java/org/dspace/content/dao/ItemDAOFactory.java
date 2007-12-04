@@ -50,6 +50,7 @@ public class ItemDAOFactory
     public static ItemDAO getInstance(Context context)
     {
         return ContentDAOFactory.prepareStack(context,
+                ItemDAO.class,
                 new ItemDAOCore(context),
                 new ItemDAOPostgres(context),
                 "dao.stack.item.enabled");

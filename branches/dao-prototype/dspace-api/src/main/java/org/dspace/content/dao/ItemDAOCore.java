@@ -63,7 +63,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
 
 /**
  * @author James Rutherford
@@ -323,33 +322,6 @@ public class ItemDAOCore extends ItemDAO
         context.removeCached(item, id);
 
         log.info(LogManager.getHeader(context, "delete_item", "item_id=" + id));
-
-        // Remove from indices, if appropriate
-        /** XXX FIXME
-         ** Although all other Browse index updates are managed through
-         ** Event consumers, removing an Item *must* be done *here* (inline)
-         ** because otherwise, tables are left in an inconsistent state
-         ** and the DB transaction will fail.
-         ** Any fix would involve too much work on Browse code that
-         ** is likely to be replaced soon anyway.   --lcs, Aug 2006
-         **
-         ** NB Do not check to see if the item is archived - withdrawn /
-         ** non-archived items may still be tracked in some browse tables
-         ** for administrative purposes, and these need to be removed.
-         **/
-        // Remove from Browse indices
-        try
-        {
-            IndexBrowse ib = new IndexBrowse(context);
-            ib.itemRemoved(item);
-            // FIXME: I think this is unnecessary because it is taken care
-            // of by the search consumer, but I'm not sure.
-            // DSIndexer.unIndexContent(context, item);
-        }
-        catch (BrowseException e)
-        {
-            throw new RuntimeException(e);
-        }
 
         // Remove bundles
         for (Bundle bundle : item.getBundles())

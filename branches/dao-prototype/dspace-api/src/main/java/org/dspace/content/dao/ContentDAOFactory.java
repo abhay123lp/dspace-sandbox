@@ -30,6 +30,7 @@ public class ContentDAOFactory
         catch (InvocationTargetException e)
         {
             e.printStackTrace();
+            System.err.println(e.getCause());
         }
         catch (NoSuchMethodException e)
         {
@@ -40,7 +41,7 @@ public class ContentDAOFactory
     }
 
     public static <T extends ContentDAO> T prepareStack(Context context,
-            T first, T last, String configLine)
+            Class clazz, T first, T last, String configLine)
     {
         if (first == null || last == null)
         {
@@ -53,16 +54,18 @@ public class ContentDAOFactory
         list.add(first);
         if (ConfigurationManager.getBooleanProperty(configLine))
         {
-            Object[] hooks = PluginManager.getPluginSequence(first.getClass());
-            list.addAll(Arrays.asList((T[]) hooks));
+            Object[] hooks = PluginManager.getPluginSequence(clazz);
+            for (Object dao : hooks)
+            {
+                list.add((T) getInstance((T) dao, context));
+            }
         }
         list.add(last);
 
-        first.setChild(list.get(1));
-        for (int i = 1; i < list.size() - 1; i++)
+        //first.setChild(list.get(1));
+        for (int i = 0; i < list.size() - 1; i++)
         {
             T dao = list.get(i);
-            dao = (T) getInstance(dao, context);
             dao.setChild(list.get(i+1));
         }
 
