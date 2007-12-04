@@ -53,7 +53,7 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.storage.dao.CRUD;
 
-public abstract class MetadataFieldDAO extends ContentDAO
+public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
     implements CRUD<MetadataField>
 {
     protected Logger log = Logger.getLogger(MetadataFieldDAO.class);
