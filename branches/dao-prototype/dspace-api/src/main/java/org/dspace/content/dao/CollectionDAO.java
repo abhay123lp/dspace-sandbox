@@ -75,7 +75,7 @@ import org.dspace.storage.dao.Link;
 /**
  * @author James Rutherford
  */
-public abstract class CollectionDAO extends ContentDAO
+public abstract class CollectionDAO extends ContentDAO<CollectionDAO>
     implements CRUD<Collection>, Link<Collection, Item>
 {
     protected static Logger log = Logger.getLogger(CollectionDAO.class);

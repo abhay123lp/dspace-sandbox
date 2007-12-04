@@ -523,4 +523,14 @@ public class CommunityDAOPostgres extends CommunityDAO
             }
         }
     }
+
+    public CommunityDAO getChild()
+    {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setChild(CommunityDAO communityDAO)
+    {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

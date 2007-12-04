@@ -70,7 +70,7 @@ import org.dspace.storage.dao.Link;
 /**
  * @author James Rutherford
  */
-public abstract class CommunityDAO extends ContentDAO
+public abstract class CommunityDAO extends ContentDAO<CommunityDAO>
     implements CRUD<Community>, Link<DSpaceObject, DSpaceObject>
 {
     protected static Logger log = Logger.getLogger(CommunityDAO.class);

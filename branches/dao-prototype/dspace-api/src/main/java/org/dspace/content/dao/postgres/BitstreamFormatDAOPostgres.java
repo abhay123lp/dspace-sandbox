@@ -423,4 +423,15 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         row.setColumn("support_level", bitstreamFormat.getSupportLevel());
         row.setColumn("internal", bitstreamFormat.isInternal());
     }
+
+    public BitstreamFormatDAO getChild()
+    {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setChild(BitstreamFormatDAO bitstreamFormatDAO)
+    {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
+
