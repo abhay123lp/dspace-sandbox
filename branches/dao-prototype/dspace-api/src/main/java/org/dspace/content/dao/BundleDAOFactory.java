@@ -50,6 +50,7 @@ public class BundleDAOFactory extends ContentDAOFactory
     public static BundleDAO getInstance(Context context)
     {
         return ContentDAOFactory.prepareStack(context,
+                BundleDAO.class,
                 new BundleDAOCore(context),
                 new BundleDAOPostgres(context),
                 "dao.stack.bundle.enabled");

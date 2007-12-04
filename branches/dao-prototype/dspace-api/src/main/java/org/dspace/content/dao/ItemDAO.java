@@ -70,6 +70,10 @@ public abstract class ItemDAO extends ContentDAO<ItemDAO>
     protected BitstreamDAO bitstreamDAO;
     protected ExternalIdentifierDAO identifierDAO;
 
+    public ItemDAO()
+    {
+    }
+
     public ItemDAO(Context context)
     {
         this.context = context;
