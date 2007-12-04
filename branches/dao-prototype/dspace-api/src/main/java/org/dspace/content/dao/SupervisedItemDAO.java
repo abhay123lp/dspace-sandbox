@@ -50,7 +50,7 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.storage.dao.CRUD;
 
-public abstract class SupervisedItemDAO extends ContentDAO
+public abstract class SupervisedItemDAO extends ContentDAO<SupervisedItemDAO>
 {
     protected Logger log = Logger.getLogger(SupervisedItemDAO.class);
 

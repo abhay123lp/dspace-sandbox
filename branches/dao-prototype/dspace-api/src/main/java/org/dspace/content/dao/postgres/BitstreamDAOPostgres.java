@@ -425,4 +425,14 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             row.setColumn("user_format_description", userFormatDescription);
         }
     }
+
+    public BitstreamDAO getChild()
+    {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setChild(BitstreamDAO bitstreamDAO)
+    {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

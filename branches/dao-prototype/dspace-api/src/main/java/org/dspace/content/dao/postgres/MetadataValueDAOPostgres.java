@@ -338,4 +338,19 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
 
         return values;
     }
+
+    public MetadataValueDAO getChild()
+    {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setChild(MetadataValueDAO metadataValueDAO)
+    {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    @Deprecated
+    public List<MetadataValue> getMetadataValues(int fieldID) {
+        return super.getMetadataValues(fieldID);    //To change body of overridden methods use File | Settings | File Templates.
+    }
 }

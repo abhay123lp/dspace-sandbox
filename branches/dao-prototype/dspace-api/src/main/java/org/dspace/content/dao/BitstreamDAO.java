@@ -61,7 +61,7 @@ import org.dspace.storage.dao.CRUD;
 /**
  * @author James Rutherford
  */
-public abstract class BitstreamDAO extends ContentDAO
+public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
     implements CRUD<Bitstream>
 {
     protected Logger log = Logger.getLogger(BitstreamDAO.class);

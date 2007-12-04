@@ -524,4 +524,14 @@ public class CollectionDAOPostgres extends CollectionDAO
 
         return Group.find(context, row.getIntColumn(col));
     }
+
+    public CollectionDAO getChild()
+    {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setChild(CollectionDAO collectionDAO)
+    {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }

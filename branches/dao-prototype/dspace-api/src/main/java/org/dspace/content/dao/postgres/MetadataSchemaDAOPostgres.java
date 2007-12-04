@@ -343,4 +343,14 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
 
         return schema;
     }
+
+    public MetadataSchemaDAO getChild()
+    {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setChild(MetadataSchemaDAO metadataSchemaDAO)
+    {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
