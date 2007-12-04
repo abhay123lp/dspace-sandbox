@@ -412,4 +412,14 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
             throw new RuntimeException(sqle);
         }
     }
+
+    public MetadataFieldDAO getChild()
+    {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void setChild(MetadataFieldDAO o)
+    {
+        //To change body of implemented methods use File | Settings | File Templates.
+    }
 }
