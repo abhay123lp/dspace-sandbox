@@ -52,13 +52,23 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.storage.dao.CRUD;
 
-public abstract class MetadataValueDAOCore extends MetadataValueDAO
+public class MetadataValueDAOCore extends MetadataValueDAO
 {
     private MetadataValueDAO childDAO;
 
     public MetadataValueDAOCore(Context context)
     {
         super(context);
+    }
+
+    public MetadataValueDAO getChild()
+    {
+        return childDAO;
+    }
+
+    public void setChild(MetadataValueDAO childDAO)
+    {
+        this.childDAO = childDAO;
     }
 
     @Override

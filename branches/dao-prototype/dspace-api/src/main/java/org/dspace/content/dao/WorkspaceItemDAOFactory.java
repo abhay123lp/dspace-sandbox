@@ -46,6 +46,10 @@ public class WorkspaceItemDAOFactory
 {
     public static WorkspaceItemDAO getInstance(Context context)
     {
-        return new WorkspaceItemDAOPostgres(context);
+        return ContentDAOFactory.prepareStack(context,
+                WorkspaceItemDAO.class,
+                new WorkspaceItemDAOCore(context),
+                new WorkspaceItemDAOPostgres(context),
+                "dao.stack.workspaceitem.enabled");
     }
 }
