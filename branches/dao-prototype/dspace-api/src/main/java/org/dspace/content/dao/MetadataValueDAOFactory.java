@@ -49,6 +49,10 @@ public class MetadataValueDAOFactory
 {
     public static MetadataValueDAO getInstance(Context context)
     {
-        return new MetadataValueDAOPostgres(context);
+        return ContentDAOFactory.prepareStack(context,
+                MetadataValueDAO.class,
+                new MetadataValueDAOCore(context),
+                new MetadataValueDAOPostgres(context),
+                "dao.stack.metadatavalue.enabled");
     }
 }
