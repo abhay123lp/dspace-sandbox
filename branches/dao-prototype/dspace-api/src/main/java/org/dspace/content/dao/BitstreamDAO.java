@@ -39,30 +39,26 @@
  */
 package org.dspace.content.dao;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
+import org.dspace.core.Context;
+import org.dspace.storage.dao.CRUD;
 import org.dspace.uri.dao.ExternalIdentifierDAO;
 import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
-import org.dspace.core.Constants;
-import org.dspace.core.Context;
-import org.dspace.core.LogManager;
-import org.dspace.storage.bitstore.BitstreamStorageManager;
-import org.dspace.storage.dao.CRUD;
 
 /**
  * @author James Rutherford
  */
 public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
-    implements CRUD<Bitstream>
+        implements CRUD<Bitstream>
 {
     protected Logger log = Logger.getLogger(BitstreamDAO.class);
 
@@ -76,6 +72,10 @@ public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
+    public abstract BitstreamDAO getChild();
+
+    public abstract void setChild(BitstreamDAO childDAO);
+
     public abstract Bitstream create() throws AuthorizeException;
 
     /**
@@ -83,110 +83,49 @@ public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
      * calculated. This method does not check authorisation; other methods such
      * as Bundle.createBitstream() will check authorisation. The newly created
      * bitstream has the "unknown" format.
-     * 
+     *
      * @param context DSpace context object
      * @param is the bits to put in the bitstream
-     * 
+     *
      * @return the newly created bitstream
      * @throws AuthorizeException
      */
-    public Bitstream store(InputStream is)
-        throws AuthorizeException, IOException
-    {
-        Bitstream bs = create();
-        BitstreamStorageManager.store(context, bs, is);
-
-        return bs;
-    }
+    public abstract Bitstream store(InputStream is)
+            throws AuthorizeException, IOException;
 
     /**
      * Register a new bitstream, with a new ID. The checksum and file size are
      * calculated. This method does not check authorisation; other methods such
      * as Bundle.createBitstream() will check authorisation. The newly
      * registered bitstream has the "unknown" format.
-     * 
+     *
      * @param context DSpace context object
      * @param is the bits to put in the bitstream
-     * 
+     *
      * @return the newly created bitstream
      * @throws AuthorizeException
      */
-    public Bitstream register(int assetstore, String path)
-        throws AuthorizeException, IOException
-    {
-        Bitstream bs = create();
-        BitstreamStorageManager.register(context, bs, assetstore, path);
+    public abstract Bitstream register(int assetstore, String path)
+            throws AuthorizeException, IOException;
 
-        return bs;
-    }
+    public abstract Bitstream retrieve(int id);
 
-    // FIXME: This should be called something else, but I can't think of
-    // anything suitable. The reason this can't go in create() is because we
-    // need access to the item that was created, but we can't reach into the
-    // subclass to get it (storing it as a protected member variable would be
-    // even more filthy).
-    protected final Bitstream create(Bitstream bitstream)
-        throws AuthorizeException
-    {
-        // FIXME: Think about this
-        AuthorizeManager.addPolicy(
-                context, bitstream, Constants.WRITE, context.getCurrentUser());
+    public abstract Bitstream retrieve(UUID uuid);
 
-        log.info(LogManager.getHeader(context, "create_bitstream",
-                "bitstream_id=" + bitstream.getID()));
-
-        return bitstream;
-    }
-
-    public Bitstream retrieve(int id)
-    {
-        return (Bitstream) context.fromCache(Bitstream.class, id);
-    }
-
-    public Bitstream retrieve(UUID uuid)
-    {
-        return null;
-    }
-
-    public void update(Bitstream bitstream) throws AuthorizeException
-    {
-        // Check authorisation
-        AuthorizeManager.authorizeAction(context, bitstream, Constants.WRITE);
-
-        log.info(LogManager.getHeader(context, "update_bitstream",
-                "bitstream_id=" + bitstream.getID()));
-    }
+    public abstract void update(Bitstream bitstream) throws AuthorizeException;
 
     /**
      * Mark the bitstream as deleted. Actual removal doesn't happen until a
      * cleanup happens, and remove() is called.
      */
-    public void delete(int id) throws AuthorizeException
-    {
-        Bitstream bitstream = retrieve(id);
-        bitstream.setDeleted(true);
-        update(bitstream);
+    public abstract void delete(int id) throws AuthorizeException;
 
-        log.info(LogManager.getHeader(context, "delete_bitstream",
-                "bitstream_id=" + id));
-
-        context.removeCached(bitstream, id);
-
-        AuthorizeManager.removeAllPolicies(context, bitstream);
-    }
-    
     /**
      * Actually remove the reference to the bitstream. Note that this doesn't
      * do anything to the actual files, just their representation in the
      * system.
      */
-    public void remove(int id) throws AuthorizeException
-    {
-        Bitstream bitstream = retrieve(id);
-        update(bitstream); // Sync in-memory object before removal
-
-        AuthorizeManager.authorizeAction(context, bitstream, Constants.DELETE);
-    }
+    public abstract void remove(int id) throws AuthorizeException;
 
     public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
     public abstract List<Bitstream> getDeletedBitstreams();
