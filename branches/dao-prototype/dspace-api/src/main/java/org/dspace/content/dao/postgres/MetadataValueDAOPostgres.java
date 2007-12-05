@@ -61,6 +61,15 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
         super(context);
     }
 
+    public MetadataValueDAO getChild()
+    {
+        return null;
+    }
+
+    public void setChild(MetadataValueDAO metadataValueDAO)
+    {
+    }
+
     @Override
     public MetadataValue create() throws AuthorizeException
     {
@@ -86,13 +95,6 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
     @Override
     public MetadataValue retrieve(int id)
     {
-        MetadataValue value = super.retrieve(id);
-
-        if (value != null)
-        {
-            return value;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context, "metadatavalue", id);
@@ -108,13 +110,6 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
     @Override
     public MetadataValue retrieve(UUID uuid)
     {
-        MetadataValue value = super.retrieve(uuid);
-
-        if (value != null)
-        {
-            return value;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
@@ -205,8 +200,6 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         try
         {
             DatabaseManager.delete(context, "metadatavalue", id);
@@ -339,18 +332,9 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
         return values;
     }
 
-    public MetadataValueDAO getChild()
-    {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setChild(MetadataValueDAO metadataValueDAO)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
     @Deprecated
-    public List<MetadataValue> getMetadataValues(int fieldID) {
-        return super.getMetadataValues(fieldID);    //To change body of overridden methods use File | Settings | File Templates.
+    public List<MetadataValue> getMetadataValues(int fieldID)
+    {
+        return null;
     }
 }

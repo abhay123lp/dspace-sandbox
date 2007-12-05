@@ -52,6 +52,7 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.dao.WorkspaceItemDAOCore;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.uri.ObjectIdentifier;
 import org.dspace.core.Context;
@@ -75,14 +76,20 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     public WorkspaceItem create(Collection collection, boolean template)
         throws AuthorizeException
     {
-        return super.create(create(), collection, template);
+        return null;
     }
 
     @Override
     public WorkspaceItem create(WorkflowItem wfi)
         throws AuthorizeException
     {
-        return super.create(create(), wfi);
+        return null;
+    }
+
+    public WorkspaceItem create(WorkspaceItem wsi, WorkflowItem wfi)
+            throws AuthorizeException
+    {
+        return null;
     }
 
     @Override
@@ -111,13 +118,6 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     @Override
     public WorkspaceItem retrieve(int id)
     {
-        WorkspaceItem wsi = super.retrieve(id);
-
-        if (wsi != null)
-        {
-            return wsi;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context, "workspaceitem", id);
@@ -133,13 +133,6 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     @Override
     public WorkspaceItem retrieve(UUID uuid)
     {
-        WorkspaceItem wsi = super.retrieve(uuid);
-
-        if (wsi != null)
-        {
-            return wsi;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
@@ -156,8 +149,6 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     @Override
     public void update(WorkspaceItem wsi) throws AuthorizeException
     {
-        super.update(wsi);
-
         try
         {
             TableRow row =
@@ -183,8 +174,6 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         try
         {
             DatabaseManager.delete(context, "workspaceitem", id);
@@ -196,6 +185,10 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    public void deleteAll(int id) throws AuthorizeException
+    {
     }
 
     @Override
