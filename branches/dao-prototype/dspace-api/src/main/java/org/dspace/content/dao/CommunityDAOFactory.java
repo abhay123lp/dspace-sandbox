@@ -49,6 +49,10 @@ public class CommunityDAOFactory
 {
     public static CommunityDAO getInstance(Context context)
     {
-        return new CommunityDAOPostgres(context);
+        return ContentDAOFactory.prepareStack(context,
+                CommunityDAO.class,
+                new CommunityDAOCore(context),
+                new CommunityDAOPostgres(context),
+                "dao.stack.community.enabled");
     }
 }

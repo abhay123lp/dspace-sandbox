@@ -39,31 +39,19 @@
  */
 package org.dspace.content.dao;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
-import org.dspace.authorize.ResourcePolicy;
-import org.dspace.authorize.dao.ResourcePolicyDAO;
-import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
-import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
-import org.dspace.uri.ExternalIdentifier;
 import org.dspace.uri.dao.ExternalIdentifierDAO;
 import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
-import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
-import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
-import org.dspace.search.DSIndexer;
 import org.dspace.storage.dao.CRUD;
 import org.dspace.storage.dao.Link;
 
@@ -71,7 +59,7 @@ import org.dspace.storage.dao.Link;
  * @author James Rutherford
  */
 public abstract class CommunityDAO extends ContentDAO<CommunityDAO>
-    implements CRUD<Community>, Link<DSpaceObject, DSpaceObject>
+        implements CRUD<Community>, Link<DSpaceObject, DSpaceObject>
 {
     protected static Logger log = Logger.getLogger(CommunityDAO.class);
 
@@ -109,6 +97,10 @@ public abstract class CommunityDAO extends ContentDAO<CommunityDAO>
         }
     }
 
+    public CommunityDAO()
+    {
+    }
+
     public CommunityDAO(Context context)
     {
         this.context = context;
@@ -119,249 +111,35 @@ public abstract class CommunityDAO extends ContentDAO<CommunityDAO>
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
+    public abstract CommunityDAO getChild();
+
+    public abstract void setChild(CommunityDAO childDAO);
+
     public abstract Community create() throws AuthorizeException;
 
-    // FIXME: This should be called something else, but I can't think of
-    // anything suitable. The reason this can't go in create() is because we
-    // need access to the item that was created, but we can't reach into the
-    // subclass to get it (storing it as a protected member variable would be
-    // even more filthy).
-    protected final Community create(Community community)
-        throws AuthorizeException
-    {
-        // Only administrators and adders can create communities
-        if (!(AuthorizeManager.isAdmin(context)))
-        {
-            throw new AuthorizeException(
-                    "Only administrators can create communities");
-        }
+    public abstract Community retrieve(int id);
 
-        // Create a default persistent identifier for this Community, and
-        // add it to the in-memory Community object.
-        ExternalIdentifier identifier = identifierDAO.create(community);
-        community.addExternalIdentifier(identifier);
+    public abstract Community retrieve(UUID uuid);
 
-        // create the default authorization policy for communities
-        // of 'anonymous' READ
-        Group anonymousGroup = groupDAO.retrieve(0);
+    public abstract void update(Community community) throws AuthorizeException;
 
-        ResourcePolicyDAO policyDAO =
-                ResourcePolicyDAOFactory.getInstance(context);
-        ResourcePolicy policy = policyDAO.create();
-        policy.setResource(community);
-        policy.setAction(Constants.READ);
-        policy.setGroup(anonymousGroup);
-        policyDAO.update(policy);
-
-        log.info(LogManager.getHeader(context, "create_community",
-                "community_id=" + community.getID()) + ",uri=" +
-                community.getIdentifier().getCanonicalForm());
-
-        update(community);
-
-        return community;
-    }
-
-    public Community retrieve(int id)
-    {
-        return (Community) context.fromCache(Community.class, id);
-    }
-
-    public Community retrieve(UUID uuid)
-    {
-        return null;
-    }
-
-    public void update(Community community) throws AuthorizeException
-    {
-        // Check authorization
-        community.canEdit();
-
-        log.info(LogManager.getHeader(context, "update_community",
-                "community_id=" + community.getID()));
-
-        try
-        {
-            DSIndexer.reIndexContent(context, community);
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
-
-        // FIXME: Do we need to iterate through child Communities /
-        // Collecitons to update / re-index? Probably not.
-    }
-
-    public void delete(int id) throws AuthorizeException
-    {
-        try
-        {
-            Community community = retrieve(id);
-            update(community); // Sync in-memory object before removal
-
-            context.removeCached(community, id);
-
-            // Check authorisation
-            // FIXME: If this was a subcommunity, it is first removed from it's
-            // parent.
-            // This means the parentCommunity == null
-            // But since this is also the case for top-level communities, we would
-            // give everyone rights to remove the top-level communities.
-            // The same problem occurs in removing the logo
-            for (Community parent : getParentCommunities(community))
-            {
-                if (!AuthorizeManager.authorizeActionBoolean(context, parent,
-                            Constants.REMOVE))
-                {
-                    AuthorizeManager.authorizeAction(context, community,
-                            Constants.DELETE);
-                }
-            }
-
-            // If not a top-level community, have parent remove me; this
-            // will call delete() after removing the linkage
-            // FIXME: Maybe it shouldn't though.
-            // FIXME: This is totally broken.
-            for (Community parent : getParentCommunities(community))
-            {
-                unlink(parent, community);
-            }
-
-            log.info(LogManager.getHeader(context, "delete_community",
-                    "community_id=" + id));
-
-            // Remove collections
-            for (Collection child :
-                    collectionDAO.getChildCollections(community))
-            {
-                unlink(community, child);
-            }
-
-            // Remove subcommunities
-            for (Community child : getChildCommunities(community))
-            {
-                unlink(community, child);
-            }
-
-            // FIXME: This won't delete the logo. Needs more
-            // bitstreamDAO.delete(logoId)
-            community.setLogo(null);
-
-            // remove from the search index
-            DSIndexer.unIndexContent(context, community);
-
-            // Remove all authorization policies
-            AuthorizeManager.removeAllPolicies(context, community);
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
-    }
+    public abstract void delete(int id) throws AuthorizeException;
 
     public abstract List<Community> getCommunities();
+
     public abstract List<Community> getTopLevelCommunities();
+
     public abstract List<Community> getChildCommunities(Community community);
 
     public abstract List<Community> getParentCommunities(DSpaceObject dso);
 
-    public List<Community> getAllParentCommunities(DSpaceObject dso)
-    {
-        List<Community> parents = getParentCommunities(dso);
-        List<Community> superParents = new ArrayList<Community>(parents);
+    public abstract List<Community> getAllParentCommunities(DSpaceObject dso);
 
-        for (Community parent : parents)
-        {
-            superParents.addAll(getAllParentCommunities(parent));
-        }
+    public abstract void link(DSpaceObject parent, DSpaceObject child)
+            throws AuthorizeException;
 
-        return superParents;
-    }
-
-    public void link(DSpaceObject parent, DSpaceObject child)
-        throws AuthorizeException
-    {
-        assert(parent instanceof Community);
-        assert((child instanceof Community) || (child instanceof Collection));
-
-        if ((parent instanceof Community) &&
-            (child instanceof Collection))
-        {
-            AuthorizeManager.authorizeAction(context,
-                    (Community) parent, Constants.ADD);
-
-            log.info(LogManager.getHeader(context, "add_collection",
-                        "community_id=" + parent.getID() +
-                        ",collection_id=" + child.getID()));
-        }
-        else if ((parent instanceof Community) &&
-            (child instanceof Community))
-        {
-            AuthorizeManager.authorizeAction(context, parent,
-                    Constants.ADD);
-
-            log.info(LogManager.getHeader(context, "add_subcommunity",
-                    "parent_comm_id=" + parent.getID() +
-                    ",child_comm_id=" + child.getID()));
-        }
-    }
-
-    public void unlink(DSpaceObject parent, DSpaceObject child)
-        throws AuthorizeException
-    {
-        assert(parent instanceof Community);
-        assert((child instanceof Community) || (child instanceof Collection));
-
-        if ((parent instanceof Community) &&
-            (child instanceof Collection))
-        {
-            AuthorizeManager.authorizeAction(context, child,
-                    Constants.REMOVE);
-
-            log.info(LogManager.getHeader(context, "remove_collection",
-                    "collection_id = " + parent.getID() +
-                    ",item_id = " + child.getID()));
-        }
-        else if ((parent instanceof Community) &&
-            (child instanceof Community))
-        {
-            AuthorizeManager.authorizeAction(context, child,
-                    Constants.REMOVE);
-
-            log.info(LogManager.getHeader(context,
-                    "remove_subcommunity",
-                    "parent_comm_id = " + parent.getID() +
-                    ",child_comm_id = " + child.getID()));
-        }
-        else
-        {
-            throw new RuntimeException("Not allowed!");
-        }
-
-        if (getParentCommunities(child).size() == 0)
-        {
-            // make the right to remove the child explicit because the
-            // implicit relation has been removed. This only has to concern the
-            // currentUser because he started the removal process and he will
-            // end it too. also add right to remove from the child to
-            // remove it's items.
-            AuthorizeManager.addPolicy(context, child, Constants.DELETE,
-                    context.getCurrentUser());
-            AuthorizeManager.addPolicy(context, child, Constants.REMOVE,
-                    context.getCurrentUser());
-
-            // Orphan; delete it
-            if (child instanceof Collection)
-            {
-                collectionDAO.delete(child.getID());
-            }
-            else if (child instanceof Community)
-            {
-                delete(child.getID());
-            }
-        }
-    }
+    public abstract void unlink(DSpaceObject parent, DSpaceObject child)
+            throws AuthorizeException;
 
     public abstract boolean linked(DSpaceObject parent, DSpaceObject child);
 
@@ -370,22 +148,6 @@ public abstract class CommunityDAO extends ContentDAO<CommunityDAO>
      * given Community. There is probably a way to be smart about this. Also,
      * this strikes me as the kind of method that shouldn't really be in here.
      */
-    public int itemCount(Community community)
-    {
-    	int total = 0;
-
-        for (Collection collection :
-                collectionDAO.getChildCollections(community))
-        {
-        	total += collectionDAO.itemCount(collection);
-        }
-
-        for (Community child : getChildCommunities(community))
-        {
-        	total += itemCount(child);
-        }
-
-        return total;
-    }
+    public abstract int itemCount(Community community);
 }
 
