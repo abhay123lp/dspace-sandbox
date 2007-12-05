@@ -43,6 +43,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.io.InputStream;
+import java.io.IOException;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
@@ -82,7 +84,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             Bitstream bitstream = new Bitstream(context, id);
             bitstream.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(bitstream);
+            return bitstream;
         }
         catch (SQLException sqle)
         {
@@ -90,16 +92,21 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         }
     }
 
+    public Bitstream store(InputStream is)
+            throws AuthorizeException, IOException
+    {
+        return null;
+    }
+
+    public Bitstream register(int assetstore, String path)
+            throws AuthorizeException, IOException
+    {
+        return null;
+    }
+
     @Override
     public Bitstream retrieve(int id)
     {
-        Bitstream bitstream = super.retrieve(id);
-
-        if (bitstream != null)
-        {
-            return bitstream;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context, "bitstream", id);
@@ -115,13 +122,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     @Override
     public Bitstream retrieve(UUID uuid)
     {
-        Bitstream bitstream = super.retrieve(uuid);
-
-        if (bitstream != null)
-        {
-            return bitstream;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "bitstream",
@@ -138,8 +138,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     @Override
     public void update(Bitstream bitstream) throws AuthorizeException
     {
-        super.update(bitstream);
-
         try
         {
             TableRow row =
@@ -179,8 +177,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         boolean oracle = false;
         if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
         {
@@ -211,8 +207,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
     @Override
     public void remove(int id) throws AuthorizeException
     {
-        super.remove(id);
-
         try
         {
             DatabaseManager.delete(context, "bitstream", id);
