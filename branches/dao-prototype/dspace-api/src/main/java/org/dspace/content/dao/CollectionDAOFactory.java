@@ -49,6 +49,10 @@ public class CollectionDAOFactory
 {
     public static CollectionDAO getInstance(Context context)
     {
-        return new CollectionDAOPostgres(context);
+        return ContentDAOFactory.prepareStack(context,
+                CollectionDAO.class,
+                new CollectionDAOCore(context),
+                new CollectionDAOPostgres(context),
+                "dao.stack.collection.enabled");
     }
 }

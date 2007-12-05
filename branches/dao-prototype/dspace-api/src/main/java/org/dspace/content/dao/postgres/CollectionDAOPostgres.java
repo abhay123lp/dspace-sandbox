@@ -82,7 +82,7 @@ public class CollectionDAOPostgres extends CollectionDAO
             Collection collection = new Collection(context, id);
             collection.setIdentifier(new ObjectIdentifier(uuid));
             
-            return super.create(collection);
+            return collection;
         }
         catch (SQLException sqle)
         {
@@ -97,13 +97,6 @@ public class CollectionDAOPostgres extends CollectionDAO
     @Override
     public Collection retrieve(int id)
     {
-        Collection collection = super.retrieve(id);
-
-        if (collection != null)
-        {
-            return collection;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context, "collection", id);
@@ -119,13 +112,6 @@ public class CollectionDAOPostgres extends CollectionDAO
     @Override
     public Collection retrieve(UUID uuid)
     {
-        Collection collection = super.retrieve(uuid);
-
-        if (collection != null)
-        {
-            return collection;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "collection",
@@ -142,8 +128,6 @@ public class CollectionDAOPostgres extends CollectionDAO
     @Override
     public void update(Collection collection) throws AuthorizeException
     {
-        super.update(collection);
-
         try
         {
             TableRow row =
@@ -174,8 +158,6 @@ public class CollectionDAOPostgres extends CollectionDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         try
         {
             // remove subscriptions - hmm, should this be in Subscription.java?
@@ -209,6 +191,13 @@ public class CollectionDAOPostgres extends CollectionDAO
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    @Override
+    public List<Collection> getCollectionsByAuthority(Community parent,
+                                                      int actionID)
+    {
+        return null;
     }
 
     @Override
@@ -253,6 +242,12 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
+    @Override
+    public List<Collection> getCollectionsNotLinked(Item item)
+    {
+        return null;
+    }
+
     /**
      * Straightforward utility method for counting the number of Items in the
      * given Collection. There is probably a way to be smart about this. Also,
@@ -293,8 +288,6 @@ public class CollectionDAOPostgres extends CollectionDAO
     {
         if (!linked(collection, item))
         {
-            super.link(collection, item);
-
             try
             {
                 TableRow row =
@@ -318,8 +311,6 @@ public class CollectionDAOPostgres extends CollectionDAO
     {
         if (linked(collection, item))
         {
-            super.unlink(collection, item);
-
             try
             {
                 DatabaseManager.updateQuery(context,
