@@ -65,6 +65,15 @@ public class CommunityDAOPostgres extends CommunityDAO
         super(context);
     }
 
+    public CommunityDAO getChild()
+    {
+        return null;
+    }
+
+    public void setChild(CommunityDAO communityDAO)
+    {
+    }
+
     @Override
     public Community create() throws AuthorizeException
     {
@@ -80,7 +89,7 @@ public class CommunityDAOPostgres extends CommunityDAO
             Community community = new Community(context, id);
             community.setIdentifier(new ObjectIdentifier(uuid));
             
-            return super.create(community);
+            return community;
         }
         catch (SQLException sqle)
         {
@@ -91,13 +100,6 @@ public class CommunityDAOPostgres extends CommunityDAO
     @Override
     public Community retrieve(int id)
     {
-        Community community = super.retrieve(id);
-
-        if (community != null)
-        {
-            return community;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context, "community", id);
@@ -113,13 +115,6 @@ public class CommunityDAOPostgres extends CommunityDAO
     @Override
     public Community retrieve(UUID uuid)
     {
-        Community community = super.retrieve(uuid);
-
-        if (community != null)
-        {
-            return community;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context, "community",
@@ -136,8 +131,6 @@ public class CommunityDAOPostgres extends CommunityDAO
     @Override
     public void update(Community community) throws AuthorizeException
     {
-        super.update(community);
-
         try
         {
             TableRow row =
@@ -177,8 +170,6 @@ public class CommunityDAOPostgres extends CommunityDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         try
         {
             DatabaseManager.delete(context, "community", id);
@@ -244,28 +235,25 @@ public class CommunityDAOPostgres extends CommunityDAO
             if (dso instanceof Item)
             {
                  tri = DatabaseManager.queryTable(context, "community",
-                        "SELECT c.community_id " +
-                        "FROM community c, community2item c2i " +
-                        "WHERE c2i.community_id = c.community_id " +
-                        "AND c2i.item_id = ? ",
+                        "SELECT community_id " +
+                        "FROM community2item " +
+                        "WHERE item_id = ? ",
                         dso.getID());
             }
             else if (dso instanceof Collection)
             {
                 tri = DatabaseManager.queryTable(context, "community",
-                        "SELECT c.community_id " +
-                        "FROM community c, community2collection c2c " +
-                        "WHERE c.community_id = c2c.community_id " +
-                        "AND c2c.collection_id = ? ",
+                        "SELECT community_id " +
+                        "FROM community2collection " +
+                        "WHERE collection_id = ? ",
                         dso.getID());
             }
             else if (dso instanceof Community)
             {
                 tri = DatabaseManager.queryTable(context, "community",
-                        "SELECT c.community_id " +
-                        "FROM community c, community2community c2c " +
-                        "WHERE c2c.parent_comm_id = c.community_id " +
-                        "AND c2c.child_comm_id = ? ",
+                        "SELECT parent_comm_id as community_id " +
+                        "FROM community2community " +
+                        "WHERE child_comm_id = ? ",
                         dso.getID());
             }
 
@@ -275,6 +263,11 @@ public class CommunityDAOPostgres extends CommunityDAO
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    public List<Community> getAllParentCommunities(DSpaceObject dso)
+    {
+        return null;
     }
 
     @Override
@@ -305,8 +298,6 @@ public class CommunityDAOPostgres extends CommunityDAO
     {
         if (!linked(parent, child))
         {
-            super.link(parent, child);
-
             try
             {
                 if ((parent instanceof Community) &&
@@ -357,8 +348,6 @@ public class CommunityDAOPostgres extends CommunityDAO
     {
         if (linked(parent, child))
         {
-            super.unlink(parent, child);
-
             try
             {
                 if ((parent instanceof Community) &&
@@ -422,6 +411,11 @@ public class CommunityDAOPostgres extends CommunityDAO
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    public int itemCount(Community community)
+    {
+        return 0;
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -522,15 +516,5 @@ public class CommunityDAOPostgres extends CommunityDAO
                 c.setMetadata(field.toString(), value);
             }
         }
-    }
-
-    public CommunityDAO getChild()
-    {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setChild(CommunityDAO communityDAO)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }
