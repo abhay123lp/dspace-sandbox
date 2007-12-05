@@ -62,6 +62,15 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
         super(context);
     }
 
+    public MetadataSchemaDAO getChild()
+    {
+        return null;
+    }
+
+    public void setChild(MetadataSchemaDAO metadataSchemaDAO)
+    {
+    }
+
     @Override
     public MetadataSchema create() throws AuthorizeException
     {
@@ -78,7 +87,7 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
             int id = row.getIntColumn("metadata_schema_id");
             MetadataSchema schema = new MetadataSchema(context, id);
 
-            return super.create(schema);
+            return schema;
         }
         catch (SQLException sqle)
         {
@@ -89,13 +98,6 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
     @Override
     public MetadataSchema retrieve(int id)
     {
-        MetadataSchema schema = super.retrieve(id);
-
-        if (schema != null)
-        {
-            return schema;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context,
@@ -112,13 +114,6 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
     @Override
     public MetadataSchema retrieve(UUID uuid)
     {
-        MetadataSchema schema = super.retrieve(uuid);
-
-        if (schema != null)
-        {
-            return schema;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
@@ -135,13 +130,6 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
     @Override
     public MetadataSchema retrieveByName(String name)
     {
-        MetadataSchema schema = super.retrieveByName(name);
-
-        if (schema != null)
-        {
-            return schema;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
@@ -158,13 +146,6 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
     @Override
     public MetadataSchema retrieveByNamespace(String namespace)
     {
-        MetadataSchema schema = super.retrieveByNamespace(namespace);
-
-        if (schema != null)
-        {
-            return schema;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
@@ -225,8 +206,6 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         try
         {
             DatabaseManager.delete(context, "metadataschemaregistry", id);
@@ -342,15 +321,5 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
         schema.setName(name);
 
         return schema;
-    }
-
-    public MetadataSchemaDAO getChild()
-    {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setChild(MetadataSchemaDAO metadataSchemaDAO)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }
