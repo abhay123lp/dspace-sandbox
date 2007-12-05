@@ -45,16 +45,12 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
-import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
-import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.storage.dao.CRUD;
 
 public abstract class MetadataSchemaDAO extends ContentDAO<MetadataSchemaDAO>
-    implements CRUD<MetadataSchema>
+        implements CRUD<MetadataSchema>
 {
     protected Logger log = Logger.getLogger(MetadataSchemaDAO.class);
 
@@ -65,111 +61,29 @@ public abstract class MetadataSchemaDAO extends ContentDAO<MetadataSchemaDAO>
         this.context = context;
     }
 
-    public MetadataSchema create() throws AuthorizeException
-    {
-        // Check authorisation: Only admins may create metadata schemas
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators may modify the metadata registry");
-        }
+    public abstract MetadataSchemaDAO getChild();
 
-        return null;
-    }
+    public abstract void setChild(MetadataSchemaDAO childDAO);
 
-    protected final MetadataSchema create(MetadataSchema schema)
-    {
-        log.info(LogManager.getHeader(context, "create_metadata_schema",
-                    "metadata_schema_id=" + schema.getID()));
+    public abstract MetadataSchema create() throws AuthorizeException;
 
-        return schema;
-    }
+    public abstract MetadataSchema retrieve(int id);
 
-    public MetadataSchema retrieve(int id)
-    {
-        return (MetadataSchema) context.fromCache(MetadataSchema.class, id);
-    }
-
-    public MetadataSchema retrieve(UUID uuid)
-    {
-        return null;
-    }
+    public abstract MetadataSchema retrieve(UUID uuid);
 
     /**
      * Get the schema object corresponding to this short name (eg: dc).
      */
-    public MetadataSchema retrieveByName(String namespace)
-    {
-        return null;
-    }
+    public abstract MetadataSchema retrieveByName(String namespace);
 
     /**
      * Get the schema object corresponding to this namespace URI.
      */
-    public MetadataSchema retrieveByNamespace(String namespace)
-    {
-        return null;
-    }
+    public abstract MetadataSchema retrieveByNamespace(String namespace);
 
-    public void update(MetadataSchema schema) throws AuthorizeException
-    {
-        // Check authorisation: Only admins may create metadata schemas
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators may modify the metadata registry");
-        }
+    public abstract void update(MetadataSchema schema) throws AuthorizeException;
 
-        int id = schema.getID();
-        String name = schema.getName();
-        String namespace = schema.getNamespace();
-
-        // Ensure the schema name is unique
-        if (!uniqueShortName(id, name))
-        {
-            throw new RuntimeException(
-                    new NonUniqueMetadataException("Please make the name " + name
-                    + " unique"));
-        }
-
-        // Ensure the schema namespace is unique
-        if (!uniqueNamespace(id, namespace))
-        {
-            throw new RuntimeException(
-                    new NonUniqueMetadataException("Please make the namespace "
-                        + namespace + " unique"));
-        }
-
-        log.info(LogManager.getHeader(context, "update_metadata_schema",
-                    "metadata_schema_id=" + id +
-                    "namespace=" + namespace +
-                    "name=" + name));
-    }
-
-    public void delete(int id) throws AuthorizeException
-    {
-        MetadataSchema schema = retrieve(id);
-        update(schema); // Sync in-memory object before removal
-
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators may modify the metadata registry");
-        }
-
-        // Ideally, we'd log the action after the operation had taken place,
-        // but it's not desperately important.
-        log.info(LogManager.getHeader(context, "delete_metadata_schema",
-                "metadata_schema_id=" + id));
-
-        MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
-        for (MetadataField field : dao.getMetadataFields(id))
-        {
-            dao.delete(field.getID());
-        }
-
-        context.removeCached(schema, id);
-    }
+    public abstract void delete(int id) throws AuthorizeException;
 
     /**
      * Return true if and only if the passed name appears within the allowed
@@ -184,3 +98,4 @@ public abstract class MetadataSchemaDAO extends ContentDAO<MetadataSchemaDAO>
 
     public abstract List<MetadataSchema> getMetadataSchemas();
 }
+

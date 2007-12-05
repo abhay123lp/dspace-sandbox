@@ -49,6 +49,10 @@ public class MetadataSchemaDAOFactory
 {
     public static MetadataSchemaDAO getInstance(Context context)
     {
-        return new MetadataSchemaDAOPostgres(context);
+        return ContentDAOFactory.prepareStack(context,
+                MetadataSchemaDAO.class,
+                new MetadataSchemaDAOCore(context),
+                new MetadataSchemaDAOPostgres(context),
+                "dao.stack.metadataschema.enabled");
     }
 }
