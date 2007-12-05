@@ -45,9 +45,7 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.storage.dao.CRUD;
 
@@ -55,7 +53,7 @@ import org.dspace.storage.dao.CRUD;
  * @author James Rutherford
  */
 public abstract class BitstreamFormatDAO extends ContentDAO<BitstreamFormatDAO>
-    implements CRUD<BitstreamFormat>
+        implements CRUD<BitstreamFormat>
 {
     protected Logger log = Logger.getLogger(BitstreamFormatDAO.class);
 
@@ -66,92 +64,28 @@ public abstract class BitstreamFormatDAO extends ContentDAO<BitstreamFormatDAO>
         this.context = context;
     }
 
-    public BitstreamFormat create() throws AuthorizeException
-    {
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators can create bitstream formats");
-        }
+    public abstract BitstreamFormatDAO getChild();
 
-        return null;
-    }
+    public abstract void setChild(BitstreamFormatDAO childDAO);
 
-    // FIXME: This should be called something else, but I can't think of
-    // anything suitable. The reason this can't go in create() is because we
-    // need access to the item that was created, but we can't reach into the
-    // subclass to get it (storing it as a protected member variable would be
-    // even more filthy).
-    protected final BitstreamFormat create(BitstreamFormat bitstreamFormat)
-        throws AuthorizeException
-    {
-        log.info(LogManager.getHeader(context, "create_bitstream_format",
-                "bitstream_format_id=" + bitstreamFormat.getID()));
+    public abstract BitstreamFormat create() throws AuthorizeException;
 
-        return bitstreamFormat;
-    }
+    public abstract BitstreamFormat retrieve(int id);
 
-    public BitstreamFormat retrieve(int id)
-    {
-        return (BitstreamFormat) context.fromCache(BitstreamFormat.class, id);
-    }
+    public abstract BitstreamFormat retrieve(UUID uuid);
 
-    public BitstreamFormat retrieve(UUID uuid)
-    {
-        return null;
-    }
+    public abstract BitstreamFormat retrieveByMimeType(String mimeType);
 
-    public BitstreamFormat retrieveByMimeType(String mimeType)
-    {
-        return null;
-    }
+    public abstract BitstreamFormat retrieveByShortDescription(String desc);
 
-    public BitstreamFormat retrieveByShortDescription(String desc)
-    {
-        return null;
-    }
-
-    public void update(BitstreamFormat bitstreamFormat)
-        throws AuthorizeException
-    {
-        // Check authorisation - only administrators can change formats
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators can modify bitstream formats");
-        }
-
-        log.info(LogManager.getHeader(context, "update_bitstream_format",
-                "bitstream_format_id=" + bitstreamFormat.getID()));
-    }
+    public abstract void update(BitstreamFormat bitstreamFormat)
+            throws AuthorizeException;
 
     /**
      * Delete this bitstream format. This converts the types of any bitstreams
      * that may have this type to "unknown". Use this with care!
      */
-    public void delete(int id) throws AuthorizeException
-    {
-        // Check authorisation - only administrators can delete formats
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators can delete bitstream formats");
-        }
-
-        // Find "unknown" type
-        BitstreamFormat unknown = BitstreamFormat.findUnknown(context);
-
-        if (unknown.getID() == id)
-        {
-            throw new IllegalArgumentException(
-                    "The Unknown bitstream format may not be deleted.");
-        }
-
-        BitstreamFormat bitstreamFormat = retrieve(id);
-        update(bitstreamFormat); // Sync in-memory object before removal
-
-        context.removeCached(bitstreamFormat, id);
-    }
+    public abstract void delete(int id) throws AuthorizeException;
 
     public abstract List<BitstreamFormat> getBitstreamFormats();
     public abstract List<BitstreamFormat> getBitstreamFormats(String extension);

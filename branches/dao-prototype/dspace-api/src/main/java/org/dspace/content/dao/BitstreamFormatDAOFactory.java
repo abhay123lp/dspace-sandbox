@@ -49,6 +49,10 @@ public class BitstreamFormatDAOFactory
 {
     public static BitstreamFormatDAO getInstance(Context context)
     {
-        return new BitstreamFormatDAOPostgres(context);
+        return ContentDAOFactory.prepareStack(context,
+                BitstreamFormatDAO.class,
+                new BitstreamFormatDAOCore(context),
+                new BitstreamFormatDAOPostgres(context),
+                "dao.stack.bitstreamformat.enabled");
     }
 }
