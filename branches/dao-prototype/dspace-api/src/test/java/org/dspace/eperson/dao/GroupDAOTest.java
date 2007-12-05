@@ -39,11 +39,8 @@
  */
 package org.dspace.eperson.dao;
 
-import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
-import org.dspace.content.SupervisedItem;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
