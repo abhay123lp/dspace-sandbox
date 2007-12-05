@@ -40,16 +40,13 @@
 
 package org.dspace.content;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
-import org.dspace.core.Context;
 import org.dspace.content.dao.SupervisedItemDAO;
 import org.dspace.content.dao.SupervisedItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
+import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
@@ -64,10 +61,7 @@ import org.dspace.eperson.dao.GroupDAOFactory;
  */
 public class SupervisedItem extends WorkspaceItem
 {
-    private static Logger log = Logger.getLogger(SupervisedItem.class);
-    
     private GroupDAO groupDAO;
-    private SupervisedItemDAO dao;
     private WorkspaceItemDAO wsiDAO;
     
     public SupervisedItem(Context context, int id)
@@ -75,7 +69,6 @@ public class SupervisedItem extends WorkspaceItem
         // construct a new workspace item
         super(context, id);
 
-        dao = SupervisedItemDAOFactory.getInstance(context);
         wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
         groupDAO = GroupDAOFactory.getInstance(context);
     }
@@ -86,7 +79,7 @@ public class SupervisedItem extends WorkspaceItem
         SupervisedItemDAO dao = SupervisedItemDAOFactory.getInstance(context);
         List<SupervisedItem> items = dao.getSupervisedItems();
 
-        return (SupervisedItem[]) items.toArray(new SupervisedItem[0]);
+        return items.toArray(new SupervisedItem[0]);
     }
     
     @Deprecated
@@ -95,17 +88,16 @@ public class SupervisedItem extends WorkspaceItem
         SupervisedItemDAO dao = SupervisedItemDAOFactory.getInstance(context);
         List<SupervisedItem> items = dao.getSupervisedItems(ep);
 
-        return (SupervisedItem[]) items.toArray(new SupervisedItem[0]);
+        return items.toArray(new SupervisedItem[0]);
     }
     
     @Deprecated
     public Group[] getSupervisorGroups(Context context, int id)
     {
-        SupervisedItemDAO dao = SupervisedItemDAOFactory.getInstance(context);
         WorkspaceItem wsi = wsiDAO.retrieve(id);
         List<Group> groups = groupDAO.getSupervisorGroups(wsi);
 
-        return (Group[]) groups.toArray(new Group[0]);
+        return groups.toArray(new Group[0]);
     }
     
     @Deprecated
