@@ -1,11 +1,11 @@
 /*
  * MetadataValueDAO.java
  *
- * Version: $Revision: 427 $
+ * Version: : $
  *
- * Date: $Date: 2007-08-07 17:32:39 +0100 (Tue, 07 Aug 2007) $
+ * Date: : $
  *
- * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
+ * Copyright (c) 2002-2007, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -49,11 +49,10 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.storage.dao.CRUD;
 
 public abstract class MetadataValueDAO extends ContentDAO<MetadataValueDAO>
-    implements CRUD<MetadataValue>
+        implements CRUD<MetadataValue>
 {
     protected Logger log = Logger.getLogger(MetadataValueDAO.class);
 
@@ -64,44 +63,31 @@ public abstract class MetadataValueDAO extends ContentDAO<MetadataValueDAO>
         this.context = context;
     }
 
+    public abstract MetadataValueDAO getChild();
+
+    public abstract void setChild(MetadataValueDAO childDAO);
+
     public abstract MetadataValue create() throws AuthorizeException;
 
-    public MetadataValue retrieve(int id)
-    {
-        return (MetadataValue) context.fromCache(MetadataValue.class, id);
-    }
+    public abstract MetadataValue retrieve(int id);
 
-    public MetadataValue retrieve(UUID uuid)
-    {
-        return null;
-    }
+    public abstract MetadataValue retrieve(UUID uuid);
 
-    public void update(MetadataValue value) throws AuthorizeException
-    {
-        log.info(LogManager.getHeader(context, "update_metadatavalue",
-                    "metadata_value_id=" + value.getID()));
-    }
+    public abstract void update(MetadataValue value) throws AuthorizeException;
 
-    public void delete(int id) throws AuthorizeException
-    {
-        log.info(LogManager.getHeader(context, "delete_metadata_value",
-                    "metadata_value_id=" + id));
-    }
+    public abstract void delete(int id) throws AuthorizeException;
 
     @Deprecated
-    public List<MetadataValue> getMetadataValues(int fieldID)
-    {
-        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
-        return getMetadataValues(mfDAO.retrieve(fieldID));
-    }
+    public abstract List<MetadataValue> getMetadataValues(int fieldID);
 
     public abstract List<MetadataValue> getMetadataValues(MetadataField field);
 
     public abstract List<MetadataValue> getMetadataValues(MetadataField field,
-            String value);
+                                                          String value);
 
     public abstract List<MetadataValue> getMetadataValues(MetadataField field,
-            String value, String language);
+                                                          String value,
+                                                          String language);
 
     public abstract List<MetadataValue> getMetadataValues(Item item);
 }

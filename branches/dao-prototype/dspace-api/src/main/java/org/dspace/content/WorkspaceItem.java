@@ -49,10 +49,6 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.dao.CollectionDAO;
-import org.dspace.content.dao.CollectionDAOFactory;
-import org.dspace.content.dao.ItemDAO;
-import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.uri.ObjectIdentifier;
@@ -79,8 +75,6 @@ public class WorkspaceItem implements InProgressSubmission
     protected Context context;
 
     private WorkspaceItemDAO dao;
-    private ItemDAO itemDAO;
-    private CollectionDAO collectionDAO;
 
     private ObjectIdentifier oid;
     private boolean hasMultipleFiles;
@@ -98,8 +92,6 @@ public class WorkspaceItem implements InProgressSubmission
         this.context = context;
 
         dao = WorkspaceItemDAOFactory.getInstance(context);
-        itemDAO = ItemDAOFactory.getInstance(context);
-        collectionDAO = CollectionDAOFactory.getInstance(context);
     }
     
     public int getID()
@@ -260,7 +252,7 @@ public class WorkspaceItem implements InProgressSubmission
         WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
         List<WorkspaceItem> wsItems = dao.getWorkspaceItems();
 
-        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
+        return wsItems.toArray(new WorkspaceItem[0]);
     }
 
     @Deprecated
@@ -269,7 +261,7 @@ public class WorkspaceItem implements InProgressSubmission
         WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
         List<WorkspaceItem> wsItems = dao.getWorkspaceItems(ep);
 
-        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
+        return wsItems.toArray(new WorkspaceItem[0]);
     }
 
     @Deprecated
@@ -278,6 +270,6 @@ public class WorkspaceItem implements InProgressSubmission
         WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
         List<WorkspaceItem> wsItems = dao.getWorkspaceItems(c);
 
-        return (WorkspaceItem[]) wsItems.toArray(new WorkspaceItem[0]);
+        return wsItems.toArray(new WorkspaceItem[0]);
     }
 }
