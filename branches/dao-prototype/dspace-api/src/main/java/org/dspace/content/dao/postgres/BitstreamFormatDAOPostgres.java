@@ -64,6 +64,15 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         super(context);
     }
 
+    public BitstreamFormatDAO getChild()
+    {
+        return null;
+    }
+
+    public void setChild(BitstreamFormatDAO bitstreamFormatDAO)
+    {
+    }
+
     @Override
     public BitstreamFormat create() throws AuthorizeException
     {
@@ -80,7 +89,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
             BitstreamFormat bitstreamFormat = new BitstreamFormat(context, id);
             bitstreamFormat.setIdentifier(new ObjectIdentifier(uuid));
 
-            return super.create(bitstreamFormat);
+            return bitstreamFormat;
         }
         catch (SQLException sqle)
         {
@@ -91,13 +100,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     @Override
     public BitstreamFormat retrieve(int id)
     {
-        BitstreamFormat bitstreamFormat = super.retrieve(id);
-
-        if (bitstreamFormat != null)
-        {
-            return bitstreamFormat;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context,
@@ -122,13 +124,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     @Override
     public BitstreamFormat retrieve(UUID uuid)
     {
-        BitstreamFormat bitstreamFormat = super.retrieve(uuid);
-
-        if (bitstreamFormat != null)
-        {
-            return bitstreamFormat;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
@@ -153,14 +148,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     @Override
     public BitstreamFormat retrieveByShortDescription(String desc)
     {
-        BitstreamFormat bitstreamFormat =
-            super.retrieveByShortDescription(desc);
-
-        if (bitstreamFormat != null)
-        {
-            return bitstreamFormat;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
@@ -177,13 +164,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     @Override
     public BitstreamFormat retrieveByMimeType(String mimeType)
     {
-        BitstreamFormat bitstreamFormat = super.retrieveByMimeType(mimeType);
-
-        if (bitstreamFormat != null)
-        {
-            return bitstreamFormat;
-        }
-
         try
         {
             // NOTE: Avoid internal formats since e.g. "License" also has
@@ -203,8 +183,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     @Override
     public void update(BitstreamFormat bitstreamFormat) throws AuthorizeException
     {
-        super.update(bitstreamFormat);
-
         try
         {
             TableRow row = DatabaseManager.find(context,
@@ -261,8 +239,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         try
         {
             BitstreamFormat unknown = BitstreamFormat.findUnknown(context);
@@ -293,8 +269,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     {
         try
         {
-            List<BitstreamFormat> formats = new ArrayList<BitstreamFormat>();
-
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT bitstream_format_id " +
                     "FROM bitstreamformatregistry " +
@@ -312,8 +286,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
     {
         try
         {
-            List<BitstreamFormat> formats = new ArrayList<BitstreamFormat>();
-
             TableRowIterator tri = DatabaseManager.query(context,
                 "SELECT bfr.bitstream_format_id " +
                 "FROM bitstreamformatregistry bfr, fileextension fe " +
@@ -422,16 +394,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         row.setColumn("description", bitstreamFormat.getDescription());
         row.setColumn("support_level", bitstreamFormat.getSupportLevel());
         row.setColumn("internal", bitstreamFormat.isInternal());
-    }
-
-    public BitstreamFormatDAO getChild()
-    {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setChild(BitstreamFormatDAO bitstreamFormatDAO)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }
 
