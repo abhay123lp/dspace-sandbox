@@ -40,15 +40,12 @@
 package org.dspace.content.dao;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.SupervisedItem;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.storage.dao.CRUD;
 
 public abstract class SupervisedItemDAO extends ContentDAO<SupervisedItemDAO>
 {
