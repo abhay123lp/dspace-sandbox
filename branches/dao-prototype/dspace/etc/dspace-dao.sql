@@ -1,15 +1,14 @@
-alter table handle add column type_id integer;
+alter table handle add column namespace text;
 
 create view externalidentifier as
 (
-	select
-		handle_id as id,
-		handle as value,
-		resource_type_id,
-		resource_id,
-		type_id
-	from handle
-	order by handle_id
+    select handle_id as id,
+        handle as value,
+        resource_type_id,
+        resource_id,
+        namespace
+    from handle
+    order by handle_id
 );
 
 alter table bitstream add column uuid varchar(36);
