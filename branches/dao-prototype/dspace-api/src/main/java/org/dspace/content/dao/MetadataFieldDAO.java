@@ -45,16 +45,13 @@ import java.util.UUID;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
-import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.core.Context;
-import org.dspace.core.LogManager;
 import org.dspace.storage.dao.CRUD;
 
 public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
-    implements CRUD<MetadataField>
+        implements CRUD<MetadataField>
 {
     protected Logger log = Logger.getLogger(MetadataFieldDAO.class);
 
@@ -65,49 +62,15 @@ public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
         this.context = context;
     }
 
-    public MetadataField create() throws AuthorizeException
-    {
-        // Check authorisation: Only admins may create DC types
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators may modify the metadata registry");
-        }
+    public abstract MetadataFieldDAO getChild();
 
-        return null;
-    }
+    public abstract void setChild(MetadataFieldDAO childDAO);
 
-    protected final MetadataField create(MetadataField field)
-    {
-        int id = field.getID();
-        int schemaID = field.getSchemaID();
-        String element = field.getElement();
-        String qualifier = field.getQualifier();
+    public abstract MetadataField create() throws AuthorizeException;
 
-        // Ensure the element and qualifier are unique within a given schema.
-        if (!unique(id, schemaID, element, qualifier))
-        {
-            throw new RuntimeException(
-                    new NonUniqueMetadataException("Please make " + element +
-                        "." + qualifier + " unique within schema #" +
-                        schemaID));
-        }
+    public abstract MetadataField retrieve(int id);
 
-        log.info(LogManager.getHeader(context, "create_metadata_field",
-                    "metadata_field_id=" + id));
-
-        return field;
-    }
-
-    public MetadataField retrieve(int id)
-    {
-        return (MetadataField) context.fromCache(MetadataField.class, id);
-    }
-
-    public MetadataField retrieve(UUID uuid)
-    {
-        return null;
-    }
+    public abstract MetadataField retrieve(UUID uuid);
 
     /**
      * Retrieves the metadata field from the database.
@@ -116,69 +79,12 @@ public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
      * @param element element name
      * @param qualifier qualifier (may be ANY or null)
      */
-    public MetadataField retrieve(int schemaID, String element,
-        String qualifier)
-    {
-        return null;
-    }
+    public abstract MetadataField retrieve(int schemaID, String element,
+                                  String qualifier);
 
-    public void update(MetadataField field) throws AuthorizeException
-    {
-        int id = field.getID();
-        int schemaID = field.getSchemaID();
-        String element = field.getElement();
-        String qualifier = field.getQualifier();
+    public abstract void update(MetadataField field) throws AuthorizeException;
 
-        // Check authorisation: Only admins may update the metadata registry
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators may modiffy the metadata registry");
-        }
-
-        // Check to see if the field ID was altered. If is was then we will
-        // query to ensure that there is not already a duplicate name field.
-        if (schemaChanged(field))
-        {
-            if (hasElement(context, id, element, qualifier))
-            {
-                throw new RuntimeException(
-                        new NonUniqueMetadataException(
-                            "Duplcate field name found in target field"));
-            }
-        }
-
-        // Ensure the element and qualifier are unique within a given field.
-        if (!unique(id, schemaID, element, qualifier))
-        {
-            throw new RuntimeException(
-                new NonUniqueMetadataException("Please make " + element + "." +
-                    qualifier + " unique"));
-        }
-
-        log.info(LogManager.getHeader(context, "update_metadatafieldregistry",
-                "metadata_field_id=" + id +
-                "element=" + element +
-                "qualifier=" + qualifier));
-    }
-
-    public void delete(int id) throws AuthorizeException
-    {
-        MetadataField field = retrieve(id);
-        update(field); // Sync in-memory object before removal
-
-        // Check authorisation: Only admins may delete metadata fields
-        if (!AuthorizeManager.isAdmin(context))
-        {
-            throw new AuthorizeException(
-                    "Only administrators may modify the metadata registry");
-        }
-
-        log.info(LogManager.getHeader(context, "delete_metadata_field",
-                "metadata_field_id=" + id));
-
-        context.removeCached(field, id);
-    }
+    public abstract void delete(int id) throws AuthorizeException;
 
     public abstract boolean schemaChanged(MetadataField field);
 
@@ -196,36 +102,13 @@ public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
      * @throws IOException
      */
     protected abstract boolean unique(int fieldID, int schemaID,
-            String element, String qualifier);
+                                      String element, String qualifier);
 
     public abstract List<MetadataField> getMetadataFields();
 
     @Deprecated
-    public List<MetadataField> getMetadataFields(int schemaID)
-    {
-        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
-        return getMetadataFields(msDAO.retrieve(schemaID));
-    }
+    public abstract List<MetadataField> getMetadataFields(int schemaID);
 
     public abstract List<MetadataField> getMetadataFields(MetadataSchema schema);
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
-    /**
-     * Return true if and only if the schema has a field with the given element
-     * and qualifier pair.
-     *
-     * @param context dspace context
-     * @param schemaID schema by ID
-     * @param element element name
-     * @param qualifier qualifier name
-     * @return true if the field exists
-     */
-    private boolean hasElement(Context context, int schemaID,
-            String element, String qualifier)
-    {
-        return retrieve(schemaID, element, qualifier) != null;
-    }
 }
+

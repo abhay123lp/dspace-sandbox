@@ -63,6 +63,15 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
         super(context);
     }
 
+    public MetadataFieldDAO getChild()
+    {
+        return null;
+    }
+
+    public void setChild(MetadataFieldDAO o)
+    {
+    }
+
     @Override
     public MetadataField create() throws AuthorizeException
     {
@@ -78,7 +87,7 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
             int id = row.getIntColumn("metadata_field_id");
             MetadataField field = new MetadataField(context, id);
 
-            return super.create(field);
+            return field;
         }
         catch (SQLException sqle)
         {
@@ -89,13 +98,6 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
     @Override
     public MetadataField retrieve(int id)
     {
-        MetadataField field = super.retrieve(id);
-
-        if (field != null)
-        {
-            return field;
-        }
-
         try
         {
             TableRow row = DatabaseManager.find(context,
@@ -112,13 +114,6 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
     @Override
     public MetadataField retrieve(UUID uuid)
     {
-        MetadataField field = super.retrieve(uuid);
-
-        if (field != null)
-        {
-            return field;
-        }
-
         try
         {
             TableRow row = DatabaseManager.findByUnique(context,
@@ -136,13 +131,6 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
     public MetadataField retrieve(int schemaID, String element,
             String qualifier)
     {
-        MetadataField field = super.retrieve(schemaID, element, qualifier);
-
-        if (field != null)
-        {
-            return field;
-        }
-
         try
         {
             TableRowIterator tri = null;
@@ -250,8 +238,6 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        super.delete(id);
-
         try
         {
             DatabaseManager.delete(context, "metadatafieldregistry", id);
@@ -303,6 +289,12 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    @Deprecated
+    public List<MetadataField> getMetadataFields(int schemaID)
+    {
+        return null;
     }
 
     @Override
@@ -411,15 +403,5 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    public MetadataFieldDAO getChild()
-    {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setChild(MetadataFieldDAO o)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }
