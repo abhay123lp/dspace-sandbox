@@ -142,15 +142,7 @@ public class BrowseConsumer implements Consumer
                 {
                     // Update browse indices
                     IndexBrowse ib = new IndexBrowse(ctx);
-                    if (!i.isArchived() || i.isWithdrawn())
-                    {
-                        // FIXME: Is this the correct behaviour?
-                        ib.itemRemoved(i);
-                    }
-                    else
-                    {
-                        ib.indexItem(i);
-                    }
+                    ib.indexItem(i);
                 }
                 catch (BrowseException e)
                 {
@@ -168,8 +160,7 @@ public class BrowseConsumer implements Consumer
             // NOTE: Removed items are necessarily handled inline (ugh).
 
             // browse updates wrote to the DB, so we have to commit.
-            ctx.getDBConnection().commit();
-
+            ctx.commit();
         }
         
         // clean out toUpdate
