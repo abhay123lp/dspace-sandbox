@@ -63,11 +63,6 @@ public class ItemDAOBrowseHook extends ItemDAO
     @Override
     public void delete(int id) throws AuthorizeException
     {
-        /** XXX FIXME
-         ** NB Do not check to see if the item is archived - withdrawn /
-         ** non-archived items may still be tracked in some browse tables
-         ** for administrative purposes, and these need to be removed.
-         **/
         try
         {
             // Remove from browse indices
