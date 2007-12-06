@@ -92,18 +92,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         }
     }
 
-    public Bitstream store(InputStream is)
-            throws AuthorizeException, IOException
-    {
-        return null;
-    }
-
-    public Bitstream register(int assetstore, String path)
-            throws AuthorizeException, IOException
-    {
-        return null;
-    }
-
     @Override
     public Bitstream retrieve(int id)
     {

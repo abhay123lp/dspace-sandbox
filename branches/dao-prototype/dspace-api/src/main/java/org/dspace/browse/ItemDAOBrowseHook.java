@@ -40,10 +40,10 @@
 package org.dspace.browse;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.dao.ItemDAOHook;
+import org.dspace.content.dao.ItemDAO;
 import org.dspace.core.Context;
 
-public class ItemDAOBrowseHook extends ItemDAOHook
+public class ItemDAOBrowseHook extends ItemDAO
 {
     public ItemDAOBrowseHook()
     {
@@ -56,15 +56,14 @@ public class ItemDAOBrowseHook extends ItemDAOHook
 
     public void delete(int id) throws AuthorizeException
     {
-        // Remove from indices, if appropriate
         /** XXX FIXME
          ** NB Do not check to see if the item is archived - withdrawn /
          ** non-archived items may still be tracked in some browse tables
          ** for administrative purposes, and these need to be removed.
          **/
-        // Remove from Browse indices
         try
         {
+            // Remove from browse indices
             IndexBrowse ib = new IndexBrowse(context);
             ib.itemRemoved(id);
         }

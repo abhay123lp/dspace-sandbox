@@ -95,65 +95,116 @@ public abstract class ItemDAO extends ContentDAO<ItemDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract Item create() throws AuthorizeException;
+    public Item create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
-    public abstract Item retrieve(int id);
+    public Item retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract Item retrieve(UUID uuid);
+    public Item retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
-    public abstract void update(Item item) throws AuthorizeException;
+    public void update(Item item) throws AuthorizeException
+    {
+        childDAO.update(item);
+    }
 
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
-    public abstract void decache(Item item);
+    public void decache(Item item)
+    {
+        childDAO.decache(item);
+    }
 
     /**
      * Returns a list of items that are both in the archive and not withdrawn.
      */
-    public abstract List<Item> getItems();
+    public List<Item> getItems()
+    {
+        return childDAO.getItems();
+    }
 
     /**
      * This function primarily exists to service the Harvest class. See that
      * class for documentation on usage.
      */
-    public abstract List<Item> getItems(DSpaceObject scope,
-                                        String startDate, String endDate,
-                                        int offset, int limit,
-                                        boolean items, boolean collections,
-                                        boolean withdrawn)
-            throws ParseException;
+    public List<Item> getItems(DSpaceObject scope,
+            String startDate, String endDate,
+            int offset, int limit,
+            boolean items, boolean collections,
+            boolean withdrawn)
+            throws ParseException
+    {
+        return childDAO.getItems(scope, startDate, endDate, offset, limit,
+                items, collections, withdrawn);
+    }
 
     /**
      * This is a simple 'search' function that returns Items that are in the
      * archive, are not withdrawn, and match the given schema, field, and
      * value.
      */
-    public abstract List<Item> getItems(MetadataValue value);
+    public List<Item> getItems(MetadataValue value)
+    {
+        return childDAO.getItems(value);
+    }
 
     /**
      * The dates passed in here are used to limit the results by ingest date
      * (dc.date.accessioned).
      */
-    public abstract List<Item> getItems(MetadataValue value,
-                                        Date startDate, Date endDate);
+    public List<Item> getItems(MetadataValue value, Date startDate, Date endDate)
+    {
+        return childDAO.getItems(value, startDate, endDate);
+    }
 
-    public abstract List<Item> getItemsByCollection(Collection collection);
+    public List<Item> getItemsByCollection(Collection collection)
+    {
+        return childDAO.getItemsByCollection(collection);
+    }
 
-    public abstract List<Item> getItemsBySubmitter(EPerson eperson);
+    public List<Item> getItemsBySubmitter(EPerson eperson)
+    {
+        return childDAO.getItemsBySubmitter(eperson);
+    }
 
-    public abstract List<Item> getParentItems(Bundle bundle);
+    public List<Item> getParentItems(Bundle bundle)
+    {
+        return childDAO.getParentItems(bundle);
+    }
 
-    public abstract void link(Item item, Bundle bundle)
-            throws AuthorizeException;
+    public void link(Item item, Bundle bundle) throws AuthorizeException
+    {
+        childDAO.link(item, bundle);
+    }
 
-    public abstract void unlink(Item item, Bundle bundle)
-            throws AuthorizeException;
+    public void unlink(Item item, Bundle bundle) throws AuthorizeException
+    {
+        childDAO.unlink(item, bundle);
+    }
 
-    public abstract boolean linked(Item item, Bundle bundle);
+    public boolean linked(Item item, Bundle bundle)
+    {
+        return childDAO.linked(item, bundle);
+    }
 
-    public abstract void loadMetadata(Item item);
+    public void loadMetadata(Item item)
+    {
+        childDAO.loadMetadata(item);
+    }
 
-    public abstract List<DCValue> getMetadata(Item item,
-                                              String schema, String element,
-                                              String qualifier, String lang);
+    public List<DCValue> getMetadata(Item item, String schema, String element,
+            String qualifier, String lang)
+    {
+        return childDAO.getMetadata(item, schema, element, qualifier, lang);
+    }
 }
