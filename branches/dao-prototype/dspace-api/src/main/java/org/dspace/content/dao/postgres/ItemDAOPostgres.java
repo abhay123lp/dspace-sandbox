@@ -83,8 +83,6 @@ import org.dspace.storage.rdbms.TableRowIterator;
  */
 public class ItemDAOPostgres extends ItemDAO
 {
-    private ItemDAO childDAO;
-
     /** query to get the text value of a metadata element only (qualifier is NULL) */
     private final String getByMetadataElement =
         "SELECT text_value FROM metadatavalue " +
@@ -125,18 +123,6 @@ public class ItemDAOPostgres extends ItemDAO
     public ItemDAOPostgres(Context context)
     {
         super(context);
-    }
-
-    @Override
-    public ItemDAO getChild()
-    {
-        return childDAO;
-    }
-
-    @Override
-    public void setChild(ItemDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     @Override

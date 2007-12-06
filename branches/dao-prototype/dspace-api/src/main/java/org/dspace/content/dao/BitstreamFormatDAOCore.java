@@ -53,21 +53,9 @@ import org.dspace.content.BitstreamFormat;
  */
 public class BitstreamFormatDAOCore extends BitstreamFormatDAO
 {
-    private BitstreamFormatDAO childDAO;
-
     public BitstreamFormatDAOCore(Context context)
     {
         super(context);
-    }
-
-    public BitstreamFormatDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(BitstreamFormatDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     public BitstreamFormat create() throws AuthorizeException

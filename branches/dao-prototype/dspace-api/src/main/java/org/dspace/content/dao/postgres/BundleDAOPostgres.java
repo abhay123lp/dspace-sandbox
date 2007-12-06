@@ -71,15 +71,6 @@ public class BundleDAOPostgres extends BundleDAO
         bitstreamDAO = BitstreamDAOFactory.getInstance(context);
     }
 
-    public BundleDAO getChild()
-    {
-        return null;
-    }
-
-    public void setChild(BundleDAO childDAO)
-    {
-    }
-
     @Override
     public Bundle create() throws AuthorizeException
     {

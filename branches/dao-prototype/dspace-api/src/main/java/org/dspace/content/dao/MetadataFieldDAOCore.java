@@ -52,21 +52,9 @@ import org.dspace.core.LogManager;
 
 public class MetadataFieldDAOCore extends MetadataFieldDAO
 {
-    private MetadataFieldDAO childDAO;
-
     public MetadataFieldDAOCore(Context context)
     {
         super(context);
-    }
-
-    public MetadataFieldDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(MetadataFieldDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     public MetadataField create() throws AuthorizeException

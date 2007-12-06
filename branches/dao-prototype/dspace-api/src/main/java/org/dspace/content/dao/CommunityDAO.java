@@ -69,6 +69,8 @@ public abstract class CommunityDAO extends ContentDAO<CommunityDAO>
     protected GroupDAO groupDAO;
     protected ExternalIdentifierDAO identifierDAO;
 
+    protected CommunityDAO childDAO;
+
     /**
      * The allowed metadata fields for Communities are defined in the following
      * enum. This should make reading / writing all metadatafields a lot less
@@ -111,9 +113,15 @@ public abstract class CommunityDAO extends ContentDAO<CommunityDAO>
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
-    public abstract CommunityDAO getChild();
+    public CommunityDAO getChild()
+    {
+        return childDAO;
+    }
 
-    public abstract void setChild(CommunityDAO childDAO);
+    public void setChild(CommunityDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
 
     public abstract Community create() throws AuthorizeException;
 

@@ -65,15 +65,6 @@ public class CommunityDAOPostgres extends CommunityDAO
         super(context);
     }
 
-    public CommunityDAO getChild()
-    {
-        return null;
-    }
-
-    public void setChild(CommunityDAO communityDAO)
-    {
-    }
-
     @Override
     public Community create() throws AuthorizeException
     {

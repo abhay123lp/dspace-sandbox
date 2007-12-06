@@ -57,14 +57,22 @@ public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
 
     protected Context context;
 
+    protected MetadataFieldDAO childDAO;
+
     public MetadataFieldDAO(Context context)
     {
         this.context = context;
     }
 
-    public abstract MetadataFieldDAO getChild();
+    public MetadataFieldDAO getChild()
+    {
+        return childDAO;
+    }
 
-    public abstract void setChild(MetadataFieldDAO childDAO);
+    public void setChild(MetadataFieldDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
 
     public abstract MetadataField create() throws AuthorizeException;
 

@@ -54,21 +54,9 @@ import org.dspace.storage.dao.CRUD;
 
 public class MetadataValueDAOCore extends MetadataValueDAO
 {
-    private MetadataValueDAO childDAO;
-
     public MetadataValueDAOCore(Context context)
     {
         super(context);
-    }
-
-    public MetadataValueDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(MetadataValueDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     @Override

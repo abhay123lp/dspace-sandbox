@@ -126,21 +126,10 @@ public class SupervisedItemDAOPostgres extends SupervisedItemDAO
         {
             int id = row.getIntColumn("workspace_item_id");
             SupervisedItem si = new SupervisedItem(context, id);
-            WorkspaceItem wsi = dao.retrieve(id);
             dao.populate(si);
             items.add(si);
         }
 
         return items;
-    }
-
-    public SupervisedItemDAO getChild()
-    {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setChild(SupervisedItemDAO supervisedItemDAO)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
     }
 }

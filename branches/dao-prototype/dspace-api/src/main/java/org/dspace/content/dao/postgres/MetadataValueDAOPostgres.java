@@ -61,15 +61,6 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
         super(context);
     }
 
-    public MetadataValueDAO getChild()
-    {
-        return null;
-    }
-
-    public void setChild(MetadataValueDAO metadataValueDAO)
-    {
-    }
-
     @Override
     public MetadataValue create() throws AuthorizeException
     {

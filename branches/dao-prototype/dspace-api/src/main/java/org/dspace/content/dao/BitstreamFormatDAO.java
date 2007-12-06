@@ -59,14 +59,22 @@ public abstract class BitstreamFormatDAO extends ContentDAO<BitstreamFormatDAO>
 
     protected Context context;
 
+    protected BitstreamFormatDAO childDAO;
+
     public BitstreamFormatDAO(Context context)
     {
         this.context = context;
     }
 
-    public abstract BitstreamFormatDAO getChild();
+    public BitstreamFormatDAO getChild()
+    {
+        return childDAO;
+    }
 
-    public abstract void setChild(BitstreamFormatDAO childDAO);
+    public void setChild(BitstreamFormatDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
 
     public abstract BitstreamFormat create() throws AuthorizeException;
 

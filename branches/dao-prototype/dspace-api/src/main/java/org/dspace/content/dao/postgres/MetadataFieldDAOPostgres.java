@@ -63,15 +63,6 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
         super(context);
     }
 
-    public MetadataFieldDAO getChild()
-    {
-        return null;
-    }
-
-    public void setChild(MetadataFieldDAO o)
-    {
-    }
-
     @Override
     public MetadataField create() throws AuthorizeException
     {

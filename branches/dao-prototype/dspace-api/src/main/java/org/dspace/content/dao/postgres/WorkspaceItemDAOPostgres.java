@@ -341,14 +341,4 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         row.setColumn("stage_reached", wsi.getStageReached());
         row.setColumn("page_reached", wsi.getPageReached());
     }
-
-    public WorkspaceItemDAO getChild()
-    {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    public void setChild(WorkspaceItemDAO workspaceItemDAO)
-    {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
 }

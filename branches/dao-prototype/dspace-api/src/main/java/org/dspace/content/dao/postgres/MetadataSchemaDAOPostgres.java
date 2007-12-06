@@ -62,15 +62,6 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
         super(context);
     }
 
-    public MetadataSchemaDAO getChild()
-    {
-        return null;
-    }
-
-    public void setChild(MetadataSchemaDAO metadataSchemaDAO)
-    {
-    }
-
     @Override
     public MetadataSchema create() throws AuthorizeException
     {

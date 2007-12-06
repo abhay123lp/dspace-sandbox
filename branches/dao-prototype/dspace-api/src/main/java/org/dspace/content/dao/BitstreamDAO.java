@@ -65,6 +65,8 @@ public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
     protected Context context;
     protected ExternalIdentifierDAO identifierDAO;
 
+    protected BitstreamDAO childDAO;
+
     public BitstreamDAO(Context context)
     {
         this.context = context;
@@ -72,9 +74,15 @@ public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
-    public abstract BitstreamDAO getChild();
+    public BitstreamDAO getChild()
+    {
+        return childDAO;
+    }
 
-    public abstract void setChild(BitstreamDAO childDAO);
+    public void setChild(BitstreamDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
 
     public abstract Bitstream create() throws AuthorizeException;
 

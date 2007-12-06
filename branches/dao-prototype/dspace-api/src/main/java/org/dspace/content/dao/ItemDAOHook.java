@@ -56,8 +56,6 @@ import org.dspace.eperson.EPerson;
 
 public class ItemDAOHook extends ItemDAO
 {
-    protected ItemDAO childDAO;
-
     public ItemDAOHook()
     {
     }
@@ -65,16 +63,6 @@ public class ItemDAOHook extends ItemDAO
     public ItemDAOHook(Context context)
     {
         super(context);
-    }
-
-    public ItemDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(ItemDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     public Item create() throws AuthorizeException

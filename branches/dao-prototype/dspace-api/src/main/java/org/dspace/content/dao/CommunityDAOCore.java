@@ -64,21 +64,9 @@ import org.dspace.search.DSIndexer;
  */
 public class CommunityDAOCore extends CommunityDAO
 {
-    private CommunityDAO childDAO;
-
     public CommunityDAOCore(Context context)
     {
         super(context);
-    }
-
-    public CommunityDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(CommunityDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     public Community create() throws AuthorizeException

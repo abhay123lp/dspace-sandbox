@@ -56,14 +56,22 @@ public abstract class MetadataSchemaDAO extends ContentDAO<MetadataSchemaDAO>
 
     protected Context context;
 
+    protected MetadataSchemaDAO childDAO;
+
     public MetadataSchemaDAO(Context context)
     {
         this.context = context;
     }
 
-    public abstract MetadataSchemaDAO getChild();
+    public MetadataSchemaDAO getChild()
+    {
+        return childDAO;
+    }
 
-    public abstract void setChild(MetadataSchemaDAO childDAO);
+    public void setChild(MetadataSchemaDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
 
     public abstract MetadataSchema create() throws AuthorizeException;
 

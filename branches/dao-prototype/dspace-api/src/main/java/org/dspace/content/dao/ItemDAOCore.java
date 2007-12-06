@@ -69,8 +69,6 @@ import org.dspace.eperson.EPerson;
  */
 public class ItemDAOCore extends ItemDAO
 {
-    private ItemDAO childDAO;
-
     public ItemDAOCore(Context context)
     {
         super(context);

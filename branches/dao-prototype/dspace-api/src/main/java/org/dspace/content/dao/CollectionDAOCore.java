@@ -77,23 +77,9 @@ import org.dspace.storage.dao.Link;
  */
 public class CollectionDAOCore extends CollectionDAO
 {
-    private CollectionDAO childDAO;
-
     public CollectionDAOCore(Context context)
     {
         super(context);
-    }
-
-    @Override
-    public CollectionDAO getChild()
-    {
-        return childDAO;
-    }
-
-    @Override
-    public void setChild(CollectionDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     @Override

@@ -62,25 +62,11 @@ import org.dspace.workflow.WorkflowItem;
  */
 public class WorkspaceItemDAOCore extends WorkspaceItemDAO
 {
-    private WorkspaceItemDAO childDAO;
-
     public WorkspaceItemDAOCore(Context context)
     {
         super(context);
 
         itemDAO = ItemDAOFactory.getInstance(context);
-    }
-
-    @Override
-    public WorkspaceItemDAO getChild()
-    {
-        return childDAO;
-    }
-
-    @Override
-    public void setChild(WorkspaceItemDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     @Override
