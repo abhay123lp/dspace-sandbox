@@ -57,7 +57,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
-import org.dspace.search.DSIndexer;
 
 /**
  * @author James Rutherford
@@ -129,15 +128,6 @@ public class CommunityDAOCore extends CommunityDAO
 
         log.info(LogManager.getHeader(context, "update_community",
                 "community_id=" + community.getID()));
-
-        try
-        {
-            DSIndexer.reIndexContent(context, community);
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
 
         // FIXME: Do we need to iterate through child Communities /
         // Collecitons to update / re-index? Probably not.

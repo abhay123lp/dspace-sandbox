@@ -142,7 +142,15 @@ public class BrowseConsumer implements Consumer
                 {
                     // Update browse indices
                     IndexBrowse ib = new IndexBrowse(ctx);
-                    ib.indexItem(i);
+                    if (!i.isArchived() || i.isWithdrawn())
+                    {
+                        // FIXME: Is this the correct behaviour?
+                        ib.itemRemoved(i);
+                    }
+                    else
+                    {
+                        ib.indexItem(i);
+                    }
                 }
                 catch (BrowseException e)
                 {

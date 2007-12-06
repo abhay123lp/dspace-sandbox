@@ -61,17 +61,6 @@ public class ItemDAOBrowseHook extends ItemDAO
     }
 
     @Override
-    public void update(Item item) throws AuthorizeException
-    {
-        if (!item.isArchived() || item.isWithdrawn())
-        {
-            removeFromIndices(item.getID());
-        }
-
-        childDAO.update(item);
-    }
-
-    @Override
     public void delete(int id) throws AuthorizeException
     {
         /** XXX FIXME
@@ -79,22 +68,17 @@ public class ItemDAOBrowseHook extends ItemDAO
          ** non-archived items may still be tracked in some browse tables
          ** for administrative purposes, and these need to be removed.
          **/
-        removeFromIndices(id);
-
-        childDAO.delete(id);
-    }
-
-    private void removeFromIndices(int itemID)
-    {
         try
         {
             // Remove from browse indices
             IndexBrowse ib = new IndexBrowse(context);
-            ib.itemRemoved(itemID);
+            ib.itemRemoved(id);
         }
         catch (BrowseException e)
         {
             throw new RuntimeException(e);
         }
+
+        childDAO.delete(id);
     }
 }
