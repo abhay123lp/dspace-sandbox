@@ -76,32 +76,63 @@ public abstract class BitstreamFormatDAO extends ContentDAO<BitstreamFormatDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract BitstreamFormat create() throws AuthorizeException;
+    public BitstreamFormat create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
-    public abstract BitstreamFormat retrieve(int id);
+    public BitstreamFormat retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract BitstreamFormat retrieve(UUID uuid);
+    public BitstreamFormat retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
-    public abstract BitstreamFormat retrieveByMimeType(String mimeType);
+    public BitstreamFormat retrieveByMimeType(String mimeType)
+    {
+        return childDAO.retrieveByMimeType(mimeType);
+    }
 
-    public abstract BitstreamFormat retrieveByShortDescription(String desc);
+    public BitstreamFormat retrieveByShortDescription(String desc)
+    {
+        return childDAO.retrieveByShortDescription(desc);
+    }
 
-    public abstract void update(BitstreamFormat bitstreamFormat)
-            throws AuthorizeException;
+    public void update(BitstreamFormat bitstreamFormat)
+            throws AuthorizeException
+    {
+        childDAO.update(bitstreamFormat);
+    }
 
     /**
      * Delete this bitstream format. This converts the types of any bitstreams
      * that may have this type to "unknown". Use this with care!
      */
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
-    public abstract List<BitstreamFormat> getBitstreamFormats();
-    public abstract List<BitstreamFormat> getBitstreamFormats(String extension);
+    public List<BitstreamFormat> getBitstreamFormats()
+    {
+        return childDAO.getBitstreamFormats();
+    }
+
+    public List<BitstreamFormat> getBitstreamFormats(String extension)
+    {
+        return childDAO.getBitstreamFormats(extension);
+    }
 
     /**
      * Retrieve all non-internal bitstream formats from the registry. The
      * "unknown" format is not included, and the formats are ordered by support
      * level (highest first) first then short description.
      */
-    public abstract List<BitstreamFormat> getBitstreamFormats(boolean internal);
+    public List<BitstreamFormat> getBitstreamFormats(boolean internal)
+    {
+        return childDAO.getBitstreamFormats(internal);
+    }
 }
