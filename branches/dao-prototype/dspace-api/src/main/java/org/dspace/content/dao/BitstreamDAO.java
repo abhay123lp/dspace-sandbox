@@ -84,7 +84,10 @@ public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract Bitstream create() throws AuthorizeException;
+    public Bitstream create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
     /**
      * Create a new bitstream, with a new ID. The checksum and file size are
@@ -98,8 +101,11 @@ public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
      * @return the newly created bitstream
      * @throws AuthorizeException
      */
-    public abstract Bitstream store(InputStream is)
-            throws AuthorizeException, IOException;
+    public Bitstream store(InputStream is)
+            throws AuthorizeException, IOException
+    {
+        return childDAO.store(is);
+    }
 
     /**
      * Register a new bitstream, with a new ID. The checksum and file size are
@@ -113,28 +119,53 @@ public abstract class BitstreamDAO extends ContentDAO<BitstreamDAO>
      * @return the newly created bitstream
      * @throws AuthorizeException
      */
-    public abstract Bitstream register(int assetstore, String path)
-            throws AuthorizeException, IOException;
+    public Bitstream register(int assetstore, String path)
+            throws AuthorizeException, IOException
+    {
+        return childDAO.register(assetstore, path);
+    }
 
-    public abstract Bitstream retrieve(int id);
+    public Bitstream retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract Bitstream retrieve(UUID uuid);
+    public Bitstream retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
-    public abstract void update(Bitstream bitstream) throws AuthorizeException;
+    public void update(Bitstream bitstream) throws AuthorizeException
+    {
+        childDAO.update(bitstream);
+    }
 
     /**
      * Mark the bitstream as deleted. Actual removal doesn't happen until a
      * cleanup happens, and remove() is called.
      */
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
     /**
      * Actually remove the reference to the bitstream. Note that this doesn't
      * do anything to the actual files, just their representation in the
      * system.
      */
-    public abstract void remove(int id) throws AuthorizeException;
+    public void remove(int id) throws AuthorizeException
+    {
+        childDAO.remove(id);
+    }
 
-    public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
-    public abstract List<Bitstream> getDeletedBitstreams();
+    public List<Bitstream> getBitstreamsByBundle(Bundle bundle)
+    {
+        return childDAO.getBitstreamsByBundle(bundle);
+    }
+
+    public List<Bitstream> getDeletedBitstreams()
+    {
+        return childDAO.getDeletedBitstreams();
+    }
 }

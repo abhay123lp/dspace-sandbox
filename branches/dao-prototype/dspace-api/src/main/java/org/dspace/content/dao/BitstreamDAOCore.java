@@ -58,17 +58,9 @@ import org.dspace.storage.bitstore.BitstreamStorageManager;
  */
 public class BitstreamDAOCore extends BitstreamDAO
 {
-    private BitstreamDAO childDAO;
-
     public BitstreamDAOCore(Context context)
     {
         super(context);
-    }
-
-    @Override
-    public Bitstream create() throws AuthorizeException
-    {
-        return childDAO.create();
     }
 
     @Override
@@ -119,12 +111,6 @@ public class BitstreamDAOCore extends BitstreamDAO
     }
 
     @Override
-    public Bitstream retrieve(UUID uuid)
-    {
-        return childDAO.retrieve(uuid);
-    }
-
-    @Override
     public void update(Bitstream bitstream) throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, bitstream, Constants.WRITE);
@@ -161,17 +147,5 @@ public class BitstreamDAOCore extends BitstreamDAO
         AuthorizeManager.authorizeAction(context, bitstream, Constants.REMOVE);
 
         childDAO.remove(id);
-    }
-
-    @Override
-    public List<Bitstream> getBitstreamsByBundle(Bundle bundle)
-    {
-        return childDAO.getBitstreamsByBundle(bundle);
-    }
-
-    @Override
-    public List<Bitstream> getDeletedBitstreams()
-    {
-        return childDAO.getDeletedBitstreams();
     }
 }
