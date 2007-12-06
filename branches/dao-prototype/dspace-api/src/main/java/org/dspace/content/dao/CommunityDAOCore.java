@@ -69,6 +69,7 @@ public class CommunityDAOCore extends CommunityDAO
         super(context);
     }
 
+    @Override
     public Community create() throws AuthorizeException
     {
         Community community = childDAO.create();
@@ -106,6 +107,7 @@ public class CommunityDAOCore extends CommunityDAO
         return community;
     }
 
+    @Override
     public Community retrieve(int id)
     {
         Community community =
@@ -119,11 +121,7 @@ public class CommunityDAOCore extends CommunityDAO
         return community;
     }
 
-    public Community retrieve(UUID uuid)
-    {
-        return childDAO.retrieve(uuid);
-    }
-
+    @Override
     public void update(Community community) throws AuthorizeException
     {
         // Check authorization
@@ -147,6 +145,7 @@ public class CommunityDAOCore extends CommunityDAO
         childDAO.update(community);
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
         try
@@ -213,26 +212,7 @@ public class CommunityDAOCore extends CommunityDAO
         childDAO.delete(id);
     }
 
-    public List<Community> getCommunities()
-    {
-        return childDAO.getCommunities();
-    }
-
-    public List<Community> getTopLevelCommunities()
-    {
-        return childDAO.getTopLevelCommunities();
-    }
-
-    public List<Community> getChildCommunities(Community community)
-    {
-        return childDAO.getChildCommunities(community);
-    }
-
-    public List<Community> getParentCommunities(DSpaceObject dso)
-    {
-        return childDAO.getParentCommunities(dso);
-    }
-
+    @Override
     public List<Community> getAllParentCommunities(DSpaceObject dso)
     {
         List<Community> parents = getParentCommunities(dso);
@@ -246,6 +226,7 @@ public class CommunityDAOCore extends CommunityDAO
         return superParents;
     }
 
+    @Override
     public void link(DSpaceObject parent, DSpaceObject child)
         throws AuthorizeException
     {
@@ -276,6 +257,7 @@ public class CommunityDAOCore extends CommunityDAO
         childDAO.link(parent, child);
     }
 
+    @Override
     public void unlink(DSpaceObject parent, DSpaceObject child)
         throws AuthorizeException
     {
@@ -334,11 +316,7 @@ public class CommunityDAOCore extends CommunityDAO
         }
     }
 
-    public boolean linked(DSpaceObject parent, DSpaceObject child)
-    {
-        return childDAO.linked(parent, child);
-    }
-
+    @Override
     public int itemCount(Community community)
     {
     	int total = 0;

@@ -123,39 +123,85 @@ public abstract class CommunityDAO extends ContentDAO<CommunityDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract Community create() throws AuthorizeException;
+    public Community create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
-    public abstract Community retrieve(int id);
+    public Community retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract Community retrieve(UUID uuid);
+    public Community retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
-    public abstract void update(Community community) throws AuthorizeException;
+    public void update(Community community) throws AuthorizeException
+    {
+        childDAO.update(community);
+    }
 
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
-    public abstract List<Community> getCommunities();
+    public List<Community> getCommunities()
+    {
+        return childDAO.getCommunities();
+    }
 
-    public abstract List<Community> getTopLevelCommunities();
+    public List<Community> getTopLevelCommunities()
+    {
+        return childDAO.getTopLevelCommunities();
+    }
 
-    public abstract List<Community> getChildCommunities(Community community);
+    public List<Community> getChildCommunities(Community community)
+    {
+        return childDAO.getChildCommunities(community);
+    }
 
-    public abstract List<Community> getParentCommunities(DSpaceObject dso);
+    /**
+     * Get the communities the given community or collection appears in. Note
+     * that this only returns the immediate parents.
+     */
+    public List<Community> getParentCommunities(DSpaceObject dso)
+    {
+        return childDAO.getParentCommunities(dso);
+    }
 
-    public abstract List<Community> getAllParentCommunities(DSpaceObject dso);
+    public List<Community> getAllParentCommunities(DSpaceObject dso)
+    {
+        return childDAO.getAllParentCommunities(dso);
+    }
 
-    public abstract void link(DSpaceObject parent, DSpaceObject child)
-            throws AuthorizeException;
+    public void link(DSpaceObject parent, DSpaceObject child)
+            throws AuthorizeException
+    {
+        childDAO.link(parent, child);
+    }
 
-    public abstract void unlink(DSpaceObject parent, DSpaceObject child)
-            throws AuthorizeException;
+    public void unlink(DSpaceObject parent, DSpaceObject child)
+            throws AuthorizeException
+    {
+        childDAO.unlink(parent, child);
+    }
 
-    public abstract boolean linked(DSpaceObject parent, DSpaceObject child);
+    public boolean linked(DSpaceObject parent, DSpaceObject child)
+    {
+        return childDAO.linked(parent, child);
+    }
 
     /**
      * Straightforward utility method for counting the number of Items in the
      * given Community. There is probably a way to be smart about this. Also,
      * this strikes me as the kind of method that shouldn't really be in here.
      */
-    public abstract int itemCount(Community community);
+    public int itemCount(Community community)
+    {
+        return childDAO.itemCount(community);
+    }
 }
 

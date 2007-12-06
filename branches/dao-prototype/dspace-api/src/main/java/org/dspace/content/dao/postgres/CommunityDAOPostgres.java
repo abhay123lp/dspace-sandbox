@@ -129,28 +129,15 @@ public class CommunityDAOPostgres extends CommunityDAO
 
             if (row != null)
             {
-                update(community, row);
+                populateTableRowFromCommunity(community, row);
+
+                DatabaseManager.update(context, row);
             }
             else
             {
                 throw new RuntimeException("Didn't find community " +
                         community.getID());
             }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private void update(Community community, TableRow row)
-        throws AuthorizeException
-    {
-        try
-        {
-            populateTableRowFromCommunity(community, row);
-
-            DatabaseManager.update(context, row);
         }
         catch (SQLException sqle)
         {
@@ -209,10 +196,6 @@ public class CommunityDAOPostgres extends CommunityDAO
         }
     }
 
-    /**
-     * Get the communities the given community or collection appears in. Note
-     * that this only returns the immediate parents.
-     */
     @Override
     public List<Community> getParentCommunities(DSpaceObject dso)
     {
@@ -254,11 +237,6 @@ public class CommunityDAOPostgres extends CommunityDAO
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    public List<Community> getAllParentCommunities(DSpaceObject dso)
-    {
-        return null;
     }
 
     @Override
@@ -402,11 +380,6 @@ public class CommunityDAOPostgres extends CommunityDAO
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    public int itemCount(Community community)
-    {
-        return 0;
     }
 
     ////////////////////////////////////////////////////////////////////
