@@ -76,16 +76,6 @@ public class ItemDAOCore extends ItemDAO
         super(context);
     }
 
-    public ItemDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(ItemDAO childDAO)
-    {
-        this.childDAO = childDAO;
-    }
-
     public Item create() throws AuthorizeException
     {
         Item item = childDAO.create();
@@ -440,6 +430,8 @@ public class ItemDAOCore extends ItemDAO
 
         item.removeBundle(bundle);
 
+        childDAO.unlink(item, bundle);
+
         // If the bundle is now orphaned, delete it.
         if (getParentItems(bundle).size() == 0)
         {
@@ -456,7 +448,5 @@ public class ItemDAOCore extends ItemDAO
             // The bundle is an orphan, delete it
             bundleDAO.delete(bundle.getID());
         }
-
-        childDAO.unlink(item, bundle);
     }
 }

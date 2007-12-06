@@ -70,6 +70,8 @@ public abstract class ItemDAO extends ContentDAO<ItemDAO>
     protected BitstreamDAO bitstreamDAO;
     protected ExternalIdentifierDAO identifierDAO;
 
+    protected ItemDAO childDAO;
+
     public ItemDAO()
     {
     }
@@ -83,9 +85,15 @@ public abstract class ItemDAO extends ContentDAO<ItemDAO>
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
-    public abstract ItemDAO getChild();
+    public ItemDAO getChild()
+    {
+        return childDAO;
+    }
 
-    public abstract void setChild(ItemDAO childDAO);
+    public void setChild(ItemDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
 
     public abstract Item create() throws AuthorizeException;
 
