@@ -57,6 +57,7 @@ public class MetadataFieldDAOCore extends MetadataFieldDAO
         super(context);
     }
 
+    @Override
     public MetadataField create() throws AuthorizeException
     {
         // Check authorisation: Only admins may create DC types
@@ -88,6 +89,7 @@ public class MetadataFieldDAOCore extends MetadataFieldDAO
         return field;
     }
 
+    @Override
     public MetadataField retrieve(int id)
     {
         MetadataField field =
@@ -101,17 +103,7 @@ public class MetadataFieldDAOCore extends MetadataFieldDAO
         return field;
     }
 
-    public MetadataField retrieve(UUID uuid)
-    {
-        return childDAO.retrieve(uuid);
-    }
-
-    public MetadataField retrieve(int schemaID, String element,
-        String qualifier)
-    {
-        return childDAO.retrieve(schemaID, element, qualifier);
-    }
-
+    @Override
     public void update(MetadataField field) throws AuthorizeException
     {
         int id = field.getID();
@@ -154,6 +146,7 @@ public class MetadataFieldDAOCore extends MetadataFieldDAO
         childDAO.update(field);
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
         MetadataField field = retrieve(id);
@@ -174,32 +167,11 @@ public class MetadataFieldDAOCore extends MetadataFieldDAO
         childDAO.delete(id);
     }
 
-    public boolean schemaChanged(MetadataField field)
-    {
-        return childDAO.schemaChanged(field);
-    }
-
-    protected boolean unique(int fieldID, int schemaID,
-            String element, String qualifier)
-    {
-        return childDAO.unique(fieldID, schemaID, element, qualifier);
-    }
-
-    public List<MetadataField> getMetadataFields()
-    {
-        return childDAO.getMetadataFields();
-    }
-
     @Override
     public List<MetadataField> getMetadataFields(int schemaID)
     {
         MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
         return getMetadataFields(msDAO.retrieve(schemaID));
-    }
-
-    public List<MetadataField> getMetadataFields(MetadataSchema schema)
-    {
-        return childDAO.getMetadataFields(schema);
     }
 
     ////////////////////////////////////////////////////////////////////

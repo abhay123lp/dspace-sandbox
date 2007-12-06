@@ -282,12 +282,6 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
         }
     }
 
-    @Deprecated
-    public List<MetadataField> getMetadataFields(int schemaID)
-    {
-        return null;
-    }
-
     @Override
     public List<MetadataField> getMetadataFields(MetadataSchema schema)
     {

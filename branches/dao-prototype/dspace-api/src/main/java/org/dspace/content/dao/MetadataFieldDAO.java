@@ -74,11 +74,20 @@ public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract MetadataField create() throws AuthorizeException;
+    public MetadataField create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
-    public abstract MetadataField retrieve(int id);
+    public MetadataField retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract MetadataField retrieve(UUID uuid);
+    public MetadataField retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
     /**
      * Retrieves the metadata field from the database.
@@ -87,14 +96,26 @@ public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
      * @param element element name
      * @param qualifier qualifier (may be ANY or null)
      */
-    public abstract MetadataField retrieve(int schemaID, String element,
-                                  String qualifier);
+    public MetadataField retrieve(int schemaID, String element,
+                                  String qualifier)
+    {
+        return childDAO.retrieve(schemaID, element, qualifier);
+    }
 
-    public abstract void update(MetadataField field) throws AuthorizeException;
+    public void update(MetadataField field) throws AuthorizeException
+    {
+        childDAO.update(field);
+    }
 
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
-    public abstract boolean schemaChanged(MetadataField field);
+    public boolean schemaChanged(MetadataField field)
+    {
+        return childDAO.schemaChanged(field);
+    }
 
     /**
      * A sanity check that ensures a given element and qualifier are unique
@@ -109,14 +130,25 @@ public abstract class MetadataFieldDAO extends ContentDAO<MetadataFieldDAO>
      * @throws AuthorizeException
      * @throws IOException
      */
-    protected abstract boolean unique(int fieldID, int schemaID,
-                                      String element, String qualifier);
+    protected boolean unique(int fieldID, int schemaID,
+                             String element, String qualifier)
+    {
+        return childDAO.unique(fieldID, schemaID, element, qualifier);
+    }
 
-    public abstract List<MetadataField> getMetadataFields();
+    public List<MetadataField> getMetadataFields()
+    {
+        return childDAO.getMetadataFields();
+    }
 
     @Deprecated
-    public abstract List<MetadataField> getMetadataFields(int schemaID);
+    public List<MetadataField> getMetadataFields(int schemaID)
+    {
+        return childDAO.getMetadataFields(schemaID);
+    }
 
-    public abstract List<MetadataField> getMetadataFields(MetadataSchema schema);
+    public List<MetadataField> getMetadataFields(MetadataSchema schema)
+    {
+        return childDAO.getMetadataFields(schema);
+    }
 }
-
