@@ -43,34 +43,22 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-
-import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
-import org.dspace.browse.BrowseException;
-import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.WorkspaceItem;
-import org.dspace.uri.ExternalIdentifier;
-import org.dspace.uri.dao.ExternalIdentifierDAO;
-import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
-import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.dao.GroupDAO;
-import org.dspace.eperson.dao.GroupDAOFactory;
-import org.dspace.search.DSIndexer;
+import org.dspace.event.Event;
+import org.dspace.uri.ExternalIdentifier;
 import org.dspace.workflow.WorkflowItem;
-import org.dspace.storage.dao.CRUD;
-import org.dspace.storage.dao.Link;
 
 /**
  * @author James Rutherford
@@ -143,15 +131,6 @@ public class CollectionDAOCore extends CollectionDAO
 
         log.info(LogManager.getHeader(context, "update_collection",
                 "collection_id=" + collection.getID()));
-
-        try
-        {
-            DSIndexer.reIndexContent(context, collection);
-        }
-        catch (IOException ioe)
-        {
-            throw new RuntimeException(ioe);
-        }
 
         ItemIterator iterator = collection.getItems();
         try
@@ -313,6 +292,11 @@ public class CollectionDAOCore extends CollectionDAO
                     "collection_id=" + collection.getID() +
                     ",item_id=" + item.getID()));
 
+        context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION,
+                collection.getID(), null));
+        context.addEvent(new Event(Event.MODIFY, Constants.ITEM,
+                item.getID(), null));
+
         // If we're adding the Item to the Collection, we bequeath the
         // policies unto it.
         AuthorizeManager.inheritPolicies(context, collection, item);
@@ -330,6 +314,11 @@ public class CollectionDAOCore extends CollectionDAO
         log.info(LogManager.getHeader(context, "remove_item",
                 "collection_id=" + collection.getID() + 
                 ",item_id=" + item.getID()));
+
+        context.addEvent(new Event(Event.MODIFY, Constants.COLLECTION,
+                collection.getID(), null));
+        context.addEvent(new Event(Event.MODIFY, Constants.ITEM,
+                item.getID(), null));
 
         childDAO.unlink(collection, item);
 

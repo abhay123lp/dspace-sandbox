@@ -176,6 +176,7 @@ public class Collection extends DSpaceObject
      *
      * @return an iterator over the items in the collection.
      */
+    @Deprecated
     public ItemIterator getItems()
     {
         List<Item> allItems = itemDAO.getItemsByCollection(this);

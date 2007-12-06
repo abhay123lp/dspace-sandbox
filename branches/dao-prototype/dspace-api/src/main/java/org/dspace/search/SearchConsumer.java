@@ -182,16 +182,33 @@ public class SearchConsumer implements Consumer
                         {
                             DSIndexer.reIndexContent(ctx, iu);
                             if (log.isDebugEnabled())
-                                log.debug("RE-Indexed "
+                                log.debug("re-indexed "
                                         + Constants.typeText[iu.getType()]
                                         + ", id=" + String.valueOf(iu.getID())
                                         + ", oid=" + oid.getCanonicalForm());
                         }
                         catch (Exception e)
                         {
-                            log.error("Failed while RE-indexing object: ", e);
+                            log.error("Failed while re-indexing object: ", e);
                             objectsToUpdate = null;
                             objectsToDelete = null;
+                        }
+                    }
+                    else if (iu.getType() == Constants.ITEM && (
+                        !((Item) iu).isArchived() || ((Item) iu).isWithdrawn()))
+                    {
+                        try
+                        {
+                            // If an update to an Item removes it from the
+                            // archive we must remove it from the search indices
+                            DSIndexer.unIndexContent(ctx, oid.getObject(ctx));
+                        }
+                        catch (Exception e)
+                        {
+                            log.error("Failed while un-indexing object: "
+                                    + oid.getCanonicalForm(), e);
+                            objectsToUpdate = new HashSet<DSpaceObject>();
+                            objectsToDelete = new HashSet<ObjectIdentifier>();
                         }
                     }
                 }
@@ -203,12 +220,12 @@ public class SearchConsumer implements Consumer
                 {
                     DSIndexer.unIndexContent(ctx, oid.getObject(ctx));
                     if (log.isDebugEnabled())
-                        log.debug("UN-Indexed Item, oid="
+                        log.debug("un-indexed Item, oid="
                                 + oid.getCanonicalForm());
                 }
                 catch (Exception e)
                 {
-                    log.error("Failed while UN-indexing object: "
+                    log.error("Failed while un-indexing object: "
                             + oid.getCanonicalForm(), e);
                     objectsToUpdate = new HashSet<DSpaceObject>();
                     objectsToDelete = new HashSet<ObjectIdentifier>();
@@ -226,7 +243,5 @@ public class SearchConsumer implements Consumer
     public void finish(Context ctx) throws Exception
     {
         // No-op
-
     }
-
 }

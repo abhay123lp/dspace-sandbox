@@ -48,8 +48,6 @@ import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.browse.BrowseException;
-import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
@@ -285,18 +283,6 @@ public class ItemDAOCore extends ItemDAO
                 storedValue.setPlace(current);
                 mvDAO.update(storedValue);
             }
-        }
-
-        // Update browse indices
-        IndexBrowse ib = null;
-        try
-        {
-            ib = new IndexBrowse(context);
-            ib.indexItem(item);
-        }
-        catch (BrowseException e)
-        {
-            throw new RuntimeException(e);
         }
 
         childDAO.update(item);

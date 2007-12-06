@@ -68,7 +68,6 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
-import org.dspace.search.DSIndexer;
 
 public class ArchiveManager
 {
@@ -79,7 +78,7 @@ public class ArchiveManager
      * and metadata are not deleted, but it is not publicly accessible.
      */
     public static void withdrawItem(Context context, Item item)
-        throws AuthorizeException, IOException
+        throws AuthorizeException
     {
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
@@ -125,9 +124,6 @@ public class ArchiveManager
         // Update item in DB
         itemDAO.update(item);
 
-        // Remove from indicies
-        DSIndexer.unIndexContent(context, item);
-
         // and all of our authorization policies
         // FIXME: not very "multiple-inclusion" friendly
         AuthorizeManager.removeAllPolicies(context, item);
@@ -140,7 +136,7 @@ public class ArchiveManager
      * Reinstate a withdrawn item.
      */
     public static void reinstateItem(Context context, Item item)
-        throws AuthorizeException, IOException
+        throws AuthorizeException
     {
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
@@ -176,11 +172,6 @@ public class ArchiveManager
 
         // Update item in DB
         itemDAO.update(item);
-
-        // Add to indicies
-        // Remove - update() already performs this
-        // Browse.itemAdded(context, this);
-        DSIndexer.indexContent(context, item);
 
         // authorization policies
         if (parents.size() > 0)
