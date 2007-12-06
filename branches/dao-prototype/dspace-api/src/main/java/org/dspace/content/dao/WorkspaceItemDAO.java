@@ -21,9 +21,21 @@ public abstract class WorkspaceItemDAO extends ContentDAO<WorkspaceItemDAO>
     protected Context context;
     protected ItemDAO itemDAO;
 
+    protected WorkspaceItemDAO childDAO;
+
     public WorkspaceItemDAO(Context context)
     {
         this.context = context;
+    }
+
+    public WorkspaceItemDAO getChild()
+    {
+        return childDAO;
+    }
+
+    public void setChild(WorkspaceItemDAO childDAO)
+    {
+        this.childDAO = childDAO;
     }
 
     public abstract WorkspaceItem create() throws AuthorizeException;

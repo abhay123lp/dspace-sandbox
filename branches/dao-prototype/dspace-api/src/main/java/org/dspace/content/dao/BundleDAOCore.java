@@ -55,28 +55,17 @@ import org.dspace.core.LogManager;
 /**
  * @author James Rutherford
  */
-public class BundleDAOCore extends BundleDAO {
+public class BundleDAOCore extends BundleDAO
+{
     protected Logger log = Logger.getLogger(BundleDAO.class);
 
     protected BitstreamDAO bitstreamDAO;
-
-    private BundleDAO childDAO;
 
     public BundleDAOCore(Context context)
     {
         super(context);
 
         bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-    }
-
-    public BundleDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(BundleDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     public Bundle create() throws AuthorizeException

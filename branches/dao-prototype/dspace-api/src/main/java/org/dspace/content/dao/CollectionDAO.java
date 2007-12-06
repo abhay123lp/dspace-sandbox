@@ -70,6 +70,8 @@ public abstract class CollectionDAO extends ContentDAO<CollectionDAO>
     protected GroupDAO groupDAO;
     protected ExternalIdentifierDAO identifierDAO;
 
+    protected CollectionDAO childDAO;
+
     /**
      * The allowed metadata fields for Collections are defined in the following
      * enum. This should make reading / writing all metadatafields a lot less
@@ -107,9 +109,15 @@ public abstract class CollectionDAO extends ContentDAO<CollectionDAO>
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
-    public abstract CollectionDAO getChild();
+    public CollectionDAO getChild()
+    {
+        return childDAO;
+    }
 
-    public abstract void setChild(CollectionDAO childDAO);
+    public void setChild(CollectionDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
 
     public abstract Collection create() throws AuthorizeException;
 

@@ -64,15 +64,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         super(context);
     }
 
-    public BitstreamFormatDAO getChild()
-    {
-        return null;
-    }
-
-    public void setChild(BitstreamFormatDAO bitstreamFormatDAO)
-    {
-    }
-
     @Override
     public BitstreamFormat create() throws AuthorizeException
     {

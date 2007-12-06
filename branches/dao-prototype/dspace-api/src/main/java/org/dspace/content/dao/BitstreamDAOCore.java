@@ -66,18 +66,6 @@ public class BitstreamDAOCore extends BitstreamDAO
     }
 
     @Override
-    public BitstreamDAO getChild()
-    {
-        return childDAO;
-    }
-
-    @Override
-    public void setChild(BitstreamDAO childDAO)
-    {
-        this.childDAO = childDAO;
-    }
-
-    @Override
     public Bitstream create() throws AuthorizeException
     {
         return childDAO.create();

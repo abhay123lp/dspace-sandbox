@@ -1,11 +1,11 @@
 /*
- * MetadataValueDAO.java
+ * SupervisedItemDAOCore.java
  *
- * Version: : $
+ * Version: $Revision: 1727 $
  *
- * Date: : $
+ * Date: $Date: 2007-01-19 10:52:10 +0000 (Fri, 19 Jan 2007) $
  *
- * Copyright (c) 2002-2007, Hewlett-Packard Company and Massachusetts
+ * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -40,62 +40,33 @@
 package org.dspace.content.dao;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.apache.log4j.Logger;
 
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.Item;
-import org.dspace.content.MetadataField;
-import org.dspace.content.MetadataValue;
+import org.dspace.content.SupervisedItem;
 import org.dspace.core.Context;
-import org.dspace.storage.dao.CRUD;
+import org.dspace.eperson.EPerson;
 
-public abstract class MetadataValueDAO extends ContentDAO<MetadataValueDAO>
-        implements CRUD<MetadataValue>
+public class SupervisedItemDAOCore extends SupervisedItemDAO
 {
-    protected Logger log = Logger.getLogger(MetadataValueDAO.class);
-
-    protected Context context;
-
-    protected MetadataValueDAO childDAO;
-
-    public MetadataValueDAO(Context context)
+    public SupervisedItemDAOCore(Context context)
     {
-        this.context = context;
+        super(context);
     }
 
-    public MetadataValueDAO getChild()
+    /**
+     * Get all workspace items that are being supervised.
+     */
+    public List<SupervisedItem> getSupervisedItems()
     {
-        return childDAO;
+        return childDAO.getSupervisedItems();
     }
 
-    public void setChild(MetadataValueDAO childDAO)
+    /**
+     * Get workspace items being supervised by given EPerson.
+     */
+    public List<SupervisedItem> getSupervisedItems(EPerson eperson)
     {
-        this.childDAO = childDAO;
+        return childDAO.getSupervisedItems(eperson);
     }
-
-    public abstract MetadataValue create() throws AuthorizeException;
-
-    public abstract MetadataValue retrieve(int id);
-
-    public abstract MetadataValue retrieve(UUID uuid);
-
-    public abstract void update(MetadataValue value) throws AuthorizeException;
-
-    public abstract void delete(int id) throws AuthorizeException;
-
-    @Deprecated
-    public abstract List<MetadataValue> getMetadataValues(int fieldID);
-
-    public abstract List<MetadataValue> getMetadataValues(MetadataField field);
-
-    public abstract List<MetadataValue> getMetadataValues(MetadataField field,
-                                                          String value);
-
-    public abstract List<MetadataValue> getMetadataValues(MetadataField field,
-                                                          String value,
-                                                          String language);
-
-    public abstract List<MetadataValue> getMetadataValues(Item item);
 }

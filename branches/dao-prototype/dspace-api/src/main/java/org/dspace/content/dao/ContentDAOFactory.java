@@ -62,7 +62,6 @@ public class ContentDAOFactory
         }
         list.add(last);
 
-        //first.setChild(list.get(1));
         for (int i = 0; i < list.size() - 1; i++)
         {
             T dao = list.get(i);

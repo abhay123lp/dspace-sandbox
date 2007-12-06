@@ -52,21 +52,9 @@ import org.dspace.core.LogManager;
 
 public class MetadataSchemaDAOCore extends MetadataSchemaDAO
 {
-    private MetadataSchemaDAO childDAO;
-
     public MetadataSchemaDAOCore(Context context)
     {
         super(context);
-    }
-
-    public MetadataSchemaDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(MetadataSchemaDAO childDAO)
-    {
-        this.childDAO = childDAO;
     }
 
     public MetadataSchema create() throws AuthorizeException

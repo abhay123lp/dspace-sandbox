@@ -16,14 +16,22 @@ public abstract class BundleDAO extends ContentDAO<BundleDAO>
 {
     protected Context context;
 
+    protected BundleDAO childDAO;
+
     public BundleDAO(Context context)
     {
         this.context = context;
     }
 
-    public abstract BundleDAO getChild();
+    public BundleDAO getChild()
+    {
+        return childDAO;
+    }
 
-    public abstract void setChild(BundleDAO childDAO);
+    public void setChild(BundleDAO childDAO)
+    {
+        this.childDAO = childDAO;
+    }
 
     public abstract Bundle create() throws AuthorizeException;
 
