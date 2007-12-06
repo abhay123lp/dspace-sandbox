@@ -57,6 +57,7 @@ public class MetadataSchemaDAOCore extends MetadataSchemaDAO
         super(context);
     }
 
+    @Override
     public MetadataSchema create() throws AuthorizeException
     {
         // Check authorisation: Only admins may create metadata schemas
@@ -74,6 +75,7 @@ public class MetadataSchemaDAOCore extends MetadataSchemaDAO
         return schema;
     }
 
+    @Override
     public MetadataSchema retrieve(int id)
     {
         MetadataSchema schema =
@@ -87,24 +89,7 @@ public class MetadataSchemaDAOCore extends MetadataSchemaDAO
         return schema;
     }
 
-    public MetadataSchema retrieve(UUID uuid)
-    {
-        return childDAO.retrieve(uuid);
-    }
-
-    public MetadataSchema retrieveByName(String name)
-    {
-        return childDAO.retrieveByName(name);
-    }
-
-    /**
-     * Get the schema object corresponding to this namespace URI.
-     */
-    public MetadataSchema retrieveByNamespace(String namespace)
-    {
-        return childDAO.retrieveByNamespace(namespace);
-    }
-
+    @Override
     public void update(MetadataSchema schema) throws AuthorizeException
     {
         // Check authorisation: Only admins may create metadata schemas
@@ -142,6 +127,7 @@ public class MetadataSchemaDAOCore extends MetadataSchemaDAO
         childDAO.update(schema);
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
         MetadataSchema schema = retrieve(id);
@@ -167,20 +153,5 @@ public class MetadataSchemaDAOCore extends MetadataSchemaDAO
         context.removeCached(schema, id);
 
         childDAO.delete(id);
-    }
-
-    protected boolean uniqueNamespace(int id, String namespace)
-    {
-        return childDAO.uniqueNamespace(id, namespace);
-    }
-
-    protected boolean uniqueShortName(int id, String name)
-    {
-        return childDAO.uniqueShortName(id, name);
-    }
-
-    public List<MetadataSchema> getMetadataSchemas()
-    {
-        return childDAO.getMetadataSchemas();
     }
 }

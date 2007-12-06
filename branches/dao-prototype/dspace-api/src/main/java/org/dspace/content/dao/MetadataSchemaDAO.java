@@ -73,37 +73,67 @@ public abstract class MetadataSchemaDAO extends ContentDAO<MetadataSchemaDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract MetadataSchema create() throws AuthorizeException;
+    public MetadataSchema create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
-    public abstract MetadataSchema retrieve(int id);
+    public MetadataSchema retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract MetadataSchema retrieve(UUID uuid);
+    public MetadataSchema retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
     /**
      * Get the schema object corresponding to this short name (eg: dc).
      */
-    public abstract MetadataSchema retrieveByName(String namespace);
+    public MetadataSchema retrieveByName(String name)
+    {
+        return childDAO.retrieveByName(name);
+    }
 
     /**
      * Get the schema object corresponding to this namespace URI.
      */
-    public abstract MetadataSchema retrieveByNamespace(String namespace);
+    public MetadataSchema retrieveByNamespace(String namespace)
+    {
+        return childDAO.retrieveByNamespace(namespace);
+    }
 
-    public abstract void update(MetadataSchema schema) throws AuthorizeException;
+    public void update(MetadataSchema schema) throws AuthorizeException
+    {
+        childDAO.update(schema);
+    }
 
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
     /**
      * Return true if and only if the passed name appears within the allowed
      * number of times in the current schema.
      */
-    protected abstract boolean uniqueNamespace(int id, String namespace);
+    protected boolean uniqueNamespace(int id, String namespace)
+    {
+        return childDAO.uniqueNamespace(id, namespace);
+    }
 
     /**
      * Return true if and only if the passed name is unique.
      */
-    protected abstract boolean uniqueShortName(int id, String name);
+    protected boolean uniqueShortName(int id, String name)
+    {
+        return childDAO.uniqueShortName(id, name);
+    }
 
-    public abstract List<MetadataSchema> getMetadataSchemas();
+    public List<MetadataSchema> getMetadataSchemas()
+    {
+        return childDAO.getMetadataSchemas();
+    }
 }
 
