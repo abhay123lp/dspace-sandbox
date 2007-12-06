@@ -50,8 +50,6 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.browse.BrowseException;
-import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCDate;
@@ -83,18 +81,19 @@ public class ArchiveManager
     public static void withdrawItem(Context context, Item item)
         throws AuthorizeException, IOException
     {
+        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
 
         String timestamp = DCDate.getCurrent().toString();
 
         // Build some provenance data while we're at it.
         String collectionProv = "";
-        Collection[] colls = item.getCollections();
+        List<Collection> parents = collectionDAO.getParentCollections(item);
 
-        for (int i = 0; i < colls.length; i++)
+        for (Collection parent : parents)
         {
-            collectionProv = collectionProv + colls[i].getMetadata("name")
-                    + " (ID: " + colls[i].getID() + ")\n";
+            collectionProv = collectionProv + parent.getMetadata("name")
+                    + " (ID: " + parent.getID() + ")\n";
         }
 
         // Check permission. User either has to have REMOVE on owning
@@ -113,30 +112,21 @@ public class ArchiveManager
         item.setArchived(false);
 
         EPerson e = context.getCurrentUser();
-        try
-        {
-            // Add suitable provenance - includes user, date, collections +
-            // bitstream checksums
-            String prov = "Item withdrawn by " + e.getFullName() + " ("
-                    + e.getEmail() + ") on " + timestamp + "\n"
-                    + "Item was in collections:\n" + collectionProv
-                    + InstallItem.getBitstreamProvenanceMessage(item);
+        // Add suitable provenance - includes user, date, collections +
+        // bitstream checksums
+        String prov = "Item withdrawn by " + e.getFullName() + " ("
+                + e.getEmail() + ") on " + timestamp + "\n"
+                + "Item was in collections:\n" + collectionProv
+                + InstallItem.getBitstreamProvenanceMessage(item);
 
-            item.addMetadata(MetadataSchema.DC_SCHEMA, "description",
-                    "provenance", "en", prov);
+        item.addMetadata(MetadataSchema.DC_SCHEMA, "description",
+                "provenance", "en", prov);
 
-            // Update item in DB
-            itemDAO.update(item);
+        // Update item in DB
+        itemDAO.update(item);
 
-            // Remove from indicies
-            IndexBrowse ib = new IndexBrowse(context);
-            ib.itemRemoved(item);
-            DSIndexer.unIndexContent(context, item);
-        }
-        catch (BrowseException be)
-        {
-            throw new RuntimeException(be);
-        }
+        // Remove from indicies
+        DSIndexer.unIndexContent(context, item);
 
         // and all of our authorization policies
         // FIXME: not very "multiple-inclusion" friendly
@@ -152,6 +142,7 @@ public class ArchiveManager
     public static void reinstateItem(Context context, Item item)
         throws AuthorizeException, IOException
     {
+        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
         ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
 
         String timestamp = DCDate.getCurrent().toString();
@@ -159,14 +150,13 @@ public class ArchiveManager
         // Check permission. User must have ADD on all collections.
         // Build some provenance data while we're at it.
         String collectionProv = "";
-        Collection[] colls = item.getCollections();
+        List<Collection> parents = collectionDAO.getParentCollections(item);
 
-        for (int i = 0; i < colls.length; i++)
+        for (Collection parent : parents)
         {
-            collectionProv = collectionProv + colls[i].getMetadata("name")
-                    + " (ID: " + colls[i].getID() + ")\n";
-            AuthorizeManager.authorizeAction(context, colls[i],
-                    Constants.ADD);
+            AuthorizeManager.authorizeAction(context, parent, Constants.ADD);
+            collectionProv = collectionProv + parent.getMetadata("name")
+                    + " (ID: " + parent.getID() + ")\n";
         }
 
         item.setWithdrawn(false);
@@ -193,13 +183,13 @@ public class ArchiveManager
         DSIndexer.indexContent(context, item);
 
         // authorization policies
-        if (colls.length > 0)
+        if (parents.size() > 0)
         {
             // FIXME: not multiple inclusion friendly - just apply access
             // policies from first collection
             // remove the item's policies and replace them with
             // the defaults from the collection
-            item.inheritCollectionDefaultPolicies(colls[0]);
+            item.inheritCollectionDefaultPolicies(parents.get(0));
         }
 
         log.info(LogManager.getHeader(context, "reinstate_item", "user="
