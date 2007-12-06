@@ -40,9 +40,15 @@
 package org.dspace.browse;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.core.Context;
 
+/**
+ * This hook exists to remove the Items from browse indices when they are
+ * deleted or withdrawn from the archive. The creation of indices is handled
+ * by the BrowseConsumer.
+ */
 public class ItemDAOBrowseHook extends ItemDAO
 {
     public ItemDAOBrowseHook()
@@ -54,6 +60,18 @@ public class ItemDAOBrowseHook extends ItemDAO
         super(context);
     }
 
+    @Override
+    public void update(Item item) throws AuthorizeException
+    {
+        if (!item.isArchived() || item.isWithdrawn())
+        {
+            removeFromIndices(item.getID());
+        }
+
+        childDAO.update(item);
+    }
+
+    @Override
     public void delete(int id) throws AuthorizeException
     {
         /** XXX FIXME
@@ -61,17 +79,22 @@ public class ItemDAOBrowseHook extends ItemDAO
          ** non-archived items may still be tracked in some browse tables
          ** for administrative purposes, and these need to be removed.
          **/
+        removeFromIndices(id);
+
+        childDAO.delete(id);
+    }
+
+    private void removeFromIndices(int itemID)
+    {
         try
         {
             // Remove from browse indices
             IndexBrowse ib = new IndexBrowse(context);
-            ib.itemRemoved(id);
+            ib.itemRemoved(itemID);
         }
         catch (BrowseException e)
         {
             throw new RuntimeException(e);
         }
-
-        childDAO.delete(id);
     }
 }
