@@ -181,45 +181,32 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
 
             if (row != null)
             {
-                update(bitstreamFormat, row);
+                // FIXME: Not only is this a totally stupid way of doing it, it's
+                // also not very inheritance-friendly. It might be better to have
+                // link() and unlink() for BitstreamFormats and file extensions.
+
+                // Delete extensions
+                DatabaseManager.updateQuery(context,
+                        "DELETE FROM fileextension WHERE bitstream_format_id= ? ",
+                        bitstreamFormat.getID());
+
+                // Rewrite extensions
+                for (String extension : bitstreamFormat.getExtensions())
+                {
+                    TableRow r = DatabaseManager.create(context, "fileextension");
+                    r.setColumn("bitstream_format_id", bitstreamFormat.getID());
+                    r.setColumn("extension", extension);
+                    DatabaseManager.update(context, r);
+                }
+
+                populateTableRowFromBitstreamFormat(bitstreamFormat, row);
+                DatabaseManager.update(context, row);
             }
             else
             {
                 throw new RuntimeException("Didn't find bitstream format " +
                         bitstreamFormat.getID());
             }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private void update(BitstreamFormat bitstreamFormat, TableRow row)
-        throws AuthorizeException
-    {
-        try
-        {
-            // FIXME: Not only is this a totally stupid way of doing it, it's
-            // also not very inheritance-friendly. It might be better to have
-            // link() and unlink() for BitstreamFormats and file extensions.
-
-            // Delete extensions
-            DatabaseManager.updateQuery(context,
-                    "DELETE FROM fileextension WHERE bitstream_format_id= ? ",
-                    bitstreamFormat.getID());
-
-            // Rewrite extensions
-            for (String extension : bitstreamFormat.getExtensions())
-            {
-                TableRow r = DatabaseManager.create(context, "fileextension");
-                r.setColumn("bitstream_format_id", bitstreamFormat.getID());
-                r.setColumn("extension", extension);
-                DatabaseManager.update(context, r);
-            }
-
-            populateTableRowFromBitstreamFormat(bitstreamFormat, row);
-            DatabaseManager.update(context, row);
         }
         catch (SQLException sqle)
         {
@@ -256,6 +243,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         }
     }
 
+    @Override
     public List<BitstreamFormat> getBitstreamFormats()
     {
         try
@@ -273,6 +261,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         }
     }
 
+    @Override
     public List<BitstreamFormat> getBitstreamFormats(String extension)
     {
         try
@@ -292,6 +281,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         }
     }
 
+    @Override
     public List<BitstreamFormat> getBitstreamFormats(boolean internal)
     {
         try

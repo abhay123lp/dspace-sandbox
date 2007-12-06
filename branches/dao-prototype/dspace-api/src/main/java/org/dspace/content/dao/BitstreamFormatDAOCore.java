@@ -58,6 +58,7 @@ public class BitstreamFormatDAOCore extends BitstreamFormatDAO
         super(context);
     }
 
+    @Override
     public BitstreamFormat create() throws AuthorizeException
     {
         if (!AuthorizeManager.isAdmin(context))
@@ -74,6 +75,7 @@ public class BitstreamFormatDAOCore extends BitstreamFormatDAO
         return bitstreamFormat;
     }
 
+    @Override
     public BitstreamFormat retrieve(int id)
     {
         BitstreamFormat bf =
@@ -87,21 +89,7 @@ public class BitstreamFormatDAOCore extends BitstreamFormatDAO
         return bf;
     }
 
-    public BitstreamFormat retrieve(UUID uuid)
-    {
-        return childDAO.retrieve(uuid);
-    }
-
-    public BitstreamFormat retrieveByMimeType(String mimeType)
-    {
-        return childDAO.retrieveByMimeType(mimeType);
-    }
-
-    public BitstreamFormat retrieveByShortDescription(String desc)
-    {
-        return childDAO.retrieveByShortDescription(desc);
-    }
-
+    @Override
     public void update(BitstreamFormat bitstreamFormat)
         throws AuthorizeException
     {
@@ -118,6 +106,7 @@ public class BitstreamFormatDAOCore extends BitstreamFormatDAO
         childDAO.update(bitstreamFormat);
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
         // Check authorisation - only administrators can delete formats
@@ -142,20 +131,5 @@ public class BitstreamFormatDAOCore extends BitstreamFormatDAO
         context.removeCached(bitstreamFormat, id);
 
         childDAO.delete(id);
-    }
-
-    public List<BitstreamFormat> getBitstreamFormats()
-    {
-        return childDAO.getBitstreamFormats();
-    }
-
-    public List<BitstreamFormat> getBitstreamFormats(String extension)
-    {
-        return childDAO.getBitstreamFormats(extension);
-    }
-
-    public List<BitstreamFormat> getBitstreamFormats(boolean internal)
-    {
-        return childDAO.getBitstreamFormats(internal);
     }
 }
