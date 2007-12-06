@@ -75,27 +75,56 @@ public abstract class MetadataValueDAO extends ContentDAO<MetadataValueDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract MetadataValue create() throws AuthorizeException;
+    public MetadataValue create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
-    public abstract MetadataValue retrieve(int id);
+    public MetadataValue retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract MetadataValue retrieve(UUID uuid);
+    public MetadataValue retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
-    public abstract void update(MetadataValue value) throws AuthorizeException;
+    public void update(MetadataValue value) throws AuthorizeException
+    {
+        childDAO.update(value);
+    }
 
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
     @Deprecated
-    public abstract List<MetadataValue> getMetadataValues(int fieldID);
+    public List<MetadataValue> getMetadataValues(int fieldID)
+    {
+        return childDAO.getMetadataValues(fieldID);
+    }
 
-    public abstract List<MetadataValue> getMetadataValues(MetadataField field);
+    public List<MetadataValue> getMetadataValues(MetadataField field)
+    {
+        return childDAO.getMetadataValues(field);
+    }
 
-    public abstract List<MetadataValue> getMetadataValues(MetadataField field,
-                                                          String value);
+    public List<MetadataValue> getMetadataValues(MetadataField field,
+                                                 String value)
+    {
+        return childDAO.getMetadataValues(field, value);
+    }
 
-    public abstract List<MetadataValue> getMetadataValues(MetadataField field,
-                                                          String value,
-                                                          String language);
+    public List<MetadataValue> getMetadataValues(MetadataField field,
+                                                 String value, String language)
+    {
+        return childDAO.getMetadataValues(field, value, language);
+    }
 
-    public abstract List<MetadataValue> getMetadataValues(Item item);
+    public List<MetadataValue> getMetadataValues(Item item)
+    {
+        return childDAO.getMetadataValues(item);
+    }
 }

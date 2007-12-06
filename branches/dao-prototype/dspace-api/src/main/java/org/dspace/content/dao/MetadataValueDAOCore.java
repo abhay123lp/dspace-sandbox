@@ -80,12 +80,6 @@ public class MetadataValueDAOCore extends MetadataValueDAO
     }
 
     @Override
-    public MetadataValue retrieve(UUID uuid)
-    {
-        return childDAO.retrieve(uuid);
-    }
-
-    @Override
     public void update(MetadataValue value) throws AuthorizeException
     {
         log.info(LogManager.getHeader(context, "update_metadatavalue",
@@ -108,31 +102,5 @@ public class MetadataValueDAOCore extends MetadataValueDAO
     {
         MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
         return getMetadataValues(mfDAO.retrieve(fieldID));
-    }
-
-    @Override
-    public List<MetadataValue> getMetadataValues(MetadataField field)
-    {
-        return childDAO.getMetadataValues(field);
-    }
-
-    @Override
-    public List<MetadataValue> getMetadataValues(MetadataField field,
-            String value)
-    {
-        return childDAO.getMetadataValues(field, value);
-    }
-
-    @Override
-    public List<MetadataValue> getMetadataValues(MetadataField field,
-            String value, String language)
-    {
-        return childDAO.getMetadataValues(field, value, language);
-    }
-
-    @Override
-    public List<MetadataValue> getMetadataValues(Item item)
-    {
-        return childDAO.getMetadataValues(item);
     }
 }
