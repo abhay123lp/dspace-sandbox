@@ -136,12 +136,6 @@ public class CollectionDAOCore extends CollectionDAO
     }
 
     @Override
-    public Collection retrieve(UUID uuid)
-    {
-        return childDAO.retrieve(uuid);
-    }
-
-    @Override
     public void update(Collection collection) throws AuthorizeException
     {
         // Check authorisation
@@ -265,12 +259,6 @@ public class CollectionDAOCore extends CollectionDAO
     }
 
     @Override
-    public List<Collection> getCollections()
-    {
-        return childDAO.getCollections();
-    }
-
-    @Override
     public List<Collection> getCollectionsByAuthority(Community parent,
             int actionID)
     {
@@ -296,18 +284,6 @@ public class CollectionDAOCore extends CollectionDAO
         }
 
         return results;
-    }
-
-    @Override
-    public List<Collection> getParentCollections(Item item)
-    {
-        return childDAO.getParentCollections(item);
-    }
-
-    @Override
-    public List<Collection> getChildCollections(Community community)
-    {
-        return childDAO.getChildCollections(community);
     }
 
     @Override
@@ -371,17 +347,5 @@ public class CollectionDAOCore extends CollectionDAO
 
             itemDAO.delete(item.getID());
         }
-    }
-
-    @Override
-    public boolean linked(Collection collection, Item item)
-    {
-        return childDAO.linked(collection, item);
-    }
-
-    @Override
-    public int itemCount(Collection collection)
-    {
-        return childDAO.itemCount(collection);
     }
 }

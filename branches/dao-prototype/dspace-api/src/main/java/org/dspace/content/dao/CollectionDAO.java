@@ -119,29 +119,61 @@ public abstract class CollectionDAO extends ContentDAO<CollectionDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract Collection create() throws AuthorizeException;
+    public Collection create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
-    public abstract Collection retrieve(int id);
+    public Collection retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract Collection retrieve(UUID uuid);
+    public Collection retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
-    public abstract void update(Collection collection) throws AuthorizeException;
+    public void update(Collection collection) throws AuthorizeException
+    {
+        childDAO.update(collection);
+    }
 
-    public abstract void delete(int id) throws AuthorizeException;
+    /**
+     * Delete the collection, including the metadata and logo. Items that are
+     * then orphans are deleted. Groups associated with this collection
+     * (workflow participants and submitters) are NOT deleted.
+     */
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
-    public abstract List<Collection> getCollections();
+    public List<Collection> getCollections()
+    {
+        return childDAO.getCollections();
+    }
 
     /**
      * Returns a List of collections that user has a given permission on.
      * Useful for trimming 'select to collection' list, or figuring out which
      * collections a person is an editor for.
      */
-    public abstract List<Collection> getCollectionsByAuthority(Community parent,
-                                                      int actionID);
+    public List<Collection> getCollectionsByAuthority(Community parent,
+                                                      int actionID)
+    {
+        return childDAO.getCollectionsByAuthority(parent, actionID);
+    }
 
-    public abstract List<Collection> getParentCollections(Item item);
+    public List<Collection> getParentCollections(Item item)
+    {
+        return childDAO.getParentCollections(item);
+    }
 
-    public abstract List<Collection> getChildCollections(Community community);
+    public List<Collection> getChildCollections(Community community)
+    {
+        return childDAO.getChildCollections(community);
+    }
 
     /**
      * Returns a list of all the Collections that are *not* the parent of the
@@ -150,30 +182,50 @@ public abstract class CollectionDAO extends ContentDAO<CollectionDAO>
      * @param item The Item
      * @return All Collections that are not parent to the given Item.
      */
-    public abstract List<Collection> getCollectionsNotLinked(Item item);
+    public List<Collection> getCollectionsNotLinked(Item item)
+    {
+        return childDAO.getCollectionsNotLinked(item);
+    }
 
     /**
      * Create a storage layer association between the given Item and
      * Collection.
      */
-    public abstract void link(Collection collection, Item item)
-            throws AuthorizeException;
+    public void link(Collection collection, Item item)
+            throws AuthorizeException
+    {
+        childDAO.link(collection, item);
+    }
 
     /**
      * Remove any existing storage layer association between the given Item and
      * Collection.
      */
-    public abstract void unlink(Collection collection, Item item)
-            throws AuthorizeException;
+    public void unlink(Collection collection, Item item)
+            throws AuthorizeException
+    {
+        childDAO.unlink(collection, item);
+    }
 
     /**
      * Determine whether or not there is an established link between the given
      * Item and Collection in the storage layer.
      */
-    public abstract boolean linked(Collection collection, Item item);
+    public boolean linked(Collection collection, Item item)
+    {
+        return childDAO.linked(collection, item);
+    }
 
     // Everything below this line is debatable & needs rethinking
 
-    public abstract int itemCount(Collection collection);
+    /**
+     * Straightforward utility method for counting the number of Items in the
+     * given Collection. There is probably a way to be smart about this. Also,
+     * this strikes me as the kind of method that shouldn't really be in here.
+     */
+    public int itemCount(Collection collection)
+    {
+        return childDAO.itemCount(collection);
+    }
 }
 
