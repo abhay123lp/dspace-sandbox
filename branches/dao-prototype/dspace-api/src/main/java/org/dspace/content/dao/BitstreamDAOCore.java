@@ -170,7 +170,7 @@ public class BitstreamDAOCore extends BitstreamDAO
         Bitstream bitstream = retrieve(id);
         update(bitstream); // Sync in-memory object before removal
 
-        AuthorizeManager.authorizeAction(context, bitstream, Constants.DELETE);
+        AuthorizeManager.authorizeAction(context, bitstream, Constants.REMOVE);
 
         childDAO.remove(id);
     }

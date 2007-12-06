@@ -133,7 +133,7 @@ public class BundleDAOCore extends BundleDAO {
 
             if (deleted)
             {
-                removeBitstreamFromBundle(bundle, dbBitstream);
+                unlink(bundle, dbBitstream);
             }
         }
 
@@ -159,7 +159,7 @@ public class BundleDAOCore extends BundleDAO {
 
         for (Bitstream bitstream : bundle.getBitstreams())
         {
-            removeBitstreamFromBundle(bundle, bitstream);
+            unlink(bundle, bitstream);
         }
 
         // remove our authorization policies
@@ -196,18 +196,29 @@ public class BundleDAOCore extends BundleDAO {
 
     public void unlink(Bundle bundle, Bitstream bitstream) throws AuthorizeException
     {
-        if (linked(bundle, bitstream))
+        AuthorizeManager.authorizeAction(context, bundle,
+                Constants.REMOVE);
+
+        log.info(LogManager.getHeader(context, "remove_bitstream",
+                    "bundle_id=" + bundle.getID() +
+                    ",bitstream_id=" + bitstream.getID()));
+
+        bundle.removeBitstream(bitstream);
+
+        childDAO.unlink(bundle, bitstream);
+
+        // In the event that the bitstream to remove is actually
+        // the primary bitstream, be sure to unset the primary
+        // bitstream.
+        if (bitstream.getID() == bundle.getPrimaryBitstreamID())
         {
-            AuthorizeManager.authorizeAction(context, bundle,
-                    Constants.REMOVE);
+            bundle.unsetPrimaryBitstreamID();
+        }
 
-            log.info(LogManager.getHeader(context, "remove_bitstream",
-                        "bundle_id=" + bundle.getID() +
-                        ",bitstream_id=" + bitstream.getID()));
-
-            bundle.removeBitstream(bitstream);
-
-            childDAO.unlink(bundle, bitstream);
+        if (getBundles(bitstream).size() == 0)
+        {
+            // The bitstream is an orphan, delete it
+            bitstreamDAO.delete(bitstream.getID());
         }
     }
 
@@ -223,29 +234,5 @@ public class BundleDAOCore extends BundleDAO {
         }
 
         return false;
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
-    private void removeBitstreamFromBundle(Bundle bundle,
-                                           Bitstream bitstream) throws AuthorizeException
-    {
-        unlink(bundle, bitstream);
-
-        // In the event that the bitstream to remove is actually
-        // the primary bitstream, be sure to unset the primary
-        // bitstream.
-        if (bitstream.getID() == bundle.getPrimaryBitstreamID())
-        {
-            bundle.unsetPrimaryBitstreamID();
-        }
-
-        if (getBundles(bitstream).size() == 0)
-        {
-            // The bitstream is an orphan, delete it
-            bitstreamDAO.delete(bitstream.getID());
-        }
     }
 }

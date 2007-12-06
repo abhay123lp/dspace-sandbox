@@ -45,6 +45,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -241,13 +242,14 @@ public class EditCommunitiesServlet extends DSpaceServlet
         case CONFIRM_DELETE_COMMUNITY:
 
             // remember the parent community, if any
-            Community parent = community.getParentCommunity();
+            //Community parent = community.getParentCommunity();
+            List<Community> parents = dao.getParentCommunities(community);
 
             // Delete the community
-            community.delete();
+            dao.delete(community.getID());
 
             // if community was top-level, redirect to community-list page
-            if (parent == null)
+            if (parents.size() == 0)
             {
                 response.sendRedirect(response.encodeRedirectURL(request
                         .getContextPath()
@@ -257,7 +259,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             // redirect to parent community page
             {
                 response.sendRedirect(response.encodeRedirectURL(
-                            parent.getIdentifier().getURL().toString()));
+                            parents.get(0).getIdentifier().getURL().toString()));
             }
 
             // Show main control page
