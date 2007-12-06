@@ -90,10 +90,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    /**
-     * Retrieve the Collection with the given ID from the database (or from the
-     * Context cache, if it's there).
-     */
     @Override
     public Collection retrieve(int id)
     {
@@ -150,11 +146,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    /**
-     * Delete the collection, including the metadata and logo. Items that are
-     * then orphans are deleted. Groups associated with this collection
-     * (workflow participants and submitters) are NOT deleted.
-     */
     @Override
     public void delete(int id) throws AuthorizeException
     {
@@ -173,9 +164,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    /**
-     * Returns a List containing all the Collections.
-     */
     @Override
     public List<Collection> getCollections()
     {
@@ -191,13 +179,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    @Override
-    public List<Collection> getCollectionsByAuthority(Community parent,
-                                                      int actionID)
-    {
-        return null;
     }
 
     @Override
@@ -242,17 +223,6 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
     }
 
-    @Override
-    public List<Collection> getCollectionsNotLinked(Item item)
-    {
-        return null;
-    }
-
-    /**
-     * Straightforward utility method for counting the number of Items in the
-     * given Collection. There is probably a way to be smart about this. Also,
-     * this strikes me as the kind of method that shouldn't really be in here.
-     */
     @Override
     public int itemCount(Collection collection)
     {
