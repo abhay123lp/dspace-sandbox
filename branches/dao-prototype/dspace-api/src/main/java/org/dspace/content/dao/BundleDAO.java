@@ -33,25 +33,55 @@ public abstract class BundleDAO extends ContentDAO<BundleDAO>
         this.childDAO = childDAO;
     }
 
-    public abstract Bundle create() throws AuthorizeException;
+    public Bundle create() throws AuthorizeException
+    {
+        return childDAO.create();
+    }
 
-    public abstract Bundle retrieve(int id);
+    public Bundle retrieve(int id)
+    {
+        return childDAO.retrieve(id);
+    }
 
-    public abstract Bundle retrieve(UUID uuid);
+    public Bundle retrieve(UUID uuid)
+    {
+        return childDAO.retrieve(uuid);
+    }
 
-    public abstract void update(Bundle bundle) throws AuthorizeException;
+    public void update(Bundle bundle) throws AuthorizeException
+    {
+        childDAO.update(bundle);
+    }
 
-    public abstract void delete(int id) throws AuthorizeException;
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
-    public abstract List<Bundle> getBundles(Item item);
+    public List<Bundle> getBundles(Item item)
+    {
+        return childDAO.getBundles(item);
+    }
 
-    public abstract List<Bundle> getBundles(Bitstream bitstream);
+    public List<Bundle> getBundles(Bitstream bitstream)
+    {
+        return childDAO.getBundles(bitstream);
+    }
 
-    public abstract void link(Bundle bundle, Bitstream bitstream)
-            throws AuthorizeException;
+    public void link(Bundle bundle, Bitstream bitstream)
+            throws AuthorizeException
+    {
+        childDAO.link(bundle, bitstream);
+    }
 
-    public abstract void unlink(Bundle bundle, Bitstream bitstream)
-            throws AuthorizeException;
+    public void unlink(Bundle bundle, Bitstream bitstream)
+            throws AuthorizeException
+    {
+        childDAO.unlink(bundle, bitstream);
+    }
 
-    public abstract boolean linked(Bundle bundle, Bitstream bitstream);
+    public boolean linked(Bundle bundle, Bitstream bitstream)
+    {
+        return childDAO.linked(bundle, bitstream);
+    }
 }

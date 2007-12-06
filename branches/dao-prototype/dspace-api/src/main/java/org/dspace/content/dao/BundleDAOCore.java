@@ -68,6 +68,7 @@ public class BundleDAOCore extends BundleDAO
         bitstreamDAO = BitstreamDAOFactory.getInstance(context);
     }
 
+    @Override
     public Bundle create() throws AuthorizeException
     {
         Bundle bundle = null;
@@ -82,6 +83,7 @@ public class BundleDAOCore extends BundleDAO
         return bundle;
     }
 
+    @Override
     public Bundle retrieve(int id)
     {
         Bundle bundle = (Bundle) context.fromCache(Bundle.class, id);
@@ -94,15 +96,11 @@ public class BundleDAOCore extends BundleDAO
         return bundle;
     }
 
-    public Bundle retrieve(UUID uuid)
-    {
-        return childDAO.retrieve(uuid);
-    }
-
-    // FIXME: Check authorization? Or do we count on this only ever happening
-    // via an Item?
+    @Override
     public void update(Bundle bundle) throws AuthorizeException
     {
+        // FIXME: Check authorization? Or do we count on this only ever
+        // happening via an Item?
         Bitstream[] bitstreams = bundle.getBitstreams();
 
         // Delete any Bitstreams that were removed from the in-memory list
@@ -136,6 +134,7 @@ public class BundleDAOCore extends BundleDAO
         childDAO.update(bundle);
     }
 
+    @Override
     public void delete(int id) throws AuthorizeException
     {
         Bundle bundle = retrieve(id);
@@ -157,16 +156,7 @@ public class BundleDAOCore extends BundleDAO
         childDAO.delete(id);
     }
 
-    public List<Bundle> getBundles(Item item)
-    {
-        return childDAO.getBundles(item);
-    }
-
-    public List<Bundle> getBundles(Bitstream bitstream)
-    {
-        return childDAO.getBundles(bitstream);
-    }
-
+    @Override
     public void link(Bundle bundle, Bitstream bitstream) throws AuthorizeException
     {
         if (!linked(bundle, bitstream))
@@ -183,6 +173,7 @@ public class BundleDAOCore extends BundleDAO
         childDAO.link(bundle, bitstream);
     }
 
+    @Override
     public void unlink(Bundle bundle, Bitstream bitstream) throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, bundle,
@@ -211,9 +202,10 @@ public class BundleDAOCore extends BundleDAO
         }
     }
 
-    // FIXME: Where do we do the check? In memory or in the storage layer?
+    @Override
     public boolean linked(Bundle bundle, Bitstream bitstream)
     {
+        // FIXME: Where do we do the check? In memory or in the storage layer?
         for (Bitstream b : bundle.getBitstreams())
         {
             if (b.equals(bitstream))
