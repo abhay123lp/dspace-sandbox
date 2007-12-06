@@ -186,8 +186,6 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         try
         {
             // Remove references to primary bitstreams in bundle
-            // FIXME: This doesn't actually remove this association with the
-            // Bundle. Is that a problem?
             String query =
                 "UPDATE bundle SET primary_bitstream_id = " +
                 (oracle ? "''" : "Null") +

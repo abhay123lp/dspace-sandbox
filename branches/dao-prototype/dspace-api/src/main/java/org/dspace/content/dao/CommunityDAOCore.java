@@ -214,9 +214,6 @@ public class CommunityDAOCore extends CommunityDAO
             // bitstreamDAO.delete(logoId)
             community.setLogo(null);
 
-            // remove from the search index
-            DSIndexer.unIndexContent(context, community);
-
             // Remove all authorization policies
             AuthorizeManager.removeAllPolicies(context, community);
         }
@@ -323,6 +320,8 @@ public class CommunityDAOCore extends CommunityDAO
             throw new RuntimeException("Not allowed!");
         }
 
+        childDAO.unlink(parent, child);
+
         if (getParentCommunities(child).size() == 0)
         {
             // make the right to remove the child explicit because the
@@ -345,8 +344,6 @@ public class CommunityDAOCore extends CommunityDAO
                 delete(child.getID());
             }
         }
-
-        childDAO.unlink(parent, child);
     }
 
     public boolean linked(DSpaceObject parent, DSpaceObject child)

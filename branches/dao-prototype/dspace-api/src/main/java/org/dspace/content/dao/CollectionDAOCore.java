@@ -207,8 +207,6 @@ public class CollectionDAOCore extends CollectionDAO
 
             context.removeCached(collection, id);
 
-            DSIndexer.unIndexContent(context, collection);
-
             // Remove Template Item
             collection.removeTemplateItem();
             
@@ -222,22 +220,14 @@ public class CollectionDAOCore extends CollectionDAO
                     for (Collection c : getParentCollections(item))
                     {
                         // Move the item out of all parent collections
-                        ArchiveManager.move(context, item, c, null);
+                        unlink(c, item);
                     }
-                    //notify Browse of removing item.
-                    IndexBrowse ib = new IndexBrowse(context);
-                    ib.itemRemoved(item);
-                    itemDAO.delete(item.getID());
                 } 
                 else
                 {
                     // the item was only mapped to this collection, so just
                     // remove it
-                    ArchiveManager.move(context, item, collection, null);
-
-                    //notify Browse of removing item mapping. 
-                    IndexBrowse ib = new IndexBrowse(context);
-                    ib.indexItem(item);
+                    unlink(collection, item);
                 }
             }
 
@@ -283,10 +273,6 @@ public class CollectionDAOCore extends CollectionDAO
         catch (IOException ioe)
         {
             throw new RuntimeException(ioe);
-        }
-        catch (BrowseException e)
-        {
-            throw new RuntimeException(e);
         }
 
         childDAO.delete(id);
@@ -383,6 +369,8 @@ public class CollectionDAOCore extends CollectionDAO
                 "collection_id=" + collection.getID() + 
                 ",item_id=" + item.getID()));
 
+        childDAO.unlink(collection, item);
+
         if (getParentCollections(item).size() == 0)
         {
             // make the right to remove the item explicit because the implicit
@@ -397,8 +385,6 @@ public class CollectionDAOCore extends CollectionDAO
 
             itemDAO.delete(item.getID());
         }
-
-        childDAO.unlink(collection, item);
     }
 
     @Override
