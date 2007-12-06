@@ -322,10 +322,4 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
 
         return values;
     }
-
-    @Deprecated
-    public List<MetadataValue> getMetadataValues(int fieldID)
-    {
-        return null;
-    }
 }
