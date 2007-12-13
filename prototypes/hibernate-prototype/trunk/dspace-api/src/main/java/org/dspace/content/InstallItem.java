@@ -42,12 +42,15 @@ package org.dspace.content;
 import java.io.IOException;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.dao.GenericDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
+import org.dspace.storage.dao.CRUD;
 
 /**
  * Support to install item in the archive
@@ -57,6 +60,8 @@ import org.dspace.core.Context;
  */
 public class InstallItem
 {
+	
+	private static ApplicationService applicationService;
     /**
      * Take an InProgressSubmission and turn it into a fully-archived Item,
      * creating a new Handle
@@ -73,10 +78,17 @@ public class InstallItem
     {
         return installItem(c, is, null);
     }
+    
+    
 
-    /**
+
+
+	/**
      * Take an InProgressSubmission and turn it into a fully-archived Item.
-     * 
+     *
+     * FIXME: This needs to be more flexible about what kind of existing
+     * identifiers may be passed in.
+     *
      * @param c  current context
      * @param is
      *            submission to install
@@ -98,15 +110,22 @@ public class InstallItem
 
         // create accession date
         DCDate now = DCDate.getCurrent();
-        item.addDC("date", "accessioned", null, now.toString());
-        item.addDC("date", "available", null, now.toString());
+        
+        /*FIXME ricontrollare tutto*/
+        
+        MetadataField mdf = applicationService.getMetadataField("date", "accessioned", MetadataSchema.DC_SCHEMA, c);
+        item.addMetadata(mdf, null, now.toString());
+        MetadataField mdf2 = applicationService.getMetadataField("date", "available", MetadataSchema.DC_SCHEMA, c);
+        item.addMetadata(mdf2, null, now.toString());
+        
 
         // create issue date if not present
-        DCValue[] currentDateIssued = item.getDC("date", "issued", Item.ANY);
+        MetadataValue[] currentDateIssued = item.getMetadata(MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY); 
 
         if (currentDateIssued.length == 0)
         {
-            item.addDC("date", "issued", null, now.toString());
+            MetadataField mdf3 = applicationService.getMetadataField("date", "issued", MetadataSchema.DC_SCHEMA, c);
+            item.addMetadata(mdf2, null, now.toString());
         }
 
         // if no previous identifier supplied, create one
@@ -125,26 +144,31 @@ public class InstallItem
         String uri = identifier.getURI().toString();
 
         // Add uri as identifier.uri DC value
-        item.addDC("identifier", "uri", null, uri);
+        MetadataField mdf4 = applicationService.getMetadataField("identifier", "uri", MetadataSchema.DC_SCHEMA, c);
+        item.addMetadata(mdf4, null, uri);
+        
 
         String provDescription = "Made available in DSpace on " + now
                 + " (GMT). " + getBitstreamProvenanceMessage(item);
 
         if (currentDateIssued.length != 0)
         {
-            DCDate d = new DCDate(currentDateIssued[0].value);
+            DCDate d = new DCDate(currentDateIssued[0].getValue());
             provDescription = provDescription + "  Previous issue date: "
                     + d.toString();
         }
 
         // Add provenance description
-        item.addDC("description", "provenance", "en", provDescription);
+        MetadataField mdf5 = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
+        item.addMetadata(mdf5, "en", provDescription);
+  
 
         // create collection2item mapping
         is.getCollection().addItem(item);
-
+        
+        /*FIXME rivedere per navigabilità */
         // set owning collection
-        item.setOwningCollection(is.getCollection());
+//        item.setOwningCollection(is.getCollection());
 
         // set in_archive=true
         item.setArchived(true);
@@ -190,4 +214,8 @@ public class InstallItem
 
         return mymessage;
     }
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		InstallItem.applicationService = applicationService;
+	}
 }

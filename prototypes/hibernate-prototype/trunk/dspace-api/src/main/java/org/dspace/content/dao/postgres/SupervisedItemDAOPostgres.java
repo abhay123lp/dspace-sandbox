@@ -113,6 +113,10 @@ public class SupervisedItemDAOPostgres extends SupervisedItemDAO
         }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
     private List<SupervisedItem> returnAsList(TableRowIterator tri)
         throws SQLException
     {

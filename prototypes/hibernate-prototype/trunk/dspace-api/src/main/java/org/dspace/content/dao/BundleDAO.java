@@ -152,14 +152,8 @@ public abstract class BundleDAO extends ContentDAO
         AuthorizeManager.removeAllPolicies(context, bundle);
     }
 
-    @Deprecated
-    public List<Bundle> getBundles(Item item)
-    {
-        return getBundlesByItem(item);
-    }
-
-    public abstract List<Bundle> getBundlesByItem(Item item);
-    public abstract List<Bundle> getBundlesByBitstream(Bitstream bitstream);
+    public abstract List<Bundle> getBundles(Item item);
+    public abstract List<Bundle> getBundles(Bitstream bitstream);
 
     private void removeBitstreamFromBundle(Bundle bundle,
             Bitstream bitstream) throws AuthorizeException
@@ -174,7 +168,7 @@ public abstract class BundleDAO extends ContentDAO
             bundle.unsetPrimaryBitstreamID();
         }
 
-        if (bitstream.getBundles().length == 0)
+        if (getBundles(bitstream).size() == 0)
         {
             // The bitstream is an orphan, delete it
             bitstreamDAO.delete(bitstream.getID());
@@ -186,7 +180,6 @@ public abstract class BundleDAO extends ContentDAO
         if (!linked(bundle, bitstream))
         {
             AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
-            AuthorizeManager.inheritPolicies(context, bundle, bitstream);
 
             log.info(LogManager.getHeader(context, "add_bitstream",
                         "bundle_id=" + bundle.getID() +

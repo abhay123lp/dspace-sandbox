@@ -51,9 +51,9 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
-
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.core.Context;
@@ -412,7 +412,7 @@ public class IndexBrowse
                     {
                         // get the metadata from the item
                         String[] md = bis[i].getMdBits();
-                        DCValue[] values = item.getMetadata(md[0], md[1], md[2], Item.ANY);
+                        MetadataValue[] values = item.getMetadata(md[0], md[1], md[2], Item.ANY);
                         
                         // if we have values to index on, then do so
                         if (values != null)
@@ -420,15 +420,15 @@ public class IndexBrowse
                             for (int x = 0; x < values.length; x++)
                             {
                                 // get the normalised version of the value
-                                String nVal = BrowseOrder.makeSortString(values[x].value, values[x].language, bis[i].getDataType()); 
+                                String nVal = BrowseOrder.makeSortString(values[x].getValue(), values[x].getLanguage(), bis[i].getDataType()); 
             
                                 Map sortMap = getSortValues(item, itemMDMap);
                                 
-                                dao.insertIndex(bis[i].getTableName(), item.getID(), values[x].value, nVal, sortMap);
+                                dao.insertIndex(bis[i].getTableName(), item.getID(), values[x].getValue(), nVal, sortMap);
                                 
                                 if (bis[i].isMetadataIndex())
                                 {
-                                    int distinctID = dao.getDistinctID(bis[i].getTableName(true, false, false), values[x].value, nVal);
+                                    int distinctID = dao.getDistinctID(bis[i].getTableName(true, false, false), values[x].getValue(), nVal);
                                     dao.createDistinctMapping(bis[i].getMapName(), item.getID(), distinctID);
                                 }
                             }
@@ -464,16 +464,16 @@ public class IndexBrowse
             
             // If we've already used the metadata for this Item
             // it will be cached in the map
-            DCValue value = null;
+            MetadataValue value = null;
             
             if (itemMDMap != null)
-                value = (DCValue) itemMDMap.get(metadata);
+                value = (MetadataValue)itemMDMap.get(metadata);
             
             // We haven't used this metadata before, so grab it from the item
             if (value == null)
             {
                 String[] somd = so.getMdBits();
-                DCValue[] dcv = item.getMetadata(somd[0], somd[1], somd[2], Item.ANY);
+                MetadataValue[] dcv = item.getMetadata(somd[0], somd[1], somd[2], Item.ANY);
                 
                 if (dcv == null)
                 {
@@ -493,9 +493,9 @@ public class IndexBrowse
             }
             
             // normalise the values as we insert into the sort map
-            if (value != null && value.value != null)
+            if (value != null && value.getValue() != null)
             {
-                String nValue = BrowseOrder.makeSortString(value.value, value.language, so.getType());
+                String nValue = BrowseOrder.makeSortString(value.getValue(), value.getLanguage(), so.getType());
                 sortMap.put(key, nValue);
             }
         }
@@ -1169,7 +1169,7 @@ public class IndexBrowse
 //	        this.id         = id;
 //	    }
 
-	    public DCValue[] getMetadata(String schema, String element, String qualifier, String lang)
+	    public MetadataValue[] getMetadata(String schema, String element, String qualifier, String lang)
 	        throws SQLException
 	    {
 	        if (item != null)

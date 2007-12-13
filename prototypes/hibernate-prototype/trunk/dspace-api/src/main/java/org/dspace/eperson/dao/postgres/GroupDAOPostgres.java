@@ -116,15 +116,7 @@ public class GroupDAOPostgres extends GroupDAO
         {
             TableRow row = DatabaseManager.find(context, "epersongroup", id);
 
-            if (row == null)
-            {
-                log.warn("group " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -147,15 +139,7 @@ public class GroupDAOPostgres extends GroupDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "epersongroup", "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("group " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -178,39 +162,12 @@ public class GroupDAOPostgres extends GroupDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "epersongroup", "name", name);
 
-            if (row == null)
-            {
-                log.warn("group " + name + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private Group retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("eperson_group_id");
-
-        Group group = super.retrieve(id);
-
-        if (group != null)
-        {
-            return group;
-        }
-
-        group = new GroupProxy(context, id);
-        populateGroupFromTableRow(group, row);
-
-        context.cache(group, id);
-
-        return group;
     }
 
     @Override
@@ -487,13 +444,13 @@ public class GroupDAOPostgres extends GroupDAO
 		}
 		catch (NumberFormatException e)
         {
-			int_param = new Integer(-1);
+			int_param = -1;
 		}
 
         try
         {
             TableRowIterator tri = DatabaseManager.query(context, dbquery,
-                    new Object[] {params, int_param});
+                    params, int_param);
 
             return returnAsList(tri);
         }
@@ -502,26 +459,6 @@ public class GroupDAOPostgres extends GroupDAO
             throw new RuntimeException(sqle);
         }
 	}
-
-    private List<Group> returnAsList(TableRowIterator tri)
-    {
-        try
-        {
-            List<Group> groups = new ArrayList<Group>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("eperson_group_id");
-                groups.add(retrieve(id));
-            }
-
-            return groups;
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
 
     @Override
     public void link(Group parent, Group child)
@@ -753,6 +690,50 @@ public class GroupDAOPostgres extends GroupDAO
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
+
+    private Group retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("eperson_group_id");
+
+        Group group = super.retrieve(id);
+
+        if (group != null)
+        {
+            return group;
+        }
+
+        group = new GroupProxy(context, id);
+        populateGroupFromTableRow(group, row);
+
+        context.cache(group, id);
+
+        return group;
+    }
+
+    private List<Group> returnAsList(TableRowIterator tri)
+    {
+        try
+        {
+            List<Group> groups = new ArrayList<Group>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("eperson_group_id");
+                groups.add(retrieve(id));
+            }
+
+            return groups;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
 
     private void populateGroupFromTableRow(Group group, TableRow row)
     {

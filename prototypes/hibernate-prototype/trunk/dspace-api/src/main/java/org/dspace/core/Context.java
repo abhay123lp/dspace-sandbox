@@ -44,7 +44,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -53,11 +52,13 @@ import org.apache.log4j.Logger;
 
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.storage.dao.GlobalDAO;
-import org.dspace.storage.dao.GlobalDAOFactory;
+import org.dspace.eperson.dao.GroupDAO;
+import org.dspace.eperson.dao.GroupDAOFactory;
+import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;
-import org.dspace.event.Dispatcher;
+import org.dspace.storage.dao.GlobalDAO;
+import org.dspace.storage.dao.GlobalDAOFactory;
 
 /**
  * Class representing the context of a particular DSpace operation. This stores
@@ -84,6 +85,8 @@ public class Context
     /** Global DAO object */
     private GlobalDAO dao;
 
+    private GroupDAO groupDAO;
+
     /** Current user - null means anonymous access */
     private EPerson currentUser;
     
@@ -97,10 +100,10 @@ public class Context
     private boolean ignoreAuth;
 
     /** Object cache for this context */
-    private Map objectCache;
+    private Map<String, Object> objectCache;
 
     /** Group IDs of special groups user is a member of */
-    private List specialGroups;
+    private List<Integer> specialGroups;
     
     /** Content events */
     private List<Event> events = null;
@@ -118,14 +121,15 @@ public class Context
     public Context() throws SQLException
     {
         dao = GlobalDAOFactory.getInstance();
+        groupDAO = GroupDAOFactory.getInstance(this);
 
         currentUser = null;
         currentLocale = I18nUtil.DEFAULTLOCALE;
         extraLogInfo = "";
         ignoreAuth = false;
 
-        objectCache = new HashMap();
-        specialGroups = new ArrayList();
+        objectCache = new HashMap<String, Object>();
+        specialGroups = new ArrayList<Integer>();
     }
 
     /**
@@ -187,7 +191,7 @@ public class Context
     /**
      *  set the current Locale
      *  
-     *  @param Locale
+     *  @param locale
      *          the current Locale
      */
     public void setCurrentLocale(Locale locale)
@@ -304,6 +308,7 @@ public class Context
         {
             if (events != null)
             {
+                // FIXME: Is this pointless / harmful?
                 synchronized (events)
                 {
                     events = null;
@@ -323,7 +328,8 @@ public class Context
 
     /**
      * Select an event dispatcher, <code>null</code> selects the default
-     * 
+     *
+     * @param dispatcher
      */
     public void setDispatcher(String dispatcher)
     {
@@ -452,9 +458,7 @@ public class Context
      */
     public void setSpecialGroup(int groupID)
     {
-        specialGroups.add(new Integer(groupID));
-
-        // System.out.println("Added " + groupID);
+        specialGroups.add(groupID);
     }
 
     /**
@@ -466,13 +470,7 @@ public class Context
      */
     public boolean inSpecialGroup(int groupID)
     {
-        if (specialGroups.contains(new Integer(groupID)))
-        {
-            // System.out.println("Contains " + groupID);
-            return true;
-        }
-
-        return false;
+        return specialGroups.contains(groupID);
     }
 
     /**
@@ -480,24 +478,23 @@ public class Context
      * of
      * 
      * @return
-     * @throws SQLException
      */
     public Group[] getSpecialGroups()
     {
-        List myGroups = new ArrayList();
+        List<Group> groups = new ArrayList<Group>();
 
-        Iterator i = specialGroups.iterator();
-
-        while (i.hasNext())
+        for (Integer i : specialGroups)
         {
-            myGroups.add(Group.find(this, ((Integer) i.next()).intValue()));
+            groups.add(groupDAO.retrieve(i));
         }
 
-        return (Group[]) myGroups.toArray(new Group[0]);
+        return groups.toArray(new Group[0]);
     }
 
-    protected void finalize()
+    protected void finalize() throws Throwable
     {
+        super.finalize();
+
         /*
          * If a context is garbage-collected, we roll back and free up the
          * database connection if there is one.

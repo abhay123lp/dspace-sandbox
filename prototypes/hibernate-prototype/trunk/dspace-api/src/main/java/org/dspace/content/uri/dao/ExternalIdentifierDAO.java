@@ -182,7 +182,8 @@ public abstract class ExternalIdentifierDAO
 
         if (type == null)
         {
-            throw new RuntimeException(namespace + " not supported");
+            return null;
+//            throw new RuntimeException(namespace + " not supported");
         }
 
         // FIXME: This is filthy and horrid, but since java doesn't have

@@ -45,8 +45,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.Long;
-import java.lang.StringBuffer;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.text.ParseException;
@@ -59,17 +57,20 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.StringTokenizer;
 
-import org.dspace.app.statistics.LogLine;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.dao.MetadataFieldDAO;
+import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 
@@ -1156,6 +1157,9 @@ public class LogAnalyser
         // that
 
         ItemDAO dao = ItemDAOFactory.getInstance(context);
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+
         List<Item> items = null;
 
         if ((type == null) || type.equals(""))
@@ -1164,13 +1168,12 @@ public class LogAnalyser
         }
         else
         {
-            MetadataSchema schema = MetadataSchema.find(context, "dc");
-            MetadataField field = MetadataField.findByElement(context,
-                    schema.getID(), "type", null);
+            MetadataSchema schema = msDAO.retrieveByName("dc");
+            MetadataField field = mfDAO.retrieve(schema.getID(), "type", null);
             MetadataValue value = new MetadataValue(field);
             value.setValue(type);
 
-            items = dao.getItems(field, value);
+            items = dao.getItems(value);
         }
 
         return items.size();

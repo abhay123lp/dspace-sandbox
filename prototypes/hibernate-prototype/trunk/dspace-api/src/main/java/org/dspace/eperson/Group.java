@@ -88,21 +88,12 @@ public class Group extends DSpaceObject
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
     
-    public Group(Context context, int id)
+    public Group(Context context)
     {
-        this.id = id;
         this.context = context;
-
-        dao = GroupDAOFactory.getInstance(context);
-        epersonDAO = EPersonDAOFactory.getInstance(context);
-
-        modifiedMetadata = false;
-        clearDetails();
-
         epeople = new ArrayList<EPerson>();
         groups = new ArrayList<Group>();
 
-        context.cache(this, id);
     }
 
     public String getName()

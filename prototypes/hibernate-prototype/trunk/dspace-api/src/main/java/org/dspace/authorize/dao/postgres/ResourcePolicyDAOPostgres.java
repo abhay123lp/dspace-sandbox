@@ -102,15 +102,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         {
             TableRow row = DatabaseManager.find(context, "resourcepolicy", id);
 
-            if (row == null)
-            {
-                log.warn("resource policy " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -133,29 +125,12 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "resourcepolicy", "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("resource policy " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private ResourcePolicy retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("policy_id");
-        ResourcePolicy rp = new ResourcePolicy(context, id);
-        populateResourcePolicyFromTableRow(rp, row);
-
-        return rp;
     }
 
     @Override
@@ -276,8 +251,26 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private ResourcePolicy retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("policy_id");
+        ResourcePolicy rp = new ResourcePolicy(context, id);
+        populateResourcePolicyFromTableRow(rp, row);
+
+        return rp;
+    }
+
     private List<ResourcePolicy> returnAsList(TableRowIterator tri)
-        throws SQLException
+            throws SQLException
     {
         List<ResourcePolicy> policies = new ArrayList<ResourcePolicy>();
 
@@ -289,10 +282,6 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
 
         return policies;
     }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
 
     private void populateResourcePolicyFromTableRow(ResourcePolicy rp,
             TableRow row)

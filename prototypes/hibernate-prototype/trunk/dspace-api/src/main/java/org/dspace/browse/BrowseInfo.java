@@ -39,16 +39,16 @@
  */
 package org.dspace.browse;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 
 /**
@@ -60,6 +60,7 @@ import org.dspace.core.Context;
  */
 public class BrowseInfo
 {
+	private static ApplicationService applicationService;
     /**
      * The results of the browse.
      */
@@ -538,7 +539,7 @@ public class BrowseInfo
         Item[] items = new Item[bis.length];
         for (int i = 0; i < bis.length; i++)
         {
-            items[i] = Item.find(context, bis[i].getID());
+        	items[i] = applicationService.get(context, Item.class, bis[i].getID());
         }
         return items;
     }
@@ -921,7 +922,8 @@ public class BrowseInfo
     				sb.append("{{ NULL METADATA }}");
     				break;
     			}
-				DCValue[] values = bi.getMetadata(md[0], md[1], md[2], Item.ANY);
+				
+				MetadataValue[] values = bi.getMetadata(md[0], md[1], md[2], Item.ANY);
 				StringBuffer value = new StringBuffer();
 				if (values != null)
 				{
@@ -931,7 +933,7 @@ public class BrowseInfo
 						{
 							value.append(",");
 						}
-						value.append(values[i].value);
+						value.append(values[i].getValue());
 					}
 				}
 				else

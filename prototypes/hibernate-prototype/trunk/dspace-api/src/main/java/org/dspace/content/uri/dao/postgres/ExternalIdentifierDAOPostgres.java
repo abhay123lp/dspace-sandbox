@@ -111,7 +111,18 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
 
     public ExternalIdentifier retrieve(String canonicalForm)
     {
+        if (canonicalForm.equals("") || canonicalForm == null)
+        {
+            return null;
+        }
+
         Object[] bits = parseCanonicalForm(canonicalForm);
+
+        if (bits == null)
+        {
+            return null;
+        }
+
         ExternalIdentifier.Type type = (ExternalIdentifier.Type) bits[0];
         String value = (String) bits[1];
 
@@ -149,8 +160,7 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
             }
             else
             {
-                throw new RuntimeException("identifier " + type.getNamespace()
-                        + ":" + value + " not found");
+                return null;
             }
         }
         catch (SQLException sqle)

@@ -47,6 +47,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -79,7 +80,7 @@ public abstract class MetadataFieldDAO extends ContentDAO
     protected final MetadataField create(MetadataField field)
     {
         int id = field.getID();
-        int schemaID = field.getSchemaID();
+        int schemaID = field.getSchema().getID();
         String element = field.getElement();
         String qualifier = field.getQualifier();
 
@@ -120,11 +121,17 @@ public abstract class MetadataFieldDAO extends ContentDAO
     {
         return null;
     }
+    
+    public MetadataField retrieve(String schema, String element,
+            String qualifier)
+    {
+            return null;
+    }
 
     public void update(MetadataField field) throws AuthorizeException
     {
         int id = field.getID();
-        int schemaID = field.getSchemaID();
+        int schemaID = field.getSchema().getID();
         String element = field.getElement();
         String qualifier = field.getQualifier();
 
@@ -198,8 +205,15 @@ public abstract class MetadataFieldDAO extends ContentDAO
             String element, String qualifier);
 
     public abstract List<MetadataField> getMetadataFields();
-    // FIXME: Should maybe take a MetadataSchema object instead
-    public abstract List<MetadataField> getMetadataFields(int schemaID);
+
+    @Deprecated
+    public List<MetadataField> getMetadataFields(int schemaID)
+    {
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+        return getMetadataFields(msDAO.retrieve(schemaID));
+    }
+
+    public abstract List<MetadataField> getMetadataFields(MetadataSchema schema);
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods

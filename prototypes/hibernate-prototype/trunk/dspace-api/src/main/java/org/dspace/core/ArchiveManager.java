@@ -288,7 +288,6 @@ public class ArchiveManager
             Item item, Collection collection)
         throws AuthorizeException
     {
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
 
         collectionDAO.link(collection, item);
@@ -298,26 +297,10 @@ public class ArchiveManager
             Item item, Collection collection)
         throws AuthorizeException
     {
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
 
         // Remove mapping
         collectionDAO.unlink(collection, item);
-
-        if (collectionDAO.getParentCollections(item).size() == 0)
-        {
-            // make the right to remove the item explicit because the implicit
-            // relation has been removed. This only has to concern the
-            // currentUser because he started the removal process and he will
-            // end it too. also add right to remove from the item to remove
-            // it's bundles.
-            AuthorizeManager.addPolicy(context, item, Constants.DELETE,
-                    context.getCurrentUser());
-            AuthorizeManager.addPolicy(context, item, Constants.REMOVE,
-                    context.getCurrentUser());
-
-            itemDAO.delete(item.getID());
-        }
     }
 
     private static void addCollectionToCommunity(Context context,
@@ -326,7 +309,7 @@ public class ArchiveManager
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
 
-        communityDAO.link((DSpaceObject) parent, (DSpaceObject) child);
+        communityDAO.link(parent, child);
     }
 
     private static void removeCollectionFromCommunity(Context context,
@@ -334,25 +317,8 @@ public class ArchiveManager
         throws AuthorizeException
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
-        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
 
-        communityDAO.unlink((DSpaceObject) parent, (DSpaceObject) child);
-
-        if (communityDAO.getParentCommunities(child).size() == 0)
-        {
-            // make the right to remove the child explicit because the
-            // implicit relation has been removed. This only has to concern the
-            // currentUser because he started the removal process and he will
-            // end it too. also add right to remove from the child to
-            // remove it's items.
-            AuthorizeManager.addPolicy(context, child, Constants.DELETE,
-                    context.getCurrentUser());
-            AuthorizeManager.addPolicy(context, child, Constants.REMOVE,
-                    context.getCurrentUser());
-
-            // Orphan; delete it
-            collectionDAO.delete(child.getID());
-        }
+        communityDAO.unlink(parent, child);
     }
 
     private static void addCommunityToCommunity(Context context,
@@ -361,7 +327,7 @@ public class ArchiveManager
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
 
-        communityDAO.link((DSpaceObject) parent, (DSpaceObject) child);
+        communityDAO.link(parent, child);
     }
 
     private static void removeCommunityFromCommunity(Context context,
@@ -370,22 +336,7 @@ public class ArchiveManager
     {
         CommunityDAO communityDAO = CommunityDAOFactory.getInstance(context);
 
-        communityDAO.unlink((DSpaceObject) parent, (DSpaceObject) child);
-
-        if (communityDAO.getParentCommunities(child).size() == 0)
-        {
-            // make the right to remove the collection explicit because the
-            // implicit relation has been removed. This only has to concern the
-            // currentUser because he started the removal process and he will
-            // end it too. also add right to remove from the collection to
-            // remove it's items.
-            AuthorizeManager.addPolicy(context, child, Constants.DELETE,
-                    context.getCurrentUser());
-            AuthorizeManager.addPolicy(context, child, Constants.REMOVE,
-                    context.getCurrentUser());
-
-            communityDAO.delete(child.getID());
-        }
+        communityDAO.unlink(parent, child);
     }
 
     private static void logMove(DSpaceObject dso, DSpaceObject source,

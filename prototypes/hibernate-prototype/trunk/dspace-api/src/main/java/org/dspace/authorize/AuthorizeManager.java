@@ -40,12 +40,14 @@
 package org.dspace.authorize;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 
 import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.DSpaceObject;
+//import org.dspace.content.proxy.ItemProxy;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -460,8 +462,10 @@ public class AuthorizeManager
     public static void inheritPolicies(Context c, DSpaceObject src,
             DSpaceObject dest) throws AuthorizeException
     {
+        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+
         // find all policies for the source object
-        List<ResourcePolicy> policies = getPolicies(c, src);
+        List<ResourcePolicy> policies = dao.getPolicies(src);
 
         addPolicies(c, policies, dest);
     }

@@ -443,7 +443,7 @@ public abstract class AbstractMETSIngester
                              ", but found no corresponding bitstream.");
                 else
                 {
-                    List<Bundle> bn = bundleDAO.getBundlesByBitstream(pbs);
+                    List<Bundle> bn = bundleDAO.getBundles(pbs);
                     if (bn.size() > 0)
                         bn.get(0).setPrimaryBitstreamID(pbs.getID());
                     else

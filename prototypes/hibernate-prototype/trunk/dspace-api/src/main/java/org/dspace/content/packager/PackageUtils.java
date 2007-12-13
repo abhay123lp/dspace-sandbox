@@ -54,6 +54,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.DCValue;
 import org.dspace.content.FormatIdentifier;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.license.CreativeCommons;
@@ -78,8 +80,8 @@ public class PackageUtils
     public static void checkMetadata(Item item)
         throws PackageValidationException
     {
-        DCValue t[] = item.getDC( "title", null, Item.ANY);
-        if (t == null || t.length == 0)
+        MetadataValue mdv[] = item.getMetadata(MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
+        if (mdv == null || mdv.length == 0)
             throw new PackageValidationException("Item cannot be created without the required \"title\" DC metadata.");
     }
 

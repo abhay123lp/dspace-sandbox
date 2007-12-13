@@ -107,7 +107,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
 
             if (row == null)
             {
-                log.warn("bitstream format " + id + " not found");
+                log.debug("bitstream format " + id + " not found");
                 return null;
             }
             else
@@ -138,7 +138,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
 
             if (row == null)
             {
-                log.warn("bitstream format " + uuid + " not found");
+                log.debug("bitstream format " + uuid + " not found");
                 return null;
             }
             else
@@ -168,15 +168,7 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "bitstreamformatregistry", "short_description", desc);
 
-            if (row == null)
-            {
-                log.warn("bitstream format '" + desc + "' not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -202,29 +194,12 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
                 "SELECT * FROM bitstreamformatregistry " +
                 "WHERE mimetype LIKE ? AND internal = '0'", mimeType);
 
-            if (row == null)
-            {
-                log.warn("bitstream format '" + mimeType + "' not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private BitstreamFormat retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("bitstream_format_id");
-        BitstreamFormat bitstreamFormat = new BitstreamFormat(context, id);
-        populateBitstreamFormatFromTableRow(bitstreamFormat, row);
-
-        return bitstreamFormat;
     }
 
     @Override
@@ -374,8 +349,26 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
         }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private BitstreamFormat retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("bitstream_format_id");
+        BitstreamFormat bitstreamFormat = new BitstreamFormat(context, id);
+        populateBitstreamFormatFromTableRow(bitstreamFormat, row);
+
+        return bitstreamFormat;
+    }
+
     private List<BitstreamFormat> returnAsList(TableRowIterator tri)
-        throws SQLException
+            throws SQLException
     {
         List<BitstreamFormat> formats = new ArrayList<BitstreamFormat>();
 
@@ -387,10 +380,6 @@ public class BitstreamFormatDAOPostgres extends BitstreamFormatDAO
 
         return formats;
     }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
 
     private void populateBitstreamFormatFromTableRow(BitstreamFormat
             bitstreamFormat, TableRow row)

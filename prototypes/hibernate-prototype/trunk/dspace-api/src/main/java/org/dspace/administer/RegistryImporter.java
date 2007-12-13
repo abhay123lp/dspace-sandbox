@@ -50,7 +50,6 @@ import org.apache.commons.cli.PosixParser;
 
 import org.apache.xpath.XPathAPI;
 
-import org.dspace.administer.DCType;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;

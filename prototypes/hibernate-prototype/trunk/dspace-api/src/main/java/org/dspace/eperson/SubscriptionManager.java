@@ -56,6 +56,8 @@ import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
@@ -367,34 +369,33 @@ public class SubscriptionManager
                     {
                         HarvestedItemInfo hii =
                             (HarvestedItemInfo) itemInfos.get(j);
-    
-                        DCValue[] titles = hii.item.getDC("title", null, Item.ANY);
+                        MetadataValue[] titles = hii.item.getMetadata(MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
+                        //DCValue[] titles = hii.item.getDC("title", null, Item.ANY);
                         emailText.append("      ").append(labels.getString(
                                     "org.dspace.eperson.Subscribe.title")).append(" ");
     
                         if (titles.length > 0)
                         {
-                            emailText.append(titles[0].value);
+                            emailText.append(titles[0].getValue());
                         }
                         else
                         {
                             emailText.append(labels.getString(
                                         "org.dspace.eperson.Subscribe.untitled"));
                         }
-    
-                        DCValue[] authors = hii.item.getDC("contributor", Item.ANY,
-                                Item.ANY);
+                        MetadataValue[] authors = hii.item.getMetadata(MetadataSchema.DC_SCHEMA,"contributor", Item.ANY, Item.ANY);
+                        //DCValue[] authors = hii.item.getDC("contributor", Item.ANY,Item.ANY);
     
                         if (authors.length > 0)
                         {
                             emailText.append("\n    ").append(labels.getString(
                                         "org.dspace.eperson.Subscribe.authors"))
-                                .append(authors[0].value);
+                                .append(authors[0].getValue());
     
                             for (int k = 1; k < authors.length; k++)
                             {
                                 emailText.append("\n             ").append(
-                                        authors[k].value);
+                                        authors[k].getValue());
                             }
                         }
     
