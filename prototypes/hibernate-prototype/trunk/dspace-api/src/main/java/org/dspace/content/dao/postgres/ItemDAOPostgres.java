@@ -39,8 +39,6 @@
  */
 package org.dspace.content.dao.postgres;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -58,14 +56,11 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.BrowseException;
 import org.dspace.browse.IndexBrowse;
-import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
-import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
-import org.dspace.content.ItemIterator;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
@@ -84,7 +79,6 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
@@ -180,15 +174,7 @@ public class ItemDAOPostgres extends ItemDAO
         {
             TableRow row = DatabaseManager.find(context, "item", id);
 
-            if (row == null)
-            {
-                log.warn("item " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -211,36 +197,12 @@ public class ItemDAOPostgres extends ItemDAO
             TableRow row = DatabaseManager.findByUnique(context, "item",
                     "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("item " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private Item retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("item_id");
-        Item item = new ItemProxy(context, id);
-        populateItemFromTableRow(item, row);
-
-        // FIXME: I'd like to bump the rest of this up into the superclass
-        // so we don't have to do it for every implementation, but I can't
-        // figure out a clean way of doing this yet.
-        List<ExternalIdentifier> identifiers =
-            identifierDAO.getExternalIdentifiers(item);
-        item.setExternalIdentifiers(identifiers);
-
-        return item;
     }
 
     @Override
@@ -254,7 +216,10 @@ public class ItemDAOPostgres extends ItemDAO
 
             if (row != null)
             {
-                update(item, row);
+                // Fill out the TableRow and save it
+                populateTableRowFromItem(item, row);
+                row.setColumn("last_modified", new Date());
+                DatabaseManager.update(context, row);
             }
             else
             {
@@ -264,116 +229,6 @@ public class ItemDAOPostgres extends ItemDAO
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
-        }
-    }
-
-    /**
-     * Very thin adaptation of the old Item.update().
-     */
-    private void update(Item item, TableRow itemRow) throws AuthorizeException
-    {
-        MetadataValueDAO mvDAO = MetadataValueDAOFactory.getInstance(context);
-        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
-        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
-
-        try
-        {
-            // Fill out the TableRow and save it
-            populateTableRowFromItem(item, itemRow);
-            itemRow.setColumn("last_modified", new Date());
-            DatabaseManager.update(context, itemRow);
-
-            // Map counting number of values for each element/qualifier.
-            // Keys are Strings: "element" or "element.qualifier"
-            // Values are Integers indicating number of values written for a
-            // element/qualifier
-            Map elementCount = new HashMap();
-
-            // FIXME: We need to be cunning about what we write to the database
-//            if (dublinCoreChanged)
-//            {
-                // Remove existing metadata
-                removeMetadataFromDatabase(item.getID());
-
-                // Add in-memory metadata
-                for (DCValue dcv : item.getMetadata())
-                {
-                    // Get the DC Type
-                    int schemaID;
-                    MetadataSchema schema = msDAO.retrieveByName(dcv.schema);
-
-                    if (schema == null)
-                    {
-                        schemaID = MetadataSchema.DC_SCHEMA_ID;
-                    }
-                    else
-                    {
-                        schemaID = schema.getID();
-                    }
-
-                    MetadataField field =
-                        mfDAO.retrieve(schemaID, dcv.element, dcv.qualifier);
-
-                    if (field == null)
-                    {
-                        // Bad DC field, log and throw exception
-                        log.warn(LogManager.getHeader(context, "bad_dc",
-                            "Bad DC field. SchemaID=" +
-                            String.valueOf(schemaID) +
-                            ", element: \"" + ((dcv.element == null)
-                                ? "null" : dcv.element) +
-                            "\" qualifier: \"" + ((dcv.qualifier == null)
-                                ? "null" : dcv.qualifier) +
-                            "\" value: \"" + ((dcv.value == null)
-                                ? "null" : dcv.value) + "\""));
-
-                        throw new SQLException("bad_dublin_core " +
-                                "SchemaID=" + String.valueOf(schemaID) + ", " +
-                                dcv.element + " " + dcv.qualifier);
-                    }
-
-                    // Work out the place number for ordering
-                    int current = 0;
-
-                    // Key into map is "element" or "element.qualifier"
-                    String key = dcv.element +
-                            ((dcv.qualifier == null)
-                             ? "" : ("." + dcv.qualifier));
-
-                    Integer currentInteger = (Integer) elementCount.get(key);
-
-                    if (currentInteger != null)
-                    {
-                        current = currentInteger.intValue();
-                    }
-
-                    current++;
-                    elementCount.put(key, new Integer(current));
-
-                    // Write metadata
-                    MetadataValue metadata = mvDAO.create();
-                    metadata.setItemID(item.getID());
-                    metadata.setFieldID(field.getID());
-                    metadata.setValue(dcv.value);
-                    metadata.setLanguage(dcv.language);
-                    metadata.setPlace(current);
-                    mvDAO.update(metadata);
-                }
-
-//                dublinCoreChanged = false;
-//            }
-
-            // Update browse indices
-            IndexBrowse ib = new IndexBrowse(context);
-            ib.indexItem(item);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-        catch (BrowseException e)
-        {
-            throw new RuntimeException(e);
         }
     }
 
@@ -454,13 +309,13 @@ public class ItemDAOPostgres extends ItemDAO
                 {
                     query += " AND cl2i.collection_id= ? " +
                              " AND cl2i.item_id = p.resource_id ";
-                    parameters.add(new Integer(scope.getID()));
+                    parameters.add(scope.getID());
                 }
                 else if (scope.getType() == Constants.COMMUNITY)
                 {
                     query += " AND cm2i.community_id= ? " +
                              " AND cm2i.item_id = p.resource_id";
-                    parameters.add(new Integer(scope.getID()));
+                    parameters.add(scope.getID());
                 }
             }
 
@@ -501,7 +356,7 @@ public class ItemDAOPostgres extends ItemDAO
                 parameters.add(toTimestamp(endDate, selfGenerated));
             }
 
-            if (withdrawn == false)
+            if (!withdrawn)
             {
                 // Exclude withdrawn items
                 if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
@@ -536,8 +391,7 @@ public class ItemDAOPostgres extends ItemDAO
     }
 
     @Override
-    public List<Item> getItems(MetadataField field, MetadataValue value,
-            Date startDate, Date endDate)
+    public List<Item> getItems(MetadataValue value, Date startDate, Date endDate)
     {
         // FIXME: Of course, this should actually go somewhere else
         boolean oracle = false;
@@ -634,7 +488,7 @@ public class ItemDAOPostgres extends ItemDAO
             else
             {
                 tri = DatabaseManager.query(context, query.toString(),
-                        field.getID(), value.getValue());
+                        value.getFieldID(), value.getValue());
             }
 
             return returnAsList(tri);
@@ -703,19 +557,6 @@ public class ItemDAOPostgres extends ItemDAO
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private List<Item> returnAsList(TableRowIterator tri) throws SQLException
-    {
-        List<Item> items = new ArrayList<Item>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("item_id");
-            items.add(retrieve(id));
-        }
-
-        return items;
     }
 
     @Override
@@ -789,11 +630,43 @@ public class ItemDAOPostgres extends ItemDAO
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     //
-    // Note: the methods below marked public should really be in the base Item
-    // class (or the proxy), but until DAOs are adopted system-wide, we need to
-    // take care of it here. For instance, getCollection() should really
-    // interrogate CollectionDAO.retrieve(id), but that doesn't exist yet.
+    // Note: the methods below marked public are mostly to serve the
+    // ItemProxy class. The situation isn't really ideal.
     ////////////////////////////////////////////////////////////////////
+
+    private Item retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("item_id");
+        Item item = new ItemProxy(context, id);
+        populateItemFromTableRow(item, row);
+
+        // FIXME: I'd like to bump the rest of this up into the superclass
+        // so we don't have to do it for every implementation, but I can't
+        // figure out a clean way of doing this yet.
+        List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(item);
+        item.setExternalIdentifiers(identifiers);
+
+        return item;
+    }
+
+    private List<Item> returnAsList(TableRowIterator tri) throws SQLException
+    {
+        List<Item> items = new ArrayList<Item>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("item_id");
+            items.add(retrieve(id));
+        }
+
+        return items;
+    }
 
     private void populateTableRowFromItem(Item item, TableRow row)
     {

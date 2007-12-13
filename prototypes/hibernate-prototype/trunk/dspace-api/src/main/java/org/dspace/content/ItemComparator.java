@@ -206,25 +206,25 @@ public class ItemComparator implements Comparator
     private String getValue(Item item)
     {
         // The overall array and each element are guaranteed non-null
-        DCValue[] dcvalues = item.getDC(element, qualifier, language);
-
-        if (dcvalues.length == 0)
+//        DCValue[] dcvalues = item.getDC(element, qualifier, language);
+    	MetadataValue[] mdvalues = item.getMetadata(MetadataSchema.DC_SCHEMA, element, qualifier, language);
+        if (mdvalues.length == 0)
         {
             return null;
         }
 
-        if (dcvalues.length == 1)
+        if (mdvalues.length == 1)
         {
-            return normalizeTitle(dcvalues[0]);
+            return normalizeTitle(mdvalues[0]);
         }
 
         // We want to sort using Strings, but also keep track of
         // which DCValue the value came from.
         Map values = new HashMap();
 
-        for (int i = 0; i < dcvalues.length; i++)
+        for (int i = 0; i < mdvalues.length; i++)
         {
-            String value = dcvalues[i].value;
+            String value = mdvalues[i].getValue();
 
             if (value != null)
             {
@@ -243,19 +243,19 @@ public class ItemComparator implements Comparator
 
         int index = ((Integer) values.get(chosen)).intValue();
 
-        return normalizeTitle(dcvalues[index]);
+        return normalizeTitle(mdvalues[index]);
     }
 
     /**
      * Normalize the title of a DCValue.
      */
-    private String normalizeTitle(DCValue value)
+    private String normalizeTitle(MetadataValue value)
     {
         if (!"title".equals(element))
         {
-            return value.value;
+            return value.getValue();
         }
 
-        return BrowseOrder.makeSortString(value.value, value.language, BrowseOrder.TITLE);
+        return BrowseOrder.makeSortString(value.getValue(), value.getLanguage(), BrowseOrder.TITLE);
     }
 }

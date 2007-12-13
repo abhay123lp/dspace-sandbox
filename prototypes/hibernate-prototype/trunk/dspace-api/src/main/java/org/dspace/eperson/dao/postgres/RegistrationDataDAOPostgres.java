@@ -92,43 +92,6 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
         return retrieve("token", token);
     }
 
-    private RegistrationData retrieve(String field, String value)
-    {
-        try
-        {
-            TableRow row = null;
-            if (field.equals("registrationdata_id"))
-            {
-                row = DatabaseManager.find(context, "registrationdata",
-                        Integer.parseInt(value));
-            }
-            else
-            {
-                row = DatabaseManager.findByUnique(context, "registrationdata",
-                        field, value);
-            }
-
-            if (row == null)
-            {
-                return null;
-            }
-            else
-            {
-                int id = row.getIntColumn("registrationdata_id");
-                RegistrationData rd = new RegistrationData(id);
-
-                rd.setEmail(row.getStringColumn("email"));
-                rd.setToken(row.getStringColumn("token"));
-
-                return rd;
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
     @Override
     public void update(RegistrationData rd)
     {
@@ -174,6 +137,47 @@ public class RegistrationDataDAOPostgres extends RegistrationDataDAO
         {
             DatabaseManager.deleteByValue(context, "registrationdata", "token",
                     token);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private RegistrationData retrieve(String field, String value)
+    {
+        try
+        {
+            TableRow row = null;
+            if (field.equals("registrationdata_id"))
+            {
+                row = DatabaseManager.find(context, "registrationdata",
+                        Integer.parseInt(value));
+            }
+            else
+            {
+                row = DatabaseManager.findByUnique(context, "registrationdata",
+                        field, value);
+            }
+
+            if (row == null)
+            {
+                return null;
+            }
+            else
+            {
+                int id = row.getIntColumn("registrationdata_id");
+                RegistrationData rd = new RegistrationData(id);
+
+                rd.setEmail(row.getStringColumn("email"));
+                rd.setToken(row.getStringColumn("token"));
+
+                return rd;
+            }
         }
         catch (SQLException sqle)
         {

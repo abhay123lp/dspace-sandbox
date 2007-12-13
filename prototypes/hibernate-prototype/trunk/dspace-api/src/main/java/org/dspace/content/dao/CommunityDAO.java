@@ -175,7 +175,8 @@ public abstract class CommunityDAO extends ContentDAO
     public void update(Community community) throws AuthorizeException
     {
         // Check authorization
-        community.canEdit();
+    	/*FIXME decommentare */
+//        community.canEdit();
 
         log.info(LogManager.getHeader(context, "update_community",
                 "community_id=" + community.getID()));
@@ -337,6 +338,29 @@ public abstract class CommunityDAO extends ContentDAO
         else
         {
             throw new RuntimeException("Not allowed!");
+        }
+
+        if (getParentCommunities(child).size() == 0)
+        {
+            // make the right to remove the child explicit because the
+            // implicit relation has been removed. This only has to concern the
+            // currentUser because he started the removal process and he will
+            // end it too. also add right to remove from the child to
+            // remove it's items.
+            AuthorizeManager.addPolicy(context, child, Constants.DELETE,
+                    context.getCurrentUser());
+            AuthorizeManager.addPolicy(context, child, Constants.REMOVE,
+                    context.getCurrentUser());
+
+            // Orphan; delete it
+            if (child instanceof Collection)
+            {
+                collectionDAO.delete(child.getID());
+            }
+            else if (child instanceof Community)
+            {
+                delete(child.getID());
+            }
         }
     }
 

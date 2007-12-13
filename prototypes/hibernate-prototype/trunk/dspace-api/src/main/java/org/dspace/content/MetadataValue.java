@@ -46,6 +46,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.dao.MetadataFieldDAO;
+import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.content.dao.MetadataValueDAO;
 import org.dspace.content.dao.MetadataValueDAOFactory;
 import org.dspace.core.Context;
@@ -70,7 +74,7 @@ public class MetadataValue
     private int id;
 
     /** The reference to the metadata field */
-    private int fieldID;
+    private MetadataField field;
 
     /** The reference to the DSpace item */
     private int itemID;
@@ -100,7 +104,7 @@ public class MetadataValue
      */
     public MetadataValue(MetadataField field)
     {
-        this.fieldID = field.getID();
+        this.field = field;
     }
 
     /**
@@ -108,9 +112,9 @@ public class MetadataValue
      *
      * @return metadata field ID
      */
-    public int getFieldID()
+    public MetadataField getField()
     {
-        return fieldID;
+        return field;
     }
 
     /**
@@ -118,9 +122,9 @@ public class MetadataValue
      *
      * @param fieldID new field ID
      */
-    public void setFieldID(int fieldID)
+    public void setFieldID(MetadataField field)
     {
-        this.fieldID = fieldID;
+        this.field = field;
     }
 
     /**
@@ -251,6 +255,75 @@ public class MetadataValue
                 ToStringStyle.MULTI_LINE_STYLE);
     }
 
+    /**
+     * FIXME: This assumes that we don't care about ID or placeID or itemID.
+     *
+     * @param other The DCValue object to compare with
+     * @return Whether or not the two values are equal
+     */
+    
+    public boolean equals(MetadataValue mdv)
+    {
+        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+        
+        MetadataField mdvfield = mdv.getField();
+
+        if ((mdvfield == null))
+        {
+            if (getField().getID() > 0)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (mdvfield.getID() != getField().getID())
+            {
+                return false;
+            }
+        }
+        
+        MetadataSchema mdvschema = mdvfield.getSchema();
+
+        if (mdvschema == null)
+        {
+            mdvschema = msDAO.retrieve(MetadataSchema.DC_SCHEMA_ID);
+        }
+
+        if (value == null)
+        {
+            if (mdv.getValue() != null)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (!value.equals(mdv.getValue()))
+            {
+                return false;
+            }
+        }
+
+        if (language == null)
+        {
+            if (mdv.getLanguage() != null)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (!language.equals(mdv.getLanguage()))
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+ 
     public boolean equals(Object o)
     {
         return EqualsBuilder.reflectionEquals(this, o);

@@ -210,12 +210,7 @@ public class WorkspaceItem implements InProgressSubmission
 
     public boolean equals(WorkspaceItem wsi)
     {
-        if (getID() == wsi.getID())
-        {
-            return true;
-        }
-
-        return false;
+        return getID() == wsi.getID();
     }
 
     public int hashCode()

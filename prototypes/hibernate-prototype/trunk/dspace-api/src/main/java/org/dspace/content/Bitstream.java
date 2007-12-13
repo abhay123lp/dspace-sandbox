@@ -67,12 +67,12 @@ import org.dspace.storage.bitstore.BitstreamStorageManager;
  * @version $Revision$
  */
 public class Bitstream extends DSpaceObject
-{
+{	
     /** log4j logger */
     private static Logger log = Logger.getLogger(Bitstream.class);
-
-    private BitstreamDAO dao;
-    private BundleDAO bundleDAO;
+   
+    /* The bundle owner of the bitstream */
+    private Bundle bundle;
 
     private int sequenceID;
     private String name;
@@ -87,215 +87,119 @@ public class Bitstream extends DSpaceObject
     private String internalID;
     private boolean deleted;
 
-    /** Flag set when data is modified, for events */
-    private boolean modified;
 
     /** Flag set when metadata is modified, for events */
+    /*FIXME: modified metadata viene letto solo dai metodi deprecati
+     * che non ci sono, quindi ora come ora è inutile
+     */
     private boolean modifiedMetadata;
     
-    public Bitstream(Context context, int id)
-    {
-        this.id = id;
+    private Context context;
+    
+    public Bitstream(Context context)  {
+        
         this.context = context;
-
-        dao = BitstreamDAOFactory.getInstance(context);
-        bundleDAO = BundleDAOFactory.getInstance(context);
-
-        modified = modifiedMetadata = false;
+        modifiedMetadata = false;
         clearDetails();
     }
-
-    public int getSequenceID()
-    {
-        return sequenceID;
+    
+    public int getSequenceID() {
+    	return sequenceID;
     }
-
-    public void setSequenceID(int sequenceID)
-    {
-        this.sequenceID = sequenceID;
-        modifiedMetadata = true;
+    
+    public void setSequenceID(int sequenceID) {
+    	this.sequenceID = sequenceID;
+    	modifiedMetadata = true;
         addDetails("SequenceID");
     }
-
-    // FIXME: Do we even want this exposed?
-    public String getInternalID()
-    {
-        return internalID;
+    
+    public String getName() {
+    	return name;
     }
-
-    // FIXME: Do we even want this exposed?
-    public void setInternalID(String internalID)
-    {
-        this.internalID = internalID;
-    }
-
-    /**
-     * Get the name of this bitstream - typically the filename, without any path
-     * information
-     * 
-     * @return the name of the bitstream
-     */
-    public String getName()
-    {
-        return name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-        modifiedMetadata = true;
+    
+    public void setName(String name) {
+    	this.name=name;
+    	modifiedMetadata = true;
         addDetails("Name");
     }
-
-    /**
-     * Get the source of this bitstream - typically the filename with path
-     * information (if originally provided) or the name of the tool that
-     * generated this bitstream
-     * 
-     * @return the source of the bitstream
-     */
-    public String getSource()
-    {
-        return source;
+    
+    public String getSource() {
+    	return source;
     }
-
-    public void setSource(String source)
-    {
-        this.source = source;
-        modifiedMetadata = true;
+    
+    public void setSource(String source) {
+    	this.source=source;
+    	modifiedMetadata = true;
         addDetails("Source");
     }
-
-    public String getDescription()
-    {
-        return description;
+    
+    public String getDescription() {
+    	return description;
     }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
-        modifiedMetadata = true;
+    
+    public void setDescription(String description) {
+    	this.description=description;
+    	modifiedMetadata = true;
         addDetails("Description");
     }
-
-    /**
-     * Get the checksum of the content of the bitstream.
-     * 
-     * @return the checksum
-     */
-    public String getChecksum()
-    {
-        return checksum;
+    
+    public String getChecksum() {
+    	return checksum;
     }
-
-    // FIXME: Do we even want this exposed?
-    public void setChecksum(String checksum)
-    {
-        this.checksum = checksum;
+    
+    public void setChecksum(String checksum) {
+    	this.checksum=checksum;
     }
-
-    /**
-     * Get the algorithm used to calculate the checksum
-     * 
-     * @return the algorithm, e.g. "MD5"
-     */
-    public String getChecksumAlgorithm()
-    {
-        return checksumAlgorithm;
+    
+    public String getChecksumAlgorithm() {
+    	return checksumAlgorithm;
     }
-
-    // FIXME: Do we even want this exposed?
-    public void setChecksumAlgorithm(String checksumAlgorithm)
-    {
-        this.checksumAlgorithm = checksumAlgorithm;
+    
+    public void setChecksumAlgorithm(String checksumAlgorithm) {
+    	this.checksumAlgorithm=checksumAlgorithm;
     }
-
-    /**
-     * Get the size of the bitstream
-     * 
-     * @return the size in bytes
-     */
-    public long getSize()
-    {
+   
+    public long getSize() {
         return (sizeBytes == null ? 0 : sizeBytes.longValue());
     }
-
-    // FIXME: Do we even want this exposed?
-    public void setSize(Long sizeBytes)
-    {
+    
+    public void setSize(Long sizeBytes) {
         this.sizeBytes = sizeBytes;
     }
-
-    /**
-     * Set the user's format description. This implies that the format of the
-     * bitstream is uncertain, and the format is set to "unknown."
-     * 
-     * @param desc the user's description of the format
-     */
-    public void setUserFormatDescription(String desc)
-    {
-        setFormat(null);
+    
+    public String getUserFormatDescription() {
+    	return userFormatDescription;
+    }
+    
+    public void setUserFormatDescription(String desc) {
+    	setFormat(null);
         this.userFormatDescription = desc;
         modifiedMetadata = true;
         addDetails("UserFormatDescription");
     }
-
-    /**
-     * Get the user's format description. Returns null if the format is known by
-     * the system.
-     * 
-     * @return the user's format description.
-     */
-    public String getUserFormatDescription()
-    {
-        return userFormatDescription;
-    }
-
-    /**
-     * Get the description of the format - either the user's or the description
-     * of the format defined by the system.
-     * 
-     * @return a description of the format.
-     */
-    public String getFormatDescription()
-    {
+    
+    public String getFormatDescription() {
         if (BitstreamFormat.UNKNOWN_SHORT_DESCRIPTION.equals(
-                    bitstreamFormat.getShortDescription()))
-        {
+                    bitstreamFormat.getShortDescription())) {
             // Get user description if there is one
-            if (userFormatDescription == null)
-            {
+            if (userFormatDescription == null) {
                 return BitstreamFormat.UNKNOWN_SHORT_DESCRIPTION;
             }
-
             return userFormatDescription;
         }
-
         // not null or Unknown
         return bitstreamFormat.getShortDescription();
-    }
-
-    /**
-     * Get the format of the bitstream
-     * 
-     * @return the format of this bitstream
-     */
-    public BitstreamFormat getFormat()
-    {
+    }    
+    
+    public BitstreamFormat getFormat() {
         return bitstreamFormat;
     }
-
-    /**
-     * Set the format of the bitstream. If the user has supplied a type
-     * description, it is cleared. Passing in <code>null</code> sets the type
-     * of this bitstream to "unknown".
-     * 
-     * @param f
-     *            the format of this bitstream, or <code>null</code> for
-     *            unknown
-     */
-    public void setFormat(BitstreamFormat f)
-    {
+    
+    public void setBitstreamFormat(BitstreamFormat bitstreamFormat) {
+    	this.bitstreamFormat=bitstreamFormat;
+    }
+    
+    public void setFormat(BitstreamFormat f) {
         if (f == null)
         {
             // Use "Unknown" format
@@ -308,25 +212,31 @@ public class Bitstream extends DSpaceObject
 
         // Remove user type description
         userFormatDescription = null;
-        modified = true;
+    }    
+    public int getStoreNumber() {
+    	return storeNumber;
     }
-
-    public boolean isDeleted()
-    {
-        return deleted;
+    
+    public void setStoreNumber(int storeNumber) {
+    	this.storeNumber=storeNumber;
     }
-
-    public void setDeleted(boolean deleted)
-    {
-        this.deleted = deleted;
+    
+    public String getInternalID() {
+    	return internalID;
     }
-
-    /**
-     * Retrieve the contents of the bitstream
-     * 
-     * @return a stream from which the bitstream can be read.
-     * @throws AuthorizeException
-     */
+    
+    public void setInternalID(String internalID) {
+    	this.internalID=internalID;
+    }
+    
+    public boolean idDeleted() {
+    	return deleted;
+    }
+    
+    public void setDeleted(boolean deleted) {
+    	this.deleted = deleted;
+    }
+    
     public InputStream retrieve() throws AuthorizeException, IOException
     {
         // Maybe should return AuthorizeException??
@@ -335,100 +245,14 @@ public class Bitstream extends DSpaceObject
         return BitstreamStorageManager.retrieve(context, getID());
     }
     
-    /**
-     * Determine if this bitstream is registered
-     * 
-     * @return true if the bitstream is registered, false otherwise
-     */
     public boolean isRegisteredBitstream()
     {
         return BitstreamStorageManager.isRegisteredBitstream(internalID);
     }
     
-    /**
-     * Get the asset store number where this bitstream is stored
-     * 
-     * @return the asset store number of the bitstream
-     */
-    public int getStoreNumber()
-    {
-        return storeNumber;
-    }
-
-    // FIXME: Do we even want this exposed?
-    public void setStoreNumber(int storeNumber)
-    {
-        this.storeNumber = storeNumber;
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
     public int getType()
     {
         return Constants.BITSTREAM;
     }
 
-    ////////////////////////////////////////////////////////////////////
-    // Deprecated methods
-    ////////////////////////////////////////////////////////////////////
-
-    @Deprecated
-    public static Bitstream find(Context context, int id)
-    {
-        return BitstreamDAOFactory.getInstance(context).retrieve(id);
-    }
-
-    @Deprecated
-    public Bundle[] getBundles()
-    {
-        List<Bundle> bundles = bundleDAO.getBundlesByBitstream(this);
-        return (Bundle[]) bundles.toArray(new Bundle[0]);
-    }
-
-    @Deprecated
-    static Bitstream create(Context context, InputStream is)
-            throws AuthorizeException, IOException
-    {
-        Bitstream bitstream = BitstreamDAOFactory.getInstance(context).store(is);
-        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstream.getID(), null));
-        return bitstream;
-    }
-
-    @Deprecated
-    static Bitstream register(Context context, int assetstore,
-            String bitstreamPath) throws AuthorizeException, IOException
-    {
-        
-        Bitstream bitstream =  BitstreamDAOFactory.getInstance(context).register(assetstore,
-                bitstreamPath);
-        context.addEvent(new Event(Event.CREATE, Constants.BITSTREAM, bitstream.getID(), "REGISTER"));
-        return bitstream;
-    }
-
-    @Deprecated
-    public void update() throws AuthorizeException
-    {
-        dao.update(this);
-        
-        if (modified)
-         {
-             context.addEvent(new Event(Event.MODIFY, Constants.BITSTREAM, getID(), null));
-             modified = false;
-         }
-         if (modifiedMetadata)
-         {
-             context.addEvent(new Event(Event.MODIFY_METADATA, Constants.BITSTREAM, getID(), getDetails()));
-             modifiedMetadata = false;
-             clearDetails();
-         }
-    }
-
-    @Deprecated
-    void delete() throws AuthorizeException
-    {
-        dao.delete(this.getID());
-        context.addEvent(new Event(Event.DELETE, Constants.BITSTREAM, getID(), getIdentifier().getCanonicalForm()));
-    }
 }

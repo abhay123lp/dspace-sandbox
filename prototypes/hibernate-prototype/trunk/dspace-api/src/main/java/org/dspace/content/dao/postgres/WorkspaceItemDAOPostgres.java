@@ -126,15 +126,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         {
             TableRow row = DatabaseManager.find(context, "workspaceitem", id);
 
-            if (row == null)
-            {
-                log.warn("workspace item " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -157,29 +149,12 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "workspaceitem", "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("workspace item " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private WorkspaceItem retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("workspace_item_id");
-        WorkspaceItem wsi = new WorkspaceItem(context, id);
-        populateWorkspaceItemFromTableRow(wsi, row);
-
-        return wsi;
     }
 
     @Override
@@ -283,20 +258,6 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
         }
     }
 
-    private List<WorkspaceItem> returnAsList(TableRowIterator tri)
-        throws SQLException
-    {
-        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("workspace_item_id");
-            wsItems.add(retrieve(id));
-        }
-
-        return wsItems;
-    }
-
     @Override
     public <T extends WorkspaceItem> void populate(T t)
     {
@@ -323,6 +284,34 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
+
+    private WorkspaceItem retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("workspace_item_id");
+        WorkspaceItem wsi = new WorkspaceItem(context, id);
+        populateWorkspaceItemFromTableRow(wsi, row);
+
+        return wsi;
+    }
+
+    private List<WorkspaceItem> returnAsList(TableRowIterator tri)
+            throws SQLException
+    {
+        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("workspace_item_id");
+            wsItems.add(retrieve(id));
+        }
+
+        return wsItems;
+    }
 
     private void populateWorkspaceItemFromTableRow(WorkspaceItem wsi,
             TableRow row)

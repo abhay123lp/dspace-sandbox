@@ -45,6 +45,7 @@ import java.util.List;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
@@ -59,6 +60,9 @@ import org.dspace.eperson.Group;
  */
 public class FixDefaultPolicies
 {
+	
+	private static ApplicationService applicationService;
+	
     /**
      * Command line interface to setPolicies - run to see arguments
      */
@@ -72,7 +76,8 @@ public class FixDefaultPolicies
         //////////////////////
         // carnage begins here
         //////////////////////
-        Collection[] collections = Collection.findAll(c);
+        Collection[] collections = (Collection[])applicationService.findAllCollections(c).toArray();
+        //Collection[] collections = Collection.findAll(c);
 
         for (int i = 0; i < collections.length; i++)
         {
@@ -115,8 +120,8 @@ public class FixDefaultPolicies
         }
 
         // now ensure communities have READ policies
-        Community[] communities = Community.findAll(c);
-
+        //Community[] communities = Community.findAll(c);
+        Community[] communities = (Community[])applicationService.findAllCommunities(c).toArray();
         for (int i = 0; i < communities.length; i++)
         {
             Community t = communities[i];

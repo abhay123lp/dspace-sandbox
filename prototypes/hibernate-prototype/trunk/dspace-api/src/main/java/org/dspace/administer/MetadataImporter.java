@@ -50,7 +50,6 @@ import org.apache.commons.cli.PosixParser;
 
 import org.apache.xpath.XPathAPI;
 
-import org.dspace.administer.DCType;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
@@ -294,7 +293,7 @@ public class MetadataImporter
         }
         
         MetadataField field = fieldDAO.create();
-        field.setSchemaID(schemaObj.getID());
+        field.setSchema(schemaObj);
         field.setElement(element);
         field.setQualifier(qualifier);
         field.setScopeNote(scopeNote);

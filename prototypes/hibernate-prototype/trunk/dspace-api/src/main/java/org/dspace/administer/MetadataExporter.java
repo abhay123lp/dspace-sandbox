@@ -291,12 +291,12 @@ public class MetadataExporter
     private static String getSchemaName(Context context, MetadataField mdField) throws SQLException, RegistryExportException
     {
         // Get name from cache
-        String name = schemaMap.get(new Integer(mdField.getSchemaID()));
+        String name = schemaMap.get(new Integer(mdField.getSchema().getID()));
 
         if (name == null)
         {
             // Name not retrieved before, so get the schema now
-            MetadataSchema mdSchema = MetadataSchema.find(context, mdField.getSchemaID());
+            MetadataSchema mdSchema = MetadataSchema.find(context, mdField.getSchema().getID());
             if (mdSchema != null)
             {
                 name = mdSchema.getName();

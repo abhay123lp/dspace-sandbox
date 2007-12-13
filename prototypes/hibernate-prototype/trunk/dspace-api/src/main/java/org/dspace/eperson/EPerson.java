@@ -122,20 +122,10 @@ public class EPerson extends DSpaceObject
         }
     }
 
-    public EPerson(Context context, int id)
-    {
-        this.id = id;
+    public EPerson(Context context) {
+        
         this.context = context;
-
-        dao = EPersonDAOFactory.getInstance(context);
-
-        metadata = new EnumMap<EPersonMetadataField,
-            String>(EPersonMetadataField.class);
-
-        context.cache(this, id);
-                
-        modified = modifiedMetadata = false;
-        clearDetails();
+        metadata = new EnumMap<EPersonMetadataField, String>(EPersonMetadataField.class);
     }
 
      public String getLanguage()

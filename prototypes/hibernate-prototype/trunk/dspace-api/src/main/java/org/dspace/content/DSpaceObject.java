@@ -59,7 +59,7 @@ import org.dspace.content.uri.ObjectIdentifier;
  */
 public abstract class DSpaceObject
 {
-    private static Logger log = Logger.getLogger(DSpaceObject.class);
+    //private static Logger log = Logger.getLogger(DSpaceObject.class);
     
     // accumulate information to add to "detail" element of content Event,
     // e.g. to document metadata fields touched, etc.
@@ -136,7 +136,7 @@ public abstract class DSpaceObject
     /**
      * For those cases where you only want one, and you don't care what sort.
      */
-    public ExternalIdentifier getExternalIdentifier()
+/*    public ExternalIdentifier getExternalIdentifier()
     {
         if ((identifiers != null) && (identifiers.size() > 0))
         {
@@ -149,7 +149,7 @@ public abstract class DSpaceObject
             return null;
         }
     }
-
+*/
     public List<ExternalIdentifier> getExternalIdentifiers()
     {
         if (identifiers == null)
@@ -194,7 +194,7 @@ public abstract class DSpaceObject
         return EqualsBuilder.reflectionEquals(this, o);
     }
 
-    public boolean equals(DSpaceObject other)
+/*    public boolean equals(DSpaceObject other)
     {
         if (this.getType() == other.getType())
         {
@@ -206,7 +206,7 @@ public abstract class DSpaceObject
 
         return false;
     }
-
+*/
     public int hashCode()
     {
         return HashCodeBuilder.reflectionHashCode(this);

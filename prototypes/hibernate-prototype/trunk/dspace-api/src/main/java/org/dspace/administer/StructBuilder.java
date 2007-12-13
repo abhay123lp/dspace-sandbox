@@ -423,7 +423,7 @@ public class StructBuilder
             // create the community or sub community
             if (parent != null)
             {
-                community = parent.createSubcommunity();
+                community = parent.createSubCommunity();
             }
             else
             {

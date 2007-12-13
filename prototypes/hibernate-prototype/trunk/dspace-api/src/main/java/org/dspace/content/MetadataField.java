@@ -73,7 +73,7 @@ public class MetadataField
     private MetadataFieldDAO dao;
 
     private int id;
-    private int schemaID;
+    private MetadataSchema schema;
     private String element;
     private String qualifier;
     private String scopeNote;
@@ -139,9 +139,9 @@ public class MetadataField
      *
      * @return schema record key
      */
-    public int getSchemaID()
+    public MetadataSchema getSchema()
     {
-        return schemaID;
+        return schema;
     }
 
     /**
@@ -149,9 +149,9 @@ public class MetadataField
      *
      * @param schemaID new value for key
      */
-    public void setSchemaID(int schemaID)
+    public void setSchema(MetadataSchema schema)
     {
-        this.schemaID = schemaID;
+        this.schema = schema;
     }
 
     /**

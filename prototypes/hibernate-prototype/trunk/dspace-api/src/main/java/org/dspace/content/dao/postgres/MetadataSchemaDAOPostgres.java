@@ -101,15 +101,7 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
             TableRow row = DatabaseManager.find(context,
                     "metadataschemaregistry", id);
 
-            if (row == null)
-            {
-                log.warn("metadata schema " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -132,15 +124,7 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "metadataschemaregistry", "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("metadata schema " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -163,15 +147,7 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "metadataschemaregistry", "short_id", name);
 
-            if (row == null)
-            {
-                log.warn("metadata schema " + name + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -194,33 +170,12 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "metadataschemaregistry", "namespace", namespace);
 
-            if (row == null)
-            {
-                log.warn("metadata schema " + namespace + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private MetadataSchema retrieve(TableRow row) throws SQLException
-    {
-        int id = row.getIntColumn("metadata_schema_id");
-        String namespace = row.getStringColumn("namespace");
-        String name = row.getStringColumn("short_id");
-
-        MetadataSchema schema = new MetadataSchema(context, id);
-        schema.setNamespace(namespace);
-        schema.setName(name);
-
-        return schema;
     }
 
     @Override
@@ -365,5 +320,27 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
         {
             throw new RuntimeException(sqle);
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private MetadataSchema retrieve(TableRow row) throws SQLException
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("metadata_schema_id");
+        String namespace = row.getStringColumn("namespace");
+        String name = row.getStringColumn("short_id");
+
+        MetadataSchema schema = new MetadataSchema(context, id);
+        schema.setNamespace(namespace);
+        schema.setName(name);
+
+        return schema;
     }
 }

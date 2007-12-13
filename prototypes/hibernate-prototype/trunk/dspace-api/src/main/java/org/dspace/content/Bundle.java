@@ -52,234 +52,151 @@ import org.dspace.authorize.AuthorizeManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
-import org.dspace.content.dao.BitstreamDAO;         // Naughty!
-import org.dspace.content.dao.BitstreamDAOFactory;  // Naughty!
-import org.dspace.content.dao.BundleDAO;            // Naughty!
-import org.dspace.content.dao.BundleDAOFactory;     // Naughty!
-import org.dspace.content.dao.ItemDAO;              // Naughty!
-import org.dspace.content.dao.ItemDAOFactory;       // Naughty!
 import org.dspace.event.Event;
+import org.dspace.content.factory.BitstreamFactory;
 
 /**
  * Class representing bundles of bitstreams stored in the DSpace system
  * <P>
- * The corresponding Bitstream objects are loaded into memory. At present,
- * there isn't reallyt any metadata associated with bundles - they are simple
- * containers.  Thus, the <code>update</code> method doesn't do much yet.
+ * The corresponding Bitstream objects are loaded into memory. At present, there
+ * isn't reallyt any metadata associated with bundles - they are simple
+ * containers. Thus, the <code>update</code> method doesn't do much yet.
  * Creating, adding or removing bitstreams has instant effect in the database.
- *
+ * 
  * @author James Rutherford
  * @version $Revision$
  */
-public class Bundle extends DSpaceObject
-{
-    private static Logger log = Logger.getLogger(Bundle.class);
+public class Bundle extends DSpaceObject {
+	/*FIXME: logger non usato */
+	private static Logger log = Logger.getLogger(Bundle.class);
 
-    private String name;
-    private int primaryBitstreamId;
-    private List<Bitstream> bitstreams;
+	/* The Item owner of the bundle */
+	private Item item;
+	private String name;
+	private int primaryBitstreamId;
+	private List<Bitstream> bitstreams;
 
-    private BundleDAO dao;
-    private BitstreamDAO bitstreamDAO;
-    private ItemDAO itemDAO;
+	/** Flag set when metadata is modified, for events */
+	/*FIXME modified metadata utilizzato solo da metodi deprecati*/
+	private boolean modifiedMetadata;
 
-    /** Flag set when data is modified, for events */
-    private boolean modified;
+	private Context context;
 
-    /** Flag set when metadata is modified, for events */
-    private boolean modifiedMetadata;
-    
-    public Bundle(Context context, int id)
-    {
-        this.id = id;
-        this.context = context;
+	public Bundle(Context context) {
+		this.context = context;
+		name = "";
+		primaryBitstreamId = -1;
+		bitstreams = new ArrayList<Bitstream>();
+		modifiedMetadata = false;
+	}
 
-        dao = BundleDAOFactory.getInstance(context);
-        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-        itemDAO = ItemDAOFactory.getInstance(context);
+	public Bitstream createBitstream(InputStream is) throws AuthorizeException,
+			IOException {
+		AuthorizeManager.authorizeAction(context, this, Constants.ADD);
+		/*FIXME: bisogna che il bitstream venga creato tramite is */
+		Bitstream b = BitstreamFactory.getInstance(context);
 
-        name = "";
-        primaryBitstreamId = -1;
-        bitstreams = new ArrayList<Bitstream>();
+		addBitstream(b);
 
-        modified = modifiedMetadata = false;
-    }
+		return b;
+	}
+	
+	/* FIXME: rivedere la responsabilità di register() e completare */
+/*	public Bitstream registerBitstream(int assetstore, String bitstreamPath)
+			throws AuthorizeException, IOException {
+		AuthorizeManager.authorizeAction(context, this, Constants.ADD);
 
-    public String getName()
-    {
-        return name;
-    }
+		Bitstream b = BitstreamDAO.register(assetstore, bitstreamPath);
 
-    public void setName(String name)
-    {
-        this.name = name;
-        modifiedMetadata = true;
-        modifiedMetadata = true;
-    }
+		addBitstream(b);
 
-    public void unsetPrimaryBitstreamID()
-    {
-    	primaryBitstreamId = -1;
-    }
+		return b;
+	}
+*/
+	public void addBitstream(Bitstream b) throws AuthorizeException {
+		for (Bitstream bitstream : bitstreams) {
+			if (bitstream.equals(b)) {
+				return;
+			}
+		}
 
-    public int getPrimaryBitstreamID()
-    {
-        modified = true;
-        return primaryBitstreamId;
-    }
+		AuthorizeManager.addPolicy(context, b, Constants.WRITE, context
+				.getCurrentUser());
+		AuthorizeManager.inheritPolicies(context, this, b);
 
-    public void setPrimaryBitstreamID(int primaryBitstreamId)
-    {
-        this.primaryBitstreamId = primaryBitstreamId;
-        modified = true;
-    }
+		bitstreams.add(b);
 
-    public Bitstream getPrimaryBitstream()
-    {
-        return bitstreamDAO.retrieve(primaryBitstreamId);
-    }
+		context.addEvent(new Event(Event.ADD, Constants.BUNDLE, getID(),
+				Constants.BITSTREAM, b.getID(), String.valueOf(b
+						.getSequenceID())));
+	}
 
-    public Bitstream getBitstreamByName(String name)
-    {
-        Bitstream target = null;
+	public void removeBitstream(Bitstream b) throws AuthorizeException {
+		Iterator<Bitstream> i = bitstreams.iterator();
+		while (i.hasNext()) {
+			Bitstream bitstream = i.next();
+			if (bitstream.getID() == b.getID()) {
+				i.remove();
 
-        for (Bitstream bitstream : bitstreams)
-        {
-            if (name.equals(bitstream.getName()))
-            {
-                target = bitstream;
-                break;
-            }
-        }
+				context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE,
+						getID(), Constants.BITSTREAM, b.getID(), String
+								.valueOf(b.getSequenceID())));
+			}
+		}
+	}
 
-        return target;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public Bitstream[] getBitstreams()
-    {
-        return (Bitstream[]) bitstreams.toArray(new Bitstream[0]);
-    }
+	public void setName(String name) {
+		this.name = name;
+		modifiedMetadata = true;
+	}
 
-    public void setBitstreams(List<Bitstream> bitstreams)
-    {
-        this.bitstreams = bitstreams;
-    }
+	public void unsetPrimaryBitstreamID() {
+		primaryBitstreamId = -1;
+	}
 
-    public Bitstream createBitstream(InputStream is) throws AuthorizeException,
-            IOException
-    {
-        AuthorizeManager.authorizeAction(context, this, Constants.ADD);
+	/*
+	 * FIXME: metodo sbagliato, deve ritornare in base ad una ricerca per
+	 * primarybitstreamid, deve richiamare un metodo di ricerca per il dao
+	 */
+	public Bitstream getPrimaryBitstream() {
+		return BitstreamFactory.getInstance(context);
+	}
 
-        Bitstream b = bitstreamDAO.store(is);
+	public Bitstream getBitstreamByName(String name) {
+		Bitstream target = null;
 
-        // FIXME: Set permissions for bitstream
+		for (Bitstream bitstream : bitstreams) {
+			if (name.equals(bitstream.getName())) {
+				target = bitstream;
+				break;
+			}
+		}
 
-        addBitstream(b);
+		return target;
+	}
 
-        return b;
-    }
+	public void setBitstreams(List<Bitstream> bitstreams) {
+		this.bitstreams = bitstreams;
+	}
 
-    public Bitstream registerBitstream(int assetstore, String bitstreamPath)
-        throws AuthorizeException, IOException
-    {
-        AuthorizeManager.authorizeAction(context, this, Constants.ADD);
+	public Bitstream[] getBitstreams() {
+		return bitstreams.toArray(new Bitstream[0]);
+	}
 
-        Bitstream b = bitstreamDAO.register(assetstore, bitstreamPath);
+	public int getPrimaryBitstreamID() {
+		return primaryBitstreamId;
+	}
 
-        // FIXME: Set permissions for bitstream
-
-        addBitstream(b);
-
-        return b;
-    }
-
-    public void addBitstream(Bitstream b) throws AuthorizeException
-    {
-        for (Bitstream bitstream : bitstreams)
-        {
-            if (bitstream.equals(b))
-            {
-                return;
-            }
-        }
-
-        bitstreams.add(b);
-        
-        context.addEvent(new Event(Event.ADD, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
-        
-    }
-
-    public void removeBitstream(Bitstream b) throws AuthorizeException
-    {
-        Iterator<Bitstream> i = bitstreams.iterator();
-        while (i.hasNext())
-        {
-            Bitstream bitstream = i.next();
-            if (bitstream.getID() == b.getID())
-            {
-                i.remove();
-                
-                context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE, getID(), Constants.BITSTREAM, b.getID(), String.valueOf(b.getSequenceID())));
-            }
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
-    public int getType()
+	public void setPrimaryBitstreamID(int primaryBitstreamId) {
+		this.primaryBitstreamId = primaryBitstreamId;
+	}
+	
+	public int getType()
     {
         return Constants.BUNDLE;
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Deprecated methods
-    ////////////////////////////////////////////////////////////////////
-
-    @Deprecated
-    public static Bundle find(Context context, int id)
-    {
-        return BundleDAOFactory.getInstance(context).retrieve(id);
-    }
-
-    @Deprecated
-    static Bundle create(Context context) throws AuthorizeException
-    {
-    	Bundle bundle = BundleDAOFactory.getInstance(context).create();
-        context.addEvent(new Event(Event.CREATE, Constants.BUNDLE, bundle.getID(), null));
-        return bundle;
-    }
-
-    @Deprecated
-    public void update() throws AuthorizeException
-    {
-        dao.update(this);
-        
-         if (modified)
-        {
-            context.addEvent(new Event(Event.MODIFY, Constants.BUNDLE, getID(), null));
-            modified = false;
-        }
-        if (modifiedMetadata)
-        {
-            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.BUNDLE, getID(), null));
-            modifiedMetadata = false;
-        }
-    }
-
-    @Deprecated
-    void delete() throws AuthorizeException, IOException
-    {
-        dao.delete(this.getID());
-        context.addEvent(new Event(Event.DELETE, Constants.BUNDLE, getID(), getIdentifier().getCanonicalForm()));
-        
-    }
-
-    @Deprecated
-    public Item[] getItems()
-    {
-        List<Item> items = itemDAO.getParentItems(this);
-        return (Item[]) items.toArray(new Item[0]);
     }
 }

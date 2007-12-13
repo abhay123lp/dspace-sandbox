@@ -65,6 +65,10 @@ import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.event.Event;
 
+import org.dspace.content.factory.CollectionFactory;
+import org.dspace.content.factory.CommunityFactory;
+import org.dspace.content.factory.BitstreamFactory;
+
 /**
  * Class representing a community
  * <P>
@@ -78,47 +82,140 @@ import org.dspace.event.Event;
  */
 public class Community extends DSpaceObject
 {
-    private static Logger log = Logger.getLogger(Community.class);
-
-    private CommunityDAO dao;
-    private BitstreamDAO bitstreamDAO;
-    private CollectionDAO collectionDAO;
-
-    private String identifier;
-    private int logoID;
-    private Bitstream logo;
-
-    private Map<String, String> metadata;
-
+    
+	/*----------------- OLD FIELDS -----------------------------*/
     /** Flag set when data is modified, for events */
-    private boolean modified;
+//    private boolean modified;
 
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
+    /*----------------------------------------------*/
+    private static Logger log = Logger.getLogger(Community.class);
     
-    public Community(Context context, int id)
+    private List<Community> parentCommunities; 
+    private List<Community> subCommunities;
+    private List<Collection> collections;
+    private Map<String, String> metadata;
+    private Bitstream logo;
+    
+    
+    public Community(Context context)
     {
-        this.id = id;
         this.context = context;
-
-        dao = CommunityDAOFactory.getInstance(context);
-        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-        collectionDAO = CollectionDAOFactory.getInstance(context);
-
-        identifiers = new ArrayList<ExternalIdentifier>();
-        metadata = new TreeMap<String, String>();
-
-        modified = modifiedMetadata = false;
-        clearDetails();
+        this.metadata = new TreeMap<String, String>();
     }
+    
+    /* Creates a collection under this community */
+    public Collection createCollection() {
+    	/*FIXME: autorizzazione ~ archivemanager?*/
+    	Collection collection = CollectionFactory.getInstance(context);
+    	collections.add(collection);
+    	return collection;
+    }
+    
+    /* Creates a subcommunity of this community */
+    public Community createSubCommunity() throws AuthorizeException{
+    	AuthorizeManager.authorizeAction(context, this, Constants.ADD);
+    	Community subcommunity = CommunityFactory.getInstance(context);
+    	subcommunity.addParentCommunity(this);
+    	subCommunities.add(subcommunity);
+    	return subcommunity;
+    }
+    
+    /* Adds a collection between the ones this community owns */
+    public void addCollection(Collection collection) {
+    	collections.add(collection);
+    }
+    
+    /* Removes a collection from the ones this community owns */
+    public void removeCollection(Collection collection) {
+    	collections.remove(collection);
+    }
+    
+    /* Adds a community as a subcommunity of this community */
+    public void addSubCommunity(Community subcommunity) {
+    	subCommunities.add(subcommunity);
+    }
+    
+    /* Removes a community from the subcommunities of this community */
+    public void removeSubCommunity(Community subcommunity) {
+    	subCommunities.remove(subcommunity);
+    }
+    
+    /* Returns all the parent communities of this community */
+    public List<Community> getParents() {
+    	return this.parentCommunities;
+    }
+    
+    /* Add a community as a parent of this community */
+    public void addParentCommunity(Community parent) {
+    	parentCommunities.add(parent);
+    }
+    
+    
+    /* Returns all the sub-communities owned by this community */
+    public List<Community> getSubCommunities() {
+    	return this.subCommunities;
+    }
+    
+    /* Returns all the collections owned by this community */
+    public List<Collection> getCollections() {
+    	return this.collections;
+    }
+    
+    /* Add a logo to the community */
+    public void setLogoBitstream(Bitstream logo) {
+    	this.logo=logo;
+    }
+    
+    public Bitstream setLogo(InputStream is) 
+    throws AuthorizeException, IOException {
+    	/*FIXME: parte autorizzazioni e inserimento del metodo canEdit(). controllare dao-pr.*/
+    	
+        // First, delete any existing logo
+        if (logo != null)
+        {
+            log.info(LogManager.getHeader(context, "remove_logo",
+                    "community_id=" + getID()));
+           logo = null;
+        }
+        if (is != null)
+        {
+        	Bitstream newLogo = BitstreamFactory.getInstance(context);
+            logo = newLogo;
 
-    public String getMetadata(String field)
-    {
+            // now create policy for logo bitstream
+            // to match our READ policy
+            List policies = AuthorizeManager.getPoliciesActionFilter(context,
+                    this, Constants.READ);
+            AuthorizeManager.addPolicies(context, policies, newLogo);
+
+            log.info(LogManager.getHeader(context, "set_logo",
+                    "community_id=" + getID() + "logo_bitstream_id="
+                            + newLogo.getID()));
+        }
+
+    	
+    	return logo;
+    }
+    
+    /* Gets the community logo */
+    public Bitstream getLogo() {
+    	return this.logo;
+    }
+    
+    /* Returns a particular field of metadata */
+    public String getMetadata(String field) {
         return metadata.get(field);
     }
-
-    public void setMetadata(String field, String value)
-    {
+    
+    /* Returns the name of the community */
+    public String getName() {
+        return getMetadata("name");
+    }
+    
+    /* Sets a field of metadata */
+    public void setMetadata(String field, String value) {
         if ((field.trim()).equals("name") && (value.trim()).equals(""))
         {
             try
@@ -134,323 +231,11 @@ public class Community extends DSpaceObject
         metadata.put(field, value);
         modifiedMetadata = true;
         addDetails(field);
-        modifiedMetadata = true;
-        addDetails(field);
     }
     
-    public String getName()
-    {
-        return getMetadata("name");
-    }
-
-    /**
-     * Get the logo for the community. <code>null</code> is return if the
-     * community does not have a logo.
-     * 
-     * @return the logo of the community, or <code>null</code>
-     */
-    public Bitstream getLogo()
-    {
-        return logo;
-    }
-
-    /**
-     * Give the community a logo. Passing in <code>null</code> removes any
-     * existing logo. You will need to set the format of the new logo bitstream
-     * before it will work, for example to "JPEG". Note that
-     * <code>update(/code> will need to be called for the change to take
-     * effect.  Setting a logo and not calling <code>update</code> later may
-     * result in a previous logo lying around as an "orphaned" bitstream.
-     *
-     * @param  is   the stream to use as the new logo
-     *
-     * @return   the new logo bitstream, or <code>null</code> if there is no
-     *           logo (<code>null</code> was passed in)
-     */
-    public Bitstream setLogo(InputStream is)
-        throws AuthorizeException, IOException
-    {
-        // Check authorisation
-        // authorized to remove the logo when DELETE rights
-        // authorized when canEdit
-        if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
-                context, this, Constants.DELETE)))
-        {
-            canEdit();
-        }
-
-        // First, delete any existing logo
-        if (logo != null)
-        {
-            log.info(LogManager.getHeader(context, "remove_logo",
-                    "community_id=" + getID()));
-
-            logo.delete();
-            logo = null;
-        }
-
-        if (is != null)
-        {
-            Bitstream newLogo = bitstreamDAO.store(is);
-            logo = newLogo;
-
-            // now create policy for logo bitstream
-            // to match our READ policy
-            List policies = AuthorizeManager.getPoliciesActionFilter(context,
-                    this, Constants.READ);
-            AuthorizeManager.addPolicies(context, policies, newLogo);
-
-            log.info(LogManager.getHeader(context, "set_logo",
-                    "community_id=" + getID() + "logo_bitstream_id="
-                            + newLogo.getID()));
-        }
-
-        modified = true;
-        return logo;
-    }
-
-    public void setLogoBitstream(Bitstream logo)
-    {
-        this.logo = logo;
-    }
-
-    /**
-     * Create a new collection within this community. The collection is created
-     * without any workflow groups or default submitter group.
-     *
-     * FIXME: This feels like it should be in the DAO.
-     *
-     * @return the new collection
-     */
-    public Collection createCollection() throws AuthorizeException
-    {
-        AuthorizeManager.authorizeAction(context, this, Constants.ADD);
-
-        Collection collection = collectionDAO.create();
-
-        ArchiveManager.move(context, collection, null, this);
-
-        return collection;
-    }
-
-    /**
-     * Create a new sub-community within this community.
-     *
-     * FIXME: This feels like it should be in the DAO.
-     *
-     * @return the new community
-     */
-    public Community createSubcommunity() throws AuthorizeException
-    {
-        // Check authorisation
-        AuthorizeManager.authorizeAction(context, this, Constants.ADD);
-
-        Community community = dao.create();
-
-        ArchiveManager.move(context, community, null, this);
-
-        return community;
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
-    public boolean canEditBoolean()
-    {
-        try
-        {
-            canEdit();
-
-            return true;
-        }
-        catch (AuthorizeException e)
-        {
-            return false;
-        }
-    }
-
-    public void canEdit() throws AuthorizeException
-    {
-        List<Community> parents = dao.getParentCommunities(this);
-
-        for (Community parent : parents)
-        {
-            if (AuthorizeManager.authorizeActionBoolean(context, parent,
-                    Constants.WRITE))
-            {
-                return;
-            }
-
-            if (AuthorizeManager.authorizeActionBoolean(context, parent,
-                    Constants.ADD))
-            {
-                return;
-            }
-        }
-
-        AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
-    }
-
     public int getType()
     {
         return Constants.COMMUNITY;
     }
-
-    ////////////////////////////////////////////////////////////////////
-    // Deprecated methods
-    ////////////////////////////////////////////////////////////////////
-
-    @Deprecated
-    public int countItems()
-    {
-        return dao.itemCount(this);
-    }
-
-    @Deprecated
-    public static Community find(Context context, int id)
-    {
-        return CommunityDAOFactory.getInstance(context).retrieve(id);
-    }
-
-    @Deprecated
-    public static Community create(Community parent, Context context)
-            throws AuthorizeException
-    {
-        Community community =
-            CommunityDAOFactory.getInstance(context).create();
-
-        if (parent != null)
-        {
-            ArchiveManager.move(context, community, null, parent);
-            context.addEvent(
-                    new Event(
-                            Event.ADD, 
-                            Constants.COMMUNITY, 
-                            parent.getID(),
-                            Constants.COMMUNITY, 
-                            community.getID(), 
-                            community.getIdentifier().getCanonicalForm()
-                            ));
-        }
-        else
-        {
-            context.addEvent(
-                    new Event(
-                            Event.ADD, 
-                            Constants.SITE, 
-                            Site.SITE_ID, 
-                            Constants.COMMUNITY, 
-                            community.getID(), 
-                            community.getIdentifier().getCanonicalForm()
-                            ));
-        }
-        
-        
-        return community;
-    }
-
-    @Deprecated
-    public static Community[] findAll(Context context)
-    {
-        CommunityDAO dao = CommunityDAOFactory.getInstance(context);
-        List<Community> communities = dao.getCommunities();
-
-        return (Community[]) communities.toArray(new Community[0]);
-    }
-
-    @Deprecated
-    public static Community[] findAllTop(Context context)
-    {
-        CommunityDAO dao = CommunityDAOFactory.getInstance(context);
-        List<Community> communities = dao.getTopLevelCommunities();
-
-        return (Community[]) communities.toArray(new Community[0]);
-    }
-
-    @Deprecated
-    public Community getParentCommunity()
-    {
-        // FIXME: Oh so Bad and Wrong, but it's at least as good as the old
-        // implementation, so we'll let it slide.
-        List<Community> parents = dao.getParentCommunities(this);
-        if (parents.size() == 0)
-        {
-            return null;
-        }
-        return parents.get(0);
-    }
-
-    @Deprecated
-    public Community[] getAllParents()
-    {
-        List<Community> parents = dao.getAllParentCommunities(this);
-        return (Community[]) parents.toArray(new Community[0]);
-    }
-
-    @Deprecated
-    public Collection[] getCollections()
-    {
-        List<Collection> collections = collectionDAO.getChildCollections(this);
-        return (Collection[]) collections.toArray(new Collection[0]);
-    }
-
-    @Deprecated
-    public Community[] getSubcommunities()
-    {
-        List<Community> communities = dao.getChildCommunities(this);
-        return (Community[]) communities.toArray(new Community[0]);
-    }
-
-    @Deprecated
-    public void addCollection(Collection collection)
-        throws AuthorizeException
-    {
-        ArchiveManager.move(context, collection, null, this);
-    }
-
-    @Deprecated
-    public void removeCollection(Collection collection)
-        throws AuthorizeException
-    {
-        ArchiveManager.move(context, collection, this, null);
-    }
-
-    @Deprecated
-    public void addSubcommunity(Community community) throws AuthorizeException
-    {
-        ArchiveManager.move(context, community, null, this);
-    }
-
-    @Deprecated
-    public void removeSubcommunity(Community community)
-        throws AuthorizeException
-    {
-        ArchiveManager.move(context, community, this, null);
-    }
-
-    @Deprecated
-    public void update() throws AuthorizeException
-    {
-        dao.update(this);
-        
-		if (modified)
-        {
-            context.addEvent(new Event(Event.MODIFY, Constants.COMMUNITY, getID(), null));
-            modified = false;
-        }
-        if (modifiedMetadata)
-        {
-            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.COMMUNITY, getID(), getDetails()));
-            modifiedMetadata = false;
-            clearDetails();
-        }
-    }
-
-    @Deprecated
-    public void delete() throws AuthorizeException
-    {
-        dao.delete(this.getID());
-        context.addEvent(new Event(Event.DELETE, Constants.COMMUNITY, getID(), getIdentifier().getCanonicalForm()));
-    }
+    
 }

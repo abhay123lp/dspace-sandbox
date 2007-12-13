@@ -102,15 +102,7 @@ public class CommunityDAOPostgres extends CommunityDAO
         {
             TableRow row = DatabaseManager.find(context, "community", id);
 
-            if (row == null)
-            {
-                log.warn("community " + id + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -133,36 +125,12 @@ public class CommunityDAOPostgres extends CommunityDAO
             TableRow row = DatabaseManager.findByUnique(context, "community",
                     "uuid", uuid.toString());
 
-            if (row == null)
-            {
-                log.warn("community " + uuid + " not found");
-                return null;
-            }
-            else
-            {
-                return retrieve(row);
-            }
+            return retrieve(row);
         }
         catch (SQLException sqle)
         {
             throw new RuntimeException(sqle);
         }
-    }
-
-    private Community retrieve(TableRow row)
-    {
-        int id = row.getIntColumn("community_id");
-        Community community = new Community(context, id);
-        populateCommunityFromTableRow(community, row);
-
-        // FIXME: I'd like to bump the rest of this up into the superclass
-        // so we don't have to do it for every implementation, but I can't
-        // figure out a clean way of doing this yet.
-        List<ExternalIdentifier> identifiers =
-            identifierDAO.getExternalIdentifiers(community);
-        community.setExternalIdentifiers(identifiers);
-
-        return community;
     }
 
     @Override
@@ -329,20 +297,6 @@ public class CommunityDAOPostgres extends CommunityDAO
         }
     }
 
-    private List<Community> returnAsList(TableRowIterator tri)
-        throws SQLException
-    {
-        List<Community> communities = new ArrayList<Community>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("community_id");
-            communities.add(retrieve(id));
-        }
-
-        return communities;
-    }
-
     @Override
     public void link(DSpaceObject parent, DSpaceObject child)
         throws AuthorizeException
@@ -471,6 +425,41 @@ public class CommunityDAOPostgres extends CommunityDAO
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
+
+    private Community retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("community_id");
+        Community community = new Community(context, id);
+        populateCommunityFromTableRow(community, row);
+
+        // FIXME: I'd like to bump the rest of this up into the superclass
+        // so we don't have to do it for every implementation, but I can't
+        // figure out a clean way of doing this yet.
+        List<ExternalIdentifier> identifiers =
+                identifierDAO.getExternalIdentifiers(community);
+        community.setExternalIdentifiers(identifiers);
+
+        return community;
+    }
+
+    private List<Community> returnAsList(TableRowIterator tri)
+            throws SQLException
+    {
+        List<Community> communities = new ArrayList<Community>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("community_id");
+            communities.add(retrieve(id));
+        }
+
+        return communities;
+    }
 
     private void populateTableRowFromCommunity(Community community,
             TableRow row)

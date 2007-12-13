@@ -40,11 +40,14 @@
 package org.dspace.content;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.authorize.AuthorizeException;
+
+import org.dspace.content.factory.CommunityFactory;
 
 /**
  * Represents the root of the DSpace Archive.
@@ -52,70 +55,66 @@ import org.dspace.authorize.AuthorizeException;
  */
 public class Site extends DSpaceObject
 {
+	/*------------OLD FIELDS----------*/
     /** "database" identifier of the site */
-    public static final int SITE_ID = 0;
+//    public static final int SITE_ID = 0;
 
     // cache for Handle that is persistent ID for entire site.
-    private static String handle = null;
+//    private static String handle = null;
 
-    private static Site theSite = null;
-
-    /**
-     * Get the type of this object, found in Constants
-     *
-     * @return type of the object
-     */
+//    private static Site theSite = null;
+    /*--------------------------------*/
+    
+    private List<Community> topCommunities;
+    private Bitstream logo;
+    private String name;
+    
+    public Site(Context context) {
+    	this.context = context;
+    }
+    
+    /* Creates a top-community */
+    public Community createTopCommunity() {
+    	Community community = CommunityFactory.getInstance(context);
+    	topCommunities.add(community);
+    	return community;
+    }
+    
+    /* Marks a community as a top-community */
+    public void addTopCommunity(Community community) {
+    	topCommunities.add(community);
+    }
+    
+    /* Removes a community from top-communities */
+    public void deleteTopCommunity(Community community) {
+    	topCommunities.remove(community);
+    }
+    
+    /* Returns all the top-communities of this site */
+    public List<Community> getTopCommunities() {
+    	return this.topCommunities;
+    }
+    
+    /* Add a logo to the Site */
+    public void setLogo(Bitstream logo) {
+    	this.logo=logo;
+    }
+    
+    /* Gets the Site logo */
+    public Bitstream getLogo() {
+    	return this.logo;
+    }
+    
+    public void setName(String name) {
+    	this.name=name;
+    }
+    
+    public String getName() {
+    	return name;
+    }
+    
     public int getType()
     {
         return Constants.SITE;
-    }
-
-    /**
-     * Get the internal ID (database primary key) of this object
-     *
-     * @return internal ID of object
-     */
-    public int getID()
-    {
-        return SITE_ID;
-    }
-
-    /**
-     * Static method to return site Handle without creating a Site.
-     * @returns handle of the Site.
-     */
-    public static String getSiteHandle()
-    {
-        if (handle == null)
-            handle = ConfigurationManager.getProperty("handle.prefix")+"/"+
-                String.valueOf(SITE_ID);
-        return handle;
-    }
-
-    /**
-     * Get Site object corresponding to db id (which is ignroed).
-     * @param context the context.
-     * @param id integer database id, ignored.
-     * @returns Site object.
-     * @deprecated
-     */
-    public static DSpaceObject find(Context context, int id)
-    {
-        if (theSite == null)
-            theSite = new Site();
-        return theSite;
-    }
-
-    void delete() throws AuthorizeException, IOException
-    {
-    }
-
-    public void update() throws AuthorizeException, IOException
-    {
-    }
-
-    public String getName()
-    {
-        return ConfigurationManager.getProperty("dspace.name");
     }
 }

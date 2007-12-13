@@ -49,9 +49,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-
-import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.DCInput;
+import org.dspace.app.util.DCInputsReader;
 import org.dspace.app.util.SubmissionInfo;
 import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
@@ -59,9 +58,13 @@ import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCPersonName;
 import org.dspace.content.DCSeriesNumber;
-import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataValue;
+import org.dspace.content.WorkspaceItem;
+import org.dspace.content.dao.WorkspaceItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.submit.AbstractProcessingStep;
 
@@ -84,6 +87,7 @@ import org.dspace.submit.AbstractProcessingStep;
  */
 public class DescribeStep extends AbstractProcessingStep
 {
+	private static ApplicationService applicationService;
     /** log4j logger */
     private static Logger log = Logger.getLogger(DescribeStep.class);
 
@@ -144,6 +148,8 @@ public class DescribeStep extends AbstractProcessingStep
             throws ServletException, IOException, SQLException,
             AuthorizeException
     {
+        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
+
         // check what submit button was pressed in User Interface
         String buttonPressed = Util.getSubmitButton(request, NEXT_BUTTON);
 
@@ -224,8 +230,10 @@ public class DescribeStep extends AbstractProcessingStep
                             + element + "_remove_" + z)
                             && !thisVal.equals(""))
                     {
-                        item.addMetadata(schema, element, thisQual, null,
-                                thisVal);
+                    	
+                    	MetadataField mdf = applicationService.getMetadataField(element, thisQual, schema, context);
+                    	item.addMetadata(mdf, null, thisVal);                      
+                        
                     }
                 }
             }
@@ -238,8 +246,8 @@ public class DescribeStep extends AbstractProcessingStep
                     {
                         if (!vals[z].equals(""))
                         {
-                            item.addMetadata(schema, element, qualifier, "en",
-                                    vals[z]);
+                        	MetadataField mdf = applicationService.getMetadataField(element, qualifier, schema, context);
+                        	item.addMetadata(mdf, "en", vals[z]);
                         }
                     }
                 }
@@ -272,7 +280,7 @@ public class DescribeStep extends AbstractProcessingStep
         clearErrorFields();
         for (int i = 0; i < inputs.length; i++)
         {
-            DCValue[] values = item.getMetadata(inputs[i].getSchema(),
+            MetadataValue[] values = item.getMetadata(inputs[i].getSchema(),
                     inputs[i].getElement(), inputs[i].getQualifier(), Item.ANY);
 
             if (inputs[i].isRequired() && values.length == 0)
@@ -284,7 +292,7 @@ public class DescribeStep extends AbstractProcessingStep
 
         // Step 4:
         // Save changes to database
-        subInfo.getSubmissionItem().update();
+        wsiDAO.update((WorkspaceItem) subInfo.getSubmissionItem());
 
         // commit changes
         context.commit();
