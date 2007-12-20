@@ -42,6 +42,10 @@ package org.dspace.eperson;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.Transient;
+
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
@@ -59,6 +63,7 @@ import org.dspace.event.Event;
  * @author David Stuve
  * @version $Revision$
  */
+@Entity
 public class Group extends DSpaceObject
 {
     // findAll sortby types
@@ -68,13 +73,13 @@ public class Group extends DSpaceObject
     /** log4j logger */
     private static Logger log = Logger.getLogger(Group.class);
 
-    protected GroupDAO dao;
-    protected EPersonDAO epersonDAO;
+//    protected GroupDAO dao;
+//    protected EPersonDAO epersonDAO;
 
     private String name;
 
     /** lists of epeople and groups in the group */
-    protected List<EPerson> epeople;
+    protected List<EPerson> members;
     protected List<Group> groups;
 
     /** lists that need to be written out again */
@@ -91,7 +96,7 @@ public class Group extends DSpaceObject
     public Group(Context context)
     {
         this.context = context;
-        epeople = new ArrayList<EPerson>();
+        members = new ArrayList<EPerson>();
         groups = new ArrayList<Group>();
 
     }
@@ -115,9 +120,9 @@ public class Group extends DSpaceObject
             return;
         }
 
-        epeople.add(e);
+        members.add(e);
 
-        context.addEvent(new Event(Event.ADD, Constants.GROUP, getID(), Constants.EPERSON, e.getID(), e.getEmail()));
+        context.addEvent(new Event(Event.ADD, Constants.GROUP, getId(), Constants.EPERSON, e.getId(), e.getEmail()));
     }
 
     public void addMember(Group g)
@@ -129,15 +134,15 @@ public class Group extends DSpaceObject
 
         groups.add(g);
 
-        context.addEvent(new Event(Event.ADD, Constants.GROUP, getID(), Constants.GROUP, g.getID(), g.getName()));
+        context.addEvent(new Event(Event.ADD, Constants.GROUP, getId(), Constants.GROUP, g.getId(), g.getName()));
     }
 
     public void removeMember(EPerson e)
     {
-        if (epeople.remove(e))
+        if (members.remove(e))
         {
             epeopleChanged = true;
-            context.addEvent(new Event(Event.REMOVE, Constants.GROUP, getID(), Constants.EPERSON, e.getID(), e.getEmail()));
+            context.addEvent(new Event(Event.REMOVE, Constants.GROUP, getId(), Constants.EPERSON, e.getId(), e.getEmail()));
         }
     }
 
@@ -146,7 +151,7 @@ public class Group extends DSpaceObject
         if (groups.remove(g))
         {
             groupsChanged = true;
-            context.addEvent(new Event(Event.REMOVE, Constants.GROUP, getID(), Constants.GROUP, g.getID(), g.getName()));
+            context.addEvent(new Event(Event.REMOVE, Constants.GROUP, getId(), Constants.GROUP, g.getId(), g.getName()));
         }
     }
 
@@ -158,33 +163,35 @@ public class Group extends DSpaceObject
             return true;
         }
 
-        return epeople.contains(e);
+        return members.contains(e);
     }
 
     public boolean isMember(Group g)
     {
         return groups.contains(g);
     }
-
-    public Group[] getMemberGroups()
+    @Transient
+    public List<Group> getGroups()
     {
-        return (Group[]) groups.toArray(new Group[0]);
+        return groups;
     }
 
     /**
      * Return EPerson members of a Group
      */
-    public EPerson[] getMembers()
+    @ManyToMany
+    public List<EPerson> getMembers()
     {
-        return (EPerson[]) epeople.toArray(new EPerson[0]);
+        return members;
     }
 
     /**
      * Return true if group has no members
      */
+    @Transient
     public boolean isEmpty()
     {
-        if ((epeople.size() == 0) && (groups.size() == 0))
+        if ((members.size() == 0) && (groups.size() == 0))
         {
             return true;
         }
@@ -201,6 +208,7 @@ public class Group extends DSpaceObject
     /**
      * return type found in Constants
      */
+    @Transient
     public int getType()
     {
         return Constants.GROUP;
@@ -223,11 +231,11 @@ public class Group extends DSpaceObject
         GroupDAO dao = GroupDAOFactory.getInstance(context);
         Group group = dao.create();
         
-		context.addEvent(new Event(Event.CREATE, Constants.GROUP, group.getID(), null));
+		context.addEvent(new Event(Event.CREATE, Constants.GROUP, group.getId(), null));
         
         return group;
     }
-
+/*
     @Deprecated
     public void update() throws AuthorizeException
     {
@@ -235,20 +243,20 @@ public class Group extends DSpaceObject
         
         if (modifiedMetadata)
         {
-            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.GROUP, getID(), getDetails()));
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.GROUP, getId(), getDetails()));
             modifiedMetadata = false;
             clearDetails();
         }
     }
-
-    @Deprecated
+*/
+/*    @Deprecated
     public void delete() throws AuthorizeException
     {
-        dao.delete(this.getID());
-        context.addEvent(new Event(Event.DELETE, Constants.GROUP, getID(), getName()));
+        dao.delete(this.getId());
+        context.addEvent(new Event(Event.DELETE, Constants.GROUP, getId(), getName()));
         
     }
-
+*/
     @Deprecated
     public static Group find(Context context, int id)
     {
@@ -312,5 +320,41 @@ public class Group extends DSpaceObject
         List<Group> groups = dao.search(query, offset, limit);
 
         return (Group[]) groups.toArray(new Group[0]);
+	}
+    @Transient
+	public List<EPerson> getEpeople() {
+		return members;
+	}
+    @Transient
+	public void setMembers(List<EPerson> members) {
+		this.members = members;
+	}
+    @Transient
+	public void setGroups(List<Group> groups) {
+		this.groups = groups;
+	}
+    @Transient
+	public boolean isEpeopleChanged() {
+		return epeopleChanged;
+	}
+    @Transient
+	public void setEpeopleChanged(boolean epeopleChanged) {
+		this.epeopleChanged = epeopleChanged;
+	}
+    @Transient
+	public boolean isGroupsChanged() {
+		return groupsChanged;
+	}
+    @Transient
+	public void setGroupsChanged(boolean groupsChanged) {
+		this.groupsChanged = groupsChanged;
+	}
+    @Transient
+	public boolean isDataLoaded() {
+		return isDataLoaded;
+	}
+    @Transient
+	public void setDataLoaded(boolean isDataLoaded) {
+		this.isDataLoaded = isDataLoaded;
 	}
 }

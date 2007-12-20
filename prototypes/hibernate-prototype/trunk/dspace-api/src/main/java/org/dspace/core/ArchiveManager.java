@@ -47,7 +47,6 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.BrowseException;
@@ -58,6 +57,7 @@ import org.dspace.content.DCDate;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
@@ -75,6 +75,8 @@ import org.dspace.search.DSIndexer;
 public class ArchiveManager
 {
     private static Logger log = Logger.getLogger(ArchiveManager.class);
+    
+    private static ApplicationService applicationService;
 
     /**
      * Withdraw the item from the archive. It is kept in place, and the content
@@ -89,12 +91,12 @@ public class ArchiveManager
 
         // Build some provenance data while we're at it.
         String collectionProv = "";
-        Collection[] colls = item.getCollections();
+        Collection[] colls = (Collection[])item.getCollections().toArray();
 
         for (int i = 0; i < colls.length; i++)
         {
             collectionProv = collectionProv + colls[i].getMetadata("name")
-                    + " (ID: " + colls[i].getID() + ")\n";
+                    + " (ID: " + colls[i].getId() + ")\n";
         }
 
         // Check permission. User either has to have REMOVE on owning
@@ -121,9 +123,8 @@ public class ArchiveManager
                     + e.getEmail() + ") on " + timestamp + "\n"
                     + "Item was in collections:\n" + collectionProv
                     + InstallItem.getBitstreamProvenanceMessage(item);
-
-            item.addMetadata(MetadataSchema.DC_SCHEMA, "description",
-                    "provenance", "en", prov);
+            MetadataField mdf = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+            item.addMetadata(mdf, "en", prov);
 
             // Update item in DB
             itemDAO.update(item);
@@ -143,7 +144,7 @@ public class ArchiveManager
         AuthorizeManager.removeAllPolicies(context, item);
 
         log.info(LogManager.getHeader(context, "withdraw_item", "user="
-                + e.getEmail() + ",item_id=" + item.getID()));
+                + e.getEmail() + ",item_id=" + item.getId()));
     }
 
     /**
@@ -159,12 +160,12 @@ public class ArchiveManager
         // Check permission. User must have ADD on all collections.
         // Build some provenance data while we're at it.
         String collectionProv = "";
-        Collection[] colls = item.getCollections();
+        Collection[] colls = (Collection[])item.getCollections().toArray();
 
         for (int i = 0; i < colls.length; i++)
         {
             collectionProv = collectionProv + colls[i].getMetadata("name")
-                    + " (ID: " + colls[i].getID() + ")\n";
+                    + " (ID: " + colls[i].getId() + ")\n";
             AuthorizeManager.authorizeAction(context, colls[i],
                     Constants.ADD);
         }
@@ -180,9 +181,9 @@ public class ArchiveManager
                 + e.getEmail() + ") on " + timestamp + "\n"
                 + "Item was in collections:\n" + collectionProv
                 + InstallItem.getBitstreamProvenanceMessage(item);
-
-        item.addMetadata(MetadataSchema.DC_SCHEMA, "description",
-                "provenance", "en", prov);
+        
+        MetadataField mdf = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+        item.addMetadata(mdf, "en", prov);
 
         // Update item in DB
         itemDAO.update(item);
@@ -203,7 +204,7 @@ public class ArchiveManager
         }
 
         log.info(LogManager.getHeader(context, "reinstate_item", "user="
-                + e.getEmail() + ",item_id=" + item.getID()));
+                + e.getEmail() + ",item_id=" + item.getId()));
     }
 
     /**
@@ -394,9 +395,9 @@ public class ArchiveManager
             }
         }
 
-        sourceStr = sourceStr + (source == null ? "null" : source.getID());
-        destStr = destStr + (dest == null ? "null" : dest.getID());
-        dsoStr = dsoStr + (dso == null ? "null" : dso.getID());
+        sourceStr = sourceStr + (source == null ? "null" : source.getId());
+        destStr = destStr + (dest == null ? "null" : dest.getId());
+        dsoStr = dsoStr + (dso == null ? "null" : dso.getId());
 
         log.warn("***************************************************");
         log.warn("Moving " + dsoStr + " from " + sourceStr + " to " + destStr);
@@ -523,4 +524,8 @@ public class ArchiveManager
             System.out.println(id.getCanonicalForm());
         }
     }
+    
+    public static void setApplicationService(ApplicationService applicationService) {
+		ArchiveManager.applicationService = applicationService;
+	}
 }

@@ -43,6 +43,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
@@ -66,6 +70,7 @@ import org.dspace.storage.bitstore.BitstreamStorageManager;
  * @author Robert Tansley
  * @version $Revision$
  */
+@Entity
 public class Bitstream extends DSpaceObject
 {	
     /** log4j logger */
@@ -80,7 +85,7 @@ public class Bitstream extends DSpaceObject
     private String description;
     private String checksum;
     private String checksumAlgorithm;
-    private Long sizeBytes;
+    private Long size;
     private String userFormatDescription;
     private BitstreamFormat bitstreamFormat;
     private int storeNumber;
@@ -88,21 +93,18 @@ public class Bitstream extends DSpaceObject
     private boolean deleted;
 
 
-    /** Flag set when metadata is modified, for events */
-    /*FIXME: modified metadata viene letto solo dai metodi deprecati
-     * che non ci sono, quindi ora come ora è inutile
-     */
     private boolean modifiedMetadata;
+    private boolean modified;
     
     private Context context;
     
     public Bitstream(Context context)  {
         
         this.context = context;
-        modifiedMetadata = false;
+        modified = modifiedMetadata = false;
         clearDetails();
     }
-    
+    @Transient
     public int getSequenceID() {
     	return sequenceID;
     }
@@ -112,7 +114,7 @@ public class Bitstream extends DSpaceObject
     	modifiedMetadata = true;
         addDetails("SequenceID");
     }
-    
+    @Transient
     public String getName() {
     	return name;
     }
@@ -122,7 +124,7 @@ public class Bitstream extends DSpaceObject
     	modifiedMetadata = true;
         addDetails("Name");
     }
-    
+    @Transient
     public String getSource() {
     	return source;
     }
@@ -132,7 +134,7 @@ public class Bitstream extends DSpaceObject
     	modifiedMetadata = true;
         addDetails("Source");
     }
-    
+    @Transient
     public String getDescription() {
     	return description;
     }
@@ -142,7 +144,7 @@ public class Bitstream extends DSpaceObject
     	modifiedMetadata = true;
         addDetails("Description");
     }
-    
+    @Transient
     public String getChecksum() {
     	return checksum;
     }
@@ -150,7 +152,7 @@ public class Bitstream extends DSpaceObject
     public void setChecksum(String checksum) {
     	this.checksum=checksum;
     }
-    
+    @Transient
     public String getChecksumAlgorithm() {
     	return checksumAlgorithm;
     }
@@ -158,15 +160,15 @@ public class Bitstream extends DSpaceObject
     public void setChecksumAlgorithm(String checksumAlgorithm) {
     	this.checksumAlgorithm=checksumAlgorithm;
     }
-   
+    @Transient
     public long getSize() {
-        return (sizeBytes == null ? 0 : sizeBytes.longValue());
+        return (size == null ? 0 : size.longValue());
     }
     
     public void setSize(Long sizeBytes) {
-        this.sizeBytes = sizeBytes;
+        this.size = sizeBytes;
     }
-    
+    @Transient
     public String getUserFormatDescription() {
     	return userFormatDescription;
     }
@@ -177,7 +179,7 @@ public class Bitstream extends DSpaceObject
         modifiedMetadata = true;
         addDetails("UserFormatDescription");
     }
-    
+    @Transient
     public String getFormatDescription() {
         if (BitstreamFormat.UNKNOWN_SHORT_DESCRIPTION.equals(
                     bitstreamFormat.getShortDescription())) {
@@ -190,8 +192,13 @@ public class Bitstream extends DSpaceObject
         // not null or Unknown
         return bitstreamFormat.getShortDescription();
     }    
-    
+    @Transient
     public BitstreamFormat getFormat() {
+        return bitstreamFormat;
+    }
+    
+    @Transient
+    public BitstreamFormat getBitstreamFormat() {
         return bitstreamFormat;
     }
     
@@ -212,7 +219,9 @@ public class Bitstream extends DSpaceObject
 
         // Remove user type description
         userFormatDescription = null;
-    }    
+        modified = true;
+    }
+    @Transient
     public int getStoreNumber() {
     	return storeNumber;
     }
@@ -220,7 +229,7 @@ public class Bitstream extends DSpaceObject
     public void setStoreNumber(int storeNumber) {
     	this.storeNumber=storeNumber;
     }
-    
+    @Transient
     public String getInternalID() {
     	return internalID;
     }
@@ -228,8 +237,8 @@ public class Bitstream extends DSpaceObject
     public void setInternalID(String internalID) {
     	this.internalID=internalID;
     }
-    
-    public boolean idDeleted() {
+    @Transient
+    public boolean isDeleted() {
     	return deleted;
     }
     
@@ -242,17 +251,33 @@ public class Bitstream extends DSpaceObject
         // Maybe should return AuthorizeException??
         AuthorizeManager.authorizeAction(context, this, Constants.READ);
 
-        return BitstreamStorageManager.retrieve(context, getID());
+        return BitstreamStorageManager.retrieve(context, getId());
     }
-    
+    @Transient
     public boolean isRegisteredBitstream()
     {
         return BitstreamStorageManager.isRegisteredBitstream(internalID);
     }
-    
+    @Transient
     public int getType()
     {
         return Constants.BITSTREAM;
     }
+    @ManyToOne
+	public Bundle getBundle() {
+		return bundle;
+	}
+
+	public void setBundle(Bundle bundle) {
+		this.bundle = bundle;
+	}
+	@Transient
+	public boolean isModifiedMetadata() {
+		return modifiedMetadata;
+	}
+	@Transient
+	public boolean isModified() {
+		return modified;
+	}
 
 }

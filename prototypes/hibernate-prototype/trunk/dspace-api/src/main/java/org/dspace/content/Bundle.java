@@ -45,6 +45,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
@@ -66,28 +72,28 @@ import org.dspace.content.factory.BitstreamFactory;
  * @author James Rutherford
  * @version $Revision$
  */
+@Entity
 public class Bundle extends DSpaceObject {
-	/*FIXME: logger non usato */
+
 	private static Logger log = Logger.getLogger(Bundle.class);
 
 	/* The Item owner of the bundle */
 	private Item item;
 	private String name;
-	private int primaryBitstreamId;
+	private Bitstream primaryBitstream;
 	private List<Bitstream> bitstreams;
 
-	/** Flag set when metadata is modified, for events */
-	/*FIXME modified metadata utilizzato solo da metodi deprecati*/
 	private boolean modifiedMetadata;
+	private boolean modified;
 
 	private Context context;
 
 	public Bundle(Context context) {
 		this.context = context;
 		name = "";
-		primaryBitstreamId = -1;
+		
 		bitstreams = new ArrayList<Bitstream>();
-		modifiedMetadata = false;
+		modified = modifiedMetadata = false;
 	}
 
 	public Bitstream createBitstream(InputStream is) throws AuthorizeException,
@@ -126,8 +132,8 @@ public class Bundle extends DSpaceObject {
 
 		bitstreams.add(b);
 
-		context.addEvent(new Event(Event.ADD, Constants.BUNDLE, getID(),
-				Constants.BITSTREAM, b.getID(), String.valueOf(b
+		context.addEvent(new Event(Event.ADD, Constants.BUNDLE, getId(),
+				Constants.BITSTREAM, b.getId(), String.valueOf(b
 						.getSequenceID())));
 	}
 
@@ -135,16 +141,16 @@ public class Bundle extends DSpaceObject {
 		Iterator<Bitstream> i = bitstreams.iterator();
 		while (i.hasNext()) {
 			Bitstream bitstream = i.next();
-			if (bitstream.getID() == b.getID()) {
+			if (bitstream.getId() == b.getId()) {
 				i.remove();
 
 				context.addEvent(new Event(Event.REMOVE, Constants.BUNDLE,
-						getID(), Constants.BITSTREAM, b.getID(), String
+						getId(), Constants.BITSTREAM, b.getId(), String
 								.valueOf(b.getSequenceID())));
 			}
 		}
 	}
-
+	@Transient
 	public String getName() {
 		return name;
 	}
@@ -154,18 +160,20 @@ public class Bundle extends DSpaceObject {
 		modifiedMetadata = true;
 	}
 
-	public void unsetPrimaryBitstreamID() {
-		primaryBitstreamId = -1;
-	}
 
 	/*
-	 * FIXME: metodo sbagliato, deve ritornare in base ad una ricerca per
-	 * primarybitstreamid, deve richiamare un metodo di ricerca per il dao
+	 * FIXME: confrontare questo metodo con quello di jim
 	 */
+	@OneToOne
 	public Bitstream getPrimaryBitstream() {
-		return BitstreamFactory.getInstance(context);
+		return primaryBitstream;
 	}
-
+	
+	public void setPrimaryBitstream(Bitstream primaryBitstream) {
+		this.primaryBitstream=primaryBitstream;
+	}
+	
+	@Transient
 	public Bitstream getBitstreamByName(String name) {
 		Bitstream target = null;
 
@@ -182,21 +190,30 @@ public class Bundle extends DSpaceObject {
 	public void setBitstreams(List<Bitstream> bitstreams) {
 		this.bitstreams = bitstreams;
 	}
-
-	public Bitstream[] getBitstreams() {
-		return bitstreams.toArray(new Bitstream[0]);
+	@OneToMany(mappedBy="bundle")
+	public List<Bitstream> getBitstreams() {
+		return bitstreams;
 	}
 
-	public int getPrimaryBitstreamID() {
-		return primaryBitstreamId;
-	}
-
-	public void setPrimaryBitstreamID(int primaryBitstreamId) {
-		this.primaryBitstreamId = primaryBitstreamId;
-	}
-	
+	@Transient
 	public int getType()
     {
         return Constants.BUNDLE;
     }
+	@ManyToOne
+	public Item getItem() {
+		return item;
+	}
+
+	public void setItem(Item item) {
+		this.item = item;
+	}
+	@Transient
+	public boolean isModifiedMetadata() {
+		return modifiedMetadata;
+	}
+	@Transient
+	public boolean isModified() {
+		return modified;
+	}
 }

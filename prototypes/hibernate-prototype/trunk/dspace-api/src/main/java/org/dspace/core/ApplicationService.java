@@ -54,7 +54,7 @@ public class ApplicationService {
 		return collections;
 	}
 	
-	public List<Item> findAllItem(Context context) {
+	public List<Item> findAllItems(Context context) {
 		ItemDAO idao = ItemDAOFactory.getInstance(context);
 		List<Item> collections = idao.getItems();
 		return collections;

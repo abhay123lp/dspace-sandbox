@@ -45,6 +45,7 @@ import java.util.List;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.InstallItem;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -175,4 +176,8 @@ public class FixDefaultPolicies
         myPolicy.setGroup(anonymousGroup);
         myPolicy.update();
     }
+    public static void setApplicationService(ApplicationService applicationService) {
+		FixDefaultPolicies.applicationService = applicationService;
+	}
+    
 }

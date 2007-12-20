@@ -182,7 +182,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
                     "resourcepolicy",
                     "SELECT policy_id FROM resourcepolicy " +
                     "WHERE resource_type_id = ? AND resource_id = ? ",
-                    dso.getType(), dso.getID());
+                    dso.getType(), dso.getId());
 
             return returnAsList(tri);
         }
@@ -201,7 +201,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
                     "resourcepolicy",
                     "SELECT policy_id FROM resourcepolicy " +
                     "WHERE epersongroup_id = ?",
-                    group.getID());
+                    group.getId());
 
             return returnAsList(tri);
         }
@@ -221,7 +221,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
                     "SELECT policy_id FROM resourcepolicy " +
                     "WHERE resource_type_id = ? AND resource_id = ? " +
                     "AND epersongroup_id = ? ",
-                    dso.getType(), dso.getID(), group.getID());
+                    dso.getType(), dso.getId(), group.getId());
 
             return returnAsList(tri);
         }
@@ -241,7 +241,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
                     "SELECT policy_id FROM resourcepolicy " +
                     "WHERE resource_type_id = ? AND resource_id = ? " +
                     "AND action_id = ? ",
-                    dso.getType(), dso.getID(), actionID);
+                    dso.getType(), dso.getId(), actionID);
 
             return returnAsList(tri);
         }

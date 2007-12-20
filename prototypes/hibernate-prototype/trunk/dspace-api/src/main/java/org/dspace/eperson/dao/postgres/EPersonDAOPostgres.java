@@ -179,7 +179,7 @@ public class EPersonDAOPostgres extends EPersonDAO
         try
         {
             TableRow row =
-                DatabaseManager.find(context, "eperson", eperson.getID());
+                DatabaseManager.find(context, "eperson", eperson.getId());
 
             if (row != null)
             {
@@ -189,7 +189,7 @@ public class EPersonDAOPostgres extends EPersonDAO
             else
             {
                 throw new RuntimeException("Didn't find eperson " +
-                        eperson.getID());
+                        eperson.getId());
             }
         }
         catch (SQLException sqle)
@@ -286,7 +286,7 @@ public class EPersonDAOPostgres extends EPersonDAO
                 "FROM eperson e, epersongroup2eperson eg2e " +
                 "WHERE eg2e.eperson_id = e.eperson_id " +
                 "AND eg2e.eperson_group_id = ?",
-                group.getID());
+                group.getId());
 
             return returnAsList(tri);
         }
@@ -309,7 +309,7 @@ public class EPersonDAOPostgres extends EPersonDAO
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "group2groupcache",
                     "SELECT * FROM group2groupcache WHERE parent_id = ? ",
-                    group.getID());
+                    group.getId());
             
             Set<Integer> groupIDs = new HashSet<Integer>();
 
@@ -327,7 +327,7 @@ public class EPersonDAOPostgres extends EPersonDAO
             int idx = 0;
 
             // don't forget to add the current group to this query!
-            parameters[idx++] = group.getID();
+            parameters[idx++] = group.getId();
             String epersonQuery = "eperson_group_id= ? ";
 
             if (groupIDs.size() > 0)

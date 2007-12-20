@@ -140,7 +140,7 @@ public class ResourcePolicy
     public void setResource(DSpaceObject o)
     {
         setResourceType(o.getType());
-        setResourceID(o.getID());
+        setResourceID(o.getId());
     }
 
     /**
@@ -236,7 +236,7 @@ public class ResourcePolicy
     {
         if (eperson != null)
         {
-            epersonID = eperson.getID();
+            epersonID = eperson.getId();
         }
         else
         {
@@ -281,7 +281,7 @@ public class ResourcePolicy
     {
         if (group != null)
         {
-            groupID = group.getID();
+            groupID = group.getId();
         }
         else
         {

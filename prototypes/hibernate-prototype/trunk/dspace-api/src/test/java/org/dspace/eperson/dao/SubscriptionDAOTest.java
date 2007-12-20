@@ -81,8 +81,8 @@ public class SubscriptionDAOTest extends DAOTest implements CRUDTest
         Subscription existing = instance.create();
         EPerson eperson = epersonDAO.create();
         Collection collection = collectionDAO.create();
-        existing.setEPersonID(eperson.getID());
-        existing.setCollectionID(collection.getID());
+        existing.setEPersonID(eperson.getId());
+        existing.setCollectionID(collection.getId());
         instance.update(existing);
 
         Subscription result = instance.retrieve(existing.getID());
@@ -95,13 +95,13 @@ public class SubscriptionDAOTest extends DAOTest implements CRUDTest
         Subscription sub = instance.create();
         EPerson eperson = epersonDAO.create();
         Collection collection = collectionDAO.create();
-        sub.setEPersonID(eperson.getID());
-        sub.setCollectionID(collection.getID());
+        sub.setEPersonID(eperson.getId());
+        sub.setCollectionID(collection.getId());
         instance.update(sub);
 
         Subscription result = instance.retrieve(sub.getID());
-        assertEquals(result.getEPersonID(), eperson.getID());
-        assertEquals(result.getCollectionID(), collection.getID());
+        assertEquals(result.getEPersonID(), eperson.getId());
+        assertEquals(result.getCollectionID(), collection.getId());
     }
 
     @Test
@@ -124,8 +124,8 @@ public class SubscriptionDAOTest extends DAOTest implements CRUDTest
 
         assertTrue(!instance.isSubscribed(eperson, collection));
         
-        sub.setEPersonID(eperson.getID());
-        sub.setCollectionID(collection.getID());
+        sub.setEPersonID(eperson.getId());
+        sub.setCollectionID(collection.getId());
         instance.update(sub);
 
         assertTrue(instance.isSubscribed(eperson, collection));
@@ -166,10 +166,10 @@ public class SubscriptionDAOTest extends DAOTest implements CRUDTest
         }
         
         // Now we associate the epeople and collections to the subscriptions
-        subOne.setEPersonID(eperson.getID());
-        subTwo.setEPersonID(eperson.getID());
-        subOne.setCollectionID(collection.getID());
-        subTwo.setCollectionID(collection.getID());
+        subOne.setEPersonID(eperson.getId());
+        subTwo.setEPersonID(eperson.getId());
+        subOne.setCollectionID(collection.getId());
+        subTwo.setCollectionID(collection.getId());
         instance.update(subOne);
         instance.update(subTwo);
 

@@ -212,7 +212,7 @@ public class ItemDAOPostgres extends ItemDAO
 
         try
         {
-            TableRow row = DatabaseManager.find(context, "item", item.getID());
+            TableRow row = DatabaseManager.find(context, "item", item.getId());
 
             if (row != null)
             {
@@ -223,7 +223,7 @@ public class ItemDAOPostgres extends ItemDAO
             }
             else
             {
-                throw new RuntimeException("Didn't find item " + item.getID());
+                throw new RuntimeException("Didn't find item " + item.getId());
             }
         }
         catch (SQLException sqle)
@@ -309,13 +309,13 @@ public class ItemDAOPostgres extends ItemDAO
                 {
                     query += " AND cl2i.collection_id= ? " +
                              " AND cl2i.item_id = p.resource_id ";
-                    parameters.add(scope.getID());
+                    parameters.add(scope.getId());
                 }
                 else if (scope.getType() == Constants.COMMUNITY)
                 {
                     query += " AND cm2i.community_id= ? " +
                              " AND cm2i.item_id = p.resource_id";
-                    parameters.add(scope.getID());
+                    parameters.add(scope.getId());
                 }
             }
 
@@ -510,7 +510,7 @@ public class ItemDAOPostgres extends ItemDAO
                     "WHERE i.item_id = c2i.item_id "+
                     "AND c2i.collection_id = ? " +
                     "AND i.in_archive = '1'",
-                    collection.getID());
+                    collection.getId());
 
             return returnAsList(tri);
         }
@@ -529,7 +529,7 @@ public class ItemDAOPostgres extends ItemDAO
                     "SELECT item_id FROM item " +
                     "WHERE in_archive = '1' " +
                     "AND submitter_id = ? ",
-                    eperson.getID());
+                    eperson.getId());
 
             return returnAsList(tri);
         }
@@ -549,7 +549,7 @@ public class ItemDAOPostgres extends ItemDAO
                     "SELECT i.item_id FROM item i, item2bundle i2b " +
                     "WHERE i2b.item_id = i.item_id " +
                     "AND i2b.bundle_id = ? ",
-                    bundle.getID());
+                    bundle.getId());
 
             return returnAsList(tri);
         }
@@ -569,8 +569,8 @@ public class ItemDAOPostgres extends ItemDAO
             try
             {
                 TableRow row = DatabaseManager.create(context, "item2bundle");
-                row.setColumn("item_id", item.getID());
-                row.setColumn("bundle_id", bundle.getID());
+                row.setColumn("item_id", item.getId());
+                row.setColumn("bundle_id", bundle.getId());
                 DatabaseManager.update(context, row);
 
                 // If we're adding the Bundle to the Item, we bequeath our
@@ -597,7 +597,7 @@ public class ItemDAOPostgres extends ItemDAO
                 DatabaseManager.updateQuery(context,
                         "DELETE FROM item2bundle WHERE item_id= ? " +
                         "AND bundle_id= ? ",
-                        item.getID(), bundle.getID());
+                        item.getId(), bundle.getId());
             }
             catch (SQLException sqle)
             {
@@ -613,8 +613,8 @@ public class ItemDAOPostgres extends ItemDAO
         {
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT id FROM item2bundle " +
-                    " WHERE item_id=" + item.getID() +
-                    " AND bundle_id=" + bundle.getID());
+                    " WHERE item_id=" + item.getId() +
+                    " AND bundle_id=" + bundle.getId());
 
             boolean result = tri.hasNext();
             tri.close();
@@ -673,19 +673,19 @@ public class ItemDAOPostgres extends ItemDAO
         EPerson submitter = item.getSubmitter();
         Collection owningCollection = item.getOwningCollection();
 
-        row.setColumn("item_id", item.getID());
+        row.setColumn("item_id", item.getId());
         row.setColumn("in_archive", item.isArchived());
         row.setColumn("withdrawn", item.isWithdrawn());
         row.setColumn("last_modified", item.getLastModified());
 
         if (submitter != null)
         {
-            row.setColumn("submitter_id", submitter.getID());
+            row.setColumn("submitter_id", submitter.getId());
         }
 
         if (owningCollection != null)
         {
-            row.setColumn("owning_collection", owningCollection.getID());
+            row.setColumn("owning_collection", owningCollection.getId());
         }
     }
 
@@ -719,7 +719,7 @@ public class ItemDAOPostgres extends ItemDAO
                     "SELECT * FROM MetadataValue " +
                     "WHERE item_id = ? " +
                     "ORDER BY metadata_field_id, place",
-                    item.getID());
+                    item.getId());
 
             List<DCValue> metadata = new ArrayList<DCValue>();
 
@@ -786,19 +786,19 @@ public class ItemDAOPostgres extends ItemDAO
 
             if (qualifier == null)
             {
-                Object[] params = { item.getID(), element, schema };
+                Object[] params = { item.getId(), element, schema };
                 tri = DatabaseManager.query(context, getByMetadataElement,
                         params);
             }
             else if (Item.ANY.equals(qualifier))
             {
-                Object[] params = { item.getID(), element, schema };
+                Object[] params = { item.getId(), element, schema };
                 tri = DatabaseManager.query(context, getByMetadataAnyQualifier,
                         params);
             }
             else
             {
-                Object[] params = { item.getID(), element, qualifier, schema };
+                Object[] params = { item.getId(), element, qualifier, schema };
                 tri = DatabaseManager.query(context, getByMetadata, params);
             }
 

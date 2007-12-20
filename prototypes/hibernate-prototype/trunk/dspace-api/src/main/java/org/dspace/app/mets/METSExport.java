@@ -47,6 +47,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.Date;
+import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.cli.CommandLine;
@@ -54,25 +55,27 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
+import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
-import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
-import org.dspace.app.util.Util;
 
 import edu.harvard.hul.ois.mets.Agent;
 import edu.harvard.hul.ois.mets.AmdSec;
@@ -112,6 +115,8 @@ public class METSExport
     private static int licenseFormat = -1;
 
     private static Properties dcToMODS;
+    
+    private static ApplicationService applicationService;
 
     /**
      * FIXME: throws Exception is just not cool.
@@ -215,7 +220,10 @@ public class METSExport
 
             if ((o != null) && o instanceof Collection)
             {
-                items = ((Collection) o).getItems();
+            	/*FIXME ricontrollare itemiterator */
+            	List<Item> listitems = ((Collection) o).getItems();
+            	items = new ItemIterator(context, listitems);
+            	//items = ((Collection) o).getItems();
             }
             else
             {
@@ -226,7 +234,10 @@ public class METSExport
 
         if (line.hasOption('a'))
         {
-            items = Item.findAll(context);
+        	/*FIXME controllare itemiterator*/
+        	List<Item> listitems = applicationService.findAllItems(context);
+        	items = new ItemIterator(context, listitems);
+            //items = Item.findAll(context);
         }
 
         if (items == null)
@@ -662,15 +673,15 @@ public class METSExport
      */
     private static void createMODS(Item item, XmlData xmlData)
     {
-        DCValue[] dc = item.getDC(Item.ANY, Item.ANY, Item.ANY);
+        MetadataValue[] dc = item.getMetadata(MetadataSchema.DC_SCHEMA, Item.ANY, Item.ANY, Item.ANY);
 
         StringBuffer modsXML = new StringBuffer();
 
         for (int i = 0; i < dc.length; i++)
         {
             // Get the property name - element[.qualifier]
-            String propName = ((dc[i].qualifier == null) ? dc[i].element
-                    : (dc[i].element + "." + dc[i].qualifier));
+            String propName = ((dc[i].getMetadataField().getQualifier() == null) ? dc[i].getMetadataField().getElement()
+                    : (dc[i].getMetadataField().getElement() + "." + dc[i].getMetadataField().getQualifier()));
 
             String modsMapping = dcToMODS.getProperty(propName);
 
@@ -680,7 +691,7 @@ public class METSExport
             }
             else
             {
-                String value = dc[i].value;
+                String value = dc[i].getValue();
 
                 // Replace all $'s with \$ so it doesn't trip up the replaceAll!
                 if (value != null && value.length() > 0)
@@ -690,7 +701,7 @@ public class METSExport
                     // have to be escaped (backslash) - so the replacemenet string has to be
                     // passed as \\\$. All of those backslashes then have to escaped in the literal
                     // for them to be in string used!!!
-                    value = dc[i].value.replaceAll("\\$", "\\\\\\$");
+                    value = dc[i].getValue().replaceAll("\\$", "\\\\\\$");
                 }
 
                 // Replace '%s' with DC value (with entities encoded)
@@ -725,4 +736,8 @@ public class METSExport
 
         return original;
     }
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		METSExport.applicationService = applicationService;
+	}
 }

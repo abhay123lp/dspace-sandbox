@@ -54,9 +54,9 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.SelfNamedPlugin;
@@ -329,15 +329,15 @@ public class MODSDisseminationCrosswalk extends SelfNamedPlugin
         Item item = (Item)dso;
         initMap();
 
-        DCValue[] dc = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        MetadataValue[] dc = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         List result = new ArrayList(dc.length);
         for (int i = 0; i < dc.length; i++)
         {
             // Compose qualified DC name - schema.element[.qualifier]
             // e.g. "dc.title", "dc.subject.lcc", "lom.Classification.Keyword"
-            String qdc = dc[i].schema+"."+
-                         ((dc[i].qualifier == null) ? dc[i].element
-                            : (dc[i].element + "." + dc[i].qualifier));
+            String qdc = dc[i].getMetadataField().getSchema()+"."+
+                         ((dc[i].getMetadataField().getQualifier() == null) ? dc[i].getMetadataField().getElement()
+                            : (dc[i].getMetadataField().getElement() + "." + dc[i].getMetadataField().getElement()));
 
             modsTriple trip = (modsTriple)modsMap.get(qdc);
             if (trip == null)
@@ -359,11 +359,11 @@ public class MODSDisseminationCrosswalk extends SelfNamedPlugin
                     {
                         Object what = ni.next();
                         if (what instanceof Element)
-                            ((Element)what).setText(dc[i].value);
+                            ((Element)what).setText(dc[i].getValue());
                         else if (what instanceof Attribute)
-                            ((Attribute)what).setValue(dc[i].value);
+                            ((Attribute)what).setValue(dc[i].getValue());
                         else if (what instanceof Text)
-                            ((Text)what).setText(dc[i].value);
+                            ((Text)what).setText(dc[i].getValue());
                         else
                             log.warn("Got unknown object from XPath, class="+what.getClass().getName());
                     }

@@ -48,20 +48,20 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
-
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
-import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
 import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
@@ -272,7 +272,8 @@ public class ItemExport
             System.out.println("Exporting from collection: " + myIDString);
 
             // it's a collection, so do a bunch of items
-            ItemIterator i = mycollection.getItems();
+            List<Item> items = mycollection.getItems();
+            ItemIterator i = new ItemIterator(c, items);
 
             exportItem(c, i, destDirName, seqStart);
         }
@@ -331,7 +332,7 @@ public class ItemExport
             // now create a subdirectory
             File itemDir = new File(destDir + "/" + seqStart);
 
-            System.out.println("Exporting Item " + myItem.getID() + " to "
+            System.out.println("Exporting Item " + myItem.getId() + " to "
                     + itemDir);
 
             if (itemDir.exists())
@@ -373,10 +374,10 @@ public class ItemExport
     {
         // Build a list of schemas for the item
         HashMap map = new HashMap();
-        DCValue[] dcorevalues = i.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        MetadataValue[] dcorevalues = i.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         for (int ii = 0; ii < dcorevalues.length; ii++)
         {
-            map.put(dcorevalues[ii].schema, null);
+            map.put(dcorevalues[ii].getMetadataField().getSchema(), null);
         }
 
         // Save each of the schemas into it's own metadata file
@@ -408,7 +409,7 @@ public class ItemExport
             BufferedOutputStream out = new BufferedOutputStream(
                     new FileOutputStream(outFile));
 
-            DCValue[] dcorevalues = i.getMetadata(schema, Item.ANY, Item.ANY, Item.ANY);
+            MetadataValue[] dcorevalues = i.getMetadata(schema, Item.ANY, Item.ANY, Item.ANY);
 
             // XML preamble
             byte[] utf8 = "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"no\"?>\n"
@@ -421,17 +422,17 @@ public class ItemExport
 
             for (int j = 0; j < dcorevalues.length; j++)
             {
-                DCValue dcv = dcorevalues[j];
-                String qualifier = dcv.qualifier;
+                MetadataValue dcv = dcorevalues[j];
+                String qualifier = dcv.getMetadataField().getQualifier();
 
                 if (qualifier == null)
                 {
                     qualifier = "none";
                 }
 
-                utf8 = ("  <dcvalue element=\"" + dcv.element + "\" "
+                utf8 = ("  <dcvalue element=\"" + dcv.getMetadataField().getElement() + "\" "
                         + "qualifier=\"" + qualifier + "\">"
-                        + Utils.addEntities(dcv.value) + "</dcvalue>\n").getBytes("UTF-8");
+                        + Utils.addEntities(dcv.getValue()) + "</dcvalue>\n").getBytes("UTF-8");
 
                 out.write(utf8, 0, utf8.length);
             }

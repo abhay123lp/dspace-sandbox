@@ -49,6 +49,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import javax.mail.MessagingException;
+
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
@@ -58,10 +59,14 @@ import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
 import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
@@ -142,6 +147,8 @@ public class WorkflowManager
 
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkflowManager.class);
+    
+    private static ApplicationService applicationService;
 
     /**
      * Translate symbolic name of workflow state into number.
@@ -179,8 +186,8 @@ public class WorkflowManager
 
         log.info(LogManager.getHeader(c, "start_workflow",
             "workspace_item_id=" + wsi.getID() +
-            "item_id=" + item.getID() +
-            "collection_id=" + wfi.getCollection().getID()));
+            "item_id=" + item.getId() +
+            "collection_id=" + wfi.getCollection().getId()));
 
         // record the start of the workflow w/provenance message
         recordStart(c, item);
@@ -202,7 +209,7 @@ public class WorkflowManager
     {
         // make a hash table entry with item ID for no notify
         // notify code checks no notify hash for item id
-        noEMail.put(new Integer(wsi.getItem().getID()), new Boolean(true));
+        noEMail.put(new Integer(wsi.getItem().getId()), new Boolean(true));
 
         return start(c, wsi);
     }
@@ -283,9 +290,9 @@ public class WorkflowManager
         }
 
         log.info(LogManager.getHeader(c, "claim_task", "workflow_item_id="
-                + wi.getID() + "item_id=" + wi.getItem().getID()
-                + "collection_id=" + wi.getCollection().getID()
-                + "newowner_id=" + wi.getOwner().getID() + "old_state="
+                + wi.getID() + "item_id=" + wi.getItem().getId()
+                + "collection_id=" + wi.getCollection().getId()
+                + "newowner_id=" + wi.getOwner().getId() + "old_state="
                 + taskstate + "new_state=" + wi.getState()));
     }
 
@@ -342,8 +349,8 @@ public class WorkflowManager
 
         log.info(LogManager.getHeader(c, "advance_workflow",
                 "workflow_item_id=" + wi.getID() + ",item_id="
-                        + wi.getItem().getID() + ",collection_id="
-                        + wi.getCollection().getID() + ",old_state="
+                        + wi.getItem().getId() + ",collection_id="
+                        + wi.getCollection().getId() + ",old_state="
                         + taskstate + ",new_state=" + wi.getState()));
     }
 
@@ -391,8 +398,8 @@ public class WorkflowManager
 
         log.info(LogManager.getHeader(c, "unclaim_workflow",
                 "workflow_item_id=" + wi.getID() + ",item_id="
-                        + wi.getItem().getID() + ",collection_id="
-                        + wi.getCollection().getID() + ",old_state="
+                        + wi.getItem().getId() + ",collection_id="
+                        + wi.getCollection().getId() + ",old_state="
                         + taskstate + ",new_state=" + wi.getState()));
     }
 
@@ -422,9 +429,9 @@ public class WorkflowManager
         deleteTasks(c, wi);
 
         log.info(LogManager.getHeader(c, "abort_workflow", "workflow_item_id="
-                + wi.getID() + "item_id=" + wi.getItem().getID()
-                + "collection_id=" + wi.getCollection().getID() + "eperson_id="
-                + e.getID()));
+                + wi.getID() + "item_id=" + wi.getItem().getId()
+                + "collection_id=" + wi.getCollection().getId() + "eperson_id="
+                + e.getId()));
 
         // convert into personal workspace
         WorkspaceItem wsi = returnToWorkspace(c, wi);
@@ -605,15 +612,15 @@ public class WorkflowManager
         Collection collection = wfi.getCollection();
 
         log.info(LogManager.getHeader(c, "archive_item", "workflow_item_id="
-                + wfi.getID() + "item_id=" + item.getID() + "collection_id="
-                + collection.getID()));
+                + wfi.getID() + "item_id=" + item.getId() + "collection_id="
+                + collection.getId()));
 
         item = InstallItem.installItem(c, wfi);
         String uri = item.getIdentifier().getCanonicalForm();
 
         // Log the event
         log.info(LogManager.getHeader(c, "install_item", "workflow_id="
-                + wfi.getID() + ", item_id=" + item.getID() + "uri=" + uri));
+                + wfi.getID() + ", item_id=" + item.getId() + "uri=" + uri));
 
         return item;
     }
@@ -650,7 +657,7 @@ public class WorkflowManager
             }
 
             // Get title
-            DCValue[] titles = i.getDC("title", null, Item.ANY);
+            MetadataValue[] titles = i.getMetadata(MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
             String title = "";
             try
             {
@@ -663,7 +670,7 @@ public class WorkflowManager
             }
             if (titles.length > 0)
             {
-                title = titles[0].value;
+                title = titles[0].getValue();
             }
 
             email.addRecipient(ep.getEmail());
@@ -676,7 +683,7 @@ public class WorkflowManager
         catch (MessagingException e)
         {
             log.warn(LogManager.getHeader(c, "notifyOfArchive",
-                    "cannot email user" + " item_id=" + i.getID()));
+                    "cannot email user" + " item_id=" + i.getId()));
         }
     }
 
@@ -745,8 +752,11 @@ public class WorkflowManager
                 + rejection_message + " on " + now + " (GMT) ";
 
         // Add to item as a DC field
-        myitem.addDC("description", "provenance", "en", provDescription);
-        myitem.update();
+        MetadataField field = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
+        myitem.addMetadata(field, "en", provDescription);
+        /*FIXME inutile?*/
+        applicationService.saveOrUpdate(c, Item.class, myitem);
+        //myitem.update();
 
         // convert into personal workspace
         WorkspaceItem wsi = returnToWorkspace(c, wi);
@@ -755,9 +765,9 @@ public class WorkflowManager
         notifyOfReject(c, wi, e, rejection_message);
 
         log.info(LogManager.getHeader(c, "reject_workflow", "workflow_item_id="
-                + wi.getID() + "item_id=" + wi.getItem().getID()
-                + "collection_id=" + wi.getCollection().getID() + "eperson_id="
-                + e.getID()));
+                + wi.getID() + "item_id=" + wi.getItem().getId()
+                + "collection_id=" + wi.getCollection().getId() + "eperson_id="
+                + e.getId()));
 
         return wsi;
     }
@@ -788,7 +798,7 @@ public class WorkflowManager
         // check to see if notification is turned off
         // and only do it once - delete key after notification has
         // been suppressed for the first time
-        Integer myID = new Integer(wi.getItem().getID());
+        Integer myID = new Integer(wi.getItem().getId());
 
         if (noEMail.containsKey(myID))
         {
@@ -847,7 +857,7 @@ public class WorkflowManager
             catch (MessagingException e)
             {
                 log.warn(LogManager.getHeader(c, "notifyGroupofTask",
-                        "cannot email user" + " group_id" + mygroup.getID()
+                        "cannot email user" + " group_id" + mygroup.getId()
                                 + " workflow_item_id" + wi.getID()));
             }
         }
@@ -910,7 +920,7 @@ public class WorkflowManager
         {
             // log this email error
             log.warn(LogManager.getHeader(c, "notify_of_reject",
-                    "cannot email user" + " eperson_id" + e.getID()
+                    "cannot email user" + " eperson_id" + e.getId()
                             + " eperson_email" + e.getEmail()
                             + " workflow_item_id" + wi.getID()));
         }
@@ -932,12 +942,12 @@ public class WorkflowManager
     public static String getItemTitle(WorkflowItem wi)
     {
         Item myitem = wi.getItem();
-        DCValue[] titles = myitem.getDC("title", null, Item.ANY);
+        MetadataValue[] titles = myitem.getMetadata(MetadataSchema.DC_SCHEMA,"title", null, Item.ANY);
 
         // only return the first element, or "Untitled"
         if (titles.length > 0)
         {
-            return titles[0].value;
+            return titles[0].getValue();
         }
         else
         {
@@ -986,8 +996,11 @@ public class WorkflowManager
         provDescription += InstallItem.getBitstreamProvenanceMessage(item);
 
         // Add to item as a DC field
-        item.addDC("description", "provenance", "en", provDescription);
-        item.update();
+        MetadataField field = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
+        item.addMetadata(field, "en", provDescription);
+        /*FIXME inutile?*/
+        applicationService.saveOrUpdate(c, Item.class, item);
+        //item.update();
     }
 
     // Create workflow start provenance message
@@ -1020,7 +1033,14 @@ public class WorkflowManager
         provmessage += InstallItem.getBitstreamProvenanceMessage(myitem);
 
         // Add message to the DC
-        myitem.addDC("description", "provenance", "en", provmessage);
-        myitem.update();
+        MetadataField field = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
+        myitem.addMetadata(field, "en", provmessage);
+        /*FIXME inutile?*/
+        applicationService.saveOrUpdate(c, Item.class,myitem);
+        //myitem.update();
     }
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		WorkflowManager.applicationService = applicationService;
+	}
 }

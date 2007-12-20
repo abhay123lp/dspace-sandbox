@@ -69,7 +69,7 @@ public class BundleDAOTest extends DAOTest implements CRUDTest, LinkTest
     {
         Bundle result = instance.create();
 
-        int id = result.getID();
+        int id = result.getId();
 
         assertTrue(id > 0);
     }
@@ -78,9 +78,9 @@ public class BundleDAOTest extends DAOTest implements CRUDTest, LinkTest
     public void retrieve() throws Exception
     {
         Bundle existing = instance.create();
-        Bundle result = instance.retrieve(existing.getID());
+        Bundle result = instance.retrieve(existing.getId());
 
-        assertEquals(existing.getID(), result.getID());
+        assertEquals(existing.getId(), result.getId());
     }
 
     @Test
@@ -90,7 +90,7 @@ public class BundleDAOTest extends DAOTest implements CRUDTest, LinkTest
         bundle.setName("Bundle Test");
         instance.update(bundle);
         
-        Bundle result = instance.retrieve(bundle.getID());
+        Bundle result = instance.retrieve(bundle.getId());
         assertEquals("Bundle Test", result.getName());
     }
 
@@ -98,7 +98,7 @@ public class BundleDAOTest extends DAOTest implements CRUDTest, LinkTest
     public void delete() throws Exception
     {
         Bundle result = instance.create();
-        int id = result.getID();
+        int id = result.getId();
 
         instance.delete(id);
 

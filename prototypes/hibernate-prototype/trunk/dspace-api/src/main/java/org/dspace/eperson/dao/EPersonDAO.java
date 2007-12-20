@@ -84,7 +84,7 @@ public abstract class EPersonDAO implements CRUD<EPerson>
     protected final EPerson create(EPerson eperson) throws AuthorizeException
     {
         log.info(LogManager.getHeader(context, "create_eperson", "eperson_id="
-                    + eperson.getID()));
+                    + eperson.getId()));
 
         return eperson;
     }
@@ -122,7 +122,7 @@ public abstract class EPersonDAO implements CRUD<EPerson>
         }
 
         log.info(LogManager.getHeader(context, "update_eperson",
-                "eperson_id=" + eperson.getID()));
+                "eperson_id=" + eperson.getId()));
     }
 
     public void delete(int id) throws AuthorizeException

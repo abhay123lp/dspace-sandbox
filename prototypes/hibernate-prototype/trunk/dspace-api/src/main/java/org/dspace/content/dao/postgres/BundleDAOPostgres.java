@@ -144,7 +144,7 @@ public class BundleDAOPostgres extends BundleDAO
         try
         {
             TableRow row =
-                DatabaseManager.find(context, "bundle", bundle.getID());
+                DatabaseManager.find(context, "bundle", bundle.getId());
 
             if (row != null)
             {
@@ -165,7 +165,7 @@ public class BundleDAOPostgres extends BundleDAO
             else
             {
                 throw new RuntimeException("Didn't find bundle " +
-                        bundle.getID());
+                        bundle.getId());
             }
         }
         catch (SQLException sqle)
@@ -196,7 +196,7 @@ public class BundleDAOPostgres extends BundleDAO
         {
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT bundle_id FROM item2bundle " +
-                    "WHERE item_id = " + item.getID());
+                    "WHERE item_id = " + item.getId());
 
             return returnAsList(tri);
         }
@@ -214,7 +214,7 @@ public class BundleDAOPostgres extends BundleDAO
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT bundle.* FROM bundle, bundle2bitstream " +
                     "WHERE bundle.bundle_id = bundle2bitstream.bundle_id " +
-                    "AND bundle2bitstream.bitstream_id = " + bitstream.getID());
+                    "AND bundle2bitstream.bitstream_id = " + bitstream.getId());
 
             return returnAsList(tri);
         }
@@ -236,8 +236,8 @@ public class BundleDAOPostgres extends BundleDAO
             {
                 TableRow row = DatabaseManager.create(context,
                         "bundle2bitstream");
-                row.setColumn("bundle_id", bundle.getID());
-                row.setColumn("bitstream_id", bitstream.getID());
+                row.setColumn("bundle_id", bundle.getId());
+                row.setColumn("bitstream_id", bitstream.getId());
                 DatabaseManager.update(context, row);
             }
             catch (SQLException sqle)
@@ -261,7 +261,7 @@ public class BundleDAOPostgres extends BundleDAO
                 DatabaseManager.updateQuery(context,
                         "DELETE FROM bundle2bitstream " +
                         "WHERE bundle_id = ? AND bitstream_id = ? ",
-                        bundle.getID(), bitstream.getID());
+                        bundle.getId(), bitstream.getId());
             }
             catch (SQLException sqle)
             {
@@ -279,7 +279,7 @@ public class BundleDAOPostgres extends BundleDAO
                     "SELECT id FROM bundle2bitstream " +
                     "WHERE bundle_id = ? " + 
                     "AND bitstream_id = ? ",
-                    bundle.getID(), bitstream.getID());
+                    bundle.getId(), bitstream.getId());
 
             boolean result = tri.hasNext();
             tri.close();

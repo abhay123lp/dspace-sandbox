@@ -70,7 +70,7 @@ public class CommunityDAOTest extends DAOTest
     {
         Community result = instance.create();
 
-        int id = result.getID();
+        int id = result.getId();
 
         assertTrue(id > 0);
     }
@@ -79,9 +79,9 @@ public class CommunityDAOTest extends DAOTest
     public void retrieve() throws Exception
     {
         Community existing = instance.create();
-        Community result = instance.retrieve(existing.getID());
+        Community result = instance.retrieve(existing.getId());
 
-        assertEquals(existing.getID(), result.getID());
+        assertEquals(existing.getId(), result.getId());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class CommunityDAOTest extends DAOTest
         community.setMetadata("name", "Community Test");
         instance.update(community);
         
-        Community result = instance.retrieve(community.getID());
+        Community result = instance.retrieve(community.getId());
         assertEquals("Community Test", result.getMetadata("name"));
     }
 
@@ -99,7 +99,7 @@ public class CommunityDAOTest extends DAOTest
     public void delete() throws Exception
     {
         Community result = instance.create();
-        int id = result.getID();
+        int id = result.getId();
 
         instance.delete(id);
 

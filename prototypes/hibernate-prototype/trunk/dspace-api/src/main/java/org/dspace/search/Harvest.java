@@ -137,7 +137,7 @@ public class Harvest
                 
                 itemInfo.context = context;
                 itemInfo.identifier = item.getIdentifier();
-                itemInfo.itemID = item.getID();
+                itemInfo.itemID = item.getId();
                 itemInfo.datestamp = item.getLastModified();
                 itemInfo.withdrawn = item.isWithdrawn();
 
@@ -196,7 +196,7 @@ public class Harvest
         itemInfo.identifier = identifier;
         itemInfo.withdrawn = i.isWithdrawn();
         itemInfo.datestamp = i.getLastModified();
-        itemInfo.itemID = i.getID();
+        itemInfo.itemID = i.getId();
 
         // Get the sets
         if (collections)

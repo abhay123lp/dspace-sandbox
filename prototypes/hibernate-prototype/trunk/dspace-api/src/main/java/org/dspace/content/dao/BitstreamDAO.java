@@ -129,7 +129,7 @@ public abstract class BitstreamDAO extends ContentDAO
         throws AuthorizeException
     {
         log.info(LogManager.getHeader(context, "create_bitstream",
-                "bitstream_id=" + bitstream.getID()));
+                "bitstream_id=" + bitstream.getId()));
 
         return bitstream;
     }
@@ -150,7 +150,7 @@ public abstract class BitstreamDAO extends ContentDAO
         AuthorizeManager.authorizeAction(context, bitstream, Constants.WRITE);
 
         log.info(LogManager.getHeader(context, "update_bitstream",
-                "bitstream_id=" + bitstream.getID()));
+                "bitstream_id=" + bitstream.getId()));
     }
 
     /**

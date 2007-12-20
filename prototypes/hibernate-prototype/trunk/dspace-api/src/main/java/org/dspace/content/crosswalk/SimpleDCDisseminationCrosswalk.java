@@ -46,9 +46,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.Constants;
 import org.dspace.core.SelfNamedPlugin;
 import org.jdom.Element;
@@ -121,27 +122,27 @@ public class SimpleDCDisseminationCrosswalk extends SelfNamedPlugin
             throw new CrosswalkObjectNotSupported("SimpleDCDisseminationCrosswalk can only crosswalk an Item.");
 
         Item item = (Item)dso;
-        DCValue[] allDC = item.getDC(Item.ANY, Item.ANY, Item.ANY);
-
+        MetadataValue[] allDC = item.getMetadata(MetadataSchema.DC_SCHEMA, Item.ANY, Item.ANY, Item.ANY);
+        
         List dcl = new ArrayList(allDC.length);
 
         for (int i = 0; i < allDC.length; i++)
         {
             // Do not include description.provenance
-            if (!(allDC[i].element.equals("description") &&
-                  (allDC[i].qualifier != null && allDC[i].qualifier.equals("provenance"))))
+            if (!(allDC[i].getMetadataField().getElement().equals("description") &&
+                  (allDC[i].getMetadataField().getQualifier() != null && allDC[i].getMetadataField().getQualifier().equals("provenance"))))
             {
                 String element;
 
                 // contributor.author exposed as 'creator'
-                if (allDC[i].element.equals("contributor")
-                        && (allDC[i].qualifier != null)
-                        && allDC[i].qualifier.equals("author"))
+                if (allDC[i].getMetadataField().getElement().equals("contributor")
+                        && (allDC[i].getMetadataField().getQualifier() != null)
+                        && allDC[i].getMetadataField().getQualifier().equals("author"))
                     element = "creator";
                 else
-                    element = allDC[i].element;
+                    element = allDC[i].getMetadataField().getElement();
                 Element field = new Element(element, DC_NS);
-                field.addContent(allDC[i].value);
+                field.addContent(allDC[i].getValue());
                 if (addSchema)
                     field.setAttribute("schemaLocation", schemaLocation, XSI_NS);
                 dcl.add(field);

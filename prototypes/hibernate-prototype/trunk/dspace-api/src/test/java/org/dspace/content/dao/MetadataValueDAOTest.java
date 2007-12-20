@@ -101,7 +101,7 @@ public class MetadataValueDAOTest extends DAOTest implements CRUDTest
 
         // All of this stuff has to be set
         value.setFieldID(field.getID());
-        value.setItemID(item.getID());
+        value.setItemID(item.getId());
         value.setValue("MetadataValue Test");
         instance.update(value);
         
@@ -138,10 +138,10 @@ public class MetadataValueDAOTest extends DAOTest implements CRUDTest
 
         // All of this stuff has to be set
         valueOne.setFieldID(field.getID());
-        valueOne.setItemID(item.getID());
+        valueOne.setItemID(item.getId());
         valueOne.setValue(UUID.randomUUID().toString());
         valueTwo.setFieldID(field.getID());
-        valueTwo.setItemID(item.getID());
+        valueTwo.setItemID(item.getId());
         valueTwo.setValue(UUID.randomUUID().toString());
         instance.update(valueOne);
         instance.update(valueTwo);

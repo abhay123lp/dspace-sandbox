@@ -296,12 +296,12 @@ public class SubmissionInfo
 
         if (getBundle() != null)
         {
-            info = info + ",bundle_id=" + getBundle().getID();
+            info = info + ",bundle_id=" + getBundle().getId();
         }
 
         if (getBitstream() != null)
         {
-            info = info + ",bitstream_id=" + getBitstream().getID();
+            info = info + ",bitstream_id=" + getBitstream().getId();
         }
 
         return info;

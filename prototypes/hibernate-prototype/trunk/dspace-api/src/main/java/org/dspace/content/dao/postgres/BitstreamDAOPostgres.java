@@ -167,7 +167,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
         try
         {
             TableRow row =
-                DatabaseManager.find(context, "bitstream", bitstream.getID());
+                DatabaseManager.find(context, "bitstream", bitstream.getId());
 
             if (row != null)
             {
@@ -176,7 +176,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             else
             {
                 throw new RuntimeException("Didn't find bitstream " +
-                        bitstream.getID());
+                        bitstream.getId());
             }
         }
         catch (SQLException sqle)
@@ -255,7 +255,7 @@ public class BitstreamDAOPostgres extends BitstreamDAO
             // Get bitstreams
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT bitstream_id FROM bundle2bitstream " +
-                    "WHERE bundle_id = ? ", bundle.getID());
+                    "WHERE bundle_id = ? ", bundle.getId());
 
             return returnAsList(tri);
         }

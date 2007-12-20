@@ -122,7 +122,7 @@ public class URIDispatcher implements BitstreamDispatcher
             ObjectIdentifier oi = identifier.getObjectIdentifier();
             DSpaceObject dso = oi.getObject(context);
 
-            id = dso.getID();
+            id = dso.getId();
             dsoType = dso.getType();
             context.abort();
 

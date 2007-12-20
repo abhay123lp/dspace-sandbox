@@ -47,9 +47,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.jdom.Document;
@@ -238,19 +238,19 @@ public class XSLTDisseminationCrosswalk
     // build DIM expression of Item's metadata.
     private Element getDim(Item item)
     {
-        DCValue[] dc = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        MetadataValue[] dc = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         Element dim = new Element("dim", DIM_NS);
         for (int i = 0; i < dc.length; i++)
         {
             Element field = new Element("field", DIM_NS);
-            field.setAttribute("mdschema", dc[i].schema);
-            field.setAttribute("element", dc[i].element);
-            if (dc[i].qualifier != null)
-                field.setAttribute("qualifier", dc[i].qualifier);
-            if (dc[i].language != null)
-                field.setAttribute("lang", dc[i].language);
-            if (dc[i].value != null)
-                field.setText(dc[i].value);
+            field.setAttribute("mdschema", dc[i].getMetadataField().getSchema().getName());
+            field.setAttribute("element", dc[i].getMetadataField().getElement());
+            if (dc[i].getMetadataField().getQualifier() != null)
+                field.setAttribute("qualifier", dc[i].getMetadataField().getQualifier());
+            if (dc[i].getLanguage() != null)
+                field.setAttribute("lang", dc[i].getLanguage());
+            if (dc[i].getValue() != null)
+                field.setText(dc[i].getValue());
             dim.addContent(field);
         }
         return dim;

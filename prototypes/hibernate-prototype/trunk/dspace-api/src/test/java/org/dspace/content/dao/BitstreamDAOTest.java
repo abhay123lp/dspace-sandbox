@@ -65,7 +65,7 @@ public class BitstreamDAOTest extends DAOTest implements CRUDTest
     {
         Bitstream result = instance.create();
 
-        int id = result.getID();
+        int id = result.getId();
 
         assertTrue(id > 0);
     }
@@ -96,9 +96,9 @@ public class BitstreamDAOTest extends DAOTest implements CRUDTest
     public void retrieve() throws Exception
     {
         Bitstream existing = instance.create();
-        Bitstream result = instance.retrieve(existing.getID());
+        Bitstream result = instance.retrieve(existing.getId());
 
-        assertEquals(existing.getID(), result.getID());
+        assertEquals(existing.getId(), result.getId());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class BitstreamDAOTest extends DAOTest implements CRUDTest
         bitstream.setName("Bitstream Test");
         instance.update(bitstream);
         
-        Bitstream result = instance.retrieve(bitstream.getID());
+        Bitstream result = instance.retrieve(bitstream.getId());
         assertEquals("Bitstream Test", result.getName());
     }
 
@@ -116,7 +116,7 @@ public class BitstreamDAOTest extends DAOTest implements CRUDTest
     public void delete() throws Exception
     {
         Bitstream bitstream = instance.create();
-        int id = bitstream.getID();
+        int id = bitstream.getId();
 
         instance.delete(id);
 
@@ -128,7 +128,7 @@ public class BitstreamDAOTest extends DAOTest implements CRUDTest
     public void remove() throws Exception
     {
         Bitstream result = instance.create();
-        int id = result.getID();
+        int id = result.getId();
 
         instance.remove(id);
 

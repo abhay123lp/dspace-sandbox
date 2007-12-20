@@ -39,20 +39,22 @@
  */
 package org.dspace.content;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Constants;
-import org.dspace.core.Context;
-import org.dspace.authorize.AuthorizeException;
+import javax.persistence.Entity;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import org.dspace.content.factory.CommunityFactory;
+import org.dspace.core.Constants;
+import org.dspace.core.Context;
 
 /**
  * Represents the root of the DSpace Archive.
  * By default, the handle suffix "0" represents the Site, e.g. "1721.1/0"
  */
+@Entity
 public class Site extends DSpaceObject
 {
 	/*------------OLD FIELDS----------*/
@@ -91,6 +93,7 @@ public class Site extends DSpaceObject
     }
     
     /* Returns all the top-communities of this site */
+    @OneToMany
     public List<Community> getTopCommunities() {
     	return this.topCommunities;
     }
@@ -101,6 +104,7 @@ public class Site extends DSpaceObject
     }
     
     /* Gets the Site logo */
+    @OneToOne
     public Bitstream getLogo() {
     	return this.logo;
     }
@@ -108,13 +112,17 @@ public class Site extends DSpaceObject
     public void setName(String name) {
     	this.name=name;
     }
-    
+    @Transient
     public String getName() {
     	return name;
     }
-    
+    @Transient
     public int getType()
     {
         return Constants.SITE;
     }
+
+	public void setTopCommunities(List<Community> topCommunities) {
+		this.topCommunities = topCommunities;
+	}
 }

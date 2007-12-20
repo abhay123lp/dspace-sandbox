@@ -71,7 +71,7 @@ public class ItemDAOTest extends DAOTest
     {
         Item result = instance.create();
 
-        int id = result.getID();
+        int id = result.getId();
 
         assertTrue(id > 0);
     }
@@ -80,9 +80,9 @@ public class ItemDAOTest extends DAOTest
     public void retrieve() throws Exception
     {
         Item existing = instance.create();
-        Item result = instance.retrieve(existing.getID());
+        Item result = instance.retrieve(existing.getId());
 
-        assertEquals(existing.getID(), result.getID());
+        assertEquals(existing.getId(), result.getId());
     }
 
     @Test
@@ -100,7 +100,7 @@ public class ItemDAOTest extends DAOTest
         item.setSubmitter(submitter);
         instance.update(item);
 
-        Item result = instance.retrieve(item.getID());
+        Item result = instance.retrieve(item.getId());
         assertEquals(result.getSubmitter(), submitter);
     }
 
@@ -108,7 +108,7 @@ public class ItemDAOTest extends DAOTest
     public void delete() throws Exception
     {
         Item item = instance.create();
-        int id = item.getID();
+        int id = item.getId();
 
         instance.delete(id);
 

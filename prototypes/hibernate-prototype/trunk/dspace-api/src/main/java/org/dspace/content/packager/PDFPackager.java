@@ -54,10 +54,14 @@ import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.MetadataValidationException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -89,6 +93,8 @@ public class PDFPackager
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(PDFPackager.class);
+    
+    private static ApplicationService applicationService;
 
     private final static String BITSTREAM_FORMAT_NAME = "Adobe PDF";
 
@@ -179,16 +185,17 @@ public class PDFPackager
             pkg.close();
             bs.setName("package.pdf");
             setFormatToMIMEType(context, bs, "application/pdf");
-            bs.update();
-            log.debug("Created bitstream ID="+String.valueOf(bs.getID())+", parsing...");
+            //bs.update();
+            log.debug("Created bitstream ID="+String.valueOf(bs.getId())+", parsing...");
 
             crosswalkPDF(context, myitem, bs.retrieve());
 
-            wi.update();
+            //wi.update();
+            applicationService.saveOrUpdate(context, WorkspaceItem.class, wi);
             context.commit();
             success = true;
             log.info(LogManager.getHeader(context, "ingest",
-                "Created new Item, db ID="+String.valueOf(myitem.getID())+
+                "Created new Item, db ID="+String.valueOf(myitem.getId())+
                 ", WorkspaceItem ID="+String.valueOf(wi.getID())));
             return wi;
         }
@@ -306,34 +313,46 @@ public class PDFPackager
             if (title == null)
                 throw new MetadataValidationException("This PDF file is unacceptable, it does not have a value for \"Title\" in its Info dictionary.");
             log.debug("PDF Info dict title=\""+title+"\"");
-            item.addDC("title", null, "en", title);
+            MetadataField mdf = applicationService.getMetadataField("title", null, MetadataSchema.DC_SCHEMA, context);
+            item.addMetadata(mdf, "en", title);
             String value;
             Calendar date;
             if ((value = docinfo.getAuthor()) != null)
             {
-                item.addDC("contributor", "author", null, value);
+            	MetadataField mdf2 = applicationService.getMetadataField("contributor", "author", MetadataSchema.DC_SCHEMA, context);
+                item.addMetadata(mdf2, null, value);
                 log.debug("PDF Info dict author=\""+value+"\"");
             }
-            if ((value = docinfo.getCreator()) != null)
-                item.addDC("description", "provenance", "en",
+            if ((value = docinfo.getCreator()) != null) {
+            	MetadataField mdf2 = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+                item.addMetadata(mdf2, "en",
                               "Application that created the original document: "+value);
-            if ((value = docinfo.getProducer()) != null)
-                item.addDC("description", "provenance", "en",
+            }
+            if ((value = docinfo.getProducer()) != null) {
+            	MetadataField mdf3 = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+                item.addMetadata(mdf3, "en",
                               "Original document converted to PDF by: "+value);
-            if ((value = docinfo.getSubject()) != null)
-                item.addDC("description", "abstract", null, value);
-            if ((value = docinfo.getKeywords()) != null)
-                item.addDC("subject", "other", null, value);
-
+            }
+            if ((value = docinfo.getSubject()) != null) {
+            	MetadataField mdf4 = applicationService.getMetadataField("description", "abstract", MetadataSchema.DC_SCHEMA, context);
+                item.addMetadata(mdf4, null, value);
+            }
+            if ((value = docinfo.getKeywords()) != null) {
+            	MetadataField mdf5 = applicationService.getMetadataField("subject", "other", MetadataSchema.DC_SCHEMA, context);
+                item.addMetadata(mdf5, null, value);
+            }
             // Take either CreationDate or ModDate as "date.created",
             // Too bad there's no place to put "last modified" in the DC.
             Calendar calValue;
             if ((calValue = docinfo.getCreationDate()) == null)
                 calValue = docinfo.getModificationDate();
-            if (calValue != null)
-                item.addDC("date", "created", null,
+            if (calValue != null) {
+            	MetadataField mdf5 = applicationService.getMetadataField("date", "created", MetadataSchema.DC_SCHEMA, context);
+                item.addMetadata(mdf5, null,
                              (new DCDate(calValue.getTime())).toString());
-            item.update();
+            }
+            applicationService.saveOrUpdate(context, Item.class, item);
+            //item.update();
         }
         finally
         {
@@ -341,4 +360,8 @@ public class PDFPackager
                 cos.close();
         }
     }
+    
+    public static void setApplicationService(ApplicationService applicationService) {
+		PDFPackager.applicationService = applicationService;
+	}
 }

@@ -50,6 +50,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -62,6 +63,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -77,6 +79,7 @@ public class GenerateSitemaps
     /** Logger */
     private static Logger log = Logger.getLogger(GenerateSitemaps.class);
 
+    private static ApplicationService applicationService;
     public static void main(String[] args) throws Exception
     {
         final String usage = GenerateSitemaps.class.getCanonicalName();
@@ -205,9 +208,10 @@ public class GenerateSitemaps
                     + "?map=", null);
         }
 
-        Context c = new Context();
-
-        Community[] comms = Community.findAll(c);
+        Context c = new Context(); //non sono stato io!
+        
+        Community[] comms = (Community[])applicationService.findAllCommunities(c).toArray();
+        //Community[] comms = Community.findAll(c);
 
         for (int i = 0; i < comms.length; i++)
         {
@@ -218,8 +222,9 @@ public class GenerateSitemaps
             if (makeSitemapOrg)
                 sitemapsOrg.addURL(url, null);
         }
-
-        Collection[] colls = Collection.findAll(c);
+        
+        Collection[] colls =(Collection[])applicationService.findAllCollections(c).toArray();
+        //Collection[] colls = Collection.findAll(c);
 
         for (int i = 0; i < colls.length; i++)
         {
@@ -230,8 +235,10 @@ public class GenerateSitemaps
             if (makeSitemapOrg)
                 sitemapsOrg.addURL(url, null);
         }
-
-        ItemIterator allItems = Item.findAll(c);
+        
+        List<Item> listitems = applicationService.findAllItems(c);
+        ItemIterator allItems = new ItemIterator(c, listitems);
+        //ItemIterator allItems = Item.findAll(c);
         int itemCount = 0;
 
         while (allItems.hasNext())
@@ -371,4 +378,8 @@ public class GenerateSitemaps
             log.warn("Error pinging " + url.toString(), e);
         }
     }
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		GenerateSitemaps.applicationService = applicationService;
+	}
 }

@@ -58,6 +58,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCPersonName;
 import org.dspace.content.DCSeriesNumber;
+import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
@@ -201,16 +202,16 @@ public class DescribeStep extends AbstractProcessingStep
             if (inputType.equals("name"))
             {
                 readNames(request, item, schema, element, qualifier, inputs[j]
-                        .getRepeatable());
+                        .getRepeatable(), context);
             }
             else if (inputType.equals("date"))
             {
-                readDate(request, item, schema, element, qualifier);
+                readDate(request, item, schema, element, qualifier, context);
             }
             else if (inputType.equals("series"))
             {
                 readSeriesNumbers(request, item, schema, element, qualifier,
-                        inputs[j].getRepeatable());
+                        inputs[j].getRepeatable(), context);
             }
             else if (inputType.equals("qualdrop_value"))
             {
@@ -257,7 +258,7 @@ public class DescribeStep extends AbstractProcessingStep
                     || (inputType.equals("textarea")))
             {
                 readText(request, item, schema, element, qualifier, inputs[j]
-                        .getRepeatable(), "en");
+                        .getRepeatable(), "en", context);
             }
             else
             {
@@ -414,7 +415,7 @@ public class DescribeStep extends AbstractProcessingStep
      *            set to true if the field is repeatable on the form
      */
     private void readNames(HttpServletRequest request, Item item,
-            String schema, String element, String qualifier, boolean repeated)
+            String schema, String element, String qualifier, boolean repeated, Context context)
     {
         String metadataField = MetadataField
                 .formKey(schema, element, qualifier);
@@ -494,8 +495,9 @@ public class DescribeStep extends AbstractProcessingStep
                 }
 
                 // Add to the database
-                item.addMetadata(schema, element, qualifier, null,
-                        new DCPersonName(l, f).toString());
+                MetadataField mdf = applicationService.getMetadataField(element, qualifier, schema, context);
+                item.addMetadata(mdf, null, new DCPersonName(l, f).toString());
+                
             }
         }
     }
@@ -533,7 +535,7 @@ public class DescribeStep extends AbstractProcessingStep
      *            language to set (ISO code)
      */
     private void readText(HttpServletRequest request, Item item, String schema,
-            String element, String qualifier, boolean repeated, String lang)
+            String element, String qualifier, boolean repeated, String lang, Context context)
     {
         // FIXME: Of course, language should be part of form, or determined
         // some other way
@@ -582,7 +584,8 @@ public class DescribeStep extends AbstractProcessingStep
 
             if ((s != null) && !s.equals(""))
             {
-                item.addMetadata(schema, element, qualifier, lang, s);
+            	MetadataField mdf = applicationService.getMetadataField(element, qualifier, schema, context);
+            	item.addMetadata(mdf, lang, s);
             }
         }
     }
@@ -609,7 +612,7 @@ public class DescribeStep extends AbstractProcessingStep
      * @throws SQLException
      */
     private void readDate(HttpServletRequest request, Item item, String schema,
-            String element, String qualifier) throws SQLException
+            String element, String qualifier, Context context) throws SQLException
     {
         String metadataField = MetadataField
                 .formKey(schema, element, qualifier);
@@ -629,7 +632,9 @@ public class DescribeStep extends AbstractProcessingStep
         if (year > 0)
         {
             // Only put in date if there is one!
-            item.addMetadata(schema, element, qualifier, null, d.toString());
+        	MetadataField field = applicationService.getMetadataField(element, qualifier, schema, context);
+        	item.addMetadata(field, null, d.toString());
+
         }
     }
 
@@ -668,7 +673,7 @@ public class DescribeStep extends AbstractProcessingStep
      *            set to true if the field is repeatable on the form
      */
     private void readSeriesNumbers(HttpServletRequest request, Item item,
-            String schema, String element, String qualifier, boolean repeated)
+            String schema, String element, String qualifier, boolean repeated, Context context)
     {
         String metadataField = MetadataField
                 .formKey(schema, element, qualifier);
@@ -727,8 +732,8 @@ public class DescribeStep extends AbstractProcessingStep
             // Only add non-empty
             if (!s.equals("") || !n.equals(""))
             {
-                item.addMetadata(schema, element, qualifier, null,
-                        new DCSeriesNumber(s, n).toString());
+            	MetadataField field = applicationService.getMetadataField(element, qualifier, schema, context);
+            	item.addMetadata(field, null, new DCSeriesNumber(s, n).toString());
             }
         }
     }
@@ -831,6 +836,10 @@ public class DescribeStep extends AbstractProcessingStep
         }
 
     }
+    
+    public static void setApplicationService(ApplicationService applicationService) {
+		DescribeStep.applicationService = applicationService;
+	}
 
 }
 

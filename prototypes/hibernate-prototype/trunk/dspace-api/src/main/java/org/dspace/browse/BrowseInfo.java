@@ -46,6 +46,7 @@ import java.util.List;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.ApplicationService;
@@ -539,7 +540,7 @@ public class BrowseInfo
         Item[] items = new Item[bis.length];
         for (int i = 0; i < bis.length; i++)
         {
-        	items[i] = applicationService.get(context, Item.class, bis[i].getID());
+        	items[i] = applicationService.get(context, Item.class, bis[i].getId());
         }
         return items;
     }
@@ -774,7 +775,7 @@ public class BrowseInfo
     		String containerID = "no id available/necessary";
     		if (theContainer != null)
     		{
-                containerID = Integer.toString(theContainer.getID()) + " (" +
+                containerID = Integer.toString(theContainer.getId()) + " (" +
                     theContainer.getIdentifier().getCanonicalForm() + ")";
     		}
     		
@@ -912,7 +913,7 @@ public class BrowseInfo
 				sb.append("{{ NULL ITEM }}");
 				break;
 			}
-			sb.append("{{Item ID: " + Integer.toString(bi.getID()) + " :: ");
+			sb.append("{{Item ID: " + Integer.toString(bi.getId()) + " :: ");
 			
 			for (int j = 1; j <= config.numCols(); j++)
 			{
@@ -974,4 +975,8 @@ public class BrowseInfo
 		
 		return sb.toString();
     }
+    
+    public static void setApplicationService(ApplicationService applicationService) {
+		BrowseInfo.applicationService = applicationService;
+	}
 }

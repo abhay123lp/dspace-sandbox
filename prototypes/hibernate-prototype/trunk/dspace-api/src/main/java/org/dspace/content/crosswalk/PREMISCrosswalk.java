@@ -193,7 +193,7 @@ public class PREMISCrosswalk
                 if (bsName != null)
                 {
                     bitstream.setName(bsName);
-                    log.debug("Changing bitstream id="+String.valueOf(bitstream.getID())+"name and source to: "+bsName);
+                    log.debug("Changing bitstream id="+String.valueOf(bitstream.getId())+"name and source to: "+bsName);
                 }
 
                 // reconcile bitstream format; if there's a MIMEtype,
@@ -257,12 +257,21 @@ public class PREMISCrosswalk
         String baseUrl = ConfigurationManager.getProperty("dspace.url");
         String uri = null;
         // get uri of parent Item of this bitstream, if there is one:
-        Bundle[] bn = bitstream.getBundles();
-        if (bn.length > 0)
+        
+        Bundle bn = bitstream.getBundle();
+        //Bundle[] bn = bitstream.getBundles();
+        /*FIXME controllare la navigabilità */
+/*        if (bn.length > 0)
         {
             Item bi[] = bn[0].getItems();
             if (bi.length > 0)
                 uri = bi[0].getIdentifier().getCanonicalForm();
+        }
+*/		//parte riscritta
+        if(bn!=null) {
+        	Item bi = bn.getItem();
+        	if(bi!=null)
+        		uri=bi.getIdentifier().getCanonicalForm();
         }
         // get or make up name for bitstream:
         String bsName = bitstream.getName();

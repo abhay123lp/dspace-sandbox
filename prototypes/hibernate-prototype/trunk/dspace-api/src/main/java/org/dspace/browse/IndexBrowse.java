@@ -303,7 +303,7 @@ public class IndexBrowse
     private void removeIndex(Item item, BrowseIndex bi)
     	throws BrowseException
     {
-        removeIndex(item.getID(), bi);
+        removeIndex(item.getId(), bi);
     }
     
     /**
@@ -541,13 +541,13 @@ public class IndexBrowse
 		// go over the indices and index the item
 		for (int i = 0; i < bis.length; i++)
 		{
-			log.debug("Removing indexing for removed item " + item.getID() + ", for index: " + bis[i].getTableName());
+			log.debug("Removing indexing for removed item " + item.getId() + ", for index: " + bis[i].getTableName());
 			removeIndex(item, bis[i]);
 	    }
 
         // Remove from the item indexes (archive and withdrawn)
-        removeIndex(item.getID(), BrowseIndex.getItemBrowseIndex().getTableName());
-        removeIndex(item.getID(), BrowseIndex.getWithdrawnBrowseIndex().getTableName());
+        removeIndex(item.getId(), BrowseIndex.getItemBrowseIndex().getTableName());
+        removeIndex(item.getId(), BrowseIndex.getWithdrawnBrowseIndex().getTableName());
 
         // Ensure that we remove any invalid entries
         pruneIndexes();
@@ -1185,7 +1185,7 @@ public class IndexBrowse
 	    {
 //	        if (item != null)
 //	        {
-	            return item.getID();
+	            return item.getId();
 //	        }
 //	        
 //	        return id;

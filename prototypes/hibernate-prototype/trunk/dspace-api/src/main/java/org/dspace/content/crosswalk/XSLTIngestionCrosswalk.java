@@ -49,9 +49,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
@@ -79,6 +81,8 @@ public class XSLTIngestionCrosswalk
     /** log4j category */
     private static Logger log = Logger.getLogger(XSLTIngestionCrosswalk.class);
 
+    private static ApplicationService applicationService;
+    
     private final static String DIRECTION = "submission";
 
     private static String aliases[] = makeAliases(DIRECTION);
@@ -89,7 +93,7 @@ public class XSLTIngestionCrosswalk
     }
 
     // apply metadata values returned in DIM to the target item.
-    private void applyDim(List dimList, Item item)
+    private void applyDim(List dimList, Item item, Context context)
         throws MetadataValidationException
     {
         Iterator di = dimList.iterator();
@@ -97,11 +101,11 @@ public class XSLTIngestionCrosswalk
         {
             Element elt = (Element)di.next();
             if (elt.getName().equals("field") && elt.getNamespace().equals(DIM_NS))
-                applyDimField(elt, item);
+                applyDimField(elt, item, context);
 
             // if it's a <dim> container, apply its guts
             else if (elt.getName().equals("dim") && elt.getNamespace().equals(DIM_NS))
-                applyDim(elt.getChildren(), item);
+                applyDim(elt.getChildren(), item, context);
 
             else
             {
@@ -112,14 +116,15 @@ public class XSLTIngestionCrosswalk
     }
 
     // adds the metadata element from one <field>
-    private void applyDimField(Element field, Item item)
+    private void applyDimField(Element field, Item item, Context context)
     {
         String schema = field.getAttributeValue("mdschema");
         String element = field.getAttributeValue("element");
         String qualifier = field.getAttributeValue("qualifier");
         String lang = field.getAttributeValue("lang");
-
-        item.addMetadata(schema, element, qualifier, lang, field.getText());
+        
+        MetadataField mdf = applicationService.getMetadataField(element, qualifier, schema, context);
+        item.addMetadata(mdf, lang, field.getText());
     }
 
     /**
@@ -142,7 +147,7 @@ public class XSLTIngestionCrosswalk
         try
         {
             List dimList = xform.transform(metadata);
-            applyDim(dimList, item);
+            applyDim(dimList, item, context);
         }
         catch (XSLTransformException e)
         {
@@ -169,7 +174,7 @@ public class XSLTIngestionCrosswalk
         try
         {
             Document dimDoc = xform.transform(new Document((Element)root.clone()));
-            applyDim(dimDoc.getRootElement().getChildren(), item);
+            applyDim(dimDoc.getRootElement().getChildren(), item, context);
         }
         catch (XSLTransformException e)
         {
@@ -272,5 +277,8 @@ public class XSLTIngestionCrosswalk
             }
         }
     }
-
+    
+    public static void setApplicationService(ApplicationService applicationService) {
+		XSLTIngestionCrosswalk.applicationService = applicationService;
+	}
 }

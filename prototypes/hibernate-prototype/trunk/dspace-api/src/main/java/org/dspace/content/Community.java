@@ -41,33 +41,26 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
+import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.core.ArchiveManager;
+import org.dspace.content.factory.BitstreamFactory;
+import org.dspace.content.factory.CollectionFactory;
+import org.dspace.content.factory.CommunityFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.LogManager;
-import org.dspace.content.dao.BitstreamDAO;         // Naughty!
-import org.dspace.content.dao.BitstreamDAOFactory;  // Naughty!
-import org.dspace.content.dao.CollectionDAO;        // Naughty!
-import org.dspace.content.dao.CollectionDAOFactory; // Naughty!
-import org.dspace.content.dao.CommunityDAO;         // Naughty!
-import org.dspace.content.dao.CommunityDAOFactory;  // Naughty!
-import org.dspace.content.uri.ExternalIdentifier;
-import org.dspace.event.Event;
-
-import org.dspace.content.factory.CollectionFactory;
-import org.dspace.content.factory.CommunityFactory;
-import org.dspace.content.factory.BitstreamFactory;
 
 /**
  * Class representing a community
@@ -80,12 +73,13 @@ import org.dspace.content.factory.BitstreamFactory;
  * @author James Rutherford
  * @version $Revision$
  */
+@Entity
 public class Community extends DSpaceObject
 {
     
 	/*----------------- OLD FIELDS -----------------------------*/
     /** Flag set when data is modified, for events */
-//    private boolean modified;
+    private boolean modified;
 
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
@@ -103,13 +97,15 @@ public class Community extends DSpaceObject
     {
         this.context = context;
         this.metadata = new TreeMap<String, String>();
+        modifiedMetadata=modified=false;
     }
     
     /* Creates a collection under this community */
-    public Collection createCollection() {
-    	/*FIXME: autorizzazione ~ archivemanager?*/
+    public Collection createCollection() throws AuthorizeException{
+    	AuthorizeManager.authorizeAction(context, this, Constants.ADD);
     	Collection collection = CollectionFactory.getInstance(context);
     	collections.add(collection);
+    	collection.addCommunity(this);
     	return collection;
     }
     
@@ -143,7 +139,8 @@ public class Community extends DSpaceObject
     }
     
     /* Returns all the parent communities of this community */
-    public List<Community> getParents() {
+    @ManyToMany
+    public List<Community> getParentCommunities() {
     	return this.parentCommunities;
     }
     
@@ -154,11 +151,13 @@ public class Community extends DSpaceObject
     
     
     /* Returns all the sub-communities owned by this community */
+    @ManyToMany(mappedBy="parentCommunities")
     public List<Community> getSubCommunities() {
     	return this.subCommunities;
     }
     
     /* Returns all the collections owned by this community */
+    @ManyToMany(mappedBy="communities")
     public List<Collection> getCollections() {
     	return this.collections;
     }
@@ -170,13 +169,20 @@ public class Community extends DSpaceObject
     
     public Bitstream setLogo(InputStream is) 
     throws AuthorizeException, IOException {
-    	/*FIXME: parte autorizzazioni e inserimento del metodo canEdit(). controllare dao-pr.*/
+    	// Check authorisation
+        // authorized to remove the logo when DELETE rights
+        // authorized when canEdit
+        if (!((is == null) && AuthorizeManager.authorizeActionBoolean(
+                context, this, Constants.DELETE)))
+        {
+            canEdit();
+        }
     	
         // First, delete any existing logo
         if (logo != null)
         {
             log.info(LogManager.getHeader(context, "remove_logo",
-                    "community_id=" + getID()));
+                    "community_id=" + getId()));
            logo = null;
         }
         if (is != null)
@@ -191,8 +197,8 @@ public class Community extends DSpaceObject
             AuthorizeManager.addPolicies(context, policies, newLogo);
 
             log.info(LogManager.getHeader(context, "set_logo",
-                    "community_id=" + getID() + "logo_bitstream_id="
-                            + newLogo.getID()));
+                    "community_id=" + getId() + "logo_bitstream_id="
+                            + newLogo.getId()));
         }
 
     	
@@ -200,16 +206,19 @@ public class Community extends DSpaceObject
     }
     
     /* Gets the community logo */
+    @OneToOne
     public Bitstream getLogo() {
     	return this.logo;
     }
     
     /* Returns a particular field of metadata */
+    @Transient
     public String getMetadata(String field) {
         return metadata.get(field);
     }
     
     /* Returns the name of the community */
+    @Transient
     public String getName() {
         return getMetadata("name");
     }
@@ -232,10 +241,58 @@ public class Community extends DSpaceObject
         modifiedMetadata = true;
         addDetails(field);
     }
-    
+    @Transient
     public int getType()
     {
         return Constants.COMMUNITY;
     }
-    
+    @Transient
+	public boolean isModified() {
+		return modified;
+	}
+    @Transient
+	public boolean isModifiedMetadata() {
+		return modifiedMetadata;
+	}
+	public void canEdit() throws AuthorizeException
+    {
+        //List<Community> parents = dao.getParentCommunities(this);
+
+        for (Community parent : parentCommunities)
+        {
+            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+                    Constants.WRITE))
+            {
+                return;
+            }
+
+            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+                    Constants.ADD))
+            {
+                return;
+            }
+        }
+
+        AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
+    }
+
+	public void setCollections(List<Collection> collections) {
+		this.collections = collections;
+	}
+
+	public void setParentCommunities(List<Community> parentCommunities) {
+		this.parentCommunities = parentCommunities;
+	}
+
+	public void setSubCommunities(List<Community> subCommunities) {
+		this.subCommunities = subCommunities;
+	}
+
+	public void setModified(boolean modified) {
+		this.modified = modified;
+	}
+
+	public void setLogo(Bitstream logo) {
+		this.logo = logo;
+	}
 }

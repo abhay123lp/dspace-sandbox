@@ -320,7 +320,7 @@ public class DSQuery
 
         querystring = checkEmptyQuery(querystring);
 
-        String location = "l" + (coll.getID());
+        String location = "l" + (coll.getId());
 
         args.setQuery("+(" + querystring + ") +location:\"" + location + "\"");
 
@@ -346,7 +346,7 @@ public class DSQuery
 
         querystring = checkEmptyQuery(querystring);
 
-        String location = "m" + (comm.getID());
+        String location = "m" + (comm.getId());
 
         args.setQuery("+(" + querystring + ") +location:\"" + location + "\"");
 

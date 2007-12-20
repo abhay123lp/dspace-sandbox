@@ -212,8 +212,8 @@ public class CommunityFiliator
 
         c.complete();
 
-        System.out.println("Filiation complete. Community: '" + parent.getID()
-                + "' is parent of community: '" + child.getID() + "'");
+        System.out.println("Filiation complete. Community: '" + parent.getId()
+                + "' is parent of community: '" + child.getId() + "'");
     }
 
     public void defiliate(Context c, Community parent, Community child)
@@ -223,8 +223,8 @@ public class CommunityFiliator
 
         c.complete();
 
-        System.out.println("Defiliation complete. Community: '" + child.getID()
-                + "' is no longer a child of community: '" + parent.getID()
+        System.out.println("Defiliation complete. Community: '" + child.getId()
+                + "' is no longer a child of community: '" + parent.getId()
                 + "'");
     }
 

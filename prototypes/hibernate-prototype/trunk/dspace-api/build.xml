@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+
+<project name="dspace-api" basedir=".">
+
+	<property file="src/main/resources/hibernate.properties" />
+
+	<path id="build.classpath">
+		<pathelement path="target/classes" />
+		<fileset dir="/home/daniele/librerieant/" />
+		<fileset file="hibernate-tools.jar" />
+	</path>
+	
+	<!-- Generate the schema for all mapping files in our class tree -->
+	<target name="generate-ddl" description="Generate DDL from the O/R mapping files">
+
+		<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="build.classpath" />
+
+		<hibernatetool destdir=".">
+			<classpath refid="build.classpath" />
+			<annotationconfiguration propertyfile="src/main/resources/hibernate.properties" configurationfile="src/main/resources/hibernate.cfg.xml" />
+			<hbm2ddl export="false" console="true" drop="false" create="true" outputfilename="schema.ddl" delimiter=";" />
+		</hibernatetool>
+
+	</target>
+	
+	<target name="generate-drop-ddl" description="Generate DDL from the O/R mapping files">
+
+
+
+			<taskdef name="hibernatetool" classname="org.hibernate.tool.ant.HibernateToolTask" classpathref="build.classpath" />
+
+			<hibernatetool destdir=".">
+				<classpath refid="build.classpath" />
+				<annotationconfiguration propertyfile="src/main/resources/hibernate.properties" configurationfile="src/main/resources/hibernate.cfg.xml" />
+				<hbm2ddl export="false" console="true" drop="true" create="false" outputfilename="schema-drop.ddl" delimiter=";" />
+			</hibernatetool>
+
+		</target>
+	<target name="create-tables-and-GEN-DDL" depends="generate-ddl, generate-drop-ddl" description="Generate tables from the DDL file">
+		<sql driver="${hibernate.connection.driver_class}" url="${hibernate.connection.url}" userid="${hibernate.connection.username}" password="${hibernate.connection.password}" onerror="continue" src="schema.ddl">
+			<classpath refid="build.classpath" />
+		</sql>
+	</target>
+
+	<target name="create-tables-NO-GEN-DDL" description="Generate tables from the DDL file (NO REGEN)">
+		<sql driver="${hibernate.connection.driver_class}" url="${hibernate.connection.url}" userid="${hibernate.connection.username}" password="${hibernate.connection.password}" onerror="continue" src="schema.ddl">
+			<classpath refid="build.classpath" />
+		</sql>
+	</target>
+
+	
+	
+	<target name="refresh-database" depends="drop-table, create-tables-and-GEN-DDL" description="Ricrea il Database da zero,generando anche la sequenza per il calcolo dell'identificatore" />
+	
+	<target name="svuota cestino" description="svuota cestino">
+		<sql driver="${hibernate.connection.driver_class}" url="${hibernate.connection.url}" userid="${hibernate.connection.username}" password="${hibernate.connection.password}" onerror="continue">
+			<classpath refid="build.classpath" />
+			PURGE recyclebin;
+			</sql>
+		</target>
+	
+	<target name="drop-table" description="DROP table">
+		<sql driver="${hibernate.connection.driver_class}" url="${hibernate.connection.url}" userid="${hibernate.connection.username}" password="${hibernate.connection.password}" onerror="continue" src="schema-drop.ddl">
+					<classpath refid="build.classpath" />
+				</sql>
+	</target>
+
+
+	<target name="populate-tables" description="Populate tables">
+		<sql driver="${hibernate.connection.driver_class}" url="${hibernate.connection.url}" userid="${hibernate.connection.username}" password="${hibernate.connection.password}" onerror="continue" src="sqlfile.sql">
+			<classpath refid="build.classpath" />
+		</sql>
+	</target>
+
+	
+</project>

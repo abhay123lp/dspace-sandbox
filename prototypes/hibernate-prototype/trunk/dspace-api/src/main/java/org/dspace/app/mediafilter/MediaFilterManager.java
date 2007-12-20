@@ -269,13 +269,13 @@ public class MediaFilterManager
     public static void applyFiltersCommunity(Context c, Community community)
         throws Exception
     {
-       	Community[] subcommunities = community.getSubcommunities();
+       	Community[] subcommunities = (Community[])community.getSubCommunities().toArray();
        	for (int i = 0; i < subcommunities.length; i++)
        	{
        		applyFiltersCommunity(c, subcommunities[i]);
        	}
        	
-       	Collection[] collections = community.getCollections();
+       	Collection[] collections = (Collection[])community.getCollections().toArray();
        	for (int j = 0; j < collections.length; j++)
        	{
        		applyFiltersCollection(c, collections[j]);
@@ -372,7 +372,7 @@ public class MediaFilterManager
                 catch (Exception e)
                 {
                     System.out.println("ERROR filtering, skipping bitstream #"
-                            + myBitstream.getID() + " " + e);
+                            + myBitstream.getId() + " " + e);
                     e.printStackTrace();
                 }
     		}
