@@ -43,6 +43,10 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Entity;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DSpaceObject;
@@ -59,11 +63,11 @@ import org.dspace.event.Event;
  * @author David Stuve
  * @version $Revision$
  */
+@Entity
 public class EPerson extends DSpaceObject
 {
     private static Logger log = Logger.getLogger(EPerson.class);
 
-    private EPersonDAO dao;
 
     /** See EPersonMetadataField. */
     private Map<EPersonMetadataField, String> metadata;
@@ -120,6 +124,14 @@ public class EPerson extends DSpaceObject
             throw new IllegalArgumentException(name +
                     " isn't a valid metadata field for EPeople.");
         }
+        @Transient
+		public String getName() {
+			return name;
+		}
+        @Transient
+		public void setName(String name) {
+			this.name = name;
+		}
     }
 
     public EPerson(Context context) {
@@ -127,7 +139,7 @@ public class EPerson extends DSpaceObject
         this.context = context;
         metadata = new EnumMap<EPersonMetadataField, String>(EPersonMetadataField.class);
     }
-
+    @OneToOne
      public String getLanguage()
      {
          return metadata.get(EPersonMetadataField.LANGUAGE);
@@ -142,7 +154,7 @@ public class EPerson extends DSpaceObject
 
          metadata.put(EPersonMetadataField.LANGUAGE, language);
      }
-
+    @OneToOne
     public String getEmail()
     {
         return metadata.get(EPersonMetadataField.EMAIL);
@@ -159,7 +171,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-
+    @Transient
     public String getNetid()
     {
         return metadata.get(EPersonMetadataField.NETID);
@@ -176,7 +188,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-
+    @Transient
     public String getName()
     {
         return getEmail();
@@ -188,6 +200,7 @@ public class EPerson extends DSpaceObject
      *
      * @return their full name
      */
+    @Transient
     public String getFullName()
     {
         String firstName = metadata.get(EPersonMetadataField.FIRSTNAME);
@@ -206,7 +219,7 @@ public class EPerson extends DSpaceObject
             return (firstName + " " + lastName);
         }
     }
-
+    @OneToOne
     public String getFirstName()
     {
         return metadata.get(EPersonMetadataField.FIRSTNAME);
@@ -218,7 +231,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-
+    @OneToOne
     public String getLastName()
     {
         return metadata.get(EPersonMetadataField.LASTNAME);
@@ -249,7 +262,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-
+    @Transient
     public boolean getRequireCertificate()
     {
         return requireCertificate;
@@ -261,12 +274,12 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-
+    @Transient
     public boolean getSelfRegistered()
     {
         return selfRegistered;
     }
-
+    @Transient
     public String getMetadata(EPersonMetadataField field)
     {
         return metadata.get(field);
@@ -314,6 +327,7 @@ public class EPerson extends DSpaceObject
     /**
      * return type found in Constants
      */
+    @Transient
     public int getType()
     {
         return Constants.EPERSON;
@@ -380,30 +394,30 @@ public class EPerson extends DSpaceObject
         return dao.create();
     }
 
-    @Deprecated
+/*    @Deprecated
     public void update() throws AuthorizeException
     {
         dao.update(this);
 
         if (modified)
         {
-            context.addEvent(new Event(Event.MODIFY, Constants.EPERSON, getID(), null));
+            context.addEvent(new Event(Event.MODIFY, Constants.EPERSON, getId(), null));
             modified = false;
         }
         if (modifiedMetadata)
         {
-            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, getID(), getDetails()));
+            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, getId(), getDetails()));
             modifiedMetadata = false;
             clearDetails();
         }
     }
-
-    @Deprecated
+*/
+/*    @Deprecated
     public void delete() throws AuthorizeException, EPersonDeletionException
     {
-        dao.delete(getID());
-        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, getID(), getEmail()));
+        dao.delete(getId());
+        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, getId(), getEmail()));
 
         
-    }
+    }*/
 }

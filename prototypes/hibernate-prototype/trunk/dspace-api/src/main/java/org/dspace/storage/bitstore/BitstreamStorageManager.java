@@ -335,7 +335,7 @@ public class BitstreamStorageManager
 
         if (log.isDebugEnabled())
         {
-            log.debug("Stored bitstream " + bitstream.getID() + " in file "
+            log.debug("Stored bitstream " + bitstream.getId() + " in file "
                     + file.getAbsolutePath());
         }
     }
@@ -459,7 +459,7 @@ public class BitstreamStorageManager
 
 		if (log.isDebugEnabled()) 
 		{
-			log.debug("Stored bitstream " + bitstream.getID() + " in file "
+			log.debug("Stored bitstream " + bitstream.getId() + " in file "
 					+ file.getAbsolutePath());
 		}
 	}
@@ -532,7 +532,7 @@ public class BitstreamStorageManager
 
             for (Bitstream bitstream : bitstreamDAO.getDeletedBitstreams())
             {
-                int bid = bitstream.getID();
+                int bid = bitstream.getId();
 
                 GeneralFile file = getFile(bitstream.getStoreNumber(),
                         bitstream.getInternalID());

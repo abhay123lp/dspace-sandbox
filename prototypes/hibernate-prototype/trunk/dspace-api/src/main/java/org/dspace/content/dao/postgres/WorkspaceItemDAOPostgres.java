@@ -231,7 +231,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
                     "WHERE wsi.item_id = item.item_id " +
                     "AND item.submitter_id = ? " +
                     "ORDER BY wsi.workspace_item_id", 
-                    eperson.getID());
+                    eperson.getId());
 
             return returnAsList(tri);
         }
@@ -248,7 +248,7 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
             TableRowIterator tri = DatabaseManager.queryTable(context,
                     "workspaceitem",
                     "SELECT workspace_item_id FROM workspaceitem WHERE " +
-                    "collection_id = ? ", collection.getID());
+                    "collection_id = ? ", collection.getId());
 
             return returnAsList(tri);
         }
@@ -336,11 +336,11 @@ public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
     private void populateTableRowFromWorkspaceItem(WorkspaceItem wsi,
             TableRow row)
     {
-        row.setColumn("item_id", wsi.getItem().getID());
+        row.setColumn("item_id", wsi.getItem().getId());
         Collection collection  = wsi.getCollection();
         if (collection != null)
         {
-            row.setColumn("collection_id", collection.getID());
+            row.setColumn("collection_id", collection.getId());
         }
         else
         {

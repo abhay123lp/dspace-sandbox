@@ -51,11 +51,12 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
-import org.dspace.content.DCValue;
 import org.dspace.content.FormatIdentifier;
+import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.license.CreativeCommons;
@@ -69,6 +70,7 @@ import org.dspace.license.CreativeCommons;
 
 public class PackageUtils
 {
+	private static ApplicationService applicationService;
     /**
      * Test that item has adequate metadata.
      * Check item for the minimal DC metadata required to ingest a
@@ -112,7 +114,9 @@ public class PackageUtils
         lbs.setFormat(bf);
         lbs.setName(Constants.LICENSE_BITSTREAM_NAME);
         lbs.setSource(Constants.LICENSE_BITSTREAM_NAME);
-        lbs.update();
+        /*FIXME ricontrollare */
+        applicationService.saveOrUpdate(context, Item.class, item);
+        //lbs.update();
     }
 
     /**
@@ -265,4 +269,8 @@ public class PackageUtils
         }
         return bsf;
     }
+     
+    public static void setApplicationService(ApplicationService applicationService) {
+ 		PackageUtils.applicationService = applicationService;
+ 	}
 }

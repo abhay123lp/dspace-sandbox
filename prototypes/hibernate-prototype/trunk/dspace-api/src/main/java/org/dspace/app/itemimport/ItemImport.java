@@ -65,7 +65,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 import org.apache.xpath.XPathAPI;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
@@ -89,12 +88,12 @@ import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.workflow.WorkflowManager;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -134,6 +133,8 @@ public class ItemImport
     private static ItemDAO itemDAO;
 
     private static ExternalIdentifierDAO identifierDAO;
+    
+    private static ApplicationService applicationService;
 
     // File listing filter to look for metadata files
     static FilenameFilter metadataFileFilter = new FilenameFilter()
@@ -706,7 +707,7 @@ public class ItemImport
                 WorkflowManager.startWithoutNotify(c, wi);
 
                 // send ID to the mapfile
-                mapOutput = itemname + " " + myitem.getID();
+                mapOutput = itemname + " " + myitem.getId();
             }
         }
         else
@@ -755,7 +756,7 @@ public class ItemImport
     {
         if (!isTest)
         {
-            Collection[] collections = myitem.getCollections();
+            Collection[] collections = (Collection[])myitem.getCollections().toArray();
 
             // Remove item from all the collections it's in
             for (int i = 0; i < collections.length; i++)
@@ -928,7 +929,9 @@ public class ItemImport
 
         if (!isTest)
         {
-            i.addMetadata(schema, element, qualifier, language, value);
+        	MetadataField field = applicationService.getMetadataField(element, qualifier, schema, c);
+        	i.addMetadata(field, language, value);
+            
         }
         else
         {
@@ -1356,4 +1359,8 @@ public class ItemImport
 
         return builder.parse(new File(filename));
     }
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		ItemImport.applicationService = applicationService;
+	}
 }

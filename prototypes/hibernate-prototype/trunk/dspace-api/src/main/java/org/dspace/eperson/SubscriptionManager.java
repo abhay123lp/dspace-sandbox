@@ -101,7 +101,7 @@ public class SubscriptionManager
         // Check authorisation. Must be administrator, or the eperson.
         if (AuthorizeManager.isAdmin(context)
                 || ((context.getCurrentUser() != null) && (context
-                        .getCurrentUser().getID() == eperson.getID())))
+                        .getCurrentUser().getId() == eperson.getId())))
         {
             if (!isSubscribed(context, eperson, collection))
             {
@@ -109,13 +109,13 @@ public class SubscriptionManager
                     SubscriptionDAOFactory.getInstance(context);
 
                 Subscription sub = dao.create();
-                sub.setEPersonID(eperson.getID());
-                sub.setCollectionID(collection.getID());
+                sub.setEPersonID(eperson.getId());
+                sub.setCollectionID(collection.getId());
                 dao.update(sub);
 
                 log.info(LogManager.getHeader(context, "subscribe",
-                        "eperson_id=" + eperson.getID() + ",collection_id="
-                                + collection.getID()));
+                        "eperson_id=" + eperson.getId() + ",collection_id="
+                                + collection.getId()));
             }
         }
         else
@@ -143,7 +143,7 @@ public class SubscriptionManager
         // Check authorisation. Must be administrator, or the eperson.
         if (AuthorizeManager.isAdmin(context)
                 || ((context.getCurrentUser() != null) && (context
-                        .getCurrentUser().getID() == eperson.getID())))
+                        .getCurrentUser().getId() == eperson.getId())))
         {
             SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
 
@@ -162,7 +162,7 @@ public class SubscriptionManager
             {
                 for (Subscription sub : dao.getSubscriptions(eperson))
                 {
-                    if (collection.getID() == sub.getCollectionID())
+                    if (collection.getId() == sub.getCollectionID())
                     {
                         log.info(LogManager.getHeader(context, "unsubscribe",
                                 "eperson_id=" + sub.getEPersonID() +
@@ -257,7 +257,7 @@ public class SubscriptionManager
         {
             // Does this row relate to the same e-person as the last?
             if ((currentEPerson == null)
-                    || (sub.getEPersonID() != currentEPerson.getID()))
+                    || (sub.getEPersonID() != currentEPerson.getId()))
             {
                 // New e-person. Send mail for previous e-person
                 if (currentEPerson != null)
@@ -269,7 +269,7 @@ public class SubscriptionManager
                     catch (MessagingException me)
                     {
                         log.error("Failed to send subscription to eperson_id="
-                                + currentEPerson.getID());
+                                + currentEPerson.getId());
                         log.error(me);
                     }
                 }
@@ -291,7 +291,7 @@ public class SubscriptionManager
             catch (MessagingException me)
             {
                 log.error("Failed to send subscription to eperson_id="
-                        + currentEPerson.getID());
+                        + currentEPerson.getId());
                 log.error(me);
             }
         }
@@ -425,7 +425,7 @@ public class SubscriptionManager
             email.send();
 
             log.info(LogManager.getHeader(context, "sent_subscription",
-                    "eperson_id=" + eperson.getID()));
+                    "eperson_id=" + eperson.getId()));
         }
     }
 

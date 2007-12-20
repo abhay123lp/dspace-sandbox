@@ -208,10 +208,10 @@ public class IPAuthentication implements AuthenticationMethod
                             {
                                 // Add ID so we won't have to do lookup again
                                 ipMatcherGroupIDs.put(ipm, new Integer(group
-                                        .getID()));
+                                        .getId()));
                                 ipMatcherGroupNames.remove(ipm);
 
-                                groupIDs.add(new Integer(group.getID()));
+                                groupIDs.add(new Integer(group.getId()));
                             }
                             else
                             {

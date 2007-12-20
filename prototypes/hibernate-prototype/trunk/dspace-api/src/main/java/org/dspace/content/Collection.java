@@ -48,6 +48,12 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.TreeMap;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
@@ -66,7 +72,7 @@ import org.dspace.content.dao.CommunityDAO; // Naughty!
 import org.dspace.content.dao.CommunityDAOFactory; // Naughty!
 import org.dspace.content.dao.ItemDAO; // Naughty!
 import org.dspace.content.dao.ItemDAOFactory; // Naughty!
-import org.dspace.content.uri.ExternalIdentifier;
+//import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO; // Naughty!
 import org.dspace.eperson.dao.GroupDAOFactory; // Naughty!
@@ -93,10 +99,11 @@ import org.dspace.eperson.factory.GroupFactory;
  * @author James Rutherford
  * @version $Revision$
  */
+@Entity
 public class Collection extends DSpaceObject {
 	/*---------------- OLD FIELDS ------------------------*/
 	/** Flag set when data is modified, for events */
-	// private boolean modified;
+	private boolean modified;
 	/** Flag set when metadata is modified, for events */
 	private boolean modifiedMetadata;
 
@@ -107,11 +114,13 @@ public class Collection extends DSpaceObject {
 	/*-------------------------------------------------*/
 	private static Logger log = Logger.getLogger(Collection.class);
 	private String license;
-
-	private Group[] workflowGroups;
+	
+	private List<Group> workflowGroups;
 	private Group submitters;
-	private Group admins;
-
+	private Group administrators;
+	
+	
+	private List<Community> communities;
 	private List<Item> items;
 	private Item templateItem;
 	private Bitstream logo;
@@ -120,6 +129,8 @@ public class Collection extends DSpaceObject {
 
 	public Collection(Context context) {
 		this.context = context;
+		this.metadata = new TreeMap<String, String>();
+		modified=modifiedMetadata=false;
 	}
 
 	public Item createItem() {
@@ -130,11 +141,13 @@ public class Collection extends DSpaceObject {
 
 	/* Creates an administrators group for this Collection */
 	/*FIXME confrontare con l'originale */
-	public Group createAdministrators() {
-		if (admins == null) {
-			admins = GroupFactory.getInstance(context);
+	public Group createAdministrators() throws AuthorizeException {
+		
+		AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
+		if (administrators == null) {
+			administrators = GroupFactory.getInstance(context);
 		}
-		return admins;
+		return administrators;
 	}
 
 	/* Creates a submitters group for this collection */
@@ -142,13 +155,14 @@ public class Collection extends DSpaceObject {
 		AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
 		if (submitters == null) {
 			submitters = GroupFactory.getInstance(context);
-			submitters.setName("COLLECTION_" + getID() + "_SUBMIT");
+			submitters.setName("COLLECTION_" + getId() + "_SUBMIT");
 		}
 		setSubmitters(submitters);
 		AuthorizeManager.addPolicy(context, this, Constants.ADD, submitters);
 		return submitters;
 	}
-
+	
+	@OneToOne
 	public Group getSubmitters() {
 		return submitters;
 	}
@@ -161,10 +175,11 @@ public class Collection extends DSpaceObject {
 	}
 
 	/* Returns the list of items of this collection */
+	@ManyToMany(mappedBy="collections")
 	public List<Item> getItems() {
 		return this.items;
 	}
-
+	@Transient
 	public String getMetadata(String field) {
 		if ("license".equals(field)) {
 			return getLicense();
@@ -193,11 +208,11 @@ public class Collection extends DSpaceObject {
 		addDetails(field);
 
 	}
-
+	@Transient
 	public String getName() {
 		return getMetadata("name");
 	}
-
+	@Transient
 	public String getLicense() {
 		if ((license == null) || license.equals("")) {
 			// Fallback to site-wide default
@@ -236,6 +251,7 @@ public class Collection extends DSpaceObject {
 	}
 
 	/* Returns the templateItem of this collection */
+	@OneToOne
 	public Item getTemplateItem() {
 		return templateItem;
 	}
@@ -260,13 +276,13 @@ public class Collection extends DSpaceObject {
 		// First, delete any existing logo
 		if (logo != null) {
 			log.info(LogManager.getHeader(context, "remove_logo",
-					"collection_id=" + getID()));
+					"collection_id=" + getId()));
 			logo = null;
 		}
 
 		if (is == null) {
 			log.info(LogManager.getHeader(context, "remove_logo",
-					"collection_id=" + getID()));
+					"collection_id=" + getId()));
 			logo = null;
 		} else {
 			/*FIXME ricontrollare questa parte, input stream -> bitstream */
@@ -279,30 +295,32 @@ public class Collection extends DSpaceObject {
 			AuthorizeManager.addPolicies(context, policies, logo);
 
 			log.info(LogManager.getHeader(context, "set_logo", "collection_id="
-					+ getID() + ",logo_bitstream_id=" + logo.getID()));
+					+ getId() + ",logo_bitstream_id=" + logo.getId()));
 		}
 		
 		return logo;
 	}
 
 	/* Returns the collection logo */
+	@OneToOne
 	public Bitstream getLogo() {
 		return this.logo;
 	}
-	
+	@Transient
     public Group getWorkflowGroup(int step)
     {
-        return workflowGroups[step - 1];
+        return workflowGroups.get(step-1);
     }
-
-    public Group[] getWorkflowGroups()
+	
+	@OneToMany
+    public List<Group> getWorkflowGroups()
     {
         return workflowGroups;
     }
     
     public void setWorkflowGroup(int step, Group g)
     {
-        workflowGroups[step - 1] = g;
+        workflowGroups.set(step - 1, g);
     }
     
     /* FIXME controllare groupDAO */
@@ -321,22 +339,59 @@ public class Collection extends DSpaceObject {
 
             AuthorizeManager.addPolicy(context, this, Constants.ADD, g);
         }
-*/        return workflowGroups[step - 1];
+*/        return workflowGroups.get(step - 1);
     }
-    
+    @OneToOne
     public Group getAdministrators()
     {
-        return admins;
+        return administrators;
     }
     
-    public void setAdministrators(Group admins)
+    public void setAdministrators(Group administrators)
     {
-        this.admins = admins;
+        this.administrators = administrators;
     }
-    
+    @Transient
     public int getType()
     {
         return Constants.COLLECTION;
     }
+    @ManyToMany
+	public List<Community> getCommunities() {
+		return communities;
+	}
+
+	public void setCommunities(List<Community> communities) {
+		this.communities = communities;
+	}
+	
+	public void addCommunity(Community community) {
+		communities.add(community);
+	}
+	@Transient
+	public boolean isModified() {
+		return modified;
+	}
+	@Transient
+	public boolean isModifiedMetadata() {
+		return modifiedMetadata;
+	}
+
+
+	public void setModified(boolean modified) {
+		this.modified = modified;
+	}
+
+	public void setWorkflowGroups(List<Group> workflowGroups) {
+		this.workflowGroups = workflowGroups;
+	}
+
+	public void setItems(List<Item> items) {
+		this.items = items;
+	}
+
+	public void setLogo(Bitstream logo) {
+		this.logo = logo;
+	}
 
 }

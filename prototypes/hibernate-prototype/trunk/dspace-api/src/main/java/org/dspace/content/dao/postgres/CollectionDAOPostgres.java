@@ -150,7 +150,7 @@ public class CollectionDAOPostgres extends CollectionDAO
         try
         {
             TableRow row =
-                DatabaseManager.find(context, "collection", collection.getID());
+                DatabaseManager.find(context, "collection", collection.getId());
 
             if (row != null)
             {
@@ -160,7 +160,7 @@ public class CollectionDAOPostgres extends CollectionDAO
             else
             {
                 throw new RuntimeException("Didn't find collection " +
-                        collection.getID());
+                        collection.getId());
             }
         }
         catch (SQLException sqle)
@@ -225,7 +225,7 @@ public class CollectionDAOPostgres extends CollectionDAO
                     "FROM collection c, collection2item c2i " +
                     "WHERE c2i.collection_id = c.collection_id " +
                     "AND c2i.item_id = ? ",
-                    item.getID());
+                    item.getId());
 
             return returnAsList(tri);
         }
@@ -247,7 +247,7 @@ public class CollectionDAOPostgres extends CollectionDAO
                     "WHERE c2c.collection_id = c.collection_id " +
                     "AND c2c.community_id= ? " +
                     "ORDER BY c.name",
-                    community.getID());
+                    community.getId());
 
             return returnAsList(tri);
         }
@@ -274,7 +274,7 @@ public class CollectionDAOPostgres extends CollectionDAO
 
             PreparedStatement statement =
                 context.getDBConnection().prepareStatement(query);
-            statement.setInt(1, collection.getID());
+            statement.setInt(1, collection.getId());
             
             ResultSet rs = statement.executeQuery();
             
@@ -304,8 +304,8 @@ public class CollectionDAOPostgres extends CollectionDAO
                 TableRow row =
                     DatabaseManager.create(context, "collection2item");
 
-                row.setColumn("collection_id", collection.getID());
-                row.setColumn("item_id", item.getID());
+                row.setColumn("collection_id", collection.getId());
+                row.setColumn("item_id", item.getId());
 
                 DatabaseManager.update(context, row);
             }
@@ -329,7 +329,7 @@ public class CollectionDAOPostgres extends CollectionDAO
                 DatabaseManager.updateQuery(context,
                         "DELETE FROM collection2item WHERE collection_id= ? " +
                         "AND item_id= ? ",
-                        collection.getID(), item.getID());
+                        collection.getId(), item.getId());
             }
             catch (SQLException sqle)
             {
@@ -346,7 +346,7 @@ public class CollectionDAOPostgres extends CollectionDAO
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT id FROM collection2item " +
                     "WHERE collection_id = ? AND item_id = ? ",
-                    collection.getID(), item.getID());
+                    collection.getId(), item.getId());
 
             boolean result = tri.hasNext();
             tri.close();
@@ -401,7 +401,7 @@ public class CollectionDAOPostgres extends CollectionDAO
     private void populateTableRowFromCollection(Collection collection,
             TableRow row)
     {
-        int id = collection.getID();
+        int id = collection.getId();
         Bitstream logo = collection.getLogo();
         Item templateItem = collection.getTemplateItem();
         Group admins = collection.getAdministrators();
@@ -413,7 +413,7 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
         else
         {
-            row.setColumn("logo_bitstream_id", logo.getID());
+            row.setColumn("logo_bitstream_id", logo.getId());
         }
 
         if (templateItem == null)
@@ -422,7 +422,7 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
         else
         {
-            row.setColumn("template_item_id", templateItem.getID());
+            row.setColumn("template_item_id", templateItem.getId());
         }
 
         if (admins == null)
@@ -431,7 +431,7 @@ public class CollectionDAOPostgres extends CollectionDAO
         }
         else
         {
-            row.setColumn("admin", admins.getID());
+            row.setColumn("admin", admins.getId());
         }
 
         for (int i = 1; i <= workflowGroups.length; i++)
@@ -443,7 +443,7 @@ public class CollectionDAOPostgres extends CollectionDAO
             }
             else
             {
-                row.setColumn("workflow_step_" + i, g.getID());
+                row.setColumn("workflow_step_" + i, g.getId());
             }
         }
 

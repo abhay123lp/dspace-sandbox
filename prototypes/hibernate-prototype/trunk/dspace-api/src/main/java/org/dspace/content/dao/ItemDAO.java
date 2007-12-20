@@ -102,7 +102,7 @@ public abstract class ItemDAO extends ContentDAO
     protected final Item create(Item item) throws AuthorizeException
     {
         log.info(LogManager.getHeader(context, "create_item",
-                    "item_id=" + item.getID()));
+                    "item_id=" + item.getId()));
 
         item.setLastModified(new Date());
         update(item);
@@ -135,7 +135,7 @@ public abstract class ItemDAO extends ContentDAO
         MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
 
         log.info(LogManager.getHeader(context, "update_item", "item_id="
-                + item.getID()));
+                + item.getId()));
 
         // Update the associated Bundles & Bitstreams
         Bundle[] bundles = item.getBundles();
@@ -295,7 +295,7 @@ public abstract class ItemDAO extends ContentDAO
             {
                 MetadataValue value = mvDAO.create();
                 value.setFieldID(field.getID());
-                value.setItemID(item.getID());
+                value.setItemID(item.getId());
                 value.setValue(memValue.value);
                 value.setLanguage(memValue.language);
                 value.setPlace(current);
@@ -372,22 +372,22 @@ public abstract class ItemDAO extends ContentDAO
     public void decache(Item item)
     {
         // Remove item and it's submitter from cache
-        context.removeCached(item, item.getID());
+        context.removeCached(item, item.getId());
         EPerson submitter = item.getSubmitter();
 
         // FIXME: I don't think we necessarily want to do this.
         if (submitter != null)
         {
-            context.removeCached(submitter, submitter.getID());
+            context.removeCached(submitter, submitter.getId());
         }
 
         // Remove bundles & bitstreams from cache if they have been loaded
         for (Bundle bundle : item.getBundles())
         {
-            context.removeCached(bundle, bundle.getID());
+            context.removeCached(bundle, bundle.getId());
             for (Bitstream bitstream : bundle.getBitstreams())
             {
-                context.removeCached(bitstream, bitstream.getID());
+                context.removeCached(bitstream, bitstream.getId());
             }
         }
     }
@@ -435,7 +435,7 @@ public abstract class ItemDAO extends ContentDAO
             AuthorizeManager.authorizeAction(context, item, Constants.ADD);
 
             log.info(LogManager.getHeader(context, "add_bundle", "item_id="
-                    + item.getID() + ",bundle_id=" + bundle.getID()));
+                    + item.getId() + ",bundle_id=" + bundle.getId()));
 
             item.addBundle(bundle);
         }
@@ -461,7 +461,7 @@ public abstract class ItemDAO extends ContentDAO
                     context.getCurrentUser());
 
             // The bundle is an orphan, delete it
-            bundleDAO.delete(bundle.getID());
+            bundleDAO.delete(bundle.getId());
         }
     }
 

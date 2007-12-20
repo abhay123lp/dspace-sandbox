@@ -49,9 +49,11 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
+import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
 import org.dspace.content.crosswalk.CrosswalkException;
 import org.dspace.content.crosswalk.MetadataValidationException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.license.CreativeCommons;
 import org.jdom.Element;
@@ -76,7 +78,8 @@ public class DSpaceMETSIngester
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(DSpaceMETSIngester.class);
-
+    private static ApplicationService applicationService;
+    
     // first part of required mets@PROFILE value
     private final static String PROFILE_START = "DSpace METS SIP Profile";
 
@@ -194,12 +197,18 @@ public class DSpaceMETSIngester
                     Bitstream bs = callback.getBitstreamForMdRef(mdRef);
                     if (bs != null)
                     {
-                        Bundle parent[] = bs.getBundles();
+                    	/*FIXME ricontrollare la navigabilità*/
+                        /*Bundle parent[] = bs.getBundles();
                         if (parent.length > 0)
                         {
                             parent[0].removeBitstream(bs);
                             parent[0].update();
-                        }
+                        }*/
+                    	Bundle parent = bs.getBundle();
+                    	if(parent!=null) {
+                    		parent.removeBitstream(bs);
+                    		applicationService.saveOrUpdate(context, Bundle.class, parent);
+                    	}
                     }
                 }
             }
@@ -213,4 +222,8 @@ public class DSpaceMETSIngester
     {
         // nothing to do.
     }
+    
+    public static void setApplicationService(ApplicationService applicationService) {
+		DSpaceMETSIngester.applicationService = applicationService;
+	}
 }

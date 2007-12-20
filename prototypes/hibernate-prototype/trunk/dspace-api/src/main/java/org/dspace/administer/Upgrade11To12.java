@@ -39,12 +39,15 @@
  */
 package org.dspace.administer;
 
+import java.util.List;
+
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 
 /**
@@ -64,6 +67,8 @@ import org.dspace.core.Context;
  */
 public class Upgrade11To12
 {
+	private static ApplicationService applicationService;
+	
     public static void main(String[] argv) throws Exception
     {
         Context c = new Context();
@@ -74,13 +79,17 @@ public class Upgrade11To12
         ItemIterator ii = null;
 
         // first set owning Collections
-        Collection[] collections = Collection.findAll(c);
+        Collection[] collections = (Collection[])applicationService.findAllCollections(c).toArray();//Collection.findAll(c);
+        
 
         System.out.println("Setting item owningCollection fields in database");
 
         for (int q = 0; q < collections.length; q++)
         {
-            ii = collections[q].getItems();
+        	/*FIXME iterator costruito con una lista di items, non di item ids*/
+        	List<Item> items = collections[q].getItems();
+        	ii = new ItemIterator(c, items);
+            //ii = collections[q].getItems();
 
             while (ii.hasNext())
             {
@@ -90,9 +99,10 @@ public class Upgrade11To12
                 if (myItem.getOwningCollection() == null)
                 {
                     myItem.setOwningCollection(collections[q]);
-                    myItem.update();
-                    System.out.println("Set owner of item " + myItem.getID()
-                            + " to collection " + collections[q].getID());
+                    //myItem.update();
+                    applicationService.saveOrUpdate(c, Item.class, myItem);
+                    System.out.println("Set owner of item " + myItem.getId()
+                            + " to collection " + collections[q].getId());
                 }
             }
         }
@@ -101,7 +111,10 @@ public class Upgrade11To12
         c.commit();
 
         // now combine some bundles
-        ii = Item.findAll(c);
+        /*FIXME iterator costruito con una lista di items, non di item ids*/
+        List<Item> allitems = applicationService.findAllItems(c);
+        ii = new ItemIterator(c, allitems);
+        //ii = Item.findAll(c);
 
         while (ii.hasNext())
         {
@@ -113,16 +126,16 @@ public class Upgrade11To12
             int primaryBundleIndex = -1; // array index of our primary bundle
                                          // (all bitstreams assemble here)
 
-            System.out.println("Processing item #: " + myItem.getID());
+            System.out.println("Processing item #: " + myItem.getId());
 
-            Bundle[] myBundles = myItem.getBundles();
+            List<Bundle> myBundles = myItem.getBundles();
 
             // look for bundles with multiple bitstreams
             // (if any found, we'll skip this item)
-            for (int i = 0; i < myBundles.length; i++)
+            for (int i = 0; i < myBundles.size(); i++)
             {
                 // skip if bundle is already named
-                if (myBundles[i].getName() != null)
+                if (myBundles.get(i).getName() != null)
                 {
                     System.out
                             .println("Skipping this item - named bundles already found");
@@ -131,11 +144,11 @@ public class Upgrade11To12
                     break;
                 }
 
-                Bitstream[] bitstreams = myBundles[i].getBitstreams();
+                List<Bitstream> bitstreams = myBundles.get(i).getBitstreams();
 
                 // skip this item if we already have bundles combined in this
                 // item
-                if (bitstreams.length > 1)
+                if (bitstreams.size() > 1)
                 {
                     System.out
                             .println("Skipping this item - compound bundles already found");
@@ -145,7 +158,7 @@ public class Upgrade11To12
                 }
 
                 // is this the license? check the format
-                BitstreamFormat bf = bitstreams[0].getFormat();
+                BitstreamFormat bf = bitstreams.get(0).getFormat();
 
                 if (bf.getShortDescription().equals("License"))
                 {
@@ -181,23 +194,23 @@ public class Upgrade11To12
                 // name the primary and license bundles
                 if (primaryBundleIndex != -1)
                 {
-                    myBundles[primaryBundleIndex].setName("ORIGINAL");
-                    myBundles[primaryBundleIndex].update();
+                    myBundles.get(primaryBundleIndex).setName("ORIGINAL");
+                    //myBundles[primaryBundleIndex].update();
                 }
 
                 if (licenseBundleIndex != -1)
                 {
-                    myBundles[licenseBundleIndex].setName("LICENSE");
-                    myBundles[licenseBundleIndex].update();
+                    myBundles.get(licenseBundleIndex).setName("LICENSE");
+                    //myBundles[licenseBundleIndex].update();
                 }
 
-                for (int i = 0; i < myBundles.length; i++)
+                for (int i = 0; i < myBundles.size(); i++)
                 {
-                    Bitstream[] bitstreams = myBundles[i].getBitstreams();
+                    List<Bitstream> bitstreams = myBundles.get(i).getBitstreams();
 
                     // now we can safely assume no bundles with multiple
                     // bitstreams
-                    if (bitstreams.length > 0)
+                    if (bitstreams.size() > 0)
                     {
                         if ((i != primaryBundleIndex)
                                 && (i != licenseBundleIndex))
@@ -205,30 +218,36 @@ public class Upgrade11To12
                             // only option left is a bitstream to be combined
                             // with primary bundle
                             // and remove now-redundant bundle
-                            myBundles[primaryBundleIndex]
-                                    .addBitstream(bitstreams[0]); // add to
+                            myBundles.get(primaryBundleIndex)
+                                    .addBitstream(bitstreams.get(0)); // add to
                                                                   // primary
-                            myItem.removeBundle(myBundles[i]); // remove this
+                            myItem.removeBundle(myBundles.get(i)); // remove this
                                                                // bundle
 
                             System.out.println("Bitstream from bundle " + i
                                     + " moved to primary bundle");
 
                             // flag if HTML bitstream
-                            if (bitstreams[0].getFormat().getMIMEType().equals(
+                            if (bitstreams.get(0).getFormat().getMIMEType().equals(
                                     "text/html"))
                             {
                                 System.out
                                         .println("Set primary bitstream to HTML file in item #"
-                                                + myItem.getID()
+                                                + myItem.getId()
                                                 + " for HTML support.");
                             }
                         }
                     }
                 }
             }
+            /*FIXME salvataggio in cascade */
+            applicationService.saveOrUpdate(c, Item.class, myItem);
         }
-
+        
         c.complete();
     }
+    
+    public static void setApplicationService(ApplicationService applicationService) {
+		Upgrade11To12.applicationService = applicationService;
+	}
 }

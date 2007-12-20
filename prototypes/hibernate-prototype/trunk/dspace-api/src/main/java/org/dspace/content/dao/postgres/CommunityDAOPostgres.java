@@ -141,7 +141,7 @@ public class CommunityDAOPostgres extends CommunityDAO
         try
         {
             TableRow row =
-                DatabaseManager.find(context, "community", community.getID());
+                DatabaseManager.find(context, "community", community.getId());
 
             if (row != null)
             {
@@ -150,7 +150,7 @@ public class CommunityDAOPostgres extends CommunityDAO
             else
             {
                 throw new RuntimeException("Didn't find community " +
-                        community.getID());
+                        community.getId());
             }
         }
         catch (SQLException sqle)
@@ -246,7 +246,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                         "FROM community c, community2item c2i " +
                         "WHERE c2i.community_id = c.community_id " +
                         "AND c2i.item_id = ? ",
-                        dso.getID());
+                        dso.getId());
             }
             else if (dso instanceof Collection)
             {
@@ -255,7 +255,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                         "FROM community c, community2collection c2c " +
                         "WHERE c.community_id = c2c.community_id " +
                         "AND c2c.collection_id = ? ",
-                        dso.getID());
+                        dso.getId());
             }
             else if (dso instanceof Community)
             {
@@ -264,7 +264,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                         "FROM community c, community2community c2c " +
                         "WHERE c2c.parent_comm_id = c.community_id " +
                         "AND c2c.child_comm_id = ? ",
-                        dso.getID());
+                        dso.getId());
             }
 
             return returnAsList(tri);
@@ -287,7 +287,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                     "WHERE c2c.child_comm_id = c.community_id " +
                     "AND c2c.parent_comm_id = ? " +
                     "ORDER BY c.name",
-                    community.getID());
+                    community.getId());
 
             return returnAsList(tri);
         }
@@ -313,8 +313,8 @@ public class CommunityDAOPostgres extends CommunityDAO
                     TableRow row =
                         DatabaseManager.create(context, "community2collection");
 
-                    row.setColumn("community_id", parent.getID());
-                    row.setColumn("collection_id", child.getID());
+                    row.setColumn("community_id", parent.getId());
+                    row.setColumn("collection_id", child.getId());
 
                     DatabaseManager.update(context, row);
                 }
@@ -327,7 +327,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                             "SELECT * FROM community2community " +
                             "WHERE parent_comm_id= ? "+
                             "AND child_comm_id= ? ",
-                            parent.getID(), child.getID());
+                            parent.getId(), child.getId());
 
                     if (!tri.hasNext())
                     {
@@ -335,8 +335,8 @@ public class CommunityDAOPostgres extends CommunityDAO
                         TableRow mappingRow = DatabaseManager.create(context,
                                 "community2community");
 
-                        mappingRow.setColumn("parent_comm_id", parent.getID());
-                        mappingRow.setColumn("child_comm_id", child.getID());
+                        mappingRow.setColumn("parent_comm_id", parent.getId());
+                        mappingRow.setColumn("child_comm_id", child.getId());
 
                         DatabaseManager.update(context, mappingRow);
                     }
@@ -365,7 +365,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                     DatabaseManager.updateQuery(context,
                             "DELETE FROM community2collection " +
                             "WHERE community_id = ? AND collection_id = ? ",
-                            parent.getID(), child.getID());
+                            parent.getId(), child.getId());
                 }
                 else if ((parent instanceof Community) &&
                     (child instanceof Community))
@@ -373,7 +373,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                     DatabaseManager.updateQuery(context,
                             "DELETE FROM community2community " +
                             "WHERE parent_comm_id = ? AND child_comm_id = ? ",
-                            parent.getID(), child.getID());
+                            parent.getId(), child.getId());
                 }
             }
             catch (SQLException sqle)
@@ -396,7 +396,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                 tri = DatabaseManager.query(context,
                         "SELECT * FROM community2collection " +
                         "WHERE community_id = ? AND collection_id = ? ",
-                        parent.getID(), child.getID());
+                        parent.getId(), child.getId());
             }
             else if ((parent instanceof Community) &&
                 (child instanceof Community))
@@ -404,7 +404,7 @@ public class CommunityDAOPostgres extends CommunityDAO
                 tri = DatabaseManager.query(context,
                         "SELECT * FROM community2community " +
                         "WHERE parent_comm_id = ? AND child_comm_id = ? ",
-                        parent.getID(), child.getID());
+                        parent.getId(), child.getId());
             }
             else
             {
@@ -464,7 +464,7 @@ public class CommunityDAOPostgres extends CommunityDAO
     private void populateTableRowFromCommunity(Community community,
             TableRow row)
     {
-        int id = community.getID();
+        int id = community.getId();
         Bitstream logo = community.getLogo();
 
         if (logo == null)
@@ -473,7 +473,7 @@ public class CommunityDAOPostgres extends CommunityDAO
         }
         else
         {
-            row.setColumn("logo_bitstream_id", logo.getID());
+            row.setColumn("logo_bitstream_id", logo.getId());
         }
 
         // Now loop over all allowed metadata fields and set the value into the

@@ -220,51 +220,51 @@ public abstract class AbstractMETSDisseminator
                 }
 
                 // copy all non-meta bitstreams into zip
-                Bundle bundles[] = item.getBundles();
-                for (int i = 0; i < bundles.length; i++)
+                List<Bundle> bundles = item.getBundles();
+                for (int i = 0; i < bundles.size(); i++)
                 {
-                    if (!PackageUtils.isMetaInfoBundle(bundles[i]))
+                    if (!PackageUtils.isMetaInfoBundle(bundles.get(i)))
                     {
                         // unauthorized bundle?
                         if (!AuthorizeManager.authorizeActionBoolean(context,
-                                    bundles[i], Constants.READ))
+                                    bundles.get(i), Constants.READ))
                         {
                             if (unauth != null &&
                                 (unauth.equalsIgnoreCase("skip")))
                             {
-                                log.warn("Skipping Bundle[\""+bundles[i].getName()+"\"] because you are not authorized to read it.");
+                                log.warn("Skipping Bundle[\""+bundles.get(i).getName()+"\"] because you are not authorized to read it.");
                                 continue;
                             }
                             else
-                                throw new AuthorizeException("Not authorized to read Bundle named \""+bundles[i].getName()+"\"");
+                                throw new AuthorizeException("Not authorized to read Bundle named \""+bundles.get(i).getName()+"\"");
                         }
-                        Bitstream[] bitstreams = bundles[i].getBitstreams();
-                        for (int k = 0; k < bitstreams.length; k++)
+                        List<Bitstream> bitstreams = bundles.get(i).getBitstreams();
+                        for (Bitstream bitstream : bitstreams)
                         {
                             boolean auth = AuthorizeManager.authorizeActionBoolean(context,
-                                    bitstreams[k], Constants.READ);
+                                    bitstream, Constants.READ);
                             if (auth ||
                                 (unauth != null && unauth.equalsIgnoreCase("zero")))
                             {
                                 ZipEntry ze = new ZipEntry(
-                                    makeBitstreamName(bitstreams[k]));
+                                    makeBitstreamName(bitstream));
                                 ze.setTime(lmTime);
-                                ze.setSize(auth ? bitstreams[k].getSize() : 0);
+                                ze.setSize(auth ? bitstream.getSize() : 0);
                                 zip.putNextEntry(ze);
                                 if (auth)
-                                Utils.copy(bitstreams[k].retrieve(), zip);
+                                Utils.copy(bitstream.retrieve(), zip);
                                 else
-                                    log.warn("Adding zero-length file for Bitstream, SID="+String.valueOf(bitstreams[k].getSequenceID())+", not authorized for READ.");
+                                    log.warn("Adding zero-length file for Bitstream, SID="+String.valueOf(bitstream.getSequenceID())+", not authorized for READ.");
                                 zip.closeEntry();
                             }
                             else if (unauth != null &&
                                      unauth.equalsIgnoreCase("skip"))
                             {
-                                log.warn("Skipping Bitstream, SID="+String.valueOf(bitstreams[k].getSequenceID())+", not authorized for READ.");
+                                log.warn("Skipping Bitstream, SID="+String.valueOf(bitstream.getSequenceID())+", not authorized for READ.");
                             }
                             else
                             {
-                                throw new AuthorizeException("Not authorized to read Bitstream, SID="+String.valueOf(bitstreams[k].getSequenceID()));
+                                throw new AuthorizeException("Not authorized to read Bitstream, SID="+String.valueOf(bitstream.getSequenceID()));
                             }
                         }
                     }
@@ -284,7 +284,7 @@ public abstract class AbstractMETSDisseminator
      */
     private String makeBitstreamName(Bitstream bitstream)
     {
-        String base = "bitstream_"+String.valueOf(bitstream.getID());
+        String base = "bitstream_"+String.valueOf(bitstream.getId());
         String ext[] = bitstream.getFormat().getExtensions();
         return (ext.length > 0) ? base+"."+ext[0] : base;
     }
@@ -439,31 +439,31 @@ public abstract class AbstractMETSDisseminator
             // how to handle unauthorized bundle/bitstream:
             String unauth = (params == null) ? null : params.getProperty("unauthorized");
 
-            Bundle[] bundles = item.getBundles();
-            for (int i = 0; i < bundles.length; i++)
+            List<Bundle> bundles = item.getBundles();
+            for (Bundle bundle : bundles)
             {
-                if (PackageUtils.isMetaInfoBundle(bundles[i]))
+                if (PackageUtils.isMetaInfoBundle(bundle))
                     continue;
 
                 // unauthorized bundle?
                 // NOTE: This must match the logic in disseminate()
                 if (!AuthorizeManager.authorizeActionBoolean(context,
-                            bundles[i], Constants.READ))
+                            bundle, Constants.READ))
                 {
                     if (unauth != null &&
                         (unauth.equalsIgnoreCase("skip")))
                         continue;
                     else
-                        throw new AuthorizeException("Not authorized to read Bundle named \""+bundles[i].getName()+"\"");
+                        throw new AuthorizeException("Not authorized to read Bundle named \""+bundle.getName()+"\"");
                 }
 
-                Bitstream[] bitstreams = bundles[i].getBitstreams();
+                List<Bitstream> bitstreams = bundle.getBitstreams();
 
                 // Create a fileGrp
                 FileGrp fileGrp = new FileGrp();
          
                 // Bundle name for USE attribute
-                String bName = bundles[i].getName();
+                String bName = bundle.getName();
                 if ((bName != null) && !bName.equals(""))
                     fileGrp.setUSE(bundleToFileGrp(bName));
          
@@ -473,10 +473,10 @@ public abstract class AbstractMETSDisseminator
                 if ((bName != null) && bName.equals("ORIGINAL"))
                 {
                     isContentBundle = true;
-                    primaryBitstreamID = bundles[i].getPrimaryBitstreamID();
+                    primaryBitstreamID = bundle.getPrimaryBitstream().getId();
                 }
 
-                for (int bits = 0; bits < bitstreams.length; bits++)
+                for (Bitstream bitstream : bitstreams)
                 {
                     // Check for authorization.  Handle unauthorized
                     // bitstreams to match the logic in disseminate(),
@@ -484,16 +484,16 @@ public abstract class AbstractMETSDisseminator
                     // "unauth=skip" means to ignore it (and exclude from
                     // manifest).
                     boolean auth = AuthorizeManager.authorizeActionBoolean(context,
-                            bitstreams[bits], Constants.READ);
+                            bitstream, Constants.READ);
                     if (!auth)
                     {
                         if (unauth != null && unauth.equalsIgnoreCase("skip"))
                             continue;
                         else if (!(unauth != null && unauth.equalsIgnoreCase("zero")))
-                            throw new AuthorizeException("Not authorized to read Bitstream, SID="+String.valueOf(bitstreams[bits].getSequenceID()));
+                            throw new AuthorizeException("Not authorized to read Bitstream, SID="+String.valueOf(bitstream.getSequenceID()));
                     }
 
-                    String sid = String.valueOf(bitstreams[bits].getSequenceID());
+                    String sid = String.valueOf(bitstream.getSequenceID());
          
                     edu.harvard.hul.ois.mets.File file = new edu.harvard.hul.ois.mets.File();
          
@@ -503,7 +503,7 @@ public abstract class AbstractMETSDisseminator
                     file.setID(fileID);
 
                     // log primary bitstream for later (structMap)
-                    if (bitstreams[bits].getID() == primaryBitstreamID)
+                    if (bitstream.getId() == primaryBitstreamID)
                         primaryBitstreamFileID = fileID;
 
                     // if this is content, add to structmap too:
@@ -518,7 +518,7 @@ public abstract class AbstractMETSDisseminator
                         contentDivs.add(div);
                     }
 
-                    file.setSEQ(bitstreams[bits].getSequenceID());
+                    file.setSEQ(bitstream.getSequenceID());
          
                     String groupID = "GROUP_" + xmlIDstart + sid;
          
@@ -527,14 +527,14 @@ public abstract class AbstractMETSDisseminator
                      * extracted text or a thumbnail, so we use the name to work
                      * out which bitstream to be in the same group as
                      */
-                    if ((bundles[i].getName() != null)
-                            && (bundles[i].getName().equals("THUMBNAIL") ||
-                                bundles[i].getName().startsWith("TEXT")))
+                    if ((bundle.getName() != null)
+                            && (bundle.getName().equals("THUMBNAIL") ||
+                                bundle.getName().startsWith("TEXT")))
                     {
                         // Try and find the original bitstream, and chuck the
                         // derived bitstream in the same group
                         Bitstream original = findOriginalBitstream(item,
-                                bitstreams[bits]);
+                                bitstream);
          
                         if (original != null)
                         {
@@ -544,15 +544,15 @@ public abstract class AbstractMETSDisseminator
                     }
          
                     file.setGROUPID(groupID);
-                    file.setMIMETYPE(bitstreams[bits].getFormat().getMIMEType());
+                    file.setMIMETYPE(bitstream.getFormat().getMIMEType());
          
                     // FIXME: CREATED: no date
 
-                    file.setSIZE(auth ? bitstreams[bits].getSize() : 0);
+                    file.setSIZE(auth ? bitstream.getSize() : 0);
 
                     // translate checksum and type to METS, if available.
-                    String csType = bitstreams[bits].getChecksumAlgorithm();
-                    String cs = bitstreams[bits].getChecksum();
+                    String csType = bitstream.getChecksumAlgorithm();
+                    String cs = bitstream.getChecksum();
                     if (auth && cs != null && csType != null)
                     {
                         try
@@ -569,10 +569,10 @@ public abstract class AbstractMETSDisseminator
                     // FLocat: filename is MD5 checksum
                     FLocat flocat = new FLocat();
                     flocat.setLOCTYPE(Loctype.URL);
-                    flocat.setXlinkHref(makeBitstreamName(bitstreams[bits]));
+                    flocat.setXlinkHref(makeBitstreamName(bitstream));
 
                     // Make bitstream techMD metadata, add to file.
-                    String techID = "techMd_for_bitstream_"+bitstreams[bits].getSequenceID();
+                    String techID = "techMd_for_bitstream_"+bitstream.getSequenceID();
                     AmdSec fAmdSec = new AmdSec();
                     fAmdSec.setID(techID);
                     TechMD techMd = new TechMD();
@@ -584,7 +584,7 @@ public abstract class AbstractMETSDisseminator
                     techMd.getContent().add(mdWrap);
                     fAmdSec.getContent().add(techMd);
                     mets.getContent().add(fAmdSec);
-                    crosswalkToMets(xwalk, bitstreams[bits], xmlData);
+                    crosswalkToMets(xwalk, bitstream, xmlData);
                     file.setADMID(techID);
 
                     // Add FLocat to File, and File to FileGrp
@@ -661,7 +661,7 @@ public abstract class AbstractMETSDisseminator
     protected static Bitstream findOriginalBitstream(Item item, Bitstream derived)
         throws SQLException
     {
-        Bundle[] bundles = item.getBundles();
+        List<Bundle> bundles = item.getBundles();
 
         // Filename of original will be filename of the derived bitstream
         // minus the extension (last 4 chars - .jpg or .txt)
@@ -669,19 +669,19 @@ public abstract class AbstractMETSDisseminator
                 derived.getName().length() - 4);
 
         // First find "original" bundle
-        for (int i = 0; i < bundles.length; i++)
+        for (Bundle bundle : bundles)
         {
-            if ((bundles[i].getName() != null)
-                    && bundles[i].getName().equals("ORIGINAL"))
+            if ((bundle.getName() != null)
+                    && bundle.getName().equals("ORIGINAL"))
             {
                 // Now find the corresponding bitstream
-                Bitstream[] bitstreams = bundles[i].getBitstreams();
+                List<Bitstream> bitstreams = bundle.getBitstreams();
 
-                for (int bsnum = 0; bsnum < bitstreams.length; bsnum++)
+                for (Bitstream bitstream : bitstreams)
                 {
-                    if (bitstreams[bsnum].getName().equals(originalFilename))
+                    if (bitstream.getName().equals(originalFilename))
                     {
-                        return bitstreams[bsnum];
+                        return bitstream;
                     }
                 }
             }

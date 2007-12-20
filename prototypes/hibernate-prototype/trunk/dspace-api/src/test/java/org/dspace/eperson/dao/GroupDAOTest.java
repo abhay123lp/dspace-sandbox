@@ -74,7 +74,7 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     {
         Group result = instance.create();
 
-        int id = result.getID();
+        int id = result.getId();
 
         assertTrue(id > 0);
     }
@@ -83,9 +83,9 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     public void retrieve() throws Exception
     {
         Group existing = instance.create();
-        Group result = instance.retrieve(existing.getID());
+        Group result = instance.retrieve(existing.getId());
 
-        assertEquals(existing.getID(), result.getID());
+        assertEquals(existing.getId(), result.getId());
     }
 
     @Test
@@ -97,7 +97,7 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
         group.setName(name);
         instance.update(group);
 
-        Group result = instance.retrieve(group.getID());
+        Group result = instance.retrieve(group.getId());
         assertEquals(result.getName(), name);
     }
 
@@ -105,7 +105,7 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     public void delete() throws Exception
     {
         Group group = instance.create();
-        int id = group.getID();
+        int id = group.getId();
 
         instance.delete(id);
 
@@ -219,11 +219,11 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
 
         for (Integer id : instance.getGroupIDs(eperson))
         {
-            if (groupOne.getID() == id)
+            if (groupOne.getId() == id)
             {
                 containsOne = true;
             }
-            if (groupTwo.getID() == id)
+            if (groupTwo.getId() == id)
             {
                 containsTwo = true;
             }
@@ -312,14 +312,14 @@ public class GroupDAOTest extends DAOTest implements CRUDTest, LinkTest
     {
         Group group = instance.create();
 
-        if (instance.currentUserInGroup(group.getID()))
+        if (instance.currentUserInGroup(group.getId()))
         {
             fail();
         }
 
         instance.link(group, context.getCurrentUser());
 
-        if (!instance.currentUserInGroup(group.getID()))
+        if (!instance.currentUserInGroup(group.getId()))
         {
             fail();
         }

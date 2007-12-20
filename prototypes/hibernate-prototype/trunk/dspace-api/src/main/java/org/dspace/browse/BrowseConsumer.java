@@ -152,7 +152,7 @@ public class BrowseConsumer implements Consumer
 
                 if (log.isDebugEnabled())
                 {
-                    log.debug("Updated browse indices for Item id=" + i.getID()
+                    log.debug("Updated browse indices for Item id=" + i.getId()
                             + ", oid=" + i.getIdentifier().getCanonicalForm());
                 }
             }

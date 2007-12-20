@@ -53,6 +53,7 @@ import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.submit.AbstractProcessingStep;
 
@@ -88,6 +89,8 @@ public class SelectCollectionStep extends AbstractProcessingStep
 
     /** log4j logger */
     private static Logger log = Logger.getLogger(SelectCollectionStep.class);
+    
+    private static ApplicationService applicationService;
 
     /**
      * Do any processing of the information input by the user, and/or perform
@@ -128,7 +131,8 @@ public class SelectCollectionStep extends AbstractProcessingStep
         }
 
         // try to load the collection
-        Collection col = Collection.find(context, id);
+        //Collection col = Collection.find(context, id);
+        Collection col = applicationService.get(context, Collection.class, id);
 
         // Show an error if the collection is invalid
         if (col == null)
@@ -183,4 +187,8 @@ public class SelectCollectionStep extends AbstractProcessingStep
         // there is always just one page in the "select a collection" step!
         return 1;
     }
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		SelectCollectionStep.applicationService = applicationService;
+	}
 }

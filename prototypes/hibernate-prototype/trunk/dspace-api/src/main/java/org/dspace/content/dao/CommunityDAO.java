@@ -154,7 +154,7 @@ public abstract class CommunityDAO extends ContentDAO
         policyDAO.update(policy);
 
         log.info(LogManager.getHeader(context, "create_community",
-                "community_id=" + community.getID()) + ",uri=" +
+                "community_id=" + community.getId()) + ",uri=" +
                 community.getIdentifier().getCanonicalForm());
 
         update(community);
@@ -179,7 +179,7 @@ public abstract class CommunityDAO extends ContentDAO
 //        community.canEdit();
 
         log.info(LogManager.getHeader(context, "update_community",
-                "community_id=" + community.getID()));
+                "community_id=" + community.getId()));
 
         try
         {
@@ -293,8 +293,8 @@ public abstract class CommunityDAO extends ContentDAO
                     (Community) parent, Constants.ADD);
 
             log.info(LogManager.getHeader(context, "add_collection",
-                        "community_id=" + parent.getID() +
-                        ",collection_id=" + child.getID()));
+                        "community_id=" + parent.getId() +
+                        ",collection_id=" + child.getId()));
         }
         else if ((parent instanceof Community) &&
             (child instanceof Community))
@@ -303,8 +303,8 @@ public abstract class CommunityDAO extends ContentDAO
                     Constants.ADD);
 
             log.info(LogManager.getHeader(context, "add_subcommunity",
-                    "parent_comm_id=" + parent.getID() +
-                    ",child_comm_id=" + child.getID()));
+                    "parent_comm_id=" + parent.getId() +
+                    ",child_comm_id=" + child.getId()));
         }
     }
 
@@ -321,8 +321,8 @@ public abstract class CommunityDAO extends ContentDAO
                     Constants.REMOVE);
 
             log.info(LogManager.getHeader(context, "remove_collection",
-                    "collection_id = " + parent.getID() +
-                    ",item_id = " + child.getID()));
+                    "collection_id = " + parent.getId() +
+                    ",item_id = " + child.getId()));
         }
         else if ((parent instanceof Community) &&
             (child instanceof Community))
@@ -332,8 +332,8 @@ public abstract class CommunityDAO extends ContentDAO
 
             log.info(LogManager.getHeader(context,
                     "remove_subcommunity",
-                    "parent_comm_id = " + parent.getID() +
-                    ",child_comm_id = " + child.getID()));
+                    "parent_comm_id = " + parent.getId() +
+                    ",child_comm_id = " + child.getId()));
         }
         else
         {
@@ -355,11 +355,11 @@ public abstract class CommunityDAO extends ContentDAO
             // Orphan; delete it
             if (child instanceof Collection)
             {
-                collectionDAO.delete(child.getID());
+                collectionDAO.delete(child.getId());
             }
             else if (child instanceof Community)
             {
-                delete(child.getID());
+                delete(child.getId());
             }
         }
     }

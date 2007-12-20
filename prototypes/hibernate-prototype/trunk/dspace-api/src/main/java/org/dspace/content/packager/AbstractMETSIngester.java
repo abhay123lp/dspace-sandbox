@@ -445,7 +445,7 @@ public abstract class AbstractMETSIngester
                 {
                     List<Bundle> bn = bundleDAO.getBundles(pbs);
                     if (bn.size() > 0)
-                        bn.get(0).setPrimaryBitstreamID(pbs.getID());
+                        bn.get(0).setPrimaryBitstreamID(pbs.getId());
                     else
                         log.error("Sanity check, got primary bitstream without any parent bundle.");
                 }
@@ -467,7 +467,7 @@ public abstract class AbstractMETSIngester
             wsiDAO.update(wi);
             success = true;
             log.info(LogManager.getHeader(context, "ingest",
-                "Created new Item, db ID="+String.valueOf(item.getID())+
+                "Created new Item, db ID="+String.valueOf(item.getId())+
                 ", WorkspaceItem ID="+String.valueOf(wi.getID())));
             return wi;
         }

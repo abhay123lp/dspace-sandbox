@@ -178,7 +178,7 @@ public class GroupDAOPostgres extends GroupDAO
         try
         {
             TableRow row =
-                DatabaseManager.find(context, "epersongroup", group.getID());
+                DatabaseManager.find(context, "epersongroup", group.getId());
 
             if (row != null)
             {
@@ -188,7 +188,7 @@ public class GroupDAOPostgres extends GroupDAO
             else
             {
                 throw new RuntimeException("Didn't find group " +
-                        group.getID());
+                        group.getId());
             }
         }
         catch (SQLException sqle)
@@ -334,7 +334,7 @@ public class GroupDAOPostgres extends GroupDAO
                     "epersongroup2eperson",
                     "SELECT eperson_group_id " +
                     "FROM epersongroup2eperson WHERE eperson_id = ?",
-                     eperson.getID());
+                     eperson.getId());
 
             Set<Integer> groupIDs = new HashSet<Integer>();
 
@@ -348,7 +348,7 @@ public class GroupDAOPostgres extends GroupDAO
             // Otherwise, you're ignoring the user's membership to these groups!
             for (Group group : context.getSpecialGroups())
             {
-                groupIDs.add(group.getID());
+                groupIDs.add(group.getId());
             }
 
             // now we have all owning groups, also grab all parents of owning groups
@@ -410,7 +410,7 @@ public class GroupDAOPostgres extends GroupDAO
                     "FROM epersongroup g, group2group g2g " +
                     "WHERE g2g.child_id = g.eperson_group_id " +
                     "AND g2g.parent_id= ? ",
-                    group.getID());
+                    group.getId());
 
             return returnAsList(tri);
         }
@@ -472,8 +472,8 @@ public class GroupDAOPostgres extends GroupDAO
             {
                 TableRow row = DatabaseManager.create(context,
                         "group2group");
-                row.setColumn("parent_id", parent.getID());
-                row.setColumn("child_id", child.getID());
+                row.setColumn("parent_id", parent.getId());
+                row.setColumn("child_id", child.getId());
                 DatabaseManager.update(context, row);
 
                 rethinkGroupCache();
@@ -498,7 +498,7 @@ public class GroupDAOPostgres extends GroupDAO
                 DatabaseManager.updateQuery(context,
                         "DELETE FROM group2group " +
                         "WHERE parent_id = ? AND child_id = ?",
-                        parent.getID(), child.getID());
+                        parent.getId(), child.getId());
 
                 rethinkGroupCache();
             }
@@ -516,8 +516,8 @@ public class GroupDAOPostgres extends GroupDAO
         {
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT id FROM group2group " +
-                    " WHERE parent_id=" + parent.getID() +
-                    " AND child_id=" + child.getID());
+                    " WHERE parent_id=" + parent.getId() +
+                    " AND child_id=" + child.getId());
 
             boolean result = tri.hasNext();
             tri.close();
@@ -542,8 +542,8 @@ public class GroupDAOPostgres extends GroupDAO
             {
                 TableRow row = DatabaseManager.create(context,
                         "epersongroup2eperson");
-                row.setColumn("eperson_id", eperson.getID());
-                row.setColumn("eperson_group_id", group.getID());
+                row.setColumn("eperson_id", eperson.getId());
+                row.setColumn("eperson_group_id", group.getId());
                 DatabaseManager.update(context, row);
             }
             catch (SQLException sqle)
@@ -566,7 +566,7 @@ public class GroupDAOPostgres extends GroupDAO
                 DatabaseManager.updateQuery(context,
                         "DELETE FROM epersongroup2eperson " +
                         "WHERE eperson_group_id = ? AND eperson_id = ?",
-                        group.getID(), eperson.getID());
+                        group.getId(), eperson.getId());
             }
             catch (SQLException sqle)
             {
@@ -585,7 +585,7 @@ public class GroupDAOPostgres extends GroupDAO
                     "SELECT id FROM epersongroup2eperson " +
                     " WHERE eperson_group_id = ? " +
                     " AND eperson_id = ?",
-                    group.getID(), eperson.getID());
+                    group.getId(), eperson.getId());
 
             return tri.hasNext();
         }
@@ -607,7 +607,7 @@ public class GroupDAOPostgres extends GroupDAO
             {
                 TableRow row = DatabaseManager.create(context,
                         "epersongroup2workspaceitem");
-                row.setColumn("eperson_group_id", group.getID());
+                row.setColumn("eperson_group_id", group.getId());
                 row.setColumn("workspace_item_id", ips.getID());
                 DatabaseManager.update(context, row);
             }
@@ -631,7 +631,7 @@ public class GroupDAOPostgres extends GroupDAO
                 DatabaseManager.updateQuery(context,
                         "DELETE FROM epersongroup2workspaceitem " +
                         "WHERE eperson_group_id = ? AND workspace_item_id = ?",
-                        group.getID(), ips.getID());
+                        group.getId(), ips.getID());
             }
             catch (SQLException sqle)
             {
@@ -650,7 +650,7 @@ public class GroupDAOPostgres extends GroupDAO
                     "SELECT id FROM epersongroup2workspaceitem " +
                     " WHERE eperson_group_id = ? " +
                     " AND workspace_item_id = ? ",
-                    group.getID(), ips.getID());
+                    group.getId(), ips.getID());
 
             return tri.hasNext();
         }

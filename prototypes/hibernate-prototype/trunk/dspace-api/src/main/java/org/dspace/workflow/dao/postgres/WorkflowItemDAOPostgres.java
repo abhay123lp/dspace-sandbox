@@ -200,13 +200,13 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
         try
         {
             TableRow row = DatabaseManager.create(context, "tasklistitem");
-            row.setColumn("eperson_id", eperson.getID());
+            row.setColumn("eperson_id", eperson.getId());
             row.setColumn("workflow_id", wfi.getID());
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("tasklist_id");
             TaskListItem tli = new TaskListItem(id);
-            tli.setEPersonID(eperson.getID());
+            tli.setEPersonID(eperson.getId());
             tli.setWorkflowItemID(wfi.getID());
 
             return tli;
@@ -256,7 +256,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT workflow_id FROM workflowitem " +
                     "WHERE owner = ? ORDER BY workflow_id",
-                    eperson.getID());
+                    eperson.getId());
 
             return returnAsList(tri);
         }
@@ -276,7 +276,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
                     "WHERE wfi.item_id = i.item_id " +
                     "AND i.submitter_id = ? " + 
                     "ORDER BY wfi.workflow_id",
-                    eperson.getID());
+                    eperson.getId());
 
             return returnAsList(tri);
         }
@@ -294,7 +294,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT workflow_id FROM workflowitem " +
                     "WHERE collection_id = ? ",
-                    collection.getID());
+                    collection.getId());
 
             return returnAsList(tri);
         }
@@ -314,7 +314,7 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
                     "FROM workflowitem wfi, tasklistitem tli " +
                     "WHERE tli.eperson_id = ? " +
                     "AND tli.workflow_id = wfi.workflow_id",
-                    eperson.getID());
+                    eperson.getId());
 
             List<TaskListItem> tlItems = new ArrayList<TaskListItem>();
 
@@ -396,12 +396,12 @@ public class WorkflowItemDAOPostgres extends WorkflowItemDAO
     private void populateTableRowFromWorkflowItem(WorkflowItem wfi,
             TableRow row)
     {
-        row.setColumn("item_id", wfi.getItem().getID());
-        row.setColumn("collection_id", wfi.getCollection().getID());
+        row.setColumn("item_id", wfi.getItem().getId());
+        row.setColumn("collection_id", wfi.getCollection().getId());
         EPerson owner = wfi.getOwner();
         if (owner != null)
         {
-            row.setColumn("owner", owner.getID());
+            row.setColumn("owner", owner.getId());
         }
         else
         {

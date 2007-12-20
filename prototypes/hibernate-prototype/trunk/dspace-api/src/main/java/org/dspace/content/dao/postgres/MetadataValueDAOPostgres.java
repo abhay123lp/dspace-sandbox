@@ -287,7 +287,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     "metadatavalue",
                     "SELECT metadata_value_id FROM metadatavalue " +
                     "WHERE item_id = ? ",
-                    item.getID());
+                    item.getId());
 
             return returnAsList(tri);
         }

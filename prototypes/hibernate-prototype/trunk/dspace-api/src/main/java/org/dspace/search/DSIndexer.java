@@ -44,8 +44,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -64,12 +67,14 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -125,6 +130,8 @@ public class DSIndexer
 
     // Static initialisation of index configuration /
     private static IndexConfig[] indexConfigArr = new IndexConfig[0];
+    
+    private static ApplicationService applicationService;
 
     static {
 
@@ -544,19 +551,21 @@ public class DSIndexer
     	            item.decache();
     	        }
 
-    			Collection[] collections = Collection.findAll(context);
+    			//Collection[] collections = Collection.findAll(context);
+                Collection[] collections = (Collection[])applicationService.findAllCollections(context).toArray();
     	        for (int i = 0; i < collections.length; i++)
     	        {
     	            indexContent(context,collections[i],force);
-    	            context.removeCached(collections[i], collections[i].getID());
+    	            context.removeCached(collections[i], collections[i].getId());
 
     	        }
 
-    			Community[] communities = Community.findAll(context);
+    			//Community[] communities = Community.findAll(context);
+    	        Community[] communities = (Community[])applicationService.findAllCommunities(context).toArray();
     	        for (int i = 0; i < communities.length; i++)
     	        {
     	            indexContent(context,communities[i],force);
-    	            context.removeCached(communities[i], communities[i].getID());
+    	            context.removeCached(communities[i], communities[i].getId());
     	        }
 
     	        optimizeIndex(context);
@@ -600,7 +609,7 @@ public class DSIndexer
                 }
                 else
                 {
-                	context.removeCached(o, o.getID());
+                	context.removeCached(o, o.getId());
                 	log.debug("Keeping: " + uri);
                 }
     		}
@@ -759,20 +768,30 @@ public class DSIndexer
     private static String buildItemLocationString(Context c, Item myitem)
     {
         // build list of community ids
-        Community[] communities = myitem.getCommunities();
-
+    	/*FIXME coerente?*/
+        //Community[] communities = myitem.getCommunities();
+    	Community[] communities;
+    	List<Community> comm = new ArrayList<Community>();
+    	Collection coll;
+    	List<Collection> cols = myitem.getCollections();
+    	Iterator<Collection> it = cols.iterator();
+    	while(it.hasNext()) {
+    		coll = it.next();
+    		comm.addAll(coll.getCommunities());
+    	}
+    	communities = (Community[])comm.toArray();
         // build list of collection ids
-        Collection[] collections = myitem.getCollections();
+        Collection[] collections = (Collection[])myitem.getCollections().toArray();
 
         // now put those into strings
         String location = "";
         int i = 0;
 
         for (i = 0; i < communities.length; i++)
-            location = location + " m" + communities[i].getID();
+            location = location + " m" + communities[i].getId();
 
         for (i = 0; i < collections.length; i++)
-            location = location + " l" + collections[i].getID();
+            location = location + " l" + collections[i].getId();
 
         return location;
     }
@@ -781,14 +800,14 @@ public class DSIndexer
             Collection target)
     {
         // build list of community ids
-        Community[] communities = target.getCommunities();
+        Community[] communities = (Community[])target.getCommunities().toArray();
 
         // now put those into strings
         String location = "";
         int i = 0;
 
         for (i = 0; i < communities.length; i++)
-            location = location + " m" + communities[i].getID();
+            location = location + " m" + communities[i].getId();
 
         return location;
     }
@@ -879,7 +898,7 @@ public class DSIndexer
         {
             ArrayList fields = new ArrayList();
             ArrayList content = new ArrayList();
-            DCValue[] mydc;
+            MetadataValue[] mydc;
 
             for (int i = 0; i < indexConfigArr.length; i++)
             {
@@ -900,7 +919,7 @@ public class DSIndexer
 
                 for (j = 0; j < mydc.length; j++)
                 {
-                    content_text = content_text + mydc[j].value + " ";
+                    content_text = content_text + mydc[j].getValue() + " ";
                 }
 
                 // arranges content with fields in ArrayLists with same index to
@@ -938,81 +957,81 @@ public class DSIndexer
         // if no search indexes found in cfg file, for backward compatibility
         {
             // extract metadata (ANY is wildcard from Item class)
-            DCValue[] authors = item.getDC("contributor", Item.ANY, Item.ANY);
+            MetadataValue[] authors = item.getMetadata(MetadataSchema.DC_SCHEMA, "contributor", Item.ANY, Item.ANY);
             for (j = 0; j < authors.length; j++)
             {
-            	doc.add(new Field("author", authors[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", authors[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("author", authors[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", authors[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] creators = item.getDC("creator", Item.ANY, Item.ANY);
+            MetadataValue[] creators = item.getMetadata(MetadataSchema.DC_SCHEMA,"creator", Item.ANY, Item.ANY);
             for (j = 0; j < creators.length; j++) //also authors
             {
-                doc.add(new Field("author", creators[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-                doc.add(new Field("default", creators[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+                doc.add(new Field("author", creators[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+                doc.add(new Field("default", creators[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] sors = item.getDC("description", "statementofresponsibility", Item.ANY);
+            MetadataValue[] sors = item.getMetadata(MetadataSchema.DC_SCHEMA,"description", "statementofresponsibility", Item.ANY);
             for (j = 0; j < sors.length; j++) //also authors
             {
-                doc.add(new Field("author", sors[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-                doc.add(new Field("default", sors[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+                doc.add(new Field("author", sors[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+                doc.add(new Field("default", sors[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] titles = item.getDC("title", Item.ANY, Item.ANY);
+            MetadataValue[] titles = item.getMetadata(MetadataSchema.DC_SCHEMA,"title", Item.ANY, Item.ANY);
             for (j = 0; j < titles.length; j++)
             {
-            	doc.add(new Field("title", titles[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", titles[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("title", titles[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", titles[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] keywords = item.getDC("subject", Item.ANY, Item.ANY);
+            MetadataValue[] keywords = item.getMetadata(MetadataSchema.DC_SCHEMA,"subject", Item.ANY, Item.ANY);
             for (j = 0; j < keywords.length; j++)
             {
-            	doc.add(new Field("keyword", keywords[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", keywords[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("keyword", keywords[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", keywords[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] abstracts = item.getDC("description", "abstract", Item.ANY);
+            MetadataValue[] abstracts = item.getMetadata(MetadataSchema.DC_SCHEMA,"description", "abstract", Item.ANY);
             for (j = 0; j < abstracts.length; j++)
             {
-            	doc.add(new Field("abstract", abstracts[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", abstracts[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("abstract", abstracts[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", abstracts[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] tocs = item.getDC("description", "tableofcontents", Item.ANY);
+            MetadataValue[] tocs = item.getMetadata(MetadataSchema.DC_SCHEMA,"description", "tableofcontents", Item.ANY);
             for (j = 0; j < tocs.length; j++)
             {
-            	doc.add(new Field("abstract", tocs[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", tocs[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("abstract", tocs[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", tocs[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] series = item.getDC("relation", "ispartofseries", Item.ANY);
+            MetadataValue[] series = item.getMetadata(MetadataSchema.DC_SCHEMA,"relation", "ispartofseries", Item.ANY);
             for (j = 0; j < series.length; j++)
             {
-            	doc.add(new Field("series", series[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", series[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("series", series[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", series[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] mimetypes = item.getDC("format", "mimetype", Item.ANY);
+            MetadataValue[] mimetypes = item.getMetadata(MetadataSchema.DC_SCHEMA,"format", "mimetype", Item.ANY);
             for (j = 0; j < mimetypes.length; j++)
             {
-            	doc.add(new Field("mimetype", mimetypes[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", mimetypes[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("mimetype", mimetypes[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", mimetypes[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] sponsors = item.getDC("description", "sponsorship", Item.ANY);
+            MetadataValue[] sponsors = item.getMetadata(MetadataSchema.DC_SCHEMA,"description", "sponsorship", Item.ANY);
             for (j = 0; j < sponsors.length; j++)
             {
-            	doc.add(new Field("sponsor", sponsors[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", sponsors[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("sponsor", sponsors[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", sponsors[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
 
-            DCValue[] identifiers = item.getDC("identifier", Item.ANY, Item.ANY);
+            MetadataValue[] identifiers = item.getMetadata(MetadataSchema.DC_SCHEMA,"identifier", Item.ANY, Item.ANY);
             for (j = 0; j < identifiers.length; j++)
             {
-            	doc.add(new Field("identifier", identifiers[j].value, Field.Store.YES, Field.Index.TOKENIZED));
-            	doc.add(new Field("default", identifiers[j].value, Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("identifier", identifiers[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
+            	doc.add(new Field("default", identifiers[j].getValue(), Field.Store.YES, Field.Index.TOKENIZED));
             }
         }
 
@@ -1108,6 +1127,9 @@ public class DSIndexer
 
         return doc;
     }
+	public static void setApplicationService(ApplicationService applicationService) {
+		DSIndexer.applicationService = applicationService;
+	}
 
 
 }

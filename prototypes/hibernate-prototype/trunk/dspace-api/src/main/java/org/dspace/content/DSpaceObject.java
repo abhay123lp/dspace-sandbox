@@ -43,23 +43,28 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import org.dspace.core.Context;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
-
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.core.Context;
 
 /**
  * Abstract base class for DSpace objects
  */
+@MappedSuperclass
 public abstract class DSpaceObject
 {
-    //private static Logger log = Logger.getLogger(DSpaceObject.class);
+    private static Logger log = Logger.getLogger(DSpaceObject.class);
     
     // accumulate information to add to "detail" element of content Event,
     // e.g. to document metadata fields touched, etc.
@@ -69,7 +74,7 @@ public abstract class DSpaceObject
     protected int id;
     protected UUID uuid;
     protected ObjectIdentifier oid;
-    protected List<ExternalIdentifier> identifiers;
+    protected List<ExternalIdentifier> externalIdentifiers;
     
     /**
      * Reset the cache of event details.
@@ -101,6 +106,7 @@ public abstract class DSpaceObject
     /**
      * @returns summary of event details, or null if there are none.
      */
+    @Transient
     protected String getDetails()
     {
         return (eventDetails == null ? null : eventDetails.toString());
@@ -111,6 +117,7 @@ public abstract class DSpaceObject
      * 
      * @return type of the object
      */
+    @Transient
     public abstract int getType();
 
     /**
@@ -118,11 +125,13 @@ public abstract class DSpaceObject
      * 
      * @return internal ID of object
      */
-    public int getID()
+    @Id
+    @GeneratedValue
+    public int getId()
     {
         return id;
     }
-
+    @Transient
     public ObjectIdentifier getIdentifier()
     {
         return oid;
@@ -136,38 +145,39 @@ public abstract class DSpaceObject
     /**
      * For those cases where you only want one, and you don't care what sort.
      */
-/*    public ExternalIdentifier getExternalIdentifier()
+    @Transient
+    public ExternalIdentifier getExternalIdentifier()
     {
-        if ((identifiers != null) && (identifiers.size() > 0))
+        if ((externalIdentifiers != null) && (externalIdentifiers.size() > 0))
         {
-            return identifiers.get(0);
+            return externalIdentifiers.get(0);
         }
         else
         {
             log.warn("no external identifiers found. type=" + getType() +
-                    ", id=" + getID());
+                    ", id=" + getId());
             return null;
         }
     }
-*/
+    @Transient
     public List<ExternalIdentifier> getExternalIdentifiers()
     {
-        if (identifiers == null)
+        if (externalIdentifiers == null)
         {
-            identifiers = new ArrayList<ExternalIdentifier>();
+            externalIdentifiers = new ArrayList<ExternalIdentifier>();
         }
 
-        return identifiers;
+        return externalIdentifiers;
     }
 
     public void addExternalIdentifier(ExternalIdentifier identifier)
     {
-        this.identifiers.add(identifier);
+        this.externalIdentifiers.add(identifier);
     }
 
     public void setExternalIdentifiers(List<ExternalIdentifier> identifiers)
     {
-        this.identifiers = identifiers;
+        this.externalIdentifiers = identifiers;
     }
 
     /**
@@ -177,6 +187,7 @@ public abstract class DSpaceObject
      * @return Name for the object, or <code>null</code> if it doesn't have
      *         one
      */
+    @Transient
     public abstract String getName();
 
     ////////////////////////////////////////////////////////////////////
@@ -194,11 +205,11 @@ public abstract class DSpaceObject
         return EqualsBuilder.reflectionEquals(this, o);
     }
 
-/*    public boolean equals(DSpaceObject other)
+    public boolean equals(DSpaceObject other)
     {
         if (this.getType() == other.getType())
         {
-            if (this.getID() == other.getID())
+            if (this.getId() == other.getId())
             {
                 return true;
             }
@@ -206,9 +217,13 @@ public abstract class DSpaceObject
 
         return false;
     }
-*/
+
     public int hashCode()
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
 }

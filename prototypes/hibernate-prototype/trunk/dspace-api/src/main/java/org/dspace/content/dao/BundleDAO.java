@@ -83,7 +83,7 @@ public abstract class BundleDAO extends ContentDAO
     protected final Bundle create(Bundle bundle) throws AuthorizeException
     {
         log.info(LogManager.getHeader(context, "create_bundle", "bundle_id="
-                + bundle.getID()));
+                + bundle.getId()));
 
         return bundle;
     }
@@ -111,7 +111,7 @@ public abstract class BundleDAO extends ContentDAO
 
             for (Bitstream bitstream : bitstreams)
             {
-                if (bitstream.getID() == dbBitstream.getID())
+                if (bitstream.getId() == dbBitstream.getId())
                 {
                     // If the bitstream still exists in memory, don't delete
                     deleted = false;
@@ -163,7 +163,7 @@ public abstract class BundleDAO extends ContentDAO
         // In the event that the bitstream to remove is actually
         // the primary bitstream, be sure to unset the primary
         // bitstream.
-        if (bitstream.getID() == bundle.getPrimaryBitstreamID())
+        if (bitstream.getId() == bundle.getPrimaryBitstreamID())
         {
             bundle.unsetPrimaryBitstreamID();
         }
@@ -171,7 +171,7 @@ public abstract class BundleDAO extends ContentDAO
         if (getBundles(bitstream).size() == 0)
         {
             // The bitstream is an orphan, delete it
-            bitstreamDAO.delete(bitstream.getID());
+            bitstreamDAO.delete(bitstream.getId());
         }
     }
 
@@ -182,8 +182,8 @@ public abstract class BundleDAO extends ContentDAO
             AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
 
             log.info(LogManager.getHeader(context, "add_bitstream",
-                        "bundle_id=" + bundle.getID() +
-                        ",bitstream_id=" + bitstream.getID()));
+                        "bundle_id=" + bundle.getId() +
+                        ",bitstream_id=" + bitstream.getId()));
 
             bundle.addBitstream(bitstream);
         }
@@ -197,8 +197,8 @@ public abstract class BundleDAO extends ContentDAO
                     Constants.REMOVE);
 
             log.info(LogManager.getHeader(context, "remove_bitstream",
-                        "bundle_id=" + bundle.getID() +
-                        ",bitstream_id=" + bitstream.getID()));
+                        "bundle_id=" + bundle.getId() +
+                        ",bitstream_id=" + bitstream.getId()));
 
             bundle.removeBitstream(bitstream);
         }

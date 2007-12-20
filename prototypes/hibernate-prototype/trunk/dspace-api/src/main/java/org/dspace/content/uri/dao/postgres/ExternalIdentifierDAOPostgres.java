@@ -89,7 +89,7 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
 
             row.setColumn("handle", value);
             row.setColumn("resource_type_id", dso.getType());
-            row.setColumn("resource_id", dso.getID());
+            row.setColumn("resource_id", dso.getId());
             row.setColumn("type_id", identifier.getTypeID());
             DatabaseManager.update(context, row);
 
@@ -186,7 +186,7 @@ public class ExternalIdentifierDAOPostgres extends ExternalIdentifierDAO
                     "SELECT type_id, value FROM externalidentifier " +
                     "WHERE resource_id = ? " +
                     "AND resource_type_id = ?",
-                    dso.getID(), dso.getType());
+                    dso.getId(), dso.getType());
 
             String value = null;
 

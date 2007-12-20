@@ -64,8 +64,10 @@ import java.util.regex.Pattern;
 
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
-import org.dspace.content.uri.ObjectIdentifier;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
 import org.dspace.core.ConfigurationManager;
@@ -840,13 +842,13 @@ public class ReportGenerator
         // build the referece
         // FIXME: here we have blurred the line between content and presentation
         // and it should probably be un-blurred
-        DCValue[] title = item.getDC("title", null, Item.ANY);
-        DCValue[] author = item.getDC("contributor", "author", Item.ANY);
+        MetadataValue[] title = item.getMetadata(MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
+        MetadataValue[] author = item.getMetadata(MetadataSchema.DC_SCHEMA, "contributor", "author", Item.ANY);
         
         StringBuffer authors = new StringBuffer();
         if (author.length > 0)
         {
-            authors.append("(" + author[0].value);
+            authors.append("(" + author[0].getValue());
         }
         if (author.length > 1)
         {
@@ -857,7 +859,7 @@ public class ReportGenerator
            authors.append(")");
         }
         
-        String content = title[0].value + " " + authors.toString();
+        String content = title[0].getValue() + " " + authors.toString();
         
         return content;
     }

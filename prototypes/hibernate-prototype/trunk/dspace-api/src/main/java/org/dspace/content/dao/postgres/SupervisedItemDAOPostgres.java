@@ -103,7 +103,7 @@ public class SupervisedItemDAOPostgres extends SupervisedItemDAO
                     "AND eg2wsi.eperson_group_id = eg2e.eperson_group_id " +
                     "AND eg2e.eperson_id = ? " + 
                     "ORDER BY wsi.workspace_item_id",
-                    eperson.getID());
+                    eperson.getId());
 
             return returnAsList(tri);
         }

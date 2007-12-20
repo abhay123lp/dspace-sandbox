@@ -118,11 +118,13 @@ public class SearchConsumer implements Consumer
             {
                 st = Constants.ITEM;
                 et = Event.MODIFY;
-                dso = ((Bundle) dso).getItems()[0];
+                /*FIXME navigabilità */
+                //dso = ((Bundle) dso).getItems()[0];
+                dso = ((Bundle) dso).getItem();
                 if (log.isDebugEnabled())
                     log.debug("Transforming Bundle event into MODIFY of Item "
                     // + dso.getHandle());
-                            + dso.getID());
+                            + dso.getId());
             }
             else
                 return;
@@ -184,7 +186,7 @@ public class SearchConsumer implements Consumer
                             if (log.isDebugEnabled())
                                 log.debug("RE-Indexed "
                                         + Constants.typeText[iu.getType()]
-                                        + ", id=" + String.valueOf(iu.getID())
+                                        + ", id=" + String.valueOf(iu.getId())
                                         + ", oid=" + oid.getCanonicalForm());
                         }
                         catch (Exception e)

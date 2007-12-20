@@ -88,7 +88,7 @@ public abstract class GroupDAO implements CRUD<Group>, Link<Group, Group>
     protected final Group create(Group group) throws AuthorizeException
     {
         log.info(LogManager.getHeader(context, "create_group", "group_id="
-                + group.getID()));
+                + group.getId()));
 
         return group;
     }
@@ -123,7 +123,7 @@ public abstract class GroupDAO implements CRUD<Group>, Link<Group, Group>
         }
 
         log.info(LogManager.getHeader(context, "update_group", "group_id="
-                + group.getID()));
+                + group.getId()));
 
         EPerson[] epeople = group.getMembers();
 
@@ -150,7 +150,7 @@ public abstract class GroupDAO implements CRUD<Group>, Link<Group, Group>
             link(group, eperson);
         }
         
-        Group[] groups = group.getMemberGroups();
+        Group[] groups = group.getGroups();
 
         for (Group storedGroup : getMemberGroups(group))
         {

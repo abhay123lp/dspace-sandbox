@@ -47,7 +47,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-
 import org.dspace.app.util.SubmissionInfo;
 import org.dspace.app.util.Util;
 import org.dspace.authorize.AuthorizeException;
@@ -55,6 +54,8 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
@@ -191,8 +192,7 @@ public class InitialQuestionsStep extends AbstractProcessingStep
             if ((multipleTitles == false)
                     && (subInfo.getSubmissionItem() != null))
             {
-                DCValue[] altTitles = subInfo.getSubmissionItem().getItem()
-                        .getDC("title", "alternative", Item.ANY);
+                MetadataValue[] altTitles = subInfo.getSubmissionItem().getItem().getMetadata(MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY);
 
                 willRemoveTitles = altTitles.length > 0;
             }
@@ -200,12 +200,12 @@ public class InitialQuestionsStep extends AbstractProcessingStep
             if ((publishedBefore == false)
                     && (subInfo.getSubmissionItem() != null))
             {
-                DCValue[] dateIssued = subInfo.getSubmissionItem().getItem()
-                        .getDC("date", "issued", Item.ANY);
-                DCValue[] citation = subInfo.getSubmissionItem().getItem()
-                        .getDC("identifier", "citation", Item.ANY);
-                DCValue[] publisher = subInfo.getSubmissionItem().getItem()
-                        .getDC("publisher", null, Item.ANY);
+                MetadataValue[] dateIssued = subInfo.getSubmissionItem().getItem()
+                        .getMetadata(MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+                MetadataValue[] citation = subInfo.getSubmissionItem().getItem()
+                        .getMetadata(MetadataSchema.DC_SCHEMA, "identifier", "citation", Item.ANY);
+                MetadataValue[] publisher = subInfo.getSubmissionItem().getItem()
+                        .getMetadata(MetadataSchema.DC_SCHEMA, "publisher", null, Item.ANY);
 
                 willRemoveDate = (dateIssued.length > 0)
                         || (citation.length > 0) || (publisher.length > 0);
@@ -313,15 +313,16 @@ public class InitialQuestionsStep extends AbstractProcessingStep
         if (multipleTitles == false
                 && subInfo.getSubmissionItem().hasMultipleTitles())
         {
-            item.clearDC("title", "alternative", Item.ANY);
+        	item.clearMetadata(MetadataSchema.DC_SCHEMA, "title", "alternative", Item.ANY);
+            
         }
 
         if (publishedBefore == false
                 && subInfo.getSubmissionItem().isPublishedBefore())
         {
-            item.clearDC("date", "issued", Item.ANY);
-            item.clearDC("identifier", "citation", Item.ANY);
-            item.clearDC("publisher", null, Item.ANY);
+            item.clearMetadata(MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
+            item.clearMetadata(MetadataSchema.DC_SCHEMA, "identifier", "citation", Item.ANY);
+            item.clearMetadata(MetadataSchema.DC_SCHEMA, "publisher", null, Item.ANY);
         }
 
         if (multipleFiles == false

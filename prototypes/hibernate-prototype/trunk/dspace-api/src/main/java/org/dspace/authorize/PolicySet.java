@@ -170,12 +170,10 @@ public class PolicySet
                 {
                     // build list of all items in a collection
                     // build list of all bundles in those items
-                    Bundle[] bundles = item.getBundles();
+                    List<Bundle> bundles = item.getBundles();
 
-                    for (int j = 0; j < bundles.length; j++)
+                    for (Bundle t : bundles) //t for target
                     {
-                        Bundle t = bundles[j]; // t for target
-
                         // is this a replace? delete policies first
                         if (isReplace || clearOnly)
                         {
@@ -199,20 +197,18 @@ public class PolicySet
                 {
                     // build list of all bitstreams in a collection
                     // iterate over items, bundles, get bitstreams
-                    System.out.println("Item " + item.getID());
+                    System.out.println("Item " + item.getId());
 
-                    Bundle[] bundles = item.getBundles();
+                    List<Bundle> bundles = item.getBundles();
 
-                    for (int j = 0; j < bundles.length; j++)
+                    for (Bundle bundle : bundles)
                     {
-                        System.out.println("Bundle " + bundles[j].getID());
+                        System.out.println("Bundle " + bundle.getId());
 
-                        Bitstream[] bitstreams = bundles[j].getBitstreams();
+                        List<Bitstream> bitstreams = bundle.getBitstreams();
 
-                        for (int k = 0; k < bitstreams.length; k++)
+                        for (Bitstream t : bitstreams)  // t for target
                         {
-                            Bitstream t = bitstreams[k]; // t for target
-
                             // is this a replace? delete policies first
                             if (isReplace || clearOnly)
                             {

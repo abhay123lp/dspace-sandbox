@@ -71,7 +71,7 @@ public class CollectionDAOTest extends DAOTest
     {
         Collection result = instance.create();
 
-        int id = result.getID();
+        int id = result.getId();
 
         assertTrue(id > 0);
     }
@@ -80,9 +80,9 @@ public class CollectionDAOTest extends DAOTest
     public void retrieve() throws Exception
     {
         Collection existing = instance.create();
-        Collection result = instance.retrieve(existing.getID());
+        Collection result = instance.retrieve(existing.getId());
 
-        assertEquals(existing.getID(), result.getID());
+        assertEquals(existing.getId(), result.getId());
     }
 
     @Test
@@ -92,7 +92,7 @@ public class CollectionDAOTest extends DAOTest
         collection.setMetadata("name", "Collection Test");
         instance.update(collection);
         
-        Collection result = instance.retrieve(collection.getID());
+        Collection result = instance.retrieve(collection.getId());
         assertEquals("Collection Test", result.getMetadata("name"));
     }
 
@@ -100,7 +100,7 @@ public class CollectionDAOTest extends DAOTest
     public void delete() throws Exception
     {
         Collection result = instance.create();
-        int id = result.getID();
+        int id = result.getId();
 
         instance.delete(id);
 

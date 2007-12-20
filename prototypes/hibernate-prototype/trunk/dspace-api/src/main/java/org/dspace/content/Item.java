@@ -48,6 +48,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.persistence.Entity;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
@@ -65,7 +72,7 @@ import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.content.uri.ExternalIdentifier;
+//import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -84,6 +91,7 @@ import org.dspace.content.factory.BundleFactory;
  * @author James Rutherford
  * @version $Revision$
  */
+@Entity
 public class Item extends DSpaceObject {
 
 	/*----------------------- OLD FIELDS ------------------------*/
@@ -100,7 +108,8 @@ public class Item extends DSpaceObject {
 	protected Collection owningCollection;
 	protected int submitterId;
 	protected EPerson submitter;
-
+	
+	protected List<Collection> collections;
 	protected List<Bundle> bundles;
 	protected List<MetadataValue> metadata;
 
@@ -117,6 +126,7 @@ public class Item extends DSpaceObject {
 
 	public Item(Context context) {
 		this.context = context;
+		metadataChanged=modified=false;
 	}
 
 	public Bundle createBundle() {
@@ -129,7 +139,7 @@ public class Item extends DSpaceObject {
 		// Check it's not already there
 		for (Bundle bundle : getBundles()) {
 			if ((b.getName().equals(bundle.getName()))
-					|| (b.getID() == bundle.getID())) {
+					|| (b.getId() == bundle.getId())) {
 				// Bundle is a duplicate, do nothing
 				return;
 			}
@@ -139,28 +149,28 @@ public class Item extends DSpaceObject {
 
 		bundles.add(b);
 
-		context.addEvent(new Event(Event.ADD, Constants.ITEM, getID(),
-				Constants.BUNDLE, b.getID(), b.getName()));
+		context.addEvent(new Event(Event.ADD, Constants.ITEM, getId(),
+				Constants.BUNDLE, b.getId(), b.getName()));
 	}
 
 	public void removeBundle(Bundle b) throws AuthorizeException {
 		AuthorizeManager.authorizeAction(context, this, Constants.REMOVE);
 
 		log.info(LogManager.getHeader(context, "remove_bundle", "item_id="
-				+ getID() + ",bundle_id=" + b.getID()));
+				+ getId() + ",bundle_id=" + b.getId()));
 
 		Iterator<Bundle> i = bundles.iterator();
 		while (i.hasNext()) {
-			if (i.next().getID() == b.getID()) {
+			if (i.next().getId() == b.getId()) {
 				i.remove();
 			}
 		}
 
-		context.addEvent(new Event(Event.REMOVE, Constants.ITEM, getID(),
-				Constants.BUNDLE, b.getID(), b.getName()));
+		context.addEvent(new Event(Event.REMOVE, Constants.ITEM, getId(),
+				Constants.BUNDLE, b.getId(), b.getName()));
 
 	}
-
+	@Transient
 	protected String getidentifier() {
 		return identifier;
 	}
@@ -168,7 +178,7 @@ public class Item extends DSpaceObject {
 	protected void setidentifier(String identifier) {
 		this.identifier = identifier;
 	}
-
+	@Transient
 	public boolean isArchived() {
 		return inArchive;
 	}
@@ -176,7 +186,7 @@ public class Item extends DSpaceObject {
 	public void setArchived(boolean inArchive) {
 		this.inArchive = inArchive;
 	}
-
+	@Transient
 	public boolean isWithdrawn() {
 		return withdrawn;
 	}
@@ -184,13 +194,14 @@ public class Item extends DSpaceObject {
 	public void setWithdrawn(boolean withdrawn) {
 		this.withdrawn = withdrawn;
 	}
-
+	@Transient
 	public Date getLastModified() {
 		return lastModified;
 	}
 
 	
 	/* Returns the owning collection of this item */
+	@ManyToOne
 	public Collection getOwningCollection() { 
 		return	owningCollection; 
 	}	  
@@ -198,7 +209,7 @@ public class Item extends DSpaceObject {
 	public void setOwningCollection(Collection owningCollection) {
 		this.owningCollection = owningCollection; 
 	}
-	 
+	@OneToMany
 	public List<MetadataValue> getMetadata() {
 		return metadata;
 	}
@@ -206,7 +217,7 @@ public class Item extends DSpaceObject {
 	public void setMetadata(List<MetadataValue> metadata) {
 		this.metadata = metadata;
 	}
-
+	@Transient
 	public MetadataValue[] getMetadata(String schema, String element,
 			String qualifier, String lang) {
 		// Build up list of matching values
@@ -220,7 +231,7 @@ public class Item extends DSpaceObject {
 
 		return values.toArray(new MetadataValue[0]);
 	}
-
+	@Transient
 	public MetadataValue[] getMetadata(String mdString) {
 		StringTokenizer st = new StringTokenizer(mdString, ".");
 
@@ -298,22 +309,23 @@ public class Item extends DSpaceObject {
 
 	public void setSubmitter(EPerson submitter) {
 		this.submitter = submitter;
-		submitterId = submitter.getID();
+		submitterId = submitter.getId();
 	}
 
 	/* FIXME: responsabilità del dao prendere le info? */
 	public void setSubmitter(int submitterId) {
 		// setSubmitter(epersonDAO.retrieve(submitterId));
 	}
-
+	@OneToOne
 	public EPerson getSubmitter() {
 		return submitter;
 	}
-
-	public Bundle[] getBundles() {
-		return bundles.toArray(new Bundle[0]);
+	@OneToMany(mappedBy="item")
+	public List<Bundle> getBundles() {
+		return bundles;
 	}
-
+	
+	@Transient
 	public Bundle[] getBundles(String name) {
 		List<Bundle> tmp = new ArrayList<Bundle>();
 		for (Bundle bundle : getBundles()) {
@@ -372,19 +384,17 @@ public class Item extends DSpaceObject {
 			throws AuthorizeException, IOException {
 		return createSingleBitstream(is, "ORIGINAL");
 	}
-
+	@Transient
 	public Bitstream[] getNonInternalBitstreams() {
 		List<Bitstream> bitstreamList = new ArrayList<Bitstream>();
 
 		// Go through the bundles and bitstreams picking out ones which aren't
 		// of internal formats
 		for (Bundle b : getBundles()) {
-			Bitstream[] bitstreams = b.getBitstreams();
-
-			for (int j = 0; j < bitstreams.length; j++) {
-				if (!bitstreams[j].getFormat().isInternal()) {
+			for (Bitstream bitstream : b.getBitstreams()) {
+				if (bitstream.getFormat().isInternal()) {
 					// Bitstream is not of an internal format
-					bitstreamList.add(bitstreams[j]);
+					bitstreamList.add(bitstream);
 				}
 			}
 		}
@@ -450,17 +460,18 @@ public class Item extends DSpaceObject {
 		 * removeBundle(bundle); } }
 		 */}
 
-	/* FIXME: non ci piace. perchè chiedere all'item? */
+	/* FIXME: perchè chiederlo all'item? */
+	@Transient
 	public boolean isOwningCollection(Collection c) {
-		/*
-		 * if (owningCollectionId > 0) { if (c.getID() == owningCollectionId) {
-		 * return true; } } else if (owningCollection != null) { if (c.getID() ==
-		 * owningCollection.getID()) { return true; } }
-		 * 
-		 */// not the owner
+		
+		  if (getOwningCollection().getId() > 0) { if (c.getId() == getOwningCollection().getId()) {
+		  return true; } } else if (owningCollection != null) { if (c.getId() ==
+		  owningCollection.getId()) { return true; } }
+		  
+		 // not the owner
 		return false;
 	}
-
+	@Transient
 	public int getType() {
 		return Constants.ITEM;
 	}
@@ -476,19 +487,12 @@ public class Item extends DSpaceObject {
 			throws AuthorizeException {
 		// remove all policies from bundles, add new ones
 		// Remove bundles
-		Bundle[] bunds = getBundles();
-
-		for (int i = 0; i < bunds.length; i++) {
-			Bundle mybundle = bunds[i];
-
-			Bitstream[] bs = mybundle.getBitstreams();
-
-			for (int j = 0; j < bs.length; j++) {
-				Bitstream mybitstream = bs[j];
+		for (Bundle mybundle : getBundles()) {
+			for (Bitstream mybitstream : mybundle.getBitstreams()) {
 
 				// change bitstream policies
-				AuthorizeManager.removeAllPolicies(context, bs[j]);
-				AuthorizeManager.addPolicies(context, newpolicies, bs[j]);
+				AuthorizeManager.removeAllPolicies(context, mybitstream);
+				AuthorizeManager.addPolicies(context, newpolicies, mybitstream);
 			}
 
 			// change bundle policies
@@ -502,18 +506,11 @@ public class Item extends DSpaceObject {
 		AuthorizeManager.removeGroupPolicies(context, this, g);
 
 		// remove all policies from bundles
-		Bundle[] bunds = getBundles();
-
-		for (int i = 0; i < bunds.length; i++) {
-			Bundle mybundle = bunds[i];
-
-			Bitstream[] bs = mybundle.getBitstreams();
-
-			for (int j = 0; j < bs.length; j++) {
-				Bitstream mybitstream = bs[j];
-
+		
+		for (Bundle mybundle : getBundles()) {
+			for (Bitstream mybitstream : mybundle.getBitstreams()) {
 				// remove bitstream policies
-				AuthorizeManager.removeGroupPolicies(context, bs[j], g);
+				AuthorizeManager.removeGroupPolicies(context, mybitstream, g);
 			}
 
 			// change bundle policies
@@ -534,7 +531,7 @@ public class Item extends DSpaceObject {
 
 		// MUST have default policies
 		if (!i.hasNext()) {
-			throw new RuntimeException("Collection " + c.getID()
+			throw new RuntimeException("Collection " + c.getId()
 					+ " has no default item READ policies");
 		}
 
@@ -553,7 +550,7 @@ public class Item extends DSpaceObject {
 		i = policies.iterator();
 
 		if (!i.hasNext()) {
-			throw new RuntimeException("Collection " + c.getID()
+			throw new RuntimeException("Collection " + c.getId()
 					+ " has no default bitstream READ policies");
 		}
 
@@ -591,7 +588,7 @@ public class Item extends DSpaceObject {
 
         return true; //da togliere!
     }
-	
+	@Transient
 	public String getName()
     {
         MetadataValue t[] = getMetadata("dc", "title", null, Item.ANY);
@@ -626,7 +623,7 @@ public class Item extends DSpaceObject {
 	protected boolean match(String schema, String element, String qualifier,
 			String language, MetadataValue mdv) {
 		// We will attempt to disprove a match - if we can't we have a match
-		if (!element.equals(Item.ANY) && !element.equals(mdv.getField().getElement())) {
+		if (!element.equals(Item.ANY) && !element.equals(mdv.getMetadataField().getElement())) {
 			// Elements do not match, no wildcard
 			return false;
 		}
@@ -639,7 +636,7 @@ public class Item extends DSpaceObject {
 			}
 		} else if (!qualifier.equals(Item.ANY)) {
 			// Not a wildcard, so qualifier must match exactly
-			if (!qualifier.equals(mdv.getField().getQualifier())) {
+			if (!qualifier.equals(mdv.getMetadataField().getQualifier())) {
 				return false;
 			}
 		}
@@ -656,7 +653,7 @@ public class Item extends DSpaceObject {
 				return false;
 			}
 		} else if (!schema.equals(Item.ANY)) {
-			if (mdv.getField().getSchema() != null && !mdv.getField().getSchema().getName().equals(schema)) {
+			if (mdv.getMetadataField().getSchema() != null && !mdv.getMetadataField().getSchema().getName().equals(schema)) {
 				// The namespace doesn't match
 				return false;
 			}
@@ -680,6 +677,7 @@ public class Item extends DSpaceObject {
      * 
      * @return
      */
+	@Transient
     public Thumbnail getThumbnail()
     {
         // if there's no original, there is no thumbnail
@@ -691,15 +689,15 @@ public class Item extends DSpaceObject {
         
         // if multiple bitstreams, check if the primary one is HTML
         boolean html = false;
-        if (original[0].getBitstreams().length > 1)
+        if (original[0].getBitstreams().size() > 1)
         {
-            Bitstream[] bitstreams = original[0].getBitstreams();
+            List<Bitstream> bitstreams = original[0].getBitstreams();
 
-            for (int i = 0; (i < bitstreams.length) && !html; i++)
+            for (int i = 0; (i < bitstreams.size()) && !html; i++)
             {
-                if (bitstreams[i].getID() == original[0].getPrimaryBitstreamID())
+                if (bitstreams.get(i).getId() == original[0].getPrimaryBitstream().getId())
                 {
-                    html = bitstreams[i].getFormat().getMIMEType().equals("text/html");
+                    html = bitstreams.get(i).getFormat().getMIMEType().equals("text/html");
                 }
             }
         }
@@ -714,19 +712,19 @@ public class Item extends DSpaceObject {
             Bitstream thumbnailBitstream;
             Bitstream originalBitstream;
             
-            if ((original[0].getBitstreams().length > 1) && (original[0].getPrimaryBitstreamID() > -1))
+            if ((original[0].getBitstreams().size() > 1) && (original[0].getPrimaryBitstream().getId() > -1))
             {
             	/*FIXME: find da risolver */
                 //originalBitstream = Bitstream.find(context, original[0].getPrimaryBitstreamID());
                 //thumbnailBitstream = thumbs[0].getBitstreamByName(originalBitstream.getName() + ".jpg");
             	// copiati da sotto: rimuovere!
-            	originalBitstream = original[0].getBitstreams()[0];
-                thumbnailBitstream = thumbs[0].getBitstreams()[0];
+            	originalBitstream = original[0].getBitstreams().get(0);
+                thumbnailBitstream = thumbs[0].getBitstreams().get(0);
             }
             else
             {
-                originalBitstream = original[0].getBitstreams()[0];
-                thumbnailBitstream = thumbs[0].getBitstreams()[0];
+            	originalBitstream = original[0].getBitstreams().get(0);
+                thumbnailBitstream = thumbs[0].getBitstreams().get(0);
             }
             
             if ((thumbnailBitstream != null)
@@ -739,5 +737,26 @@ public class Item extends DSpaceObject {
 
         return null;
     }
+
+    @ManyToMany
+	public List<Collection> getCollections() {
+		return collections;
+	}
+
+	public void setCollections(List<Collection> collections) {
+		this.collections = collections;
+	}
+	
+	public void addCollection(Collection collection) {
+		collections.add(collection);
+	}
+	@Transient
+	public boolean isMetadataChanged() {
+		return metadataChanged;
+	}
+	@Transient
+	public boolean isModified() {
+		return modified;
+	}
 
 }

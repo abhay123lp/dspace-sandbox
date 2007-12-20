@@ -64,6 +64,7 @@ import org.dspace.content.dao.BundleDAO;
 import org.dspace.content.dao.BundleDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.submit.AbstractProcessingStep;
 
@@ -121,6 +122,8 @@ public class UploadStep extends AbstractProcessingStep
 
     /** log4j logger */
     private static Logger log = Logger.getLogger(UploadStep.class);
+    
+    private static ApplicationService applicationService;
 
     
     /**
@@ -660,7 +663,9 @@ public class UploadStep extends AbstractProcessingStep
             }
 
             // update database
-            subInfo.getBitstream().update();
+            //subInfo.getBitstream().update();
+            /*FIXME inutile? */
+            applicationService.saveOrUpdate(context, Bitstream.class, subInfo.getBitstream());
         }
         else
         {
@@ -695,7 +700,8 @@ public class UploadStep extends AbstractProcessingStep
         {
             subInfo.getBitstream().setDescription(
                     request.getParameter("description"));
-            subInfo.getBitstream().update();
+            //subInfo.getBitstream().update();
+            applicationService.saveOrUpdate(context, Bitstream.class, subInfo.getBitstream());
 
             context.commit();
         }
@@ -706,4 +712,8 @@ public class UploadStep extends AbstractProcessingStep
 
         return STATUS_COMPLETE;
     }
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		UploadStep.applicationService = applicationService;
+	}
 }

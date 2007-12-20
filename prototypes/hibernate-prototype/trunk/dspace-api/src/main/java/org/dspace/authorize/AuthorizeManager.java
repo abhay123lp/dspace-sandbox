@@ -153,7 +153,7 @@ public class AuthorizeManager
             }
             else
             {
-                userid = e.getID();
+                userid = e.getId();
             }
 
             throw new AuthorizeException(
@@ -165,7 +165,7 @@ public class AuthorizeManager
         {
             // denied, assemble and throw exception
             int otype = o.getType();
-            int oid = o.getID();
+            int oid = o.getId();
             int userid;
             EPerson e = c.getCurrentUser();
 
@@ -175,7 +175,7 @@ public class AuthorizeManager
             }
             else
             {
-                userid = e.getID();
+                userid = e.getId();
             }
 
             //            AuthorizeException j = new AuthorizeException("Denied");
@@ -277,7 +277,7 @@ public class AuthorizeManager
         }
         else
         {
-            userid = e.getID();
+            userid = e.getId();
 
             // perform isadmin check since user
             // is user part of admin group?

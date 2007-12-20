@@ -51,12 +51,16 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
 
 public class CreativeCommons
 {
+	
+	private static ApplicationService applicationService;
+	
     /**
      * The Bundle Name
      */
@@ -157,15 +161,17 @@ public class CreativeCommons
 
         // set the URL bitstream
         setBitstreamFromBytes(item, bundle, BSN_LICENSE_URL, bs_format,
-                cc_license_url.getBytes());
+                cc_license_url.getBytes(), context);
 
         // set the license text bitstream
         setBitstreamFromBytes(item, bundle, BSN_LICENSE_TEXT, bs_format,
-                license_text.getBytes());
+                license_text.getBytes(), context);
 
         // set the RDF bitstream
         setBitstreamFromBytes(item, bundle, BSN_LICENSE_RDF, bs_format,
-                document_rdf.getBytes());
+                document_rdf.getBytes(), context);
+        
+        applicationService.saveOrUpdate(context, Bundle.class, bundle);
     }
 
     public static void setLicense(Context context, Item item,
@@ -185,7 +191,8 @@ public class CreativeCommons
                      mimeType.equalsIgnoreCase("text/rdf"))) ?
                    BSN_LICENSE_RDF : BSN_LICENSE_TEXT);
         bs.setFormat(bs_format);
-        bs.update();
+        //bs.update();
+        applicationService.saveOrUpdate(context, Bundle.class, bundle);
         }
 
     public static void removeLicense(Context context, Item item)
@@ -295,7 +302,7 @@ public class CreativeCommons
      * item, under the CC bundle, with the given bitstream name
      */
     private static void setBitstreamFromBytes(Item item, Bundle bundle,
-            String bitstream_name, BitstreamFormat format, byte[] bytes)
+            String bitstream_name, BitstreamFormat format, byte[] bytes, Context context)
             throws IOException, AuthorizeException
     {
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
@@ -307,7 +314,7 @@ public class CreativeCommons
         bs.setFormat(format);
 
         // commit everything
-        bs.update();
+        //bs.update();        
     }
 
     /**
@@ -412,4 +419,8 @@ public class CreativeCommons
             return null;
         }
     }
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		CreativeCommons.applicationService = applicationService;
+	}
 }

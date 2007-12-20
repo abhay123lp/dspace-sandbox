@@ -40,22 +40,29 @@
 
 package org.dspace.content.crosswalk;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.SelfNamedPlugin;
 import org.jdom.Element;
 import org.jdom.Namespace;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*;
 
 /**
  * Crosswalk for creating appropriate &lt;meta&gt; elements to appear in the
@@ -180,13 +187,13 @@ public class XHTMLHeadDisseminationCrosswalk extends SelfNamedPlugin implements
         {
             throw new CrosswalkObjectNotSupported(
                     "Can only support items; object passed in with DB ID "
-                            + dso.getID() + ", type "
+                            + dso.getId() + ", type "
                             + Constants.typeText[dso.getType()]);
         }
 
         Item item = (Item) dso;
         List<Element> metas = new ArrayList<Element>();
-        DCValue[] values = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        MetadataValue[] values = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
 
         // Add in schema URLs e.g. <link rel="schema.DC" href="...." />
         Iterator<String> schemaIterator = schemaURLs.keySet().iterator();
@@ -202,21 +209,21 @@ public class XHTMLHeadDisseminationCrosswalk extends SelfNamedPlugin implements
 
         for (int i = 0; i < values.length; i++)
         {
-            DCValue v = values[i];
+            MetadataValue v = values[i];
 
             // Work out the key for the Maps that will tell us which metadata
             // name + scheme to use
-            String key = v.schema + "." + v.element
-                    + (v.qualifier != null ? "." + v.qualifier : "");
+            String key = v.getMetadataField().getSchema() + "." + v.getMetadataField().getElement()
+                    + (v.getMetadataField().getQualifier() != null ? "." + v.getMetadataField().getQualifier() : "");
             String originalKey = key; // For later error msg
 
             // Find appropriate metadata field name to put in element
             String name = names.get(key);
 
             // If we don't have a field, try removing qualifier
-            if (name == null && v.qualifier != null)
+            if (name == null && v.getMetadataField().getQualifier() != null)
             {
-                key = v.schema + "." + v.element;
+                key = v.getMetadataField().getSchema() + "." + v.getMetadataField().getElement();
                 name = names.get(key);
             }
 
@@ -226,7 +233,7 @@ public class XHTMLHeadDisseminationCrosswalk extends SelfNamedPlugin implements
                 // element is OK, so just report at DEBUG level
                if (log.isDebugEnabled())
                {
-                   log.debug("No <meta> field for item " + dso.getID());
+                   log.debug("No <meta> field for item " + dso.getId());
                }
             }
             else
@@ -235,10 +242,10 @@ public class XHTMLHeadDisseminationCrosswalk extends SelfNamedPlugin implements
                 e.setAttribute("name", name);
                 // TODO: Check valid encoding?  We assume UTF-8
                 // TODO: Check escaping "<>&
-                e.setAttribute("content", v.value);
-                if (v.language != null && !v.language.equals(""))
+                e.setAttribute("content", v.getValue());
+                if (v.getLanguage() != null && !v.getLanguage().equals(""))
                 {
-                    e.setAttribute("lang", v.language, Namespace.XML_NAMESPACE);
+                    e.setAttribute("lang", v.getLanguage(), Namespace.XML_NAMESPACE);
                 }
                 String schemeAttr = schemes.get(key);
                 if (schemeAttr != null)

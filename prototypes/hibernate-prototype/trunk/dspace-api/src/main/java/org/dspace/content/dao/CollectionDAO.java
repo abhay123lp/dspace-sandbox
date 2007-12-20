@@ -160,7 +160,7 @@ public abstract class CollectionDAO extends ContentDAO
         update(collection);
 
         log.info(LogManager.getHeader(context, "create_collection",
-                "collection_id=" + collection.getID())
+                "collection_id=" + collection.getId())
                 + ",uri=" +
                 collection.getIdentifier().getCanonicalForm());
         
@@ -183,7 +183,7 @@ public abstract class CollectionDAO extends ContentDAO
         collection.canEdit();
 
         log.info(LogManager.getHeader(context, "update_collection",
-                "collection_id=" + collection.getID()));
+                "collection_id=" + collection.getId()));
 
         try
         {
@@ -242,7 +242,7 @@ public abstract class CollectionDAO extends ContentDAO
                     //notify Browse of removing item.
                     IndexBrowse ib = new IndexBrowse(context);
                     ib.itemRemoved(item);
-                    itemDAO.delete(item.getID());
+                    itemDAO.delete(item.getId());
                 } 
                 else
                 {
@@ -268,7 +268,7 @@ public abstract class CollectionDAO extends ContentDAO
             {
                 // remove the workflowitem first, then the item
                 wfi.deleteWrapper();
-                itemDAO.delete(wfi.getItem().getID());
+                itemDAO.delete(wfi.getItem().getId());
             }
 
             // Remove any WorkspaceItems
@@ -375,8 +375,8 @@ public abstract class CollectionDAO extends ContentDAO
                 Constants.ADD);
 
         log.info(LogManager.getHeader(context, "add_item",
-                    "collection_id=" + collection.getID() +
-                    ",item_id=" + item.getID()));
+                    "collection_id=" + collection.getId() +
+                    ",item_id=" + item.getId()));
 
         // If we're adding the Item to the Collection, we bequeath the
         // policies unto it.
@@ -394,8 +394,8 @@ public abstract class CollectionDAO extends ContentDAO
                 Constants.REMOVE);
 
         log.info(LogManager.getHeader(context, "remove_item",
-                "collection_id=" + collection.getID() + 
-                ",item_id=" + item.getID()));
+                "collection_id=" + collection.getId() + 
+                ",item_id=" + item.getId()));
 
         if (getParentCollections(item).size() == 0)
         {
@@ -409,7 +409,7 @@ public abstract class CollectionDAO extends ContentDAO
             AuthorizeManager.addPolicy(context, item, Constants.REMOVE,
                     context.getCurrentUser());
 
-            itemDAO.delete(item.getID());
+            itemDAO.delete(item.getId());
         }
     }
 

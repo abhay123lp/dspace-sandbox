@@ -165,7 +165,7 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT subscription_id FROM subscription " +
                     "WHERE eperson_id = ? AND collection_id = ?", 
-                    eperson.getID(), collection.getID());
+                    eperson.getId(), collection.getId());
             
             boolean result = tri.hasNext();
             tri.close();
@@ -202,7 +202,7 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
         {
             TableRowIterator tri = DatabaseManager.query(context,
                     "SELECT subscription_id FROM subscription " +
-                    "WHERE eperson_id = ?", eperson.getID());
+                    "WHERE eperson_id = ?", eperson.getId());
 
             return returnAsList(tri);
         }

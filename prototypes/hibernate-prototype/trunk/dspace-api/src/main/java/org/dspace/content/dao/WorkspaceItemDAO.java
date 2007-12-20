@@ -172,8 +172,8 @@ public abstract class WorkspaceItemDAO extends ContentDAO
 
         log.info(LogManager.getHeader(context, "create_workspace_item",
                 "workspace_item_id=" + wsi.getID() +
-                "item_id=" + item.getID() +
-                "collection_id=" + collection.getID()));
+                "item_id=" + item.getId() +
+                "collection_id=" + collection.getId()));
 
         return wsi;
     }
@@ -230,12 +230,12 @@ public abstract class WorkspaceItemDAO extends ContentDAO
 
         if (collection != null)
         {
-            collectionID = collection.getID();
+            collectionID = collection.getId();
         }
 
         log.info(LogManager.getHeader(context, "delete_workspace_item",
                     "workspace_item_id=" + id +
-                    "item_id=" + wsi.getItem().getID() +
+                    "item_id=" + wsi.getItem().getId() +
                     "collection_id=" + collectionID));
     }
 
@@ -258,8 +258,8 @@ public abstract class WorkspaceItemDAO extends ContentDAO
          */
         if (!AuthorizeManager.isAdmin(context) &&
                 ((context.getCurrentUser() == null) ||
-                 (context.getCurrentUser().getID() !=
-                  item.getSubmitter().getID())))
+                 (context.getCurrentUser().getId() !=
+                  item.getSubmitter().getId())))
         {
             // Not an admit, not the submitter
             throw new AuthorizeException("Must be an administrator or the "
@@ -269,12 +269,12 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         int collectionID = -1;
         if (collection != null)
         {
-            collectionID = collection.getID();
+            collectionID = collection.getId();
         }
 
         log.info(LogManager.getHeader(context, "delete_workspace_item",
                 "workspace_item_id=" + wsi.getID() +
-                "item_id=" + item.getID() +
+                "item_id=" + item.getId() +
                 "collection_id=" + collectionID));
 
         // Remove any Group <-> WorkspaceItem mappings
@@ -285,7 +285,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         }
 
         delete(id);
-        itemDAO.delete(wsi.getItem().getID());
+        itemDAO.delete(wsi.getItem().getId());
     }
 
     public abstract List<WorkspaceItem> getWorkspaceItems();

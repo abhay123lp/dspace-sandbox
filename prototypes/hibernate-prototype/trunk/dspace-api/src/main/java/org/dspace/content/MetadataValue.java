@@ -39,6 +39,10 @@
  */
 package org.dspace.content;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -64,6 +68,7 @@ import org.dspace.core.Context;
  * @author James Rutherford
  * @see org.dspace.content.MetadataSchema, org.dspace.content.MetadataField
  */
+@Entity
 public class MetadataValue
 {
     private static Logger log = Logger.getLogger(MetadataValue.class);
@@ -71,10 +76,10 @@ public class MetadataValue
     private Context context;
     private MetadataValueDAO dao;
 
-    private int id;
+    private int ID;
 
     /** The reference to the metadata field */
-    private MetadataField field;
+    private MetadataField metadataField;
 
     /** The reference to the DSpace item */
     private int itemID;
@@ -88,10 +93,10 @@ public class MetadataValue
     /** The position of the record. */
     private int place;
 
-    public MetadataValue(Context context, int id)
+    public MetadataValue(Context context, int ID)
     {
         this.context = context;
-        this.id = id;
+        this.ID = ID;
 
         dao = MetadataValueDAOFactory.getInstance(context);
         place = 1;
@@ -100,11 +105,11 @@ public class MetadataValue
     /**
      * Constructor to create a value for a given field.
      *
-     * @param field inital value for field
+     * @param metadataField inital value for field
      */
-    public MetadataValue(MetadataField field)
+    public MetadataValue(MetadataField metadataField)
     {
-        this.field = field;
+        this.metadataField = metadataField;
     }
 
     /**
@@ -112,9 +117,10 @@ public class MetadataValue
      *
      * @return metadata field ID
      */
-    public MetadataField getField()
+    @Transient
+    public MetadataField getMetadataField()
     {
-        return field;
+        return metadataField;
     }
 
     /**
@@ -122,9 +128,9 @@ public class MetadataValue
      *
      * @param fieldID new field ID
      */
-    public void setFieldID(MetadataField field)
+    public void setFieldID(MetadataField metadataField)
     {
-        this.field = field;
+        this.metadataField = metadataField;
     }
 
     /**
@@ -132,6 +138,7 @@ public class MetadataValue
      *
      * @return item ID
      */
+    @Transient
     public int getItemID()
     {
         return itemID;
@@ -152,6 +159,7 @@ public class MetadataValue
      *
      * @return language
      */
+    @Transient
     public String getLanguage()
     {
         return language;
@@ -172,6 +180,7 @@ public class MetadataValue
      *
      * @return place ordering
      */
+    @Transient
     public int getPlace()
     {
         return place;
@@ -192,9 +201,10 @@ public class MetadataValue
      *
      * @return value ID
      */
+    @Id
     public int getID()
     {
-        return id;
+        return ID;
     }
 
     /**
@@ -202,6 +212,7 @@ public class MetadataValue
      *
      * @return metadata value
      */
+    @Transient
     public String getValue()
     {
         return value;
@@ -267,18 +278,18 @@ public class MetadataValue
         MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
         MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
         
-        MetadataField mdvfield = mdv.getField();
+        MetadataField mdvfield = mdv.getMetadataField();
 
         if ((mdvfield == null))
         {
-            if (getField().getID() > 0)
+            if (getMetadataField().getID() > 0)
             {
                 return false;
             }
         }
         else
         {
-            if (mdvfield.getID() != getField().getID())
+            if (mdvfield.getID() != getMetadataField().getID())
             {
                 return false;
             }
@@ -333,4 +344,8 @@ public class MetadataValue
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
+
+	public void setID(int id) {
+		ID = id;
+	}
 }

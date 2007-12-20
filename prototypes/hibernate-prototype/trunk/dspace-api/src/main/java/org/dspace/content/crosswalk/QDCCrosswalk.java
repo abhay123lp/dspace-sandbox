@@ -54,10 +54,13 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -128,6 +131,8 @@ public class QDCCrosswalk extends SelfNamedPlugin
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(QDCCrosswalk.class);
+    
+    private static ApplicationService applicationService;
 
     // map of qdc to JDOM Element
     private HashMap qdc2element = new HashMap();
@@ -359,32 +364,32 @@ public class QDCCrosswalk extends SelfNamedPlugin
         Item item = (Item)dso;
         init();
 
-        DCValue[] dc = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        MetadataValue[] dc = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
         List result = new ArrayList(dc.length);
         for (int i = 0; i < dc.length; i++)
         {
             // Compose qualified DC name - schema.element[.qualifier]
             // e.g. "dc.title", "dc.subject.lcc", "lom.Classification.Keyword"
-            String qdc = dc[i].schema+"."+
-                         ((dc[i].qualifier == null) ? dc[i].element
-                            : (dc[i].element + "." + dc[i].qualifier));
+            String qdc = dc[i].getMetadataField().getSchema()+"."+
+                         ((dc[i].getMetadataField().getQualifier() == null) ? dc[i].getMetadataField().getElement()
+                            : (dc[i].getMetadataField().getElement() + "." + dc[i].getMetadataField().getQualifier()));
 
             Element elt = (Element)qdc2element.get(qdc);
 
             // only complain about missing elements in the DC schema:
             if (elt == null)
             {
-                if (dc[i].schema.equals(MetadataSchema.DC_SCHEMA))
+                if (dc[i].getMetadataField().getSchema().equals(MetadataSchema.DC_SCHEMA))
                     log.warn("WARNING: "+myName+": No QDC mapping for \"" + qdc+"\"");
             }
             else
             {
                 Element qe = (Element)elt.clone();
-                qe.setText(dc[i].value);
+                qe.setText(dc[i].getValue());
                 if (addSchema && schemaLocation != null)
                     qe.setAttribute("schemaLocation", schemaLocation, XSI_NS);
-                if (dc[i].language != null)
-                    qe.setAttribute("lang", dc[i].language, Namespace.XML_NAMESPACE);
+                if (dc[i].getLanguage() != null)
+                    qe.setAttribute("lang", dc[i].getLanguage(), Namespace.XML_NAMESPACE);
                 result.add(qe);
             }
         }
@@ -452,10 +457,14 @@ public class QDCCrosswalk extends SelfNamedPlugin
                 if (lang == null)
                     lang = me.getAttributeValue("lang");
 
-                if (qdc.length == 3)
-                    item.addMetadata(qdc[0], qdc[1], qdc[2], lang, me.getText());
-                else if (qdc.length == 2)
-                    item.addMetadata(qdc[0], qdc[1], null,   lang, me.getText());
+                if (qdc.length == 3) {
+                	MetadataField mdf = applicationService.getMetadataField(qdc[1], qdc[2], qdc[0], context); 
+                    item.addMetadata(mdf, lang, me.getText());
+                }
+                else if (qdc.length == 2) {
+                	MetadataField mdf = applicationService.getMetadataField(qdc[1], null, qdc[0], context);
+                    item.addMetadata(mdf, lang, me.getText());
+                }
                 else
                     throw new CrosswalkInternalException("Unrecognized format in QDC element identifier for key=\""+key+"\", qdc=\""+(String)element2qdc.get(key)+"\"");
             }
@@ -468,4 +477,8 @@ public class QDCCrosswalk extends SelfNamedPlugin
     {
         return true;
     }
+    
+    public static void setApplicationService(ApplicationService applicationService) {
+		QDCCrosswalk.applicationService = applicationService;
+	}
 }

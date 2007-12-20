@@ -66,7 +66,7 @@ public class EPersonDAOTest extends DAOTest implements CRUDTest
     {
         EPerson result = instance.create();
 
-        int id = result.getID();
+        int id = result.getId();
 
         assertTrue(id > 0);
     }
@@ -75,9 +75,9 @@ public class EPersonDAOTest extends DAOTest implements CRUDTest
     public void retrieve() throws Exception
     {
         EPerson existing = instance.create();
-        EPerson result = instance.retrieve(existing.getID());
+        EPerson result = instance.retrieve(existing.getId());
 
-        assertEquals(existing.getID(), result.getID());
+        assertEquals(existing.getId(), result.getId());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class EPersonDAOTest extends DAOTest implements CRUDTest
         eperson.setEmail(email);
         instance.update(eperson);
 
-        EPerson result = instance.retrieve(eperson.getID());
+        EPerson result = instance.retrieve(eperson.getId());
         assertEquals(result.getEmail(), email);
     }
 
@@ -97,7 +97,7 @@ public class EPersonDAOTest extends DAOTest implements CRUDTest
     public void delete() throws Exception
     {
         EPerson eperson = instance.create();
-        int id = eperson.getID();
+        int id = eperson.getId();
 
         instance.delete(id);
 

@@ -113,7 +113,7 @@ public class WorkspaceItemDAOTest extends DAOTest
         instance.delete(id);
 
         assertNull(instance.retrieve(id));
-        assertNotNull(itemDAO.retrieve(item.getID()));
+        assertNotNull(itemDAO.retrieve(item.getId()));
     }
 
     @Test
@@ -126,7 +126,7 @@ public class WorkspaceItemDAOTest extends DAOTest
         instance.update(result);
 
         int id = result.getID();
-        int itemID = item.getID();
+        int itemID = item.getId();
 
         instance.deleteAll(id);
 

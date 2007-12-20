@@ -171,13 +171,13 @@ public class BrowseEngine
 			{
 				Collection col = (Collection) scope.getBrowseContainer();
 				dao.setContainerIDField("collection_id");
-				dao.setContainerID(col.getID());
+				dao.setContainerID(col.getId());
 			}
 			else if (scope.inCommunity())
 			{
 				Community com = (Community) scope.getBrowseContainer();
 				dao.setContainerIDField("community_id");
-				dao.setContainerID(com.getID());
+				dao.setContainerID(com.getId());
 			}
 		}
 		
@@ -305,13 +305,13 @@ public class BrowseEngine
 				{
 					Collection col = (Collection) scope.getBrowseContainer();
 					dao.setContainerIDField("collection_id");
-					dao.setContainerID(col.getID());
+					dao.setContainerID(col.getId());
 				}
 				else if (scope.inCommunity())
 				{
 					Community com = (Community) scope.getBrowseContainer();
 					dao.setContainerIDField("community_id");
-					dao.setContainerID(com.getID());
+					dao.setContainerID(com.getId());
 				}
 			}
 			
@@ -428,13 +428,13 @@ public class BrowseEngine
 			// set the int value of the next item
 			if (next != null)
 			{
-				browseInfo.setNextItem(next.getID());
+				browseInfo.setNextItem(next.getId());
 			}
 			
 			// set the string value for the previous page
 			if (prev != null)
 			{
-				browseInfo.setPrevItem(prev.getID());
+				browseInfo.setPrevItem(prev.getId());
 			}
 			
 			// add the browse index to the Browse Info
@@ -545,14 +545,14 @@ public class BrowseEngine
 					Collection col = (Collection) scope.getBrowseContainer();
 					dao.setContainerTable(browseIndex.getTableName(false, true, false, true));
 					dao.setContainerIDField("collection_id");
-					dao.setContainerID(col.getID());
+					dao.setContainerID(col.getId());
 				}
 				else if (scope.inCommunity())
 				{
 					Community com = (Community) scope.getBrowseContainer();
 					dao.setContainerTable(browseIndex.getTableName(true, false, false, true));
 					dao.setContainerIDField("community_id");
-					dao.setContainerID(com.getID());
+					dao.setContainerID(com.getId());
 				}
 			}
 			
@@ -980,7 +980,7 @@ public class BrowseEngine
 		
 		if (prev != null)
 		{
-			return prev.getID();
+			return prev.getId();
 		}
 		else
 		{

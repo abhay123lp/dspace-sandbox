@@ -153,7 +153,7 @@ public abstract class MediaFilter
         // if exists and overwrite = false, exit
         if (!overWrite && (existingBitstream != null))
         {
-            System.out.println("SKIPPED: bitstream " + source.getID()
+            System.out.println("SKIPPED: bitstream " + source.getId()
                     + " because '" + newName + "' already exists");
 
             return false;
@@ -192,7 +192,7 @@ public abstract class MediaFilter
             targetBundle.removeBitstream(existingBitstream);
         }
 
-        System.out.println("FILTERED: bitstream " + source.getID()
+        System.out.println("FILTERED: bitstream " + source.getId()
                 + " and created '" + newName + "'");
 
         return true;
