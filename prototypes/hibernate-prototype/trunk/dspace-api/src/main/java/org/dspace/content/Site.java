@@ -106,7 +106,7 @@ public class Site extends DSpaceObject
     /* Gets the Site logo */
     @OneToOne
     public Bitstream getLogo() {
-    	return this.logo;
+    	return logo;
     }
     
     public void setName(String name) {

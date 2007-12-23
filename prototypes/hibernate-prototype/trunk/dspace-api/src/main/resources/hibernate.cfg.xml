@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-configuration PUBLIC
+        "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+        "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
+<hibernate-configuration>
+
+	<session-factory>
+
+		<!-- Drop and re-create the database schema on startup -->
+		<!-- <property name="hbm2ddl.auto">create</property> -->
+		<mapping class="org.dspace.content.Site" />
+		<mapping class="org.dspace.content.Community" />
+		<mapping class="org.dspace.content.Collection" />
+		<mapping class="org.dspace.content.Item" />
+		<mapping class="org.dspace.content.Bundle" />
+		<mapping class="org.dspace.content.Bitstream" />
+		<mapping class="org.dspace.content.MetadataValue" />
+		<mapping class="org.dspace.eperson.EPerson" />
+		<mapping class="org.dspace.eperson.Group" />
+	</session-factory>
+</hibernate-configuration>
