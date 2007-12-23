@@ -43,6 +43,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
@@ -139,7 +141,7 @@ public class EPerson extends DSpaceObject
         this.context = context;
         metadata = new EnumMap<EPersonMetadataField, String>(EPersonMetadataField.class);
     }
-    @OneToOne
+    @Basic
      public String getLanguage()
      {
          return metadata.get(EPersonMetadataField.LANGUAGE);
@@ -154,7 +156,7 @@ public class EPerson extends DSpaceObject
 
          metadata.put(EPersonMetadataField.LANGUAGE, language);
      }
-    @OneToOne
+    @Basic
     public String getEmail()
     {
         return metadata.get(EPersonMetadataField.EMAIL);
@@ -219,7 +221,7 @@ public class EPerson extends DSpaceObject
             return (firstName + " " + lastName);
         }
     }
-    @OneToOne
+    @Basic    
     public String getFirstName()
     {
         return metadata.get(EPersonMetadataField.FIRSTNAME);
@@ -231,7 +233,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-    @OneToOne
+    @Basic
     public String getLastName()
     {
         return metadata.get(EPersonMetadataField.LASTNAME);
