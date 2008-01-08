@@ -43,8 +43,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
@@ -71,6 +73,7 @@ import org.dspace.storage.bitstore.BitstreamStorageManager;
  * @version $Revision$
  */
 @Entity
+@Table(name="BITSTREAM")
 public class Bitstream extends DSpaceObject
 {	
     /** log4j logger */
@@ -104,7 +107,7 @@ public class Bitstream extends DSpaceObject
         modified = modifiedMetadata = false;
         clearDetails();
     }
-    @Transient
+    @Column(name = "SEQUENCE_ID")
     public int getSequenceID() {
     	return sequenceID;
     }
@@ -114,7 +117,7 @@ public class Bitstream extends DSpaceObject
     	modifiedMetadata = true;
         addDetails("SequenceID");
     }
-    @Transient
+    @Column(name = "NAME")
     public String getName() {
     	return name;
     }
@@ -124,7 +127,7 @@ public class Bitstream extends DSpaceObject
     	modifiedMetadata = true;
         addDetails("Name");
     }
-    @Transient
+    @Column(name = "SOURCE")
     public String getSource() {
     	return source;
     }
@@ -134,7 +137,7 @@ public class Bitstream extends DSpaceObject
     	modifiedMetadata = true;
         addDetails("Source");
     }
-    @Transient
+    @Column(name="DESCRIPTION")
     public String getDescription() {
     	return description;
     }
@@ -144,7 +147,7 @@ public class Bitstream extends DSpaceObject
     	modifiedMetadata = true;
         addDetails("Description");
     }
-    @Transient
+    @Column(name="CHECKSUM")
     public String getChecksum() {
     	return checksum;
     }
@@ -152,7 +155,7 @@ public class Bitstream extends DSpaceObject
     public void setChecksum(String checksum) {
     	this.checksum=checksum;
     }
-    @Transient
+    @Column(name="CHECKSUM_ALGORITHM")
     public String getChecksumAlgorithm() {
     	return checksumAlgorithm;
     }
@@ -160,7 +163,7 @@ public class Bitstream extends DSpaceObject
     public void setChecksumAlgorithm(String checksumAlgorithm) {
     	this.checksumAlgorithm=checksumAlgorithm;
     }
-    @Transient
+    @Column(name = "SIZE_BYTES")
     public long getSize() {
         return (size == null ? 0 : size.longValue());
     }
@@ -168,7 +171,7 @@ public class Bitstream extends DSpaceObject
     public void setSize(Long sizeBytes) {
         this.size = sizeBytes;
     }
-    @Transient
+    @Column(name="USER_FORMAT_DESCRIPTION")
     public String getUserFormatDescription() {
     	return userFormatDescription;
     }
@@ -197,7 +200,7 @@ public class Bitstream extends DSpaceObject
         return bitstreamFormat;
     }
     
-    @Transient
+    @ManyToOne
     public BitstreamFormat getBitstreamFormat() {
         return bitstreamFormat;
     }
@@ -221,7 +224,7 @@ public class Bitstream extends DSpaceObject
         userFormatDescription = null;
         modified = true;
     }
-    @Transient
+    @Column(name = "STORE_NUMBER")
     public int getStoreNumber() {
     	return storeNumber;
     }
@@ -229,7 +232,7 @@ public class Bitstream extends DSpaceObject
     public void setStoreNumber(int storeNumber) {
     	this.storeNumber=storeNumber;
     }
-    @Transient
+    @Column(name="INTERNAL_ID")
     public String getInternalID() {
     	return internalID;
     }
@@ -237,7 +240,7 @@ public class Bitstream extends DSpaceObject
     public void setInternalID(String internalID) {
     	this.internalID=internalID;
     }
-    @Transient
+    @Column(name = "DELETED")
     public boolean isDeleted() {
     	return deleted;
     }

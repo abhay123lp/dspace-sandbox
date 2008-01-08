@@ -42,6 +42,11 @@ package org.dspace.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -57,6 +62,8 @@ import org.dspace.core.Context;
 /**
  * FIXME: Should this extend DSpaceObject?
  */
+@Entity
+@Table(name="bitstreamformatregistry")
 public class BitstreamFormat
 {
     /** log4j logger */
@@ -106,12 +113,16 @@ public class BitstreamFormat
         dao = BitstreamFormatDAOFactory.getInstance(context);
         extensions = new ArrayList<String>();
     }
-
+    @Id
     public int getID()
     {
         return id;
     }
-
+    public void setID(int id)
+    {
+    	this.id=id;
+    }
+    @Transient
     public ObjectIdentifier getIdentifier()
     {
         return oid;
@@ -121,7 +132,7 @@ public class BitstreamFormat
     {
         this.oid = oid;
     }
-
+    @Transient
     public String getShortDescription()
     {
         return shortDescription;
@@ -154,7 +165,7 @@ public class BitstreamFormat
             this.shortDescription = shortDescription;
 		}
     }
-
+    @Transient
     public String getDescription()
     {
         return description;
@@ -169,6 +180,7 @@ public class BitstreamFormat
      * Get the MIME type of this bitstream format, for example
      * <code>text/plain</code>
      */
+    @Transient
     public String getMIMEType()
     {
         return mimeType;
@@ -183,6 +195,7 @@ public class BitstreamFormat
      * Get the support level for this bitstream format - one of
      * <code>UNKNOWN</code>,<code>KNOWN</code> or <code>SUPPORTED</code>.
      */
+    @Transient
     public int getSupportLevel()
     {
         return supportLevel;
@@ -208,6 +221,7 @@ public class BitstreamFormat
      * that is used to store system information, rather than the content of
      * items in the system
      */
+    @Transient
     public boolean isInternal()
     {
         return internal;
@@ -224,6 +238,7 @@ public class BitstreamFormat
     /**
      * Get the filename extensions associated with this format
      */
+    @Transient
     public String[] getExtensions()
     {
         return (String[]) extensions.toArray(new String[0]);
