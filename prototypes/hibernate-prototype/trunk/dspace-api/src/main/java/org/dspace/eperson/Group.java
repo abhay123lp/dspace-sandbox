@@ -44,6 +44,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToMany;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
@@ -64,6 +65,7 @@ import org.dspace.event.Event;
  * @version $Revision$
  */
 @Entity
+@Table(name="GROUPS") 
 public class Group extends DSpaceObject
 {
     // findAll sortby types

@@ -18,5 +18,6 @@
 		<mapping class="org.dspace.content.MetadataValue" />
 		<mapping class="org.dspace.eperson.EPerson" />
 		<mapping class="org.dspace.eperson.Group" />
+		<mapping class="org.dspace.content.BitstreamFormat" />
 	</session-factory>
 </hibernate-configuration>

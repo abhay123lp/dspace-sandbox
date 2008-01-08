@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -150,7 +151,7 @@ public class Bundle extends DSpaceObject {
 			}
 		}
 	}
-	@Transient
+	@Column(name="NAME")
 	public String getName() {
 		return name;
 	}

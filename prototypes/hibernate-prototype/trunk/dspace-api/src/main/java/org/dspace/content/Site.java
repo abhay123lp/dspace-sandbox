@@ -41,7 +41,9 @@ package org.dspace.content;
 
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
@@ -105,6 +107,8 @@ public class Site extends DSpaceObject
     
     /* Gets the Site logo */
     @OneToOne
+    //@Column(name="LOGO")
+    //@Transient
     public Bitstream getLogo() {
     	return logo;
     }
@@ -112,7 +116,9 @@ public class Site extends DSpaceObject
     public void setName(String name) {
     	this.name=name;
     }
-    @Transient
+    @Column(name="NAME")
+    //@Transient
+    //@ManyToOne
     public String getName() {
     	return name;
     }
