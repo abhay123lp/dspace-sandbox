@@ -331,14 +331,14 @@ public class Item extends DSpaceObject {
 	}
 	
 	@Transient
-	public Bundle[] getBundles(String name) {
+	public List<Bundle> getBundles(String name) {
 		List<Bundle> tmp = new ArrayList<Bundle>();
 		for (Bundle bundle : getBundles()) {
 			if (name.equals(bundle.getName())) {
 				tmp.add(bundle);
 			}
 		}
-		return tmp.toArray(new Bundle[0]);
+		return tmp;
 	}
 
 	public void setBundles(List<Bundle> bundles) {
@@ -438,12 +438,12 @@ public class Item extends DSpaceObject {
 	public void removeDSpaceLicense() throws AuthorizeException, IOException {
 		// get all bundles with name "LICENSE" (these are the DSpace license
 		// bundles)
-		Bundle[] bunds = getBundles("LICENSE");
+		List<Bundle> bunds = getBundles("LICENSE");
 
-		for (int i = 0; i < bunds.length; i++) {
+		for (Bundle bundle : bunds) {
 			// FIXME: probably serious troubles with Authorizations
 			// fix by telling system not to check authorization?
-			removeBundle(bunds[i]);
+			removeBundle(bundle);
 		}
 	}
 
@@ -686,21 +686,21 @@ public class Item extends DSpaceObject {
     public Thumbnail getThumbnail()
     {
         // if there's no original, there is no thumbnail
-        Bundle[] original = getBundles("ORIGINAL");
-        if (original.length == 0)
+        List<Bundle> original = getBundles("ORIGINAL");
+        if (original.size() == 0)
         {
             return null;
         }
         
         // if multiple bitstreams, check if the primary one is HTML
         boolean html = false;
-        if (original[0].getBitstreams().size() > 1)
+        if (original.get(0).getBitstreams().size() > 1)
         {
-            List<Bitstream> bitstreams = original[0].getBitstreams();
+            List<Bitstream> bitstreams = original.get(0).getBitstreams();
 
             for (int i = 0; (i < bitstreams.size()) && !html; i++)
             {
-                if (bitstreams.get(i).getId() == original[0].getPrimaryBitstream().getId())
+                if (bitstreams.get(i).getId() == original.get(0).getPrimaryBitstream().getId())
                 {
                     html = bitstreams.get(i).getFormat().getMIMEType().equals("text/html");
                 }
@@ -708,28 +708,28 @@ public class Item extends DSpaceObject {
         }
 
         // now actually pull out the thumbnail (ouch!)
-        Bundle[] thumbs = getBundles("THUMBNAIL");
+        List<Bundle> thumbs = getBundles("THUMBNAIL");
         
         // if there are thumbs and we're not dealing with an HTML item
         // then show the thumbnail
-        if ((thumbs.length > 0) && !html)
+        if ((thumbs.size() > 0) && !html)
         {
             Bitstream thumbnailBitstream;
             Bitstream originalBitstream;
             
-            if ((original[0].getBitstreams().size() > 1) && (original[0].getPrimaryBitstream().getId() > -1))
+            if ((original.get(0).getBitstreams().size() > 1) && (original.get(0).getPrimaryBitstream().getId() > -1))
             {
             	/*FIXME: find da risolver */
                 //originalBitstream = Bitstream.find(context, original[0].getPrimaryBitstreamID());
                 //thumbnailBitstream = thumbs[0].getBitstreamByName(originalBitstream.getName() + ".jpg");
             	// copiati da sotto: rimuovere!
-            	originalBitstream = original[0].getBitstreams().get(0);
-                thumbnailBitstream = thumbs[0].getBitstreams().get(0);
+            	originalBitstream = original.get(0).getBitstreams().get(0);
+                thumbnailBitstream = thumbs.get(0).getBitstreams().get(0);
             }
             else
             {
-            	originalBitstream = original[0].getBitstreams().get(0);
-                thumbnailBitstream = thumbs[0].getBitstreams().get(0);
+            	originalBitstream = original.get(0).getBitstreams().get(0);
+                thumbnailBitstream = thumbs.get(0).getBitstreams().get(0);
             }
             
             if ((thumbnailBitstream != null)

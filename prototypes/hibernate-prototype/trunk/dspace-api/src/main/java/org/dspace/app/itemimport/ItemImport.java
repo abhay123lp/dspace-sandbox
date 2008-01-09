@@ -51,6 +51,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 
@@ -1177,10 +1178,10 @@ public class ItemImport
         if (!isTest)
         {
             // find the bundle
-            Bundle[] bundles = i.getBundles(newBundleName);
+            List<Bundle> bundles = i.getBundles(newBundleName);
             Bundle targetBundle = null;
 
-            if (bundles.length < 1)
+            if (bundles.size() < 1)
             {
                 // not found, create a new one
                 targetBundle = i.createBundle(newBundleName);
@@ -1188,7 +1189,7 @@ public class ItemImport
             else
             {
                 // put bitstreams into first bundle
-                targetBundle = bundles[0];
+                targetBundle = bundles.get(0);
             }
 
             // now add the bitstream
@@ -1244,10 +1245,10 @@ public class ItemImport
         if(!isTest)
         {
         	// find the bundle
-	        Bundle[] bundles = i.getBundles(newBundleName);
+	        List<Bundle> bundles = i.getBundles(newBundleName);
 	        Bundle targetBundle = null;
 	            
-	        if( bundles.length < 1 )
+	        if( bundles.size() < 1 )
 	        {
 	            // not found, create a new one
 	            targetBundle = i.createBundle(newBundleName);
@@ -1255,7 +1256,7 @@ public class ItemImport
 	        else
 	        {
 	            // put bitstreams into first bundle
-	            targetBundle = bundles[0];
+	            targetBundle = bundles.get(0);
 	        }
 	
 	        // now add the bitstream

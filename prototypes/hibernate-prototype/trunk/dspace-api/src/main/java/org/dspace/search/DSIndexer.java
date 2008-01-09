@@ -1041,27 +1041,27 @@ public class DSIndexer
         {
         	// now get full text of any bitstreams in the TEXT bundle
             // trundle through the bundles
-            Bundle[] myBundles = item.getBundles();
+            List<Bundle> myBundles = item.getBundles();
 
-            for (int i = 0; i < myBundles.length; i++)
+            for (Bundle myBundle : myBundles)
             {
-                if ((myBundles[i].getName() != null)
-                        && myBundles[i].getName().equals("TEXT"))
+                if ((myBundle.getName() != null)
+                        && myBundle.getName().equals("TEXT"))
                 {
                     // a-ha! grab the text out of the bitstreams
-                    Bitstream[] myBitstreams = myBundles[i].getBitstreams();
+                    List<Bitstream> myBitstreams = myBundle.getBitstreams();
 
-                    for (j = 0; j < myBitstreams.length; j++)
+                    for (Bitstream myBitstream : myBitstreams)
                     {
                         try
                         {
                             InputStreamReader is = new InputStreamReader(
-                                    myBitstreams[j].retrieve()); // get input
+                                    myBitstream.retrieve()); // get input
 
                             // Add each InputStream to the Indexed Document (Acts like an Append)
                             doc.add(new Field("default", is));
 
-                            log.debug("  Added BitStream: " + myBitstreams[j].getStoreNumber() + "	" + myBitstreams[j].getSequenceID() + "   " + myBitstreams[j].getName());
+                            log.debug("  Added BitStream: " + myBitstream.getStoreNumber() + "	" + myBitstream.getSequenceID() + "   " + myBitstream.getName());
 
                         }
                         catch (Exception e)

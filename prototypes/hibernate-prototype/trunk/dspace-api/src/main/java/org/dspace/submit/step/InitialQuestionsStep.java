@@ -41,6 +41,7 @@ package org.dspace.submit.step;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -216,14 +217,14 @@ public class InitialQuestionsStep extends AbstractProcessingStep
             {
                 // see if number of bitstreams in "ORIGINAL" bundle > 1
                 // FIXME: Assumes multiple bundles, clean up someday...
-                Bundle[] bundles = subInfo.getSubmissionItem().getItem()
+                List<Bundle> bundles = subInfo.getSubmissionItem().getItem()
                         .getBundles("ORIGINAL");
 
-                if (bundles.length > 0)
+                if (bundles.size() > 0)
                 {
-                    Bitstream[] bitstreams = bundles[0].getBitstreams();
+                    List<Bitstream> bitstreams = bundles.get(0).getBitstreams();
 
-                    willRemoveFiles = bitstreams.length > 1;
+                    willRemoveFiles = bitstreams.size() > 1;
                 }
             }
 
@@ -331,16 +332,16 @@ public class InitialQuestionsStep extends AbstractProcessingStep
             // remove all but first bitstream from bundle[0]
             // FIXME: Assumes multiple bundles, clean up someday...
             // (only messes with the first bundle.)
-            Bundle[] bundles = item.getBundles("ORIGINAL");
+            List<Bundle> bundles = item.getBundles("ORIGINAL");
 
-            if (bundles.length > 0)
+            if (bundles.size() > 0)
             {
-                Bitstream[] bitstreams = bundles[0].getBitstreams();
+                List<Bitstream> bitstreams = bundles.get(0).getBitstreams();
 
                 // Remove all but the first bitstream
-                for (int i = 1; i < bitstreams.length; i++)
+                for (Bitstream bitstream : bitstreams)
                 {
-                    bundles[0].removeBitstream(bitstreams[i]);
+                    bundles.get(0).removeBitstream(bitstream);
                 }
             }
         }
