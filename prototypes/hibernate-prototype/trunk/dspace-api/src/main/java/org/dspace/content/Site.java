@@ -43,9 +43,12 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 
 import org.dspace.content.factory.CommunityFactory;
@@ -96,6 +99,7 @@ public class Site extends DSpaceObject
     
     /* Returns all the top-communities of this site */
     @OneToMany
+    @JoinTable(name="site2community")
     public List<Community> getTopCommunities() {
     	return this.topCommunities;
     }
@@ -107,8 +111,6 @@ public class Site extends DSpaceObject
     
     /* Gets the Site logo */
     @OneToOne
-    //@Column(name="LOGO")
-    //@Transient
     public Bitstream getLogo() {
     	return logo;
     }
@@ -117,8 +119,6 @@ public class Site extends DSpaceObject
     	this.name=name;
     }
     @Column(name="NAME")
-    //@Transient
-    //@ManyToOne
     public String getName() {
     	return name;
     }

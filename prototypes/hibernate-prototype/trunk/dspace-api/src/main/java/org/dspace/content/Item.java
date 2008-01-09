@@ -48,7 +48,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
@@ -178,7 +181,7 @@ public class Item extends DSpaceObject {
 	protected void setidentifier(String identifier) {
 		this.identifier = identifier;
 	}
-	@Transient
+	@Column(name="in_archive")
 	public boolean isArchived() {
 		return inArchive;
 	}
@@ -186,7 +189,7 @@ public class Item extends DSpaceObject {
 	public void setArchived(boolean inArchive) {
 		this.inArchive = inArchive;
 	}
-	@Transient
+	@Column(name="withdrawn")
 	public boolean isWithdrawn() {
 		return withdrawn;
 	}
@@ -194,7 +197,7 @@ public class Item extends DSpaceObject {
 	public void setWithdrawn(boolean withdrawn) {
 		this.withdrawn = withdrawn;
 	}
-	@Transient
+	@Column(name="last_modified")
 	public Date getLastModified() {
 		return lastModified;
 	}
@@ -202,6 +205,7 @@ public class Item extends DSpaceObject {
 	
 	/* Returns the owning collection of this item */
 	@ManyToOne
+	@JoinColumn(name="owning_collection_id")
 	public Collection getOwningCollection() { 
 		return	owningCollection; 
 	}	  
@@ -210,6 +214,7 @@ public class Item extends DSpaceObject {
 		this.owningCollection = owningCollection; 
 	}
 	@OneToMany
+	@JoinTable(name="item2metadatavalue")
 	public List<MetadataValue> getMetadata() {
 		return metadata;
 	}
@@ -460,7 +465,7 @@ public class Item extends DSpaceObject {
 		 * removeBundle(bundle); } }
 		 */}
 
-	/* FIXME: perchè chiederlo all'item? */
+	/* FIXME: perchè chiederlo all'item e non chiedere alla collection se è owning dell'item? */
 	@Transient
 	public boolean isOwningCollection(Collection c) {
 		
@@ -739,6 +744,8 @@ public class Item extends DSpaceObject {
     }
 
     @ManyToMany
+    @JoinTable(name="item2collection")
+    /* The collections that own this item*/
 	public List<Collection> getCollections() {
 		return collections;
 	}

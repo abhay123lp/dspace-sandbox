@@ -39,8 +39,11 @@
  */
 package org.dspace.content;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -82,7 +85,8 @@ public class MetadataValue
     private MetadataField metadataField;
 
     /** The reference to the DSpace item */
-    private int itemID;
+    //private int itemID;
+    private Item item;
 
     /** The value of the field */
     private String value;
@@ -117,7 +121,8 @@ public class MetadataValue
      *
      * @return metadata field ID
      */
-    @Transient
+    @ManyToOne
+    @JoinColumn(name="metadata_field_id")
     public MetadataField getMetadataField()
     {
         return metadataField;
@@ -137,29 +142,33 @@ public class MetadataValue
      * Get the item ID.
      *
      * @return item ID
+     * 
+     * FIXME da deprecare
      */
-    @Transient
+/*    @Column(name="item_id")
     public int getItemID()
     {
         return itemID;
     }
-
+*/
     /**
      * Set the item ID.
      *
      * @param itemID new item ID
+     * 
+     * FIXME da deprecare
      */
-    public void setItemID(int itemID)
+/*    public void setItemID(int itemID)
     {
         this.itemID = itemID;
     }
-
+*/
     /**
      * Get the language (e.g. "en").
      *
      * @return language
      */
-    @Transient
+    @Column(name="text_lang")
     public String getLanguage()
     {
         return language;
@@ -180,7 +189,7 @@ public class MetadataValue
      *
      * @return place ordering
      */
-    @Transient
+    @Column(name="place")
     public int getPlace()
     {
         return place;
@@ -212,7 +221,7 @@ public class MetadataValue
      *
      * @return metadata value
      */
-    @Transient
+    @Column(name="text_value")
     public String getValue()
     {
         return value;
@@ -347,5 +356,13 @@ public class MetadataValue
 
 	public void setID(int id) {
 		ID = id;
+	}
+	@ManyToOne
+	public Item getItem() {
+		return item;
+	}
+
+	public void setItem(Item item) {
+		this.item = item;
 	}
 }

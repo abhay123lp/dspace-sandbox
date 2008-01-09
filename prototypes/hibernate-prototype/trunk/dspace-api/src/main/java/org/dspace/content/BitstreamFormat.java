@@ -42,6 +42,7 @@ package org.dspace.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -132,7 +133,7 @@ public class BitstreamFormat
     {
         this.oid = oid;
     }
-    @Transient
+    @Column(name="short_description")
     public String getShortDescription()
     {
         return shortDescription;
@@ -165,7 +166,7 @@ public class BitstreamFormat
             this.shortDescription = shortDescription;
 		}
     }
-    @Transient
+    @Column(name="description")
     public String getDescription()
     {
         return description;
@@ -180,7 +181,7 @@ public class BitstreamFormat
      * Get the MIME type of this bitstream format, for example
      * <code>text/plain</code>
      */
-    @Transient
+    @Column(name="mimetype")
     public String getMIMEType()
     {
         return mimeType;
@@ -195,7 +196,7 @@ public class BitstreamFormat
      * Get the support level for this bitstream format - one of
      * <code>UNKNOWN</code>,<code>KNOWN</code> or <code>SUPPORTED</code>.
      */
-    @Transient
+    @Column(name="support_level")
     public int getSupportLevel()
     {
         return supportLevel;
@@ -221,7 +222,7 @@ public class BitstreamFormat
      * that is used to store system information, rather than the content of
      * items in the system
      */
-    @Transient
+    @Column(name="internal")
     public boolean isInternal()
     {
         return internal;

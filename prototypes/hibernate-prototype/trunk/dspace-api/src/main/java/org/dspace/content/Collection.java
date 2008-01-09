@@ -48,7 +48,9 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.TreeMap;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -162,7 +164,7 @@ public class Collection extends DSpaceObject {
 		return submitters;
 	}
 	
-	@OneToOne
+	@OneToOne	
 	public Group getSubmitters() {
 		return submitters;
 	}
@@ -208,11 +210,11 @@ public class Collection extends DSpaceObject {
 		addDetails(field);
 
 	}
-	@Transient
+	@Column(name="name")
 	public String getName() {
 		return getMetadata("name");
 	}
-	@Transient
+	@Column(name="license")
 	public String getLicense() {
 		if ((license == null) || license.equals("")) {
 			// Fallback to site-wide default
@@ -313,6 +315,7 @@ public class Collection extends DSpaceObject {
     }
 	
 	@OneToMany
+	@JoinTable(name="collection2epersongroup")
     public List<Group> getWorkflowGroups()
     {
         return workflowGroups;
@@ -341,7 +344,7 @@ public class Collection extends DSpaceObject {
         }
 */        return workflowGroups.get(step - 1);
     }
-    @OneToOne
+    @OneToOne    
     public Group getAdministrators()
     {
         return administrators;
@@ -357,6 +360,7 @@ public class Collection extends DSpaceObject {
         return Constants.COLLECTION;
     }
     @ManyToMany
+    @JoinTable(name="collection2community")
 	public List<Community> getCommunities() {
 		return communities;
 	}
