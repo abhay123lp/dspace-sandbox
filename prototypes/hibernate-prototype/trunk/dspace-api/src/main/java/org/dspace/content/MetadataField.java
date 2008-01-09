@@ -43,6 +43,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -65,6 +73,8 @@ import org.dspace.core.LogManager;
  * @version $Revision$
  * @see org.dspace.content.MetadataValue, org.dspace.content.MetadataSchema
  */
+@Entity
+@Table(name="metadatafieldregistry")
 public class MetadataField
 {
     private static Logger log = Logger.getLogger(MetadataField.class);
@@ -89,6 +99,7 @@ public class MetadataField
      *
      * @return element name
      */
+    @Column(name="element")
     public String getElement()
     {
         return element;
@@ -109,6 +120,7 @@ public class MetadataField
      *
      * @return metadata field id
      */
+    @Id
     public int getID()
     {
         return id;
@@ -119,6 +131,7 @@ public class MetadataField
      *
      * @return qualifier
      */
+    @Column(name="qualifier")
     public String getQualifier()
     {
         return qualifier;
@@ -139,6 +152,8 @@ public class MetadataField
      *
      * @return schema record key
      */
+    @ManyToOne
+    @JoinColumn(name="metadata_schema_id")
     public MetadataSchema getSchema()
     {
         return schema;
@@ -159,6 +174,7 @@ public class MetadataField
      *
      * @return scope note
      */
+    @Column(name="scope_note")
     public String getScopeNote()
     {
         return scopeNote;

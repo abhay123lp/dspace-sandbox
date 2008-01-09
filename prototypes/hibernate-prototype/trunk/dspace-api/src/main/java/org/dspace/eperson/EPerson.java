@@ -75,7 +75,7 @@ public class EPerson extends DSpaceObject
     private Map<EPersonMetadataField, String> metadata;
 
     private boolean selfRegistered;
-    private boolean canLogin;
+    private boolean enabled; //the old "canLogin"
     private boolean requireCertificate;
 
     /** Sort fields */
@@ -141,7 +141,7 @@ public class EPerson extends DSpaceObject
         this.context = context;
         metadata = new EnumMap<EPersonMetadataField, String>(EPersonMetadataField.class);
     }
-    @Basic
+    @Column(name="language")
      public String getLanguage()
      {
          return metadata.get(EPersonMetadataField.LANGUAGE);
@@ -156,7 +156,7 @@ public class EPerson extends DSpaceObject
 
          metadata.put(EPersonMetadataField.LANGUAGE, language);
      }
-    @Basic
+    @Column(name="email")
     public String getEmail()
     {
         return metadata.get(EPersonMetadataField.EMAIL);
@@ -173,7 +173,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-    @Transient
+    @Column(name="netid")
     public String getNetid()
     {
         return metadata.get(EPersonMetadataField.NETID);
@@ -221,7 +221,7 @@ public class EPerson extends DSpaceObject
             return (firstName + " " + lastName);
         }
     }
-    @Basic    
+    @Column(name="fistname")    
     public String getFirstName()
     {
         return metadata.get(EPersonMetadataField.FIRSTNAME);
@@ -233,7 +233,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-    @Basic
+    @Column(name="lastname")
     public String getLastName()
     {
         return metadata.get(EPersonMetadataField.LASTNAME);
@@ -245,17 +245,18 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-
+    @Transient //FIXME metodo da togliere
     public void setCanLogIn(boolean canLogin)
     {
-        this.canLogin = canLogin;
+        this.enabled = canLogin;
         modified = true;
         modified = true;
     }
-
+    
+    @Transient //FIXME metodo da togliere
     public boolean canLogIn()
     {
-        return canLogin;
+        return enabled;
     }
 
     public void setRequireCertificate(boolean requireCertificate)
@@ -264,7 +265,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-    @Transient
+    @Column(name="require_certificate")
     public boolean getRequireCertificate()
     {
         return requireCertificate;
@@ -276,7 +277,7 @@ public class EPerson extends DSpaceObject
         modified = true;
         modified = true;
     }
-    @Transient
+    @Column(name="self_registered")
     public boolean getSelfRegistered()
     {
         return selfRegistered;
@@ -293,6 +294,7 @@ public class EPerson extends DSpaceObject
     }
 
     @Deprecated
+    @Transient
     public String getMetadata(String field)
     {
         return metadata.get(EPersonMetadataField.fromString(field));
@@ -395,6 +397,13 @@ public class EPerson extends DSpaceObject
 
         return dao.create();
     }
+    @Column(name="can_log_in")
+	public boolean isEnabled() {
+		return enabled;
+	}
+	public void setEnabled(boolean enabled) {
+		this.enabled = enabled;
+	}
 
 /*    @Deprecated
     public void update() throws AuthorizeException

@@ -47,6 +47,7 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -151,7 +152,7 @@ public class Bundle extends DSpaceObject {
 			}
 		}
 	}
-	@Column(name="NAME")
+	@Column(name="name")
 	public String getName() {
 		return name;
 	}
@@ -166,6 +167,7 @@ public class Bundle extends DSpaceObject {
 	 * FIXME: confrontare questo metodo con quello di jim
 	 */
 	@OneToOne
+	@JoinColumn(name="primary_bitstream_id")
 	public Bitstream getPrimaryBitstream() {
 		return primaryBitstream;
 	}

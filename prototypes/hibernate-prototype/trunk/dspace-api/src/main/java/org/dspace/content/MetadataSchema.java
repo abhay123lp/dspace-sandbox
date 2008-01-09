@@ -41,6 +41,12 @@ package org.dspace.content;
 
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -64,6 +70,8 @@ import org.dspace.content.dao.MetadataSchemaDAOFactory;
  * @version $Revision$
  * @see org.dspace.content.MetadataValue, org.dspace.content.MetadataField
  */
+@Entity
+@Table(name="metadataschemaregistry")
 public class MetadataSchema
 {
     private static Logger log = Logger.getLogger(MetadataSchema.class);
@@ -87,22 +95,22 @@ public class MetadataSchema
 
         dao = MetadataSchemaDAOFactory.getInstance(context);
     }
-
+    @Id
     public int getID()
     {
         return id;
     }
-
+    @Transient
     public String getName()
     {
         return name;
     }
-
+    
     public void setName(String name)
     {
         this.name = name;
     }
-
+    @Column(name="namespace")
     public String getNamespace()
     {
         return namespace;

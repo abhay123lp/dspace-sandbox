@@ -46,7 +46,9 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.TreeMap;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
@@ -140,6 +142,7 @@ public class Community extends DSpaceObject
     
     /* Returns all the parent communities of this community */
     @ManyToMany
+    @JoinTable(name="community2community")
     public List<Community> getParentCommunities() {
     	return this.parentCommunities;
     }
@@ -158,6 +161,7 @@ public class Community extends DSpaceObject
     
     /* Returns all the collections owned by this community */
     @ManyToMany(mappedBy="communities")
+    @JoinTable(name="community2collection")
     public List<Collection> getCollections() {
     	return this.collections;
     }
@@ -218,7 +222,7 @@ public class Community extends DSpaceObject
     }
     
     /* Returns the name of the community */
-    @Transient
+    @Column(name="name")
     public String getName() {
         return getMetadata("name");
     }

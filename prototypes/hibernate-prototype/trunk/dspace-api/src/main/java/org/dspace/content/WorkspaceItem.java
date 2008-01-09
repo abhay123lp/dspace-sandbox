@@ -42,6 +42,9 @@ package org.dspace.content;
 import java.io.IOException;
 import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -70,6 +73,7 @@ import org.dspace.eperson.EPerson;
  * @author Robert Tansley
  * @version $Revision$
  */
+@Entity
 public class WorkspaceItem implements InProgressSubmission
 {
     /** log4j logger */
@@ -101,7 +105,7 @@ public class WorkspaceItem implements InProgressSubmission
         itemDAO = ItemDAOFactory.getInstance(context);
         collectionDAO = CollectionDAOFactory.getInstance(context);
     }
-    
+    @Id
     public int getID()
     {
         return id;

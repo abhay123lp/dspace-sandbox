@@ -43,7 +43,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -65,7 +67,7 @@ import org.dspace.event.Event;
  * @version $Revision$
  */
 @Entity
-@Table(name="GROUPS") 
+@Table(name="epersongroup") 
 public class Group extends DSpaceObject
 {
     // findAll sortby types
@@ -172,7 +174,8 @@ public class Group extends DSpaceObject
     {
         return groups.contains(g);
     }
-    @Transient
+    @OneToMany
+    @JoinTable(name="epersongroup2epersongroup")
     public List<Group> getGroups()
     {
         return groups;
@@ -182,6 +185,7 @@ public class Group extends DSpaceObject
      * Return EPerson members of a Group
      */
     @ManyToMany
+    @JoinTable(name="epersongroup2eperson")
     public List<EPerson> getMembers()
     {
         return members;
