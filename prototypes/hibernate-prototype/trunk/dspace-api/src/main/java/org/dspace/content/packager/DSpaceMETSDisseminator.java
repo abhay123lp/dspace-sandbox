@@ -43,6 +43,7 @@ package org.dspace.content.packager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
@@ -277,15 +278,16 @@ public class DSpaceMETSDisseminator
         if (bf != null)
             licenseFormatId = bf.getID();
 
-        Bundle[] bundles = item.getBundles(Constants.LICENSE_BUNDLE_NAME);
-        for (int i = 0; i < bundles.length; i++)
+        List<Bundle> bundles = item.getBundles(Constants.LICENSE_BUNDLE_NAME);
+        for (Bundle bundle : bundles)
         {
             // Assume license will be in its own bundle
-            Bitstream[] bitstreams = bundles[i].getBitstreams();
+            //Bitstream[] bitstreams = bundles[i].getBitstreams();
+        	List<Bitstream> bitstreams = bundle.getBitstreams();
 
-            if (bitstreams[0].getFormat().getID() == licenseFormatId)
+            if (bitstreams.get(0).getFormat().getID() == licenseFormatId)
             {
-                return bitstreams[0];
+                return bitstreams.get(0);
             }
         }
 

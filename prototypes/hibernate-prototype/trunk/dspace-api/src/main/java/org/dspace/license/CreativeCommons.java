@@ -45,6 +45,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
@@ -115,11 +116,11 @@ public class CreativeCommons
     private static Bundle getCcBundle(Item item)
         throws AuthorizeException, IOException
     {
-        Bundle[] bundles = item.getBundles(CC_BUNDLE_NAME);
+        List<Bundle> bundles = item.getBundles(CC_BUNDLE_NAME);
 
-        if ((bundles.length > 0) && (bundles[0] != null))
+        if ((bundles.size() > 0) && (bundles.get(0) != null))
         {
-            item.removeBundle(bundles[0]);
+            item.removeBundle(bundles.get(0));
         }
         return item.createBundle(CC_BUNDLE_NAME);
     }
@@ -199,11 +200,11 @@ public class CreativeCommons
             throws IOException, AuthorizeException
     {
         // remove CC license bundle if one exists
-        Bundle[] bundles = item.getBundles(CC_BUNDLE_NAME);
+        List<Bundle> bundles = item.getBundles(CC_BUNDLE_NAME);
 
-        if ((bundles.length > 0) && (bundles[0] != null))
+        if ((bundles.size() > 0) && (bundles.get(0) != null))
         {
-            item.removeBundle(bundles[0]);
+            item.removeBundle(bundles.get(0));
         }
     }
 
@@ -211,9 +212,9 @@ public class CreativeCommons
             throws IOException
     {
         // try to find CC license bundle
-        Bundle[] bundles = item.getBundles(CC_BUNDLE_NAME);
+        List<Bundle> bundles = item.getBundles(CC_BUNDLE_NAME);
 
-        if (bundles.length == 0)
+        if (bundles.size() == 0)
         {
             return false;
         }
@@ -346,11 +347,11 @@ public class CreativeCommons
         // look for the CC bundle
         try
         {
-            Bundle[] bundles = item.getBundles(CC_BUNDLE_NAME);
+            List<Bundle> bundles = item.getBundles(CC_BUNDLE_NAME);
 
-            if ((bundles != null) && (bundles.length > 0))
+            if ((bundles != null) && (bundles.size() > 0))
             {
-                cc_bundle = bundles[0];
+                cc_bundle = bundles.get(0);
             }
             else
             {

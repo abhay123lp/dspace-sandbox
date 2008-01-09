@@ -318,9 +318,9 @@ public abstract class AbstractMETSIngester
                     if (!bundleName.equals(Constants.CONTENT_BUNDLE_NAME))
                     {
                         Bundle bn;
-                        Bundle bns[] = item.getBundles(bundleName);
-                        if (bns != null && bns.length > 0)
-                            bn = bns[0];
+                        List<Bundle> bns = item.getBundles(bundleName);
+                        if (bns != null && bns.size() > 0)
+                            bn = bns.get(0);
                         else
                             bn = item.createBundle(bundleName);
                         bn.addBitstream(bs);
@@ -445,7 +445,7 @@ public abstract class AbstractMETSIngester
                 {
                     List<Bundle> bn = bundleDAO.getBundles(pbs);
                     if (bn.size() > 0)
-                        bn.get(0).setPrimaryBitstreamID(pbs.getId());
+                        bn.get(0).setPrimaryBitstream(pbs);
                     else
                         log.error("Sanity check, got primary bitstream without any parent bundle.");
                 }
@@ -458,10 +458,11 @@ public abstract class AbstractMETSIngester
             finishItem(context, item);
 
             // commit any changes to bundles
-            Bundle allBn[] = item.getBundles();
-            for (int i = 0; i < allBn.length; ++i)
+            //Bundle allBn[] = item.getBundles();
+            List<Bundle> allBn = item.getBundles();
+            for(Bundle bundle : allBn)
             {
-                bundleDAO.update(allBn[i]);
+                bundleDAO.update(bundle);
             }
 
             wsiDAO.update(wi);

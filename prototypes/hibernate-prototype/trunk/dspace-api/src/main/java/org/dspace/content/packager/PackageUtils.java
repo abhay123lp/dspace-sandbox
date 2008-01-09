@@ -45,6 +45,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
@@ -143,19 +144,19 @@ public class PackageUtils
     public static Bitstream getBitstreamByName(Item item, String bsName, String bnName)
         throws SQLException
     {
-        Bundle[] bundles;
+        List<Bundle> bundles;
         if (bnName == null)
             bundles = item.getBundles();
         else
             bundles = item.getBundles(bnName);
-        for (int i = 0; i < bundles.length; i++)
+        for (Bundle bundle : bundles)
         {
-            Bitstream[] bitstreams = bundles[i].getBitstreams();
+            List<Bitstream> bitstreams = bundle.getBitstreams();
 
-            for (int k = 0; k < bitstreams.length; k++)
+            for (Bitstream bitstream : bitstreams)
             {
-                if (bsName.equals(bitstreams[k].getName()))
-                    return bitstreams[k];
+                if (bsName.equals(bitstream.getName()))
+                    return bitstream;
             }
         }
         return null;
@@ -175,19 +176,19 @@ public class PackageUtils
         throws SQLException
     {
         int fid = bsf.getID();
-        Bundle[] bundles;
+        List<Bundle> bundles;
         if (bnName == null)
             bundles = item.getBundles();
         else
             bundles = item.getBundles(bnName);
-        for (int i = 0; i < bundles.length; i++)
+        for (Bundle bundle : bundles)
         {
-            Bitstream[] bitstreams = bundles[i].getBitstreams();
+            List<Bitstream> bitstreams = bundle.getBitstreams();
 
-            for (int k = 0; k < bitstreams.length; k++)
+            for (Bitstream bitstream : bitstreams)
             {
-                if (bitstreams[k].getFormat().getID() == fid)
-                    return bitstreams[k];
+                if (bitstream.getFormat().getID() == fid)
+                    return bitstream;
             }
         }
         return null;

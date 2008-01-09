@@ -494,18 +494,18 @@ public class ItemExport
         {
             PrintWriter out = new PrintWriter(new FileWriter(outFile));
 
-            Bundle[] bundles = i.getBundles();
+            List<Bundle> bundles = i.getBundles();
 
-            for (int j = 0; j < bundles.length; j++)
+            for (Bundle bundle : bundles)
             {
                 // bundles can have multiple bitstreams now...
-                Bitstream[] bitstreams = bundles[j].getBitstreams();
+                List<Bitstream> bitstreams = bundle.getBitstreams();
 
-                String bundleName = bundles[j].getName();
+                String bundleName = bundle.getName();
 
-                for (int k = 0; k < bitstreams.length; k++)
+                for (Bitstream bitstream : bitstreams)
                 {
-                    Bitstream b = bitstreams[k];
+                    Bitstream b = bitstream;
 
                     String myName = b.getName();
                     String oldName = myName;
