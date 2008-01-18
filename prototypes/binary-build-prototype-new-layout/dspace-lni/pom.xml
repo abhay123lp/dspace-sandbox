@@ -66,11 +66,5 @@
          http://dspace.svn.sourceforge.net/viewvc/dspace/branches/dspace-1_5_x/dspace-lni
       </url>
    </scm>
-   
-   <modules>
-      <module>dspace-lni-core</module>
-      <module>dspace-lni-webapp</module>
-      <module>dspace-lni-client</module>
-   </modules>
-
+  
 </project>
