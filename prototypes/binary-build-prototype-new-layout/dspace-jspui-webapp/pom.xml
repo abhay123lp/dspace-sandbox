@@ -16,7 +16,7 @@
    -->
    <parent>
       <groupId>org.dspace</groupId>
-      <artifactId>dspace-jspui</artifactId>
+      <artifactId>dspace-parent</artifactId>
       <version>1.5-SNAPSHOT</version>
    </parent>
 
