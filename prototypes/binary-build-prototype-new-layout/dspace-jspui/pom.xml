@@ -6,7 +6,7 @@
     <groupId>org.dspace</groupId>
     <artifactId>dspace-jspui</artifactId>
     <packaging>war</packaging>
-    <name>DSpace JSPUI Overlay</name>
+    <name>DSpace JSPUI :: Web Application</name>
     <url>http://www.dspace.org</url>
     <description>
         DSpace JSPUI :: Overlay

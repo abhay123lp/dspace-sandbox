@@ -6,7 +6,7 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-oai</artifactId>
    <packaging>war</packaging>
-   <name>DSpace OAI :: Overlay</name>
+   <name>DSpace OAI :: Web Application Overlay</name>
    <description>DSpace OAI Service Provider</description>
    <url>http://projects.dspace.org/dspace-oai</url>
 

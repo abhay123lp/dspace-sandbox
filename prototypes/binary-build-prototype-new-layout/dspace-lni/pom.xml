@@ -6,7 +6,7 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-lni</artifactId>
    <packaging>war</packaging>
-   <name>DSpace LNI :: Overlay</name>
+   <name>DSpace LNI :: Web Application Overlay</name>
    <description>
       DSpace Lightweight Network Interface Webapplication
    </description>
