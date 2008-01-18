@@ -3,7 +3,7 @@
    <groupId>org.dspace.maven.plugins</groupId>
    <artifactId>dspace-assembly-plugin</artifactId>
    <version>SNAPSHOT</version>
-   <description>Custom assembly descriptos for dspace build process.</description>
+   <description>Custom assembly descriptors for dspace build process.</description>
    <url>http://projects.dspace.org/team/maven/plugins</url>
 
    <organization>
