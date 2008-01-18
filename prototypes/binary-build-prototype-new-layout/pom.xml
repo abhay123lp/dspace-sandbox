@@ -14,6 +14,25 @@
       <url>http://www.dspace.org</url>
    </organization>
 
+   <modules>      
+      <module>language-packs</module>
+      <module>dspace-api</module>
+      <module>dspace-jspui</module>
+      <module>dspace-jspui-api</module>
+      <module>dspace-jspui-webapp</module>
+      <module>dspace-xmlui</module>
+      <module>dspace-xmlui-wing</module>
+      <module>dspace-xmlui-api</module>
+      <module>dspace-xmlui-webapp</module>
+      <module>dspace-lni</module>
+      <module>dspace-lni-core</module>
+      <module>dspace-lni-webapp</module>
+      <module>dspace-lni-client</module>
+      <module>dspace-oai</module>
+      <module>dspace-oai-api</module>
+      <module>dspace-oai-webapp</module>
+   </modules>
+   
    <build>
       <plugins>
          <!-- 
@@ -34,32 +53,56 @@
                <dependency>
                   <groupId>org.dspace.maven.plugins</groupId>
                   <artifactId>dspace-assembly-plugin</artifactId>
-                  <version>1.5-SNAPSHOT</version>
+                  <version>SNAPSHOT</version>
                </dependency>
             </dependencies>
          </plugin>
-         
+
       </plugins>
+      
+      
    </build>
 
-   <modules>      
-      <module>language-packs</module>
-      <module>dspace-api</module>
-      <module>dspace-jspui</module>
-      <module>dspace-jspui-api</module>
-      <module>dspace-jspui-webapp</module>
-      <module>dspace-xmlui</module>
-      <module>dspace-xmlui-wing</module>
-      <module>dspace-xmlui-api</module>
-      <module>dspace-xmlui-webapp</module>
-      <module>dspace-lni</module>
-      <module>dspace-lni-core</module>
-      <module>dspace-lni-webapp</module>
-      <module>dspace-lni-client</module>
-      <module>dspace-oai</module>
-      <module>dspace-oai-api</module>
-      <module>dspace-oai-webapp</module>
-   </modules>
+   <profiles>
+   	<profile>
+   		<id>bootstrap</id>
+        <activation>
+           <activeByDefault>false</activeByDefault>
+        </activation>
+   		<build>
+   			<plugins>
+   				<plugin>
+   					<artifactId>maven-assembly-plugin</artifactId>
+   					<configuration>
+   						<descriptorRefs>
+   							<descriptorRef>bootstrap-release</descriptorRef>
+   						</descriptorRefs>
+   					</configuration>
+   					<inherited>false</inherited>
+   				</plugin>
+   			</plugins>
+   		</build>
+   	</profile>
+   	<profile>
+   		<id>source</id>
+   		<activation>
+   		   <activeByDefault>false</activeByDefault>
+   		</activation>
+   		<build>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>source-release</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                    <inherited>false</inherited>
+                </plugin>
+            </plugins>
+        </build>
+   	</profile>
+   </profiles>
    
    <repositories>
       <repository>

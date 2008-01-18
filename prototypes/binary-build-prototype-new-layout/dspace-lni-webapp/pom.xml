@@ -6,7 +6,7 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-lni-webapp</artifactId>
    <packaging>war</packaging>
-   <name>DSpace LNI :: Web Application</name>
+   <name>DSpace LNI :: Web Application Resources</name>
    <description>
       DSpace Lightweight Network Interface Webapplication
    </description>

@@ -6,7 +6,7 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-xmlui-webapp</artifactId>
    <packaging>war</packaging>
-   <name>DSpace XMLUI (Manakin) :: Web Application</name>
+   <name>DSpace XMLUI (Manakin) :: Web Application Resources</name>
    <url>http://projects.dspace.org/dspace-xmlui/dspace-xmlui-webapp</url>
    <description>
       DSpace/Manakin XML UI Based Webapplication using the Cocoon and
