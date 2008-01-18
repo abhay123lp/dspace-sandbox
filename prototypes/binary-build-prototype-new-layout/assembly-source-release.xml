@@ -1,0 +1,40 @@
+<assembly>
+	<id>source</id>
+	<formats>
+		<format>dir</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	
+	<files>
+		<file>
+			<source>pom.xml</source>
+		</file>
+	</files>
+
+	<fileSets>
+		<fileSet>
+			<directory>dspace</directory>
+			<excludes>
+				<exclude>target/**</exclude>
+			</excludes>
+		</fileSet>
+	</fileSets>
+
+	<moduleSets>
+		<moduleSet>
+			<includes>
+				<include>org.dspace:*</include>
+			</includes>
+			<sources>
+				<fileSets>
+					<fileSet>
+						<excludes>
+							<exclude>target/**</exclude>
+						</excludes>
+					</fileSet>
+				</fileSets>
+			</sources>
+		</moduleSet>
+	</moduleSets>
+
+</assembly>
