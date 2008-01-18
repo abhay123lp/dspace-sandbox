@@ -11,12 +11,11 @@
     <description>
         DSpace JSPUI :: Overlay
     </description>
-    <version>1.5-SNAPSHOT</version>
 
    <parent>
       <groupId>org.dspace</groupId>
       <artifactId>dspace-parent</artifactId>
-      <version>1.5-SNAPSHOT</version>
+      <version>1.5-bbp-SNAPSHOT</version>
    </parent>
 
     <profiles>
@@ -124,14 +123,14 @@
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-jspui</artifactId>
-            <version>1.5-SNAPSHOT</version>
+            <version>1.5-bbp-SNAPSHOT</version>
             <type>war</type>
             <classifier>skinny</classifier>
         </dependency>
         <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-api</artifactId>
-            <version>1.5-SNAPSHOT</version>
+            <version>1.5-bbp-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.dspace</groupId>
