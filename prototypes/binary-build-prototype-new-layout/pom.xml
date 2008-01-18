@@ -46,9 +46,19 @@
       <module>language-packs</module>
       <module>dspace-api</module>
       <module>dspace-jspui</module>
+      <module>dspace-jspui-api</module>
+      <module>dspace-jspui-webapp</module>
       <module>dspace-xmlui</module>
+      <module>dspace-xmlui-wing</module>
+      <module>dspace-xmlui-api</module>
+      <module>dspace-xmlui-webapp</module>
       <module>dspace-lni</module>
+      <module>dspace-lni-core</module>
+      <module>dspace-lni-webapp</module>
+      <module>dspace-lni-client</module>
       <module>dspace-oai</module>
+      <module>dspace-oai-api</module>
+      <module>dspace-oai-webapp</module>
    </modules>
    
    <repositories>
