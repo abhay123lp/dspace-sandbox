@@ -1,0 +1,10 @@
+<archetype>
+  <id>dspace-xmlui-archtype</id>
+  <sources>
+    <source>src/main/java/org/dspace/app/xmlui/aspect/YourNewAspect/Component.java</source>
+  </sources>
+  <resources>
+    <source>src/main/webapp/themes/YourNewTheme/sitemap.xmap</source>
+    <source>src/main/resources/aspects/YourNewAspect/sitemap.xmap</source>
+  </resources>
+</archetype>
