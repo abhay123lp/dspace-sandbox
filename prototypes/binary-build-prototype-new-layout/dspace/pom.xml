@@ -282,18 +282,6 @@
       </profile>
 
       <profile>
-         <id>lni-client</id>
-         <activation>
-            <file>
-               <exists>../dspace-lni-client/pom.xml</exists>
-            </file>
-         </activation>
-         <modules>
-            <module>../dspace-lni-client</module>
-         </modules>
-      </profile>
-
-      <profile>
          <id>lni-webapp</id>
          <activation>
             <file>
@@ -302,6 +290,18 @@
          </activation>
          <modules>
             <module>../dspace-lni-webapp</module>
+         </modules>
+      </profile>
+      
+      <profile>
+         <id>lni-client</id>
+         <activation>
+            <file>
+               <exists>../dspace-lni-client/pom.xml</exists>
+            </file>
+         </activation>
+         <modules>
+            <module>../dspace-lni-client</module>
          </modules>
       </profile>
 
