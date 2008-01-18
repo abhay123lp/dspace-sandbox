@@ -57,6 +57,8 @@
          	<exclude>org.dspace:dspace-xmlui-api</exclude>
          	<exclude>org.dspace:dspace-xmlui-wing</exclude>
          	<exclude>org.dspace:dspace-lni-core</exclude>
+         	<exclude>org.dspace:dspace-jspui-api</exclude>
+            <exclude>org.dspace:dspace-oai-api</exclude>
          </excludes>
          <binaries>
             <includeDependencies>true</includeDependencies>
@@ -66,15 +68,18 @@
       </moduleSet>
       <moduleSet>
          <includes>
-            <include>*:war</include>
+            <include>*:war:*</include>
          </includes>
+         <excludes>
+            <exclude>org.dspace:dspace-xmlui-webapp</exclude>
+            <exclude>org.dspace:dspace-lni-webapp</exclude>
+            <exclude>org.dspace:dspace-jspui-webapp</exclude>
+            <exclude>org.dspace:dspace-oai-webapp</exclude>
+         </excludes>
          <binaries>
             <includeDependencies>false</includeDependencies>
             <outputDirectory>webapps</outputDirectory>
-            <outputFileNameMapping>
-               ${artifactId}
-            </outputFileNameMapping>
-            <unpack>true</unpack>
+            <unpack>false</unpack>
          </binaries>
       </moduleSet>
    </moduleSets>
