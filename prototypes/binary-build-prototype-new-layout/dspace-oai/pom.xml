@@ -69,8 +69,4 @@
       </url>
    </scm>
    
-   <modules>
-      <module>dspace-oai-api</module>
-      <module>dspace-oai-webapp</module>
-   </modules>
 </project>
