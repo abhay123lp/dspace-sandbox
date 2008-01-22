@@ -162,7 +162,32 @@
          </dependency>
          <dependency>
             <groupId>org.dspace</groupId>
+            <artifactId>dspace-jspui-api</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-jspui-webapp</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
             <artifactId>dspace-oai</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-oai-api</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-oai-webapp</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-lni</artifactId>
             <version>${project.version}</version>
          </dependency>
          <dependency>
@@ -178,6 +203,11 @@
          <dependency>
             <groupId>org.dspace</groupId>
             <artifactId>dspace-lni-webapp</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-xmlui</artifactId>
             <version>${project.version}</version>
          </dependency>
          <dependency>
