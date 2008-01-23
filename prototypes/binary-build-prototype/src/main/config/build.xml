@@ -340,7 +340,24 @@ Common usage:
 
 	</target>
 
+	<!-- ============================================================= -->
+	<!-- Upgrade the database tables from 1.4.x to 1.5.x               -->
+	<!-- ============================================================= -->
 
+	<!-- We execute InitializeDatabase, passing in the simple log4j properties
+	 -  file in etc/ and the DSpace configuration file using system
+	-  properties -->
+	<target name="upgrade_database" description="Upgrade DSpace database tables from 1.4.x to 1.5.x">
+
+		<java classname="org.dspace.storage.rdbms.InitializeDatabase" classpathref="class.path" fork="yes" failonerror="yes">
+			<sysproperty key="log4j.configuration" value="file:config/log4j-console.properties" />
+			<sysproperty key="dspace.log.init.disable" value="true" />
+			<sysproperty key="dspace.configuration" value="${config}" />
+			<arg value="database_schema_14-15.sql" />
+		</java>
+
+	</target>
+	
 	<!-- ============================================================= -->
 	<!-- Load the initial contents of the registries into the database -->
 	<!-- ============================================================= -->
