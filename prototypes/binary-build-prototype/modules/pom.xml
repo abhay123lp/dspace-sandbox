@@ -6,9 +6,9 @@
 	<groupId>org.dspace</groupId>
 	<artifactId>modules</artifactId>
 	<packaging>pom</packaging>
-	<name>DSpace Addons</name>
+	<name>DSpace Addon Modules</name>
 	<url>http://www.dspace.org</url>
-	<description>DSpace Addons</description>
+	<description>DSpace Addon Modules</description>
 
 	<parent>
 		<groupId>org.dspace</groupId>
@@ -34,32 +34,21 @@
 
 	<modules>
         <module>dspace-cli</module>
-		<module>language-packs-2</module>
 		<module>dspace-xmlui</module>
 		<module>dspace-lni</module>
 		<module>dspace-oai</module>
 		<module>dspace-jspui</module>
 	</modules>
 
-
 	<dependencies>
-
 		<dependency>
 			<groupId>org.dspace</groupId>
 			<artifactId>dspace-api</artifactId>
 		</dependency>
-		
 		<dependency>
 			<groupId>org.dspace</groupId>
 			<artifactId>language-packs</artifactId>
 		</dependency>
-
-		<dependency>
-			<groupId>commons-math</groupId>
-			<artifactId>commons-math</artifactId>
-			<version>1.1</version>
-		</dependency>
-
 	</dependencies>
 
 </project>
