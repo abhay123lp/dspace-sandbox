@@ -95,12 +95,12 @@ public class MetadataValueDAOTest extends DAOTest implements CRUDTest
         MetadataSchema schema = schemaDAO.create();
 
         // Set up the field
-        field.setSchemaID(schema.getID());
+        field.setSchemaID(schema.getId());
         field.setElement("Element One");
         fieldDAO.update(field);
 
         // All of this stuff has to be set
-        value.setFieldID(field.getID());
+        value.setFieldID(field.getId());
         value.setItemID(item.getId());
         value.setValue("MetadataValue Test");
         instance.update(value);
@@ -132,21 +132,21 @@ public class MetadataValueDAOTest extends DAOTest implements CRUDTest
         boolean containsTwo = false;
 
         // Set up the field
-        field.setSchemaID(schema.getID());
+        field.setSchemaID(schema.getId());
         field.setElement("Element One");
         fieldDAO.update(field);
 
         // All of this stuff has to be set
-        valueOne.setFieldID(field.getID());
+        valueOne.setFieldID(field.getId());
         valueOne.setItemID(item.getId());
         valueOne.setValue(UUID.randomUUID().toString());
-        valueTwo.setFieldID(field.getID());
+        valueTwo.setFieldID(field.getId());
         valueTwo.setItemID(item.getId());
         valueTwo.setValue(UUID.randomUUID().toString());
         instance.update(valueOne);
         instance.update(valueTwo);
 
-        List<MetadataValue> values = instance.getMetadataValues(field.getID());
+        List<MetadataValue> values = instance.getMetadataValues(field.getId());
 
         // We have to do it this way because even though we have a type-safe
         // List, Java insists on using Object.equals() which will fail, even

@@ -58,6 +58,7 @@ import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
 import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.dao.MetadataSchemaDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.w3c.dom.Document;
@@ -82,6 +83,9 @@ public class RegistryLoader
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(RegistryLoader.class);
+    
+    /** Application service */
+    private static ApplicationService applicationService;
 
     /**
      * For invoking via the command line
@@ -395,4 +399,12 @@ public class RegistryLoader
 
         return data;
     }
+
+	public static ApplicationService getApplicationService() {
+		return applicationService;
+	}
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		RegistryLoader.applicationService = applicationService;
+	}
 }

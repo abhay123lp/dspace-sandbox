@@ -44,6 +44,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
@@ -125,7 +126,7 @@ public abstract class DSpaceObject
      * @return internal ID of object
      */
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
     public int getId()
     {
         return id;
@@ -198,12 +199,12 @@ public abstract class DSpaceObject
         return ToStringBuilder.reflectionToString(this,
                 ToStringStyle.MULTI_LINE_STYLE);
     }
-
+/*
     public boolean equals(Object o)
     {
         return EqualsBuilder.reflectionEquals(this, o);
     }
-
+*/
     public boolean equals(DSpaceObject other)
     {
         if (this.getType() == other.getType())
@@ -216,12 +217,12 @@ public abstract class DSpaceObject
 
         return false;
     }
-
+/*
     public int hashCode()
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
-
+*/
 	public void setId(int id) {
 		this.id = id;
 	}

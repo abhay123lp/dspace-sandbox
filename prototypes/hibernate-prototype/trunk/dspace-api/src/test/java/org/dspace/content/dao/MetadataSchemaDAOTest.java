@@ -63,7 +63,7 @@ public class MetadataSchemaDAOTest extends DAOTest implements CRUDTest
     {
         MetadataSchema result = instance.create();
 
-        int id = result.getID();
+        int id = result.getId();
 
         assertTrue(id > 0);
     }
@@ -72,9 +72,9 @@ public class MetadataSchemaDAOTest extends DAOTest implements CRUDTest
     public void retrieve() throws Exception
     {
         MetadataSchema existing = instance.create();
-        MetadataSchema result = instance.retrieve(existing.getID());
+        MetadataSchema result = instance.retrieve(existing.getId());
 
-        assertEquals(existing.getID(), result.getID());
+        assertEquals(existing.getId(), result.getId());
     }
 
     @Test
@@ -91,7 +91,7 @@ public class MetadataSchemaDAOTest extends DAOTest implements CRUDTest
         instance.update(schema);
 
         MetadataSchema result = instance.retrieveByName(name);
-        assertEquals(schema.getID(), result.getID());
+        assertEquals(schema.getId(), result.getId());
     }
 
     @Test
@@ -108,7 +108,7 @@ public class MetadataSchemaDAOTest extends DAOTest implements CRUDTest
         instance.update(schema);
 
         MetadataSchema result = instance.retrieveByNamespace(namespace);
-        assertEquals(schema.getID(), result.getID());
+        assertEquals(schema.getId(), result.getId());
     }
 
     @Test
@@ -143,7 +143,7 @@ public class MetadataSchemaDAOTest extends DAOTest implements CRUDTest
         schema.setNamespace(namespace);
         instance.update(schema);
 
-        instance.delete(schema.getID());
+        instance.delete(schema.getId());
 
         // That we can retrieve it by name implies that the update operation
         // was successful.
@@ -164,7 +164,7 @@ public class MetadataSchemaDAOTest extends DAOTest implements CRUDTest
         schema.setNamespace(namespace);
         instance.update(schema);
 
-        assertTrue(instance.uniqueNamespace(schema.getID(), namespace));
+        assertTrue(instance.uniqueNamespace(schema.getId(), namespace));
         assertTrue(!instance.uniqueNamespace(-1, namespace));
     }
 
@@ -181,7 +181,7 @@ public class MetadataSchemaDAOTest extends DAOTest implements CRUDTest
         schema.setNamespace(namespace);
         instance.update(schema);
 
-        assertTrue(instance.uniqueShortName(schema.getID(), name));
+        assertTrue(instance.uniqueShortName(schema.getId(), name));
         assertTrue(!instance.uniqueShortName(-1, name));
     }
 

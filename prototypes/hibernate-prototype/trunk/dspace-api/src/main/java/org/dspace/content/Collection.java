@@ -41,6 +41,7 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -49,12 +50,18 @@ import java.util.MissingResourceException;
 import java.util.TreeMap;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.Id;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import javax.persistence.CascadeType;
 
 import org.apache.log4j.Logger;
 
@@ -95,7 +102,7 @@ import org.dspace.eperson.factory.GroupFactory;
  * submitters is slightly different - creating or removing this has instant
  * effect.
  * 
- * FIXME: Should we store a List of child Items in memory?
+ * 
  * 
  * @author Robert Tansley
  * @author James Rutherford
@@ -103,17 +110,12 @@ import org.dspace.eperson.factory.GroupFactory;
  */
 @Entity
 public class Collection extends DSpaceObject {
-	/*---------------- OLD FIELDS ------------------------*/
+	
 	/** Flag set when data is modified, for events */
 	private boolean modified;
 	/** Flag set when metadata is modified, for events */
 	private boolean modifiedMetadata;
 
-	// FIXME: Maybe we should be smart about this and only store the IDs. OTOH,
-	// Groups aren't that heavyweight, and cacheing them may be a good thing
-	// for performance. A proxy implementation that retrieved them on demand
-	// and *then* cached them could be a good idea though.
-	/*-------------------------------------------------*/
 	private static Logger log = Logger.getLogger(Collection.class);
 	private String license;
 	
@@ -127,16 +129,38 @@ public class Collection extends DSpaceObject {
 	private Item templateItem;
 	private Bitstream logo;
 
-	private Map<String, String> metadata;
-
+	//private Map<String, String> metadata;
+	/* String is the field, CollectionMetadata is an object with field as key attribute
+	 * and the value as attribute */
+	private Map<String, CollectionMetadata> collectionMetadata;
+	
 	public Collection(Context context) {
 		this.context = context;
-		this.metadata = new TreeMap<String, String>();
+		this.collectionMetadata = new TreeMap<String, CollectionMetadata>();
 		modified=modifiedMetadata=false;
+		
+		this.communities = new ArrayList<Community>();
+		this.items = new ArrayList<Item>();
+		this.workflowGroups = new ArrayList<Group>();
 	}
 
+	protected Collection() {}
+	
+	@OneToMany(mappedBy="collection",cascade = CascadeType.ALL)
+//	@org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+	@MapKey(name = "field")
+	public Map<String, CollectionMetadata> getCollectionMetadata() {
+		return collectionMetadata;
+	}
+
+	public void setCollectionMetadata(Map<String, CollectionMetadata> collectionMetadata) {
+		this.collectionMetadata = collectionMetadata;
+	}
+	
 	public Item createItem() {
 		Item item = ItemFactory.getInstance(context);
+		//FIXME settare anche owning collection
+		item.addCollection(this);
 		items.add(item);
 		return item;
 	}
@@ -176,22 +200,22 @@ public class Collection extends DSpaceObject {
 		clearDetails();
 	}
 
-	/* Returns the list of items of this collection */
-	@ManyToMany(mappedBy="collections")
+	/* Returns the list of items of this collection */	
+	@ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+//    @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @JoinTable(name="item2collections")
 	public List<Item> getItems() {
 		return this.items;
 	}
-	@Transient
+	@Transient 
 	public String getMetadata(String field) {
 		if ("license".equals(field)) {
 			return getLicense();
 		}
-		return metadata.get(field);
+		return collectionMetadata.get(field).getValue();
 	}
 
 	public void setMetadata(String field, String value) {
-		// FIXME: This is a little naughty, but in technically, the license is
-		// actually metadata.
 		if ("license".equals(field)) {
 			setLicense(value);
 			return;
@@ -205,22 +229,32 @@ public class Collection extends DSpaceObject {
 				value = "Untitled";
 			}
 		}
-		metadata.put(field, value);
+		CollectionMetadata oldmetadata = collectionMetadata.get(field);
+		if (oldmetadata==null) {
+			collectionMetadata.put(field, new CollectionMetadata(this, field, value));
+		} else {
+			oldmetadata.setValue(value);
+		}
 		modifiedMetadata = true;
 		addDetails(field);
 
 	}
-	@Column(name="name")
+	@Transient
 	public String getName() {
 		return getMetadata("name");
 	}
+	
+	public void setName(String name) {
+		setMetadata("name", name);
+	}
 	@Column(name="license")
 	public String getLicense() {
-		if ((license == null) || license.equals("")) {
+		//FIXME come rimettere? cambia il nome dell'attributo con nuovi get/set e wrappali qui
+/*		if ((license == null) || license.equals("")) {
 			// Fallback to site-wide default
 			license = ConfigurationManager.getDefaultSubmissionLicense();
 		}
-
+*/
 		return license;
 	}
 
@@ -359,9 +393,8 @@ public class Collection extends DSpaceObject {
     {
         return Constants.COLLECTION;
     }
-    @ManyToMany
-    @JoinTable(name="collection2community")
-	public List<Community> getCommunities() {
+    @ManyToMany(mappedBy="collections")
+    public List<Community> getCommunities() {
 		return communities;
 	}
 
@@ -396,6 +429,33 @@ public class Collection extends DSpaceObject {
 
 	public void setLogo(Bitstream logo) {
 		this.logo = logo;
+	}
+	//FIXME da implementare sulla base di collectiondaopostgres: query o oggetto?
+	@Transient
+	public int itemCount() {
+		return 0;
+	}
+	
+	@Transient
+    public List<Community> getAllParentCommunities()
+    {
+        List<Community> superParents = new ArrayList<Community>(communities);
+
+        for (Community parent : communities)
+        {
+            superParents.addAll(parent.getAllParentCommunities());
+        }
+
+        return superParents;
+    }
+	//FIXME questo metodo potrebbe restituire una map<string, string> per evitare errori, tanto è deprecato
+	@Transient
+	public Map<String, CollectionMetadata> getMetadata() {
+		return collectionMetadata;
+	}
+
+	public void setModifiedMetadata(boolean modifiedMetadata) {
+		this.modifiedMetadata = modifiedMetadata;
 	}
 
 }

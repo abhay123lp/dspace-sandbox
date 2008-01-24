@@ -55,6 +55,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -76,6 +77,8 @@ public class LDAPAuthentication
 
     /** log4j category */
     private static Logger log = Logger.getLogger(LDAPAuthentication.class);
+    
+    private static ApplicationService applicationService;
 
     /**
      * Let a real auth method return true if it wants.
@@ -187,7 +190,8 @@ public class LDAPAuthentication
 	                                "type=ldap-login", "type=ldap_but_already_email"));
 	                        context.setIgnoreAuthorization(true);
 	                        eperson.setNetid(netid);
-	                        eperson.update();
+	                        applicationService.saveOrUpdate(context, EPerson.class, eperson);
+	                        //eperson.update();
                             try
                             {
 	                            context.commit();
@@ -217,7 +221,8 @@ public class LDAPAuthentication
 	                                eperson.setNetid(netid);
 	                                eperson.setCanLogIn(true);
 	                                AuthenticationManager.initEPerson(context, request, eperson);
-	                                eperson.update();
+	                                applicationService.saveOrUpdate(context, EPerson.class, eperson);
+	                                //eperson.update();
 	                                context.commit();
 	                            }
 	                            catch (AuthorizeException e)
@@ -246,10 +251,11 @@ public class LDAPAuthentication
 	                        }
 	                    }
                     }
-                    catch (AuthorizeException e)
-                    {
-                        eperson = null;
-                    }
+                    //FIXME come mai questa eccezione non viene mai lanciata??
+                    //catch (AuthorizeException e)
+                    //{
+                    //    eperson = null;
+                    //}
                     finally
                     {
                         context.setIgnoreAuthorization(false);
@@ -428,4 +434,12 @@ public class LDAPAuthentication
     {
         return "org.dspace.eperson.LDAPAuthentication.title";
     }
+
+	public static ApplicationService getApplicationService() {
+		return applicationService;
+	}
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		LDAPAuthentication.applicationService = applicationService;
+	}
 }

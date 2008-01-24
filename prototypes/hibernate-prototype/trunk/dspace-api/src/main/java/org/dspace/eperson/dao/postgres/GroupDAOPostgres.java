@@ -56,7 +56,7 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.eperson.dao.GroupDAO;
-import org.dspace.eperson.proxy.GroupProxy;
+//import org.dspace.eperson.proxy.GroupProxy;
 import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;

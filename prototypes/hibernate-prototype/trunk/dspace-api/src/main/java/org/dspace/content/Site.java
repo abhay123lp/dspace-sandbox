@@ -39,17 +39,16 @@
  */
 package org.dspace.content;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
-import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
+import javax.persistence.CascadeType;
 
 import org.dspace.content.factory.CommunityFactory;
 import org.dspace.core.Constants;
@@ -78,7 +77,10 @@ public class Site extends DSpaceObject
     
     public Site(Context context) {
     	this.context = context;
+    	topCommunities = new ArrayList<Community>();
     }
+    
+    protected Site() {}
     
     /* Creates a top-community */
     public Community createTopCommunity() {
@@ -98,7 +100,7 @@ public class Site extends DSpaceObject
     }
     
     /* Returns all the top-communities of this site */
-    @OneToMany
+    @OneToMany(cascade=CascadeType.ALL)
     @JoinTable(name="site2community")
     public List<Community> getTopCommunities() {
     	return this.topCommunities;
@@ -118,7 +120,7 @@ public class Site extends DSpaceObject
     public void setName(String name) {
     	this.name=name;
     }
-    @Column(name="NAME")
+    @Column(name="name")
     public String getName() {
     	return name;
     }

@@ -79,8 +79,8 @@ public abstract class MetadataFieldDAO extends ContentDAO
 
     protected final MetadataField create(MetadataField field)
     {
-        int id = field.getID();
-        int schemaID = field.getSchema().getID();
+        int id = field.getId();
+        int schemaID = field.getSchema().getId();
         String element = field.getElement();
         String qualifier = field.getQualifier();
 
@@ -130,8 +130,8 @@ public abstract class MetadataFieldDAO extends ContentDAO
 
     public void update(MetadataField field) throws AuthorizeException
     {
-        int id = field.getID();
-        int schemaID = field.getSchema().getID();
+        int id = field.getId();
+        int schemaID = field.getSchema().getId();
         String element = field.getElement();
         String qualifier = field.getQualifier();
 

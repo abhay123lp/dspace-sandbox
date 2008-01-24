@@ -945,7 +945,7 @@ public class ItemImport
         		return;
         	}
 
-        	int schemaID = foundSchema.getID();
+        	int schemaID = foundSchema.getId();
         	MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
 
         	if (foundField == null)

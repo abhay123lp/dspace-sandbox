@@ -49,6 +49,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.PosixParser;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
@@ -56,6 +57,7 @@ import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.content.uri.dao.ExternalIdentifierDAO;
 import org.dspace.content.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -72,6 +74,8 @@ import org.dspace.core.Context;
 public class CommunityFiliator
 {
     private static CommunityDAO communityDAO = null;
+    
+    private static ApplicationService applicationService;
 
     public static void main(String[] argv) throws Exception
     {
@@ -258,9 +262,18 @@ public class CommunityFiliator
         }
         else
         {
-            community = communityDAO.retrieve(Integer.parseInt(communityID));
+            //community = communityDAO.retrieve(Integer.parseInt(communityID));
+        	community = applicationService.get(c, Community.class, Integer.parseInt(communityID));
         }
 
         return community;
     }
+
+	public static ApplicationService getApplicationService() {
+		return applicationService;
+	}
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		CommunityFiliator.applicationService = applicationService;
+	}
 }

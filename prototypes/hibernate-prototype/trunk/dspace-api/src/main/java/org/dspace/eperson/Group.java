@@ -97,6 +97,8 @@ public class Group extends DSpaceObject
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
     
+    protected Group() {}
+    
     public Group(Context context)
     {
         this.context = context;

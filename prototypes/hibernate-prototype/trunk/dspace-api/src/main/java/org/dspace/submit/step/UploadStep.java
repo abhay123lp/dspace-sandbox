@@ -320,9 +320,11 @@ public class UploadStep extends AbstractProcessingStep
         if (request.getParameter("primary_bitstream_id") != null)
         {
             List<Bundle> bundles = item.getBundles("ORIGINAL");
-            bundles.get(0).setPrimaryBitstreamID(new Integer(request
-                    .getParameter("primary_bitstream_id")));
-            bundleDAO.update(bundles[0]);
+            Bitstream bitstream = applicationService.get(context, Bitstream.class, 
+            		new Integer(request.getParameter("primary_bitstream_id")));
+            bundles.get(0).setPrimaryBitstream(bitstream);
+            applicationService.saveOrUpdate(context, Bundle.class, bundles.get(0));
+            //bundleDAO.update(bundles.get(0));
         }
 
         // ---------------------------------------------------
@@ -333,8 +335,8 @@ public class UploadStep extends AbstractProcessingStep
         boolean allowEmptyItems = (request.getParameter("submit_skip") != null);
         if (!allowEmptyItems)
         {
-            Bundle[] bundles = item.getBundles("ORIGINAL");
-            if (bundles.length == 0)
+            List<Bundle> bundles = item.getBundles("ORIGINAL");
+            if (bundles.size()== 0)
             {
                 // if no ORIGINAL bundle,
                 // throw an error that there is no file!
@@ -342,8 +344,8 @@ public class UploadStep extends AbstractProcessingStep
             }
             else
             {
-                Bitstream[] bitstreams = bundles[0].getBitstreams();
-                if (bitstreams.length == 0)
+                List<Bitstream> bitstreams = bundles.get(0).getBitstreams();
+                if (bitstreams.size() == 0)
                 {
                     // no files in ORIGINAL bundle!
                     return STATUS_NO_FILES_ERROR;
@@ -450,10 +452,10 @@ public class UploadStep extends AbstractProcessingStep
         }
 
         bundle.removeBitstream(bitstream);
-        Bitstream[] bitstreams = bundle.getBitstreams();
+        List<Bitstream> bitstreams = bundle.getBitstreams();
 
         // remove bundle if it's now empty
-        if (bitstreams.length < 1)
+        if (bitstreams.size() < 1)
         {
             item.removeBundle(bundle);
             itemDAO.update(item);
@@ -533,9 +535,9 @@ public class UploadStep extends AbstractProcessingStep
                     Item item = subInfo.getSubmissionItem().getItem();
         
                     // do we already have a bundle?
-                    Bundle[] bundles = item.getBundles("ORIGINAL");
+                    List<Bundle> bundles = item.getBundles("ORIGINAL");
         
-                    if (bundles.length < 1)
+                    if (bundles.size() < 1)
                     {
                         // set bundle's name to ORIGINAL
                         b = item.createSingleBitstream(fileInputStream, "ORIGINAL");
@@ -543,7 +545,7 @@ public class UploadStep extends AbstractProcessingStep
                     else
                     {
                         // we have a bundle already, just add bitstream
-                        b = bundles[0].createBitstream(fileInputStream);
+                        b = bundles.get(0).createBitstream(fileInputStream);
                     }
         
                     // Strip all but the last filename. It would be nice

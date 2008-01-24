@@ -262,12 +262,12 @@ public abstract class ItemDAO extends ContentDAO
             }
 
             field = mfDAO.retrieve(
-                    schema.getID(), memValue.element, memValue.qualifier);
+                    schema.getId(), memValue.element, memValue.qualifier);
 
             // Work out the place number for ordering
             int current = 0;
 
-            Integer key = field.getID();
+            Integer key = field.getId();
             Integer currentInteger = elementCount.get(key);
 
             if (currentInteger != null)
@@ -294,7 +294,7 @@ public abstract class ItemDAO extends ContentDAO
             if (!exists)
             {
                 MetadataValue value = mvDAO.create();
-                value.setFieldID(field.getID());
+                value.setFieldID(field.getId());
                 value.setItemID(item.getId());
                 value.setValue(memValue.value);
                 value.setLanguage(memValue.language);

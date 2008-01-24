@@ -97,6 +97,8 @@ public class Bundle extends DSpaceObject {
 		bitstreams = new ArrayList<Bitstream>();
 		modified = modifiedMetadata = false;
 	}
+	
+	protected Bundle() {}
 
 	public Bitstream createBitstream(InputStream is) throws AuthorizeException,
 			IOException {
@@ -203,7 +205,8 @@ public class Bundle extends DSpaceObject {
     {
         return Constants.BUNDLE;
     }
-	@ManyToOne
+	@ManyToOne(optional=false)
+	//@JoinColumn(name="item_id")
 	public Item getItem() {
 		return item;
 	}

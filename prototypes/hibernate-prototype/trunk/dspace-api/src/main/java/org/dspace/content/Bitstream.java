@@ -107,6 +107,9 @@ public class Bitstream extends DSpaceObject
         modified = modifiedMetadata = false;
         clearDetails();
     }
+    
+    protected Bitstream() {}
+    
     @Column(name = "sequence_id")
     public int getSequenceID() {
     	return sequenceID;
@@ -164,12 +167,12 @@ public class Bitstream extends DSpaceObject
     	this.checksumAlgorithm=checksumAlgorithm;
     }
     @Column(name = "size_bytes")
-    public long getSize() {
+    public Long getSize() {
         return (size == null ? 0 : size.longValue());
     }
     
-    public void setSize(Long sizeBytes) {
-        this.size = sizeBytes;
+    public void setSize(Long size) {
+        this.size = size;
     }
     @Column(name="user_format_description")
     public String getUserFormatDescription() {

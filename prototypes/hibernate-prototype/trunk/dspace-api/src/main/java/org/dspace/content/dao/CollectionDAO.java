@@ -45,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
@@ -81,11 +83,11 @@ public abstract class CollectionDAO extends ContentDAO
     protected static Logger log = Logger.getLogger(CollectionDAO.class);
 
     protected Context context;
-    protected BitstreamDAO bitstreamDAO;
+/*    protected BitstreamDAO bitstreamDAO;
     protected ItemDAO itemDAO;
     protected GroupDAO groupDAO;
     protected ExternalIdentifierDAO identifierDAO;
-
+*/
     /**
      * The allowed metadata fields for Collections are defined in the following
      * enum. This should make reading / writing all metadatafields a lot less
@@ -117,20 +119,20 @@ public abstract class CollectionDAO extends ContentDAO
     {
         this.context = context;
 
-        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
-        itemDAO = ItemDAOFactory.getInstance(context);
-        groupDAO = GroupDAOFactory.getInstance(context);
-        identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
+ //       bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+ //       itemDAO = ItemDAOFactory.getInstance(context);
+ //       groupDAO = GroupDAOFactory.getInstance(context);
+ //       identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
-    public abstract Collection create() throws AuthorizeException;
+//    public abstract Collection create() throws AuthorizeException; //Application Service
 
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    protected final Collection create(Collection collection)
+/*    protected final Collection create(Collection collection) //Application Service
         throws AuthorizeException
     {
         // Create a default persistent identifier for this Collection, and
@@ -166,18 +168,18 @@ public abstract class CollectionDAO extends ContentDAO
         
         return collection;
     }
-
-    public Collection retrieve(int id)
+*/
+/*    public Collection retrieve(int id) //Application Service
     {
         return (Collection) context.fromCache(Collection.class, id);
     }
-
+*/
     public Collection retrieve(UUID uuid)
     {
         return null;
     }
 
-    public void update(Collection collection) throws AuthorizeException
+/*    public void update(Collection collection) throws AuthorizeException //Application Service
     {
         // Check authorisation
         collection.canEdit();
@@ -209,8 +211,8 @@ public abstract class CollectionDAO extends ContentDAO
             throw new RuntimeException(sqle);
         }
     }
-
-    public void delete(int id) throws AuthorizeException
+*/
+/*    public void delete(int id) throws AuthorizeException //Application Service
     {
         try
         {
@@ -304,8 +306,8 @@ public abstract class CollectionDAO extends ContentDAO
             throw new RuntimeException(e);
         }
     }
-
-    public abstract List<Collection> getCollections();
+*/
+    public abstract List<Collection> getCollections(EntityManager em);
 
     /**
      * Returns a List of collections that user has a given permission on.
@@ -313,18 +315,18 @@ public abstract class CollectionDAO extends ContentDAO
      * collections a person is an editor for.
      */
     public List<Collection> getCollectionsByAuthority(Community parent,
-            int actionID)
+            int actionID, EntityManager em)
     {
         List<Collection> results = new ArrayList<Collection>();
         List<Collection> collections = null;
 
         if (parent != null)
         {
-            collections = getChildCollections(parent);
+            collections = parent.getCollections();//getChildCollections(parent);
         }
         else
         {
-            collections = getCollections();
+            collections = getCollections(em);
         }
 
         for (Collection collection : collections)
@@ -339,8 +341,8 @@ public abstract class CollectionDAO extends ContentDAO
         return results;
     }
 
-    public abstract List<Collection> getParentCollections(Item item);
-    public abstract List<Collection> getChildCollections(Community community);
+//    public abstract List<Collection> getParentCollections(Item item); //Item
+//    public abstract List<Collection> getChildCollections(Community community); //Community
 
     /**
      * Returns a list of all the Collections that are *not* the parent of the
@@ -349,11 +351,11 @@ public abstract class CollectionDAO extends ContentDAO
      * @param item The Item
      * @return All Collections that are not parent to the given Item.
      */
-    public List<Collection> getCollectionsNotLinked(Item item)
+    public List<Collection> getCollectionsNotLinked(Item item, EntityManager em)
     {
         List<Collection> collections = new ArrayList<Collection>();
 
-        for (Collection collection : getCollections())
+        for (Collection collection : getCollections(em))
         {
             if (!linked(collection, item))
             {
@@ -368,7 +370,7 @@ public abstract class CollectionDAO extends ContentDAO
      * Create a storage layer association between the given Item and
      * Collection.
      */
-    public void link(Collection collection, Item item)
+/*    public void link(Collection collection, Item item) //Ci serve?
         throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, collection,
@@ -382,12 +384,12 @@ public abstract class CollectionDAO extends ContentDAO
         // policies unto it.
         AuthorizeManager.inheritPolicies(context, collection, item);
     }
-
+*/
     /**
      * Remove any existing storage layer association between the given Item and
      * Collection.
      */
-    public void unlink(Collection collection, Item item)
+/*    public void unlink(Collection collection, Item item) //Ci serve?
         throws AuthorizeException
     {
         AuthorizeManager.authorizeAction(context, collection,
@@ -397,7 +399,7 @@ public abstract class CollectionDAO extends ContentDAO
                 "collection_id=" + collection.getId() + 
                 ",item_id=" + item.getId()));
 
-        if (getParentCollections(item).size() == 0)
+        if (item.getCollections().size() == 0)
         {
             // make the right to remove the item explicit because the implicit
             // relation has been removed. This only has to concern the
@@ -412,7 +414,7 @@ public abstract class CollectionDAO extends ContentDAO
             itemDAO.delete(item.getId());
         }
     }
-
+*/
     /**
      * Determine whether or not there is an established link between the given
      * Item and Collection in the storage layer.
@@ -421,5 +423,5 @@ public abstract class CollectionDAO extends ContentDAO
 
     // Everything below this line is debatable & needs rethinking
 
-    public abstract int itemCount(Collection collection);
+//    public abstract int itemCount(Collection collection); //Su Collection
 }

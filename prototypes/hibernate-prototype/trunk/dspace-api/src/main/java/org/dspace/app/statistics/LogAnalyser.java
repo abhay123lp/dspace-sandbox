@@ -1169,7 +1169,7 @@ public class LogAnalyser
         else
         {
             MetadataSchema schema = msDAO.retrieveByName("dc");
-            MetadataField field = mfDAO.retrieve(schema.getID(), "type", null);
+            MetadataField field = mfDAO.retrieve(schema.getId(), "type", null);
             MetadataValue value = new MetadataValue(field);
             value.setValue(type);
 

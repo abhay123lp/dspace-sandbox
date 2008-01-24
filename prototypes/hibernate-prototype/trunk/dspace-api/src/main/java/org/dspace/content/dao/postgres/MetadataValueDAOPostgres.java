@@ -226,7 +226,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     "metadatavalue",
                     "SELECT metadata_value_id FROM metadatavalue " +
                     "WHERE metadata_field_id = ? ",
-                    field.getID());
+                    field.getId());
 
             return returnAsList(tri);
         }
@@ -247,7 +247,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     "SELECT metadata_value_id FROM metadatavalue " +
                             "WHERE metadata_field_id = ? " +
                             "AND text_value LIKE ?",
-                    field.getID(), value);
+                    field.getId(), value);
 
             return returnAsList(tri);
         }
@@ -268,7 +268,7 @@ public class MetadataValueDAOPostgres extends MetadataValueDAO
                     "SELECT metadata_value_id FROM metadatavalue " +
                     "WHERE metadata_field_id = ? " +
                     "AND text_value LIKE ? AND text_lang LIKE ?",
-                    field.getID(), value, language);
+                    field.getId(), value, language);
 
             return returnAsList(tri);
         }
