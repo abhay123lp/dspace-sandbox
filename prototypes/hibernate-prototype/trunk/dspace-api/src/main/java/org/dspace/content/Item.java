@@ -44,18 +44,23 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
@@ -74,8 +79,8 @@ import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.dao.ItemDAO;
-import org.dspace.content.dao.ItemDAOFactory;
-//import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.content.dao.ItemDAOFactory; // import
+												// org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -102,21 +107,21 @@ public class Item extends DSpaceObject {
 
 	public static final String ANY = "*";
 
-	protected String identifier;
-	protected boolean inArchive;
-	protected boolean withdrawn;
-	protected Date lastModified;
+	private String identifier;
+	private boolean inArchive;
+	private boolean withdrawn;
+	private Date lastModified;
 
 	// protected int owningCollectionId;
-	protected Collection owningCollection;
-	protected int submitterId;
-	protected EPerson submitter;
-	
-	protected List<Collection> collections;
-	protected List<Bundle> bundles;
-	protected List<MetadataValue> metadata;
+	private Collection owningCollection;
+	// protected int submitterId;
+	private EPerson submitter;
 
-	protected boolean metadataChanged;
+	private List<Collection> collections;
+	private List<Bundle> bundles;
+	private List<MetadataValue> metadata;
+
+	private boolean metadataChanged;
 
 	/**
 	 * True if anything else was changed since last update() (to drive event
@@ -129,12 +134,22 @@ public class Item extends DSpaceObject {
 
 	public Item(Context context) {
 		this.context = context;
-		metadataChanged=modified=false;
+		this.collections = new ArrayList<Collection>();
+		this.bundles = new ArrayList<Bundle>();
+		this.metadata = new ArrayList<MetadataValue>();
+		metadataChanged = modified = false;
+	}
+
+	protected Item() {
+		this.collections = new ArrayList<Collection>();
+		this.bundles = new ArrayList<Bundle>();
+		this.metadata = new ArrayList<MetadataValue>();
 	}
 
 	public Bundle createBundle() {
 		Bundle bundle = BundleFactory.getInstance(context);
-		bundles.add(bundle);
+		bundle.setItem(this);
+		getBundles().add(bundle);
 		return bundle;
 	}
 
@@ -173,6 +188,7 @@ public class Item extends DSpaceObject {
 				Constants.BUNDLE, b.getId(), b.getName()));
 
 	}
+
 	@Transient
 	protected String getidentifier() {
 		return identifier;
@@ -181,7 +197,8 @@ public class Item extends DSpaceObject {
 	protected void setidentifier(String identifier) {
 		this.identifier = identifier;
 	}
-	@Column(name="in_archive")
+
+	@Column(name = "in_archive")
 	public boolean isArchived() {
 		return inArchive;
 	}
@@ -189,7 +206,8 @@ public class Item extends DSpaceObject {
 	public void setArchived(boolean inArchive) {
 		this.inArchive = inArchive;
 	}
-	@Column(name="withdrawn")
+
+	@Column(name = "withdrawn")
 	public boolean isWithdrawn() {
 		return withdrawn;
 	}
@@ -197,24 +215,26 @@ public class Item extends DSpaceObject {
 	public void setWithdrawn(boolean withdrawn) {
 		this.withdrawn = withdrawn;
 	}
-	@Column(name="last_modified")
+
+	@Column(name = "last_modified")
+	@Temporal(value=TemporalType.DATE)
 	public Date getLastModified() {
 		return lastModified;
 	}
 
-	
 	/* Returns the owning collection of this item */
 	@ManyToOne
-	@JoinColumn(name="owning_collection_id")
-	public Collection getOwningCollection() { 
-		return	owningCollection; 
-	}	  
-	
-	public void setOwningCollection(Collection owningCollection) {
-		this.owningCollection = owningCollection; 
+	@JoinColumn(name = "owning_collection_id")
+	public Collection getOwningCollection() {
+		return owningCollection;
 	}
+
+	public void setOwningCollection(Collection owningCollection) {
+		this.owningCollection = owningCollection;
+	}
+
 	@OneToMany
-	@JoinTable(name="item2metadatavalue")
+	@JoinTable(name = "item2metadatavalue")
 	public List<MetadataValue> getMetadata() {
 		return metadata;
 	}
@@ -222,6 +242,7 @@ public class Item extends DSpaceObject {
 	public void setMetadata(List<MetadataValue> metadata) {
 		this.metadata = metadata;
 	}
+
 	@Transient
 	public MetadataValue[] getMetadata(String schema, String element,
 			String qualifier, String lang) {
@@ -236,6 +257,7 @@ public class Item extends DSpaceObject {
 
 		return values.toArray(new MetadataValue[0]);
 	}
+
 	@Transient
 	public MetadataValue[] getMetadata(String mdString) {
 		StringTokenizer st = new StringTokenizer(mdString, ".");
@@ -261,12 +283,13 @@ public class Item extends DSpaceObject {
 
 		return values;
 	}
+
 	public void addMetadata(MetadataField field, String lang, String... values) {
 		for (String value : values) {
 			if (value != null && !value.trim().equals("")) {
 				MetadataValue mdv = new MetadataValue(field);
 				mdv.setLanguage(lang);
-				
+
 				// remove control unicode char
 				String temp = value.trim();
 				char[] dcvalue = temp.toCharArray();
@@ -285,12 +308,14 @@ public class Item extends DSpaceObject {
 					metadataChanged = true;
 				}
 
-				addDetails(field.getSchema().getName() + "." + field.getElement()
-						+ ((field.getQualifier() == null) ? "" : "." + field.getQualifier()));
+				addDetails(field.getSchema().getName()
+						+ "."
+						+ field.getElement()
+						+ ((field.getQualifier() == null) ? "" : "."
+								+ field.getQualifier()));
 			}
 		}
 	}
-
 
 	public void clearMetadata(String schema, String element, String qualifier,
 			String lang) {
@@ -314,22 +339,23 @@ public class Item extends DSpaceObject {
 
 	public void setSubmitter(EPerson submitter) {
 		this.submitter = submitter;
-		submitterId = submitter.getId();
+		// submitterId = submitter.getId();
 	}
 
 	/* FIXME: responsabilità del dao prendere le info? */
-	public void setSubmitter(int submitterId) {
-		// setSubmitter(epersonDAO.retrieve(submitterId));
-	}
-	@OneToOne
+	/*
+	 * public void setSubmitter(int submitterId) { //
+	 * setSubmitter(epersonDAO.retrieve(submitterId)); }
+	 */@OneToOne
 	public EPerson getSubmitter() {
 		return submitter;
 	}
-	@OneToMany(mappedBy="item")
+
+	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "item")
 	public List<Bundle> getBundles() {
 		return bundles;
 	}
-	
+
 	@Transient
 	public List<Bundle> getBundles(String name) {
 		List<Bundle> tmp = new ArrayList<Bundle>();
@@ -352,15 +378,6 @@ public class Item extends DSpaceObject {
 		}
 
 		AuthorizeManager.authorizeAction(context, this, Constants.ADD);
-
-		// FIXME: Ideally, we wouldn't reach into the DAO layer here, we'd just
-		// let everything fall into place when item.update() is called, but I
-		// haven't quite worked out the logistics of that yet. Basically, we
-		// need the behaviour to propogate downwards (ie: through bundles into
-		// bitstreams) because bitstreams don't yet use DAOs, they do the
-		// creation immediately. Once Bitstreams use DAOs, we *should* be able
-		// to replace this code with the following:
-		// Addendum: That didn't seem to do it. Need to figure out why.
 
 		Bundle b = BundleFactory.getInstance(context);
 		b.setName(name);
@@ -389,6 +406,7 @@ public class Item extends DSpaceObject {
 			throws AuthorizeException, IOException {
 		return createSingleBitstream(is, "ORIGINAL");
 	}
+
 	@Transient
 	public Bitstream[] getNonInternalBitstreams() {
 		List<Bitstream> bitstreamList = new ArrayList<Bitstream>();
@@ -465,17 +483,27 @@ public class Item extends DSpaceObject {
 		 * removeBundle(bundle); } }
 		 */}
 
-	/* FIXME: perchè chiederlo all'item e non chiedere alla collection se è owning dell'item? */
+	/*
+	 * FIXME: perchè chiederlo all'item e non chiedere alla collection se è
+	 * owning dell'item?
+	 */
 	@Transient
 	public boolean isOwningCollection(Collection c) {
-		
-		  if (getOwningCollection().getId() > 0) { if (c.getId() == getOwningCollection().getId()) {
-		  return true; } } else if (owningCollection != null) { if (c.getId() ==
-		  owningCollection.getId()) { return true; } }
-		  
-		 // not the owner
+
+		if (getOwningCollection().getId() > 0) {
+			if (c.getId() == getOwningCollection().getId()) {
+				return true;
+			}
+		} else if (owningCollection != null) {
+			if (c.getId() == owningCollection.getId()) {
+				return true;
+			}
+		}
+
+		// not the owner
 		return false;
 	}
+
 	@Transient
 	public int getType() {
 		return Constants.ITEM;
@@ -511,7 +539,7 @@ public class Item extends DSpaceObject {
 		AuthorizeManager.removeGroupPolicies(context, this, g);
 
 		// remove all policies from bundles
-		
+
 		for (Bundle mybundle : getBundles()) {
 			for (Bitstream mybitstream : mybundle.getBitstreams()) {
 				// remove bitstream policies
@@ -566,40 +594,33 @@ public class Item extends DSpaceObject {
 
 		replaceAllBitstreamPolicies(policies);
 	}
-	
-	public boolean canEdit()
-    {
-        // can this person write to the item?
-        if (AuthorizeManager.authorizeActionBoolean(context, this,
-                Constants.WRITE))
-        {
-            return true;
-        }
-        /*FIXME controllare derivazioni di owning collection */
-        // is this collection not yet created, and an item template is created
-/*        if (getOwningCollection() == null)
-        {
-            return true;
-        }
-*/
-        // is this person an COLLECTION_EDITOR for the owning collection?
-/*        if (getOwningCollection().canEditBoolean())
-        {
-            return true;
-        }
-*/
-        // is this person an COLLECTION_EDITOR for the owning collection?
-//        return AuthorizeManager.authorizeActionBoolean(context, getOwningCollection(), Constants.COLLECTION_ADMIN);
 
-        return true; //da togliere!
-    }
+	public boolean canEdit() {
+		// can this person write to the item?
+		if (AuthorizeManager.authorizeActionBoolean(context, this,
+				Constants.WRITE)) {
+			return true;
+		}
+		/* FIXME controllare derivazioni di owning collection */
+		// is this collection not yet created, and an item template is created
+		/*
+		 * if (getOwningCollection() == null) { return true; }
+		 *  // is this person an COLLECTION_EDITOR for the owning collection? if
+		 * (getOwningCollection().canEditBoolean()) { return true; }
+		 */
+		// is this person an COLLECTION_EDITOR for the owning collection?
+		// return AuthorizeManager.authorizeActionBoolean(context,
+		// getOwningCollection(), Constants.COLLECTION_ADMIN);
+		return true; // da togliere
+
+	}
+
 	@Transient
-	public String getName()
-    {
-        MetadataValue t[] = getMetadata("dc", "title", null, Item.ANY);
-        return (t.length >= 1) ? t[0].getValue() : null;
-    }
-	
+	public String getName() {
+		MetadataValue t[] = getMetadata("dc", "title", null, Item.ANY);
+		return (t.length >= 1) ? t[0].getValue() : null;
+	}
+
 	/**
 	 * Utility method for pattern-matching metadata elements. This method will
 	 * return <code>true</code> if the given schema, element, qualifier and
@@ -608,9 +629,9 @@ public class Item extends DSpaceObject {
 	 * qualifier and language passed in can be the <code>Item.ANY</code>
 	 * wildcard.
 	 * 
-	 *  It's a bit filthy and horrid to make this protected, but I need to
-	 * access from the ItemProxy subclass. Really, it should exist somewhere
-	 * else, possibly in DCValue.
+	 * It's a bit filthy and horrid to make this protected, but I need to access
+	 * from the ItemProxy subclass. Really, it should exist somewhere else,
+	 * possibly in DCValue.
 	 * 
 	 * @param schema
 	 *            the schema for the metadata field. <em>Must</em> match the
@@ -628,7 +649,8 @@ public class Item extends DSpaceObject {
 	protected boolean match(String schema, String element, String qualifier,
 			String language, MetadataValue mdv) {
 		// We will attempt to disprove a match - if we can't we have a match
-		if (!element.equals(Item.ANY) && !element.equals(mdv.getMetadataField().getElement())) {
+		if (!element.equals(Item.ANY)
+				&& !element.equals(mdv.getMetadataField().getElement())) {
 			// Elements do not match, no wildcard
 			return false;
 		}
@@ -658,7 +680,9 @@ public class Item extends DSpaceObject {
 				return false;
 			}
 		} else if (!schema.equals(Item.ANY)) {
-			if (mdv.getMetadataField().getSchema() != null && !mdv.getMetadataField().getSchema().getName().equals(schema)) {
+			if (mdv.getMetadataField().getSchema() != null
+					&& !mdv.getMetadataField().getSchema().getName().equals(
+							schema)) {
 				// The namespace doesn't match
 				return false;
 			}
@@ -667,85 +691,82 @@ public class Item extends DSpaceObject {
 		// If we get this far, we have a match
 		return true;
 	}
-	
-	   ////////////////////////////////////////////////////////////////////
-    // Stuff from BrowseItem
-    ////////////////////////////////////////////////////////////////////
 
-    /**
-     * Get a thumbnail object out of the item.
-     * 
-     * Warning: using this method actually instantiates an Item, which has a
-     * corresponding performance hit on the database during browse listing
-     * rendering.  That's your own fault for wanting to put images on your
-     * browse page!
-     * 
-     * @return
-     */
+	// //////////////////////////////////////////////////////////////////
+	// Stuff from BrowseItem
+	// //////////////////////////////////////////////////////////////////
+
+	/**
+	 * Get a thumbnail object out of the item.
+	 * 
+	 * Warning: using this method actually instantiates an Item, which has a
+	 * corresponding performance hit on the database during browse listing
+	 * rendering. That's your own fault for wanting to put images on your browse
+	 * page!
+	 * 
+	 * @return
+	 */
 	@Transient
-    public Thumbnail getThumbnail()
-    {
-        // if there's no original, there is no thumbnail
-        List<Bundle> original = getBundles("ORIGINAL");
-        if (original.size() == 0)
-        {
-            return null;
-        }
-        
-        // if multiple bitstreams, check if the primary one is HTML
-        boolean html = false;
-        if (original.get(0).getBitstreams().size() > 1)
-        {
-            List<Bitstream> bitstreams = original.get(0).getBitstreams();
+	public Thumbnail getThumbnail() {
+		// if there's no original, there is no thumbnail
+		List<Bundle> original = getBundles("ORIGINAL");
+		if (original.size() == 0) {
+			return null;
+		}
 
-            for (int i = 0; (i < bitstreams.size()) && !html; i++)
-            {
-                if (bitstreams.get(i).getId() == original.get(0).getPrimaryBitstream().getId())
-                {
-                    html = bitstreams.get(i).getFormat().getMIMEType().equals("text/html");
-                }
-            }
-        }
+		// if multiple bitstreams, check if the primary one is HTML
+		boolean html = false;
+		if (original.get(0).getBitstreams().size() > 1) {
+			List<Bitstream> bitstreams = original.get(0).getBitstreams();
 
-        // now actually pull out the thumbnail (ouch!)
-        List<Bundle> thumbs = getBundles("THUMBNAIL");
-        
-        // if there are thumbs and we're not dealing with an HTML item
-        // then show the thumbnail
-        if ((thumbs.size() > 0) && !html)
-        {
-            Bitstream thumbnailBitstream;
-            Bitstream originalBitstream;
-            
-            if ((original.get(0).getBitstreams().size() > 1) && (original.get(0).getPrimaryBitstream().getId() > -1))
-            {
-            	/*FIXME: find da risolver */
-                //originalBitstream = Bitstream.find(context, original[0].getPrimaryBitstreamID());
-                //thumbnailBitstream = thumbs[0].getBitstreamByName(originalBitstream.getName() + ".jpg");
-            	// copiati da sotto: rimuovere!
-            	originalBitstream = original.get(0).getBitstreams().get(0);
-                thumbnailBitstream = thumbs.get(0).getBitstreams().get(0);
-            }
-            else
-            {
-            	originalBitstream = original.get(0).getBitstreams().get(0);
-                thumbnailBitstream = thumbs.get(0).getBitstreams().get(0);
-            }
-            
-            if ((thumbnailBitstream != null)
-                    && (AuthorizeManager.authorizeActionBoolean(context, thumbnailBitstream, Constants.READ)))
-            {
-                Thumbnail thumbnail = new Thumbnail(thumbnailBitstream, originalBitstream);
-                return thumbnail;
-            }
-        }
+			for (int i = 0; (i < bitstreams.size()) && !html; i++) {
+				if (bitstreams.get(i).getId() == original.get(0)
+						.getPrimaryBitstream().getId()) {
+					html = bitstreams.get(i).getFormat().getMIMEType().equals(
+							"text/html");
+				}
+			}
+		}
 
-        return null;
-    }
+		// now actually pull out the thumbnail (ouch!)
+		List<Bundle> thumbs = getBundles("THUMBNAIL");
 
-    @ManyToMany
-    @JoinTable(name="item2collection")
-    /* The collections that own this item*/
+		// if there are thumbs and we're not dealing with an HTML item
+		// then show the thumbnail
+		if ((thumbs.size() > 0) && !html) {
+			Bitstream thumbnailBitstream;
+			Bitstream originalBitstream;
+
+			if ((original.get(0).getBitstreams().size() > 1)
+					&& (original.get(0).getPrimaryBitstream().getId() > -1)) {
+				/* FIXME: find da risolver */
+				// originalBitstream = Bitstream.find(context,
+				// original[0].getPrimaryBitstreamID());
+				// thumbnailBitstream =
+				// thumbs[0].getBitstreamByName(originalBitstream.getName() +
+				// ".jpg");
+				// copiati da sotto: rimuovere!
+				originalBitstream = original.get(0).getBitstreams().get(0);
+				thumbnailBitstream = thumbs.get(0).getBitstreams().get(0);
+			} else {
+				originalBitstream = original.get(0).getBitstreams().get(0);
+				thumbnailBitstream = thumbs.get(0).getBitstreams().get(0);
+			}
+
+			if ((thumbnailBitstream != null)
+					&& (AuthorizeManager.authorizeActionBoolean(context,
+							thumbnailBitstream, Constants.READ))) {
+				Thumbnail thumbnail = new Thumbnail(thumbnailBitstream,
+						originalBitstream);
+				return thumbnail;
+			}
+		}
+
+		return null;
+	}
+
+	/* The collections that own this item */
+	@ManyToMany(mappedBy = "items")
 	public List<Collection> getCollections() {
 		return collections;
 	}
@@ -753,14 +774,16 @@ public class Item extends DSpaceObject {
 	public void setCollections(List<Collection> collections) {
 		this.collections = collections;
 	}
-	
+
 	public void addCollection(Collection collection) {
 		collections.add(collection);
 	}
+
 	@Transient
 	public boolean isMetadataChanged() {
 		return metadataChanged;
 	}
+
 	@Transient
 	public boolean isModified() {
 		return modified;

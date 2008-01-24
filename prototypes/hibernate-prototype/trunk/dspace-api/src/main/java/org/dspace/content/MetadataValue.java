@@ -96,7 +96,9 @@ public class MetadataValue
 
     /** The position of the record. */
     private int place;
-
+    
+    protected MetadataValue() {}
+    
     public MetadataValue(Context context, int ID)
     {
         this.context = context;
@@ -236,15 +238,16 @@ public class MetadataValue
     {
         this.value = value;
     }
-
+/*
     @Deprecated
+    @Transient
     public static java.util.Collection findByField(Context context, int fieldID)
             throws AuthorizeException
     {
         MetadataValueDAO dao = MetadataValueDAOFactory.getInstance(context);
         return dao.getMetadataValues(fieldID);
     }
-
+*/
     @Deprecated
     public void update(Context context) throws AuthorizeException
     {
@@ -291,14 +294,14 @@ public class MetadataValue
 
         if ((mdvfield == null))
         {
-            if (getMetadataField().getID() > 0)
+            if (getMetadataField().getId() > 0)
             {
                 return false;
             }
         }
         else
         {
-            if (mdvfield.getID() != getMetadataField().getID())
+            if (mdvfield.getId() != getMetadataField().getId())
             {
                 return false;
             }
@@ -364,5 +367,9 @@ public class MetadataValue
 
 	public void setItem(Item item) {
 		this.item = item;
+	}
+
+	public void setMetadataField(MetadataField metadataField) {
+		this.metadataField = metadataField;
 	}
 }

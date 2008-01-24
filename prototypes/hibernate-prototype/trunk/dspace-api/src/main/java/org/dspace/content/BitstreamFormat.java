@@ -106,6 +106,8 @@ public class BitstreamFormat
     private boolean internal;
     private List<String> extensions;
 
+    protected BitstreamFormat() {}
+    
     public BitstreamFormat(Context context, int id)
     {
         this.id = id;
@@ -114,11 +116,7 @@ public class BitstreamFormat
         dao = BitstreamFormatDAOFactory.getInstance(context);
         extensions = new ArrayList<String>();
     }
-    @Id
-    public int getID()
-    {
-        return id;
-    }
+
     public void setID(int id)
     {
     	this.id=id;
@@ -302,7 +300,7 @@ public class BitstreamFormat
     @Deprecated
     public void delete() throws AuthorizeException
     {
-        dao.delete(getID());
+        dao.delete(getId());
     }
 
     @Deprecated
@@ -360,4 +358,19 @@ public class BitstreamFormat
 
         return (BitstreamFormat[]) formats.toArray(new BitstreamFormat[0]);
     }
+    @Id
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	@Transient
+	public ObjectIdentifier getOid() {
+		return oid;
+	}
+	public void setOid(ObjectIdentifier oid) {
+		this.oid = oid;
+	}
+
 }

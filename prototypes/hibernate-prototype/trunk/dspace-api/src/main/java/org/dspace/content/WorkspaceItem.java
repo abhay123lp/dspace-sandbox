@@ -44,6 +44,7 @@ import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -73,7 +74,7 @@ import org.dspace.eperson.EPerson;
  * @author Robert Tansley
  * @version $Revision$
  */
-@Entity
+//@Entity
 public class WorkspaceItem implements InProgressSubmission
 {
     /** log4j logger */
@@ -96,6 +97,8 @@ public class WorkspaceItem implements InProgressSubmission
     private Item item;
     private Collection collection;
 
+    protected WorkspaceItem() {}
+    
     public WorkspaceItem(Context context, int id)
     {
         this.id = id;
@@ -152,6 +155,7 @@ public class WorkspaceItem implements InProgressSubmission
         this.item = item;
     }
 
+    @ManyToOne
     public Collection getCollection()
     {
         return collection;

@@ -88,6 +88,8 @@ public class MetadataSchema
     private String namespace;
     private String name;
 
+    protected MetadataSchema() {}
+    
     public MetadataSchema(Context context, int id)
     {
         this.context = context;
@@ -96,7 +98,7 @@ public class MetadataSchema
         dao = MetadataSchemaDAOFactory.getInstance(context);
     }
     @Id
-    public int getID()
+    public int getId()
     {
         return id;
     }
@@ -130,7 +132,7 @@ public class MetadataSchema
     @Deprecated
     public void delete(Context context) throws AuthorizeException
     {
-        dao.delete(getID());
+        dao.delete(getId());
     }
 
     @Deprecated
@@ -183,4 +185,7 @@ public class MetadataSchema
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
+	public void setId(int id) {
+		this.id = id;
+	}
 }

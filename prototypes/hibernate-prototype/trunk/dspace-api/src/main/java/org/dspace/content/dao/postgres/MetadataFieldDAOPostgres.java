@@ -187,7 +187,7 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
     {
         try
         {
-            int id = field.getID();
+            int id = field.getId();
             TableRow row = DatabaseManager.find(context,
                     "metadatafieldregistry", id);
 
@@ -268,7 +268,7 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
         try
         {
             TableRow row = DatabaseManager.find(context,
-                    "metadatafieldregistry", field.getID());
+                    "metadatafieldregistry", field.getId());
 
             int schemaID = row.getIntColumn("metadata_schema_id");
 
@@ -312,7 +312,7 @@ public class MetadataFieldDAOPostgres extends MetadataFieldDAO
         {
             TableRowIterator tri = DatabaseManager.query(context,
                "SELECT metadata_field_id FROM metadatafieldregistry " +
-               "WHERE metadata_schema_id = ?", schema.getID());
+               "WHERE metadata_schema_id = ?", schema.getId());
 
             return returnAsList(tri);
         }

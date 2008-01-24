@@ -114,7 +114,7 @@ public class MetadataExporter
             }
             
             // Get the metadata fields only for the specified schema
-            mdFields = MetadataField.findAllInSchema(context, mdSchema.getID());
+            mdFields = MetadataField.findAllInSchema(context, mdSchema.getId());
         }
         else
         {
@@ -291,16 +291,16 @@ public class MetadataExporter
     private static String getSchemaName(Context context, MetadataField mdField) throws SQLException, RegistryExportException
     {
         // Get name from cache
-        String name = schemaMap.get(new Integer(mdField.getSchema().getID()));
+        String name = schemaMap.get(new Integer(mdField.getSchema().getId()));
 
         if (name == null)
         {
             // Name not retrieved before, so get the schema now
-            MetadataSchema mdSchema = MetadataSchema.find(context, mdField.getSchema().getID());
+            MetadataSchema mdSchema = MetadataSchema.find(context, mdField.getSchema().getId());
             if (mdSchema != null)
             {
                 name = mdSchema.getName();
-                schemaMap.put(new Integer(mdSchema.getID()), name);
+                schemaMap.put(new Integer(mdSchema.getId()), name);
             }
             else
             {

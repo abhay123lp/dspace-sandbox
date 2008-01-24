@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
@@ -76,10 +78,10 @@ public abstract class CommunityDAO extends ContentDAO
     protected static Logger log = Logger.getLogger(CommunityDAO.class);
 
     protected Context context;
-    protected BitstreamDAO bitstreamDAO;
-    protected CollectionDAO collectionDAO;
-    protected GroupDAO groupDAO;
-    protected ExternalIdentifierDAO identifierDAO;
+//    protected BitstreamDAO bitstreamDAO;
+//    protected CollectionDAO collectionDAO;
+//    protected GroupDAO groupDAO;
+//    protected ExternalIdentifierDAO identifierDAO;
 
     /**
      * The allowed metadata fields for Communities are defined in the following
@@ -113,20 +115,20 @@ public abstract class CommunityDAO extends ContentDAO
     {
         this.context = context;
 
-        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
+/*        bitstreamDAO = BitstreamDAOFactory.getInstance(context);
         collectionDAO = CollectionDAOFactory.getInstance(context);
         groupDAO = GroupDAOFactory.getInstance(context);
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
-    }
+*/    }
 
-    public abstract Community create() throws AuthorizeException;
+    //public abstract Community create() throws AuthorizeException; //ApplicationService
 
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    protected final Community create(Community community)
+/*    protected final Community create(Community community) //ApplicationService
         throws AuthorizeException
     {
         // Only administrators and adders can create communities
@@ -161,22 +163,22 @@ public abstract class CommunityDAO extends ContentDAO
 
         return community;
     }
-
-    public Community retrieve(int id)
+*/
+/*    public Community retrieve(int id) //ApplicationService
     {
         return (Community) context.fromCache(Community.class, id);
     }
-
+*/
     public Community retrieve(UUID uuid)
     {
         return null;
     }
-
-    public void update(Community community) throws AuthorizeException
+/*
+    public void update(Community community) throws AuthorizeException //ApplicationService
     {
         // Check authorization
-    	/*FIXME decommentare */
-//        community.canEdit();
+    	
+        community.canEdit();
 
         log.info(LogManager.getHeader(context, "update_community",
                 "community_id=" + community.getId()));
@@ -193,8 +195,8 @@ public abstract class CommunityDAO extends ContentDAO
         // FIXME: Do we need to iterate through child Communities /
         // Collecitons to update / re-index? Probably not.
     }
-
-    public void delete(int id) throws AuthorizeException
+*/
+/*     public void delete(int id) throws AuthorizeException //ApplicationService
     {
         try
         {
@@ -260,14 +262,14 @@ public abstract class CommunityDAO extends ContentDAO
             throw new RuntimeException(ioe);
         }
     }
+*/
+    public abstract List<Community> getCommunities(EntityManager em);
+//    public abstract List<Community> getTopLevelCommunities(); //ci si arriva da Site
+//    public abstract List<Community> getChildCommunities(Community community); //ci si arriva da Community
 
-    public abstract List<Community> getCommunities();
-    public abstract List<Community> getTopLevelCommunities();
-    public abstract List<Community> getChildCommunities(Community community);
+//    public abstract List<Community> getParentCommunities(DSpaceObject dso); //ci si arriva da Community e Collection
 
-    public abstract List<Community> getParentCommunities(DSpaceObject dso);
-
-    public List<Community> getAllParentCommunities(DSpaceObject dso)
+/*    public List<Community> getAllParentCommunities(DSpaceObject dso)
     {
         List<Community> parents = getParentCommunities(dso);
         List<Community> superParents = new ArrayList<Community>(parents);
@@ -279,8 +281,8 @@ public abstract class CommunityDAO extends ContentDAO
 
         return superParents;
     }
-
-    public void link(DSpaceObject parent, DSpaceObject child)
+*/
+/*    public void link(DSpaceObject parent, DSpaceObject child)
         throws AuthorizeException
     {
         assert(parent instanceof Community);
@@ -363,15 +365,18 @@ public abstract class CommunityDAO extends ContentDAO
             }
         }
     }
-
+*/
     public abstract boolean linked(DSpaceObject parent, DSpaceObject child);
 
     /**
      * Straightforward utility method for counting the number of Items in the
      * given Community. There is probably a way to be smart about this. Also,
      * this strikes me as the kind of method that shouldn't really be in here.
+     * 
+     * Spostato in Community
      */
-    public int itemCount(Community community)
+
+/*    public int itemCount(Community community)
     {
     	int total = 0;
 
@@ -388,5 +393,6 @@ public abstract class CommunityDAO extends ContentDAO
 
         return total;
     }
+*/
 }
 

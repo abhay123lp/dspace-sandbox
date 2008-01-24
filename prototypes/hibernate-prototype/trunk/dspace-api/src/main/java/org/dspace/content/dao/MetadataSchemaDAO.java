@@ -80,7 +80,7 @@ public abstract class MetadataSchemaDAO extends ContentDAO
     protected final MetadataSchema create(MetadataSchema schema)
     {
         log.info(LogManager.getHeader(context, "create_metadata_schema",
-                    "metadata_schema_id=" + schema.getID()));
+                    "metadata_schema_id=" + schema.getId()));
 
         return schema;
     }
@@ -120,7 +120,7 @@ public abstract class MetadataSchemaDAO extends ContentDAO
                     "Only administrators may modify the metadata registry");
         }
 
-        int id = schema.getID();
+        int id = schema.getId();
         String name = schema.getName();
         String namespace = schema.getNamespace();
 
@@ -165,7 +165,7 @@ public abstract class MetadataSchemaDAO extends ContentDAO
         MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
         for (MetadataField field : dao.getMetadataFields(id))
         {
-            dao.delete(field.getID());
+            dao.delete(field.getId());
         }
 
         context.removeCached(schema, id);

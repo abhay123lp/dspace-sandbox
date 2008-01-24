@@ -88,6 +88,8 @@ public class MetadataField
     private String qualifier;
     private String scopeNote;
 
+    protected MetadataField() {}
+    
     public MetadataField(Context context, int id)
     {
         this.context = context;
@@ -121,7 +123,7 @@ public class MetadataField
      * @return metadata field id
      */
     @Id
-    public int getID()
+    public int getId()
     {
         return id;
     }
@@ -225,7 +227,7 @@ public class MetadataField
     @Deprecated
     public void delete(Context context) throws AuthorizeException
     {
-        dao.delete(getID());
+        dao.delete(getId());
     }
 
     /**
@@ -276,4 +278,8 @@ public class MetadataField
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
+
+	public void setId(int id) {
+		this.id = id;
+	}
 }

@@ -59,6 +59,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -108,6 +109,8 @@ public class X509Authentication
 
     /** key store for CA certs if we use that */
     private static KeyStore caCertKeyStore = null;
+    
+    private static ApplicationService applicationService;
 
     /**
      * Initialization:
@@ -409,7 +412,8 @@ public class X509Authentication
                         eperson.setCanLogIn(true);
                         AuthenticationManager.initEPerson(context,
                                 request, eperson);
-                        eperson.update();
+                        applicationService.saveOrUpdate(context, EPerson.class, eperson);
+                        //eperson.update();
                         try
                         {
                             context.commit();
@@ -490,4 +494,12 @@ public class X509Authentication
     {
         return null;
     }
+
+	public static ApplicationService getApplicationService() {
+		return applicationService;
+	}
+
+	public static void setApplicationService(ApplicationService applicationService) {
+		X509Authentication.applicationService = applicationService;
+	}
 }

@@ -11,7 +11,9 @@
 		<!-- <property name="hbm2ddl.auto">create</property> -->
 		<mapping class="org.dspace.content.Site" />
 		<mapping class="org.dspace.content.Community" />
+		<mapping class="org.dspace.content.CommunityMetadata" />
 		<mapping class="org.dspace.content.Collection" />
+		<mapping class="org.dspace.content.CollectionMetadata" />
 		<mapping class="org.dspace.content.Item" />
 		<mapping class="org.dspace.content.Bundle" />
 		<mapping class="org.dspace.content.Bitstream" />

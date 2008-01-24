@@ -102,7 +102,7 @@ public class EPerson extends DSpaceObject
         LANGUAGE ("language");
 
         private String name;
-
+        
         private EPersonMetadataField(String name)
         {
             this.name = name;
@@ -136,6 +136,8 @@ public class EPerson extends DSpaceObject
 		}
     }
 
+    protected EPerson() {}
+    
     public EPerson(Context context) {
         
         this.context = context;

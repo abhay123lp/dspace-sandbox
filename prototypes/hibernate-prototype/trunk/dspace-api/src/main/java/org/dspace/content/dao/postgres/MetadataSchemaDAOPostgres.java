@@ -183,7 +183,7 @@ public class MetadataSchemaDAOPostgres extends MetadataSchemaDAO
     {
         try
         {
-            int id = schema.getID();
+            int id = schema.getId();
             TableRow row = DatabaseManager.find(context,
                     "metadataschemaregistry", id);
 

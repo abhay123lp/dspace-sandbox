@@ -41,6 +41,7 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -49,13 +50,18 @@ import java.util.TreeMap;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
+import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
+import javax.persistence.CascadeType;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.factory.BitstreamFactory;
 import org.dspace.content.factory.CollectionFactory;
 import org.dspace.content.factory.CommunityFactory;
@@ -91,23 +97,33 @@ public class Community extends DSpaceObject
     private List<Community> parentCommunities; 
     private List<Community> subCommunities;
     private List<Collection> collections;
-    private Map<String, String> metadata;
     private Bitstream logo;
+    //private Map<String, String> metadata;
+    private Map<String, CommunityMetadata> communityMetadata;
+    
     
     
     public Community(Context context)
     {
         this.context = context;
-        this.metadata = new TreeMap<String, String>();
+        this.communityMetadata = new TreeMap<String, CommunityMetadata>();
+        //this.metadata = new TreeMap<String, String>();
         modifiedMetadata=modified=false;
+        
+        this.parentCommunities = new ArrayList<Community>();
+        this.subCommunities = new ArrayList<Community>();
+        this.collections = new ArrayList<Collection>();
     }
     
+    protected Community() {}
+    
     /* Creates a collection under this community */
-    public Collection createCollection() throws AuthorizeException{
-    	AuthorizeManager.authorizeAction(context, this, Constants.ADD);
+    //FIXME rivedere le autorizzazioni
+    public Collection createCollection() {// throws AuthorizeException{
+//    	AuthorizeManager.authorizeAction(context, this, Constants.ADD);
     	Collection collection = CollectionFactory.getInstance(context);
-    	collections.add(collection);
     	collection.addCommunity(this);
+    	collections.add(collection);
     	return collection;
     }
     
@@ -154,14 +170,16 @@ public class Community extends DSpaceObject
     
     
     /* Returns all the sub-communities owned by this community */
-    @ManyToMany(mappedBy="parentCommunities")
+    @ManyToMany(mappedBy="parentCommunities", cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+//    @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
     public List<Community> getSubCommunities() {
     	return this.subCommunities;
     }
     
     /* Returns all the collections owned by this community */
-    @ManyToMany(mappedBy="communities")
-    @JoinTable(name="community2collection")
+    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+//    @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @JoinTable(name="collection2communities")
     public List<Collection> getCollections() {
     	return this.collections;
     }
@@ -196,7 +214,7 @@ public class Community extends DSpaceObject
 
             // now create policy for logo bitstream
             // to match our READ policy
-            List policies = AuthorizeManager.getPoliciesActionFilter(context,
+            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context,
                     this, Constants.READ);
             AuthorizeManager.addPolicies(context, policies, newLogo);
 
@@ -218,13 +236,19 @@ public class Community extends DSpaceObject
     /* Returns a particular field of metadata */
     @Transient
     public String getMetadata(String field) {
-        return metadata.get(field);
+        return communityMetadata.get(field).getValue();
     }
     
     /* Returns the name of the community */
-    @Column(name="name")
+//    @Lob
+//    @Column(name="name")
+    @Transient
     public String getName() {
         return getMetadata("name");
+    }
+    
+    public void setName(String newname) {
+    	setMetadata("name", newname);
     }
     
     /* Sets a field of metadata */
@@ -241,7 +265,14 @@ public class Community extends DSpaceObject
                 value = "Untitled";
             }
         }
-        metadata.put(field, value);
+        //metadata.put(field, value);
+        CommunityMetadata oldmetadata = communityMetadata.get(field);
+		if (oldmetadata==null) {
+			communityMetadata.put(field, new CommunityMetadata(this, field, value));
+		} else {
+			oldmetadata.setValue(value);
+		}
+        
         modifiedMetadata = true;
         addDetails(field);
     }
@@ -299,4 +330,45 @@ public class Community extends DSpaceObject
 	public void setLogo(Bitstream logo) {
 		this.logo = logo;
 	}
+	@Transient
+    public List<Community> getAllParentCommunities()
+    {
+        List<Community> superParents = new ArrayList<Community>(parentCommunities);
+
+        for (Community parent : parentCommunities)
+        {
+            superParents.addAll(parent.getAllParentCommunities());
+        }
+
+        return superParents;
+    }
+    @Transient
+    public int itemCount()
+    {
+    	int total = 0;
+
+        for (Collection collection : collections)
+        {
+        	total += collection.itemCount();
+        }
+
+        for (Community child : subCommunities)
+        {
+        	total += child.itemCount();
+        }
+
+        return total;
+    }
+    @OneToMany(mappedBy="community",cascade = CascadeType.ALL)
+//    @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+	@MapKey(name = "field")
+	public Map<String, CommunityMetadata> getCommunityMetadata() {
+		return communityMetadata;
+	}
+
+	public void setCommunityMetadata(
+			Map<String, CommunityMetadata> communityMetadata) {
+		this.communityMetadata = communityMetadata;
+	}
+
 }

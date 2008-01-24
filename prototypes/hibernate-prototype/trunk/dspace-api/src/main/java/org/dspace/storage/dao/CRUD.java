@@ -45,9 +45,9 @@ import org.dspace.authorize.AuthorizeException;
 
 public interface CRUD<T>
 {
-    public T create() throws AuthorizeException;
-    public T retrieve(int id);
-    public T retrieve(UUID uuid);
-    public void update(T t) throws AuthorizeException;
-    public void delete(int id) throws AuthorizeException;
+//    public T create() throws AuthorizeException;
+//    public T retrieve(int id);
+//    public T retrieve(UUID uuid);
+//    public void update(T t) throws AuthorizeException;
+//    public void delete(int id) throws AuthorizeException;
 }
