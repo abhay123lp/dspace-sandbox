@@ -14,6 +14,15 @@
       <url>http://www.dspace.org</url>
    </organization>
 
+   <modules>      
+      <module>language-packs</module>
+      <module>dspace-api</module>
+      <module>dspace-jspui</module>
+      <module>dspace-xmlui</module>
+      <module>dspace-lni</module>
+      <module>dspace-oai</module>
+   </modules>
+   
    <build>
       <plugins>
          <!-- 
@@ -42,14 +51,46 @@
       </plugins>
    </build>
 
-   <modules>      
-      <module>language-packs</module>
-      <module>dspace-api</module>
-      <module>dspace-jspui</module>
-      <module>dspace-xmlui</module>
-      <module>dspace-lni</module>
-      <module>dspace-oai</module>
-   </modules>
+   <profiles>
+   	<profile>
+   		<id>bootstrap</id>
+        <activation>
+           <activeByDefault>false</activeByDefault>
+        </activation>
+   		<build>
+   			<plugins>
+   				<plugin>
+   					<artifactId>maven-assembly-plugin</artifactId>
+   					<configuration>
+   						<descriptorRefs>
+   							<descriptorRef>bootstrap-release</descriptorRef>
+   						</descriptorRefs>
+   					</configuration>
+   					<inherited>false</inherited>
+   				</plugin>
+   			</plugins>
+   		</build>
+   	</profile>
+   	<profile>
+   		<id>source</id>
+   		<activation>
+   		   <activeByDefault>false</activeByDefault>
+   		</activation>
+   		<build>
+            <plugins>
+                <plugin>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <configuration>
+                        <descriptorRefs>
+                            <descriptorRef>source-release</descriptorRef>
+                        </descriptorRefs>
+                    </configuration>
+                    <inherited>false</inherited>
+                </plugin>
+            </plugins>
+        </build>
+   	</profile>
+   </profiles>
    
    <repositories>
       <repository>
@@ -104,12 +145,22 @@
          </dependency>
          <dependency>
             <groupId>org.dspace</groupId>
-            <artifactId>dspace-jspui</artifactId>
+            <artifactId>dspace-jspui-api</artifactId>
             <version>${project.version}</version>
          </dependency>
          <dependency>
             <groupId>org.dspace</groupId>
-            <artifactId>dspace-oai</artifactId>
+            <artifactId>dspace-jspui-webapp</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-oai-api</artifactId>
+            <version>${project.version}</version>
+         </dependency>
+         <dependency>
+            <groupId>org.dspace</groupId>
+            <artifactId>dspace-oai-webapp</artifactId>
             <version>${project.version}</version>
          </dependency>
          <dependency>
