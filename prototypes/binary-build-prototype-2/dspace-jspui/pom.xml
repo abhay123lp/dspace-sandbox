@@ -5,8 +5,8 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.dspace</groupId>
    <artifactId>dspace-jspui</artifactId>
-   <name>DSpace JSPUI :: Web Application</name>
-   <packaging>war</packaging>
+   <name>DSpace JSPUI</name>
+   <packaging>pom</packaging>
    <url>http://projects.dspace.org/dspace-jspui</url>
    <description>DSpace JSP Based Webapplication</description>
 
@@ -17,7 +17,7 @@
    <parent>
       <groupId>org.dspace</groupId>
       <artifactId>dspace-parent</artifactId>
-      <version>1.5-SNAPSHOT</version>
+      <version>1.5-bpp-SNAPSHOT</version>
    </parent>
 
    <repositories>
