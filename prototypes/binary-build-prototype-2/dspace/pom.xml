@@ -422,6 +422,22 @@
             </dependency>
          </dependencies>
       </profile>
+      
+      <!-- 
+         Builds Overlay Modules for DSpace
+      -->
+      <profile>
+         <id>modules</id>
+         <activation>
+            <file>
+               <exists>modules/pom.xml</exists>
+            </file>
+         </activation>
+         <modules>
+            <module>modules</module>
+         </modules>
+      </profile>
+      
    </profiles>
 
    <build>
@@ -456,4 +472,5 @@
          <artifactId>language-packs</artifactId>
       </dependency>
    </dependencies>
+   
 </project>
