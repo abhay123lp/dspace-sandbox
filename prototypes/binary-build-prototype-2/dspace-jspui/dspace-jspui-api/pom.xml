@@ -71,7 +71,6 @@
    </scm>
 
    <dependencies>
-    <dependencies>
       <dependency>
          <groupId>org.dspace</groupId>
          <artifactId>dspace-api</artifactId>
