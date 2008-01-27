@@ -7,7 +7,6 @@
    <artifactId>dspace-jspui-webapp</artifactId>
    <name>DSpace JSPUI :: Web Application Resources</name>
    <packaging>war</packaging>
-
    <url>http://projects.dspace.org/dspace-jspui/dspace-jspui-webapp</url>
    <description>DSpace JSP Based Webapplication</description>
 
