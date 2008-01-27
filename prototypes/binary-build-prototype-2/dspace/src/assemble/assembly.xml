@@ -47,6 +47,11 @@
       <moduleSet>
          <excludes>
             <exclude>*:war:*</exclude>
+            <exclude>org.dspace:dspace-jspui-api</exclude>
+            <exclude>org.dspace:dspace-oai-api</exclude>
+         	<exclude>org.dspace:dspace-xmlui-api</exclude>
+         	<exclude>org.dspace:dspace-xmlui-wing</exclude>
+         	<exclude>org.dspace:dspace-lni-core</exclude>
          </excludes>
          <binaries>
             <includeDependencies>true</includeDependencies>
