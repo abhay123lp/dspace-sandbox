@@ -146,14 +146,14 @@ public class Item extends DSpaceObject {
 		this.metadata = new ArrayList<MetadataValue>();
 	}
 
-	public Bundle createBundle() {
+/*	public Bundle createBundle() {
 		Bundle bundle = BundleFactory.getInstance(context);
 		bundle.setItem(this);
-		getBundles().add(bundle);
+		bundles.add(bundle);
 		return bundle;
 	}
-
-	public void addBundle(Bundle b) throws AuthorizeException {
+*/	//FIXME questo non serve più, considerare se conviene deprecarlo o cancellarlo
+/*	public void addBundle(Bundle b) throws AuthorizeException {
 		// Check it's not already there
 		for (Bundle bundle : getBundles()) {
 			if ((b.getName().equals(bundle.getName()))
@@ -170,25 +170,25 @@ public class Item extends DSpaceObject {
 		context.addEvent(new Event(Event.ADD, Constants.ITEM, getId(),
 				Constants.BUNDLE, b.getId(), b.getName()));
 	}
-
-	public void removeBundle(Bundle b) throws AuthorizeException {
-		AuthorizeManager.authorizeAction(context, this, Constants.REMOVE);
-
-		log.info(LogManager.getHeader(context, "remove_bundle", "item_id="
-				+ getId() + ",bundle_id=" + b.getId()));
-
-		Iterator<Bundle> i = bundles.iterator();
-		while (i.hasNext()) {
-			if (i.next().getId() == b.getId()) {
-				i.remove();
-			}
-		}
-
-		context.addEvent(new Event(Event.REMOVE, Constants.ITEM, getId(),
-				Constants.BUNDLE, b.getId(), b.getName()));
+*/
+/*	public void removeBundle(Bundle b) throws AuthorizeException {
+//		AuthorizeManager.authorizeAction(context, this, Constants.REMOVE);
+//
+//		log.info(LogManager.getHeader(context, "remove_bundle", "item_id="
+//				+ getId() + ",bundle_id=" + b.getId()));
+//
+//		Iterator<Bundle> i = bundles.iterator();
+//		while (i.hasNext()) {
+//			if (i.next().getId() == b.getId()) {
+//				i.remove();
+//			}
+//		}
+//
+//		context.addEvent(new Event(Event.REMOVE, Constants.ITEM, getId(),
+//				Constants.BUNDLE, b.getId(), b.getName()));
 
 	}
-
+*/
 	@Transient
 	protected String getidentifier() {
 		return identifier;
@@ -339,19 +339,15 @@ public class Item extends DSpaceObject {
 
 	public void setSubmitter(EPerson submitter) {
 		this.submitter = submitter;
-		// submitterId = submitter.getId();
 	}
-
-	/* FIXME: responsabilità del dao prendere le info? */
-	/*
-	 * public void setSubmitter(int submitterId) { //
-	 * setSubmitter(epersonDAO.retrieve(submitterId)); }
-	 */@OneToOne
+	
+	@OneToOne
 	public EPerson getSubmitter() {
 		return submitter;
 	}
 
 	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "item")
+//    @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
 	public List<Bundle> getBundles() {
 		return bundles;
 	}
@@ -371,7 +367,7 @@ public class Item extends DSpaceObject {
 		this.bundles = bundles;
 	}
 
-	public Bundle createBundle(String name) throws AuthorizeException {
+/*	public Bundle createBundle(String name) throws AuthorizeException {
 		if ((name == null) || "".equals(name)) {
 			throw new RuntimeException(
 					"Bundle must be created with non-empty name");
@@ -386,8 +382,8 @@ public class Item extends DSpaceObject {
 
 		return b;
 	}
-
-	public Bitstream createSingleBitstream(InputStream is, String name)
+*/
+/*	public Bitstream createSingleBitstream(InputStream is, String name)
 			throws AuthorizeException, IOException {
 		// Authorisation is checked by methods below
 		// Create a bundle
@@ -398,7 +394,7 @@ public class Item extends DSpaceObject {
 
 		addBundle(bundle);
 
-		// FIXME: Create permissions for new bundle + bitstream
+		
 		return bitstream;
 	}
 
@@ -406,7 +402,7 @@ public class Item extends DSpaceObject {
 			throws AuthorizeException, IOException {
 		return createSingleBitstream(is, "ORIGINAL");
 	}
-
+*/
 	@Transient
 	public Bitstream[] getNonInternalBitstreams() {
 		List<Bitstream> bitstreamList = new ArrayList<Bitstream>();
@@ -461,7 +457,7 @@ public class Item extends DSpaceObject {
 		for (Bundle bundle : bunds) {
 			// FIXME: probably serious troubles with Authorizations
 			// fix by telling system not to check authorization?
-			removeBundle(bundle);
+			bundles.remove(bundle);
 		}
 	}
 
@@ -483,10 +479,7 @@ public class Item extends DSpaceObject {
 		 * removeBundle(bundle); } }
 		 */}
 
-	/*
-	 * FIXME: perchè chiederlo all'item e non chiedere alla collection se è
-	 * owning dell'item?
-	 */
+
 	@Transient
 	public boolean isOwningCollection(Collection c) {
 
@@ -601,17 +594,27 @@ public class Item extends DSpaceObject {
 				Constants.WRITE)) {
 			return true;
 		}
-		/* FIXME controllare derivazioni di owning collection */
+		
 		// is this collection not yet created, and an item template is created
-		/*
-		 * if (getOwningCollection() == null) { return true; }
-		 *  // is this person an COLLECTION_EDITOR for the owning collection? if
-		 * (getOwningCollection().canEditBoolean()) { return true; }
-		 */
-		// is this person an COLLECTION_EDITOR for the owning collection?
-		// return AuthorizeManager.authorizeActionBoolean(context,
-		// getOwningCollection(), Constants.COLLECTION_ADMIN);
-		return true; // da togliere
+        if (getOwningCollection() == null)
+        {
+            return true;
+        }
+        
+     // is this person an COLLECTION_EDITOR for the owning collection?
+//        if (getOwningCollection().canEditBoolean())
+//        {
+//            return true;
+//        }
+        
+     // is this person an COLLECTION_EDITOR for the owning collection?
+        if (AuthorizeManager.authorizeActionBoolean(context,
+                getOwningCollection(), Constants.COLLECTION_ADMIN))
+        {
+            return true;
+        }
+
+		return false;
 
 	}
 
@@ -775,10 +778,14 @@ public class Item extends DSpaceObject {
 		this.collections = collections;
 	}
 
-	public void addCollection(Collection collection) {
+/*	protected void addCollection(Collection collection) {
 		collections.add(collection);
 	}
-
+	
+	protected void removeCollection(Collection collection) {
+		collections.remove(collection);
+	}
+*/
 	@Transient
 	public boolean isMetadataChanged() {
 		return metadataChanged;

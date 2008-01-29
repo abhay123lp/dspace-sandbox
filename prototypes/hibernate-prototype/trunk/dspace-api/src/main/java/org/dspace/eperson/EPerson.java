@@ -42,11 +42,13 @@ package org.dspace.eperson;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
-import javax.persistence.Basic;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.OneToOne;
+import javax.persistence.MapKey;
+import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
 import org.apache.log4j.Logger;
@@ -55,8 +57,6 @@ import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
-import org.dspace.eperson.dao.EPersonDAO;
-import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.event.Event;
 
 /**
@@ -66,371 +66,350 @@ import org.dspace.event.Event;
  * @version $Revision$
  */
 @Entity
-public class EPerson extends DSpaceObject
-{
-    private static Logger log = Logger.getLogger(EPerson.class);
+public class EPerson extends DSpaceObject {
+	private static Logger log = Logger.getLogger(EPerson.class);
 
+	/** See EPersonMetadataField. */
+	//private Map<EPersonMetadataField, String> metadata;
+	private Map<String, EPersonMetadata> epersonMetadata;
 
-    /** See EPersonMetadataField. */
-    private Map<EPersonMetadataField, String> metadata;
+	private boolean selfRegistered;
+	private boolean enabled; //the old "canLogin"
+	private boolean requireCertificate;
 
-    private boolean selfRegistered;
-    private boolean enabled; //the old "canLogin"
-    private boolean requireCertificate;
+	/** Sort fields */
+	public static final int EMAIL = 1;
+	public static final int LASTNAME = 2;
+	public static final int ID = 3;
+	public static final int NETID = 4;
+	public static final int LANGUAGE = 5;
 
-    /** Sort fields */
-    public static final int EMAIL = 1;
-    public static final int LASTNAME = 2;
-    public static final int ID = 3;
-    public static final int NETID = 4;
-    public static final int LANGUAGE = 5;
+	/** Flag set when data is modified, for events */
+	private boolean modified;
 
-    /** Flag set when data is modified, for events */
-    private boolean modified;
+	/** Flag set when metadata is modified, for events */
+	private boolean modifiedMetadata;
 
-    /** Flag set when metadata is modified, for events */
-    private boolean modifiedMetadata;
-    
-    public enum EPersonMetadataField
-    {
-        FIRSTNAME ("firstname"),
-        LASTNAME ("lastname"),
-        PASSWORD ("password"),
-        EMAIL ("email"),
-        PHONE ("phone"),
-        NETID ("netid"),
-        LANGUAGE ("language");
+	public enum EPersonMetadataField {
+		FIRSTNAME("firstname"), LASTNAME("lastname"), PASSWORD("password"), EMAIL(
+				"email"), PHONE("phone"), NETID("netid"), LANGUAGE("language");
 
-        private String name;
-        
-        private EPersonMetadataField(String name)
-        {
-            this.name = name;
-        }
+		private String name;
 
-        public String toString()
-        {
-            return name;
-        }
+		private EPersonMetadataField(String name) {
+			this.name = name;
+		}
 
-        public static EPersonMetadataField fromString(String name)
-        {
-            for (EPersonMetadataField f : values())
-            {
-                if (f.toString().equals(name))
-                {
-                    return f;
-                }
-            }
+		public String toString() {
+			return name;
+		}
 
-            throw new IllegalArgumentException(name +
-                    " isn't a valid metadata field for EPeople.");
-        }
-        @Transient
+		public static EPersonMetadataField fromString(String name) {
+			for (EPersonMetadataField f : values()) {
+				if (f.toString().equals(name)) {
+					return f;
+				}
+			}
+
+			throw new IllegalArgumentException(name
+					+ " isn't a valid metadata field for EPeople.");
+		}
+
+		@Transient
 		public String getName() {
 			return name;
 		}
-        @Transient
+
+		@Transient
 		public void setName(String name) {
 			this.name = name;
 		}
-    }
-
-    protected EPerson() {}
-    
-    public EPerson(Context context) {
-        
-        this.context = context;
-        metadata = new EnumMap<EPersonMetadataField, String>(EPersonMetadataField.class);
-    }
-    @Column(name="language")
-     public String getLanguage()
-     {
-         return metadata.get(EPersonMetadataField.LANGUAGE);
-     }
-
-     public void setLanguage(String language)
-     {
-         if (language != null)
-         {
-             language = language.toLowerCase();
-         }
-
-         metadata.put(EPersonMetadataField.LANGUAGE, language);
-     }
-    @Column(name="email")
-    public String getEmail()
-    {
-        return metadata.get(EPersonMetadataField.EMAIL);
-    }
-
-    public void setEmail(String email)
-    {
-        if (email != null)
-        {
-            email = email.toLowerCase();
-        }
-
-        metadata.put(EPersonMetadataField.EMAIL, email);
-        modified = true;
-        modified = true;
-    }
-    @Column(name="netid")
-    public String getNetid()
-    {
-        return metadata.get(EPersonMetadataField.NETID);
-    }
-
-    public void setNetid(String netid)
-    {
-        if (netid != null)
-        {
-            netid = netid.toLowerCase();
-        }
-
-        metadata.put(EPersonMetadataField.NETID, netid);
-        modified = true;
-        modified = true;
-    }
-    @Transient
-    public String getName()
-    {
-        return getEmail();
-    }
-
-    /**
-     * Get the e-person's full name, combining first and last name in a
-     * displayable string.
-     *
-     * @return their full name
-     */
-    @Transient
-    public String getFullName()
-    {
-        String firstName = metadata.get(EPersonMetadataField.FIRSTNAME);
-        String lastName = metadata.get(EPersonMetadataField.LASTNAME);
-
-        if ((lastName == null) && (firstName == null))
-        {
-            return getEmail();
-        }
-        else if (firstName == null)
-        {
-            return lastName;
-        }
-        else
-        {
-            return (firstName + " " + lastName);
-        }
-    }
-    @Column(name="fistname")    
-    public String getFirstName()
-    {
-        return metadata.get(EPersonMetadataField.FIRSTNAME);
-    }
-
-    public void setFirstName(String firstName)
-    {
-        metadata.put(EPersonMetadataField.FIRSTNAME, firstName);
-        modified = true;
-        modified = true;
-    }
-    @Column(name="lastname")
-    public String getLastName()
-    {
-        return metadata.get(EPersonMetadataField.LASTNAME);
-    }
-
-    public void setLastName(String lastName)
-    {
-        metadata.put(EPersonMetadataField.LASTNAME, lastName);
-        modified = true;
-        modified = true;
-    }
-    @Transient //FIXME metodo da togliere
-    public void setCanLogIn(boolean canLogin)
-    {
-        this.enabled = canLogin;
-        modified = true;
-        modified = true;
-    }
-    
-    @Transient //FIXME metodo da togliere
-    public boolean canLogIn()
-    {
-        return enabled;
-    }
-
-    public void setRequireCertificate(boolean requireCertificate)
-    {
-        this.requireCertificate = requireCertificate;
-        modified = true;
-        modified = true;
-    }
-    @Column(name="require_certificate")
-    public boolean getRequireCertificate()
-    {
-        return requireCertificate;
-    }
-
-    public void setSelfRegistered(boolean selfRegistered)
-    {
-        this.selfRegistered = selfRegistered;
-        modified = true;
-        modified = true;
-    }
-    @Column(name="self_registered")
-    public boolean getSelfRegistered()
-    {
-        return selfRegistered;
-    }
-    @Transient
-    public String getMetadata(EPersonMetadataField field)
-    {
-        return metadata.get(field);
-    }
-
-    public void setMetadata(EPersonMetadataField field, String value)
-    {
-        metadata.put(field, value);
-    }
-
-    @Deprecated
-    @Transient
-    public String getMetadata(String field)
-    {
-        return metadata.get(EPersonMetadataField.fromString(field));
-    }
-
-    @Deprecated
-    public void setMetadata(String field, String value)
-    {
-        metadata.put(EPersonMetadataField.fromString(field), value);
-        modifiedMetadata = true;
-        addDetails(field);
-        modifiedMetadata = true;
-        addDetails(field);
-    }
-
-    public void setPassword(String password)
-    {
-        metadata.put(EPersonMetadataField.PASSWORD, Utils.getMD5(password));
-        modified = true;
-        modified = true;
-    }
-
-    public boolean checkPassword(String attempt)
-    {
-        String encoded = Utils.getMD5(attempt);
-
-        return (encoded.equals(metadata.get(EPersonMetadataField.PASSWORD)));
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
-    /**
-     * return type found in Constants
-     */
-    @Transient
-    public int getType()
-    {
-        return Constants.EPERSON;
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Deprecated methods
-    ////////////////////////////////////////////////////////////////////
-
-    @Deprecated
-    public static EPerson[] findAll(Context context, int sortField)
-    {
-        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
-        List<EPerson> epeople = dao.getEPeople(sortField);
-
-        return (EPerson[]) epeople.toArray(new EPerson[0]);
-    }
-
-    @Deprecated
-    public static EPerson find(Context context, int id)
-    {
-        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
-
-        return dao.retrieve(id);
-    }
-
-    @Deprecated
-    public static EPerson[] search(Context context, String query)
-    {
-        return search(context, query, -1, -1);
-    }
-
-    @Deprecated
-    public static EPerson[] search(Context context, String query,
-            int offset, int limit)
-	{
-        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
-        List<EPerson> epeople = dao.search(query, offset, limit);
-
-        return (EPerson[]) epeople.toArray(new EPerson[0]);
 	}
 
-    @Deprecated
-    public static EPerson findByEmail(Context context, String email)
-    {
-        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+	protected EPerson() {
+	}
 
-        return dao.retrieve(EPersonMetadataField.EMAIL, email);
-    }
+	public EPerson(Context context) {
 
-    @Deprecated
-    public static EPerson findByNetid(Context context, String netid)
-    {
-        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+		this.context = context;
+		epersonMetadata = new TreeMap<String, EPersonMetadata>();
+//		metadata = new EnumMap<EPersonMetadataField, String>(EPersonMetadataField.class);
+	}
+	
+    @OneToMany(mappedBy="eperson",cascade = CascadeType.ALL)
+//  @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+	@MapKey(name = "field")
+	public Map<String, EPersonMetadata> getEpersonMetadata() {
+		return epersonMetadata;
+	}
 
-        return dao.retrieve(EPersonMetadataField.NETID, netid);
-    }
+	public void setEpersonMetadata(Map<String, EPersonMetadata> epersonMetadata) {
+		this.epersonMetadata = epersonMetadata;
+	}
 
-    @Deprecated
-    public static EPerson create(Context context) throws AuthorizeException
-    {
-        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+	@Transient
+	public String getLanguage() {
+		return epersonMetadata.get(EPersonMetadataField.LANGUAGE).getValue();
+	}
 
-        return dao.create();
-    }
-    @Column(name="can_log_in")
+	public void setLanguage(String language) {
+		if (language != null) {
+			language = language.toLowerCase();
+		}
+		setMetadata(EPersonMetadataField.LANGUAGE.toString(), language);
+		modified=true;
+	}
+
+	@Transient
+	public String getEmail() {
+		return epersonMetadata.get(EPersonMetadataField.EMAIL).getValue();
+	}
+
+	public void setEmail(String email) {
+		if (email != null) {
+			email = email.toLowerCase();
+		}
+		setMetadata(EPersonMetadataField.EMAIL.toString(), email);
+		modified = true;		
+	}
+
+	@Transient
+	public String getNetid() {
+		return epersonMetadata.get(EPersonMetadataField.NETID).getValue();
+	}
+
+	public void setNetid(String netid) {
+		if (netid != null) {
+			netid = netid.toLowerCase();
+		}
+		setMetadata(EPersonMetadataField.NETID.toString(), netid);
+		modified = true;
+		
+	}
+
+	@Transient
+	public String getName() {
+		return getEmail();
+	}
+
+	/**
+	 * Get the e-person's full name, combining first and last name in a
+	 * displayable string.
+	 *
+	 * @return their full name
+	 */
+	@Transient
+	public String getFullName() {
+		String firstName = epersonMetadata.get(EPersonMetadataField.FIRSTNAME).getValue();
+		String lastName = epersonMetadata.get(EPersonMetadataField.LASTNAME).getValue();
+
+		if ((lastName == null) && (firstName == null)) {
+			return getEmail();
+		} else if (firstName == null) {
+			return lastName;
+		} else {
+			return (firstName + " " + lastName);
+		}
+	}
+
+	@Transient
+	public String getFirstName() {
+		return epersonMetadata.get(EPersonMetadataField.FIRSTNAME).getValue();
+	}
+
+	public void setFirstName(String firstName) {
+		setMetadata(EPersonMetadataField.FIRSTNAME.toString(), firstName);
+		modified = true;
+	}
+
+	@Transient
+	public String getLastName() {
+		return epersonMetadata.get(EPersonMetadataField.LASTNAME).getValue();
+	}
+
+	public void setLastName(String lastName) {
+		setMetadata(EPersonMetadataField.LASTNAME.toString(), lastName);
+		modified = true;		
+	}
+
+	@Transient
+	//FIXME metodo da togliere
+	public void setCanLogIn(boolean canLogin) {
+		this.enabled = canLogin;
+		modified = true;
+		
+	}
+
+	@Transient
+	//FIXME metodo da togliere
+	public boolean canLogIn() {
+		return enabled;
+	}
+
+	public void setRequireCertificate(boolean requireCertificate) {
+		this.requireCertificate = requireCertificate;
+		modified = true;
+		
+	}
+
+	@Column(name = "require_certificate")
+	public boolean getRequireCertificate() {
+		return requireCertificate;
+	}
+
+	public void setSelfRegistered(boolean selfRegistered) {
+		this.selfRegistered = selfRegistered;
+		modified = true;
+		
+	}
+
+	@Column(name = "self_registered")
+	public boolean getSelfRegistered() {
+		return selfRegistered;
+	}
+
+	@Transient
+	public String getMetadata(EPersonMetadataField field) {
+		return epersonMetadata.get(field.toString()).getValue();
+	}
+
+	public void setMetadata(EPersonMetadataField field, String value) {
+		setMetadata(field.toString(), value);
+	}
+
+	@Transient
+	public String getMetadata(String field) {
+		return epersonMetadata.get(field).getValue();
+		//return metadata.get(EPersonMetadataField.fromString(field));
+	}
+
+	@Transient
+	public void setMetadata(String field, String value) {
+		EPersonMetadata em = epersonMetadata.get(field);
+		if(em!=null) {
+			em.setValue(value);
+		} else {
+			epersonMetadata.put(field, new EPersonMetadata(this, field, value));
+		}		
+		modifiedMetadata = true;
+		addDetails(field);
+	}
+
+	public void setPassword(String password) {
+		setMetadata(EPersonMetadataField.PASSWORD.toString(), Utils.getMD5(password));		
+		modified = true;
+	}
+
+	public boolean checkPassword(String attempt) {
+		String encoded = Utils.getMD5(attempt);
+
+		return (encoded.equals(epersonMetadata.get(EPersonMetadataField.PASSWORD).getValue()));
+	}
+
+	@Column(name = "can_log_in")
 	public boolean isEnabled() {
 		return enabled;
 	}
+
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
 
-/*    @Deprecated
-    public void update() throws AuthorizeException
-    {
-        dao.update(this);
+	////////////////////////////////////////////////////////////////////
+	// Utility methods
+	////////////////////////////////////////////////////////////////////
 
-        if (modified)
-        {
-            context.addEvent(new Event(Event.MODIFY, Constants.EPERSON, getId(), null));
-            modified = false;
-        }
-        if (modifiedMetadata)
-        {
-            context.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, getId(), getDetails()));
-            modifiedMetadata = false;
-            clearDetails();
-        }
-    }
-*/
-/*    @Deprecated
-    public void delete() throws AuthorizeException, EPersonDeletionException
-    {
-        dao.delete(getId());
-        context.addEvent(new Event(Event.DELETE, Constants.EPERSON, getId(), getEmail()));
+	/**
+	 * return type found in Constants
+	 */
+	@Transient
+	public int getType() {
+		return Constants.EPERSON;
+	}
 
-        
-    }*/
+	////////////////////////////////////////////////////////////////////
+	// Deprecated methods
+	////////////////////////////////////////////////////////////////////
+
+	//    @Deprecated
+	//    public static EPerson[] findAll(Context context, int sortField)
+	//    {
+	//        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+	//        List<EPerson> epeople = dao.getEPeople(sortField);
+	//
+	//        return (EPerson[]) epeople.toArray(new EPerson[0]);
+	//    }
+	//
+	//    @Deprecated
+	//    public static EPerson find(Context context, int id)
+	//    {
+	//        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+	//
+	//        return dao.retrieve(id);
+	//    }
+	//
+	//    @Deprecated
+	//    public static EPerson[] search(Context context, String query)
+	//    {
+	//        return search(context, query, -1, -1);
+	//    }
+	//
+	//    @Deprecated
+	//    public static EPerson[] search(Context context, String query,
+	//            int offset, int limit)
+	//	{
+	//        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+	//        List<EPerson> epeople = dao.search(query, offset, limit);
+	//
+	//        return (EPerson[]) epeople.toArray(new EPerson[0]);
+	//	}
+	//
+	//    @Deprecated
+	//    public static EPerson findByEmail(Context context, String email)
+	//    {
+	//        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+	//
+	//        return dao.retrieve(EPersonMetadataField.EMAIL, email);
+	//    }
+	//
+	//    @Deprecated
+	//    public static EPerson findByNetid(Context context, String netid)
+	//    {
+	//        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+	//
+	//        return dao.retrieve(EPersonMetadataField.NETID, netid);
+	//    }
+	//
+	//    @Deprecated
+	//    public static EPerson create(Context context) throws AuthorizeException
+	//    {
+	//        EPersonDAO dao = EPersonDAOFactory.getInstance(context);
+	//
+	//        return dao.create();
+	//    }
+
+	/*    @Deprecated
+	 public void update() throws AuthorizeException
+	 {
+	 dao.update(this);
+
+	 if (modified)
+	 {
+	 context.addEvent(new Event(Event.MODIFY, Constants.EPERSON, getId(), null));
+	 modified = false;
+	 }
+	 if (modifiedMetadata)
+	 {
+	 context.addEvent(new Event(Event.MODIFY_METADATA, Constants.EPERSON, getId(), getDetails()));
+	 modifiedMetadata = false;
+	 clearDetails();
+	 }
+	 }
+	 */
+	/*    @Deprecated
+	 public void delete() throws AuthorizeException, EPersonDeletionException
+	 {
+	 dao.delete(getId());
+	 context.addEvent(new Event(Event.DELETE, Constants.EPERSON, getId(), getEmail()));
+	 }*/
 }

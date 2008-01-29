@@ -121,6 +121,7 @@ public abstract class CommunityDAO extends ContentDAO
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
 */    }
 
+    //public abstract void removeFromParentCommunity(EntityManager em, Community community);
     //public abstract Community create() throws AuthorizeException; //ApplicationService
 
     // FIXME: This should be called something else, but I can't think of

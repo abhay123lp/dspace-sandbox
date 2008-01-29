@@ -55,6 +55,7 @@ import org.dspace.checker.BitstreamInfoDAO;
 import org.dspace.content.Bitstream;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
@@ -281,16 +282,18 @@ public class BitstreamStorageManager
             InputStream is)
         throws AuthorizeException, IOException
     {
-        BitstreamDAO dao = BitstreamDAOFactory.getInstance(context);
-
+    	ApplicationService applicationService = new ApplicationService();
+    	
         // Create internal ID
         String id = Utils.generateKey();
 
-        // Create a deleted bitstream row, using a separate DB connection
-        Context tempContext = null;
-
         // Put something into the storage layer to attach the file to.
-        storeInitialMetadata(context, dao, bitstream, incoming, id);
+        applicationService.save(context, Bitstream.class, bitstream);
+        
+        //FIXME presi da storeInitialMetadata(context, bitstream, incoming, id);
+        bitstream.setStoreNumber(incoming);
+		bitstream.setInternalID(id);
+		bitstream.setDeleted(true);
 
         // Where on the file system will this new bitstream go?
 		GeneralFile file = getFile(incoming, id);
@@ -331,7 +334,7 @@ public class BitstreamStorageManager
         bitstream.setChecksumAlgorithm("MD5");
         bitstream.setDeleted(false);
 
-        dao.update(bitstream);
+//        dao.update(bitstream);
 
         if (log.isDebugEnabled())
         {
@@ -362,7 +365,7 @@ public class BitstreamStorageManager
 		String sInternalId = REGISTERED_FLAG + bitstreamPath;
 
         // Put something into the storage layer to attach the file to.
-        storeInitialMetadata(context, dao, bitstream, assetstore, sInternalId);
+        storeInitialMetadata(context, bitstream, assetstore, sInternalId);
 
 		// get a reference to the file
 		GeneralFile file = getFile(assetstore, sInternalId);
@@ -791,8 +794,7 @@ public class BitstreamStorageManager
      * Context to ensure that there is some record of the file in the metadata
      * store.
      */
-    private static void storeInitialMetadata(Context context,
-            BitstreamDAO dao, Bitstream bitstream,
+    private static void storeInitialMetadata(Context context, Bitstream bitstream,
             int assetstore, String internalID)
         throws AuthorizeException
     {

@@ -124,7 +124,7 @@ public abstract class CollectionDAO extends ContentDAO
  //       groupDAO = GroupDAOFactory.getInstance(context);
  //       identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
-
+//    public abstract void removeFromParentCommunities(EntityManager em, Collection collection);
 //    public abstract Collection create() throws AuthorizeException; //Application Service
 
     // FIXME: This should be called something else, but I can't think of

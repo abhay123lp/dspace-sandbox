@@ -47,6 +47,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -101,9 +102,11 @@ public class Bitstream extends DSpaceObject
     
     private Context context;
     
-    public Bitstream(Context context)  {
-        
+    public Bitstream(Context context, InputStream is) throws IOException, AuthorizeException {
         this.context = context;
+        try{
+        	BitstreamStorageManager.store(context, this, is);
+        } finally {}
         modified = modifiedMetadata = false;
         clearDetails();
     }
@@ -179,11 +182,11 @@ public class Bitstream extends DSpaceObject
     	return userFormatDescription;
     }
     
-    public void setUserFormatDescription(String desc) {
-    	setFormat(null);
-        this.userFormatDescription = desc;
-        modifiedMetadata = true;
-        addDetails("UserFormatDescription");
+    public void setUserFormatDescription(String userFormatDescription) {
+//    	setFormat(null);
+        this.userFormatDescription = userFormatDescription;
+//        modifiedMetadata = true;
+//        addDetails("UserFormatDescription");
     }
     @Transient
     public String getFormatDescription() {
@@ -198,7 +201,7 @@ public class Bitstream extends DSpaceObject
         // not null or Unknown
         return bitstreamFormat.getShortDescription();
     }    
-    @Transient
+    @ManyToOne
     public BitstreamFormat getFormat() {
         return bitstreamFormat;
     }
@@ -216,8 +219,9 @@ public class Bitstream extends DSpaceObject
     public void setFormat(BitstreamFormat f) {
         if (f == null)
         {
+        	//FIXME questione dell'unknown?
             // Use "Unknown" format
-            bitstreamFormat = BitstreamFormat.findUnknown(context);
+            //bitstreamFormat = BitstreamFormat.findUnknown(context);
         }
         else
         {

@@ -1,4 +1,4 @@
-<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+<!--persistence xmlns="http://java.sun.com/xml/ns/persistence"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-nstance"
    xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
     http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
@@ -8,9 +8,9 @@
           <property name="hibernate.ejb.cfgfile"
                value="/hibernate.cfg.xml"/>
       </properties>
-   </persistence-unit>
+   </persistence-unit-->
    
-<!--persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">   
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" version="1.0">   
    <persistence-unit name="persistentUnit">
         <provider>oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider>
         <class>org.dspace.content.Site</class>
@@ -21,12 +21,13 @@
 		<class>org.dspace.content.Item</class>
 		<class>org.dspace.content.Bundle</class>
 		<class>org.dspace.content.Bitstream</class>
+		<class>org.dspace.content.BitstreamFormat</class>
 		<class>org.dspace.content.MetadataValue</class>
 		<class>org.dspace.content.MetadataField</class>
 		<class>org.dspace.content.MetadataSchema</class>
 		<class>org.dspace.eperson.EPerson</class>
-		<class>org.dspace.eperson.Group</class>
-		<class>org.dspace.content.BitstreamFormat</class>
+		<class>org.dspace.eperson.EPersonMetadata</class>
+		<class>org.dspace.eperson.Group</class>		
         
         <properties>
             <property name="toplink.jdbc.driver" value="org.postgresql.Driver"/>
@@ -34,8 +35,8 @@
             <property name="toplink.jdbc.user" value="dspace"/>
             <property name="toplink.jdbc.password" value="dspace"/>
             <property name="toplink.logging.level" value="INFO"/>
-            <property name="toplink.ddl-generation" value="drop-and-create-tables"/>
-            <property name="toplink.ddl-generation.output-mode" value="both"/>
+            <!--property name="toplink.ddl-generation" value="drop-and-create-tables"/>
+            <property name="toplink.ddl-generation.output-mode" value="both"/-->
         </properties>  
-   </persistence-unit -->
+   </persistence-unit>
 </persistence>

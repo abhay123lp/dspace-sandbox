@@ -40,6 +40,7 @@
 package org.dspace.core;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -51,6 +52,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.browse.BrowseException;
 import org.dspace.browse.IndexBrowse;
+import org.dspace.content.Bitstream;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCDate;
@@ -59,12 +61,10 @@ import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
-import org.dspace.content.dao.CollectionDAO;
-import org.dspace.content.dao.CollectionDAOFactory;
-import org.dspace.content.dao.CommunityDAO;
-import org.dspace.content.dao.CommunityDAOFactory;
-import org.dspace.content.dao.ItemDAO;
-import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.content.factory.BitstreamFactory;
+import org.dspace.content.factory.CollectionFactory;
+import org.dspace.content.factory.CommunityFactory;
+import org.dspace.content.factory.ItemFactory;
 import org.dspace.content.uri.ExternalIdentifier;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
@@ -81,131 +81,134 @@ public class ArchiveManager
     /**
      * Withdraw the item from the archive. It is kept in place, and the content
      * and metadata are not deleted, but it is not publicly accessible.
+     * 
+     * FIXME uguale al find dell'as?
      */
-    public static void withdrawItem(Context context, Item item)
-        throws AuthorizeException, IOException
-    {
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-
-        String timestamp = DCDate.getCurrent().toString();
-
-        // Build some provenance data while we're at it.
-        String collectionProv = "";
-        Collection[] colls = (Collection[])item.getCollections().toArray();
-
-        for (int i = 0; i < colls.length; i++)
-        {
-            collectionProv = collectionProv + colls[i].getMetadata("name")
-                    + " (ID: " + colls[i].getId() + ")\n";
-        }
-
-        // Check permission. User either has to have REMOVE on owning
-        // collection or be COLLECTION_EDITOR of owning collection
-        if (!AuthorizeManager.authorizeActionBoolean(context,
-                item.getOwningCollection(), Constants.COLLECTION_ADMIN)
-                && !AuthorizeManager.authorizeActionBoolean(context,
-                        item.getOwningCollection(), Constants.REMOVE))
-        {
-            throw new AuthorizeException("To withdraw item must be " +
-                    "COLLECTION_ADMIN or have REMOVE authorization on " +
-                    "owning Collection.");
-        }
-
-        item.setWithdrawn(true);
-        item.setArchived(false);
-
-        EPerson e = context.getCurrentUser();
-        try
-        {
-            // Add suitable provenance - includes user, date, collections +
-            // bitstream checksums
-            String prov = "Item withdrawn by " + e.getFullName() + " ("
-                    + e.getEmail() + ") on " + timestamp + "\n"
-                    + "Item was in collections:\n" + collectionProv
-                    + InstallItem.getBitstreamProvenanceMessage(item);
-            MetadataField mdf = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
-            item.addMetadata(mdf, "en", prov);
-
-            // Update item in DB
-            itemDAO.update(item);
-
-            // Remove from indicies
-            IndexBrowse ib = new IndexBrowse(context);
-            ib.itemRemoved(item);
-            DSIndexer.unIndexContent(context, item);
-        }
-        catch (BrowseException be)
-        {
-            throw new RuntimeException(be);
-        }
-
-        // and all of our authorization policies
-        // FIXME: not very "multiple-inclusion" friendly
-        AuthorizeManager.removeAllPolicies(context, item);
-
-        log.info(LogManager.getHeader(context, "withdraw_item", "user="
-                + e.getEmail() + ",item_id=" + item.getId()));
-    }
-
-    /**
-     * Reinstate a withdrawn item.
-     */
-    public static void reinstateItem(Context context, Item item)
-        throws AuthorizeException, IOException
-    {
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-
-        String timestamp = DCDate.getCurrent().toString();
-
-        // Check permission. User must have ADD on all collections.
-        // Build some provenance data while we're at it.
-        String collectionProv = "";
-        Collection[] colls = (Collection[])item.getCollections().toArray();
-
-        for (int i = 0; i < colls.length; i++)
-        {
-            collectionProv = collectionProv + colls[i].getMetadata("name")
-                    + " (ID: " + colls[i].getId() + ")\n";
-            AuthorizeManager.authorizeAction(context, colls[i],
-                    Constants.ADD);
-        }
-
-        item.setWithdrawn(false);
-        item.setArchived(true);
-
-        // Add suitable provenance - includes user, date, collections +
-        // bitstream checksums
-        EPerson e = context.getCurrentUser();
-
-        String prov = "Item reinstated by " + e.getFullName() + " ("
-                + e.getEmail() + ") on " + timestamp + "\n"
-                + "Item was in collections:\n" + collectionProv
-                + InstallItem.getBitstreamProvenanceMessage(item);
-        
-        MetadataField mdf = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
-        item.addMetadata(mdf, "en", prov);
-
-        // Update item in DB
-        itemDAO.update(item);
-
-        // Add to indicies
-        // Remove - update() already performs this
-        // Browse.itemAdded(context, this);
-        DSIndexer.indexContent(context, item);
-
-        // authorization policies
-        if (colls.length > 0)
-        {
-            // FIXME: not multiple inclusion friendly - just apply access
-            // policies from first collection
-            // remove the item's policies and replace them with
-            // the defaults from the collection
-            item.inheritCollectionDefaultPolicies(colls[0]);
-        }
-
-        log.info(LogManager.getHeader(context, "reinstate_item", "user="
-                + e.getEmail() + ",item_id=" + item.getId()));
-    }
+/*    public static void withdrawItem(Context context, Item item)
+//        throws AuthorizeException, IOException
+//    {
+//        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+//
+//        String timestamp = DCDate.getCurrent().toString();
+//
+//        // Build some provenance data while we're at it.
+//        String collectionProv = "";
+//        Collection[] colls = (Collection[])item.getCollections().toArray();
+//
+//        for (int i = 0; i < colls.length; i++)
+//        {
+//            collectionProv = collectionProv + colls[i].getMetadata("name")
+//                    + " (ID: " + colls[i].getId() + ")\n";
+//        }
+//
+//        // Check permission. User either has to have REMOVE on owning
+//        // collection or be COLLECTION_EDITOR of owning collection
+//        if (!AuthorizeManager.authorizeActionBoolean(context,
+//                item.getOwningCollection(), Constants.COLLECTION_ADMIN)
+//                && !AuthorizeManager.authorizeActionBoolean(context,
+//                        item.getOwningCollection(), Constants.REMOVE))
+//        {
+//            throw new AuthorizeException("To withdraw item must be " +
+//                    "COLLECTION_ADMIN or have REMOVE authorization on " +
+//                    "owning Collection.");
+//        }
+//
+//        item.setWithdrawn(true);
+//        item.setArchived(false);
+//
+//        EPerson e = context.getCurrentUser();
+//        try
+//        {
+//            // Add suitable provenance - includes user, date, collections +
+//            // bitstream checksums
+//            String prov = "Item withdrawn by " + e.getFullName() + " ("
+//                    + e.getEmail() + ") on " + timestamp + "\n"
+//                    + "Item was in collections:\n" + collectionProv
+//                    + InstallItem.getBitstreamProvenanceMessage(item);
+//            MetadataField mdf = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+//            item.addMetadata(mdf, "en", prov);
+//
+//            // Update item in DB
+//            itemDAO.update(item);
+//
+//            // Remove from indicies
+//            IndexBrowse ib = new IndexBrowse(context);
+//            ib.itemRemoved(item);
+//            DSIndexer.unIndexContent(context, item);
+//        }
+//        catch (BrowseException be)
+//        {
+//            throw new RuntimeException(be);
+//        }
+//
+//        // and all of our authorization policies
+//        
+//        AuthorizeManager.removeAllPolicies(context, item);
+//
+//        log.info(LogManager.getHeader(context, "withdraw_item", "user="
+//                + e.getEmail() + ",item_id=" + item.getId()));
+//    }
+//
+//    
+//    //Reinstate a withdrawn item.
+//     
+//    public static void reinstateItem(Context context, Item item)
+//        throws AuthorizeException, IOException
+//    {
+//        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+//
+//        String timestamp = DCDate.getCurrent().toString();
+//
+//        // Check permission. User must have ADD on all collections.
+//        // Build some provenance data while we're at it.
+//        String collectionProv = "";
+//        Collection[] colls = (Collection[])item.getCollections().toArray();
+//
+//        for (int i = 0; i < colls.length; i++)
+//        {
+//            collectionProv = collectionProv + colls[i].getMetadata("name")
+//                    + " (ID: " + colls[i].getId() + ")\n";
+//            AuthorizeManager.authorizeAction(context, colls[i],
+//                    Constants.ADD);
+//        }
+//
+//        item.setWithdrawn(false);
+//        item.setArchived(true);
+//
+//        // Add suitable provenance - includes user, date, collections +
+//        // bitstream checksums
+//        EPerson e = context.getCurrentUser();
+//
+//        String prov = "Item reinstated by " + e.getFullName() + " ("
+//                + e.getEmail() + ") on " + timestamp + "\n"
+//                + "Item was in collections:\n" + collectionProv
+//                + InstallItem.getBitstreamProvenanceMessage(item);
+//        
+//        MetadataField mdf = applicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+//        item.addMetadata(mdf, "en", prov);
+//
+//        // Update item in DB
+//        itemDAO.update(item);
+//
+//        // Add to indicies
+//        // Remove - update() already performs this
+//        // Browse.itemAdded(context, this);
+//        DSIndexer.indexContent(context, item);
+//
+//        // authorization policies
+//        if (colls.length > 0)
+//        {
+//            // 
+//            // policies from first collection
+//            // remove the item's policies and replace them with
+//            // the defaults from the collection
+//            item.inheritCollectionDefaultPolicies(colls[0]);
+//        }
+//
+//        log.info(LogManager.getHeader(context, "reinstate_item", "user="
+//                + e.getEmail() + ",item_id=" + item.getId()));
+//    }
+*/
 
     /**
      * Call with a null source to add to the destination; call with a null
@@ -223,7 +226,7 @@ public class ArchiveManager
      * WARNING 2: This needs to include some sanity checks to make sure we
      * don't end up with circular parent-child relationships.
      */
-    public static void move(Context context,
+/*    public static void move(Context context,
             DSpaceObject dso, DSpaceObject source, DSpaceObject dest)
         throws AuthorizeException
     {
@@ -274,7 +277,125 @@ public class ArchiveManager
             }
         }
     }
+*/
+    
+    /* Create Methods */
 
+    /* Creates a new community. If parent is null the community is a topcommunity */
+    public Community createCommunity(Community parent, Context context) {
+    	Community community = CommunityFactory.getInstance(context);
+    	if(parent!=null) {
+    		addCommunity(parent, community);
+    		applicationService.save(context, Community.class, community);
+    	} 
+    	return community;
+    }
+    
+    /* Creates a new collection. A collection must have a parent-community*/
+    public Collection createCollection(Community parent, Context context) {
+    	if(parent==null) {
+    		throw new IllegalArgumentException(
+            "A Collection must have a non-null parent Community");
+    	}
+    	Collection collection = CollectionFactory.getInstance(context);
+    	addCollection(parent, collection);
+    	return collection;
+    }
+    
+    /* Creates a new item. An item must have an owning-collection */
+    public Item createItem(Collection parent, Context context) {
+    	if(parent==null) {
+    		throw new IllegalArgumentException(
+            "A Item must have a non-null owning Collection");
+    	}
+    	Item item = ItemFactory.getInstance(context);
+    	item.setOwningCollection(parent);
+    	addItem(parent, item);
+    	
+    	return item;
+    }
+    
+     
+    /* Add Methods */
+    
+    /* Adds a subcommunity to the specified parent community */
+    public void addCommunity(Community parent, Community child) {
+    	if(parent==null || child==null) {
+    		throw new IllegalArgumentException(
+            "Both parent and child must be not null");
+    	}
+    	child.getParentCommunities().add(parent);
+    	parent.getSubCommunities().add(child);
+    }
+    
+    /* Adds a collection to the specified community */
+    public void addCollection(Community parent, Collection child) {
+    	if(parent==null || child==null) {
+    		throw new IllegalArgumentException(
+            "Both parent and child must be not null");
+    	}
+    	child.getCommunities().add(parent);
+    	parent.getCollections().add(child);
+    }
+    
+    /* Adds an item to the specified collection */
+    public void addItem(Collection parent, Item child) {
+    	if(parent==null || child==null) {
+    		throw new IllegalArgumentException(
+            "Both parent and child must be not null");
+    	}
+    	child.getCollections().add(parent);
+    	parent.getItems().add(child);
+    }
+    
+    /* Remove methods */
+    
+    /* Removes a subcommunity from the specified community */
+    public void removeCommunity(Community parent, Community child, Context context) {
+    	if(child==null) {
+    		throw new IllegalArgumentException(
+            "Child cannot be null");
+    	}
+    	if(parent!=null) {	    	
+	    	child.getParentCommunities().remove(parent);
+	    	parent.getSubCommunities().remove(child);
+	    	if(child.getParentCommunities().size()==0) { //orphan
+	    		applicationService.deleteCommunity(context, child);
+	    	}
+    	} else { //top-community
+    		applicationService.deleteCommunity(context, child);
+    	}
+    }
+    
+    public void removeCollection(Community parent, Collection child, Context context) {
+    	if(parent==null || child==null) {
+    		throw new IllegalArgumentException(
+            "Both parent and child must be not null");
+    	}
+    	
+    	parent.getCollections().remove(child);
+    	child.getCommunities().remove(parent);
+    	
+    	//if the collection is orphan, remove it
+    	if(child.getCommunities().size()==0) {
+    		applicationService.delete(context, Collection.class, child);
+    	}   	
+    }
+    
+    public void removeItem(Collection parent, Item child, Context context) {
+    	if(parent==null || child==null) {
+    		throw new IllegalArgumentException(
+            "Both parent and child must be not null");
+    	}
+    	
+    	parent.getItems().remove(child);
+    	child.getCollections().remove(parent);
+    	//if the item is orphan, delete it
+    	if(child.getCollections().size()==0){
+    		applicationService.delete(context, Item.class, child);
+    	}    	    	
+    }
+    
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
@@ -285,7 +406,7 @@ public class ArchiveManager
      * remove a personal workspace item etc. This has instant effect;
      * <code>update</code> need not be called.
      */
-    private static void addItemToCollection(Context context,
+/*    private static void addItemToCollection(Context context,
             Item item, Collection collection)
         throws AuthorizeException
     {
@@ -403,7 +524,7 @@ public class ArchiveManager
         log.warn("Moving " + dsoStr + " from " + sourceStr + " to " + destStr);
         log.warn("***************************************************");
     }
-
+*/
     /**
      * Using the CLI on ArchiveManager
 	 *
@@ -429,7 +550,7 @@ public class ArchiveManager
             c = new Context();
             CommandLineParser parser = new PosixParser();
             Options options = new Options();
-            ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
+            //ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
             GroupDAO groupDAO = GroupDAOFactory.getInstance(c);
 
             options.addOption("a", "all", false, "print all items");
@@ -443,7 +564,7 @@ public class ArchiveManager
 
             if (line.hasOption("a"))
             {
-                printItems(itemDAO.getItems());
+                printItems(applicationService.findAllItems(c));
             }
             else if (line.hasOption('g')) 
             {
@@ -451,17 +572,17 @@ public class ArchiveManager
             }
             else if (line.hasOption("m") && line.hasOption("i"))
             {
-                printItemMetadata(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
+            	printItemMetadata(applicationService.get(c, Item.class, Integer.parseInt(line.getOptionValue("i"))));
             }
             else if (line.hasOption("p") && line.hasOption("i"))
             {
                 int id = Integer.parseInt(line.getOptionValue("i"));
-                System.out.println(itemDAO.retrieve(id).toString());
+                System.out.println(applicationService.get(c, Item.class, id).toString());
             }
             else if (line.hasOption("z") && line.hasOption("i"))
             {
                 System.out.println("id go");
-                printExternalIdentifiers(itemDAO.retrieve(Integer.parseInt(line.getOptionValue("i"))));
+                printExternalIdentifiers(applicationService.get(c, Item.class, Integer.parseInt(line.getOptionValue("i"))));
             }
             c.complete();
         }

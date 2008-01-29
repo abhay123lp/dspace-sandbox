@@ -161,41 +161,41 @@ public class AuthorizeManager
                             + actionText + " by user " + userid);
         }
 
-        if (!authorize(c, o, action, c.getCurrentUser()))
-        {
-            // denied, assemble and throw exception
-            int otype = o.getType();
-            int oid = o.getId();
-            int userid;
-            EPerson e = c.getCurrentUser();
-
-            if (e == null)
-            {
-                userid = 0;
-            }
-            else
-            {
-                userid = e.getId();
-            }
-
-            //            AuthorizeException j = new AuthorizeException("Denied");
-            //            j.printStackTrace();
-            // action can be -1 due to a null entry
-            String actionText;
-
-            if (action == -1)
-            {
-                actionText = "null";
-            }
-            else
-            {
-                actionText = Constants.actionText[action];
-            }
-
-            throw new AuthorizeException("Authorization denied for action "
-                    + actionText + " on " + Constants.typeText[otype] + ":"
-                    + oid + " by user " + userid + " in context " + c, o, action);
-        }
+//        if (!authorize(c, o, action, c.getCurrentUser()))
+//        {
+//            // denied, assemble and throw exception
+//            int otype = o.getType();
+//            int oid = o.getId();
+//            int userid;
+//            EPerson e = c.getCurrentUser();
+//
+//            if (e == null)
+//            {
+//                userid = 0;
+//            }
+//            else
+//            {
+//                userid = e.getId();
+//            }
+//
+//            //            AuthorizeException j = new AuthorizeException("Denied");
+//            //            j.printStackTrace();
+//            // action can be -1 due to a null entry
+//            String actionText;
+//
+//            if (action == -1)
+//            {
+//                actionText = "null";
+//            }
+//            else
+//            {
+//                actionText = Constants.actionText[action];
+//            }
+//
+//            throw new AuthorizeException("Authorization denied for action "
+//                    + actionText + " on " + Constants.typeText[otype] + ":"
+//                    + oid + " by user " + userid + " in context " + c, o, action);
+//        }
     }
 
     /**

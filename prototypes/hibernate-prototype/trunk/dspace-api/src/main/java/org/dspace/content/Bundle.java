@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
@@ -100,18 +101,18 @@ public class Bundle extends DSpaceObject {
 	
 	protected Bundle() {}
 
-	public Bitstream createBitstream(InputStream is) throws AuthorizeException,
+/*	public Bitstream createBitstream(InputStream is) throws AuthorizeException,
 			IOException {
-		AuthorizeManager.authorizeAction(context, this, Constants.ADD);
-		/*FIXME: bisogna che il bitstream venga creato tramite is */
-		Bitstream b = BitstreamFactory.getInstance(context);
-
+		//AuthorizeManager.authorizeAction(context, this, Constants.ADD);
+		
+		Bitstream b = BitstreamFactory.getInstance(context, is);
+		b.setBundle(this);
 		addBitstream(b);
 
 		return b;
 	}
-	
-	/* FIXME: rivedere la responsabilità di register() e completare */
+*/	
+	/* FIXME: non è sul dao ne' sul dao postgres, dov'è? */
 /*	public Bitstream registerBitstream(int assetstore, String bitstreamPath)
 			throws AuthorizeException, IOException {
 		AuthorizeManager.authorizeAction(context, this, Constants.ADD);
@@ -123,25 +124,25 @@ public class Bundle extends DSpaceObject {
 		return b;
 	}
 */
-	public void addBitstream(Bitstream b) throws AuthorizeException {
+/*	public void addBitstream(Bitstream b) throws AuthorizeException {
 		for (Bitstream bitstream : bitstreams) {
 			if (bitstream.equals(b)) {
 				return;
 			}
 		}
 
-		AuthorizeManager.addPolicy(context, b, Constants.WRITE, context
-				.getCurrentUser());
-		AuthorizeManager.inheritPolicies(context, this, b);
+//		AuthorizeManager.addPolicy(context, b, Constants.WRITE, context
+//				.getCurrentUser());
+//		AuthorizeManager.inheritPolicies(context, this, b);
 
 		bitstreams.add(b);
 
-		context.addEvent(new Event(Event.ADD, Constants.BUNDLE, getId(),
-				Constants.BITSTREAM, b.getId(), String.valueOf(b
-						.getSequenceID())));
+//		context.addEvent(new Event(Event.ADD, Constants.BUNDLE, getId(),
+//				Constants.BITSTREAM, b.getId(), String.valueOf(b
+//						.getSequenceID())));
 	}
-
-	public void removeBitstream(Bitstream b) throws AuthorizeException {
+*/
+/*	public void removeBitstream(Bitstream b) throws AuthorizeException {
 		Iterator<Bitstream> i = bitstreams.iterator();
 		while (i.hasNext()) {
 			Bitstream bitstream = i.next();
@@ -154,7 +155,7 @@ public class Bundle extends DSpaceObject {
 			}
 		}
 	}
-	@Column(name="name")
+*/	@Column(name="name")
 	public String getName() {
 		return name;
 	}
@@ -163,11 +164,12 @@ public class Bundle extends DSpaceObject {
 		this.name = name;
 		modifiedMetadata = true;
 	}
-
-
-	/*
-	 * FIXME: confrontare questo metodo con quello di jim
-	 */
+	
+	@Transient
+	public int getPrimaryBitstreamID() {
+		return primaryBitstream.getId();
+	}
+	
 	@OneToOne
 	@JoinColumn(name="primary_bitstream_id")
 	public Bitstream getPrimaryBitstream() {
@@ -195,7 +197,7 @@ public class Bundle extends DSpaceObject {
 	public void setBitstreams(List<Bitstream> bitstreams) {
 		this.bitstreams = bitstreams;
 	}
-	@OneToMany(mappedBy="bundle")
+	@OneToMany(cascade = { CascadeType.ALL }, mappedBy="bundle")
 	public List<Bitstream> getBitstreams() {
 		return bitstreams;
 	}
