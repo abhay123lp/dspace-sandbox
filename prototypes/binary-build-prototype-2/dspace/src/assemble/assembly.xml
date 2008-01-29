@@ -72,7 +72,7 @@
          <binaries>
             <includeDependencies>false</includeDependencies>
             <outputDirectory>webapps</outputDirectory>
-            <unpack>false</unpack>
+            <unpack>true</unpack>
          </binaries>
       </moduleSet>
    </moduleSets>
