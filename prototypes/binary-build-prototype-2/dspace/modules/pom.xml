@@ -33,7 +33,7 @@
 	</repositories>
 
 	<modules>
-      <module>dspace-cli</module>
+		<module>dspace-cli</module>
 		<module>dspace-xmlui</module>
 		<module>dspace-lni</module>
 		<module>dspace-oai</module>
