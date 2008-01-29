@@ -44,6 +44,8 @@ import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -60,9 +62,6 @@ import org.dspace.content.dao.BitstreamFormatDAOFactory;
 import org.dspace.content.uri.ObjectIdentifier;
 import org.dspace.core.Context;
 
-/**
- * FIXME: Should this extend DSpaceObject?
- */
 @Entity
 @Table(name="bitstreamformatregistry")
 public class BitstreamFormat
@@ -95,7 +94,7 @@ public class BitstreamFormat
     public static final String UNKNOWN_SHORT_DESCRIPTION = "Unknown";
 
     private Context context;
-    private BitstreamFormatDAO dao;
+    //private BitstreamFormatDAO dao;
 
     private int id;
     private ObjectIdentifier oid;
@@ -113,7 +112,7 @@ public class BitstreamFormat
         this.id = id;
         this.context = context;
 
-        dao = BitstreamFormatDAOFactory.getInstance(context);
+        //dao = BitstreamFormatDAOFactory.getInstance(context);
         extensions = new ArrayList<String>();
     }
 
@@ -275,102 +274,133 @@ public class BitstreamFormat
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
-
-    /** Deprecated by the introduction of DAOs */
-    @Deprecated
-    BitstreamFormat(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("bitstream_format_id"));
-    }
-
-    @Deprecated
-    public static BitstreamFormat create(Context context)
-        throws AuthorizeException
-    {
-        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
-        return dao.create();
-    }
-
-    @Deprecated
-    public void update() throws AuthorizeException
-    {
-        dao.update(this);
-    }
-
-    @Deprecated
-    public void delete() throws AuthorizeException
-    {
-        dao.delete(getId());
-    }
-
-    @Deprecated
-    public static BitstreamFormat find(Context context, int id)
-    {
-        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
-        return dao.retrieve(id);
-    }
-
-    @Deprecated
-    public static BitstreamFormat findByMIMEType(Context context,
-            String mimeType)
-    {
-        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
-        return dao.retrieveByMimeType(mimeType);
-    }
-
-    @Deprecated
-    public static BitstreamFormat findByShortDescription(Context context,
-            String desc)
-    {
-        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
-        return dao.retrieveByShortDescription(desc);
-    }
-
-    @Deprecated
-    public static BitstreamFormat findUnknown(Context context)
-    {
-        BitstreamFormat bf = findByShortDescription(context,
-                UNKNOWN_SHORT_DESCRIPTION);
-
-        if (bf == null)
-        {
-            throw new IllegalStateException(
-                    "No `Unknown' bitstream format in registry");
-        }
-
-        return bf;
-    }
-
-    @Deprecated
-    public static BitstreamFormat[] findAll(Context context)
-    {
-        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
-        List<BitstreamFormat> formats = dao.getBitstreamFormats();
-
-        return (BitstreamFormat[]) formats.toArray(new BitstreamFormat[0]);
-    }
-
-    @Deprecated
-    public static BitstreamFormat[] findNonInternal(Context context)
-    {
-        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
-        List<BitstreamFormat> formats = dao.getBitstreamFormats(false);
-
-        return (BitstreamFormat[]) formats.toArray(new BitstreamFormat[0]);
-    }
+    
     @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
 	public int getId() {
 		return id;
 	}
+
 	public void setId(int id) {
 		this.id = id;
 	}
+	
 	@Transient
 	public ObjectIdentifier getOid() {
 		return oid;
 	}
+
 	public void setOid(ObjectIdentifier oid) {
 		this.oid = oid;
 	}
+
+	public String getMimeType() {
+		return mimeType;
+	}
+
+	public void setMimeType(String mimeType) {
+		this.mimeType = mimeType;
+	}
+
+	public void setExtensions(List<String> extensions) {
+		this.extensions = extensions;
+	}
+
+    /** Deprecated by the introduction of DAOs */
+//    @Deprecated
+//    BitstreamFormat(Context context, org.dspace.storage.rdbms.TableRow row)
+//    {
+//        this(context, row.getIntColumn("bitstream_format_id"));
+//    }
+//
+//    @Deprecated
+//    public static BitstreamFormat create(Context context)
+//        throws AuthorizeException
+//    {
+//        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
+//        return dao.create();
+//    }
+//
+//    @Deprecated
+//    public void update() throws AuthorizeException
+//    {
+//        dao.update(this);
+//    }
+//
+//    @Deprecated
+//    public void delete() throws AuthorizeException
+//    {
+//        dao.delete(getId());
+//    }
+//
+//    @Deprecated
+//    public static BitstreamFormat find(Context context, int id)
+//    {
+//        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
+//        return dao.retrieve(id);
+//    }
+//
+//    @Deprecated
+//    public static BitstreamFormat findByMIMEType(Context context,
+//            String mimeType)
+//    {
+//        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
+//        return dao.retrieveByMimeType(mimeType);
+//    }
+//
+//    @Deprecated
+//    public static BitstreamFormat findByShortDescription(Context context,
+//            String desc)
+//    {
+//        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
+//        return dao.retrieveByShortDescription(desc);
+//    }
+//
+//    @Deprecated
+//    public static BitstreamFormat findUnknown(Context context)
+//    {
+//        BitstreamFormat bf = findByShortDescription(context,
+//                UNKNOWN_SHORT_DESCRIPTION);
+//
+//        if (bf == null)
+//        {
+//            throw new IllegalStateException(
+//                    "No `Unknown' bitstream format in registry");
+//        }
+//
+//        return bf;
+//    }
+//
+//    @Deprecated
+//    public static BitstreamFormat[] findAll(Context context)
+//    {
+//        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
+//        List<BitstreamFormat> formats = dao.getBitstreamFormats();
+//
+//        return (BitstreamFormat[]) formats.toArray(new BitstreamFormat[0]);
+//    }
+//
+//    @Deprecated
+//    public static BitstreamFormat[] findNonInternal(Context context)
+//    {
+//        BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
+//        List<BitstreamFormat> formats = dao.getBitstreamFormats(false);
+//
+//        return (BitstreamFormat[]) formats.toArray(new BitstreamFormat[0]);
+//    }
+//    @Id
+//	public int getId() {
+//		return id;
+//	}
+//	public void setId(int id) {
+//		this.id = id;
+//	}
+//	@Transient
+//	public ObjectIdentifier getOid() {
+//		return oid;
+//	}
+//	public void setOid(ObjectIdentifier oid) {
+//		this.oid = oid;
+//	}
 
 }

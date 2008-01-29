@@ -47,10 +47,8 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.TreeMap;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
-import javax.persistence.Lob;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
@@ -61,7 +59,7 @@ import javax.persistence.CascadeType;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.authorize.ResourcePolicy;
+//import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.factory.BitstreamFactory;
 import org.dspace.content.factory.CollectionFactory;
 import org.dspace.content.factory.CommunityFactory;
@@ -85,20 +83,21 @@ import org.dspace.core.LogManager;
 public class Community extends DSpaceObject
 {
     
-	/*----------------- OLD FIELDS -----------------------------*/
+	
     /** Flag set when data is modified, for events */
     private boolean modified;
 
     /** Flag set when metadata is modified, for events */
     private boolean modifiedMetadata;
-    /*----------------------------------------------*/
+    
     private static Logger log = Logger.getLogger(Community.class);
     
     private List<Community> parentCommunities; 
     private List<Community> subCommunities;
     private List<Collection> collections;
     private Bitstream logo;
-    //private Map<String, String> metadata;
+    
+    /** Metadata of this community **/
     private Map<String, CommunityMetadata> communityMetadata;
     
     
@@ -107,7 +106,7 @@ public class Community extends DSpaceObject
     {
         this.context = context;
         this.communityMetadata = new TreeMap<String, CommunityMetadata>();
-        //this.metadata = new TreeMap<String, String>();
+        
         modifiedMetadata=modified=false;
         
         this.parentCommunities = new ArrayList<Community>();
@@ -118,60 +117,70 @@ public class Community extends DSpaceObject
     protected Community() {}
     
     /* Creates a collection under this community */
-    //FIXME rivedere le autorizzazioni
-    public Collection createCollection() {// throws AuthorizeException{
+/*    public Collection createCollection() {// throws AuthorizeException{
 //    	AuthorizeManager.authorizeAction(context, this, Constants.ADD);
     	Collection collection = CollectionFactory.getInstance(context);
     	collection.addCommunity(this);
     	collections.add(collection);
     	return collection;
     }
-    
+*/    
     /* Creates a subcommunity of this community */
-    public Community createSubCommunity() throws AuthorizeException{
-    	AuthorizeManager.authorizeAction(context, this, Constants.ADD);
+/*    public Community createSubCommunity() {//throws AuthorizeException{
+//    	AuthorizeManager.authorizeAction(context, this, Constants.ADD);
     	Community subcommunity = CommunityFactory.getInstance(context);
     	subcommunity.addParentCommunity(this);
     	subCommunities.add(subcommunity);
     	return subcommunity;
     }
-    
+*/    
     /* Adds a collection between the ones this community owns */
-    public void addCollection(Collection collection) {
+/*    public void addCollection(Collection collection) {
+    	collection.addCommunity(this);
     	collections.add(collection);
     }
-    
+*/    
     /* Removes a collection from the ones this community owns */
-    public void removeCollection(Collection collection) {
+/*    public void removeCollection(Collection collection) {
+    	collection.removeCommunity(this);
     	collections.remove(collection);
     }
-    
+*/    
     /* Adds a community as a subcommunity of this community */
-    public void addSubCommunity(Community subcommunity) {
+/*    public void addSubCommunity(Community subcommunity) {
+    	subcommunity.addParentCommunity(this);
     	subCommunities.add(subcommunity);
     }
-    
+*/    
     /* Removes a community from the subcommunities of this community */
-    public void removeSubCommunity(Community subcommunity) {
+/*    public void removeSubCommunity(Community subcommunity) {
+    	subcommunity.removeParentCommunity(this);
     	subCommunities.remove(subcommunity);
     }
-    
+*/    
+    /* Removes a community from the parent communities of this community 
+     * but DOES NOT remove this community from subcommunities of the ex-parent */
+/*    protected void removeParentCommunity(Community parentCommunity) {
+    	parentCommunities.remove(parentCommunity);
+    }
+*/    
     /* Returns all the parent communities of this community */
-    @ManyToMany
-    @JoinTable(name="community2community")
+    @ManyToMany(mappedBy="subCommunities")
     public List<Community> getParentCommunities() {
     	return this.parentCommunities;
     }
     
-    /* Add a community as a parent of this community */
-    public void addParentCommunity(Community parent) {
+    /* Add a community as a parent of this community 
+     * but DOES NOT add this community between the subcommunities of the new parent*/
+/*    protected void addParentCommunity(Community parent) {
     	parentCommunities.add(parent);
     }
-    
+*/    
     
     /* Returns all the sub-communities owned by this community */
-    @ManyToMany(mappedBy="parentCommunities", cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
 //    @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
+    @JoinTable(name="community2community")
     public List<Community> getSubCommunities() {
     	return this.subCommunities;
     }
@@ -184,13 +193,13 @@ public class Community extends DSpaceObject
     	return this.collections;
     }
     
-    /* Add a logo to the community */
-    public void setLogoBitstream(Bitstream logo) {
+    /* Sets the logo of this community */
+    protected void setLogoBitstream(Bitstream logo) {
     	this.logo=logo;
     }
     
-    public Bitstream setLogo(InputStream is) 
-    throws AuthorizeException, IOException {
+    /* Add a logo to this community */
+    public Bitstream setLogo(InputStream is) throws AuthorizeException, IOException {
     	// Check authorisation
         // authorized to remove the logo when DELETE rights
         // authorized when canEdit
@@ -205,22 +214,24 @@ public class Community extends DSpaceObject
         {
             log.info(LogManager.getHeader(context, "remove_logo",
                     "community_id=" + getId()));
-           logo = null;
+            logo.setDeleted(true);
         }
         if (is != null)
         {
-        	Bitstream newLogo = BitstreamFactory.getInstance(context);
+        	Bitstream newLogo = BitstreamFactory.getInstance(context, is);
             logo = newLogo;
 
             // now create policy for logo bitstream
             // to match our READ policy
-            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context,
-                    this, Constants.READ);
-            AuthorizeManager.addPolicies(context, policies, newLogo);
-
-            log.info(LogManager.getHeader(context, "set_logo",
-                    "community_id=" + getId() + "logo_bitstream_id="
-                            + newLogo.getId()));
+//            List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context,
+//                    this, Constants.READ);
+//            AuthorizeManager.addPolicies(context, policies, newLogo);
+//
+//            log.info(LogManager.getHeader(context, "set_logo",
+//                    "community_id=" + getId() + "logo_bitstream_id="
+//                            + newLogo.getId()));
+        } else {
+        	logo = null;
         }
 
     	
@@ -240,37 +251,38 @@ public class Community extends DSpaceObject
     }
     
     /* Returns the name of the community */
-//    @Lob
-//    @Column(name="name")
     @Transient
     public String getName() {
         return getMetadata("name");
     }
     
+    /* Sets the name of this community */
     public void setName(String newname) {
     	setMetadata("name", newname);
     }
     
     /* Sets a field of metadata */
     public void setMetadata(String field, String value) {
-        if ((field.trim()).equals("name") && (value.trim()).equals(""))
-        {
-            try
-            {
-                value = I18nUtil.getMessage(
-                        "org.dspace.workflow.WorkflowManager.untitled");
-            }
-            catch (MissingResourceException e)
-            {
-                value = "Untitled";
-            }
-        }
-        //metadata.put(field, value);
+    	if(field==null) {
+    		throw new IllegalArgumentException(
+            "Cannot save metadata with field null");
+    	}
+    	if (value != null) {
+			if ((field.trim()).equals("name") && (value.trim()).equals("")) {
+				try {
+					value = I18nUtil
+							.getMessage("org.dspace.workflow.WorkflowManager.untitled");
+				} catch (MissingResourceException e) {
+					value = "Untitled";
+				}
+			}
+		}
+        // metadata.put(field, value);
         CommunityMetadata oldmetadata = communityMetadata.get(field);
-		if (oldmetadata==null) {
-			communityMetadata.put(field, new CommunityMetadata(this, field, value));
+        if (oldmetadata==null) {
+        	communityMetadata.put(field, new CommunityMetadata(this, field, value));        				
 		} else {
-			oldmetadata.setValue(value);
+			oldmetadata.setValue(value);			
 		}
         
         modifiedMetadata = true;
@@ -289,6 +301,7 @@ public class Community extends DSpaceObject
 	public boolean isModifiedMetadata() {
 		return modifiedMetadata;
 	}
+    
 	public void canEdit() throws AuthorizeException
     {
         //List<Community> parents = dao.getParentCommunities(this);
@@ -327,9 +340,11 @@ public class Community extends DSpaceObject
 		this.modified = modified;
 	}
 
-	public void setLogo(Bitstream logo) {
+	protected void setLogo(Bitstream logo) {
 		this.logo = logo;
 	}
+	
+	/* Returns all the ancestors of this community */
 	@Transient
     public List<Community> getAllParentCommunities()
     {
@@ -342,7 +357,7 @@ public class Community extends DSpaceObject
 
         return superParents;
     }
-    @Transient
+    
     public int itemCount()
     {
     	int total = 0;

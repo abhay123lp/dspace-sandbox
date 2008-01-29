@@ -42,9 +42,11 @@ package org.dspace.eperson;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -83,8 +85,9 @@ public class Group extends DSpaceObject
     private String name;
 
     /** lists of epeople and groups in the group */
-    protected List<EPerson> members;
-    protected List<Group> groups;
+    private List<EPerson> members;
+    private List<Group> groups;
+    private List<Group> parentGroups;
 
     /** lists that need to be written out again */
     private boolean epeopleChanged = false;
@@ -104,7 +107,7 @@ public class Group extends DSpaceObject
         this.context = context;
         members = new ArrayList<EPerson>();
         groups = new ArrayList<Group>();
-
+        parentGroups = new ArrayList<Group>();
     }
 
     public String getName()
@@ -137,7 +140,8 @@ public class Group extends DSpaceObject
         {
             return;
         }
-
+        
+        g.addParentGroup(this);
         groups.add(g);
 
         context.addEvent(new Event(Event.ADD, Constants.GROUP, getId(), Constants.GROUP, g.getId(), g.getName()));
@@ -156,6 +160,7 @@ public class Group extends DSpaceObject
     {
         if (groups.remove(g))
         {
+        	g.removeParentGroup(this);
             groupsChanged = true;
             context.addEvent(new Event(Event.REMOVE, Constants.GROUP, getId(), Constants.GROUP, g.getId(), g.getName()));
         }
@@ -176,13 +181,32 @@ public class Group extends DSpaceObject
     {
         return groups.contains(g);
     }
-    @OneToMany
-    @JoinTable(name="epersongroup2epersongroup")
+//    @OneToMany(mappedBy="parentGroups", cascade={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+//    @JoinTable(name="epersongroup2epersongroup")
+    @Transient
     public List<Group> getGroups()
     {
         return groups;
     }
+    
+    //@ManyToOne
+    @Transient
+	public List<Group> getParentGroups() {
+		return parentGroups;
+	}
 
+	public void setParentGroups(List<Group> parentGroups) {
+		this.parentGroups = parentGroups;
+	}
+	
+	protected void addParentGroup(Group group) {
+		parentGroups.add(group);
+	}
+	
+	protected void removeParentGroup(Group group) {
+		parentGroups.remove(group);
+	}
+    
     /**
      * Return EPerson members of a Group
      */
@@ -265,7 +289,7 @@ public class Group extends DSpaceObject
         
     }
 */
-    @Deprecated
+/*    @Deprecated
     public static Group find(Context context, int id)
     {
         GroupDAO dao = GroupDAOFactory.getInstance(context);
@@ -283,10 +307,6 @@ public class Group extends DSpaceObject
         return (Group[]) groups.toArray(new Group[0]);
     }
 
-    /**
-     * FIXME: Assumes the group name is unique. I don't think this is enforced
-     * anywhere. Even so, this should probably call search() anyway.
-     */
     @Deprecated
     public static Group findByName(Context context, String name)
     {
@@ -329,15 +349,16 @@ public class Group extends DSpaceObject
 
         return (Group[]) groups.toArray(new Group[0]);
 	}
+*/    
     @Transient
 	public List<EPerson> getEpeople() {
 		return members;
 	}
-    @Transient
+    
 	public void setMembers(List<EPerson> members) {
 		this.members = members;
 	}
-    @Transient
+    
 	public void setGroups(List<Group> groups) {
 		this.groups = groups;
 	}
@@ -345,7 +366,7 @@ public class Group extends DSpaceObject
 	public boolean isEpeopleChanged() {
 		return epeopleChanged;
 	}
-    @Transient
+    
 	public void setEpeopleChanged(boolean epeopleChanged) {
 		this.epeopleChanged = epeopleChanged;
 	}
@@ -353,7 +374,7 @@ public class Group extends DSpaceObject
 	public boolean isGroupsChanged() {
 		return groupsChanged;
 	}
-    @Transient
+    
 	public void setGroupsChanged(boolean groupsChanged) {
 		this.groupsChanged = groupsChanged;
 	}
@@ -361,8 +382,9 @@ public class Group extends DSpaceObject
 	public boolean isDataLoaded() {
 		return isDataLoaded;
 	}
-    @Transient
+    
 	public void setDataLoaded(boolean isDataLoaded) {
 		this.isDataLoaded = isDataLoaded;
 	}
+
 }

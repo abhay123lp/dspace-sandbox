@@ -7,11 +7,15 @@ import javax.persistence.EntityTransaction;
 import javax.persistence.FlushModeType;
 import javax.persistence.Persistence;
 
+import org.dspace.content.Bitstream;
+import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 
+import org.dspace.content.dao.BundleDAO;
+import org.dspace.content.dao.BundleDAOFactory;
 import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAO;
@@ -21,6 +25,7 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.factory.BundleFactory;
 
 
 public class ApplicationService {
@@ -29,8 +34,13 @@ public class ApplicationService {
 	
 	private static GenericDAOFactory genericDAOFactory;
 	
-	private EntityManagerFactory emf = Persistence.createEntityManagerFactory(persistentUnit);
-	private EntityManager em; //= emf.createEntityManager();
+	private EntityManagerFactory emf;
+	private EntityManager em; 
+	
+	public ApplicationService() {
+		emf = Persistence.createEntityManagerFactory(persistentUnit);
+		em = emf.createEntityManager();
+	}
 	
 	/* CRUD operations */
 	
@@ -39,10 +49,8 @@ public class ApplicationService {
 	 */
 	public <T> T get(Context context, Class<T> clazz, int id) {
 		System.out.println(" -------------------------- Get -------------------------- ");
-		control("Get");
-		//em = emf.createEntityManager();
+		setupTransaction("Get");
 		T result = em.find(clazz, id);
-		//em.close();
 		return result;		
 	}
 	
@@ -51,39 +59,61 @@ public class ApplicationService {
 	 */
 	public <T> void update(Context context, Class<T> clazz, T object) {
 		System.out.println(" -------------------------- Update -------------------------- ");
-		control("Update");	
-//		em = emf.createEntityManager();
-		object = em.merge(object);	
-//		em.flush();
-//		em.close();
+		setupTransaction("Update");	
+		em.merge(object);
 	}
 	
 	/*
 	 * Saves a new object into the db
 	 */
-	public <T> void save (Context context, Class<T> clazz, T object) {
+	protected <T> void save (Context context, Class<T> clazz, T object) {
 		System.out.println(" -------------------------- Save -------------------------- ");
-		control("Save");
-//		em = emf.createEntityManager();
+		setupTransaction("Save");
 		em.persist(object);
-//		em.flush();
-//		em.close();
 	}
 	
 	/* 
 	 * Removes an object from the db
 	 */
-	public <T> void delete (Context context, Class<T> clazz, T object) {
+	protected <T> void delete (Context context, Class<T> clazz, T object) {
 		System.out.println(" -------------------------- Delete -------------------------- ");
-		control("Delete");
-//		em = emf.createEntityManager();
+		setupTransaction("Delete");
 		em.remove(object);
-//		em.close();
 	}
 	
+	protected void deleteCommunity(Context context, Community community) {
+		System.out.println(" ----------> Delete Community");
+		//CommunityDAO cdao = CommunityDAOFactory.getInstance(context);
+		//cdao.removeFromParentCommunity(em, community);
+		List<Community> parents = community.getParentCommunities();
+		for(Community parent : parents) {
+			parent.getSubCommunities().remove(community);
+		}
+		delete(context, Community.class, community);
+	}
 	
-	/* Finder operations */
+	protected void deleteCollection(Context context, Collection collection) {
+		System.out.println(" ----------> Delete Collection");
+		List<Community> parents = collection.getCommunities();
+		for(Community parent : parents) {
+			parent.getCollections().remove(collection);
+		}
+		delete(context, Collection.class, collection);
+	}
 	
+	protected void deleteItem(Context context, Item item) {
+		System.out.println(" ----------> Delete Item");
+		ItemDAO idao = ItemDAOFactory.getInstance(context);
+		idao.removeFromCollections(em, item);
+		delete(context, Item.class, item);
+	}
+	//FIXME ma un delete generico no?
+	protected void deleteBundle(Context context, Bundle bundle) {
+		System.out.println(" ----------> Delete Bundle");
+		delete(context, Bundle.class, bundle);
+	}
+	
+	/* Finder operations */	
 	
 	public MetadataField getMetadataField(String element, String qualifier,	String schema, Context context) {
 		MetadataFieldDAO mdfdao =  MetadataFieldDAOFactory.getInstance(context);
@@ -93,11 +123,7 @@ public class ApplicationService {
 	
 	public List<Community> findAllCommunities(Context context) {
 		CommunityDAO cdao = CommunityDAOFactory.getInstance(context);
-		if(em==null || !em.isOpen()) em = emf.createEntityManager();
-		if(em.getTransaction()==null || !em.getTransaction().isActive()) {
-			EntityTransaction tr = em.getTransaction();
-			tr.begin();
-		}
+		setupTransaction("findAllCommunities");
 		List<Community> communities = cdao.getCommunities(em);
 		complete();
 		return communities;
@@ -105,11 +131,7 @@ public class ApplicationService {
 	
 	public List<Collection> findAllCollections(Context context) {
 		CollectionDAO cdao = CollectionDAOFactory.getInstance(context);
-		if(em==null || !em.isOpen()) em = emf.createEntityManager();
-		if(em.getTransaction()==null || !em.getTransaction().isActive()) {
-			EntityTransaction tr = em.getTransaction();
-			tr.begin();
-		}
+		setupTransaction("findAllCollections");
 		List<Collection> collections = cdao.getCollections(em);
 		complete();
 		return collections;
@@ -117,8 +139,15 @@ public class ApplicationService {
 	
 	public List<Item> findAllItems(Context context) {
 		ItemDAO idao = ItemDAOFactory.getInstance(context);
-		List<Item> collections = idao.getItems();
-		return collections;
+		setupTransaction("findAllItems");
+		List<Item> items = idao.getItems(em);
+		complete();
+		return items;
+	}
+	
+	public Bundle findBundleByName(Item item, String name, Context context) {
+		BundleDAO bdao = BundleDAOFactory.getInstance(context);
+		return bdao.findBundleByName(item, name, em);
 	}
 	
 	
@@ -139,6 +168,7 @@ public class ApplicationService {
     public void abort() {
     	em.getTransaction().rollback();
     	em.close();
+    	System.out.println("Abort: transazione in rollback e EntityManager chiuso");
     }
     
     
@@ -147,7 +177,7 @@ public class ApplicationService {
     	EntityTransaction tr = em.getTransaction();
     	try {
 			if (tr.isActive()) {
-				tr.commit();
+				tr.commit();				
 				System.out.println("Commit: Chiusa una transazione");
 			} else {
     			System.out.println("Commit: Transazione attuale già chiusa");
@@ -165,24 +195,22 @@ public class ApplicationService {
 				tr.commit();
 				System.out.println("Complete: Chiusa una transazione");
 			} else {
-				System.out.println("Complete: Transazione attuale già chiusa");
+				tr.begin();
+				tr.commit();
+				System.out.println("Complete: Trovata transazione chiusa, aperta e chiusa una nuova transazione");
 			}
         } 
         finally {
         	em.close();
-        	System.out.println("Complete: Chiuso un EntityManager");
+        	System.out.println("Complete: Chiuso l'EntityManager");
         }
    	
     }
     
     /* Utility methods */
     
-    /* If em is null, create a new em, if there isn't an active transaction, create it */
-    private void control(String method) {
-		if(em==null || !em.isOpen()) {
-			em = emf.createEntityManager();
-			System.out.println(method + ": Creato un nuovo EntityManager");
-		}
+    /* if there isn't an active transaction, create it */
+    private void setupTransaction(String method) {
 		if(em.getTransaction()==null || !em.getTransaction().isActive()) {
 			EntityTransaction tr = em.getTransaction();
 			tr.begin();

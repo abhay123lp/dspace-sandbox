@@ -32,6 +32,15 @@ public class CollectionDAOHibernate extends CollectionDAO {
 		return collections;
 	}
 	
+/*	public void removeFromParentCommunities(EntityManager em, Collection collection) {
+		String querycommunity = "DELETE c FROM Collection c AS j WHERE j.collections_id = " + collection.getId();
+		String queryitem = "metti a null tutti gli owning_collection degli item che hanno questa coll";
+		Query qc = em.createQuery(querycommunity);
+		Query qi = em.createQuery(queryitem);
+		qc.executeUpdate();
+		qi.executeUpdate();
+	}
+*/	
 	public Collection retrieve(UUID uuid)
     {
         return null;

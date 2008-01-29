@@ -67,6 +67,7 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.authorize.ResourcePolicy;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
@@ -117,7 +118,7 @@ public class Collection extends DSpaceObject {
 	private boolean modifiedMetadata;
 
 	private static Logger log = Logger.getLogger(Collection.class);
-	private String license;
+	private String collectionLicense;
 	
 	private List<Group> workflowGroups;
 	private Group submitters;
@@ -157,23 +158,43 @@ public class Collection extends DSpaceObject {
 		this.collectionMetadata = collectionMetadata;
 	}
 	
-	public Item createItem() {
+/*	public Item createItem() {
 		Item item = ItemFactory.getInstance(context);
-		//FIXME settare anche owning collection
+		item.setOwningCollection(this);
 		item.addCollection(this);
 		items.add(item);
 		return item;
 	}
-
-	/* Creates an administrators group for this Collection */
-	/*FIXME confrontare con l'originale */
+*/
+	/* Creates an administrators group for this Collection */	
 	public Group createAdministrators() throws AuthorizeException {
-		
-		AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
-		if (administrators == null) {
-			administrators = GroupFactory.getInstance(context);
-		}
-		return administrators;
+        // Check authorisation
+        AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
+
+        if (administrators == null)
+        {
+        	//administrators = Group.create(ourContext);
+        	administrators = GroupFactory.getInstance(context);
+        	administrators.setName("COLLECTION_" + getId() + "_ADMIN");
+        	//administrators.update();
+        }
+
+        AuthorizeManager.addPolicy(context, this,
+                Constants.COLLECTION_ADMIN, administrators);
+
+        // register this as the admin group
+        //collectionRow.setColumn("admin", administrators.getId());
+        //FIXME si può eliminare?
+        
+        // administrators also get ADD on the submitter group
+        if (submitters != null)
+        {
+            AuthorizeManager.addPolicy(context, submitters, Constants.ADD,
+            		administrators);
+        }
+
+        modified = true;
+        return administrators;
 	}
 
 	/* Creates a submitters group for this collection */
@@ -247,31 +268,32 @@ public class Collection extends DSpaceObject {
 	public void setName(String name) {
 		setMetadata("name", name);
 	}
-	@Column(name="license")
+	@Transient
 	public String getLicense() {
-		//FIXME come rimettere? cambia il nome dell'attributo con nuovi get/set e wrappali qui
-/*		if ((license == null) || license.equals("")) {
+		if ((collectionLicense == null) || collectionLicense.equals("")) {
 			// Fallback to site-wide default
-			license = ConfigurationManager.getDefaultSubmissionLicense();
+			collectionLicense = ConfigurationManager.getDefaultSubmissionLicense();
 		}
-*/
-		return license;
+
+		return collectionLicense;
 	}
 
 	public void setLicense(String license) {
-		this.license = license;
+		this.collectionLicense = license;
 	}
 
 	/* Adds an Item to this Collection */
-	public void addItem(Item item) {
+/*	public void addItem(Item item) {
+		item.addCollection(this);
 		items.add(item);
 	}
-
+*/
 	/* Removes an Item from this Collection */
-	public void removeItem(Item item) {
+/*	public void removeItem(Item item) {
+		item.removeCollection(this);
 		items.remove(item);
 	}
-
+*/
 	/* Creates an empty template item for this collection */
 	public void createTemplateItem() {
 		if (templateItem == null) {
@@ -298,7 +320,7 @@ public class Collection extends DSpaceObject {
 	}
 
 	/* Sets a logo for this collection */
-	public void setLogoBitstream(Bitstream logo) {
+	protected void setLogoBitstream(Bitstream logo) {
 		this.logo = logo;
 	}
 
@@ -313,20 +335,19 @@ public class Collection extends DSpaceObject {
 		if (logo != null) {
 			log.info(LogManager.getHeader(context, "remove_logo",
 					"collection_id=" + getId()));
-			logo = null;
+			logo.setDeleted(true);
 		}
 
 		if (is == null) {
 			log.info(LogManager.getHeader(context, "remove_logo",
 					"collection_id=" + getId()));
 			logo = null;
-		} else {
-			/*FIXME ricontrollare questa parte, input stream -> bitstream */
-        	Bitstream newLogo = BitstreamFactory.getInstance(context);
+		} else {			
+        	Bitstream newLogo = BitstreamFactory.getInstance(context, is);
             logo = newLogo;
 			// now create policy for logo bitstream
 			// to match our READ policy
-			List policies = AuthorizeManager.getPoliciesActionFilter(context,
+			List<ResourcePolicy> policies = AuthorizeManager.getPoliciesActionFilter(context,
 					this, Constants.READ);
 			AuthorizeManager.addPolicies(context, policies, logo);
 
@@ -360,23 +381,24 @@ public class Collection extends DSpaceObject {
         workflowGroups.set(step - 1, g);
     }
     
-    /* FIXME controllare groupDAO */
+    
     public Group createWorkflowGroup(int step) throws AuthorizeException
     {
         // Check authorisation
         AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
-/*
-        if (workflowGroups[step - 1] == null)
+
+        if (workflowGroups.get(step-1) == null)
         {
-            Group g = null;
-            g = groupDAO.create();
-            g.setName("COLLECTION_" + getID() + "_WORKFLOW_STEP_" + step);
-            groupDAO.update(g);
+        	/* FIXME va bene così? */
+            Group g = GroupFactory.getInstance(context);
+            //g = groupDAO.create();
+            g.setName("COLLECTION_" + getId() + "_WORKFLOW_STEP_" + step);
+            //groupDAO.update(g);
             setWorkflowGroup(step, g);
 
             AuthorizeManager.addPolicy(context, this, Constants.ADD, g);
         }
-*/        return workflowGroups.get(step - 1);
+        return workflowGroups.get(step - 1);
     }
     @OneToOne    
     public Group getAdministrators()
@@ -402,10 +424,14 @@ public class Collection extends DSpaceObject {
 		this.communities = communities;
 	}
 	
-	public void addCommunity(Community community) {
+/*	protected void addCommunity(Community community) {
 		communities.add(community);
 	}
-	@Transient
+*/	
+/*	protected void removeCommunity(Community community) {
+		communities.remove(community);
+	}
+*/	@Transient
 	public boolean isModified() {
 		return modified;
 	}
@@ -427,7 +453,7 @@ public class Collection extends DSpaceObject {
 		this.items = items;
 	}
 
-	public void setLogo(Bitstream logo) {
+	protected void setLogo(Bitstream logo) {
 		this.logo = logo;
 	}
 	//FIXME da implementare sulla base di collectiondaopostgres: query o oggetto?
@@ -448,14 +474,28 @@ public class Collection extends DSpaceObject {
 
         return superParents;
     }
-	//FIXME questo metodo potrebbe restituire una map<string, string> per evitare errori, tanto è deprecato
+	
 	@Transient
-	public Map<String, CollectionMetadata> getMetadata() {
-		return collectionMetadata;
+	public Map<String, String> getMetadata() {
+		Map<String, String> metadata = new TreeMap<String, String>();
+		java.util.Collection<CollectionMetadata> cma = collectionMetadata.values();
+		for(CollectionMetadata cm : cma) {
+			metadata.put(cm.getField(), cm.getValue());
+		}
+		return metadata;
 	}
 
 	public void setModifiedMetadata(boolean modifiedMetadata) {
 		this.modifiedMetadata = modifiedMetadata;
+	}
+	
+	@Column(name="license")
+	public String getCollectionLicense() {
+		return collectionLicense;
+	}
+
+	public void setCollectionLicense(String collectionLicense) {
+		this.collectionLicense = collectionLicense;
 	}
 
 }

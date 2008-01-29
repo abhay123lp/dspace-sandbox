@@ -33,6 +33,13 @@ public class CommunityDAOHibernate extends CommunityDAO {
 		return communities;
 	}
 	
+/*	public void removeFromParentCommunity(EntityManager em, Community community) {
+		//FIXME riscrivere la query
+		String query = "DELETE c FROM Community c AS j WHERE j.subcommunities_id = " + community.getId();
+		Query q = em.createQuery(query);
+		q.executeUpdate();
+	}
+*/	
 	@Override
 	public Community retrieve(UUID uuid) {
 		Community community = null;

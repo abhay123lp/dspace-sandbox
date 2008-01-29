@@ -1,8 +1,15 @@
 package org.dspace.core;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.content.Bitstream;
+import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.CollectionMetadata;
@@ -10,6 +17,7 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.content.Site;
 import org.dspace.content.dao.CommunityDAO;
+import org.dspace.eperson.EPerson;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -178,28 +186,28 @@ public class ApplicationServiceTest extends TestCase {
 //		applicationService.complete();
 //	}
 	
-	@Test 
-	public void testCascadeItemBundle() {
-		//List<Bundle> listabundles;
-		Item item = applicationService.get(context, Item.class, 50);
-		//applicationService.commit();
-
-		//assertNotNull(item);
-
-		Bundle bundle = item.createBundle();
-		System.out.println("id -> " + bundle.getId());
-		bundle.setName("BBB");
-//		for (Bundle bnd: item.getBundles())
-//		{
-//			bnd.setName("aaaa");
-//		}
-//		applicationService.save(context, Bundle.class, bundle);	
-//		System.out.println("--Andrea");
-		applicationService.update(context, Item.class, item);
-		System.out.println("id -> " + bundle.getId());
-		applicationService.complete();
-		System.out.println("id -> " + bundle.getId());
-	}
+//	@Test 
+//	public void testCascadeItemBundle() {
+//		//List<Bundle> listabundles;
+//		Item item = applicationService.get(context, Item.class, 1);
+//		//applicationService.commit();
+//
+//		//assertNotNull(item);
+//
+//		Bundle bundle = item.createBundle();
+//		System.out.println("id -> " + bundle.getId());
+//		bundle.setName("BBB");
+////		for (Bundle bnd: item.getBundles())
+////		{
+////			bnd.setName("aaaa");
+////		}
+////		applicationService.save(context, Bundle.class, bundle);	
+////		System.out.println("--Andrea");
+//		applicationService.update(context, Item.class, item);
+//		System.out.println("id -> " + bundle.getId());
+//		applicationService.complete();
+//		System.out.println("id -> " + bundle.getId());
+//	}
 	
 //	@Test
 //	public void testCascadeFromSiteToBundle() {
@@ -218,4 +226,54 @@ public class ApplicationServiceTest extends TestCase {
 //		
 //	}
 	
+//	@Test
+//	public void testCascadeBundleBitstream() throws FileNotFoundException, AuthorizeException,  IOException{
+//		Bundle bundle = applicationService.get(context, Bundle.class, 1);
+//		BufferedInputStream bis = new BufferedInputStream(new FileInputStream("/home/daniele/Immagini/eroe.jpg"));
+//		
+//		Bitstream bitstream = bundle.createBitstream(bis);
+//		bitstream.setName("A");
+//		applicationService.commit();
+//		
+//		bitstream.setName("B");
+//		//applicationService.update(context, Bundle.class, bundle);
+//		applicationService.complete();
+//		
+//	}
+	
+//	@Test
+//	public void testCommunitySetLogo() throws FileNotFoundException, AuthorizeException,  IOException {
+//		BufferedInputStream bis = new BufferedInputStream(new FileInputStream("/home/daniele/Immagini/eroe.jpg"));
+//		Community community = applicationService.get(context, Community.class, 1);
+//				
+//		community.setLogo(bis);
+//		applicationService.commit();
+//		
+//		BufferedInputStream bis2 = new BufferedInputStream(new FileInputStream("/home/daniele/Immagini/car.png"));
+//		community.setLogo(bis2);
+//		//applicationService.update(context, Community.class, community);
+//		applicationService.complete();
+//	}
+//	@Test
+//	public void testEperson() {
+//		EPerson ep = new EPerson(context);
+//		ep.setEmail("bbbb");
+//		applicationService.save(context, EPerson.class, ep);
+//		applicationService.complete();
+//	}
+//	@Test
+//	public void testgetEPerson() {
+//		EPerson ep = applicationService.get(context, EPerson.class, 1);
+//		ep.setEmail("ciao!");
+//		applicationService.update(context, EPerson.class, ep);
+//		applicationService.complete();
+//	}
+	
+	@Test
+	public void testMetadataCommunity() {
+		Community community = applicationService.get(context, Community.class, 2);
+		community.setMetadata("name", null);
+		applicationService.update(context, Community.class, community);
+		applicationService.complete();
+	}
 }

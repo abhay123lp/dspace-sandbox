@@ -83,29 +83,29 @@ public class Site extends DSpaceObject
     protected Site() {}
     
     /* Creates a top-community */
-    public Community createTopCommunity() {
+/*    public Community createTopCommunity() {
     	Community community = CommunityFactory.getInstance(context);
     	topCommunities.add(community);
     	return community;
     }
-    
+*/    
     /* Marks a community as a top-community */
-    public void addTopCommunity(Community community) {
+/*    public void addTopCommunity(Community community) {
     	topCommunities.add(community);
     }
-    
+*/    
     /* Removes a community from top-communities */
-    public void deleteTopCommunity(Community community) {
+/*    public void deleteTopCommunity(Community community) {
     	topCommunities.remove(community);
     }
-    
+*/    
     /* Returns all the top-communities of this site */
-    @OneToMany(cascade=CascadeType.ALL)
+/*    @OneToMany(cascade=CascadeType.ALL)
     @JoinTable(name="site2community")
     public List<Community> getTopCommunities() {
     	return this.topCommunities;
     }
-    
+*/    
     /* Add a logo to the Site */
     public void setLogo(Bitstream logo) {
     	this.logo=logo;
@@ -129,8 +129,8 @@ public class Site extends DSpaceObject
     {
         return Constants.SITE;
     }
-
+/*
 	public void setTopCommunities(List<Community> topCommunities) {
 		this.topCommunities = topCommunities;
-	}
+	}*/
 }
