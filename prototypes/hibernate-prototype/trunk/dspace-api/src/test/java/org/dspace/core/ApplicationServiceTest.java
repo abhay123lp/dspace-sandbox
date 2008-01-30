@@ -25,7 +25,9 @@ import junit.framework.TestCase;
 
 public class ApplicationServiceTest extends TestCase {
 	
-    private static final String CONFIG = "C:\\workspace\\dspace-working-copy\\config\\dspace.cfg";
+    //private static final String CONFIG = "C:\\workspace\\dspace-working-copy\\config\\dspace.cfg";
+	private static final String CONFIG = "/home/daniele/workspace_DAO/dspace-working-copy/config/dspace.cfg";
+	
     protected static Context context;    
 	private static ApplicationService applicationService;
 	
