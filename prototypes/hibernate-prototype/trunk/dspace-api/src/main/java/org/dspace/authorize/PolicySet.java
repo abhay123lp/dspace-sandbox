@@ -48,6 +48,7 @@ import org.dspace.content.Item;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
@@ -61,6 +62,9 @@ import org.dspace.eperson.Group;
  */
 public class PolicySet
 {
+    
+    private static ApplicationService applicationService;
+    
     /**
      * Command line interface to setPolicies - run to see arguments
      */
@@ -136,14 +140,13 @@ public class PolicySet
     {
         if (containerType == Constants.COLLECTION)
         {
-            Collection collection =
-                CollectionDAOFactory.getInstance(c).retrieve(containerID);
-            Group group = Group.find(c, groupID);
+            Collection collection = applicationService.get(c, Collection.class, containerID);               
+            Group group = applicationService.get(c, Group.class, groupID);
 
-            ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
-            List<Item> items = itemDAO.getItemsByCollection(collection);
+            //ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
+            List<Item> items = collection.getItems();//itemDAO.getItemsByCollection(collection);
 
-            for (Item item : itemDAO.getItemsByCollection(collection))
+            for (Item item : items)
             {
                 // build list of all items in a collection
                 if (contentType == Constants.ITEM)
@@ -231,5 +234,15 @@ public class PolicySet
                 }
             }
         }
+    }
+
+    public static ApplicationService getApplicationService()
+    {
+        return applicationService;
+    }
+
+    public static void setApplicationService(ApplicationService applicationService)
+    {
+        PolicySet.applicationService = applicationService;
     }
 }

@@ -81,10 +81,9 @@ public class ApplicationService {
 		em.remove(object);
 	}
 	
+	
 	protected void deleteCommunity(Context context, Community community) {
 		System.out.println(" ----------> Delete Community");
-		//CommunityDAO cdao = CommunityDAOFactory.getInstance(context);
-		//cdao.removeFromParentCommunity(em, community);
 		List<Community> parents = community.getParentCommunities();
 		for(Community parent : parents) {
 			parent.getSubCommunities().remove(community);

@@ -167,7 +167,7 @@ public class FixDefaultPolicies
             int myaction) throws AuthorizeException
     {
         // group 0 is the anonymous group!
-        Group anonymousGroup = Group.find(c, 0);
+        Group anonymousGroup = applicationService.get(c, Group.class, 0);
 
         // now create the default policies for submitted items
         ResourcePolicy myPolicy = ResourcePolicy.create(c);
