@@ -379,6 +379,11 @@ public class ArchiveManager
     	
     	//if the collection is orphan, remove it
     	if(child.getCommunities().size()==0) {
+    		/* No deleting-cascade on items, they could be shared between other collections */
+    		List<Item> items = child.getItems();
+    		for(Item item : items) {    			
+  				removeItem(child, item, context);
+    		}
     		applicationService.delete(context, Collection.class, child);
     	}   	
     }
