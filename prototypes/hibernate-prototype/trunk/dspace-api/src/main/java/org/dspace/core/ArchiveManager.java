@@ -285,9 +285,9 @@ public class ArchiveManager
     public Community createCommunity(Community parent, Context context) {
     	Community community = CommunityFactory.getInstance(context);
     	if(parent!=null) {
-    		addCommunity(parent, community);
-    		applicationService.save(context, Community.class, community);
+    		addCommunity(parent, community);    		
     	} 
+    	applicationService.save(context, Community.class, community);
     	return community;
     }
     
@@ -350,7 +350,8 @@ public class ArchiveManager
     
     /* Remove methods */
     
-    /* Removes a subcommunity from the specified community */
+    /* Removes a subcommunity from the specified community. 
+     * if parent is null, child is a top-community */
     public void removeCommunity(Community parent, Community child, Context context) {
     	if(child==null) {
     		throw new IllegalArgumentException(
@@ -359,10 +360,10 @@ public class ArchiveManager
     	if(parent!=null) {	    	
 	    	child.getParentCommunities().remove(parent);
 	    	parent.getSubCommunities().remove(child);
-	    	if(child.getParentCommunities().size()==0) { //orphan
+	    	if(child.getParentCommunities().size()==0) { //orphan, delete it	    	    
 	    		applicationService.deleteCommunity(context, child);
-	    	}
-    	} else { //top-community
+	    	} 
+    	} else { //top-community, delete it
     		applicationService.deleteCommunity(context, child);
     	}
     }
