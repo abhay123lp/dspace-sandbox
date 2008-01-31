@@ -48,7 +48,7 @@ public class ApplicationService {
 	 * Returns the object representing the entity with that id
 	 */
 	public <T> T get(Context context, Class<T> clazz, int id) {
-		System.out.println(" -------------------------- Get -------------------------- ");
+		System.out.println(" ApplicationService: Get " + clazz.getCanonicalName());
 		setupTransaction("Get");
 		T result = em.find(clazz, id);
 		return result;		
@@ -58,7 +58,7 @@ public class ApplicationService {
 	 * Updates an object in the db
 	 */
 	public <T> void update(Context context, Class<T> clazz, T object) {
-		System.out.println(" -------------------------- Update -------------------------- ");
+		System.out.println(" ApplicationService: Update " + clazz.getCanonicalName());
 		setupTransaction("Update");	
 		em.merge(object);
 	}
@@ -67,7 +67,7 @@ public class ApplicationService {
 	 * Saves a new object into the db
 	 */
 	protected <T> void save (Context context, Class<T> clazz, T object) {
-		System.out.println(" -------------------------- Save -------------------------- ");
+		System.out.println(" ApplicationService: Save " + clazz.getCanonicalName());
 		setupTransaction("Save");
 		em.persist(object);
 	}
@@ -76,42 +76,11 @@ public class ApplicationService {
 	 * Removes an object from the db
 	 */
 	protected <T> void delete (Context context, Class<T> clazz, T object) {
-		System.out.println(" -------------------------- Delete -------------------------- ");
+		System.out.println(" ApplicationService: Delete: " + clazz.getCanonicalName());
 		setupTransaction("Delete");
 		em.remove(object);
 	}
-	
-	
-	protected void deleteCommunity(Context context, Community community) {
-		System.out.println(" ----------> Delete Community");
-		List<Community> parents = community.getParentCommunities();
-		for(Community parent : parents) {
-			parent.getSubCommunities().remove(community);
-		}
-		delete(context, Community.class, community);
-	}
-	
-	protected void deleteCollection(Context context, Collection collection) {
-		System.out.println(" ----------> Delete Collection");
-		List<Community> parents = collection.getCommunities();
-		for(Community parent : parents) {
-			parent.getCollections().remove(collection);
-		}
-		delete(context, Collection.class, collection);
-	}
-	
-	protected void deleteItem(Context context, Item item) {
-		System.out.println(" ----------> Delete Item");
-		ItemDAO idao = ItemDAOFactory.getInstance(context);
-		idao.removeFromCollections(em, item);
-		delete(context, Item.class, item);
-	}
-	//FIXME ma un delete generico no?
-	protected void deleteBundle(Context context, Bundle bundle) {
-		System.out.println(" ----------> Delete Bundle");
-		delete(context, Bundle.class, bundle);
-	}
-	
+
 	/* Finder operations */	
 	
 	public MetadataField getMetadataField(String element, String qualifier,	String schema, Context context) {
@@ -152,22 +121,11 @@ public class ApplicationService {
 	
 	/* Methods for transactions */
 	
-	
-	/* Starts a new transaction */
-    public void startTransaction() {
-    	if(em==null || !em.isOpen()) {
-    		em = emf.createEntityManager();
-    		System.out.println("StartTransaction: Creato un nuovo EntityManager");
-    	}
-    	em.getTransaction().begin();
-    }
-
-    
     /* Aborts the current transaction and closes the entitymanager */
     public void abort() {
     	em.getTransaction().rollback();
     	em.close();
-    	System.out.println("Abort: transazione in rollback e EntityManager chiuso");
+    	System.out.println(" ApplicationService.abort: transazione in rollback e EntityManager chiuso");
     }
     
     
@@ -177,9 +135,9 @@ public class ApplicationService {
     	try {
 			if (tr.isActive()) {
 				tr.commit();				
-				System.out.println("Commit: Chiusa una transazione");
+				System.out.println(" ApplicationService.commit: Chiusa una transazione");
 			} else {
-    			System.out.println("Commit: Transazione attuale già chiusa");
+    			System.out.println(" ApplicationService.commit: Transazione attuale già chiusa");
     		}
     		
     	} finally {}
@@ -187,21 +145,20 @@ public class ApplicationService {
     
     /* Commits the current transaction and closes the EntityManager */
     public void complete() {
-    	System.out.println(" -------------------------- Complete -------------------------- ");
-        EntityTransaction tr = em.getTransaction();
+    	EntityTransaction tr = em.getTransaction();
         try {  
         	if (tr.isActive()) {
 				tr.commit();
-				System.out.println("Complete: Chiusa una transazione");
+				System.out.println(" ApplicationService.Complete: Chiusa una transazione");
 			} else {
 				tr.begin();
 				tr.commit();
-				System.out.println("Complete: Trovata transazione chiusa, aperta e chiusa una nuova transazione");
+				System.out.println(" ApplicationService.Complete: Trovata transazione chiusa, aperta e chiusa una nuova transazione");
 			}
         } 
         finally {
         	em.close();
-        	System.out.println("Complete: Chiuso l'EntityManager");
+        	System.out.println(" ApplicationService.Complete: Chiuso l'EntityManager");
         }
    	
     }
@@ -213,26 +170,7 @@ public class ApplicationService {
 		if(em.getTransaction()==null || !em.getTransaction().isActive()) {
 			EntityTransaction tr = em.getTransaction();
 			tr.begin();
-			System.out.println(method + ": Creata una nuova transazione");
+			System.out.println(" ApplicationService." + method + ": Creata una nuova transazione");
 		}
     }
-   
-///*********************************************************************************************/
-//
-//    public <T> T get(Context context, Class<T> clazz, int id) {
-//		T result = em.find(clazz, id);
-//		return result;		
-//	}
-//	public <T> void update(Context context, Class<T> clazz, T object) {
-//		em.merge(object);	
-//	}
-//	public <T> void save (Context context, Class<T> clazz, T object) {
-//		EntityTransaction tr = em.getTransaction();
-//		em.persist(object);
-//		tr.commit();
-//	}
-//	public <T> void delete (Context context, Class<T> clazz, T object) {
-//		em.remove(object);
-//	}
-    
 }

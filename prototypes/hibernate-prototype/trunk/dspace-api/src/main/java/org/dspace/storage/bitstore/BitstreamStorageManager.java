@@ -49,13 +49,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
-
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.checker.BitstreamInfoDAO;
 import org.dspace.content.Bitstream;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.dao.BitstreamDAOFactory;
-import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
@@ -282,13 +280,12 @@ public class BitstreamStorageManager
             InputStream is)
         throws AuthorizeException, IOException
     {
-    	ApplicationService applicationService = new ApplicationService();
-    	
+    	   	
         // Create internal ID
         String id = Utils.generateKey();
 
         // Put something into the storage layer to attach the file to.
-        applicationService.save(context, Bitstream.class, bitstream);
+        // edit: EntityManager takes care of this
         
         //FIXME presi da storeInitialMetadata(context, bitstream, incoming, id);
         bitstream.setStoreNumber(incoming);

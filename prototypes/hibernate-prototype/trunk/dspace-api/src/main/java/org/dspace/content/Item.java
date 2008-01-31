@@ -152,7 +152,7 @@ public class Item extends DSpaceObject {
 		bundles.add(bundle);
 		return bundle;
 	}
-*/	//FIXME questo non serve più, considerare se conviene deprecarlo o cancellarlo
+*/	
 /*	public void addBundle(Bundle b) throws AuthorizeException {
 		// Check it's not already there
 		for (Bundle bundle : getBundles()) {
@@ -346,7 +346,7 @@ public class Item extends DSpaceObject {
 		return submitter;
 	}
 
-	@OneToMany(cascade = { CascadeType.ALL }, mappedBy = "item")
+	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, mappedBy = "item")
 //    @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
 	public List<Bundle> getBundles() {
 		return bundles;
@@ -454,9 +454,7 @@ public class Item extends DSpaceObject {
 		// bundles)
 		List<Bundle> bunds = getBundles("LICENSE");
 
-		for (Bundle bundle : bunds) {
-			// FIXME: probably serious troubles with Authorizations
-			// fix by telling system not to check authorization?
+		for (Bundle bundle : bunds) {			
 			bundles.remove(bundle);
 		}
 	}
@@ -742,15 +740,8 @@ public class Item extends DSpaceObject {
 
 			if ((original.get(0).getBitstreams().size() > 1)
 					&& (original.get(0).getPrimaryBitstream().getId() > -1)) {
-				/* FIXME: find da risolver */
-				// originalBitstream = Bitstream.find(context,
-				// original[0].getPrimaryBitstreamID());
-				// thumbnailBitstream =
-				// thumbs[0].getBitstreamByName(originalBitstream.getName() +
-				// ".jpg");
-				// copiati da sotto: rimuovere!
-				originalBitstream = original.get(0).getBitstreams().get(0);
-				thumbnailBitstream = thumbs.get(0).getBitstreams().get(0);
+				originalBitstream = original.get(0).getPrimaryBitstream();				
+			    thumbnailBitstream = thumbs.get(0).getBitstreamByName(originalBitstream.getName() + ".jpg");				
 			} else {
 				originalBitstream = original.get(0).getBitstreams().get(0);
 				thumbnailBitstream = thumbs.get(0).getBitstreams().get(0);

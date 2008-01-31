@@ -293,7 +293,7 @@ public class BitstreamFormat
 	public void setOid(ObjectIdentifier oid) {
 		this.oid = oid;
 	}
-
+	@Transient
 	public String getMimeType() {
 		return mimeType;
 	}

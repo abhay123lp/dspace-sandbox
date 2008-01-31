@@ -76,7 +76,7 @@ public abstract class BitstreamDAO extends ContentDAO
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(context);
     }
 
-    public abstract Bitstream create();
+    //public abstract Bitstream create();
 
     /**
      * Create a new bitstream, with a new ID. The checksum and file size are
@@ -90,7 +90,7 @@ public abstract class BitstreamDAO extends ContentDAO
      * @return the newly created bitstream
      * @throws AuthorizeException
      */
-    public Bitstream store(InputStream is)
+/*    public Bitstream store(InputStream is)
         throws AuthorizeException, IOException
     {
         Bitstream bs = create();
@@ -98,7 +98,7 @@ public abstract class BitstreamDAO extends ContentDAO
 
         return create(bs);
     }
-
+*/
     /**
      * Register a new bitstream, with a new ID. The checksum and file size are
      * calculated. This method does not check authorisation; other methods such
@@ -111,7 +111,7 @@ public abstract class BitstreamDAO extends ContentDAO
      * @return the newly created bitstream
      * @throws AuthorizeException
      */
-    public Bitstream register(int assetstore, String path)
+/*    public Bitstream register(int assetstore, String path)
         throws AuthorizeException, IOException
     {
         Bitstream bs = create();
@@ -119,13 +119,13 @@ public abstract class BitstreamDAO extends ContentDAO
 
         return create(bs);
     }
-
+*/
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    protected final Bitstream create(Bitstream bitstream)
+/*    protected final Bitstream create(Bitstream bitstream)
         throws AuthorizeException
     {
         log.info(LogManager.getHeader(context, "create_bitstream",
@@ -138,12 +138,12 @@ public abstract class BitstreamDAO extends ContentDAO
     {
         return (Bitstream) context.fromCache(Bitstream.class, id);
     }
-
+*/
     public Bitstream retrieve(UUID uuid)
     {
         return null;
     }
-
+/*
     public void update(Bitstream bitstream) throws AuthorizeException
     {
         // Check authorisation
@@ -152,12 +152,12 @@ public abstract class BitstreamDAO extends ContentDAO
         log.info(LogManager.getHeader(context, "update_bitstream",
                 "bitstream_id=" + bitstream.getId()));
     }
-
+*/
     /**
      * Mark the bitstream as deleted. Actual removal doesn't happen until a
      * cleanup happens, and remove() is called.
      */
-    public void delete(int id) throws AuthorizeException
+/*    public void delete(int id) throws AuthorizeException
     {
         Bitstream bitstream = retrieve(id);
         bitstream.setDeleted(true);
@@ -170,20 +170,21 @@ public abstract class BitstreamDAO extends ContentDAO
 
         AuthorizeManager.removeAllPolicies(context, bitstream);
     }
-    
+*/    
     /**
      * Actually remove the reference to the bitstream. Note that this doesn't
      * do anything to the actual files, just their representation in the
      * system.
      */
-    public void remove(int id) throws AuthorizeException
+/*    public void remove(int id) throws AuthorizeException
     {
         Bitstream bitstream = retrieve(id);
         update(bitstream); // Sync in-memory object before removal
 
         AuthorizeManager.authorizeAction(context, bitstream, Constants.DELETE);
     }
-
-    public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
+*/
+    //public abstract List<Bitstream> getBitstreamsByBundle(Bundle bundle);
     public abstract List<Bitstream> getDeletedBitstreams();
+    
 }

@@ -197,7 +197,7 @@ public class Bundle extends DSpaceObject {
 	public void setBitstreams(List<Bitstream> bitstreams) {
 		this.bitstreams = bitstreams;
 	}
-	@OneToMany(cascade = { CascadeType.ALL }, mappedBy="bundle")
+	@OneToMany(cascade = { CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH }, mappedBy="bundle")
 	public List<Bitstream> getBitstreams() {
 		return bitstreams;
 	}

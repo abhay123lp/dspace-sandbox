@@ -35,6 +35,7 @@
             <property name="toplink.jdbc.user" value="dspace"/>
             <property name="toplink.jdbc.password" value="dspace"/>
             <property name="toplink.logging.level" value="INFO"/>
+            <!--property name="toplink.ddl-generation" value="create-tables"/-->
             <!--property name="toplink.ddl-generation" value="drop-and-create-tables"/>
             <property name="toplink.ddl-generation.output-mode" value="both"/-->
         </properties>  
