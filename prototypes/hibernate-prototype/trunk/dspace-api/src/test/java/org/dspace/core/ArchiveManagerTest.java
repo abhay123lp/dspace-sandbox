@@ -8,8 +8,8 @@ import org.junit.Test;
 import org.junit.Assert;
 public class ArchiveManagerTest
 {
-    //private static final String CONFIG = "C:\\workspace\\dspace-working-copy\\config\\dspace.cfg";
-	private static final String CONFIG = "/home/daniele/workspace_DAO/dspace-working-copy/config/dspace.cfg";
+    private static final String CONFIG = "C:\\workspace\\dspace-working-copy\\config\\dspace.cfg";
+	//private static final String CONFIG = "/home/daniele/workspace_DAO/dspace-working-copy/config/dspace.cfg";
 	
     protected static Context context;    
     private static ApplicationService applicationService;
@@ -30,22 +30,23 @@ public class ArchiveManagerTest
         } catch (Throwable t) { t.printStackTrace(); }          
     }
     
-//    @Test
-//    public void testPopulateDBwithCommunityCollectionItem() {
-//    	Community community;
-//    	Collection collection;
-//    	for(int i=0; i<5; i++) {
-//    		community=archiveManager.createCommunity(null, context);
-//    		for(int j=0; j<5; j++) {
-//    			collection=archiveManager.createCollection(community, context);
-//    			for(int k=0; k<3; k++)
-//    				archiveManager.createItem(collection, context);
-//    		}
-//    		applicationService.save(context, Community.class, community);    		
-//    	}
-//    	
-//    	applicationService.complete();
-//    }
+    @Test
+    public void testPopulateDBwithCommunityCollectionItem() {
+    	Community community;
+    	Collection collection;
+    	Item item;
+    	for(int i=0; i<5; i++) {
+    		community=archiveManager.createCommunity(null, context);
+    		for(int j=0; j<5; j++) {
+    			collection=archiveManager.createCollection(community, context);
+    			for(int k=0; k<3; k++)
+    				item = archiveManager.createItem(collection, context);
+    		}
+    		applicationService.save(context, Community.class, community);    		
+    	}
+    	
+    	applicationService.complete();
+    }
     
 //    @Test
 //    public void testCreateCommunity() {
@@ -130,11 +131,11 @@ public class ArchiveManagerTest
 //         archiveManager.removeCommunity(null, community, context);
 //         applicationService.abort();
 //     }
-     
-     @Test
-     public void testRemoveAndDeleteCollection() {
-    	 Collection collection = applicationService.get(context, Collection.class, 5);
-    	 archiveManager.removeCollection(collection.getCommunities().get(0), collection, context);
-    	 applicationService.complete();
-     }
+//     
+//     @Test
+//     public void testRemoveAndDeleteCollection() {
+//    	 Collection collection = applicationService.get(context, Collection.class, 16);
+//    	 archiveManager.removeCollection(collection.getCommunities().get(0), collection, context);    	
+//    	 applicationService.abort();
+//     }    
 }

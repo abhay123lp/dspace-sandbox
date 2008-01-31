@@ -77,6 +77,8 @@ public class ArchiveManager
     private static Logger log = Logger.getLogger(ArchiveManager.class);
     
     private static ApplicationService applicationService;
+    
+    private static ItemManager itemManager;
 
     /**
      * Withdraw the item from the archive. It is kept in place, and the content
@@ -352,7 +354,7 @@ public class ArchiveManager
     
     /* Removes a subcommunity from the specified community. 
      * if parent is null, child is a top-community */
-    public void removeCommunity(Community parent, Community child, Context context) {
+    public void removeCommunity(Community parent, Community child, Context context) throws AuthorizeException, IOException {
     	if(child==null) {
     		throw new IllegalArgumentException(
             "Child cannot be null");
@@ -360,15 +362,16 @@ public class ArchiveManager
     	if(parent!=null) {	    	
 	    	child.getParentCommunities().remove(parent);
 	    	parent.getSubCommunities().remove(child);
-	    	if(child.getParentCommunities().size()==0) { //orphan, delete it	    	    
-	    		applicationService.deleteCommunity(context, child);
+	    	if(child.getParentCommunities().size()==0) { //orphan, delete it
+	    	    deleteCommunity(child, context);	    		
 	    	} 
-    	} else { //top-community, delete it
-    		applicationService.deleteCommunity(context, child);
+    	} else { //top-community (so orphan), delete it
+    	    deleteCommunity(child, context);    		
     	}
     }
     
-    public void removeCollection(Community parent, Collection child, Context context) {
+    /* Removes a collection from the specified community */
+    public void removeCollection(Community parent, Collection child, Context context) throws AuthorizeException, IOException {
     	if(parent==null || child==null) {
     		throw new IllegalArgumentException(
             "Both parent and child must be not null");
@@ -379,15 +382,11 @@ public class ArchiveManager
     	
     	//if the collection is orphan, remove it
     	if(child.getCommunities().size()==0) {
-    		/* No deleting-cascade on items, they could be shared between other collections */
-    		List<Item> items = child.getItems();
-    		for(Item item : items) {    			
-  				removeItem(child, item, context);
-    		}
-    		applicationService.delete(context, Collection.class, child);
+    		deleteCollection(child, context);
     	}   	
     }
     
+    /* Removes an item from the specified collection */
     public void removeItem(Collection parent, Item child, Context context) {
     	if(parent==null || child==null) {
     		throw new IllegalArgumentException(
@@ -396,16 +395,65 @@ public class ArchiveManager
     	
     	parent.getItems().remove(child);
     	child.getCollections().remove(parent);
-    	//if the item is orphan, delete it
-    	if(child.getCollections().size()==0){
-    		applicationService.delete(context, Item.class, child);
-    	}    	    	
+    	
+    	//if the item is orphan, remove it
+    	if(child.getCollections().size()==0) {
+    	    deleteItem(child, context);
+    	}
     }
     
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
-
+    
+    /* Called only for orphan communities */
+    private void deleteCommunity(Community community, Context context) throws AuthorizeException, IOException {
+        /* break the relationship community-collections */
+        List<Collection> collections = community.getCollections();
+        for(Collection collection : collections) {
+            collection.getCommunities().remove(community);
+            if(collection.getCommunities().size()==0) { //orpahn, delete it
+                deleteCollection(collection, context);
+            }
+        }
+        community.setCollections(null);
+        
+        Bitstream logo = community.getLogo();
+        if(logo!=null) {
+            logo.setDeleted(true);
+            community.setLogo(null);
+        }
+        applicationService.delete(context, Community.class, community);
+    }
+    
+    /* Called only for orphan collections */
+    private void deleteCollection(Collection collection, Context context) throws AuthorizeException, IOException {
+        /* break the relationship collection-items */
+        List<Item> items = collection.getItems();
+        for(Item item : items) {
+            item.getCollections().remove(item);
+            if(item.getCollections().size()==0) { //orphan, delete it
+                deleteItem(item, context);
+            }
+        }
+        collection.setItems(null);
+        
+        Bitstream logo = collection.getLogo();
+        if(logo!=null) {
+            logo.setDeleted(true);
+            collection.setLogo(null);
+        }
+        
+        applicationService.delete(context, Collection.class, collection);
+    }
+    
+    /* Called only for orphan items */
+    private void deleteItem(Item item, Context context) {
+        itemManager.removeAllBundles(item, context);
+        item.setBundles(null);
+        applicationService.delete(context, Item.class, item);
+    }
+    
     /**
      * Add an item to the collection. This simply adds a relationship between
      * the item and the collection - it does nothing like set an issue date,
@@ -655,4 +703,9 @@ public class ArchiveManager
     public static void setApplicationService(ApplicationService applicationService) {
 		ArchiveManager.applicationService = applicationService;
 	}
+
+    public static void setItemManager(ItemManager itemManager)
+    {
+        ArchiveManager.itemManager = itemManager;
+    }
 }

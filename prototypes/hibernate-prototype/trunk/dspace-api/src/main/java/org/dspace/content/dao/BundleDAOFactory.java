@@ -39,6 +39,7 @@
  */
 package org.dspace.content.dao;
 
+import org.dspace.content.dao.hibernate.BundleDAOHibernate;
 import org.dspace.content.dao.postgres.BundleDAOPostgres;
 import org.dspace.core.Context;
 
@@ -49,6 +50,7 @@ public class BundleDAOFactory
 {
     public static BundleDAO getInstance(Context context)
     {
-        return new BundleDAOPostgres(context);
+        //return new BundleDAOPostgres(context);
+        return new BundleDAOHibernate(context);
     }
 }
