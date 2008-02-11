@@ -12,7 +12,7 @@
 		<fileSet>
 			<useDefaultExcludes>true</useDefaultExcludes>
 			<includes>
-				<include>dspace</include>
+				<include>dspace/**</include>
 				<include>pom.xml</include>
 			</includes>
 			<excludes>
