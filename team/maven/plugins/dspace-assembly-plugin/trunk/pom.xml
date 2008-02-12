@@ -2,7 +2,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.dspace.maven.plugins</groupId>
    <artifactId>dspace-assembly-plugin</artifactId>
-   <version>SNAPSHOT</version>
+   <version>1.0</version>
    <description>Custom assembly descriptors for dspace build process.</description>
    <url>http://projects.dspace.org/team/maven/plugins</url>
 
@@ -95,9 +95,9 @@
       into the snapshot repository below.
    -->
    <scm>
-      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin</connection>
-      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin</developerConnection>
-      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin</url>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin/tags/dspace-assembly-plugin-1.0</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin/tags/dspace-assembly-plugin-1.0</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin/tags/dspace-assembly-plugin-1.0</url>
    </scm>
    
    <!-- 
