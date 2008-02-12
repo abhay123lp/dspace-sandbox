@@ -1,5 +1,0 @@
-User-agent: *
-
-Disallow: /browse
-# Uncomment the following line only if sitemaps.org or HTML sitemaps are used
-#Disallow: /browse-title
