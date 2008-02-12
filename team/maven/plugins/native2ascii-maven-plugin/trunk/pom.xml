@@ -1,0 +1,139 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.codehaus.mojo</groupId>
+    <artifactId>mojo</artifactId>
+    <version>14</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>native2ascii-maven-plugin</artifactId>
+  <groupId>org.dspace.maven.plugins</groupId>
+  <name>Maven Native2ascii Plugin</name>
+  <version>1.0-dspace</version>
+  <description>
+  	Since we cannot wait for this plugin to release an 
+  	official version we are forking it and releasing under
+  	our own group id.  I will retain all other details for 
+  	license and for future reference. -MRD
+  </description> 
+  <packaging>maven-plugin</packaging>
+    
+  <url>http://mojo.codehaus.org/native2ascii-maven-plugin/</url>
+  
+  <developers>
+    <developer>
+      <id>dantran</id>
+      <name>Dan Tran</name>
+      <email>dtran@gmail.com</email>
+      <roles>
+        <role>Developer</role>
+      </roles>
+    </developer>
+  </developers>
+    
+    
+   <!-- 
+      The Subversion repository location is used by Continuum to update against
+      when changes have occured, this spawns a new build cycle and releases snapshots
+      into the snapshot repository below.
+   -->
+   <scm>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/native2ascii-maven-plugin/trunk</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/native2ascii-maven-plugin/trunk</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-assembly-plugin/native2ascii-maven-plugin/trunk</url>
+   </scm>
+   
+   <!-- 
+      Distribution Management is currently used by the Continuum server
+      to update snapshots it generates. This will also be used on 
+      release to deploy release versions to the repository by the
+      release manager.
+   -->
+   <distributionManagement>
+      <repository>
+         <id>maven.dspace.org/var/maven/release</id>
+         <name>DSpace Maven Repository</name>
+         <url>scp://maven.dspace.org/var/maven/release</url>
+      </repository>
+      <snapshotRepository>
+         <id>maven.dspace.org/var/maven/snapshot</id>
+         <name>DSpace Maven Repository</name>
+         <url>scp://maven.dspace.org/var/maven/snapshot</url>
+         <uniqueVersion>false</uniqueVersion>
+      </snapshotRepository>
+      <site>
+         <id>website</id>
+         <url>
+            scp://projects.dspace.org/var/www/projects.dspace.org/htdocs/team/maven/plugins
+         </url>
+      </site>
+   </distributionManagement>
+   
+  <licenses>
+    <license>
+      <name>The MIT License</name>
+      <url>LICENSE.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+    
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-project</artifactId>
+      <version>2.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant-nodeps</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.ant</groupId>
+      <artifactId>ant</artifactId>
+      <version>1.7.0</version>
+    </dependency>
+  </dependencies>
+
+
+  <build>
+    <plugins>
+      <plugin>
+       <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>1.4</source>
+          <target>1.4</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+
+  <profiles>
+    <profile>
+      <id>default-tools.jar</id>
+      <activation>
+        <property>
+          <name>java.vendor</name>
+          <value>Sun Microsystems Inc.</value>
+       </property>
+     </activation>
+      <dependencies>
+        <dependency>
+          <groupId>com.sun</groupId>
+          <artifactId>tools</artifactId>
+          <version>1.4.2</version>
+          <scope>system</scope>
+          <systemPath>${java.home}/../lib/tools.jar</systemPath>
+       </dependency>
+     </dependencies>
+   </profile>
+ </profiles>
+</project>
