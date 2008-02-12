@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dspace</groupId>
 	<artifactId>dspace-i18n-report-plugin</artifactId>
-	<version>1.0</version>
+	<version>1.1-SNAPSHOT</version>
 	<packaging>maven-plugin</packaging>
    
    <!-- 
@@ -11,9 +11,9 @@
       into the snapshot repository below.
    -->
    <scm>
-      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</connection>
-      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</developerConnection>
-      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</url>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/trunk</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/trunk</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/trunk</url>
    </scm>
 	
 	<build>
