@@ -1,11 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.dspace</groupId>
 	<artifactId>dspace-i18n-report-plugin</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>maven-plugin</packaging>
    
    <!-- 
@@ -14,15 +11,9 @@
       into the snapshot repository below.
    -->
    <scm>
-      <connection>
-         scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/trunk
-      </connection>
-      <developerConnection>
-         scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/trunk
-      </developerConnection>
-      <url>
-         http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/trunk
-      </url>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</url>
    </scm>
 	
 	<build>
@@ -135,4 +126,3 @@
 		</dependency>
 	</dependencies>
 </project>
-
