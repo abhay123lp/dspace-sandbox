@@ -1,0 +1,128 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.dspace</groupId>
+	<artifactId>dspace-i18n-report-plugin</artifactId>
+	<version>1.0</version>
+	<packaging>maven-plugin</packaging>
+   
+   <!-- 
+      The Subversion repository location is used by Continuum to update against
+      when changes have occured, this spawns a new build cycle and releases snapshots
+      into the snapshot repository below.
+   -->
+   <scm>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-i18n-report-plugin/tags/dspace-i18n-report-plugin-1.0</url>
+   </scm>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.5</source>
+					<target>1.5</target>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>maven.dspace.org</id>
+			<name>DSpace Maven Repository</name>
+			<url>http://maven.dspace.org</url>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</releases>
+			<snapshots>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>central</id>
+			<url>http://repo1.maven.org/maven2</url>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</releases>
+			<snapshots>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven.dspace.org</id>
+			<name>DSpace Maven Repository</name>
+			<url>http://maven.dspace.org</url>
+			<releases>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</releases>
+			<snapshots>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>m2-snapshot-repository</id>
+			<name>DSpace Maven Repository</name>
+			<url>
+				http://people.apache.org/repo/m2-snapshot-repository
+			</url>
+			<releases>
+				<enabled>false</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>never</updatePolicy>
+				<checksumPolicy>fail</checksumPolicy>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
+	<distributionManagement>
+		<repository>
+			<id>maven.dspace.org</id>
+			<name>DSpace Maven Repository</name>
+			<url>scp://maven.dspace.org/var/maven</url>
+		</repository>
+		<snapshotRepository>
+			<id>maven.dspace.org</id>
+			<name>DSpace Maven Repository</name>
+			<url>scp://maven.dspace.org/var/maven</url>
+		</snapshotRepository>
+		<site>
+			<id>website</id>
+			<url>
+				scp://projects.dspace.org/var/www/projects.dspace.org/htdocs
+			</url>
+		</site>
+	</distributionManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-plugin-api</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-project</artifactId>
+			<version>2.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.maven.reporting</groupId>
+			<artifactId>maven-reporting-impl</artifactId>
+			<version>2.0.4</version>
+		</dependency>
+	</dependencies>
+</project>
