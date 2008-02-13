@@ -4,7 +4,7 @@
   <artifactId>dspace-native2ascii-plugin</artifactId>
   <groupId>org.dspace.maven.plugins</groupId>
   <name>Maven Native2ascii Plugin</name>
-  <version>1.0</version>
+  <version>SNAPSHOT</version>
   <description>
   	Since we cannot wait for this plugin to release an 
   	official version we are forking it and releasing under
@@ -33,9 +33,9 @@
       into the snapshot repository below.
    -->
    <scm>
-      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-native2ascii-plugin/tags/dspace-native2ascii-plugin-1.0</connection>
-      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-native2ascii-plugin/tags/dspace-native2ascii-plugin-1.0</developerConnection>
-      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-native2ascii-plugin/tags/dspace-native2ascii-plugin-1.0</url>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-native2ascii-plugin/trunk</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-native2ascii-plugin/trunk</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/team/maven/plugins/dspace-native2ascii-plugin/trunk</url>
    </scm>
    
    
