@@ -4,7 +4,7 @@
   <artifactId>dspace-native2ascii-plugin</artifactId>
   <groupId>org.dspace.maven.plugins</groupId>
   <name>Maven Native2ascii Plugin</name>
-  <version>SNAPSHOT</version>
+  <version>1.0</version>
   <description>
   	Since we cannot wait for this plugin to release an 
   	official version we are forking it and releasing under
