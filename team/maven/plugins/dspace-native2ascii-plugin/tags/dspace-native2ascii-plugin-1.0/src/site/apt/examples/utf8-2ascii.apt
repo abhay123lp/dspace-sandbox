@@ -1,0 +1,48 @@
+ ------
+ Maven 2 Native2Ascii Plugin - Usage
+ ------
+ Dan T. Tran
+ <dantran@gmail.com>
+ ------
+ January 05, 2007
+
+UTF8 To Ascii Example
+
+  This example converts all UTF8 files under src/main/native2ascii directory, 
+  and place them under target/native2ascii.  The final jar file will have those
+  converted files automatically.
+  
+---------------------------
+
+<project>
+  [...]
+  <build>
+    [...]
+    <plugins>
+      [...]
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>native2ascii-maven-plugin</artifactId>
+        </executions>
+          <execution>
+            <goals>
+              <goal>native2ascii</goal>
+            </goals>
+            <!-- specific configurations -->
+            <configuration>
+              <encoding>UTF8</encoding>
+            </configuration>
+          </execution>
+          [...]
+        </executions>
+        
+        [...]
+      </plugin>
+      [...]
+    </plugins>
+    [...]
+  </build>
+  [...]
+</project>
+
+---------------------------
