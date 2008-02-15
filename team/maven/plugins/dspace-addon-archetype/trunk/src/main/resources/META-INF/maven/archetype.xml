@@ -2,8 +2,6 @@
    <id>dspace-addon-archetype</id>
    <resources>
       <resource>pom.xml</resource>
-      <resource>.project</resource>
-      <resource>.classpath</resource>
    </resources>
    <sources>
       <source>src/main/java/App.java</source>
