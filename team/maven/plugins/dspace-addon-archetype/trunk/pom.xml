@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.dspace.maven.archetypes</groupId>
   <artifactId>dspace-addon-archetype</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>SNAPSHOT</version>
   <name>Archetype for creating DSpace Addon Libraries</name>
   <url>http://www.dspace.org</url>
 </project>
