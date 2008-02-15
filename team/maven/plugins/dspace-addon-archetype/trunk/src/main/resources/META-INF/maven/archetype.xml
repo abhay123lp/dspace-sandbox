@@ -1,5 +1,5 @@
 <archetype>
-   <id>dspace-addon-archetype</id>
+   <name>dspace-addon-archetype</name>
    <resources>
       <resource>pom.xml</resource>
    </resources>
