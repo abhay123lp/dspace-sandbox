@@ -1,0 +1,53 @@
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://java.sun.com/xml/ns/persistence
+    http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd"
+   version="1.0">
+  
+  <!--persistence-unit name="persistentUnit">
+      <properties>
+          <property name="hibernate.ejb.cfgfile"
+               value="/hibernate.cfg.xml"/>
+      </properties>
+   </persistence-unit--> 
+
+    <persistence-unit name="persistentUnit"> 
+        <provider>oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider>
+        <class>org.dspace.content.Site</class>
+		<class>org.dspace.content.Community</class>
+		<class>org.dspace.content.CommunityMetadata</class>
+		<class>org.dspace.content.Collection</class>
+		<class>org.dspace.content.CollectionMetadata</class>
+		<class>org.dspace.content.Item</class>
+		<class>org.dspace.content.Bundle</class>
+		<class>org.dspace.content.Bitstream</class>
+		<class>org.dspace.content.BitstreamFormat</class>
+		<class>org.dspace.content.MetadataValue</class>
+		<class>org.dspace.content.MetadataField</class>
+		<class>org.dspace.content.MetadataSchema</class>
+		<class>org.dspace.eperson.EPerson</class>
+		<class>org.dspace.eperson.EPersonMetadata</class>
+		<class>org.dspace.eperson.Group</class>
+		<class>org.dspace.browse.ItemCounter</class>
+
+		<!--class>org.dspace.browse.CollectionItemCount</class>
+		<class>org.dspace.browse.CommunityItemCount</class-->
+  
+        <properties>
+            <property name="toplink.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="toplink.jdbc.url" value="jdbc:postgresql://localhost/dspace-hibernate"/>
+            <property name="toplink.jdbc.user" value="dspace"/>
+            <property name="toplink.jdbc.password" value="dspace"/>
+            <property name="toplink.logging.level" value="INFO"/>
+            <property name="toplink.ddl-generation.output-mode" value="both"/>
+                        
+            <!--property name="toplink.ddl-generation" value="create-tables"/-->
+            <!--property name="toplink.ddl-generation" value="drop-and-create-tables"/--> 
+            
+            
+        </properties>   
+   </persistence-unit>
+   
+   
+   
+</persistence>
