@@ -13,6 +13,7 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DCDate;
 import org.dspace.content.InstallItem;
 import org.dspace.content.Item;
@@ -38,6 +39,7 @@ public class ItemManager
         }
         Bundle bundle = BundleFactory.getInstance(context);
         addBundle(item, bundle, context);
+        ApplicationService.save(context, Bundle.class, bundle);
         return bundle;
     }
     //FIXME da deprecare? da cancellare?
@@ -65,7 +67,9 @@ public class ItemManager
                     "A Bundle owner of the bitstream is needed");
         }
         Bitstream bitstream = BitstreamFactory.getInstance(context, is);
+        System.out.println("---> " + bitstream.getId());
         addBitstream(bundle, bitstream);
+        
         return bitstream;
     }
         

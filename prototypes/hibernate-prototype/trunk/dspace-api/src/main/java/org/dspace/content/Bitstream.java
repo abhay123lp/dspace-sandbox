@@ -69,7 +69,7 @@ import org.apache.log4j.Logger;
  */
 @Entity
 public class Bitstream extends DSpaceObject
-{	
+{   
     /** log4j logger */
     private static Logger log = Logger.getLogger(Bitstream.class);
    
@@ -98,69 +98,70 @@ public class Bitstream extends DSpaceObject
     public Bitstream(Context context, InputStream is) throws IOException, AuthorizeException {
         this.context = context;
         try{
-        	BitstreamStorageManager.store(context, this, is);
+            BitstreamStorageManager.store(context, this, is);
         } finally {}
         modified = modifiedMetadata = false;
         clearDetails();
+        System.out.println("---> " + this.getId());
     }
     
-    protected Bitstream() {}
+    public Bitstream() {}
     
     @Column(name = "sequence_id")
     public int getSequenceID() {
-    	return sequenceID;
+        return sequenceID;
     }
     
     public void setSequenceID(int sequenceID) {
-    	this.sequenceID = sequenceID;
-    	modifiedMetadata = true;
+        this.sequenceID = sequenceID;
+        modifiedMetadata = true;
         addDetails("SequenceID");
     }
     @Column(name = "name")
     public String getName() {
-    	return name;
+        return name;
     }
     
     public void setName(String name) {
-    	this.name=name;
-    	modifiedMetadata = true;
+        this.name=name;
+        modifiedMetadata = true;
         addDetails("Name");
     }
     @Column(name = "source")
     public String getSource() {
-    	return source;
+        return source;
     }
     
     public void setSource(String source) {
-    	this.source=source;
-    	modifiedMetadata = true;
+        this.source=source;
+        modifiedMetadata = true;
         addDetails("Source");
     }
     @Column(name="description")
     public String getDescription() {
-    	return description;
+        return description;
     }
     
     public void setDescription(String description) {
-    	this.description=description;
-    	modifiedMetadata = true;
+        this.description=description;
+        modifiedMetadata = true;
         addDetails("Description");
     }
     @Column(name="checksum")
     public String getChecksum() {
-    	return checksum;
+        return checksum;
     }
     
     public void setChecksum(String checksum) {
-    	this.checksum=checksum;
+        this.checksum=checksum;
     }
     @Column(name="checksum_algorithm")
     public String getChecksumAlgorithm() {
-    	return checksumAlgorithm;
+        return checksumAlgorithm;
     }
     
     public void setChecksumAlgorithm(String checksumAlgorithm) {
-    	this.checksumAlgorithm=checksumAlgorithm;
+        this.checksumAlgorithm=checksumAlgorithm;
     }
     @Column(name = "size_bytes")
     public Long getSize() {
@@ -172,11 +173,11 @@ public class Bitstream extends DSpaceObject
     }
     @Column(name="user_format_description")
     public String getUserFormatDescription() {
-    	return userFormatDescription;
+        return userFormatDescription;
     }
     
     public void setUserFormatDescription(String userFormatDescription) {
-//    	setFormat(null);
+//      setFormat(null);
         this.userFormatDescription = userFormatDescription;
 //        modifiedMetadata = true;
 //        addDetails("UserFormatDescription");
@@ -206,13 +207,13 @@ public class Bitstream extends DSpaceObject
     }
     
     public void setBitstreamFormat(BitstreamFormat bitstreamFormat) {
-    	this.bitstreamFormat=bitstreamFormat;
+        this.bitstreamFormat=bitstreamFormat;
     }
     
     public void setFormat(BitstreamFormat f) {
         if (f == null)
         {
-        	//FIXME questione dell'unknown?
+            //FIXME questione dell'unknown?
             // Use "Unknown" format
             //bitstreamFormat = BitstreamFormat.findUnknown(context);
         }
@@ -227,27 +228,27 @@ public class Bitstream extends DSpaceObject
     }
     @Column(name = "store_number")
     public int getStoreNumber() {
-    	return storeNumber;
+        return storeNumber;
     }
     
     public void setStoreNumber(int storeNumber) {
-    	this.storeNumber=storeNumber;
+        this.storeNumber=storeNumber;
     }
     @Column(name="internal_id")
     public String getInternalID() {
-    	return internalID;
+        return internalID;
     }
     
     public void setInternalID(String internalID) {
-    	this.internalID=internalID;
+        this.internalID=internalID;
     }
     @Column(name = "deleted")
     public boolean isDeleted() {
-    	return deleted;
+        return deleted;
     }
     
     public void setDeleted(boolean deleted) {
-    	this.deleted = deleted;
+        this.deleted = deleted;
     }
     @Deprecated
     public InputStream retrieve() throws AuthorizeException, IOException
@@ -268,20 +269,20 @@ public class Bitstream extends DSpaceObject
         return Constants.BITSTREAM;
     }
     @ManyToOne
-	public Bundle getBundle() {
-		return bundle;
-	}
+    public Bundle getBundle() {
+        return bundle;
+    }
 
-	public void setBundle(Bundle bundle) {
-		this.bundle = bundle;
-	}
-	@Transient
-	public boolean isModifiedMetadata() {
-		return modifiedMetadata;
-	}
-	@Transient
-	public boolean isModified() {
-		return modified;
-	}
+    public void setBundle(Bundle bundle) {
+        this.bundle = bundle;
+    }
+    @Transient
+    public boolean isModifiedMetadata() {
+        return modifiedMetadata;
+    }
+    @Transient
+    public boolean isModified() {
+        return modified;
+    }
 
 }

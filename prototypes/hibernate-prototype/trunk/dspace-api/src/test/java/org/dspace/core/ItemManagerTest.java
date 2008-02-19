@@ -16,11 +16,11 @@ import org.junit.Test;
 
 public class ItemManagerTest
 {
-	private static final String CONFIG = "C:\\workspace\\dspace-working-copy\\config\\dspace.cfg";
+    private static final String CONFIG = "C:\\workspace\\dspace-working-copy\\config\\dspace.cfg";
     //private static final String CONFIG = "/home/daniele/workspace_DAO/dspace-working-copy/config/dspace.cfg";
     
-	private static final String FILEPATH= "C:\\workspace\\chicagoartinstitutelibrary.jpg";
-	
+    private static final String FILEPATH= "C:\\workspace\\chicagoartinstitutelibrary.jpg";
+    
     protected static Context context;    
 
     
@@ -37,11 +37,11 @@ public class ItemManagerTest
         } catch (Throwable t) { t.printStackTrace(); }          
     }
     
-    @Test 
-    public void testfake()  {
-        Assert.assertTrue(true);
-        
-    }
+//    @Test 
+//    public void testfake()  {
+//        Assert.assertTrue(true);
+//        
+//    }
     
     @Test
     public void testCreateBitstream() throws FileNotFoundException, AuthorizeException,  IOException, SQLException 
@@ -49,8 +49,8 @@ public class ItemManagerTest
         Bundle bundle = ApplicationService.get(context, Bundle.class, 2);
         Assert.assertNotNull(bundle);
         BufferedInputStream is = new BufferedInputStream(new FileInputStream(FILEPATH));
-        Bitstream bitstream = ItemManager.createBitstream(bundle, is, context);
-        context.complete();
+        Bitstream bitstream = ItemManager.createBitstream(bundle, is, context);      
+        context.complete();              
         Assert.assertFalse(bitstream.isDeleted());
     }
     

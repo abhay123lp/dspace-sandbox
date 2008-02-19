@@ -47,6 +47,7 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.uri.ObjectIdentifier;
@@ -116,9 +117,9 @@ public class Harvest
     {
         //ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
       //FIXME cambiamento
-//        List<Item> itemList = itemDAO.getItems(scope, startDate, endDate, offset,
-//                limit, items, collections, withdrawn);
-        List<Item> itemList = null;
+        List<Item> itemList = ApplicationService.findItemForHarvest(scope, startDate, endDate, offset,
+                limit, items, collections, withdrawn);
+        
         List infoObjects = new LinkedList();
         int index = 0;
 
