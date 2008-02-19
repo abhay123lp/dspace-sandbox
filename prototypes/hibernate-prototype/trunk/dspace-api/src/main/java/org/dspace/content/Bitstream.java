@@ -95,14 +95,10 @@ public class Bitstream extends DSpaceObject
     
     private Context context;
     
-    public Bitstream(Context context, InputStream is) throws IOException, AuthorizeException {
+    public Bitstream(Context context) {
         this.context = context;
-        try{
-            BitstreamStorageManager.store(context, this, is);
-        } finally {}
         modified = modifiedMetadata = false;
-        clearDetails();
-        System.out.println("---> " + this.getId());
+        clearDetails();        
     }
     
     public Bitstream() {}

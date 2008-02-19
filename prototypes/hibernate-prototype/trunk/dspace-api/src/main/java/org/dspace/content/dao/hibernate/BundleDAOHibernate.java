@@ -1,7 +1,9 @@
 package org.dspace.content.dao.hibernate;
 
-import javax.persistence.Query;
+import java.util.List;
+
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
@@ -14,10 +16,12 @@ public class BundleDAOHibernate extends BundleDAO{
         super(context);
 	}
 	public Bundle findBundleByName(Item item, String name, EntityManager em) {
-		Query q = em.createQuery("SELECT OBJECT(b) FROM Bundle b WHERE b.name= :name AND b.item = :item");
+		Query q = em.createQuery("SELECT OBJECT(b) FROM Bundle b WHERE b.name = :name AND b.item = :item");
 		q.setParameter("name", name);
 		q.setParameter("item", item);
-		Bundle bundle = (Bundle) q.getSingleResult();
+		/* FIXME why can't i declare a singleresult?*/
+		List<Bundle> bundles = q.getResultList();
+		Bundle bundle = bundles.get(0); 		
 		return bundle;		
 	}
 }
