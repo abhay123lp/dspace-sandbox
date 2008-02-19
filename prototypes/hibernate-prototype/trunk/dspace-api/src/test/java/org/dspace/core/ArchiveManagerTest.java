@@ -1,7 +1,9 @@
 package org.dspace.core;
 
+import java.io.IOException;
 import java.sql.SQLException;
 
+import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
@@ -34,15 +36,18 @@ public class ArchiveManagerTest
         
     }
     
-//    @Test
-//    public void testPopulateDBwithCommunityCollectionItem() throws SQLException{
+    /* Tutti i test ok */
+    
+//    @Test //populates the db, it's not a real test
+//    public void testPopulateDBwithCommunityCollectionSubcommunityItem() throws SQLException{
 //    	Community community;
 //    	Collection collection;
 //    	
 //    	for(int i=0; i<5; i++) {
 //    		community=ArchiveManager.createCommunity(null, context);
 //    		for(int j=0; j<5; j++) {
-//    			collection=ArchiveManager.createCollection(community, context);
+//    		    ArchiveManager.createCommunity(community, context);
+//    		    collection=ArchiveManager.createCollection(community, context);
 //    			for(int k=0; k<3; k++)
 //    				ArchiveManager.createItem(collection, context);
 //    		}
@@ -51,7 +56,7 @@ public class ArchiveManagerTest
 //    	
 //    	context.complete();
 //    }
-//    
+    
 //    @Test
 //    public void testCreateCommunity() throws SQLException{
 //        Community community = ArchiveManager.createCommunity(null, context);
@@ -61,85 +66,85 @@ public class ArchiveManagerTest
 //    
 //    @Test
 //    public void testCreateSubCommunity() {
-//        Community parent = applicationService.get(context, Community.class, 2);
-//        Community child = archiveManager.createCommunity(parent, context);
+//        Community parent = ApplicationService.get(context, Community.class, 2);
+//        Community child = ArchiveManager.createCommunity(parent, context);
 //        Assert.assertNotNull(child);
-//        applicationService.abort();
+//        context.abort();
 //    }
 //    
 //    @Test
 //    public void testCreateCollection() {
-//        Community parent = applicationService.get(context, Community.class, 3);
-//        Collection collection = archiveManager.createCollection(parent, context); 
+//        Community parent = ApplicationService.get(context, Community.class, 3);
+//        Collection collection = ArchiveManager.createCollection(parent, context); 
 //        Assert.assertNotNull(collection);
-//        applicationService.abort();
+//        context.abort();
 //    }
 //    
 //    @Test
 //    public void testCreateItem() {
-//        Collection parent = applicationService.get(context, Collection.class, 1);
-//        Item item = archiveManager.createItem(parent, context);
+//        Collection parent = ApplicationService.get(context, Collection.class, 1);
+//        Item item = ArchiveManager.createItem(parent, context);
 //        Assert.assertNotNull(item);
-//        applicationService.abort();
+//        context.abort();
 //    }
 //    
 //    @Test
 //    public void testAddCommunity() {
-//        Community community = applicationService.get(context, Community.class, 5);
-//        Community futureParent = applicationService.get(context, Community.class, 2);
-//        archiveManager.addCommunity(futureParent, community);
+//        Community community = ApplicationService.get(context, Community.class, 5);
+//        Community futureParent = ApplicationService.get(context, Community.class, 2);
+//        ArchiveManager.addCommunity(futureParent, community);
 //        Assert.assertTrue(futureParent.getSubCommunities().contains(community));
 //        Assert.assertTrue(community.getParentCommunities().contains(futureParent));
-//        applicationService.abort();
+//        context.abort();
 //    }
 //    
 //    @Test
 //    public void testAddCollection() {
-//        Community community = applicationService.get(context, Community.class, 5);
-//        Collection collection = applicationService.get(context, Collection.class, 1);
-//        archiveManager.addCollection(community, collection);
+//        Community community = ApplicationService.get(context, Community.class, 5);
+//        Collection collection = ApplicationService.get(context, Collection.class, 1);
+//        ArchiveManager.addCollection(community, collection);
 //        Assert.assertTrue(community.getCollections().contains(collection));
 //        Assert.assertTrue(collection.getCommunities().contains(community));
-//        applicationService.abort();
+//        context.abort();
 //    }
 //    
 //    @Test
 //    public void testAddItem() {
-//        Collection collection = applicationService.get(context, Collection.class, 3);
-//        Item item = applicationService.get(context, Item.class, 2);
-//        archiveManager.addItem(collection, item);
+//        Collection collection = ApplicationService.get(context, Collection.class, 3);
+//        Item item = ApplicationService.get(context, Item.class, 2);
+//        ArchiveManager.addItem(collection, item);
 //        Assert.assertTrue(collection.getItems().contains(item));
 //        Assert.assertTrue(item.getCollections().contains(collection));
-//        applicationService.abort();
+//        context.abort();
 //    }
 //    
 //     @Test
-//     public void testRemoveAndDeleteSubCommunity() {
-//         Community parent = applicationService.get(context, Community.class, 2);
-//         Community child = applicationService.get(context, Community.class, 7);
+//     public void testRemoveAndDeleteSubCommunity() throws IOException, AuthorizeException {
+//         Community parent = ApplicationService.get(context, Community.class, 15);
+//         Community child = ApplicationService.get(context, Community.class, 11);
 //         int childrenbefore = parent.getSubCommunities().size();
-//         archiveManager.removeCommunity(parent, child, context);
+//         ArchiveManager.removeCommunity(parent, child, context);
 //         int childrenafter = parent.getSubCommunities().size();
 //         
 //         Assert.assertFalse(childrenbefore==childrenafter);
 //         
-//         applicationService.abort();
+//         context.abort();
 //         
 //         //prima del complete non e' null, viene cancellato al complete
 //         //Assert.assertNull(child);
 //     }
 //     
 //     @Test
-//     public void testRemoveAndDeleteTopCommunity() {
-//         Community community = applicationService.get(context, Community.class, 3);
-//         archiveManager.removeCommunity(null, community, context);
-//         applicationService.abort();
+//     public void testRemoveAndDeleteTopCommunity() throws IOException, AuthorizeException {
+//         Community community = ApplicationService.get(context, Community.class, 3);
+//         ArchiveManager.removeCommunity(null, community, context);
+//         context.abort();
 //     }
 //     
 //     @Test
-//     public void testRemoveAndDeleteCollection() {
-//    	 Collection collection = applicationService.get(context, Collection.class, 16);
-//    	 archiveManager.removeCollection(collection.getCommunities().get(0), collection, context);    	
-//    	 applicationService.abort();
+//     public void testRemoveAndDeleteCollection() throws IOException, AuthorizeException {
+//    	 Collection collection = ApplicationService.get(context, Collection.class, 16);
+//    	 ArchiveManager.removeCollection(collection.getCommunities().get(0), collection, context);    	
+//    	 context.abort();
 //     }    
 }

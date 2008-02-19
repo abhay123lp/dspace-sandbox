@@ -1,29 +1,15 @@
 package org.dspace.core;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.sql.SQLException;
-import java.util.List;
-import java.util.Map;
-
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.Bitstream;
-import org.dspace.content.BitstreamFormat;
-import org.dspace.content.Bundle;
-import org.dspace.content.Collection;
-import org.dspace.content.CollectionMetadata;
-import org.dspace.content.Community;
-import org.dspace.content.Item;
-import org.dspace.content.Site;
-import org.dspace.content.dao.CommunityDAO;
-import org.dspace.eperson.EPerson;
-import org.junit.Before;
-import org.junit.Test;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
+import org.dspace.content.factory.CollectionFactory;
+import org.junit.Before;
+import org.junit.Test;
 
 public class ApplicationServiceTest extends TestCase {
     
@@ -45,42 +31,43 @@ public class ApplicationServiceTest extends TestCase {
         } catch (Throwable t) { t.printStackTrace(); }          
     }
     
-//  @Test
-//    public void testfake()
-//    {
-//        Assert.assertTrue(true);
-//    }
-
-    @Test
-    public void testGet() {
-        Community community = ApplicationService.get(context, Community.class, 1);
-        Assert.assertNotNull(community);        
-        context.abort();
+  @Test
+    public void testfake()
+    {
+        Assert.assertTrue(true);
     }
 
-//  @Test
-//  public void testUpdate() throws SQLException {
-//      Community community = ApplicationService.get(context, Community.class, 1);
-//      community.setName("testUpdate");
-//      ApplicationService.update(context, Community.class, community);
-//      context.complete();
-//  }
-//  
-//  @Test 
-//  public void testUpdateSite() {
-//      Site site = applicationService.get(context, Site.class, 1);
-//      site.setName("site!");
-//      applicationService.update(context, Site.class, site);
-//      applicationService.complete();
-//  }
-    
-//  @Test 
-//  public void testDeleteSite() {
-//      Site site = applicationService.get(context, Site.class, 1);
-//      assertNotNull(site);
-//      applicationService.delete(context, Site.class, site);
-//      applicationService.complete();
-//  }
+//    @Test
+//    public void testGet() {
+//        Community community = ApplicationService.get(context, Community.class, 1);
+//        Assert.assertNotNull(community);        
+//        context.abort();
+//    }
+//
+//    @Test
+//    public void testUpdate() throws SQLException {
+//        Community community = ApplicationService.get(context, Community.class, 2);
+//        community.setName("testUpdate");
+//        ApplicationService.update(context, Community.class, community);
+//        Assert.assertEquals(community.getName(), "testUpdate");
+//        context.abort();
+//    }
+//    
+//    @Test
+//    public void testDelete() throws SQLException {
+//        Collection collection = ApplicationService.get(context, Collection.class, 2);
+//        ApplicationService.delete(context, Collection.class, collection);
+//        //Assert.assertNull(collection);
+//        context.abort();
+//    }
+//    
+//    @Test
+//    public void testSave() throws  SQLException {
+//        Collection collection = CollectionFactory.getInstance(context);
+//        ApplicationService.save(context, Collection.class, collection);
+//        Assert.assertNotNull(collection.getId());
+//        context.abort();
+//    }
 //  @Test 
 //  public void testCascadeSiteCommunity() {
 //      Site site = new Site(context);

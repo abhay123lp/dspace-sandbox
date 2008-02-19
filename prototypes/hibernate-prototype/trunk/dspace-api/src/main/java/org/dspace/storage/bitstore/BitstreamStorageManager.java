@@ -288,28 +288,24 @@ public class BitstreamStorageManager
      * 
      * @return The ID of the stored bitstream
      */
-    public static void store(Context context, Bitstream bitstream,
-            InputStream is)
+    public static Bitstream store(Context context, InputStream is)
         throws AuthorizeException, IOException
     {
         //BitstreamDAO dao = BitstreamDAOFactory.getInstance(context);
 
         // Create internal ID
-        String id = Utils.generateKey();
+        String internalId = Utils.generateKey();
 
-        // Create a deleted bitstream row, using a separate DB connection
+        // Create a deleted bitstream row, using a separate DB connection        
+        int id = storeInitialMetadata(context, incoming, internalId);
         
-        
-        // Put something into the storage layer to attach the file to.
-        storeInitialMetadata(context, bitstream, incoming, id);
-        
-        //the persistence context of tempContext is closed. now, put bitstream 
-        //in the persistence context of context
-        bitstream=ApplicationService.get(context, Bitstream.class, bitstream.getId());
-        //ApplicationService.update(context, Bitstream.class, bitstream);
+        // retrieve the new bitstream with the current context
+        Bitstream bitstream = ApplicationService.get(context, Bitstream.class, id);
+        internalId = bitstream.getInternalID();
+
 
         // Where on the file system will this new bitstream go?
-        GeneralFile file = getFile(incoming, id);
+        GeneralFile file = getFile(incoming, internalId);
 
         // Make the parent dirs if necessary
         GeneralFile parent = file.getParentFile();
@@ -354,6 +350,8 @@ public class BitstreamStorageManager
             log.debug("Stored bitstream " + bitstream.getID() + " in file "
                     + file.getAbsolutePath());
         }
+        
+        return bitstream;
     }
 
     /**
@@ -368,7 +366,7 @@ public class BitstreamStorageManager
      * @return The ID of the registered bitstream
      * @throws IOExeption
      */
-    public static void register(Context context, Bitstream bitstream, int
+    public static void register(Context context, int
             assetstore, String bitstreamPath)
         throws AuthorizeException, IOException
     {
@@ -378,7 +376,8 @@ public class BitstreamStorageManager
         String sInternalId = REGISTERED_FLAG + bitstreamPath;
 
         // Put something into the storage layer to attach the file to.
-        storeInitialMetadata(context, bitstream, assetstore, sInternalId);
+        int id = storeInitialMetadata(context, assetstore, sInternalId);
+        Bitstream bitstream = ApplicationService.get(context, Bitstream.class, id);
 
         // get a reference to the file
         GeneralFile file = getFile(assetstore, sInternalId);
@@ -822,12 +821,10 @@ public class BitstreamStorageManager
      * Context to ensure that there is some record of the file in the metadata
      * store.
      */
-    private static void storeInitialMetadata(Context context, Bitstream bitstream,
-            int assetstore, String internalID)
+    private static int storeInitialMetadata(Context context, int assetstore, String internalID)
         throws AuthorizeException
     {
-        Context tempContext = null;
-
+        
         // Make sure there's something in the database from the other
         // Context, then run an update into that from the temporary one
 //        try
@@ -839,8 +836,14 @@ public class BitstreamStorageManager
 //            throw new RuntimeException(sqle);
 //        }
 
+        Context tempContext = null;
         try
         {
+            tempContext = new Context();
+            tempContext.setCurrentUser(context.getCurrentUser());
+                        
+            Bitstream bitstream = new Bitstream(tempContext);
+            
             /*
              * Set the store number of the new bitstream If you want to use some
              * other method of working out where to put a new bitstream, here's
@@ -848,18 +851,17 @@ public class BitstreamStorageManager
              */
             bitstream.setStoreNumber(assetstore);
             bitstream.setInternalID(internalID);
-            bitstream.setDeleted(true);
-
-            tempContext = new Context();
-            System.out.println(" BitstreamStorageManager: creato un nuovo context");
-            tempContext.setCurrentUser(context.getCurrentUser());
+            bitstream.setDeleted(true);         
+            
 
             //BitstreamDAO tempDAO = BitstreamDAOFactory.getInstance(tempContext);
             //tempDAO.update(bitstream);
             
+            //save the bitstream row and close the context
             ApplicationService.save(tempContext, Bitstream.class, bitstream);
             tempContext.complete();
-            System.out.println(" BitstreamStorageManager: chiuso il nuovo context");            
+                        
+            return bitstream.getId();
         }
         catch (SQLException sqle)
         {

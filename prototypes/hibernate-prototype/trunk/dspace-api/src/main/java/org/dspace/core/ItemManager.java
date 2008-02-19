@@ -67,7 +67,7 @@ public class ItemManager
                     "A Bundle owner of the bitstream is needed");
         }
         Bitstream bitstream = BitstreamFactory.getInstance(context, is);
-        System.out.println("---> " + bitstream.getId());
+        
         addBitstream(bundle, bitstream);
         
         return bitstream;
@@ -180,13 +180,14 @@ public class ItemManager
     public static void removeBitstream(Bundle bundle, Bitstream bitstream)
     {
         if (bundle == null)
-        {
+        {            
             throw new IllegalArgumentException(
                     "A Item owner of the bundle is needed");
         }
         bundle.getBitstreams().remove(bitstream);
-        // no need to delete it using applicationservice
+        // no need to delete it using applicationservice        
         bitstream.setDeleted(true);
+        
     }
 
     public static void licenseGranted(Item item, String license, EPerson eperson, Context context)
@@ -222,7 +223,6 @@ public class ItemManager
      * Withdraw the item from the archive. It is kept in place, and the content
      * and metadata are not deleted, but it is not publicly accessible.
      * 
-     * FIXME uguale al find dell'as?
      */
     public static void withdrawItem(Context context, Item item)
         throws AuthorizeException, IOException
