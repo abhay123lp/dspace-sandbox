@@ -52,18 +52,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
+import javax.persistence.PersistenceException;
 
 import org.apache.log4j.Logger;
-
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.dao.GroupDAO;
-import org.dspace.eperson.dao.GroupDAOFactory;
 import org.dspace.event.Dispatcher;
 import org.dspace.event.Event;
 import org.dspace.event.EventManager;
-import org.dspace.dao.GlobalDAO;
-import org.dspace.dao.GlobalDAOFactory;
 
 /**
  * Class representing the context of a particular DSpace operation. This stores
@@ -276,10 +272,66 @@ public class Context
      */
     public void complete() throws SQLException
     {
-        // We need to commit first to complete the event processing
-        // TODO this may be temporary - MRD
-        commit();
         
+        Dispatcher dispatcher = null;
+        EntityTransaction tr = entityManager.getTransaction();
+        
+        try
+        {
+            if (events != null)
+            {    
+                if (dispName == null)
+                {
+                    dispName = EventManager.DEFAULT_DISPATCHER;
+                }
+                
+                dispatcher = EventManager.getDispatcher(dispName);
+                
+                // Commit any changes made as part of the transaction
+                //dao.saveTransaction();
+                
+                if (tr.isActive()) {
+                    tr.commit();
+                    System.out.println(" Context "+ this.toString()+".complete: chiusa una transazione");
+
+                } else {
+                    System.out.println(" Context "+ this.toString()+".complete: transazione attuale gia' chiusa");
+                }
+                
+                dispatcher.dispatch(this);
+            }
+            else
+            {
+                // Commit any changes made as part of the transaction
+                //dao.saveTransaction();
+                if (tr.isActive()) {
+                    tr.commit();                    
+                    System.out.println(" Context "+ this.toString()+".complete: chiusa una transazione");                    
+                } else {
+                    System.out.println(" Context "+ this.toString()+".complete: transazione attuale gia' chiusa");
+                }
+            }
+        }
+        finally
+        {
+            if (events != null)
+            {
+                // FIXME: Is this pointless / harmful?
+                synchronized (events)
+                {
+                    events = null;
+                }
+            }
+            if(dispatcher != null)
+            {
+                /* 
+                 * TODO return dispatcher via internal method dispatcher.close();
+                 * and remove the returnDispatcher method from EventManager.
+                 */
+                EventManager.returnDispatcher(dispName, dispatcher);
+            }
+        }
+
         //dao.endTransaction();
         entityManager.close();
         System.out.println(" Context.complete: chiuso l'EntityManager");
@@ -351,10 +403,10 @@ public class Context
             }
             if(dispatcher != null)
             {
-            	/* 
-            	 * TODO return dispatcher via internal method dispatcher.close();
-            	 * and remove the returnDispatcher method from EventManager.
-            	 */
+                /* 
+                 * TODO return dispatcher via internal method dispatcher.close();
+                 * and remove the returnDispatcher method from EventManager.
+                 */
                 EventManager.returnDispatcher(dispName, dispatcher);
             }
         }
@@ -414,9 +466,16 @@ public class Context
     public void abort()
     {
         //dao.abortTransaction();
-        entityManager.getTransaction().rollback();
+        EntityTransaction tr = entityManager.getTransaction();
+        if(tr.isActive()) {
+            tr.rollback();
+            System.out.print(" Context.abort: transazione in rollback");
+        } else {
+            //FIXME inserire un'eccezione?
+            System.out.print(" Context.abort: nessuna transazione attiva");
+        }        
         entityManager.close();
-        System.out.println(" Context.abort: transazione in rollback e EntityManager chiuso");
+        System.out.println(". EntityManager chiuso");
         events = null;
     }
 

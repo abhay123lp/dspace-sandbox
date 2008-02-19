@@ -282,36 +282,37 @@ public class ArchiveManager
 
     /* Creates a new community. If parent is null the community is a topcommunity */
     public static Community createCommunity(Community parent, Context context) {
-    	Community community = CommunityFactory.getInstance(context);
-    	if(parent!=null) {
-    		addCommunity(parent, community);    		
-    	} 
-    	ApplicationService.save(context, Community.class, community);
-    	return community;
+        Community community = CommunityFactory.getInstance(context);
+        if(parent!=null) {
+            addCommunity(parent, community);            
+        } 
+        ApplicationService.save(context, Community.class, community);
+        return community;
     }
     
     /* Creates a new collection. A collection must have a parent-community*/
     public static Collection createCollection(Community parent, Context context) {
-    	if(parent==null) {
-    		throw new IllegalArgumentException(
+        if(parent==null) {
+            throw new IllegalArgumentException(
             "A Collection must have a non-null parent Community");
-    	}
-    	Collection collection = CollectionFactory.getInstance(context);
-    	addCollection(parent, collection);
-    	return collection;
+        }
+        Collection collection = CollectionFactory.getInstance(context);
+        addCollection(parent, collection);
+        ApplicationService.save(context, Collection.class, collection);
+        return collection;
     }
     
     /* Creates a new item. An item must have an owning-collection */
     public static Item createItem(Collection parent, Context context) {
-    	if(parent==null) {
-    		throw new IllegalArgumentException(
+        if(parent==null) {
+            throw new IllegalArgumentException(
             "A Item must have a non-null owning Collection");
-    	}
-    	Item item = ItemFactory.getInstance(context);
-    	item.setOwningCollection(parent);
-    	addItem(parent, item);
-    	
-    	return item;
+        }
+        Item item = ItemFactory.getInstance(context);
+        item.setOwningCollection(parent);
+        addItem(parent, item);
+        ApplicationService.save(context, Item.class, item);
+        return item;
     }
     
      
@@ -319,32 +320,32 @@ public class ArchiveManager
     
     /* Adds a subcommunity to the specified parent community */
     public static void addCommunity(Community parent, Community child) {
-    	if(parent==null || child==null) {
-    		throw new IllegalArgumentException(
+        if(parent==null || child==null) {
+            throw new IllegalArgumentException(
             "Both parent and child must be not null");
-    	}
-    	child.getParentCommunities().add(parent);
-    	parent.getSubCommunities().add(child);
+        }
+        child.getParentCommunities().add(parent);
+        parent.getSubCommunities().add(child);
     }
     
     /* Adds a collection to the specified community */
     public static void addCollection(Community parent, Collection child) {
-    	if(parent==null || child==null) {
-    		throw new IllegalArgumentException(
+        if(parent==null || child==null) {
+            throw new IllegalArgumentException(
             "Both parent and child must be not null");
-    	}
-    	child.getCommunities().add(parent);
-    	parent.getCollections().add(child);
+        }
+        child.getCommunities().add(parent);
+        parent.getCollections().add(child);
     }
     
     /* Adds an item to the specified collection */
     public static void addItem(Collection parent, Item child) {
-    	if(parent==null || child==null) {
-    		throw new IllegalArgumentException(
+        if(parent==null || child==null) {
+            throw new IllegalArgumentException(
             "Both parent and child must be not null");
-    	}
-    	child.getCollections().add(parent);
-    	parent.getItems().add(child);
+        }
+        child.getCollections().add(parent);
+        parent.getItems().add(child);
     }
     
     /* Remove methods */
@@ -352,51 +353,51 @@ public class ArchiveManager
     /* Removes a subcommunity from the specified community. 
      * if parent is null, child is a top-community */
     public static void removeCommunity(Community parent, Community child, Context context) throws AuthorizeException, IOException {
-    	if(child==null) {
-    		throw new IllegalArgumentException(
+        if(child==null) {
+            throw new IllegalArgumentException(
             "Child cannot be null");
-    	}
-    	if(parent!=null) {	    	
-	    	child.getParentCommunities().remove(parent);
-	    	parent.getSubCommunities().remove(child);
-	    	if(child.getParentCommunities().size()==0) { //orphan, delete it
-	    	    deleteCommunity(child, context);	    		
-	    	} 
-    	} else { //top-community (so orphan), delete it
-    	    deleteCommunity(child, context);    		
-    	}
+        }
+        if(parent!=null) {          
+            child.getParentCommunities().remove(parent);
+            parent.getSubCommunities().remove(child);
+            if(child.getParentCommunities().size()==0) { //orphan, delete it
+                deleteCommunity(child, context);                
+            } 
+        } else { //top-community (so orphan), delete it
+            deleteCommunity(child, context);            
+        }
     }
     
     /* Removes a collection from the specified community */
     public static void removeCollection(Community parent, Collection child, Context context) throws AuthorizeException, IOException {
-    	if(parent==null || child==null) {
-    		throw new IllegalArgumentException(
+        if(parent==null || child==null) {
+            throw new IllegalArgumentException(
             "Both parent and child must be not null");
-    	}
-    	
-    	parent.getCollections().remove(child);
-    	child.getCommunities().remove(parent);
-    	
-    	//if the collection is orphan, remove it
-    	if(child.getCommunities().size()==0) {
-    		deleteCollection(child, context);
-    	}   	
+        }
+        
+        parent.getCollections().remove(child);
+        child.getCommunities().remove(parent);
+        
+        //if the collection is orphan, remove it
+        if(child.getCommunities().size()==0) {
+            deleteCollection(child, context);
+        }       
     }
     
     /* Removes an item from the specified collection */
     public static void removeItem(Collection parent, Item child, Context context) {
-    	if(parent==null || child==null) {
-    		throw new IllegalArgumentException(
+        if(parent==null || child==null) {
+            throw new IllegalArgumentException(
             "Both parent and child must be not null");
-    	}
-    	
-    	parent.getItems().remove(child);
-    	child.getCollections().remove(parent);
-    	
-    	//if the item is orphan, remove it
-    	if(child.getCollections().size()==0) {
-    	    deleteItem(child, context);
-    	}
+        }
+        
+        parent.getItems().remove(child);
+        child.getCollections().remove(parent);
+        
+        //if the item is orphan, remove it
+        if(child.getCollections().size()==0) {
+            deleteItem(child, context);
+        }
     }
             
     ////////////////////////////////////////////////////////////////////
@@ -578,11 +579,11 @@ public class ArchiveManager
 */
     /**
      * Using the CLI on ArchiveManager
-	 *
+     *
      * Add {dspace.dir}/bin to your path or cd {dspace.dir}/bin
      * dsrun org.dspace.core.ArchiveManager [opts] 
-	 *
-	 * Options
+     *
+     * Options
      * -i [item id] Allows for the specification of an item by id
      * -u [email or id of eperson] Allows for the use of Authorization and specifying a user 
      * -p print the given item's (-i [id]) item_id, revision, previous_revision
@@ -623,7 +624,7 @@ public class ArchiveManager
             }
             else if (line.hasOption("m") && line.hasOption("i"))
             {
-            	printItemMetadata(ApplicationService.get(c, Item.class, Integer.parseInt(line.getOptionValue("i"))));
+                printItemMetadata(ApplicationService.get(c, Item.class, Integer.parseInt(line.getOptionValue("i"))));
             }
             else if (line.hasOption("p") && line.hasOption("i"))
             {
@@ -690,7 +691,7 @@ public class ArchiveManager
      */
     private static void printExternalIdentifiers(Item item)
     {
-    	System.out.println("one pi: " + item.getExternalIdentifier().getCanonicalForm());
+        System.out.println("one pi: " + item.getExternalIdentifier().getCanonicalForm());
         System.out.println(item.getExternalIdentifiers().toString());
         for (ExternalIdentifier id : item.getExternalIdentifiers())
         {
