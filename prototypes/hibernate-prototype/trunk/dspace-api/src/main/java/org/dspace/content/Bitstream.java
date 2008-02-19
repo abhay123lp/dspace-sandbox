@@ -246,14 +246,7 @@ public class Bitstream extends DSpaceObject
     public void setDeleted(boolean deleted) {
         this.deleted = deleted;
     }
-    @Deprecated
-    public InputStream retrieve() throws AuthorizeException, IOException
-    {
-        // Maybe should return AuthorizeException??
-        AuthorizeManager.authorizeAction(context, this, Constants.READ);
 
-        return BitstreamStorageManager.retrieve(context, getId());
-    }
     @Transient
     public boolean isRegisteredBitstream()
     {

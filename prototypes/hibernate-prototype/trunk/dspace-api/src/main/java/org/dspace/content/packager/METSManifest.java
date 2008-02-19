@@ -145,7 +145,7 @@ public class METSManifest
          * @throw SQLException if it is returned by services called by this method.
          * @throw AuthorizeException if it is returned by services called by this method.
          */
-        public InputStream getInputStream(Element mdRef)
+        public InputStream getInputStream(Element mdRef, Context context)
             throws MetadataValidationException, IOException, SQLException, AuthorizeException;
     }
 
@@ -548,7 +548,7 @@ public class METSManifest
      * @return contents of metadata section, or empty list if no XML content is available.
      * @throws MetadataValidationException if METS is invalid, or there is an error parsing the XML.
      */
-    public List getMdContentAsXml(Element mdSec, Mdref callback)
+    public List getMdContentAsXml(Element mdSec, Mdref callback, Context context)
         throws MetadataValidationException, IOException, SQLException, AuthorizeException
     {
         try
@@ -593,7 +593,7 @@ public class METSManifest
                 String mimeType = mdRef.getAttributeValue("MIMETYPE");
                 if (mimeType != null && mimeType.equalsIgnoreCase("text/xml"))
                 {
-                    Document mdd = parser.build(callback.getInputStream(mdRef));
+                    Document mdd = parser.build(callback.getInputStream(mdRef, context));
                     List result = new ArrayList(1);
                     result.add(mdd.getRootElement());
                     return result;
@@ -621,7 +621,7 @@ public class METSManifest
      * @return Stream containing contents of metadata section.  Never returns null.
      * @throws MetadataValidationException if METS format does not contain any metadata.
      */
-    public InputStream getMdContentAsStream(Element mdSec, Mdref callback)
+    public InputStream getMdContentAsStream(Element mdSec, Mdref callback, Context context)
         throws MetadataValidationException, IOException, SQLException, AuthorizeException
     {
         Element mdRef = null;
@@ -650,7 +650,7 @@ public class METSManifest
         }
         else if ((mdRef = mdSec.getChild("mdRef", metsNS)) != null)
         {
-            return callback.getInputStream(mdRef);
+            return callback.getInputStream(mdRef, context);
         }
         else
             throw new MetadataValidationException("Invalid METS Manifest: ?mdSec element with neither mdRef nor mdWrap child.");
@@ -665,7 +665,7 @@ public class METSManifest
                 IngestionCrosswalk xwalk, Context context, DSpaceObject dso)
         throws CrosswalkException, IOException, SQLException, AuthorizeException
     {
-        List xml = getMdContentAsXml(mdSec,callback);
+        List xml = getMdContentAsXml(mdSec,callback, context);
 
         // if we get inappropriate metadata, e.g. PREMIS for Item, let it go.
         try
