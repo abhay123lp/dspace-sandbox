@@ -185,7 +185,7 @@ public class DSpaceMETSIngester
             {
                 log.debug("Got Creative Commons license in rightsMD");
                 CreativeCommons.setLicense(context, item,
-                            manifest.getMdContentAsStream(rmds[i], callback),
+                            manifest.getMdContentAsStream(rmds[i], callback, context),
                             manifest.getMdContentMimeType(rmds[i]));
 
                 // if there was a bitstream, get rid of it, since

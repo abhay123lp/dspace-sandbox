@@ -163,13 +163,14 @@ public abstract class AbstractMETSIngester
          * @param mdref the METS mdRef element to locate the input for.
          * @return the input stream of its content.
          */
-        public InputStream getInputStream(Element mdref)
+        public InputStream getInputStream(Element mdref, Context context)
             throws MetadataValidationException, IOException, SQLException, AuthorizeException
         {
             Bitstream mdbs = getBitstreamForMdRef(mdref);
             if (mdbs == null)
                 throw new MetadataValidationException("Failed dereferencing bitstream for mdRef element="+mdref.toString());
-            return mdbs.retrieve();
+            //return mdbs.retrieve();
+            return BitstreamStorageManager.retrieve(context, mdbs.getId());
         }
     }
 
