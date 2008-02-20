@@ -287,8 +287,8 @@ public abstract class AbstractMETSDisseminator
     private String makeBitstreamName(Bitstream bitstream)
     {
         String base = "bitstream_"+String.valueOf(bitstream.getID());
-        String ext[] = bitstream.getFormat().getExtensions();
-        return (ext.length > 0) ? base+"."+ext[0] : base;
+        List<String> ext = bitstream.getFormat().getExtensions();
+        return (ext.size() > 0) ? base+"."+ext.get(0) : base;
     }
 
 
