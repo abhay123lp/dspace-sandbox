@@ -199,7 +199,7 @@ public class PDFPackager
             success = true;
             log.info(LogManager.getHeader(context, "ingest",
                 "Created new Item, db ID="+String.valueOf(myitem.getID())+
-                ", WorkspaceItem ID="+String.valueOf(wi.getID())));
+                ", WorkspaceItem ID="+String.valueOf(wi.getId())));
             return wi;
         }
         finally

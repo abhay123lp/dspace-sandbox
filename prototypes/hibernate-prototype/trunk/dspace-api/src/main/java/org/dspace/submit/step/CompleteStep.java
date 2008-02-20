@@ -109,7 +109,7 @@ public class CompleteStep extends AbstractProcessingStep
         // The Submission is COMPLETE!!
         log.info(LogManager.getHeader(context, "submission_complete",
                 "Completed submission with id="
-                        + subInfo.getSubmissionItem().getID()));
+                        + subInfo.getSubmissionItem().getId()));
 
         // Start the workflow for this Submission
         WorkflowManager.start(context, (WorkspaceItem) subInfo

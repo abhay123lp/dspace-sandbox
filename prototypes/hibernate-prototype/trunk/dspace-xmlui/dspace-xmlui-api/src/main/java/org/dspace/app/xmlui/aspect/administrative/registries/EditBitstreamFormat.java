@@ -201,7 +201,7 @@ public class EditBitstreamFormat extends AbstractDSpaceTransformer
 		mimeType.setSize(35);
 		
 		// Do not allow anyone to change the name of the unknown format.
-		if (format != null && format.getID() == 1)
+		if (format != null && format.getId() == 1)
 			name.setDisabled(); 
 
 		TextArea description = form.addItem().addTextArea("description");

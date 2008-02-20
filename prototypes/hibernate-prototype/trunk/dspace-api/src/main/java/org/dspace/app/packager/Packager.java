@@ -311,7 +311,7 @@ public class Packager
                     if (uri == null)
                     {
                         System.out.println("Created Workflow item, ID="
-                                + String.valueOf(wfi.getID()));
+                                + String.valueOf(wfi.getId()));
                     }
                     else
                     {

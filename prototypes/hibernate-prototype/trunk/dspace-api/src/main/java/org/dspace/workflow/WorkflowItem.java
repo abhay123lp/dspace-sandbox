@@ -42,6 +42,16 @@ package org.dspace.workflow;
 import java.io.IOException;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
+import javax.persistence.Transient;
+
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
@@ -59,13 +69,14 @@ import org.dspace.workflow.dao.WorkflowItemDAOFactory;
  * @author Robert Tansley
  * @version $Revision: 2417 $
  */
+@Entity
 public class WorkflowItem implements InProgressSubmission
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(WorkflowItem.class);
 
     private Context context;
-    private WorkflowItemDAO dao;
+    //private WorkflowItemDAO dao;
 
     private Item item;
 
@@ -78,8 +89,8 @@ public class WorkflowItem implements InProgressSubmission
     private int id;
     private ObjectIdentifier oid;
     private int state;
-    private boolean multipleFiles;
-    private boolean multipleTitles;
+    private boolean multipleFilesOwner; //multipleFiles
+    private boolean multipleTitlesOwner; //multipleTitles
     private boolean publishedBefore;
 
     public WorkflowItem(Context context, int id)
@@ -87,16 +98,22 @@ public class WorkflowItem implements InProgressSubmission
         this.context = context;
         this.id = id;
 
-        dao = WorkflowItemDAOFactory.getInstance(context);
+        //dao = WorkflowItemDAOFactory.getInstance(context);
 
         context.cache(this, id);
     }
-
-    public int getID()
+    
+    protected WorkflowItem() {}
+    
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="workflow_id")
+    public int getId()
     {
         return id;
     }
 
+    @Transient //FIXME controllare questo aspetto, discorso degli identificatori
     public ObjectIdentifier getIdentifier()
     {
         return oid;
@@ -112,6 +129,8 @@ public class WorkflowItem implements InProgressSubmission
      * 
      * @return EPerson owner
      */
+    @ManyToOne
+    @JoinColumn(name="owner")
     public EPerson getOwner()
     {
         return owner;
@@ -125,6 +144,7 @@ public class WorkflowItem implements InProgressSubmission
     /**
      * Get state of WorkflowItem, as defined in <code>WorkflowManager</code>.
      */
+    @Column(name="state")
     public int getState()
     {
         return state;
@@ -141,6 +161,7 @@ public class WorkflowItem implements InProgressSubmission
     }
 
     // InProgressSubmission methods
+    @OneToOne
     public Item getItem()
     {
         return item;
@@ -151,6 +172,7 @@ public class WorkflowItem implements InProgressSubmission
         this.item = item;
     }
 
+    @ManyToOne
     public Collection getCollection()
     {
         return collection;
@@ -161,6 +183,7 @@ public class WorkflowItem implements InProgressSubmission
         this.collection = collection;
     }
 
+    @Transient
     public EPerson getSubmitter()
     {
         return item.getSubmitter();
@@ -168,24 +191,25 @@ public class WorkflowItem implements InProgressSubmission
 
     public boolean hasMultipleFiles()
     {
-        return multipleFiles;
+        return multipleFilesOwner;
     }
 
     public void setMultipleFiles(boolean multipleFiles)
     {
-        this.multipleFiles = multipleFiles;
+        this.multipleFilesOwner = multipleFiles;
     }
 
     public boolean hasMultipleTitles()
     {
-        return multipleTitles;
+        return multipleTitlesOwner;
     }
 
     public void setMultipleTitles(boolean b)
     {
-        this.multipleTitles = multipleTitles;
+        this.multipleTitlesOwner = multipleTitlesOwner;
     }
 
+    @Column(name="published_before")
     public boolean isPublishedBefore()
     {
         return publishedBefore;
@@ -203,46 +227,77 @@ public class WorkflowItem implements InProgressSubmission
     @Deprecated
     public void update() throws IOException, AuthorizeException
     {
-        dao.update(this);
+//        dao.update(this);
     }
 
     @Deprecated
     public void deleteWrapper() throws IOException, AuthorizeException
     {
-        dao.delete(getID());
+//        dao.delete(getId());
     }
 
     @Deprecated
     public static WorkflowItem find(Context context, int id)
     {
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-        return dao.retrieve(id);
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+//        return dao.retrieve(id);
+        return null;
     }
 
     @Deprecated
     public static WorkflowItem[] findAll(Context c)
     {
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
-        List<WorkflowItem> wfItems = dao.getWorkflowItems();
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
+//        List<WorkflowItem> wfItems = dao.getWorkflowItems();
 
-        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+        return null;
     }
 
     @Deprecated
     public static WorkflowItem[] findByEPerson(Context context, EPerson e)
     {
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-        List<WorkflowItem> wfItems = dao.getWorkflowItemsBySubmitter(e);
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+//        List<WorkflowItem> wfItems = dao.getWorkflowItemsBySubmitter(e);
 
-        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+        return null;
     }
 
     @Deprecated
     public static WorkflowItem[] findByCollection(Context context, Collection c)
     {
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-        List<WorkflowItem> wfItems = dao.getWorkflowItems(c);
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+//        List<WorkflowItem> wfItems = dao.getWorkflowItems(c);
 
-        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+        return null;
+    }
+
+    @Column(name="multiple_files")
+    public boolean isMultipleFilesOwner()
+    {
+        return multipleFilesOwner;
+    }
+
+    public void setMultipleFilesOwner(boolean multipleFilesOwner)
+    {
+        this.multipleFilesOwner = multipleFilesOwner;
+    }
+
+    @Column(name="multiple_titles")
+    public boolean isMultipleTitlesOwner()
+    {
+        return multipleTitlesOwner;
+    }
+
+    public void setMultipleTitlesOwner(boolean multipleTitlesOwner)
+    {
+        this.multipleTitlesOwner = multipleTitlesOwner;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
     }
 }

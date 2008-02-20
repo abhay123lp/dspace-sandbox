@@ -659,7 +659,7 @@ public class MediaFilterManager
         // check if destination bitstream exists
         if (bundles.size() > 0)
         {
-            // only finds the last match (FIXME?)
+            // only finds the last match 
             for (Bundle bundle : bundles)
             {
                 List<Bitstream> bitstreams = bundle.getBitstreams();

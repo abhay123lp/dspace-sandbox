@@ -131,14 +131,14 @@ public class FormatRegistryMain extends AbstractDSpaceTransformer
 		
 		for (BitstreamFormat format : formats)
 		{
-			String id = String.valueOf(format.getID());
+			String id = String.valueOf(format.getId());
 			String mimeType = format.getMIMEType();
 			String name = format.getShortDescription();
 			int supportLevel = format.getSupportLevel();
 			boolean internal = format.isInternal();
 			
 			boolean highlight = false;
-			if (format.getID() == highlightID)
+			if (format.getId() == highlightID)
 				highlight = true;
 
 			String url = contextPath + "/admin/format-registry?administrative-continue="+knot.getId()+"&submit_edit&formatID="+id;
@@ -152,7 +152,7 @@ public class FormatRegistryMain extends AbstractDSpaceTransformer
 			
 			// Select checkbox
 			Cell cell = row.addCell();
-			if (format.getID() > 1)
+			if (format.getId() > 1)
 			{
 				// Do not allow unknown to be removed.
 				CheckBox select = cell.addCheckBox("select_format");

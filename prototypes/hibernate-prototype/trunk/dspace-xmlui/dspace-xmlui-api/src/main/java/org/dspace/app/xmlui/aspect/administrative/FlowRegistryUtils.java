@@ -125,7 +125,7 @@ public class FlowRegistryUtils
 		    result.setContinue(true);
 		    result.setOutcome(true);
 		    result.setMessage(T_add_metadata_schema_success_notice);   
-		    result.setParameter("schemaID", schema.getID());
+		    result.setParameter("schemaID", schema.getId());
 		}
 		
 		return result;
@@ -148,7 +148,7 @@ public class FlowRegistryUtils
 			MetadataSchema schema = MetadataSchema.find(context, Integer.valueOf(id));
 			
 			// First remove and fields in the schema
-			MetadataField[] fields = MetadataField.findAllInSchema(context, schema.getID());
+			MetadataField[] fields = MetadataField.findAllInSchema(context, schema.getId());
 			for (MetadataField field : fields)
 				field.delete(context);
 			
@@ -208,7 +208,7 @@ public class FlowRegistryUtils
             result.setContinue(true);
             result.setOutcome(true);
             result.setMessage(T_add_metadata_field_success_notice);
-            result.setParameter("fieldID", field.getID());
+            result.setParameter("fieldID", field.getId());
 			
 		}
 		
@@ -240,7 +240,7 @@ public class FlowRegistryUtils
 		
 		// Check to make sure the field is unique, sometimes the NonUniqueMetadataException is not thrown.
 		MetadataField possibleDuplicate = MetadataField.findByElement(context, schemaID, element, qualifier);
-		if (possibleDuplicate != null && possibleDuplicate.getID() != fieldID)
+		if (possibleDuplicate != null && possibleDuplicate.getId() != fieldID)
 			result.addError("duplicate_field");
 		
 		if (result.getErrors() == null)
@@ -448,7 +448,7 @@ public class FlowRegistryUtils
         result.setContinue(true);
 		result.setOutcome(true);
 		result.setMessage(T_edit_bitstream_format_success_notice);
-		result.setParameter("formatID",format.getID());
+		result.setParameter("formatID",format.getId());
         
 		return result;
 	}

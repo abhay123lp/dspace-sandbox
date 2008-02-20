@@ -60,6 +60,7 @@ import org.dspace.core.Utils;
 import org.dspace.eperson.dao.RegistrationDataDAO;
 import org.dspace.eperson.dao.RegistrationDataDAOFactory;
 import org.dspace.eperson.factory.EPersonFactory;
+import org.dspace.eperson.factory.GroupFactory;
 import org.dspace.event.Event;
 
 /**
@@ -89,6 +90,10 @@ public class AccountManager
     
     public static EPerson createEPerson(Context context) {
         return EPersonFactory.getInstance(context);        
+    }
+    
+    public static Group createGroup(Context context) {
+        return GroupFactory.getInstance(context);
     }
     
     /* Returns a list of all epeople in group (or any subgroups) */

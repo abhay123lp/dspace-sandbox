@@ -45,22 +45,22 @@ public class ItemDAOTest extends TestCase
         Assert.assertTrue(true);
     }
     
-    @Test
-    public void testGetItems() {
-        List<Item> items = idao.getItems(context.getEntityManager());
-        Assert.assertNotNull(items);
-        Assert.assertTrue(items.get(0).isInArchive());
-        Assert.assertFalse(items.get(0).isWithdrawn());  
-        context.abort();
-    }
-    
-    @Test
-    public void testGetWithdrawnItems() {
-        Collection collection = ApplicationService.get(context, Collection.class, 1);
-        List<Item> items = idao.getWithdrawnItems(collection, context.getEntityManager());
-        Assert.assertNotNull(items);
-        Assert.assertTrue(items.get(0).isWithdrawn());
-        context.abort();
-    }
+//    @Test
+//    public void testGetItems() {
+//        List<Item> items = idao.getItems(context.getEntityManager());
+//        Assert.assertNotNull(items);
+//        Assert.assertTrue(items.get(0).isInArchive());
+//        Assert.assertFalse(items.get(0).isWithdrawn());  
+//        context.abort();
+//    }
+//    
+//    @Test
+//    public void testGetWithdrawnItems() {
+//        Collection collection = ApplicationService.get(context, Collection.class, 1);
+//        List<Item> items = idao.getWithdrawnItems(collection, context.getEntityManager());
+//        Assert.assertNotNull(items);
+//        Assert.assertTrue(items.get(0).isWithdrawn());
+//        context.abort();
+//    }
     
 }

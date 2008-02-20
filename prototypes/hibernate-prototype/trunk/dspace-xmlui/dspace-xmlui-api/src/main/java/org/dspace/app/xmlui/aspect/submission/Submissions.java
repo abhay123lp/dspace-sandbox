@@ -245,7 +245,7 @@ public class Submissions extends AbstractDSpaceTransformer
         {
         	for (WorkflowItem owned : ownedItems)
         	{
-        		int workflowItemID = owned.getID();
+        		int workflowItemID = owned.getId();
         		String url = IdentifierService.getURL(owned.getCollection()).toString()+"/workflow?workflowID="+workflowItemID;
         		DCValue[] titles = owned.getItem().getDC("title", null, Item.ANY);
         		String collectionName = owned.getCollection().getMetadata("name");
@@ -308,7 +308,7 @@ public class Submissions extends AbstractDSpaceTransformer
 
         	for (WorkflowItem pooled : pooledItems)
         	{
-        		int workflowItemID = pooled.getID();
+        		int workflowItemID = pooled.getId();
         		String url = IdentifierService.getURL(pooled.getCollection()).toString()+"/workflow?workflowID="+workflowItemID;
         		DCValue[] titles = pooled.getItem().getDC("title", null, Item.ANY);
         		String collectionName = pooled.getCollection().getMetadata("name");
@@ -425,7 +425,7 @@ public class Submissions extends AbstractDSpaceTransformer
 	        	DCValue[] titles = workspaceItem.getItem().getDC("title", null, Item.ANY);
 	        	EPerson submitterEPerson = workspaceItem.getItem().getSubmitter();
 	        	
-	        	int workspaceItemID = workspaceItem.getID();
+	        	int workspaceItemID = workspaceItem.getId();
 	        	String url = contextPath+"/submit?workspaceID="+workspaceItemID;
 	        	String submitterName = submitterEPerson.getFullName();
 	        	String submitterEmail = submitterEPerson.getEmail();
@@ -464,7 +464,7 @@ public class Submissions extends AbstractDSpaceTransformer
         	DCValue[] titles = workspaceItem.getItem().getDC("title", null, Item.ANY);
         	EPerson submitterEPerson = workspaceItem.getItem().getSubmitter();
         	
-        	int workspaceItemID = workspaceItem.getID();
+        	int workspaceItemID = workspaceItem.getId();
         	String url = contextPath+"/submit?workspaceID="+workspaceItemID;
         	String submitterName = submitterEPerson.getFullName();
         	String submitterEmail = submitterEPerson.getEmail();

@@ -221,7 +221,7 @@ public class MyDSpaceServlet extends DSpaceServlet
             if (workspaceItem != null)
             {
                 log.info(LogManager.getHeader(context, "confirm_removal",
-                        "workspace_item_id=" + workspaceItem.getID()));
+                        "workspace_item_id=" + workspaceItem.getId()));
 
                 request.setAttribute("workspace.item", workspaceItem);
                 JSPManager.showJSP(request, response,
@@ -242,7 +242,7 @@ public class MyDSpaceServlet extends DSpaceServlet
             if (workflowItem != null)
             {
                 log.info(LogManager.getHeader(context, "view_workflow",
-                        "workflow_id=" + workflowItem.getID()));
+                        "workflow_id=" + workflowItem.getId()));
 
                 request.setAttribute("workflow.item", workflowItem);
                 JSPManager.showJSP(request, response,
@@ -256,7 +256,7 @@ public class MyDSpaceServlet extends DSpaceServlet
             if (workflowItem != null)
             {
                 log.info(LogManager.getHeader(context, "view_workflow",
-                        "workflow_id=" + workflowItem.getID()));
+                        "workflow_id=" + workflowItem.getId()));
 
                 request.setAttribute("workflow.item", workflowItem);
                 JSPManager.showJSP(request, response,
@@ -270,7 +270,7 @@ public class MyDSpaceServlet extends DSpaceServlet
             if (workflowItem != null)
             {
                 log.info(LogManager.getHeader(context, "unclaim_workflow",
-                        "workflow_id=" + workflowItem.getID()));
+                        "workflow_id=" + workflowItem.getId()));
 
                 WorkflowManager.unclaim(context, workflowItem, context
                         .getCurrentUser());
@@ -332,7 +332,7 @@ public class MyDSpaceServlet extends DSpaceServlet
         {
             // User has clicked on "delete"
             log.info(LogManager.getHeader(context, "remove_submission",
-                    "workspace_item_id=" + workspaceItem.getID() + ",item_id="
+                    "workspace_item_id=" + workspaceItem.getId() + ",item_id="
                             + workspaceItem.getItem().getID()));
             workspaceItem.deleteAll();
             showMainPage(context, request, response);
@@ -470,7 +470,7 @@ public class MyDSpaceServlet extends DSpaceServlet
         {
             // Submission rejected. Ask the user for a reason
             log.info(LogManager.getHeader(context, "get_reject_reason",
-                    "workflow_id=" + workflowItem.getID() + ",item_id="
+                    "workflow_id=" + workflowItem.getId() + ",item_id="
                             + workflowItem.getItem().getID()));
 
             request.setAttribute("workflow.item", workflowItem);
@@ -481,14 +481,14 @@ public class MyDSpaceServlet extends DSpaceServlet
         {
             // FIXME: Check auth
             log.info(LogManager.getHeader(context, "edit_workflow_item",
-                    "workflow_id=" + workflowItem.getID() + ",item_id="
+                    "workflow_id=" + workflowItem.getId() + ",item_id="
                             + workflowItem.getItem().getID()));
 
             // Forward control to the submission interface
             // with the relevant item
             response.sendRedirect(response.encodeRedirectURL(request
                     .getContextPath()
-                    + "/submit?workflow=" + workflowItem.getID()));
+                    + "/submit?workflow=" + workflowItem.getId()));
         }
         else if (buttonPressed.equals("submit_pool"))
         {

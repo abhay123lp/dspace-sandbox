@@ -486,7 +486,7 @@ public abstract class AbstractMETSIngester
             success = true;
             log.info(LogManager.getHeader(context, "ingest",
                 "Created new Item, db ID="+String.valueOf(item.getID())+
-                ", WorkspaceItem ID="+String.valueOf(wi.getID())));
+                ", WorkspaceItem ID="+String.valueOf(wi.getId())));
             return wi;
         }
         catch (SQLException se)
@@ -503,7 +503,7 @@ public abstract class AbstractMETSIngester
         {
             // kill item (which also deletes bundles, bitstreams) if ingest fails
             if (!success && wi != null)
-                wsiDAO.deleteAll(wi.getID());
+                wsiDAO.deleteAll(wi.getId());
         }
     }
 

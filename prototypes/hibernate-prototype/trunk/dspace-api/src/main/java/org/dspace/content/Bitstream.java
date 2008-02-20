@@ -50,6 +50,7 @@ import javax.persistence.Transient;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
@@ -209,9 +210,10 @@ public class Bitstream extends DSpaceObject
     public void setFormat(BitstreamFormat f) {
         if (f == null)
         {
-            //FIXME questione dell'unknown?
+            
             // Use "Unknown" format
             //bitstreamFormat = BitstreamFormat.findUnknown(context);
+            bitstreamFormat = ApplicationService.findBitstreamFormatByShortDescription("Unknown", context);
         }
         else
         {

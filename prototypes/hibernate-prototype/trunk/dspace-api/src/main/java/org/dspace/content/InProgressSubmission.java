@@ -58,7 +58,7 @@ public interface InProgressSubmission
      * 
      * @return the internal identifier
      */
-    int getID();
+    int getId();
 
     /**
      * Deletes submission wrapper, doesn't delete item contents
