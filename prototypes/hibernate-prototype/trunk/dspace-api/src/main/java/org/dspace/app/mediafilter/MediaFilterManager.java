@@ -684,7 +684,7 @@ public class MediaFilterManager
             return false;
         }
         
-        InputStream destStream = formatFilter.getDestinationStream(BitstreamStorageManager.retrieve(c, source.getId()));
+        InputStream destStream = formatFilter.getDestinationStream(BitstreamStorageManager.retrieve(c, source));
         if (destStream == null)
         {
             System.out.println("SKIPPED: bitstream " + source.getID()

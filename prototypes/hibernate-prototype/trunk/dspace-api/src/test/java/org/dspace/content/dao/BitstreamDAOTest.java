@@ -44,11 +44,6 @@ public class BitstreamDAOTest extends TestCase
         Assert.assertNotNull("bitstreams null in testGetDeletedBitstreams", bitstreams);
         Assert.assertTrue("bitstream not deleted in testGetDeletedBitstreams",bitstreams.get(0).isDeleted());
     }
-    
-    @Test
-    public void testRetrieveInputStream() {
-        Bitstream bitstream = ApplicationService.get(context, Bitstream.class, 183);
-        InputStream is = bdao.retrieveInputStream(bitstream, context.getEntityManager());
-        Assert.assertNotNull(is);
-    }
+  
+
 }

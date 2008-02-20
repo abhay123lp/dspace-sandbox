@@ -18,32 +18,29 @@ public class ItemDAOHibernate extends ItemDAO {
 	
 	/* returns all in-archive, not-withdrawn items */
 	public List<Item> getItems(EntityManager em) {
-		Query q = em.createQuery("SELECT i FROM Item i WHERE i.inArchive = :inArchive AND i.withdrawn = :withdrawn");
-		q.setParameter("inArchive", true);
-		q.setParameter("withdrawn", false);
+	   	Query q = em.createQuery("SELECT OBJECT(i) " +
+	   			                 "FROM Item i " +
+	   			                 "WHERE i.withdrawn = false AND i.inArchive = true");	   	
 		List<Item> items = q.getResultList();
 		return items;
 	}
 	
 	public List<Item> getWithdrawnItems(Collection collection, EntityManager em) {
-        Query q = em.createQuery("SELECT i FROM Collection collection, IN collection.items AS i WHERE i.withdrawn = :withdrawn");
-        q.setParameter("withdrawn", true);
+        Query q = em.createQuery("SELECT i " +
+        		                 "FROM Collection collection, IN (collection.items) AS i " +
+        		                 "WHERE i.withdrawn = true AND collection = :collection");
+        q.setParameter("collection", collection);
         List<Item> items = q.getResultList();
         return items;	    
 	}
 	
 	public List<Item> getItemsByMetadataValue(MetadataValue value, EntityManager em) {
-        Query q = em.createQuery("SELECT i FROM Item i, IN i.metadata AS m WHERE m = :metadatavalue");
+        Query q = em.createQuery("SELECT i FROM Item i, IN (i.metadata) AS m WHERE m = :metadatavalue");
         q.setParameter("metadatavalue", value);
         List<Item> items = q.getResultList();
         return items;   	    
 	}
-	//non serve più? cancellare?
-//	public void removeFromCollections(EntityManager em, Item item) {
-//		String query = "DELETE i FROM Item i AS j WHERE j.item_id = " + item.getId();
-//		Query q = em.createQuery(query);
-//		q.executeUpdate();
-//	}
+
 
 	
 }

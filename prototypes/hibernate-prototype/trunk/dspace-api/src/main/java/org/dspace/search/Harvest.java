@@ -116,7 +116,7 @@ public class Harvest
         throws ParseException
     {
         //ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-      //FIXME cambiamento
+      
         List<Item> itemList = ApplicationService.findItemForHarvest(scope, startDate, endDate, offset,
                 limit, items, collections, withdrawn);
         

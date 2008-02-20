@@ -620,7 +620,8 @@ public class ArchiveManager
             }
             else if (line.hasOption('g')) 
             {
-                printGroups(groupDAO.getGroups(1));
+                //printGroups(groupDAO.getGroups(1));
+                printGroups(ApplicationService.findAllGroupsSortedByName(c));
             }
             else if (line.hasOption("m") && line.hasOption("i"))
             {

@@ -254,7 +254,7 @@ public abstract class AbstractMETSDisseminator
                                 ze.setSize(auth ? bitstream.getSize() : 0);
                                 zip.putNextEntry(ze);
                                 if (auth)
-                                Utils.copy(BitstreamStorageManager.retrieve(context, bitstream.getId()), zip);
+                                Utils.copy(BitstreamStorageManager.retrieve(context, bitstream), zip);
                                 else
                                     log.warn("Adding zero-length file for Bitstream, SID="+String.valueOf(bitstream.getSequenceID())+", not authorized for READ.");
                                 zip.closeEntry();

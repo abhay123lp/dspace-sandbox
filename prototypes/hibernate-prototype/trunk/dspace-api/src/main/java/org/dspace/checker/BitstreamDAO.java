@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 
+import org.dspace.content.Bitstream;
 import org.dspace.core.Context;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
 
@@ -76,7 +77,7 @@ public class BitstreamDAO
      * @see org.dspace.storage.bitstore.BitstreamStorageManager#retrieve(Context,
      *      int)
      */
-    public InputStream getBitstream(int id) throws IOException, SQLException
+    public InputStream getBitstream(Bitstream bitstream) throws IOException, SQLException
     {
 
         Context context = null;
@@ -84,7 +85,7 @@ public class BitstreamDAO
         try
         {
             context = new Context();
-            is = BitstreamStorageManager.retrieve(context, id);
+            is = BitstreamStorageManager.retrieve(context, bitstream);
         }
         finally
         {

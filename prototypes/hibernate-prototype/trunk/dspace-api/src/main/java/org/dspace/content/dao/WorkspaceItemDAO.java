@@ -56,6 +56,7 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.dao.CRUD;
+import org.dspace.eperson.AccountManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
@@ -286,7 +287,8 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
         for (Group group : groupDAO.getSupervisorGroups(wsi))
         {
-            groupDAO.unlink(group, wsi);
+            //groupDAO.unlink(group, wsi);
+            AccountManager.removeIPSFromGroup(group, wsi, context);
         }
 
         delete(id);

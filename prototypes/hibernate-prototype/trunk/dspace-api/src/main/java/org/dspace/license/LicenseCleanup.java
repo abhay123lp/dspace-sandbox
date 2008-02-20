@@ -236,7 +236,7 @@ public class LicenseCleanup
         try
         {
             //in = b.retrieve();
-            in = BitstreamStorageManager.retrieve(context, b.getId());
+            in = BitstreamStorageManager.retrieve(context, b);
             out = new ByteArrayOutputStream();
             while (true)
             {

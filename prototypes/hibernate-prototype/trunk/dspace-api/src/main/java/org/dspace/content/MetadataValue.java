@@ -248,25 +248,25 @@ public class MetadataValue
         return dao.getMetadataValues(fieldID);
     }
 */
-    @Deprecated
-    public void update(Context context) throws AuthorizeException
-    {
-        dao.update(this);
-    }
-
-    @Deprecated
-    public void delete(Context context) throws AuthorizeException
-    {
-        dao.delete(getID());
-    }
-
-    @Deprecated
-    public static MetadataValue find(Context context, int id)
-            throws AuthorizeException
-    {
-        MetadataValueDAO dao = MetadataValueDAOFactory.getInstance(context);
-        return dao.retrieve(id);
-    }
+//    @Deprecated
+//    public void update(Context context) throws AuthorizeException
+//    {
+//        dao.update(this);
+//    }
+//
+//    @Deprecated
+//    public void delete(Context context) throws AuthorizeException
+//    {
+//        dao.delete(getID());
+//    }
+//
+//    @Deprecated
+//    public static MetadataValue find(Context context, int id)
+//            throws AuthorizeException
+//    {
+//        MetadataValueDAO dao = MetadataValueDAOFactory.getInstance(context);
+//        return dao.retrieve(id);
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods

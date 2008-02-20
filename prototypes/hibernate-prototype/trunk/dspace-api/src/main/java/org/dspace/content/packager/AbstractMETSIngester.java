@@ -170,7 +170,7 @@ public abstract class AbstractMETSIngester
             if (mdbs == null)
                 throw new MetadataValidationException("Failed dereferencing bitstream for mdRef element="+mdref.toString());
             //return mdbs.retrieve();
-            return BitstreamStorageManager.retrieve(context, mdbs.getId());
+            return BitstreamStorageManager.retrieve(context, mdbs);
         }
     }
 
@@ -246,7 +246,7 @@ public abstract class AbstractMETSIngester
                              MANIFEST_BITSTREAM_FORMAT+" package manifest");
                         bs.setFormat(manifestFormat);
 
-                        manifest = METSManifest.create(ApplicationService.retrieveInputStream(bs, context), validate);
+                        manifest = METSManifest.create(BitstreamStorageManager.retrieve(context,bs), validate);
                     }
                     else
                     {

@@ -42,6 +42,9 @@ import java.sql.SQLException;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.dspace.content.Bitstream;
+import org.dspace.core.ApplicationService;
+import org.dspace.core.Context;
 import org.dspace.core.Utils;
 
 /**
@@ -142,15 +145,26 @@ public final class CheckerCommand
         while (id != BitstreamDispatcher.SENTINEL)
         {
             LOG.debug("Processing bitstream id = " + id);
-            BitstreamInfo info = checkBitstream(id);
-
-            if (reportVerbose
-                    || (info.getChecksumCheckResult() != ChecksumCheckResults.CHECKSUM_MATCH))
+            Context context;
+            BitstreamInfo info;
+            // FIXME creato il context per farmi tornare le cose...
+            try
             {
-                collector.collect(info);
-            }
+                context = new Context();
+                info = checkBitstream(id, context);
 
-            id = dispatcher.next();
+                if (reportVerbose
+                        || (info.getChecksumCheckResult() != ChecksumCheckResults.CHECKSUM_MATCH))
+                {
+                    collector.collect(info);
+                }
+
+                id = dispatcher.next();
+            }
+            catch (SQLException e)
+            {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -162,7 +176,7 @@ public final class CheckerCommand
      * 
      * @return the information about the bitstream and its checksum data
      */
-    private BitstreamInfo checkBitstream(final int id)
+    private BitstreamInfo checkBitstream(final int id, Context context)
     {
         // get bitstream info from bitstream table
         BitstreamInfo info = bitstreamInfoDAO.findByBitstreamId(id);
@@ -193,7 +207,7 @@ public final class CheckerCommand
         }
         else
         {
-            processBitstream(info);
+            processBitstream(info, context);
         }
 
         return info;
@@ -314,7 +328,7 @@ public final class CheckerCommand
      * @param info
      *            BitstreamInfo to handle
      */
-    private void processBitstream(BitstreamInfo info)
+    private void processBitstream(BitstreamInfo info, Context context)
     {
         info.setProcessStartDate(new Date());
 
@@ -325,8 +339,8 @@ public final class CheckerCommand
 
         try
         {
-            InputStream bitstream = bitstreamDAO.getBitstream(info
-                    .getBitstreamId());
+            Bitstream b = ApplicationService.get(context, Bitstream.class, info.getBitstreamId());
+            InputStream bitstream = bitstreamDAO.getBitstream(b);
 
             info.setBitstreamFound(true);
 

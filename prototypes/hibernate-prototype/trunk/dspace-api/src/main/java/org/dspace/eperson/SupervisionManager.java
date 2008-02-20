@@ -47,6 +47,7 @@ import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.dao.GroupDAO;
@@ -86,7 +87,8 @@ public abstract class SupervisionManager
         GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
         WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
 
-        Group group = groupDAO.retrieve(groupID);
+        //Group group = groupDAO.retrieve(groupID);
+        Group group = ApplicationService.get(context, Group.class, groupID);
         WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
 
         if (group == null || wsi == null)
@@ -94,7 +96,8 @@ public abstract class SupervisionManager
             return false;
         }
 
-        return groupDAO.linked(group, wsi);
+        //return groupDAO.linked(group, wsi);
+        return AccountManager.isIPSLinkedToGroup(group, wsi, context);
     }
 
     /**
@@ -115,14 +118,16 @@ public abstract class SupervisionManager
 
         // get the workspace item and the group from the request values
         WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
-        Group group = groupDAO.retrieve(groupID);
+        //Group group = groupDAO.retrieve(groupID);
+        Group group = ApplicationService.get(context, Group.class, groupID);
 
         if (group == null || wsi == null)
         {
             return;
         }
 
-        groupDAO.unlink(group, wsi);
+        //groupDAO.unlink(group, wsi);
+        AccountManager.removeIPSFromGroup(group, wsi, context);
 
         // get the item and have it remove the policies for the group
         Item item = wsi.getItem();
@@ -158,14 +163,16 @@ public abstract class SupervisionManager
 
         // get the workspace item and the group from the request values
         WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
-        Group group = groupDAO.retrieve(groupID);
+        //Group group = groupDAO.retrieve(groupID);
+        Group group = ApplicationService.get(context, Group.class, groupID);
 
         if (group == null || wsi == null)
         {
             return;
         }
 
-        groupDAO.link(group, wsi);
+        //groupDAO.link(group, wsi);
+        AccountManager.addIPSToGroup(group, wsi, context);
 
         // If a default policy type has been requested, apply the policies using
         // the DSpace API for doing so

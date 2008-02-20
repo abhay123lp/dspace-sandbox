@@ -186,12 +186,6 @@ public class ApplicationService {
         List<BitstreamFormat> bfs = bdao.getBitstreamFormatByInternal(internal, context.getEntityManager());
         return bfs;
     }
-    // TODO implementare la query
-    public static InputStream retrieveInputStream(Bitstream bitstream, Context context) {
-        BitstreamDAO bdao = BitstreamDAOFactory.getInstance(context);
-        InputStream is = bdao.retrieveInputStream(bitstream, context.getEntityManager());
-        return is;
-    }
     
     // TODO implementare
     public static EPerson findEPersonByEmail(Context context, String email) {
@@ -216,6 +210,31 @@ public class ApplicationService {
     
     // TODO implemetare
     public static Group findGroupByName(Context context, String name) {
+        return null;
+    }
+    
+    //TODO implementare
+    public static List<Group> findAllGroups(Context context) {
+        return null;
+    }
+    
+    
+    //TODO implementare
+    public static List<Group> findAllGroupsSortedById(Context context) {
+        return null;
+    }
+    
+    //TODO implementare
+    public static List<Group> findAllGroupsSortedByName(Context context) {
+        return null;
+    }
+    
+    //TODO implementare
+    /**
+     * Returns all groups the eperson belongs to, and 
+     * all parent groups for groups eperson is a member of
+     */  
+    public static List<Group> findAllGroups(EPerson eperson) {
         return null;
     }
     

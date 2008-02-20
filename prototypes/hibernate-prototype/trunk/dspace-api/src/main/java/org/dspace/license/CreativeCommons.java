@@ -402,7 +402,7 @@ public class CreativeCommons
 
         // create a ByteArrayOutputStream
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Utils.copy(BitstreamStorageManager.retrieve(context, bs.getId()), baos);
+        Utils.copy(BitstreamStorageManager.retrieve(context, bs), baos);
 
         return baos.toByteArray();
     }

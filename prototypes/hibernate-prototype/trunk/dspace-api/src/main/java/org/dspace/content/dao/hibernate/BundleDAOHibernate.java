@@ -19,7 +19,6 @@ public class BundleDAOHibernate extends BundleDAO{
 		Query q = em.createQuery("SELECT OBJECT(b) FROM Bundle b WHERE b.name = :name AND b.item = :item");
 		q.setParameter("name", name);
 		q.setParameter("item", item);
-		/* FIXME why can't i declare a singleresult?*/
 		List<Bundle> bundles = q.getResultList();
 		Bundle bundle = bundles.get(0); 		
 		return bundle;		

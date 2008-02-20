@@ -47,6 +47,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -573,7 +574,8 @@ public class AuthorizeManager
     public static void removeGroupPolicies(Context context, int groupID)
     {
         ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(context);
-        Group group = GroupDAOFactory.getInstance(context).retrieve(groupID);
+        //Group group = GroupDAOFactory.getInstance(context).retrieve(groupID);
+        Group group = ApplicationService.get(context, Group.class, groupID);
 
         if (group == null)
         {
