@@ -176,7 +176,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         update(wsi);
 
         log.info(LogManager.getHeader(context, "create_workspace_item",
-                "workspace_item_id=" + wsi.getID() +
+                "workspace_item_id=" + wsi.getId() +
                 "item_id=" + item.getId() +
                 "collection_id=" + collection.getId()));
 
@@ -213,7 +213,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
     {
         // Authorisation is checked by the item update
         log.info(LogManager.getHeader(context, "update_workspace_item",
-                "workspace_item_id=" + wsi.getID()));
+                "workspace_item_id=" + wsi.getId()));
 
         //itemDAO.update(wsi.getItem());
         //no need
@@ -279,7 +279,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
         }
 
         log.info(LogManager.getHeader(context, "delete_workspace_item",
-                "workspace_item_id=" + wsi.getID() +
+                "workspace_item_id=" + wsi.getId() +
                 "item_id=" + item.getId() +
                 "collection_id=" + collectionID));
 

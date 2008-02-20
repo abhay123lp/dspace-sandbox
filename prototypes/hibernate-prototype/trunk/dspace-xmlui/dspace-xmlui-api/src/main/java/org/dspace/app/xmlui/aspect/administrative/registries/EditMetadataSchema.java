@@ -195,7 +195,7 @@ public class EditMetadataSchema extends AbstractDSpaceTransformer
 		
 		for (MetadataField field : fields)
 		{
-			String id = String.valueOf(field.getID());
+			String id = String.valueOf(field.getId());
 			String fieldElement = field.getElement();
 			String fieldQualifier = field.getQualifier();
 			
@@ -204,7 +204,7 @@ public class EditMetadataSchema extends AbstractDSpaceTransformer
 				fieldName += "."+fieldQualifier;
 				
 			boolean highlight = false;
-			if (field.getID() == highlightID)
+			if (field.getId() == highlightID)
 				highlight = true;
 			
 			String fieldScopeNote = field.getScopeNote();
@@ -319,7 +319,7 @@ public class EditMetadataSchema extends AbstractDSpaceTransformer
 		
 		
 		Division newField = div.addDivision("edit-schema-update-field");
-		newField.setHead(T_head4.parameterize(field.getID()));
+		newField.setHead(T_head4.parameterize(field.getId()));
 		
 		List form = newField.addList("edit-schema-update-field-form",List.TYPE_FORM);
 		

@@ -161,7 +161,7 @@ class DAVWorkspace extends DAVResource
             {
                 result[i] = new DAVWorkspaceItem(this.context, this.request, this.response,
                         makeChildPath(DAVWorkspaceItem
-                                .getPathElt(wi[i].getID())), wi[i]);
+                                .getPathElt(wi[i].getId())), wi[i]);
             }
             return result;
         }

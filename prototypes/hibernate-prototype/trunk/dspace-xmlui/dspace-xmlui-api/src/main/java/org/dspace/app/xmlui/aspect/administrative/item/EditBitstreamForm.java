@@ -165,13 +165,13 @@ public class EditBitstreamForm extends AbstractDSpaceTransformer
 			else if (bitstreamFormat.getSupportLevel() == BitstreamFormat.SUPPORTED)
 				supportLevel = "Supported";
 			String name = bitstreamFormat.getShortDescription()+" ("+supportLevel+")";
-			int id = bitstreamFormat.getID();
+			int id = bitstreamFormat.getId();
 
 			format.addOption(id,name);
 		}
 		if (currentFormat != null)
 		{
-			format.setOptionSelected(currentFormat.getID());
+			format.setOptionSelected(currentFormat.getId());
 		}
 		else
 		{

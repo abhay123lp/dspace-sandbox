@@ -438,7 +438,7 @@ public class EditItemServlet extends DSpaceServlet
             {
                 String displayName = schemaName + "." + field.getElement()
                         + (field.getQualifier() == null ? "" : "." + field.getQualifier());
-                metadataFields.put(field.getID(), displayName);
+                metadataFields.put(field.getId(), displayName);
             }
         }
 

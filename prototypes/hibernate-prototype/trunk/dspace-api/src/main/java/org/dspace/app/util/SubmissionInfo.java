@@ -280,11 +280,11 @@ public class SubmissionInfo
 
         if (isInWorkflow())
         {
-            info = info + "workflow_id=" + getSubmissionItem().getID();
+            info = info + "workflow_id=" + getSubmissionItem().getId();
         }
         else
         {
-            info = info + "workspace_item_id" + getSubmissionItem().getID();
+            info = info + "workspace_item_id" + getSubmissionItem().getId();
         }
 
         if (getBundle() != null)

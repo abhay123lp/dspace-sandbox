@@ -87,7 +87,7 @@ public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
         wfi.setMultipleTitles(wsi.hasMultipleTitles());
         wfi.setPublishedBefore(wsi.isPublishedBefore());
         
-        wsiDAO.delete(wsi.getID());
+        wsiDAO.delete(wsi.getId());
         
         update(wfi);
 
@@ -113,7 +113,7 @@ public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
         //ItemDAOFactory.getInstance(context).update(wfi.getItem());
 
         log.info(LogManager.getHeader(context, "update_workflow_item",
-                "workflow_item_id=" + wfi.getID()));
+                "workflow_item_id=" + wfi.getId()));
     }
 
     /**

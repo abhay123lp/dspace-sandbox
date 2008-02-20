@@ -91,18 +91,18 @@ public class SupervisedItem extends WorkspaceItem
         return items.toArray(new SupervisedItem[0]);
     }
     
-    @Deprecated
-    public Group[] getSupervisorGroups(Context context, int id)
-    {
-        WorkspaceItem wsi = wsiDAO.retrieve(id);
-        List<Group> groups = groupDAO.getSupervisorGroups(wsi);
-
-        return groups.toArray(new Group[0]);
-    }
+//    @Deprecated
+//    public Group[] getSupervisorGroups(Context context, int id)
+//    {
+//        WorkspaceItem wsi = wsiDAO.retrieve(id);
+//        List<Group> groups = groupDAO.getSupervisorGroups(wsi);
+//
+//        return groups.toArray(new Group[0]);
+//    }
     
-    @Deprecated
-    public Group[] getSupervisorGroups()
-    {
-        return getSupervisorGroups(context, getID());
-    }
+//    @Deprecated
+//    public Group[] getSupervisorGroups()
+//    {
+//        return getSupervisorGroups(context, getID());
+//    }
 }

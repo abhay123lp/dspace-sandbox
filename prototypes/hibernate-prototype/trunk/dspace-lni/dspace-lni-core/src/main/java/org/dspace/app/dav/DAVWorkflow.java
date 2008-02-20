@@ -199,7 +199,7 @@ class DAVWorkflow extends DAVResource
                     WorkflowItem wfi = (WorkflowItem) wii.next();
                     result[i++] = new DAVWorkflowItem(this.context, this.request,
                             this.response, makeChildPath(DAVWorkflowItem
-                                    .getPathElt(wfi.getID())), wfi);
+                                    .getPathElt(wfi.getId())), wfi);
                 }
                 return result;
             }

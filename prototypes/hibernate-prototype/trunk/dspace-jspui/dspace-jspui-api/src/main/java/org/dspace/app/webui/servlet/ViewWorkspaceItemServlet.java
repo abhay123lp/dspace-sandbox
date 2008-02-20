@@ -140,7 +140,7 @@ public class ViewWorkspaceItemServlet
         request.setAttribute("display.all", new Boolean(displayAll));
         request.setAttribute("item", item);
         request.setAttribute("collections", collections);
-        request.setAttribute("workspace_id", new Integer(wsItem.getID()));
+        request.setAttribute("workspace_id", new Integer(wsItem.getId()));
         
         JSPManager.showJSP(request, response, "/display-item.jsp");
     }

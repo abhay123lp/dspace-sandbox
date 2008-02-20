@@ -213,7 +213,7 @@ class DAVWorkspaceItem extends DAVInProgressSubmission
         // displayname - title or handle.
         if (elementsEqualIsh(property, displaynameProperty))
         {
-            value = getPathElt(this.inProgressItem.getID());
+            value = getPathElt(this.inProgressItem.getId());
         }
         else if (elementsEqualIsh(property, stage_reachedProperty))
         {

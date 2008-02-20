@@ -25,10 +25,12 @@
 		<class>org.dspace.content.MetadataValue</class>
 		<class>org.dspace.content.MetadataField</class>
 		<class>org.dspace.content.MetadataSchema</class>
+		<class>org.dspace.content.WorkspaceItem</class>
 		<class>org.dspace.eperson.EPerson</class>
 		<class>org.dspace.eperson.EPersonMetadata</class>
 		<class>org.dspace.eperson.Group</class>
 		<class>org.dspace.browse.ItemCounter</class>
+		<class>org.dspace.workflow.WorkflowItem</class>
 
 		<!--class>org.dspace.browse.CollectionItemCount</class>
 		<class>org.dspace.browse.CommunityItemCount</class-->
@@ -42,7 +44,7 @@
             <property name="toplink.ddl-generation.output-mode" value="both"/>
                         
             <!--property name="toplink.ddl-generation" value="create-tables"/-->
-            <!--property name="toplink.ddl-generation" value="drop-and-create-tables"/--> 
+            <property name="toplink.ddl-generation" value="drop-and-create-tables"/> 
             
             
         </properties>   

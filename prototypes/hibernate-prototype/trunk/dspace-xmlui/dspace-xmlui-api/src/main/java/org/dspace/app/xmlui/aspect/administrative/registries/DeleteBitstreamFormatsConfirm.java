@@ -127,7 +127,7 @@ public class DeleteBitstreamFormatsConfirm extends AbstractDSpaceTransformer
     		if (format == null)
     			continue;
     		
-    		String formatID = String.valueOf(format.getID());
+    		String formatID = String.valueOf(format.getId());
     		String mimetype = format.getMIMEType();
     		String name = format.getShortDescription();
 

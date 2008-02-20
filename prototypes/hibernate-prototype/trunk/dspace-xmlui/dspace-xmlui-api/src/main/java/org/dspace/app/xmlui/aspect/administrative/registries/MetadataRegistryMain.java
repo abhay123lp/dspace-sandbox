@@ -146,7 +146,7 @@ public class MetadataRegistryMain extends AbstractDSpaceTransformer
 		
 		for (MetadataSchema schema : schemas)
 		{
-			int schemaID     = schema.getID();
+			int schemaID     = schema.getId();
 			String namespace = schema.getNamespace();
 			String name      = schema.getName();
 			String url = contextPath + "/admin/metadata-registry?administrative-continue="+knot.getId()+"&submit_edit&schemaID="+schemaID;

@@ -144,7 +144,7 @@ class DAVWorkflowItem extends DAVInProgressSubmission
      */
     protected static String getPathElt(WorkflowItem wfi)
     {
-        return getPathElt(wfi.getID());
+        return getPathElt(wfi.getId());
     }
 
     /**
@@ -233,7 +233,7 @@ class DAVWorkflowItem extends DAVInProgressSubmission
         // displayname - title or handle.
         if (elementsEqualIsh(property, displaynameProperty))
         {
-            value = getPathElt(this.inProgressItem.getID());
+            value = getPathElt(this.inProgressItem.getId());
         }
         else if (elementsEqualIsh(property, ownerProperty))
         {

@@ -175,7 +175,7 @@ public class FlowUtils {
 
         //if no submission info, or wrong submission info, reload it!
         if ((subInfo == null && submission!=null) || 
-            (subInfo!=null && submission!=null && subInfo.getSubmissionItem().getID()!=submission.getID()))
+            (subInfo!=null && submission!=null && subInfo.getSubmissionItem().getId()!=submission.getId()))
         {
             try
             {
@@ -399,7 +399,7 @@ public class FlowUtils {
         
         //Log this unclaim action
         log.info(LogManager.getHeader(context, "unclaim_workflow",
-                "workflow_item_id=" + workflowItem.getID() + ",item_id="
+                "workflow_item_id=" + workflowItem.getId() + ",item_id="
                         + workflowItem.getItem().getID() + ",collection_id="
                         + workflowItem.getCollection().getID() 
                         + ",new_state=" + workflowItem.getState()));
@@ -423,7 +423,7 @@ public class FlowUtils {
        
        //log this claim information
        log.info(LogManager.getHeader(context, "claim_task", "workflow_item_id="
-                   + workflowItem.getID() + "item_id=" + workflowItem.getItem().getID()
+                   + workflowItem.getId() + "item_id=" + workflowItem.getItem().getID()
                    + "collection_id=" + workflowItem.getCollection().getID()
                    + "newowner_id=" + workflowItem.getOwner().getID() 
                    + "new_state=" + workflowItem.getState()));
@@ -465,7 +465,7 @@ public class FlowUtils {
             
             //Submission rejected.  Log this information
             log.info(LogManager.getHeader(context, "reject_workflow", "workflow_item_id="
-                    + wsi.getID() + "item_id=" + wsi.getItem().getID()
+                    + wsi.getId() + "item_id=" + wsi.getItem().getID()
                     + "collection_id=" + wsi.getCollection().getID() 
                     + "eperson_id=" + context.getCurrentUser().getID()));
 			

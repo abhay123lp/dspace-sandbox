@@ -508,7 +508,7 @@ public class FlowItemUtils
 		// Update the bitstream's format
 		if (formatID > 0)
 		{
-			if (currentFormat == null || currentFormat.getID() != formatID)
+			if (currentFormat == null || currentFormat.getId() != formatID)
 			{
 				BitstreamFormat newFormat = BitstreamFormat.find(context, formatID);
 				if (newFormat != null)

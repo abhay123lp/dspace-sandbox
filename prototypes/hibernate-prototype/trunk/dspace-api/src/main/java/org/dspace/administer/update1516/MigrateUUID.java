@@ -126,7 +126,7 @@ public class MigrateUUID
             //communityDAO.update(com);
         }
 
-        // FIXME: we still need to do uuid generation for the following
+        // 
         
         // ResourcePolicy
 

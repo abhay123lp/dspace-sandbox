@@ -42,21 +42,19 @@ package org.dspace.eperson;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
-import org.dspace.authorize.AuthorizeException;
+import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.eperson.dao.GroupDAO;
-import org.dspace.eperson.dao.GroupDAOFactory;
-import org.dspace.event.Event;
-
-import org.apache.log4j.Logger;
 
 /**
  * Class representing a group of e-people.
@@ -177,16 +175,14 @@ public class Group extends DSpaceObject
     {
         return groups.contains(g);
     }
-//    @OneToMany(mappedBy="parentGroups", cascade={CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-//    @JoinTable(name="epersongroup2epersongroup")
-    @Transient
+    @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinTable(name="group2group")
     public List<Group> getGroups()
     {
         return groups;
     }
     
-    //@ManyToOne
-    @Transient
+    @ManyToMany(mappedBy="groups")    
 	public List<Group> getParentGroups() {
 		return parentGroups;
 	}

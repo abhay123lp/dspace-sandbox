@@ -405,7 +405,7 @@ public class METSExport
 
             // MetsHdr
             MetsHdr metsHdr = new MetsHdr();
-            metsHdr.setCREATEDATE(new Date()); // FIXME: CREATEDATE is now:
+            metsHdr.setCREATEDATE(new Date()); // CREATEDATE is now:
                                                // maybe should be item create
                                                // date?
 

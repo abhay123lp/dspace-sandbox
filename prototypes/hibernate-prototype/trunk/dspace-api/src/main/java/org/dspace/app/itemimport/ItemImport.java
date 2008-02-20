@@ -1,9 +1,9 @@
 /*
  * ItemImport.java
  *
- * Version: $Revision: 2476 $
+ * Version: $Revision$
  *
- * Date: $Date: 2008-01-04 15:33:05 +0100 (ven, 04 gen 2008) $
+ * Date: $Date$
  *
  * Copyright (c) 2002-2005, Hewlett-Packard Company and Massachusetts
  * Institute of Technology.  All rights reserved.
@@ -38,6 +38,29 @@
  * DAMAGE.
  */
 package org.dspace.app.itemimport;
+
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
+import java.util.Vector;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -80,7 +103,7 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
 import org.dspace.uri.ExternalIdentifier;
-import org.dspace.uri.ExternalIdentifierMint;
+import org.dspace.uri.ExternalIdentifierService;
 import org.dspace.uri.ObjectIdentifier;
 import org.dspace.uri.dao.ExternalIdentifierDAO;
 import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
@@ -90,28 +113,6 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import java.io.BufferedInputStream;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
-import java.util.Vector;
 
 /**
  * Import items into DSpace. The conventional use is upload files by copying
@@ -363,8 +364,8 @@ public class ItemImport
         Context c = new Context();
         context =c ;
 
-        //collectionDAO = CollectionDAOFactory.getInstance(c);
-        //itemDAO = ItemDAOFactory.getInstance(c);        
+        collectionDAO = CollectionDAOFactory.getInstance(c);
+        itemDAO = ItemDAOFactory.getInstance(c);
         identifierDAO = ExternalIdentifierDAOFactory.getInstance(c);
 
         // find the EPerson, assign to context
@@ -647,7 +648,7 @@ public class ItemImport
             {
                 // it's an ID
                 //Item myitem = itemDAO.retrieve(Integer.parseInt(itemID));
-                Item myitem = ApplicationService.get(context, Item.class, Integer.parseInt(itemID));
+                Item myitem = ApplicationService.get(c, Item.class, Integer.parseInt(itemID));
                 System.out.println("Deleting item " + itemID);
                 deleteItem(c, myitem);
             }
@@ -772,7 +773,7 @@ public class ItemImport
             // Remove item from all the collections it's in
             for (Collection collection : collections)
             {
-                //collection.removeItem(myitem);
+                //collections[i].removeItem(myitem);
                 ArchiveManager.removeItem(collection, myitem, context);
             }
         }
@@ -942,27 +943,28 @@ public class ItemImport
 
         if (!isTest)
         {
+            //i.addMetadata(schema, element, qualifier, language, value);
             MetadataField field = ApplicationService.getMetadataField(element, qualifier, schema, context);
             i.addMetadata(field, language, value);
         }
         else
         {
             // If we're just test the import, let's check that the actual metadata field exists.
-        	MetadataSchema foundSchema = MetadataSchema.find(c,schema);
+            MetadataSchema foundSchema = MetadataSchema.find(c,schema);
 
-        	if (foundSchema == null)
-        	{
-        		System.out.println("ERROR: schema '"+schema+"' was not found in the registry.");
-        		return;
-        	}
+            if (foundSchema == null)
+            {
+                System.out.println("ERROR: schema '"+schema+"' was not found in the registry.");
+                return;
+            }
 
-        	int schemaID = foundSchema.getId();
-        	MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
+            int schemaID = foundSchema.getId();
+            MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
 
-        	if (foundField == null)
-        	{
-        		System.out.println("ERROR: Metadata field: '"+schema+"."+element+"."+qualifier+"' was not found in the registry.");
-        		return;
+            if (foundField == null)
+            {
+                System.out.println("ERROR: Metadata field: '"+schema+"."+element+"."+qualifier+"' was not found in the registry.");
+                return;
             }
         }
     }
@@ -1040,23 +1042,23 @@ public class ItemImport
                     continue;
                 }
 
-            	//	1) registered into dspace (leading -r)
-            	//  2) imported conventionally into dspace (no -r)
-            	if (line.trim().startsWith("-r "))
-            	{
-            	    // line should be one of these two:
-            	    // -r -s n -f filepath
-            	    // -r -s n -f filepath\tbundle:bundlename
-            	    // where
-            	    //		n is the assetstore number
-            	    //  	filepath is the path of the file to be registered
-            	    //  	bundlename is an optional bundle name
-            	    String sRegistrationLine = line.trim();
-            	    int iAssetstore = -1;
-            	    String sFilePath = null;
-            	    String sBundle = null;
+                //  1) registered into dspace (leading -r)
+                //  2) imported conventionally into dspace (no -r)
+                if (line.trim().startsWith("-r "))
+                {
+                    // line should be one of these two:
+                    // -r -s n -f filepath
+                    // -r -s n -f filepath\tbundle:bundlename
+                    // where
+                    //      n is the assetstore number
+                    //      filepath is the path of the file to be registered
+                    //      bundlename is an optional bundle name
+                    String sRegistrationLine = line.trim();
+                    int iAssetstore = -1;
+                    String sFilePath = null;
+                    String sBundle = null;
                     StringTokenizer tokenizer =
-                        	new StringTokenizer(sRegistrationLine);
+                            new StringTokenizer(sRegistrationLine);
                     while (tokenizer.hasMoreTokens())
                     {
                         String sToken = tokenizer.nextToken();
@@ -1101,8 +1103,8 @@ public class ItemImport
                     System.out.println("\tRegistering Bitstream: " + sFilePath
                             + "\tAssetstore: " + iAssetstore
                             + "\tBundle: " + sBundle);
-                    continue;				// process next line in contents file
-            	}
+                    continue;               // process next line in contents file
+                }
 
                 int bitstreamEndIndex = line.indexOf("\t");
 
@@ -1270,7 +1272,6 @@ public class ItemImport
             // now add the bitstream
             //bs = targetBundle.createBitstream(bis);
             bs = ItemManager.createBitstream(targetBundle, bis, context);
-
             bs.setName(fileName);
 
             // Identify the format
@@ -1320,36 +1321,35 @@ public class ItemImport
 
         if(!isTest)
         {
-        	// find the bundle
-	        List<Bundle> bundles = i.getBundles(newBundleName);
-	        Bundle targetBundle = null;
-	            
-	        if( bundles.size() < 1 )
-	        {
-	            // not found, create a new one
-	            //targetBundle = i.createBundle(newBundleName);
-	            targetBundle = ItemManager.createBundle(i, newBundleName, context);
-	        }
-	        else
-	        {
-	            // put bitstreams into first bundle
-	            targetBundle = bundles.get(0);
-	        }
-	
-	        // now add the bitstream
-	        bs = targetBundle.registerBitstream(assetstore, bitstreamPath);
-	        
-	        	
-	        // set the name to just the filename
-	        int iLastSlash = bitstreamPath.lastIndexOf('/');
-	        bs.setName(bitstreamPath.substring(iLastSlash + 1));
-	
-	        // Identify the format
-	        // FIXME - guessing format guesses license.txt incorrectly as a text file format!
-	        BitstreamFormat bf = FormatIdentifier.guessFormat(c, bs);
-	        bs.setFormat(bf);
-	
-	        //bs.update();
+            // find the bundle
+            List<Bundle> bundles = i.getBundles(newBundleName);
+            Bundle targetBundle = null;
+                
+            if( bundles.size() < 1 )
+            {
+                // not found, create a new one
+                //targetBundle = i.createBundle(newBundleName);
+                targetBundle = ItemManager.createBundle(i, newBundleName, context);
+            }
+            else
+            {
+                // put bitstreams into first bundle
+                targetBundle = bundles.get(0);
+            }
+    
+            // now add the bitstream
+            bs = targetBundle.registerBitstream(assetstore, bitstreamPath);
+    
+            // set the name to just the filename
+            int iLastSlash = bitstreamPath.lastIndexOf('/');
+            bs.setName(bitstreamPath.substring(iLastSlash + 1));
+    
+            // Identify the format
+            // FIXME - guessing format guesses license.txt incorrectly as a text file format!
+            BitstreamFormat bf = FormatIdentifier.guessFormat(c, bs);
+            bs.setFormat(bf);
+    
+            //bs.update();
         }
     }
 
@@ -1660,7 +1660,7 @@ public class ItemImport
         // ExternalIdentifier[] eidPlugins = (ExternalIdentifier[]) PluginManager.getPluginSequence(ExternalIdentifier.class);
         while ((line = br.readLine()) != null)
         {
-            ExternalIdentifier eid = ExternalIdentifierMint.parseCanonicalForm(context, line);
+            ExternalIdentifier eid = ExternalIdentifierService.parseCanonicalForm(context, line);
             if (eid != null)
             {
                 eids.add(eid);

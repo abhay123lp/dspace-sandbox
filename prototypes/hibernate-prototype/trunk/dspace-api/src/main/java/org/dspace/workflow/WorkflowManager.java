@@ -184,7 +184,7 @@ public class WorkflowManager
         Item item = wfi.getItem();
 
         log.info(LogManager.getHeader(c, "start_workflow",
-            "workspace_item_id=" + wsi.getID() +
+            "workspace_item_id=" + wsi.getId() +
             "item_id=" + item.getID() +
             "collection_id=" + wfi.getCollection().getID()));
 
@@ -289,7 +289,7 @@ public class WorkflowManager
         }
 
         log.info(LogManager.getHeader(c, "claim_task", "workflow_item_id="
-                + wi.getID() + "item_id=" + wi.getItem().getID()
+                + wi.getId() + "item_id=" + wi.getItem().getID()
                 + "collection_id=" + wi.getCollection().getID()
                 + "newowner_id=" + wi.getOwner().getID() + "old_state="
                 + taskstate + "new_state=" + wi.getState()));
@@ -347,7 +347,7 @@ public class WorkflowManager
         }
 
         log.info(LogManager.getHeader(c, "advance_workflow",
-                "workflow_item_id=" + wi.getID() + ",item_id="
+                "workflow_item_id=" + wi.getId() + ",item_id="
                         + wi.getItem().getID() + ",collection_id="
                         + wi.getCollection().getID() + ",old_state="
                         + taskstate + ",new_state=" + wi.getState()));
@@ -396,7 +396,7 @@ public class WorkflowManager
         }
 
         log.info(LogManager.getHeader(c, "unclaim_workflow",
-                "workflow_item_id=" + wi.getID() + ",item_id="
+                "workflow_item_id=" + wi.getId() + ",item_id="
                         + wi.getItem().getID() + ",collection_id="
                         + wi.getCollection().getID() + ",old_state="
                         + taskstate + ",new_state=" + wi.getState()));
@@ -428,7 +428,7 @@ public class WorkflowManager
         deleteTasks(c, wi);
 
         log.info(LogManager.getHeader(c, "abort_workflow", "workflow_item_id="
-                + wi.getID() + "item_id=" + wi.getItem().getID()
+                + wi.getId() + "item_id=" + wi.getItem().getID()
                 + "collection_id=" + wi.getCollection().getID() + "eperson_id="
                 + e.getID()));
 
@@ -615,7 +615,7 @@ public class WorkflowManager
         Collection collection = wfi.getCollection();
 
         log.info(LogManager.getHeader(c, "archive_item", "workflow_item_id="
-                + wfi.getID() + "item_id=" + item.getID() + "collection_id="
+                + wfi.getId() + "item_id=" + item.getID() + "collection_id="
                 + collection.getID()));
 
         item = InstallItem.installItem(c, wfi);
@@ -623,7 +623,7 @@ public class WorkflowManager
 
         // Log the event
         log.info(LogManager.getHeader(c, "install_item", "workflow_id="
-                + wfi.getID() + ", item_id=" + item.getID() + "uri=" + uri));
+                + wfi.getId() + ", item_id=" + item.getID() + "uri=" + uri));
 
         return item;
     }
@@ -713,10 +713,10 @@ public class WorkflowManager
 
         //myitem.update();
         log.info(LogManager.getHeader(c, "return_to_workspace",
-                "workflow_item_id=" + wfi.getID() +
-                "workspace_item_id=" + wsi.getID()));
+                "workflow_item_id=" + wfi.getId() +
+                "workspace_item_id=" + wsi.getId()));
 
-        wfiDAO.delete(wfi.getID());
+        wfiDAO.delete(wfi.getId());
 
         return wsi;
     }
@@ -769,7 +769,7 @@ public class WorkflowManager
         notifyOfReject(c, wi, e, rejection_message);
 
         log.info(LogManager.getHeader(c, "reject_workflow", "workflow_item_id="
-                + wi.getID() + "item_id=" + wi.getItem().getID()
+                + wi.getId() + "item_id=" + wi.getItem().getID()
                 + "collection_id=" + wi.getCollection().getID() + "eperson_id="
                 + e.getID()));
 
@@ -861,7 +861,7 @@ public class WorkflowManager
             {
                 log.warn(LogManager.getHeader(c, "notifyGroupofTask",
                         "cannot email user" + " group_id" + mygroup.getID()
-                                + " workflow_item_id" + wi.getID()));
+                                + " workflow_item_id" + wi.getId()));
             }
         }
     }
@@ -924,7 +924,7 @@ public class WorkflowManager
             log.warn(LogManager.getHeader(c, "notify_of_reject",
                     "cannot email user" + " eperson_id" + e.getID()
                             + " eperson_email" + e.getEmail()
-                            + " workflow_item_id" + wi.getID()));
+                            + " workflow_item_id" + wi.getId()));
         }
     }
 

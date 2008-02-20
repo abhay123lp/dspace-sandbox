@@ -83,6 +83,7 @@ import org.dspace.content.dao.CommunityDAOFactory; // Naughty!
 import org.dspace.content.dao.ItemDAO; // Naughty!
 import org.dspace.content.dao.ItemDAOFactory; // Naughty!
 //import org.dspace.content.uri.ExternalIdentifier;
+import org.dspace.eperson.AccountManager;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO; // Naughty!
 import org.dspace.eperson.dao.GroupDAOFactory; // Naughty!
@@ -168,32 +169,29 @@ public class Collection extends DSpaceObject {
 */
 	/* Creates an administrators group for this Collection */	
 	public Group createAdministrators() throws AuthorizeException {
-        // Check authorisation
+	 // Check authorisation
         AuthorizeManager.authorizeAction(context, this, Constants.WRITE);
 
         if (administrators == null)
         {
-        	//administrators = Group.create(ourContext);
-        	administrators = GroupFactory.getInstance(context);
-        	administrators.setName("COLLECTION_" + getId() + "_ADMIN");
-        	//administrators.update();
+            //administrators = groupDAO.create();
+            administrators = AccountManager.createGroup(context);
+            administrators.setName("COLLECTION_" + getID() + "_ADMIN");
+            //groupDAO.update(administrators);
         }
 
-        AuthorizeManager.addPolicy(context, this,
-                Constants.COLLECTION_ADMIN, administrators);
+        AuthorizeManager.addPolicy(context, this, Constants.COLLECTION_ADMIN,
+                administrators);
 
-        // register this as the admin group
-        //collectionRow.setColumn("admin", administrators.getId());
-        //FIXME si può eliminare?
-        
         // administrators also get ADD on the submitter group
         if (submitters != null)
         {
             AuthorizeManager.addPolicy(context, submitters, Constants.ADD,
-            		administrators);
+                    administrators);
         }
 
         modified = true;
+
         return administrators;
 	}
 
@@ -389,8 +387,8 @@ public class Collection extends DSpaceObject {
 
         if (workflowGroups.get(step-1) == null)
         {
-        	/* FIXME va bene così? */
-            Group g = GroupFactory.getInstance(context);
+        	
+            Group g = AccountManager.createGroup(context);
             //g = groupDAO.create();
             g.setName("COLLECTION_" + getId() + "_WORKFLOW_STEP_" + step);
             //groupDAO.update(g);

@@ -42,6 +42,15 @@ package org.dspace.content;
 import java.io.IOException;
 import java.util.List;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
@@ -52,6 +61,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.uri.ObjectIdentifier;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 
@@ -66,7 +76,8 @@ import org.dspace.eperson.EPerson;
  * @author Robert Tansley
  * @version $Revision: 2417 $
  */
-public class WorkspaceItem implements InProgressSubmission
+@Entity
+public class WorkspaceItem implements InProgressSubmission //FIXME interfaccia modificata, controllare
 {
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkspaceItem.class);
@@ -74,11 +85,11 @@ public class WorkspaceItem implements InProgressSubmission
     protected int id;
     protected Context context;
 
-    private WorkspaceItemDAO dao;
+    //private WorkspaceItemDAO dao;
 
     private ObjectIdentifier oid;
-    private boolean hasMultipleFiles;
-    private boolean hasMultipleTitles;
+    private boolean multipleFilesOwner; //hasMultipleFiles
+    private boolean multipleTitlesOwner; //hasMultipleTitles
     private boolean publishedBefore;
     private int stageReached;
     private int pageReached;
@@ -91,14 +102,20 @@ public class WorkspaceItem implements InProgressSubmission
         this.id = id;
         this.context = context;
 
-        dao = WorkspaceItemDAOFactory.getInstance(context);
+        //dao = WorkspaceItemDAOFactory.getInstance(context);
     }
     
-    public int getID()
+    protected WorkspaceItem() {}
+    
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="workspace_item_id")
+    public int getId()
     {
         return id;
     }
 
+    @Transient
     public ObjectIdentifier getIdentifier()
     {
         return oid;
@@ -109,6 +126,7 @@ public class WorkspaceItem implements InProgressSubmission
         this.oid = oid;
     }
 
+    @Column(name="stage_reached")
     public int getStageReached()
     {
         return stageReached;
@@ -118,7 +136,8 @@ public class WorkspaceItem implements InProgressSubmission
     {
         this.stageReached = stageReached;
     }
-
+    
+    @Column(name="page_reached")
     public int getPageReached()
     {
         return pageReached;
@@ -139,7 +158,8 @@ public class WorkspaceItem implements InProgressSubmission
     {
         this.item = item;
     }
-
+    
+    @ManyToOne    
     public Collection getCollection()
     {
         return collection;
@@ -149,7 +169,8 @@ public class WorkspaceItem implements InProgressSubmission
     {
         this.collection = collection;
     }
-
+    
+    @Transient
     public EPerson getSubmitter()
     {
         return item.getSubmitter();
@@ -157,24 +178,25 @@ public class WorkspaceItem implements InProgressSubmission
 
     public boolean hasMultipleFiles()
     {
-        return hasMultipleFiles;
+        return multipleFilesOwner;
     }
 
     public void setMultipleFiles(boolean hasMultipleFiles)
     {
-        this.hasMultipleFiles = hasMultipleFiles;
+        this.multipleFilesOwner = hasMultipleFiles;
     }
 
     public boolean hasMultipleTitles()
     {
-        return hasMultipleTitles;
+        return multipleTitlesOwner;
     }
 
     public void setMultipleTitles(boolean hasMultipleTitles)
     {
-        this.hasMultipleTitles = hasMultipleTitles;
+        this.multipleTitlesOwner = hasMultipleTitles;
     }
-
+    
+    @Column(name="published_before")
     public boolean isPublishedBefore()
     {
         return publishedBefore;
@@ -202,7 +224,7 @@ public class WorkspaceItem implements InProgressSubmission
 
     public boolean equals(WorkspaceItem wsi)
     {
-        return getID() == wsi.getID();
+        return getId() == wsi.getId();
     }
 
     public int hashCode()
@@ -211,65 +233,100 @@ public class WorkspaceItem implements InProgressSubmission
     }
 
     /** Deprecated by the introduction of DAOs */
+    /* FIXME dovrebbero essere eliminati..*/
     @Deprecated
     public static WorkspaceItem create(Context context, Collection collection,
             boolean template)
         throws AuthorizeException, IOException
     {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        return dao.create(collection, template);
+//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+//        return dao.create(collection, template);
+        return null;
     }
 
     @Deprecated
     public static WorkspaceItem find(Context context, int id)
     {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        return dao.retrieve(id);
+//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+//        return dao.retrieve(id);
+        return null;
     }
 
     @Deprecated
     public void update() throws AuthorizeException, IOException
     {
-        dao.update(this);
+        //dao.update(this);
     }
 
     @Deprecated
     public void deleteWrapper() throws AuthorizeException, IOException
     {
-        dao.delete(getID());
+        //dao.delete(getID());
+//        ApplicationService.delete(context, WorkspaceItem.class, this); //
     }
 
     @Deprecated
     public void deleteAll() throws AuthorizeException,
             IOException
     {
-        dao.deleteAll(getID());
+        //dao.deleteAll(getID());
+        
     }
 
     @Deprecated
     public static WorkspaceItem[] findAll(Context context)
     {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        List<WorkspaceItem> wsItems = dao.getWorkspaceItems();
-
-        return wsItems.toArray(new WorkspaceItem[0]);
+//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+//        List<WorkspaceItem> wsItems = dao.getWorkspaceItems();
+//
+//        return wsItems.toArray(new WorkspaceItem[0]);
+        return null;
     }
 
     @Deprecated
     public static WorkspaceItem[] findByEPerson(Context context, EPerson ep)
     {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(ep);
-
-        return wsItems.toArray(new WorkspaceItem[0]);
+//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+//        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(ep);
+//
+//        return wsItems.toArray(new WorkspaceItem[0]);
+        return null;
     }
 
     @Deprecated
     public static WorkspaceItem[] findByCollection(Context context, Collection c)
     {
-        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(c);
+//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+//        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(c);
+//
+//        return wsItems.toArray(new WorkspaceItem[0]);
+        return null;
+    }
 
-        return wsItems.toArray(new WorkspaceItem[0]);
+    @Column(name="multiple_files")
+    public boolean isMultipleFilesOwner()
+    {
+        return multipleFilesOwner;
+    }
+
+    public void setMultipleFilesOwner(boolean multipleFilesOwner)
+    {
+        this.multipleFilesOwner = multipleFilesOwner;
+    }
+    
+    @Column(name="multiple_titles")
+    public boolean isMultipleTitlesOwner()
+    {
+        return multipleTitlesOwner;
+    }
+
+    public void setMultipleTitlesOwner(boolean multipleTitlesOwner)
+    {
+        this.multipleTitlesOwner = multipleTitlesOwner;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
     }
 }

@@ -214,27 +214,27 @@ public class DCType
         return typeArray;
     }
 
-    /**
-     * Create a new Dublin Core type
-     * 
-     * @param context
-     *            DSpace context object
-     * @return the newly created DCType
-     * @throws NonUniqueMetadataException
-     * @deprecated
-     */
-    public static DCType create(Context context)
-        throws AuthorizeException, NonUniqueMetadataException
-    {
-        MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
-
-        //TODO testare!
-        MetadataField field = dao.create();
-        field.setSchema(ApplicationService.get(context, MetadataSchema.class, MetadataSchema.DC_SCHEMA_ID));
-        dao.update(field);
-
-        return new DCType(context, field);
-    }
+//    /**
+//     * Create a new Dublin Core type
+//     * 
+//     * @param context
+//     *            DSpace context object
+//     * @return the newly created DCType
+//     * @throws NonUniqueMetadataException
+//     * @deprecated
+//     */
+//    public static DCType create(Context context)
+//        throws AuthorizeException, NonUniqueMetadataException
+//    {
+//        MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
+//
+//        
+//        MetadataField field = dao.create();
+//        field.setSchema(ApplicationService.get(context, MetadataSchema.class, MetadataSchema.DC_SCHEMA_ID));
+//        dao.update(field);
+//
+//        return new DCType(context, field);
+//    }
 
     /**
      * Delete this DC type. This won't work if there are any DC values in the

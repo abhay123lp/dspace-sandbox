@@ -328,8 +328,7 @@ public class ItemExport
                 }
             }
 
-            System.out.println("Exporting item to " + mySequenceNumber);
-            //FIXME è uguale i.next a itemiterator.next?
+            System.out.println("Exporting item to " + mySequenceNumber);            
             exportItem(c, i.next(), fullPath, mySequenceNumber);
             mySequenceNumber++;
         }

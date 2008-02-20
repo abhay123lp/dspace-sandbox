@@ -1150,13 +1150,13 @@ public class SubmissionController extends DSpaceServlet
         {
             info = info
                     + "<input type=\"hidden\" name=\"workflow_id\" value=\""
-                    + si.getSubmissionItem().getID() + "\"/>";
+                    + si.getSubmissionItem().getId() + "\"/>";
         }
         else if (si.getSubmissionItem() != null)
         {
             info = info
                     + "<input type=\"hidden\" name=\"workspace_item_id\" value=\""
-                    + si.getSubmissionItem().getID() + "\"/>";
+                    + si.getSubmissionItem().getId() + "\"/>";
         }
 
         if (si.getBundle() != null)
