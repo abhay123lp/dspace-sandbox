@@ -53,7 +53,7 @@ import org.dspace.core.LogManager;
 import org.dspace.dao.CRUD;
 
 public abstract class MetadataValueDAO extends ContentDAO
-    implements CRUD<MetadataValue>
+    //implements CRUD<MetadataValue>
 {
     protected Logger log = Logger.getLogger(MetadataValueDAO.class);
 
@@ -64,29 +64,29 @@ public abstract class MetadataValueDAO extends ContentDAO
         this.context = context;
     }
 
-    public abstract MetadataValue create() throws AuthorizeException;
+    //public abstract MetadataValue create() throws AuthorizeException;
 
-    public MetadataValue retrieve(int id)
-    {
-        return (MetadataValue) context.fromCache(MetadataValue.class, id);
-    }
+//    public MetadataValue retrieve(int id)
+//    {
+//        return (MetadataValue) context.fromCache(MetadataValue.class, id);
+//    }
 
     public MetadataValue retrieve(UUID uuid)
     {
         return null;
     }
 
-    public void update(MetadataValue value) throws AuthorizeException
-    {
-        log.info(LogManager.getHeader(context, "update_metadatavalue",
-                    "metadata_value_id=" + value.getID()));
-    }
+//    public void update(MetadataValue value) throws AuthorizeException
+//    {
+//        log.info(LogManager.getHeader(context, "update_metadatavalue",
+//                    "metadata_value_id=" + value.getID()));
+//    }
 
-    public void delete(int id) throws AuthorizeException
-    {
-        log.info(LogManager.getHeader(context, "delete_metadata_value",
-                    "metadata_value_id=" + id));
-    }
+//    public void delete(int id) throws AuthorizeException
+//    {
+//        log.info(LogManager.getHeader(context, "delete_metadata_value",
+//                    "metadata_value_id=" + id));
+//    }
 
     @Deprecated
     public List<MetadataValue> getMetadataValues(int fieldID)

@@ -193,7 +193,7 @@ public class DSpaceMETSDisseminator
         {
             String resource = "depositlicense_"+
                               String.valueOf(licenseBs.getSequenceID())+".txt";
-            addRightsStream(BitstreamStorageManager.retrieve(context, licenseBs.getId()), resource, "text/plain",
+            addRightsStream(BitstreamStorageManager.retrieve(context, licenseBs), resource, "text/plain",
                            DSPACE_DEPOSIT_LICENSE_MDTYPE, amdSec);
             return true;
         }
@@ -208,14 +208,14 @@ public class DSpaceMETSDisseminator
         
         if ((cc = CreativeCommons.getLicenseRdfBitstream(item)) != null)
         {
-            addRightsStream(ApplicationService.retrieveInputStream(cc, context),
+            addRightsStream(BitstreamStorageManager.retrieve(context,cc),
                             (gensym("creativecommons") + ".rdf"),
                             "text/rdf",
                             CREATIVE_COMMONS_LICENSE_MDTYPE, amdSec);
         }
         else if ((cc = CreativeCommons.getLicenseTextBitstream(item)) != null)
         {
-            addRightsStream(ApplicationService.retrieveInputStream(cc, context),
+            addRightsStream(BitstreamStorageManager.retrieve(context,cc),
                             (gensym("creativecommons") + ".txt"),
                             "text/plain",
                             CREATIVE_COMMONS_LICENSE_MDTYPE, amdSec);

@@ -17,19 +17,8 @@ public class BitstreamDAOHibernate extends BitstreamDAO {
     }
     
     public List<Bitstream> getDeletedBitstreams(EntityManager em) {
-        //String query = "SELECT OBJECT(b) FROM Bitstream b where b.delete = true";
-        Query q = em.createQuery("SELECT OBJECT(b) FROM Bitstream b WHERE b.deleted = :deleted");
-        q.setParameter("deleted", true);
-        List<Bitstream> bitstreams = q.getResultList();
-        System.out.println("ASDF");
+        Query q = em.createQuery("SELECT OBJECT(b) FROM Bitstream b WHERE b.deleted = true");        
+        List<Bitstream> bitstreams = q.getResultList();        
         return bitstreams;
     }
-    
-    //TODO implementare
-    public InputStream retrieveInputStream(Bitstream bitstream, EntityManager em) {
-        InputStream is = null;
-        return is;
-    }
-    
-
 }

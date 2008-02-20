@@ -1041,7 +1041,7 @@ public class DSIndexer
                         {
                             InputStreamReader is = new InputStreamReader(
                                     //bitstream.retrieve()); // get input
-                                    BitstreamStorageManager.retrieve(context, bitstream.getId()));
+                                    BitstreamStorageManager.retrieve(context, bitstream));
                             // Add each InputStream to the Indexed Document (Acts like an Append)
                             doc.add(new Field("default", is));
 

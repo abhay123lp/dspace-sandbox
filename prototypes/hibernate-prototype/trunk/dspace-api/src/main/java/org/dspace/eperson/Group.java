@@ -69,8 +69,8 @@ import org.apache.log4j.Logger;
 public class Group extends DSpaceObject
 {
     // findAll sortby types
-    public static final int ID = 0; // sort by ID
-    public static final int NAME = 1; // sort by NAME (default)
+//    public static final int ID = 0; // sort by ID
+//    public static final int NAME = 1; // sort by NAME (default)
 
     /** log4j logger */
     private static Logger log = Logger.getLogger(Group.class);

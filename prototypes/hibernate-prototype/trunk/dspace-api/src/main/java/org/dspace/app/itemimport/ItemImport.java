@@ -1449,7 +1449,8 @@ public class ItemImport
                 }
 
                 GroupDAO groupDAO = GroupDAOFactory.getInstance(c);
-                myGroup = groupDAO.retrieve(groupName);
+                //myGroup = groupDAO.retrieve(groupName);
+                myGroup = ApplicationService.findGroupByName(context, groupName);
             }
 
             String thisDescription = "";

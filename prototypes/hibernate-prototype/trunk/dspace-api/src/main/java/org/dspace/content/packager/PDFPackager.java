@@ -192,7 +192,7 @@ public class PDFPackager
             //no need
             log.debug("Created bitstream ID="+String.valueOf(bs.getID())+", parsing...");
 
-            crosswalkPDF(context, myitem, BitstreamStorageManager.retrieve(context, bs.getId()));
+            crosswalkPDF(context, myitem, BitstreamStorageManager.retrieve(context, bs));
 
             wi.update();
             context.commit();
@@ -262,7 +262,7 @@ public class PDFPackager
             Bitstream pkgBs = PackageUtils.getBitstreamByFormat(item, pdff, Constants.DEFAULT_BUNDLE_NAME);
             if (pkgBs == null)
                 throw new PackageValidationException("Cannot find Bitstream with format \""+BITSTREAM_FORMAT_NAME+"\"");
-            Utils.copy(ApplicationService.retrieveInputStream(pkgBs, context), out);
+            Utils.copy(BitstreamStorageManager.retrieve(context,pkgBs), out);
         }
             finally {}
     }

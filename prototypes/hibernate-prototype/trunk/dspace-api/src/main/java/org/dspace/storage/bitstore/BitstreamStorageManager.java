@@ -508,11 +508,11 @@ public class BitstreamStorageManager
      * 
      * @return The stream of bits, or null
      */
-    public static InputStream retrieve(Context context, int id)
+    public static InputStream retrieve(Context context, Bitstream b)
             throws IOException
     {
         //Bitstream b = BitstreamDAOFactory.getInstance(context).retrieve(id);
-        Bitstream b = ApplicationService.get(context, Bitstream.class, id);
+        //Bitstream b = ApplicationService.get(context, Bitstream.class, id);
         GeneralFile file = null;
 
         if (b != null)

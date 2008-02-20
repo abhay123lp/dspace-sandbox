@@ -364,7 +364,7 @@ public class METSExport
                             + bitstream.getName());
 
                     //InputStream in = bitstream.retrieve();
-                    InputStream in = BitstreamStorageManager.retrieve(context, bitstream.getId());
+                    InputStream in = BitstreamStorageManager.retrieve(context, bitstream);
                     Utils.bufferedCopy(in, out);
                     out.close();
                     in.close();
@@ -640,7 +640,7 @@ public class METSExport
                 {
                     // Read the license into a string
                     //return bitstreams.get(0).retrieve();
-                    return BitstreamStorageManager.retrieve(context, bitstreams.get(0).getId());
+                    return BitstreamStorageManager.retrieve(context, bitstreams.get(0));
                 }
             }
         }

@@ -306,7 +306,8 @@ public class ResourcePolicy implements Identifiable
             return null;
         }
 
-        return groupDAO.retrieve(groupID);
+        //return groupDAO.retrieve(groupID);
+        return ApplicationService.get(context, Group.class, groupID);
     }
 
     /**

@@ -40,6 +40,7 @@
 package org.dspace.eperson;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.List;
@@ -48,6 +49,7 @@ import java.util.Locale;
 import javax.mail.MessagingException;
 
 import org.apache.log4j.Logger;
+import org.dspace.content.InProgressSubmission;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
@@ -124,6 +126,21 @@ public class AccountManager
             group.setEpeopleChanged(true);
             context.addEvent(new Event(Event.REMOVE, Constants.GROUP, group.getId(), Constants.EPERSON, eperson.getId(), eperson.getEmail()));            
         }        
+    }
+    
+    //TODO implementare
+    public static void removeIPSFromGroup(Group group, InProgressSubmission ips, Context context) {
+        
+    }
+    
+    //TODO implementare
+    public static void addIPSToGroup(Group group, InProgressSubmission ips, Context context) {
+        
+    }
+    
+    //TODO implementare
+    public static boolean isIPSLinkedToGroup(Group group, InProgressSubmission ips, Context context) {
+        return true;
     }
 
     /**

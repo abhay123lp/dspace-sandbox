@@ -201,9 +201,10 @@ public class Item extends DSpaceObject {
 		this.identifier = identifier;
 	}
 
-	@Column(name = "in_archive")
+	@Transient
+	@Deprecated
 	public boolean isArchived() {
-		return inArchive;
+		return isInArchive();
 	}
 
 	public void setArchived(boolean inArchive) {
@@ -789,5 +790,16 @@ public class Item extends DSpaceObject {
 	public boolean isModified() {
 		return modified;
 	}
+
+	@Column(name = "in_archive")
+    public boolean isInArchive()
+    {
+        return inArchive;
+    }
+
+    public void setInArchive(boolean inArchive)
+    {
+        this.inArchive = inArchive;
+    }
 
 }

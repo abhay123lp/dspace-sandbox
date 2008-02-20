@@ -192,5 +192,4 @@ public abstract class BitstreamDAO extends ContentDAO
     
     //public abstract List<Bitstream> getDeletedBitstreams();
     public abstract List<Bitstream> getDeletedBitstreams(EntityManager em);
-    public abstract InputStream retrieveInputStream(Bitstream bitstream, EntityManager em);
 }

@@ -533,7 +533,7 @@ public class ItemExport
                     int myPrefix = 1; // only used with name conflict
 
                     //InputStream is = b.retrieve();
-                    InputStream is = BitstreamStorageManager.retrieve(c, b.getId());
+                    InputStream is = BitstreamStorageManager.retrieve(c, b);
                     boolean isDone = false; // done when bitstream is finally
                                             // written
 

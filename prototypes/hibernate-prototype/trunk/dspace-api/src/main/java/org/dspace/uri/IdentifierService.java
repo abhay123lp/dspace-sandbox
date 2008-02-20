@@ -269,7 +269,7 @@ public class IdentifierService
     {
         ResolvableIdentifier ri = IdentifierService.getPreferredIdentifier(dso);
         //FIXME cambiamento
-        String cf = null;//ri.getCanonicalForm();
+        String cf = ri.getCanonicalForm();
         return cf;
     }
 
