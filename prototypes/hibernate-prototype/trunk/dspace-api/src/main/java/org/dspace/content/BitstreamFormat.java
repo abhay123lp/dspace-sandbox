@@ -42,11 +42,14 @@ package org.dspace.content;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.SecondaryTable;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
@@ -55,15 +58,13 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
-
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.dao.BitstreamFormatDAO;
-import org.dspace.content.dao.BitstreamFormatDAOFactory;
-import org.dspace.uri.ObjectIdentifier;
 import org.dspace.core.Context;
+import org.dspace.uri.ObjectIdentifier;
+import org.hibernate.annotations.Cascade;
 
 @Entity
 @Table(name="bitstreamformatregistry")
+@SecondaryTable(name="fileextension")
 public class BitstreamFormat
 {
     /** log4j logger */
@@ -103,7 +104,8 @@ public class BitstreamFormat
     private String mimeType;
     private int supportLevel; // FIXME: enum
     private boolean internal;
-    private List<String> extensions;
+    private List<FileExtension> fileExtensions;
+    
 
     protected BitstreamFormat() {}
     
@@ -114,7 +116,7 @@ public class BitstreamFormat
         this.context = context;
 
         //dao = BitstreamFormatDAOFactory.getInstance(context);
-        extensions = new ArrayList<String>();
+        fileExtensions = new ArrayList<FileExtension>();
     }
 
     public void setID(int id)
@@ -236,23 +238,34 @@ public class BitstreamFormat
 
     /**
      * Get the filename extensions associated with this format
-     */
+     */    
     @Transient
-    public String[] getExtensions()
+    public List<String> getExtensions()
     {
-        return (String[]) extensions.toArray(new String[0]);
+        List<String> fe = new ArrayList<String>();
+        for (FileExtension extension : fileExtensions)
+        {
+            fe.add(extension.getExtension());
+        }
+
+        return fe;
     }
+    
+    
 
     /**
      * Set the filename extensions associated with this format
      */
     public void setExtensions(String[] extensions)
     {
-        this.extensions = new ArrayList<String>();
+        this.fileExtensions = new ArrayList<FileExtension>();
 
         for (String extension : extensions)
         {
-            this.extensions.add(extension);
+            FileExtension fe = new FileExtension();
+            fe.setBitstreamFormat(this);
+            fe.setExtension(extension);
+            this.fileExtensions.add(fe);
         }
     }
 
@@ -304,8 +317,25 @@ public class BitstreamFormat
 	}
 
 	public void setExtensions(List<String> extensions) {
-		this.extensions = extensions;
+	      for (String extension : extensions)
+	        {
+	            FileExtension fe = new FileExtension();
+	            fe.setBitstreamFormat(this);
+	            fe.setExtension(extension);
+	            this.fileExtensions.add(fe);
+	        }
 	}
+	
+	@OneToMany(mappedBy="bitstreamFormat",cascade = CascadeType.ALL)
+    public List<FileExtension> getFileExtensions()
+    {
+        return fileExtensions;
+    }
+
+    public void setFileExtensions(List<FileExtension> fileExtensions)
+    {
+        this.fileExtensions = fileExtensions;
+    }
 
     /** Deprecated by the introduction of DAOs */
 //    @Deprecated

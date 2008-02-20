@@ -22,6 +22,7 @@
 		<class>org.dspace.content.Bundle</class>
 		<class>org.dspace.content.Bitstream</class>
 		<class>org.dspace.content.BitstreamFormat</class>
+		<class>org.dspace.content.FileExtension</class>
 		<class>org.dspace.content.MetadataValue</class>
 		<class>org.dspace.content.MetadataField</class>
 		<class>org.dspace.content.MetadataSchema</class>

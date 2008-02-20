@@ -272,8 +272,8 @@ public class PREMISCrosswalk
         String bsName = bitstream.getName();
         if (bsName == null)
         {
-            String ext[] = bitstream.getFormat().getExtensions();
-            bsName = "bitstream_"+sid+ (ext.length > 0 ? ext[0] : "");
+            List<String> ext = bitstream.getFormat().getExtensions();
+            bsName = "bitstream_"+sid+ (ext.size() > 0 ? ext.get(0) : "");
         }
         if (uri != null && baseUrl != null)
             oiv.setText(baseUrl
