@@ -39,40 +39,60 @@
  */
 package org.dspace.eperson;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+@Entity
 public class Subscription
 {
-    private int id;
-    private int epersonID;
+    private int iD;
+    private int ePersonID;
     private int collectionID;
+    //TODO aggiungere uuid
 
     public Subscription(int id)
     {
-        this.id = id;
+        this.iD = id;
 
-        epersonID = -1;
+        ePersonID = -1;
         collectionID = -1;
     }
+    
+    public Subscription() {}
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="subscription_id")
     public int getID()
     {
-        return id;
+        return iD;
+    }
+    
+    public void setID(int id)
+    {
+        iD = id;
     }
 
+    @Column(name="eperson_id")
     public int getEPersonID()
     {
-        return epersonID;
+        return ePersonID;
     }
 
     public void setEPersonID(int epersonID)
     {
-        this.epersonID = epersonID;
+        this.ePersonID = epersonID;
     }
-
+    
+    @Column(name="collection_id")
     public int getCollectionID()
     {
         return collectionID;

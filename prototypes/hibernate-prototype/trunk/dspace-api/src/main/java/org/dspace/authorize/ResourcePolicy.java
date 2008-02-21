@@ -76,9 +76,9 @@ public class ResourcePolicy implements Identifiable
     private static Logger log = Logger.getLogger(ResourcePolicy.class);
 
     private Context context;
-    private ResourcePolicyDAO dao;
-    private EPersonDAO epersonDAO;
-    private GroupDAO groupDAO;
+    //private ResourcePolicyDAO dao;
+    //private EPersonDAO epersonDAO;
+    //private GroupDAO groupDAO;
 
     private int id;
     // private ObjectIdentifier oid;
@@ -102,9 +102,9 @@ public class ResourcePolicy implements Identifiable
         this.context = context;
         this.id = id;
 
-        dao = ResourcePolicyDAOFactory.getInstance(context);
-        epersonDAO = EPersonDAOFactory.getInstance(context);
-        groupDAO = GroupDAOFactory.getInstance(context);
+        //dao = ResourcePolicyDAOFactory.getInstance(context);
+        //epersonDAO = EPersonDAOFactory.getInstance(context);
+        //groupDAO = GroupDAOFactory.getInstance(context);
 
         resourceID = -1;
         resourceTypeID = -1;
@@ -435,17 +435,17 @@ public class ResourcePolicy implements Identifiable
         return ResourcePolicyDAOFactory.getInstance(context).create();
     }
 
-    @Deprecated
-    public void delete()
-    {
-        dao.delete(getID());
-    }
-
-    @Deprecated
-    public void update()
-    {
-        dao.update(this);
-    }
+//    @Deprecated
+//    public void delete()
+//    {
+//        //dao.delete(getID());
+//    }
+//
+//    @Deprecated
+//    public void update()
+//    {
+//        dao.update(this);
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
