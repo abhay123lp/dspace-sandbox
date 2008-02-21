@@ -37,6 +37,7 @@ public class CollectionDAOHibernate extends CollectionDAO {
 		return collections;
 	}
 	
+	//TODO testare
 	public Integer getCount(Collection collection, EntityManager em) {
 	    if(collection==null) throw new IllegalArgumentException("Collection in itemCount may not be null");
 	    Query q = em.createQuery("SELECT itemCount FROM CollectionItemCount collectionItemCount WHERE collectionItemCount.collection= :collection");
@@ -45,9 +46,15 @@ public class CollectionDAOHibernate extends CollectionDAO {
         return itemCount;	    
 	}
 	
-	
+	//TODO testare
 	public Integer count(Collection collection, EntityManager em) {
-	    return new Integer(15);
+	    if(collection==null) throw new IllegalArgumentException("Collection in itemCount may not be null");
+	    Query q = em.createQuery("SELECT count(i) " +
+	    		                 "FROM Collection c, IN (c.items) as i " +
+	    		                 "WHERE c = :collection AND i.in_archive = true AND i.withdrawn = false");
+	    q.setParameter("collection", collection);
+	    Integer itemCount = (Integer)q.getSingleResult();
+	    return itemCount;
 	}
 	
 

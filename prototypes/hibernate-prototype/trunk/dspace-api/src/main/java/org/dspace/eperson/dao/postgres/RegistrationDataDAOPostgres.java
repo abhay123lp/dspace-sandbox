@@ -50,134 +50,134 @@ import org.dspace.storage.rdbms.TableRow;
 /**
  * @author James Rutherford
  */
-public class RegistrationDataDAOPostgres extends RegistrationDataDAO
+public class RegistrationDataDAOPostgres //extends RegistrationDataDAO
 {
-    public RegistrationDataDAOPostgres(Context context)
-    {
-        this.context = context;
-    }
-
-    @Override
-    public RegistrationData create()
-    {
-        try
-        {
-            TableRow row = DatabaseManager.create(context, "registrationdata");
-
-            int id = row.getIntColumn("registrationdata_id");
-            
-            return new RegistrationData(id);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public RegistrationData retrieve(int id)
-    {
-        return retrieve("registrationdata_id", Integer.toString(id));
-    }
-
-    @Override
-    public RegistrationData retrieveByEmail(String email)
-    {
-        return retrieve("email", email);
-    }
-
-    @Override
-    public RegistrationData retrieveByToken(String token)
-    {
-        return retrieve("token", token);
-    }
-
-    @Override
-    public void update(RegistrationData rd)
-    {
-        try
-        {
-            TableRow row = DatabaseManager.find(context,
-                    "registrationdata", rd.getID());
-
-            // This is it -- we don't use the 'expires' column any more, though
-            // the data model allows for it.
-            row.setColumn("email", rd.getEmail());
-            row.setColumn("token", rd.getToken());
-            
-            DatabaseManager.update(context, row);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public void delete(int id)
-    {
-        try
-        {
-            DatabaseManager.delete(context, "registrationdata", id);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public void delete(String token)
-    {
-        try
-        {
-            DatabaseManager.deleteByValue(context, "registrationdata", "token",
-                    token);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
-    private RegistrationData retrieve(String field, String value)
-    {
-        try
-        {
-            TableRow row = null;
-            if (field.equals("registrationdata_id"))
-            {
-                row = DatabaseManager.find(context, "registrationdata",
-                        Integer.parseInt(value));
-            }
-            else
-            {
-                row = DatabaseManager.findByUnique(context, "registrationdata",
-                        field, value);
-            }
-
-            if (row == null)
-            {
-                return null;
-            }
-            else
-            {
-                int id = row.getIntColumn("registrationdata_id");
-                RegistrationData rd = new RegistrationData(id);
-
-                rd.setEmail(row.getStringColumn("email"));
-                rd.setToken(row.getStringColumn("token"));
-
-                return rd;
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    public RegistrationDataDAOPostgres(Context context)
+//    {
+//        this.context = context;
+//    }
+//
+//    @Override
+//    public RegistrationData create()
+//    {
+//        try
+//        {
+//            TableRow row = DatabaseManager.create(context, "registrationdata");
+//
+//            int id = row.getIntColumn("registrationdata_id");
+//            
+//            return new RegistrationData(id);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
+//
+//    @Override
+//    public RegistrationData retrieve(int id)
+//    {
+//        return retrieve("registrationdata_id", Integer.toString(id));
+//    }
+//
+//    @Override
+//    public RegistrationData retrieveByEmail(String email)
+//    {
+//        return retrieve("email", email);
+//    }
+//
+//    @Override
+//    public RegistrationData retrieveByToken(String token)
+//    {
+//        return retrieve("token", token);
+//    }
+//
+//    @Override
+//    public void update(RegistrationData rd)
+//    {
+//        try
+//        {
+//            TableRow row = DatabaseManager.find(context,
+//                    "registrationdata", rd.getID());
+//
+//            // This is it -- we don't use the 'expires' column any more, though
+//            // the data model allows for it.
+//            row.setColumn("email", rd.getEmail());
+//            row.setColumn("token", rd.getToken());
+//            
+//            DatabaseManager.update(context, row);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
+//
+//    @Override
+//    public void delete(int id)
+//    {
+//        try
+//        {
+//            DatabaseManager.delete(context, "registrationdata", id);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
+//
+//    @Override
+//    public void delete(String token)
+//    {
+//        try
+//        {
+//            DatabaseManager.deleteByValue(context, "registrationdata", "token",
+//                    token);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
+//
+//    ////////////////////////////////////////////////////////////////////
+//    // Utility methods
+//    ////////////////////////////////////////////////////////////////////
+//
+//    private RegistrationData retrieve(String field, String value)
+//    {
+//        try
+//        {
+//            TableRow row = null;
+//            if (field.equals("registrationdata_id"))
+//            {
+//                row = DatabaseManager.find(context, "registrationdata",
+//                        Integer.parseInt(value));
+//            }
+//            else
+//            {
+//                row = DatabaseManager.findByUnique(context, "registrationdata",
+//                        field, value);
+//            }
+//
+//            if (row == null)
+//            {
+//                return null;
+//            }
+//            else
+//            {
+//                int id = row.getIntColumn("registrationdata_id");
+//                RegistrationData rd = new RegistrationData(id);
+//
+//                rd.setEmail(row.getStringColumn("email"));
+//                rd.setToken(row.getStringColumn("token"));
+//
+//                return rd;
+//            }
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 }

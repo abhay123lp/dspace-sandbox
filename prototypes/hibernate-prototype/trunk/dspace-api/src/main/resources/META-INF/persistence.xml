@@ -30,11 +30,14 @@
 		<class>org.dspace.eperson.EPerson</class>
 		<class>org.dspace.eperson.EPersonMetadata</class>
 		<class>org.dspace.eperson.Group</class>
+		<class>org.dspace.eperson.Subscription</class>
+		<class>org.dspace.eperson.RegistrationData</class>
 		<class>org.dspace.browse.ItemCounter</class>
 		<class>org.dspace.workflow.WorkflowItem</class>
+		<class>org.dspace.authorize.ResourcePolicy</class>
 
-		<!--class>org.dspace.browse.CollectionItemCount</class>
-		<class>org.dspace.browse.CommunityItemCount</class-->
+		<class>org.dspace.browse.CollectionItemCount</class>
+		<class>org.dspace.browse.CommunityItemCount</class>
   
         <properties>
             <property name="toplink.jdbc.driver" value="org.postgresql.Driver"/>

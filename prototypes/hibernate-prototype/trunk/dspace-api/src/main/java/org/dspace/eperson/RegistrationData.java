@@ -39,22 +39,40 @@
  */
 package org.dspace.eperson;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@Entity
 public class RegistrationData
 {
-    private int id;
+    private int iD;
     private String email;
     private String token;
 
     public RegistrationData(int id)
     {
-        this.id = id;
+        this.iD = id;
     }
+    
+    protected RegistrationData() {}
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="registrationdata_id")
     public int getID()
     {
-        return id;
+        return iD;
+    }
+    
+    public void setID(int id)
+    {
+        iD = id;
     }
 
+    @Column(name="email")
     public String getEmail()
     {
         return email;
@@ -65,6 +83,7 @@ public class RegistrationData
         this.email = email;
     }
 
+    @Column(name="token")
     public String getToken()
     {
         return token;

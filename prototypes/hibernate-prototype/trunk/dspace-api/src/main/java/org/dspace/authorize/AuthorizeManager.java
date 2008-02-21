@@ -54,6 +54,8 @@ import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
+import org.dspace.uri.ObjectIdentifierMint;
+import org.dspace.uri.SimpleIdentifier;
 
 /**
  * AuthorizeManager handles all authorization checks for DSpace. For better
@@ -358,6 +360,19 @@ public class AuthorizeManager
     // policy manipulation methods
     ///////////////////////////////////////////////
 
+    /**
+     * Creates a ResourcePolicy
+     */
+    public static ResourcePolicy createResourcePolicy(Context context) {
+        //TODO gestione degli uuid, bisogna inserirglielo, vedere ResourcePolicyDAOPosgres.create
+        SimpleIdentifier sid = ObjectIdentifierMint.mintSimple();
+        ResourcePolicy rp = new ResourcePolicy(context);
+        rp.setSimpleIdentifier(sid);
+        ApplicationService.save(context, ResourcePolicy.class, rp);
+        context.cache(rp, rp.getID());
+        return rp;
+    }
+    
     /**
      * Add a policy for an individual eperson
      * 

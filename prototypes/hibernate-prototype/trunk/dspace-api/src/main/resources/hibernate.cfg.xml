@@ -29,11 +29,14 @@
 		<mapping class="org.dspace.content.WorkspaceItem" />
 		<mapping class="org.dspace.eperson.EPerson" />
 		<mapping class="org.dspace.eperson.Group" />
+		<mapping class="org.dspace.eperson.Subscription" />
 		<mapping class="org.dspace.content.BitstreamFormat" />
 		<mapping class="org.dspace.content.FileExtension" />
 		<mapping class="org.dspace.eperson.EPersonMetadata"/>
+		<mapping class="org.dspace.eperson.RegistrationData"/>
 		<mapping class="org.dspace.browse.ItemCounter"/>
 		<mapping class="org.dspace.workflow.WorkflowItem"/>
+		<mapping class="org.dspace.authorize.ResourcePolicy"/>
 				
 		<!-- mapping class="org.dspace.content.WorkspaceItem" / -->
 	</session-factory>
