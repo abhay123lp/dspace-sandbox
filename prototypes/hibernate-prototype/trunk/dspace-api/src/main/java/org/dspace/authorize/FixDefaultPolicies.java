@@ -171,6 +171,6 @@ public class FixDefaultPolicies
         myPolicy.setResource(t);
         myPolicy.setAction(myaction);
         myPolicy.setGroup(anonymousGroup);
-        myPolicy.update();
+        //myPolicy.update();
     }
 }
