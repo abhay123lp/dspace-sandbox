@@ -39,12 +39,23 @@
  */
 package org.dspace.authorize;
 
+import java.util.Date;
+import java.util.List;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
-import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ApplicationService;
@@ -52,18 +63,11 @@ import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
-import org.dspace.eperson.dao.EPersonDAO;
-import org.dspace.eperson.dao.EPersonDAOFactory;
-import org.dspace.eperson.dao.GroupDAO;
-import org.dspace.eperson.dao.GroupDAOFactory;
+import org.dspace.uri.ExternalIdentifier;
 import org.dspace.uri.Identifiable;
 import org.dspace.uri.ObjectIdentifier;
 import org.dspace.uri.SimpleIdentifier;
 import org.dspace.uri.UnsupportedIdentifierException;
-import org.dspace.uri.ExternalIdentifier;
-
-import java.util.Date;
-import java.util.List;
 
 /**
  * Class representing a ResourcePolicy
@@ -71,6 +75,8 @@ import java.util.List;
  * @author David Stuve
  * @version $Revision: 2504 $
  */
+
+@Entity
 public class ResourcePolicy implements Identifiable
 {
     private static Logger log = Logger.getLogger(ResourcePolicy.class);
@@ -80,7 +86,7 @@ public class ResourcePolicy implements Identifiable
     //private EPersonDAO epersonDAO;
     //private GroupDAO groupDAO;
 
-    private int id;
+    private int iD;
     // private ObjectIdentifier oid;
 
     private SimpleIdentifier sid;
@@ -91,16 +97,16 @@ public class ResourcePolicy implements Identifiable
     private int resourceTypeID;
 
     private int actionID;
-    private int epersonID;
+    private int ePersonID;
     private int groupID;
 
     private Date startDate;
     private Date endDate;
 
-    public ResourcePolicy(Context context, int id)
+    public ResourcePolicy(Context context)//, int id)
     {
         this.context = context;
-        this.id = id;
+        //this.iD = id;
 
         //dao = ResourcePolicyDAOFactory.getInstance(context);
         //epersonDAO = EPersonDAOFactory.getInstance(context);
@@ -109,17 +115,23 @@ public class ResourcePolicy implements Identifiable
         resourceID = -1;
         resourceTypeID = -1;
         actionID = -1;
-        epersonID = -1;
+        ePersonID = -1;
         groupID = -1;
 
-        context.cache(this, id);
+        //context.cache(this, id);
     }
+    
+    public ResourcePolicy() {}
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="policy_id")
     public int getID()
     {
-        return id;
+        return iD;
     }
 
+    @Transient
     public SimpleIdentifier getSimpleIdentifier()
     {
         return sid;
@@ -130,6 +142,7 @@ public class ResourcePolicy implements Identifiable
         this.sid = sid;
     }
 
+    @Transient
     public ObjectIdentifier getIdentifier()
     {
         return null;
@@ -140,6 +153,7 @@ public class ResourcePolicy implements Identifiable
         this.sid = oid;
     }
 
+    @Transient
     public List<ExternalIdentifier> getExternalIdentifiers()
     {
         return null;
@@ -162,7 +176,15 @@ public class ResourcePolicy implements Identifiable
      * 
      * @return type of object/resource
      */
+    @Transient
+    @Deprecated
     public int getResourceType()
+    {
+        return resourceTypeID;
+    }
+    
+    @Column(name="resource_type_id")
+    public int getResourceTypeID()
     {
         return resourceTypeID;
     }
@@ -189,6 +211,7 @@ public class ResourcePolicy implements Identifiable
      * Get the ID of a resource pointed to by the policy (is null if policy
      * doesn't apply to a single resource.)
      */
+    @Column(name="resource_id")
     public int getResourceID()
     {
         return resourceID;
@@ -206,11 +229,14 @@ public class ResourcePolicy implements Identifiable
     /**
      * Returns the action this policy authorizes.
      */
+    @Transient
+    @Deprecated
     public int getAction()
     {
         return actionID;
     }
 
+    @Transient
     public String getActionText()
     {
         if (actionID == -1)
@@ -236,14 +262,15 @@ public class ResourcePolicy implements Identifiable
     /**
      * @return eperson ID, or -1 if EPerson not set
      */
+    @Column(name="eperson_id")
     public int getEPersonID()
     {
-        return epersonID;
+        return ePersonID;
     }
 
     public void setEPersonID(int epersonID)
     {
-        this.epersonID = epersonID;
+        this.ePersonID = epersonID;
     }
 
     /**
@@ -251,15 +278,16 @@ public class ResourcePolicy implements Identifiable
      * 
      * @return EPerson, or null
      */
+    @Transient
     public EPerson getEPerson()
     {
-        if (epersonID == -1)
+        if (ePersonID == -1)
         {
             return null;
         }
 
         //return epersonDAO.retrieve(epersonID);
-        return ApplicationService.get(context, EPerson.class, epersonID);
+        return ApplicationService.get(context, EPerson.class, ePersonID);
     }
 
     /**
@@ -271,11 +299,11 @@ public class ResourcePolicy implements Identifiable
     {
         if (eperson != null)
         {
-            epersonID = eperson.getID();
+            ePersonID = eperson.getID();
         }
         else
         {
-            epersonID = -1;
+            ePersonID = -1;
         }
     }
 
@@ -284,6 +312,7 @@ public class ResourcePolicy implements Identifiable
      * 
      * @return groupID, or -1 if no group set
      */
+    @Column(name="epersongroup_id")
     public int getGroupID()
     {
         return groupID;
@@ -299,6 +328,7 @@ public class ResourcePolicy implements Identifiable
      * 
      * @return Group, or -1 if no group set
      */
+    @Transient
     public Group getGroup()
     {
         if (groupID == -1)
@@ -331,6 +361,8 @@ public class ResourcePolicy implements Identifiable
      * @return start date, or null if there is no start date set (probably most
      *         common case)
      */
+    @Column(name="start_date")
+    @Temporal(value=TemporalType.DATE)
     public Date getStartDate()
     {
         return startDate;
@@ -352,6 +384,8 @@ public class ResourcePolicy implements Identifiable
      * 
      * @return end date or null for no end date
      */
+    @Column(name="end_date")
+    @Temporal(value=TemporalType.DATE)
     public Date getEndDate()
     {
         return endDate;
@@ -378,6 +412,7 @@ public class ResourcePolicy implements Identifiable
      * @return true if policy has begun and hasn't expired yet (or no dates are
      *         set)
      */
+    @Transient
     public boolean isDateValid()
     {
         Date sd = getStartDate();
@@ -416,17 +451,17 @@ public class ResourcePolicy implements Identifiable
         return true; // date must be okay
     }
 
-    @Deprecated
-    ResourcePolicy(Context context, org.dspace.storage.rdbms.TableRow row)
-    {
-        this(context, row.getIntColumn("policy_id"));
-    }
+//    @Deprecated
+//    ResourcePolicy(Context context, org.dspace.storage.rdbms.TableRow row)
+//    {
+//        this(context, row.getIntColumn("policy_id"));
+//    }
 
-    @Deprecated
-    public static ResourcePolicy find(Context context, int id)
-    {
-        return ResourcePolicyDAOFactory.getInstance(context).retrieve(id);
-    }
+//    @Deprecated
+//    public static ResourcePolicy find(Context context, int id)
+//    {
+//        return ResourcePolicyDAOFactory.getInstance(context).retrieve(id);
+//    }
 
     @Deprecated
     public static ResourcePolicy create(Context context)
@@ -475,5 +510,26 @@ public class ResourcePolicy implements Identifiable
     public int hashCode()
     {
         return HashCodeBuilder.reflectionHashCode(this);
+    }
+
+    public void setID(int id)
+    {
+        iD = id;
+    }
+
+    @Column(name="action_id")
+    public int getActionID()
+    {
+        return actionID;
+    }
+
+    public void setActionID(int actionID)
+    {
+        this.actionID = actionID;
+    }
+
+    public void setResourceTypeID(int resourceTypeID)
+    {
+        this.resourceTypeID = resourceTypeID;
     }
 }

@@ -64,7 +64,6 @@ import org.hibernate.annotations.Cascade;
 
 @Entity
 @Table(name="bitstreamformatregistry")
-@SecondaryTable(name="fileextension")
 public class BitstreamFormat
 {
     /** log4j logger */

@@ -41,10 +41,12 @@ public class CommunityDAOHibernate extends CommunityDAO {
 	    return topcommunities;
 	}
 	
+	
 	/*
-	 * Calculates and returns the number of items owned by the community (does not read the persisted value but re-calculates it)
-	 * @see org.dspace.content.dao.CommunityDAO#getCount(org.dspace.content.Community, javax.persistence.EntityManager)
-	 */
+     * Returns, without calculating it, the number of items owned by the community (retrieves the persisted value)
+     * @see org.dspace.content.dao.CommunityDAO#count(org.dspace.content.Community, javax.persistence.EntityManager)
+     */
+	//TODO testare
 	public Integer getCount(Community community, EntityManager em)
     {
 	    if(community==null) throw new IllegalArgumentException("Community in itemCount may not be null");
@@ -57,12 +59,18 @@ public class CommunityDAOHibernate extends CommunityDAO {
     }
 	
 	/*
-	 * Returns, without calculating it, the number of items owned by the community (retrieves the persisted value)
-	 * @see org.dspace.content.dao.CommunityDAO#count(org.dspace.content.Community, javax.persistence.EntityManager)
-	 */
+     * Calculates and returns the number of items owned by the community (does not read the persisted value but re-calculates it)
+     * @see org.dspace.content.dao.CommunityDAO#getCount(org.dspace.content.Community, javax.persistence.EntityManager)
+     */
 	public Integer count(Community community, EntityManager em)
     {
-        return new Integer(15);
+	    if(community==null) throw new IllegalArgumentException("Community in itemCount may not be null");
+	    Query q = em.createQuery("SELECT COUNT(i) " +
+	    		                 "FROM Community community, IN (community.collections) AS collections, IN (collections.items) AS i " +
+	    		                 "WHERE community = :community AND i.in_archive = true AND i.withdrawn = FALSE");
+	    q.setParameter("community", community);
+	    Integer itemCount = (Integer) q.getSingleResult();
+	    return itemCount;
     }
 	
 	@Override

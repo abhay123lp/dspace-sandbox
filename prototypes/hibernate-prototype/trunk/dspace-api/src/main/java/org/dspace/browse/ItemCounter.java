@@ -38,6 +38,8 @@ package org.dspace.browse;
 import java.sql.SQLException;
 import java.util.List;
 
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -204,26 +206,36 @@ public class ItemCounter
 		throws ItemCountException
 	{
 		boolean useCache = ConfigurationManager.getBooleanProperty("webui.strengths.cache");
+	
 		
-		if (useCache)
-		{
-			//return dao.getCount(dso);
-		    //FIXME controllare
-		    return 123;
-		}
-		
-		// if we make it this far, we need to manually count
 		if (dso instanceof Collection)
-		{
-			//return ((Collection) dso).countItems();
-		    return ApplicationService.getCountItems((Collection)dso, context);
-		}
-		
-		if (dso instanceof Community)
-		{
-			//return ((Collection) dso).countItems();
-			return ApplicationService.getCountItems((Community)dso, context);
-		}
+        {
+            if (useCache)
+            {
+                return ApplicationService.countItems((Collection) dso, context);
+            }
+            else //recalculate and save the value
+            {
+                // return ((Collection) dso).countItems();
+                return ApplicationService.getCountItems((Collection) dso,
+                        context);
+            }
+        }
+
+        if (dso instanceof Community)
+        {
+            if (useCache)
+            {
+                return ApplicationService.countItems((Community) dso, context);
+            }
+            else
+            {
+
+                //return ((Collection) dso).countItems();
+                return ApplicationService.getCountItems((Community) dso,
+                        context);
+            }
+        }
 		
 		return 0;
 	}

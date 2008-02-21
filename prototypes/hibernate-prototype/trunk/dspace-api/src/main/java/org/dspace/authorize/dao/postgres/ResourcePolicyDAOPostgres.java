@@ -42,6 +42,7 @@ package org.dspace.authorize.dao.postgres;
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 import org.dspace.storage.rdbms.DatabaseManager;
@@ -75,11 +76,12 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         {
             SimpleIdentifier sid = ObjectIdentifierMint.mintSimple();
             TableRow row = DatabaseManager.create(context, "resourcepolicy");
-            row.setColumn("uuid", sid.getUUID().toString());
+            row.setColumn("uuid", sid.getUUID().toString()); //inserire l'attributo uuid in resourcepolicy?
             DatabaseManager.update(context, row);
 
             int id = row.getIntColumn("policy_id");
-            ResourcePolicy rp = new ResourcePolicy(context, id);
+            //ResourcePolicy rp = new ResourcePolicy(context, id);
+            ResourcePolicy rp = new ResourcePolicy(context);
             rp.setSimpleIdentifier(sid);
 
             return rp;
@@ -265,8 +267,9 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         }
 
         int id = row.getIntColumn("policy_id");
-        ResourcePolicy rp = new ResourcePolicy(context, id);
-        populateResourcePolicyFromTableRow(rp, row);
+//        ResourcePolicy rp = new ResourcePolicy(context, id);
+//        populateResourcePolicyFromTableRow(rp, row);
+        ResourcePolicy rp = ApplicationService.get(context, ResourcePolicy.class, id);
 
         return rp;
     }

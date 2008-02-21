@@ -30,8 +30,10 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.factory.CollectionFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
+import org.dspace.eperson.RegistrationData;
 import org.dspace.eperson.EPerson.EPersonMetadataField;
 
 
@@ -74,7 +76,7 @@ public class ApplicationService {
     }
     
     /**
-     * Removes an object from the db This method is public and not protected
+     * Removes an object from the db. This method is public and not protected
      * because other packages use it, but it should be NOT used explicitly, use
      * managers instead.
      */
@@ -82,6 +84,11 @@ public class ApplicationService {
         System.out.println(" ApplicationService: delete: " + clazz.getCanonicalName());
         setupTransaction("delete", context);
         context.getEntityManager().remove(object);
+    }
+    
+    //TODO implementare
+    public static void deleteRegistrationDataByToken(Context context, String token) {
+        
     }
 
     /* Finder operations */ 
@@ -238,6 +245,16 @@ public class ApplicationService {
         return null;
     }
     
+    //TODO implementare
+    public static RegistrationData findRegistrationDataByToken(String token, Context context) {
+        return null;
+    }
+    
+    //TODO
+    public static RegistrationData findRegistrationDataByEmail(String email, Context context) {
+        return null;
+    }
+    
     public static int getCountItems(Collection collection, Context context) {
         CollectionDAO cdao = CollectionDAOFactory.getInstance(context);
         Integer ccount = cdao.getCount(collection, context.getEntityManager());
@@ -260,6 +277,11 @@ public class ApplicationService {
     public static Integer countItems(Collection collection, Context context) {
         CollectionDAO cdao = CollectionDAOFactory.getInstance(context);
         return cdao.count(collection, context.getEntityManager());        
+    }
+    
+    public static Integer countItems(Community community, Context context) {
+        CommunityDAO cdao = CommunityDAOFactory.getInstance(context);
+        return cdao.count(community, context.getEntityManager());        
     }
     
     

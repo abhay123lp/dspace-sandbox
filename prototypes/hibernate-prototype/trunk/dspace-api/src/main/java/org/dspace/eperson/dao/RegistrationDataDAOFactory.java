@@ -49,6 +49,6 @@ public class RegistrationDataDAOFactory
 {
     public static RegistrationDataDAO getInstance(Context context)
     {
-        return new RegistrationDataDAOPostgres(context);
+        return null;//new RegistrationDataDAOPostgres(context);
     }
 }

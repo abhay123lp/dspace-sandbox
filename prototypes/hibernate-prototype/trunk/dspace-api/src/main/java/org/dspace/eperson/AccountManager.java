@@ -95,7 +95,7 @@ public class AccountManager
     public static Group createGroup(Context context) {
         return GroupFactory.getInstance(context);
     }
-    
+     
     /* Returns a list of all epeople in group (or any subgroups) */
     public static List<EPerson> getAllEPeople(Group group, Context context) {
         List<EPerson> epeople = group.getEpeople();
@@ -233,10 +233,11 @@ public class AccountManager
      */
     public String getEmail(Context context, String token)
     {
-        RegistrationDataDAO dao =
-            RegistrationDataDAOFactory.getInstance(context);
-
-        RegistrationData rd = dao.retrieveByToken(token);
+//        RegistrationDataDAO dao =
+//            RegistrationDataDAOFactory.getInstance(context);
+//        RegistrationData rd = dao.retrieveByToken(token);
+        
+        RegistrationData rd = ApplicationService.findRegistrationDataByToken(token, context);
 
         if (rd == null)
         {
@@ -258,7 +259,8 @@ public class AccountManager
      */
     public void deleteToken(Context context, String token)
     {
-        RegistrationDataDAOFactory.getInstance(context).delete(token);
+        //RegistrationDataDAOFactory.getInstance(context).delete(token);
+        ApplicationService.deleteRegistrationDataByToken(context, token);
     }
 
     /*
@@ -284,21 +286,24 @@ public class AccountManager
         throws IOException, MessagingException
     {
         // See if a registration token already exists for this user
-        RegistrationDataDAO dao =
-            RegistrationDataDAOFactory.getInstance(context);
-
-        RegistrationData rd = dao.retrieveByEmail(email);
+//        RegistrationDataDAO dao =
+//            RegistrationDataDAOFactory.getInstance(context);
+//
+//        RegistrationData rd = dao.retrieveByEmail(email);
+        RegistrationData rd = ApplicationService.findRegistrationDataByEmail(email, context);
 
         // If it already exists, just re-issue it
         if (rd == null)
         {
-            rd = dao.create();
+            //rd = dao.create(); //FIXME va bene cosi' con il costruttore esplicitamente?
+            rd = new RegistrationData();
             rd.setToken(Utils.generateHexKey());
 
             // don't set expiration date any more
             // rd.setExpiryDate(getDefaultExpirationDate());
             rd.setEmail(email);
-            dao.update(rd);
+            //dao.update(rd);
+            ApplicationService.save(context, RegistrationData.class, rd);
 
             // This is a potential problem -- if we create the callback
             // and then crash, registration will get SNAFU-ed.
