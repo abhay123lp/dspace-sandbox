@@ -35,6 +35,8 @@ package org.dspace.checker;
 
 import java.util.Date;
 
+import org.dspace.core.ApplicationService;
+
 /**
  * An implementation of the selection strategy that selects bitstreams in the
  * order that they were last checked, looping endlessly.
@@ -63,10 +65,10 @@ public class SimpleDispatcher implements BitstreamDispatcher
      */
     private int bitstreamId = -1;
 
-    /**
-     * Access for bitstream information
-     */
-    private BitstreamInfoDAO bitstreamInfoDAO;
+//    /**
+//     * Access for bitstream information
+//     */
+//    private BitstreamInfoDAO bitstreamInfoDAO;
 
     /**
      * Creates a new SimpleDispatcher.
@@ -80,7 +82,7 @@ public class SimpleDispatcher implements BitstreamDispatcher
     public SimpleDispatcher(BitstreamInfoDAO bitstreamInfoDAO, Date startTime,
             boolean looping)
     {
-        this.bitstreamInfoDAO = bitstreamInfoDAO;
+        //this.bitstreamInfoDAO = bitstreamInfoDAO;
         this.processStartTime = startTime;
         this.loopContinuously = looping;
     }
@@ -104,12 +106,13 @@ public class SimpleDispatcher implements BitstreamDispatcher
         // bitstreams in most_recent_checksum table?
         if (!loopContinuously && (processStartTime != null))
         {
-            return bitstreamInfoDAO.getOldestBitstream(new java.sql.Timestamp(
-                    processStartTime.getTime()));
+            //return bitstreamInfoDAO.getOldestBitstream(new java.sql.Timestamp(processStartTime.getTime()));
+            return ApplicationService.findOldestBitstream(new java.sql.Timestamp(processStartTime.getTime()));
         }
         else
         {
-            return bitstreamInfoDAO.getOldestBitstream();
+            //return bitstreamInfoDAO.getOldestBitstream();
+            return ApplicationService.findOldestBitstream();
         }
 
     }

@@ -61,37 +61,37 @@ public class BitstreamDAO
         ;
     }
 
-    /**
-     * Retrieves the bitstream from the bitstore.
-     * 
-     * @param id
-     *            the bitstream id.
-     * 
-     * @return Bitstream as an InputStream
-     * 
-     * @throws IOException
-     *             Rethrown from BitstreamStorageManager
-     * @throws SQLException
-     *             Rethrown from BitstreamStorageManager
-     * 
-     * @see org.dspace.storage.bitstore.BitstreamStorageManager#retrieve(Context,
-     *      int)
-     */
-    public InputStream getBitstream(Bitstream bitstream) throws IOException, SQLException
-    {
-
-        Context context = null;
-        InputStream is = null;
-        try
-        {
-            context = new Context();
-            is = BitstreamStorageManager.retrieve(context, bitstream);
-        }
-        finally
-        {
-            context.abort();
-        }
-
-        return is;
-    }
+//    /**
+//     * Retrieves the bitstream from the bitstore.
+//     * 
+//     * @param id
+//     *            the bitstream id.
+//     * 
+//     * @return Bitstream as an InputStream
+//     * 
+//     * @throws IOException
+//     *             Rethrown from BitstreamStorageManager
+//     * @throws SQLException
+//     *             Rethrown from BitstreamStorageManager
+//     * 
+//     * @see org.dspace.storage.bitstore.BitstreamStorageManager#retrieve(Context,
+//     *      int)
+//     */
+//    public InputStream getBitstream(Bitstream bitstream) throws IOException, SQLException
+//    {
+//
+//        Context context = null;
+//        InputStream is = null;
+//        try
+//        {
+//            context = new Context();
+//            is = BitstreamStorageManager.retrieve(context, bitstream);
+//        }
+//        finally
+//        {
+//            context.abort();
+//        }
+//
+//        return is;
+//    }
 }

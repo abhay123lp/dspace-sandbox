@@ -41,6 +41,7 @@
 package org.dspace.checker;
 
 import org.apache.log4j.Logger;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.event.Consumer;
 import org.dspace.event.Event;
@@ -79,7 +80,8 @@ public class CheckerConsumer implements Consumer
     	if (event.getEventType() == Event.DELETE)
     	{
             log.debug("Attempting to remove Checker Info");
-    	    bitstreamInfoDAO.deleteBitstreamInfoWithHistory(event.getSubjectID());
+    	    //bitstreamInfoDAO.deleteBitstreamInfoWithHistory(event.getSubjectID());
+            ApplicationService.deleteBitstreamInfoWithHistory(event.getSubjectID());
             log.debug("Completed removing Checker Info");
     	}
     }
