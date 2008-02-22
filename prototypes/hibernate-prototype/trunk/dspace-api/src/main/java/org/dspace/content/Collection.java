@@ -60,6 +60,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.SecondaryTable;
 import javax.persistence.Transient;
 import javax.persistence.CascadeType;
 
@@ -111,6 +112,7 @@ import org.dspace.eperson.factory.GroupFactory;
  * @version $Revision: 1772 $
  */
 @Entity
+@SecondaryTable(name="collection_item_count")
 public class Collection extends DSpaceObject {
 	
 	/** Flag set when data is modified, for events */
@@ -135,6 +137,9 @@ public class Collection extends DSpaceObject {
 	/* String is the field, CollectionMetadata is an object with field as key attribute
 	 * and the value as attribute */
 	private Map<String, CollectionMetadata> collectionMetadata;
+	
+	/** the number of items under this collection */
+	int itemCount;
 	
 	public Collection(Context context) {
 		this.context = context;
@@ -490,5 +495,16 @@ public class Collection extends DSpaceObject {
 	public void setCollectionLicense(String collectionLicense) {
 		this.collectionLicense = collectionLicense;
 	}
+
+	@Column(table="collection_item_count", name="count")
+    public int getItemCount()
+    {
+        return itemCount;
+    }
+
+    public void setItemCount(int itemCount)
+    {
+        this.itemCount = itemCount;
+    }
 
 }

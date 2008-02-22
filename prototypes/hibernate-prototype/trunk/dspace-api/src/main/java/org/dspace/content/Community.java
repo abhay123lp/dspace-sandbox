@@ -47,22 +47,22 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.TreeMap;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.SecondaryTable;
 import javax.persistence.Transient;
-import javax.persistence.CascadeType;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-//import org.dspace.authorize.ResourcePolicy;
 import org.dspace.content.factory.BitstreamFactory;
-import org.dspace.content.factory.CollectionFactory;
-import org.dspace.content.factory.CommunityFactory;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.I18nUtil;
@@ -80,6 +80,7 @@ import org.dspace.core.LogManager;
  * @version $Revision: 1772 $
  */
 @Entity
+@SecondaryTable(name="community_item_count")
 public class Community extends DSpaceObject
 {
     
@@ -100,7 +101,8 @@ public class Community extends DSpaceObject
     /** Metadata of this community **/
     private Map<String, CommunityMetadata> communityMetadata;
     
-    
+    /** The number of items under this community */
+    private int itemCount;
     
     public Community(Context context)
     {
@@ -369,5 +371,16 @@ public class Community extends DSpaceObject
 			Map<String, CommunityMetadata> communityMetadata) {
 		this.communityMetadata = communityMetadata;
 	}
+
+	@Column(table="community_item_count", name="count")
+    public int getItemCount()
+    {
+        return itemCount;
+    }
+
+    public void setItemCount(int itemCount)
+    {
+        this.itemCount = itemCount;
+    }
 
 }

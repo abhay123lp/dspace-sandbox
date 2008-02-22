@@ -33,6 +33,11 @@
  */
 package org.dspace.checker;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 /**
  * Enumeration of ChecksumCheckResults containing constants for checksum
  * comparison result that must correspond to values in checksum_result table.
@@ -44,6 +49,8 @@ package org.dspace.checker;
  * 
  * @todo Refactor these as properties of ChecksumChecker?
  */
+@Entity
+@Table(name="checksum_results")
 public class ChecksumCheckResults
 {
     /**
@@ -85,4 +92,36 @@ public class ChecksumCheckResults
      * No match between requested algorithm and previously used algorithm.
      */
     public static final String CHECKSUM_ALGORITHM_INVALID = "CHECKSUM_ALGORITHM_INVALID";
+    
+    /** code of the checksum result */
+    private String code;
+    
+    /** description of the checksum result */
+    private String description;
+    
+    protected ChecksumCheckResults() {}
+
+    @Id
+    @Column(name="result_code", insertable=false, updatable=false)
+    public String getCode()
+    {
+        return code;
+    }
+
+    public void setCode(String code)
+    {
+        this.code = code;
+    }
+
+    @Column(name="result_description", insertable=false, updatable=false)
+    public String getDescription()
+    {
+        return description;
+    }
+
+    public void setDescription(String description)
+    {
+        this.description = description;
+    }
+    
 }
