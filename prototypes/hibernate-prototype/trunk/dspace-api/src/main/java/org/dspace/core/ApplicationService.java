@@ -1,12 +1,14 @@
     package org.dspace.core;
 
 import java.io.InputStream;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.dspace.checker.BitstreamInfo;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
@@ -90,7 +92,12 @@ public class ApplicationService {
     public static void deleteRegistrationDataByToken(Context context, String token) {
         
     }
-
+    
+    //TODO implementare da bistreaminfodao
+    public static int deleteBitstreamInfoWithHistory(int id) {
+        return 0;
+    }
+   
     /* Finder operations */ 
     
     /*
@@ -254,6 +261,24 @@ public class ApplicationService {
     public static RegistrationData findRegistrationDataByEmail(String email, Context context) {
         return null;
     }
+    
+    //TODO bistreaminfodao
+    public static BitstreamInfo findBitstreamInfoByBitstreamId(int id) {
+        return null;
+    }
+    
+    //TODO bistreaminfodao. non sarebbe necessario un context? direi di si.
+    public static int findOldestBitstream() {
+        return 0;
+    }
+    //TODO bitstreaminfodao
+    public static int findOldestBitstream(Timestamp lessThanDate) {
+        return 0;
+    }
+    
+    
+    
+    
     
     public static int getCountItems(Collection collection, Context context) {
         CollectionDAO cdao = CollectionDAOFactory.getInstance(context);

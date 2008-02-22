@@ -35,9 +35,12 @@
 		<class>org.dspace.browse.ItemCounter</class>
 		<class>org.dspace.workflow.WorkflowItem</class>
 		<class>org.dspace.authorize.ResourcePolicy</class>
+		<class>org.dspace.checker.BitstreamInfo</class>
+		<class>org.dspace.checker.ChecksumCheckResults</class>
+		
 
-		<class>org.dspace.browse.CollectionItemCount</class>
-		<class>org.dspace.browse.CommunityItemCount</class>
+		<!--class>org.dspace.browse.CollectionItemCount</class>
+		<class>org.dspace.browse.CommunityItemCount</class-->
   
         <properties>
             <property name="toplink.jdbc.driver" value="org.postgresql.Driver"/>

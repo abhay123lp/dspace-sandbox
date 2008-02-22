@@ -45,7 +45,9 @@ import org.apache.log4j.Logger;
 import org.dspace.content.Bitstream;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
+import org.dspace.core.ItemManager;
 import org.dspace.core.Utils;
+import org.dspace.storage.bitstore.BitstreamStorageManager;
 
 /**
  * <p>
@@ -179,7 +181,8 @@ public final class CheckerCommand
     private BitstreamInfo checkBitstream(final int id, Context context)
     {
         // get bitstream info from bitstream table
-        BitstreamInfo info = bitstreamInfoDAO.findByBitstreamId(id);
+        //BitstreamInfo info = bitstreamInfoDAO.findByBitstreamId(id);
+        BitstreamInfo info = ApplicationService.findBitstreamInfoByBitstreamId(id);
 
         // requested id was not found in bitstream
         // or most_recent_checksum table
@@ -340,7 +343,8 @@ public final class CheckerCommand
         try
         {
             Bitstream b = ApplicationService.get(context, Bitstream.class, info.getBitstreamId());
-            InputStream bitstream = bitstreamDAO.getBitstream(b);
+            //InputStream bitstream = bitstreamDAO.getBitstream(b);
+            InputStream bitstream = BitstreamStorageManager.retrieve(context, b);
 
             info.setBitstreamFound(true);
 
@@ -362,16 +366,16 @@ public final class CheckerCommand
             LOG.error("Error retrieving bitstream ID " + info.getBitstreamId()
                     + " from " + "asset store.", e);
         }
-        catch (SQLException e)
-        {
-            // ??this code only executes if an sql
-            // exception occurs in *DSpace* code, probably
-            // indicating a general db problem?
-            info
-                    .setChecksumCheckResult(ChecksumCheckResults.BITSTREAM_INFO_NOT_FOUND);
-            LOG.error("Error retrieving metadata for bitstream ID "
-                    + info.getBitstreamId(), e);
-        }
+//        catch (SQLException e)
+//        {
+//            // ??this code only executes if an sql
+//            // exception occurs in *DSpace* code, probably
+//            // indicating a general db problem?
+//            info
+//                    .setChecksumCheckResult(ChecksumCheckResults.BITSTREAM_INFO_NOT_FOUND);
+//            LOG.error("Error retrieving metadata for bitstream ID "
+//                    + info.getBitstreamId(), e);
+//        }
         catch (NoSuchAlgorithmException e)
         {
             info
