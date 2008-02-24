@@ -1,53 +1,98 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.dspace</groupId>
-  <artifactId>dspace-history</artifactId>
-  <name>DSpace RDF based History AddOn</name>
-  <version>1.5-SNAPSHOT</version>
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.dspace</groupId>
+   <artifactId>dspace-history</artifactId>
+   <name>DSpace RDF based History AddOn</name>
+   <version>1.5-SNAPSHOT</version>
 
-  <!-- 
+   <!-- 
       A Parent POM that Maven inherits DSpace Default 
       POM atrributes from. 
    -->
    <parent>
       <groupId>org.dspace</groupId>
-      <artifactId>dspace-pom</artifactId>
+      <artifactId>dspace-parent</artifactId>
       <version>1.5-SNAPSHOT</version>
-      <relativePath>../dspace-pom</relativePath>
    </parent>
 
-  <repositories>
-    <repository>
-      <releases>
-        <enabled>true</enabled>
-        <updatePolicy>always</updatePolicy>
-        <checksumPolicy>warn</checksumPolicy>
-      </releases>
-      <snapshots>
-        <enabled>false</enabled>
-        <updatePolicy>never</updatePolicy>
-        <checksumPolicy>fail</checksumPolicy>
-      </snapshots>
-      <id>aduna-repo</id>
-      <name>Aduna Repository</name>
-      <url>http://repository.aduna-software.org/maven2</url>
-    </repository>
-  </repositories>
+   <repositories>
+      <repository>
+         <id>maven.dspace.org/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://maven.dspace.org/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+      <repository>
+         <releases>
+            <updatePolicy>always</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+         <id>aduna-repo</id>
+         <name>Aduna Repository</name>
+         <url>http://repository.aduna-software.org/maven2</url>
+      </repository>
+      <repository>
+         <releases>
+            <enabled>false</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <updatePolicy>daily</updatePolicy>
+            <checksumPolicy>warn</checksumPolicy>
+         </snapshots>
+         <id>aduna-snapshot-repo</id>
+         <name>Aduna Snapshot Repository</name>
+         <url>
+            http://repository.aduna-software.org/maven2-snapshots
+         </url>
+      </repository>
+   </repositories>
 
-  <dependencies>
-    <dependency>
-      <groupId>org.dspace</groupId>
-      <artifactId>dspace-api</artifactId>
-      <version>1.5-SNAPSHOT</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dspace</groupId>
-      <artifactId>dspace-sesame</artifactId>
-      <version>1.5-SNAPSHOT</version>
-    </dependency>
-  </dependencies>
-  
+   <pluginRepositories>
+      <pluginRepository>
+         <id>maven.dspace.org/snapshot</id>
+         <name>DSpace Maven Repository</name>
+         <url>http://maven.dspace.org/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </pluginRepository>
+   </pluginRepositories>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-api</artifactId>
+         <version>1.5-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-sesame</artifactId>
+         <version>1.5-SNAPSHOT</version>
+      </dependency>
+   </dependencies>
+
 </project>
