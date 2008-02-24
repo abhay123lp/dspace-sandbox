@@ -7,7 +7,6 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-sesame</artifactId>
    <name>DSpace :: RDF Triplestore</name>
-   <version>1.5-SNAPSHOT</version>
    <url>http://www.dspace.org</url>
 
    <parent>
