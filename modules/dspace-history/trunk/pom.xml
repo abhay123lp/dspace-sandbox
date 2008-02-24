@@ -6,7 +6,6 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-history</artifactId>
    <name>DSpace RDF based History AddOn</name>
-   <version>1.5-SNAPSHOT</version>
 
    <!-- 
       A Parent POM that Maven inherits DSpace Default 
@@ -33,60 +32,12 @@
             <checksumPolicy>fail</checksumPolicy>
          </snapshots>
       </repository>
-      <repository>
-         <releases>
-            <updatePolicy>always</updatePolicy>
-            <checksumPolicy>warn</checksumPolicy>
-         </releases>
-         <snapshots>
-            <enabled>false</enabled>
-            <updatePolicy>never</updatePolicy>
-            <checksumPolicy>fail</checksumPolicy>
-         </snapshots>
-         <id>aduna-repo</id>
-         <name>Aduna Repository</name>
-         <url>http://repository.aduna-software.org/maven2</url>
-      </repository>
-      <repository>
-         <releases>
-            <enabled>false</enabled>
-            <updatePolicy>never</updatePolicy>
-            <checksumPolicy>fail</checksumPolicy>
-         </releases>
-         <snapshots>
-            <updatePolicy>daily</updatePolicy>
-            <checksumPolicy>warn</checksumPolicy>
-         </snapshots>
-         <id>aduna-snapshot-repo</id>
-         <name>Aduna Snapshot Repository</name>
-         <url>
-            http://repository.aduna-software.org/maven2-snapshots
-         </url>
-      </repository>
    </repositories>
-
-   <pluginRepositories>
-      <pluginRepository>
-         <id>maven.dspace.org/snapshot</id>
-         <name>DSpace Maven Repository</name>
-         <url>http://maven.dspace.org/snapshot</url>
-         <releases>
-            <enabled>false</enabled>
-            <checksumPolicy>fail</checksumPolicy>
-         </releases>
-         <snapshots>
-            <enabled>true</enabled>
-            <updatePolicy>never</updatePolicy>
-            <checksumPolicy>fail</checksumPolicy>
-         </snapshots>
-      </pluginRepository>
-   </pluginRepositories>
 
    <dependencies>
       <dependency>
          <groupId>org.dspace</groupId>
          <artifactId>dspace-api</artifactId>
-         <version>1.5-SNAPSHOT</version>
       </dependency>
       <dependency>
          <groupId>org.dspace</groupId>
