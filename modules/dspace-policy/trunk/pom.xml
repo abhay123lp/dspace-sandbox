@@ -6,24 +6,38 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-policy</artifactId>
    <name>DSpace Policy Generator and Store</name>
-   <version>1.5-SNAPSHOT</version>
 
-   <!-- 
-      A Parent POM that Maven inherits DSpace Defaults 
+ <!-- 
+      A Parent POM that Maven inherits DSpace Default 
       POM atrributes from. 
    -->
    <parent>
       <groupId>org.dspace</groupId>
-      <artifactId>dspace-pom</artifactId>
+      <artifactId>dspace-parent</artifactId>
       <version>1.5-SNAPSHOT</version>
-      <relativePath>../dspace-pom</relativePath>
    </parent>
+
+   <repositories>
+      <repository>
+         <id>maven.dspace.org/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://maven.dspace.org/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
 
   <dependencies>
     <dependency>
       <groupId>org.dspace</groupId>
       <artifactId>dspace-api</artifactId>
-      <version>1.5-SNAPSHOT</version>
     </dependency>
         <dependency>
       <groupId>org.dspace</groupId>
