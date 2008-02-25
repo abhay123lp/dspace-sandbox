@@ -61,6 +61,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
 
 /**
  * <p>
@@ -247,6 +248,8 @@ public class DailyReportEmailer
 
         try
         {
+            Context context = new Context();
+            context.setIgnoreAuthorization(true);
             // the number of bitstreams in report
             int numBitstreams = 0;
 
@@ -272,22 +275,22 @@ public class DailyReportEmailer
                 writer
                         .write("\n--------------------------------- Begin Reporting ------------------------\n\n");
                 numBitstreams += reporter.getDeletedBitstreamReport(yesterday,
-                        tomorrow, writer);
+                        tomorrow, writer, context);
                 writer
                         .write("\n--------------------------------- Report Spacer ---------------------------\n\n");
                 numBitstreams += reporter.getChangedChecksumReport(yesterday,
-                        tomorrow, writer);
+                        tomorrow, writer, context);
                 writer
                         .write("\n--------------------------------- Report Spacer ---------------------------\n\n");
                 numBitstreams += reporter.getBitstreamNotFoundReport(yesterday,
-                        tomorrow, writer);
+                        tomorrow, writer, context);
                 writer
                         .write("\n--------------------------------- Report Spacer ---------------------------\n\n");
                 numBitstreams += reporter.getNotToBeProcessedReport(yesterday,
-                        tomorrow, writer);
+                        tomorrow, writer, context);
                 writer
                         .write("\n--------------------------------- Report Spacer ---------------------------\n\n");
-                numBitstreams += reporter.getUncheckedBitstreamsReport(writer);
+                numBitstreams += reporter.getUncheckedBitstreamsReport(writer, context);
                 writer
                         .write("\n--------------------------------- End Report ---------------------------\n\n");
                 writer.flush();
@@ -301,7 +304,7 @@ public class DailyReportEmailer
                     writer
                             .write("\n--------------------------------- Begin Reporting ------------------------\n\n");
                     numBitstreams += reporter.getDeletedBitstreamReport(
-                            yesterday, tomorrow, writer);
+                            yesterday, tomorrow, writer, context);
                     writer.flush();
                     writer.close();
                     emailer.sendReport(report, numBitstreams);
@@ -312,7 +315,7 @@ public class DailyReportEmailer
                     writer
                             .write("\n--------------------------------- Begin Reporting ------------------------\n\n");
                     numBitstreams += reporter.getBitstreamNotFoundReport(
-                            yesterday, tomorrow, writer);
+                            yesterday, tomorrow, writer, context);
                     writer.flush();
                     writer.close();
                     emailer.sendReport(report, numBitstreams);
@@ -323,7 +326,7 @@ public class DailyReportEmailer
                     writer
                             .write("\n--------------------------------- Begin Reporting ------------------------\n\n");
                     numBitstreams += reporter.getChangedChecksumReport(
-                            yesterday, tomorrow, writer);
+                            yesterday, tomorrow, writer, context);
                     writer.flush();
                     writer.close();
                     emailer.sendReport(report, numBitstreams);
@@ -334,7 +337,7 @@ public class DailyReportEmailer
                     writer
                             .write("\n--------------------------------- Begin Reporting ------------------------\n\n");
                     numBitstreams += reporter.getNotToBeProcessedReport(
-                            yesterday, tomorrow, writer);
+                            yesterday, tomorrow, writer, context);
                     writer.flush();
                     writer.close();
                     emailer.sendReport(report, numBitstreams);
@@ -345,7 +348,7 @@ public class DailyReportEmailer
                     writer
                             .write("\n--------------------------------- Begin Reporting ------------------------\n\n");
                     numBitstreams += reporter
-                            .getUncheckedBitstreamsReport(writer);
+                            .getUncheckedBitstreamsReport(writer, context);
                     writer.flush();
                     writer.close();
                     emailer.sendReport(report, numBitstreams);

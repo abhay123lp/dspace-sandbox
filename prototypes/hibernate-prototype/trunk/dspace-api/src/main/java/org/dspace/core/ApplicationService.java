@@ -1,14 +1,19 @@
     package org.dspace.core;
 
-import java.io.InputStream;
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.dspace.checker.BitstreamInfo;
+import org.dspace.checker.BitstreamInfoDAOJPA;
+import org.dspace.checker.ChecksumHistory;
+import org.dspace.checker.ChecksumHistoryDAOJPA;
+import org.dspace.checker.ChecksumResultDAOJPA;
+import org.dspace.checker.DSpaceBitstreamInfo;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
@@ -32,11 +37,11 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
-import org.dspace.content.factory.CollectionFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.RegistrationData;
 import org.dspace.eperson.EPerson.EPersonMetadataField;
+import org.dspace.eperson.dao.hibernate.RegistrationDataDAOJPA;
 
 
 public class ApplicationService {
@@ -88,15 +93,27 @@ public class ApplicationService {
         context.getEntityManager().remove(object);
     }
     
-    //TODO implementare
+    
     public static void deleteRegistrationDataByToken(Context context, String token) {
-        
+        RegistrationDataDAOJPA rddao = new RegistrationDataDAOJPA();
+        rddao.deleteRegistrationDataByToken(context, token);
     }
     
-    //TODO implementare da bistreaminfodao
-    public static int deleteBitstreamInfoWithHistory(int id) {
-        return 0;
+    //FIXME questa è già un po' di logica, non pertinente all'application service, ci vorrebbe un manager?
+    public static void deleteBitstreamInfoWithHistory(int id, Context context) {
+        BitstreamInfoDAOJPA bidao = new BitstreamInfoDAOJPA();
+        ChecksumHistoryDAOJPA chdao = new ChecksumHistoryDAOJPA();
+        bidao.deleteBitstreamInfo(id, context);
+        chdao.deleteHistoryForBitstreamInfo(id, context);
     }
+    
+    
+    public static int deleteHistoryByDateAndCode(Date retentionDate, String result, Context context) {
+        ChecksumHistoryDAOJPA chdao = new ChecksumHistoryDAOJPA();
+        return chdao.deleteHistoryByDateAndCode(retentionDate, result, context);
+    }
+  
+ 
    
     /* Finder operations */ 
     
@@ -175,7 +192,7 @@ public class ApplicationService {
     //TODO implementare
     public static List<Item> findItemForHarvest(DSpaceObject scope,
             String startDate, String endDate, int offset, int limit,
-            boolean items, boolean collections, boolean withdrawn)
+            boolean items, boolean collections, boolean withdrawn, Context context)
             throws ParseException
     {
         return null;
@@ -199,6 +216,21 @@ public class ApplicationService {
         BitstreamFormatDAO bdao = BitstreamFormatDAOFactory.getInstance(context);
         List<BitstreamFormat> bfs = bdao.getBitstreamFormatByInternal(internal, context.getEntityManager());
         return bfs;
+    }
+    
+    //TODO implementare (bitstreaminfodao)
+    public static List<Integer> findAllCommunityBitstreamsId(int communityId, Context context) {
+        return null;
+    }
+    
+    //TODO implementare
+    public static List<Integer> findAllCollectionBitstreamsId(int collectionId, Context context) {
+        return null;
+    }
+    
+    //TODO implementare
+    public static List<Integer> findAllItemBitstreamsId(int itemId, Context context) {
+        return null;
     }
     
     // TODO implementare
@@ -248,7 +280,7 @@ public class ApplicationService {
      * Returns all groups the eperson belongs to, and 
      * all parent groups for groups eperson is a member of
      */  
-    public static List<Group> findAllGroups(EPerson eperson) {
+    public static List<Group> findAllGroups(EPerson eperson, Context context) {
         return null;
     }
     
@@ -263,19 +295,45 @@ public class ApplicationService {
     }
     
     //TODO bistreaminfodao
-    public static BitstreamInfo findBitstreamInfoByBitstreamId(int id) {
+    public static BitstreamInfo findBitstreamInfoByBitstreamId(int id, Context context) {
+        return null;
+    }
+    
+    //TODO reporterdao
+    public static List<DSpaceBitstreamInfo> findUnknownBitstreams(Context context) {
         return null;
     }
     
     //TODO bistreaminfodao. non sarebbe necessario un context? direi di si.
-    public static int findOldestBitstream() {
+    public static int findOldestBitstream(Context context) {
         return 0;
     }
     //TODO bitstreaminfodao
-    public static int findOldestBitstream(Timestamp lessThanDate) {
+    public static int findOldestBitstream(Timestamp lessThanDate, Context context) {
         return 0;
     }
     
+    //TODO reporterdao
+    public static List<ChecksumHistory> findNotProcessedBitstreamsReport(Date startDate, Date endDate, Context context) {
+        return null;
+    }
+    
+    //TODO reporterdao
+    public static List<ChecksumHistory> findBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode, Context context) {
+        return null;
+    }
+    
+    
+    public static String findChecksumCheckStrByCode(String code, Context context) {
+        ChecksumResultDAOJPA crdao = new ChecksumResultDAOJPA();
+        return crdao.findChecksumCheckStrByCode(code, context);
+    }
+    
+    
+    public static List<String> findAllCodes(Context context) {
+        ChecksumResultDAOJPA crdao = new ChecksumResultDAOJPA();
+        return crdao.findAllCodes(context);
+    }
     
     
     
@@ -307,6 +365,11 @@ public class ApplicationService {
     public static Integer countItems(Community community, Context context) {
         CommunityDAO cdao = CommunityDAOFactory.getInstance(context);
         return cdao.count(community, context.getEntityManager());        
+    }
+    
+    //TODO implementare: bitstreaminfodao e checksumhistorydao
+    public static void updateMissingBitstreams(Context context) {
+        
     }
     
     

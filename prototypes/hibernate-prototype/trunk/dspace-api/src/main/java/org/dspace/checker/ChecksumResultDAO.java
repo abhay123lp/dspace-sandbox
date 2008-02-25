@@ -127,7 +127,7 @@ public final class ChecksumResultDAO extends DAOSupport
         Connection conn = null;
         Statement stmt = null;
         ResultSet rs = null;
-        List codes = new ArrayList();
+        List<String> codes = new ArrayList<String>();
         try
         {
             conn = DatabaseManager.getConnection();

@@ -36,6 +36,7 @@ package org.dspace.checker;
 import java.util.Date;
 
 import org.dspace.core.ApplicationService;
+import org.dspace.core.Context;
 
 /**
  * An implementation of the selection strategy that selects bitstreams in the
@@ -100,19 +101,19 @@ public class SimpleDispatcher implements BitstreamDispatcher
      * 
      * @see org.dspace.checker.BitstreamDispatcher#next()
      */
-    public synchronized int next()
+    public synchronized int next(Context context)
     {
         // should process loop infinitely through the
         // bitstreams in most_recent_checksum table?
         if (!loopContinuously && (processStartTime != null))
         {
             //return bitstreamInfoDAO.getOldestBitstream(new java.sql.Timestamp(processStartTime.getTime()));
-            return ApplicationService.findOldestBitstream(new java.sql.Timestamp(processStartTime.getTime()));
+            return ApplicationService.findOldestBitstream(new java.sql.Timestamp(processStartTime.getTime()), context);
         }
         else
         {
             //return bitstreamInfoDAO.getOldestBitstream();
-            return ApplicationService.findOldestBitstream();
+            return ApplicationService.findOldestBitstream(context);
         }
 
     }

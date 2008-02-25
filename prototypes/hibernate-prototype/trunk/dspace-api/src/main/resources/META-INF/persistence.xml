@@ -35,8 +35,9 @@
 		<class>org.dspace.browse.ItemCounter</class>
 		<class>org.dspace.workflow.WorkflowItem</class>
 		<class>org.dspace.authorize.ResourcePolicy</class>
-		<class>org.dspace.checker.BitstreamInfo</class>
+		<class>org.dspace.checker.ChecksumHistory</class>
 		<class>org.dspace.checker.ChecksumCheckResults</class>
+		<class>org.dspace.checker.MostRecentChecksum</class>
 		
 
 		<!--class>org.dspace.browse.CollectionItemCount</class>

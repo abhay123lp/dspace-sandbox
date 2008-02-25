@@ -34,6 +34,7 @@
 package org.dspace.app.checker;
 
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,13 +52,14 @@ import org.apache.log4j.Logger;
 import org.dspace.checker.BitstreamDispatcher;
 import org.dspace.checker.BitstreamInfoDAO;
 import org.dspace.checker.CheckerCommand;
-import org.dspace.checker.URIDispatcher;
 import org.dspace.checker.LimitedCountDispatcher;
 import org.dspace.checker.LimitedDurationDispatcher;
 import org.dspace.checker.ListDispatcher;
 import org.dspace.checker.ResultsLogger;
 import org.dspace.checker.ResultsPruner;
 import org.dspace.checker.SimpleDispatcher;
+import org.dspace.checker.URIDispatcher;
+import org.dspace.core.Context;
 import org.dspace.core.Utils;
 
 /**
@@ -114,13 +116,16 @@ public class ChecksumChecker
         // create an options object and populate it
         Options options = new Options();
 
-        options.addOption("l", "looping", false, "Loop once through bitstreams");
+        options
+                .addOption("l", "looping", false,
+                        "Loop once through bitstreams");
         options.addOption("L", "continuous", false,
                 "Loop continuously through bitstreams");
         options.addOption("h", "help", false, "Help");
         options.addOption("d", "duration", true, "Checking duration");
         options.addOption("c", "count", true, "Check count");
-        options.addOption("a", "uri", true, "Specify a URI to check (canonical form)");
+        options.addOption("a", "uri", true,
+                "Specify a URI to check (canonical form)");
         options.addOption("v", "verbose", false, "Report all processing");
 
         OptionBuilder.withArgName("bitstream-ids").hasArgs().withDescription(
@@ -154,110 +159,125 @@ public class ChecksumChecker
             printHelp(options);
         }
 
-        // Prune stage
-        if (line.hasOption('p'))
+        Context context;
+        try
         {
-            ResultsPruner rp = null;
-            try
-            {
-                rp = (line.getOptionValue('p') != null) ? ResultsPruner
-                        .getPruner(line.getOptionValue('p')) : ResultsPruner
-                        .getDefaultPruner();
-            }
-            catch (FileNotFoundException e)
-            {
-                e.printStackTrace();
-                System.exit(1);
-            }
-            int count = rp.prune();
-            System.out.println("Pruned " + count
-                    + " old results from the database.");
-        }
+            context = new Context();
 
-        Date processStart = Calendar.getInstance().getTime();
-
-        BitstreamDispatcher dispatcher = null;
-        
-        // process should loop infinitely through
-        // most_recent_checksum table
-        if (line.hasOption('l'))
-        {
-            dispatcher = new SimpleDispatcher(new BitstreamInfoDAO(), processStart, false); 
-        }
-        else if (line.hasOption('L'))
-        {
-            dispatcher = new SimpleDispatcher(new BitstreamInfoDAO(), processStart, true);
-        }
-        else if (line.hasOption('b'))
-        {
-            // check only specified bitstream(s)
-            String[] ids = line.getOptionValues('b');
-            List idList = new ArrayList(ids.length);
-
-            for (int i = 0; i < ids.length; i++)
+            // Prune stage
+            if (line.hasOption('p'))
             {
+                ResultsPruner rp = null;
                 try
                 {
-                    idList.add(new Integer(ids[i]));
+                    rp = (line.getOptionValue('p') != null) ? ResultsPruner
+                            .getPruner(line.getOptionValue('p'))
+                            : ResultsPruner.getDefaultPruner();
                 }
-                catch (NumberFormatException nfe)
+                catch (FileNotFoundException e)
                 {
-                    System.err.println("The following argument: " + ids[i]
-                            + " is not an integer");
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+                int count = rp.prune(context);
+                System.out.println("Pruned " + count
+                        + " old results from the database.");
+            }
+
+            Date processStart = Calendar.getInstance().getTime();
+
+            BitstreamDispatcher dispatcher = null;
+
+            // process should loop infinitely through
+            // most_recent_checksum table
+            if (line.hasOption('l'))
+            {
+                dispatcher = new SimpleDispatcher(new BitstreamInfoDAO(),
+                        processStart, false);
+            }
+            else if (line.hasOption('L'))
+            {
+                dispatcher = new SimpleDispatcher(new BitstreamInfoDAO(),
+                        processStart, true);
+            }
+            else if (line.hasOption('b'))
+            {
+                // check only specified bitstream(s)
+                String[] ids = line.getOptionValues('b');
+                List idList = new ArrayList(ids.length);
+
+                for (int i = 0; i < ids.length; i++)
+                {
+                    try
+                    {
+                        idList.add(new Integer(ids[i]));
+                    }
+                    catch (NumberFormatException nfe)
+                    {
+                        System.err.println("The following argument: " + ids[i]
+                                + " is not an integer");
+                        System.exit(0);
+                    }
+                }
+                dispatcher = new ListDispatcher(idList);
+            }
+
+            else if (line.hasOption('a'))
+            {
+                dispatcher = new URIDispatcher(new BitstreamInfoDAO(), line
+                        .getOptionValue('a'));
+            }
+            else if (line.hasOption('d'))
+            {
+                // run checker process for specified duration
+                try
+                {
+                    dispatcher = new LimitedDurationDispatcher(
+                            new SimpleDispatcher(new BitstreamInfoDAO(),
+                                    processStart, true), new Date(System
+                                    .currentTimeMillis()
+                                    + Utils.parseDuration(line
+                                            .getOptionValue('d'))));
+                }
+                catch (Exception e)
+                {
+                    LOG.fatal("Couldn't parse " + line.getOptionValue('d')
+                            + " as a duration: ", e);
                     System.exit(0);
                 }
             }
-            dispatcher = new ListDispatcher(idList);
-        }
-
-        else if (line.hasOption('a'))
-        {
-            dispatcher = new URIDispatcher(new BitstreamInfoDAO(), line.getOptionValue('a'));
-        }
-        else if (line.hasOption('d'))
-        {
-            // run checker process for specified duration
-            try
+            else if (line.hasOption('c'))
             {
-                dispatcher = new LimitedDurationDispatcher(
-                        new SimpleDispatcher(new BitstreamInfoDAO(), processStart, true), new Date(
-                                System.currentTimeMillis()
-                                        + Utils.parseDuration(line
-                                                .getOptionValue('d'))));
-            }
-            catch (Exception e)
-            {
-                LOG.fatal("Couldn't parse " + line.getOptionValue('d')
-                        + " as a duration: ", e);
-                System.exit(0);
-            }
-        }
-        else if (line.hasOption('c'))
-        {
-        	int count = new Integer(line.getOptionValue('c')).intValue();
-            
-        	// run checker process for specified number of bitstreams
-            dispatcher = new LimitedCountDispatcher(new SimpleDispatcher(
-                    new BitstreamInfoDAO(), processStart, false), count);
-        }
-        else
-        {
-            dispatcher = new LimitedCountDispatcher(new SimpleDispatcher(
-                    new BitstreamInfoDAO(), processStart, false), 1);
-        }
-        
-        ResultsLogger logger = new ResultsLogger(processStart);
-        CheckerCommand checker = new CheckerCommand();
-        // verbose reporting
-        if (line.hasOption('v'))
-        {
-            checker.setReportVerbose(true);
-        }
+                int count = new Integer(line.getOptionValue('c')).intValue();
 
-        checker.setProcessStartDate(processStart);
-        checker.setDispatcher(dispatcher);
-        checker.setCollector(logger);
-        checker.process();
+                // run checker process for specified number of bitstreams
+                dispatcher = new LimitedCountDispatcher(new SimpleDispatcher(
+                        new BitstreamInfoDAO(), processStart, false), count);
+            }
+            else
+            {
+                dispatcher = new LimitedCountDispatcher(new SimpleDispatcher(
+                        new BitstreamInfoDAO(), processStart, false), 1);
+            }
+
+            ResultsLogger logger = new ResultsLogger(processStart);
+            CheckerCommand checker = new CheckerCommand();
+            // verbose reporting
+            if (line.hasOption('v'))
+            {
+                checker.setReportVerbose(true);
+            }
+
+            checker.setProcessStartDate(processStart);
+            checker.setDispatcher(dispatcher);
+            checker.setCollector(logger);
+            checker.process(context);
+            context.complete();
+        }
+        catch (SQLException e1)
+        {            
+            e1.printStackTrace();
+        }
         System.exit(0);
     }
 

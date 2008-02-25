@@ -38,6 +38,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -48,7 +49,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
 import org.dspace.core.Utils;
 
 /**
@@ -182,12 +185,12 @@ public final class ResultsPruner
     /**
      * Map of retention durations, keyed by result code name
      */
-    Map interests = new HashMap();
+    Map<String, Long> interests = new HashMap<String, Long>();
 
     /**
      * Checksum results database Data access
      */
-    private ChecksumResultDAO checksumResultDAO = null;
+    //private ChecksumResultDAO checksumResultDAO = null;
 
     /**
      * Checksum history database data access.
@@ -199,7 +202,7 @@ public final class ResultsPruner
      */
     public ResultsPruner()
     {
-        checksumResultDAO = new ChecksumResultDAO();
+        //checksumResultDAO = new ChecksumResultDAO();
         checksumHistoryDAO = new ChecksumHistoryDAO();
     }
 
@@ -255,10 +258,11 @@ public final class ResultsPruner
      * 
      * @return number of results removed.
      */
-    public int prune()
+    public int prune(Context context)
     {
-        List codes = checksumResultDAO.listAllCodes();
-        for (Iterator iter = codes.iterator(); iter.hasNext();)
+        //List codes = checksumResultDAO.listAllCodes();
+        List<String> codes = ApplicationService.findAllCodes(context);
+        for (Iterator<String> iter = codes.iterator(); iter.hasNext();)
         {
             String code = (String) iter.next();
             if (!interests.containsKey(code))
@@ -267,7 +271,33 @@ public final class ResultsPruner
             }
 
         }
-        return checksumHistoryDAO.prune(interests);
+        return prune(interests, context);
+    }
+    
+    /**
+     * Prune the history records from the database.
+     * 
+     * @param interests
+     *            set of results and the duration of time before they are
+     *            removed from the database
+     * 
+     * @return number of bitstreams deleted
+     */
+    public int prune(Map<String, Long> interests, Context context)
+    {
+        //spostato qui da checksumhistorydao
+        long now = System.currentTimeMillis();
+        int count = 0;
+        for (Iterator<String> iter = interests.keySet().iterator(); iter
+                .hasNext();)
+        {
+            String result = (String) iter.next();
+            Long dur = (Long) interests.get(result);
+            count += ApplicationService.deleteHistoryByDateAndCode(new Date(now
+                    - dur.longValue()), result, context);
+        }
+        return count;
+
     }
 
     /**

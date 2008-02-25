@@ -76,15 +76,15 @@ public final class CheckerCommand
     private int BYTE_ARRAY_SIZE = 4 * 1024;
 
     /** BitstreamInfoDAO dependency. */
-    private BitstreamInfoDAO bitstreamInfoDAO = null;
+    //private BitstreamInfoDAO bitstreamInfoDAO = null;
 
     /** BitstreamDAO dependency. */
-    private BitstreamDAO bitstreamDAO = null;
+    //private BitstreamDAO bitstreamDAO = null;
 
     /**
      * Checksum history Data access object
      */
-    private ChecksumHistoryDAO checksumHistoryDAO = null;
+    //private ChecksumHistoryDAO checksumHistoryDAO = null;
 
     /** start time for current process. */
     private Date processStartDate = null;
@@ -107,9 +107,9 @@ public final class CheckerCommand
      */
     public CheckerCommand()
     {
-        bitstreamInfoDAO = new BitstreamInfoDAO();
-        bitstreamDAO = new BitstreamDAO();
-        checksumHistoryDAO = new ChecksumHistoryDAO();
+//        bitstreamInfoDAO = new BitstreamInfoDAO();
+//        bitstreamDAO = new BitstreamDAO();
+//        checksumHistoryDAO = new ChecksumHistoryDAO();
     }
 
     /**
@@ -124,7 +124,7 @@ public final class CheckerCommand
      * setBitstreamDispatcher before calling this method
      * </p>
      */
-    public void process()
+    public void process(Context context)
     {
         LOG.debug("Begin Checker Processing");
 
@@ -140,34 +140,30 @@ public final class CheckerCommand
 
         // update missing bitstreams that were entered into the
         // bitstream table - this always done.
-        bitstreamInfoDAO.updateMissingBitstreams();
 
-        int id = dispatcher.next();
+        // bitstreamInfoDAO.updateMissingBitstreams();
+        ApplicationService.updateMissingBitstreams(context);
+
+        int id = dispatcher.next(context);
 
         while (id != BitstreamDispatcher.SENTINEL)
         {
             LOG.debug("Processing bitstream id = " + id);
-            Context context;
+
             BitstreamInfo info;
-            // FIXME creato il context per farmi tornare le cose...
-            try
-            {
-                context = new Context();
-                info = checkBitstream(id, context);
 
-                if (reportVerbose
-                        || (info.getChecksumCheckResult() != ChecksumCheckResults.CHECKSUM_MATCH))
-                {
-                    collector.collect(info);
-                }
+            info = checkBitstream(id, context);
 
-                id = dispatcher.next();
-            }
-            catch (SQLException e)
+            if (reportVerbose
+                    || (info.getChecksumCheckResult() != ChecksumCheckResults.CHECKSUM_MATCH))
             {
-                e.printStackTrace();
+                collector.collect(info, context);
             }
+
+            id = dispatcher.next(context);
+
         }
+
     }
 
     /**
@@ -182,7 +178,7 @@ public final class CheckerCommand
     {
         // get bitstream info from bitstream table
         //BitstreamInfo info = bitstreamInfoDAO.findByBitstreamId(id);
-        BitstreamInfo info = ApplicationService.findBitstreamInfoByBitstreamId(id);
+        BitstreamInfo info = ApplicationService.findBitstreamInfoByBitstreamId(id, context);
 
         // requested id was not found in bitstream
         // or most_recent_checksum table
@@ -206,7 +202,7 @@ public final class CheckerCommand
         else if (info.getDeleted())
         {
             // bitstream id is marked 'deleted' in bitstream table.
-            processDeletedBitstream(info);
+            processDeletedBitstream(info, context);
         }
         else
         {
@@ -285,7 +281,7 @@ public final class CheckerCommand
      * @param info
      *            a deleted bitstream.
      */
-    private void processDeletedBitstream(BitstreamInfo info)
+    private void processDeletedBitstream(BitstreamInfo info, Context context)
     {
         info.setProcessStartDate(new Date());
         info
@@ -293,8 +289,8 @@ public final class CheckerCommand
         info.setProcessStartDate(new Date());
         info.setProcessEndDate(new Date());
         info.setToBeProcessed(false);
-        bitstreamInfoDAO.update(info);
-        checksumHistoryDAO.insertHistory(info);
+        updateInfo(info, context);
+        insertHistory(info, context);
     }
 
     /**
@@ -389,9 +385,38 @@ public final class CheckerCommand
             info.setProcessEndDate(new Date());
 
             // record new checksum and comparison result in db
-            bitstreamInfoDAO.update(info);
-            checksumHistoryDAO.insertHistory(info);
+            updateInfo(info, context);
+            insertHistory(info, context);
+            
         }
+    }
+    
+    /**
+     * Updates most_recent_checksum with latest checksum and result of
+     * comparison with previous checksum.
+     */
+    private void updateInfo(BitstreamInfo info, Context context) {
+        MostRecentChecksum mrc = ApplicationService.get(context, MostRecentChecksum.class, info.getBitstreamId());
+        mrc.setCurrentChecksum((info.getCalculatedChecksum() != null) ? info.getCalculatedChecksum() : "");
+        mrc.setExpectedChecksum(info.getStoredChecksum());
+        mrc.setMatchedPrevChecksum(ChecksumCheckResults.CHECKSUM_MATCH.equals(info
+                    .getChecksumCheckResult()));
+        mrc.setToBeProcessed(info.getToBeProcessed());
+        mrc.setLastProcessEndDate(info.getProcessEndDate());
+        mrc.setLastProcessStartDate(info.getProcessStartDate());
+        mrc.setResult(info.getChecksumCheckResult());
+        ApplicationService.update(context, MostRecentChecksum.class, mrc);
+    }
+    
+    private void insertHistory(BitstreamInfo info, Context context) {
+        ChecksumHistory history = new ChecksumHistory();
+        history.setBitstreamId(info.getBitstreamId());
+        history.setChecksumCalculated(info.getCalculatedChecksum());
+        history.setChecksumExpected(info.getStoredChecksum());
+        history.setProcessEndDate(info.getProcessEndDate());
+        history.setProcessStartDate(info.getProcessStartDate());
+        history.setResult(info.getChecksumCheckResult());
+        ApplicationService.save(context, ChecksumHistory.class, history); 
     }
 
     /**

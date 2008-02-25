@@ -137,8 +137,7 @@ public class ReporterDAO extends DAOSupport
      * 
      * @return a list of BitstreamHistoryInfo objects
      */
-    public List getBitstreamResultTypeReport(Date startDate, Date endDate,
-            String resultCode)
+    public List getBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode)
     {
         List bitstreamHistory = new LinkedList();
 
@@ -249,7 +248,7 @@ public class ReporterDAO extends DAOSupport
      */
     public List getUnknownBitstreams()
     {
-        List unknownBitstreams = new LinkedList();
+        List<DSpaceBitstreamInfo> unknownBitstreams = new LinkedList<DSpaceBitstreamInfo>();
 
         Connection conn = null;
         PreparedStatement prepStmt = null;
