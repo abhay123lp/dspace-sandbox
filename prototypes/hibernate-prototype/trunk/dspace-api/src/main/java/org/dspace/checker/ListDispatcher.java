@@ -38,6 +38,8 @@ import java.util.EmptyStackException;
 import java.util.List;
 import java.util.Stack;
 
+import org.dspace.core.Context;
+
 /**
  * Really simple dispatcher that just iterates over a pre-defined list of ids.
  * 
@@ -76,7 +78,7 @@ public class ListDispatcher implements BitstreamDispatcher
     /**
      * @see org.dspace.checker.BitstreamDispatcher#next()
      */
-    public synchronized int next()
+    public synchronized int next(Context context)
     {
         try
         {

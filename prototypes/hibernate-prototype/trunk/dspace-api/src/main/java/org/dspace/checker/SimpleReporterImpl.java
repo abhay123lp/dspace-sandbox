@@ -41,6 +41,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.dspace.core.ApplicationService;
+import org.dspace.core.Context;
 import org.dspace.core.I18N;
 
 /**
@@ -102,11 +104,11 @@ public class SimpleReporterImpl implements SimpleReporter
      *             if io error occurs
      */
     public int getDeletedBitstreamReport(Date startDate, Date endDate,
-            OutputStreamWriter osw) throws IOException
+            OutputStreamWriter osw, Context context) throws IOException
     {
         // get all the bitstreams marked deleted for today
-        List history = reporter.getBitstreamResultTypeReport(startDate,
-                endDate, ChecksumCheckResults.BITSTREAM_MARKED_DELETED);
+        //List history = reporter.getBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.BITSTREAM_MARKED_DELETED);
+        List<ChecksumHistory> history = ApplicationService.findBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.BITSTREAM_MARKED_DELETED, context);
 
         osw.write("\n");
         osw.write(msg("deleted-bitstream-intro"));
@@ -147,11 +149,12 @@ public class SimpleReporterImpl implements SimpleReporter
      *             if io error occurs
      */
     public int getChangedChecksumReport(Date startDate, Date endDate,
-            OutputStreamWriter osw) throws IOException
+            OutputStreamWriter osw, Context context) throws IOException
     {
         // get all the bitstreams marked deleted for today
-        List history = reporter.getBitstreamResultTypeReport(startDate,
-                endDate, ChecksumCheckResults.CHECKSUM_NO_MATCH);
+        //List history = reporter.getBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.CHECKSUM_NO_MATCH);
+        
+        List<ChecksumHistory> history = ApplicationService.findBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.CHECKSUM_NO_MATCH, context);
 
         osw.write("\n");
         osw.write(msg("checksum-did-not-match"));
@@ -194,11 +197,11 @@ public class SimpleReporterImpl implements SimpleReporter
      *             if io error occurs
      */
     public int getBitstreamNotFoundReport(Date startDate, Date endDate,
-            OutputStreamWriter osw) throws IOException
+            OutputStreamWriter osw, Context context) throws IOException
     {
         // get all the bitstreams marked deleted for today
-        List history = reporter.getBitstreamResultTypeReport(startDate,
-                endDate, ChecksumCheckResults.BITSTREAM_NOT_FOUND);
+        //List history = reporter.getBitstreamResultTypeReport(startDate,endDate, ChecksumCheckResults.BITSTREAM_NOT_FOUND);
+        List<ChecksumHistory> history = ApplicationService.findBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.BITSTREAM_NOT_FOUND, context);
 
         osw.write("\n");
         osw.write(msg("bitstream-not-found-report"));
@@ -240,12 +243,12 @@ public class SimpleReporterImpl implements SimpleReporter
      *             if io error occurs
      */
     public int getNotToBeProcessedReport(Date startDate, Date endDate,
-            OutputStreamWriter osw) throws IOException
+            OutputStreamWriter osw, Context context) throws IOException
     {
         // get all the bitstreams marked deleted for today
-        List history = reporter.getNotProcessedBitstreamsReport(startDate,
-                endDate);
-
+        //List history = reporter.getNotProcessedBitstreamsReport(startDate,endDate);
+        List<ChecksumHistory> history = ApplicationService.findNotProcessedBitstreamsReport(startDate, endDate, context);
+        
         osw.write("\n");
         osw.write(msg("bitstream-will-no-longer-be-processed"));
         osw.write(" ");
@@ -281,11 +284,12 @@ public class SimpleReporterImpl implements SimpleReporter
      * @throws IOException
      *             if io error occurs
      */
-    public int getUncheckedBitstreamsReport(OutputStreamWriter osw)
+    public int getUncheckedBitstreamsReport(OutputStreamWriter osw, Context context)
             throws IOException
     {
         // get all the bitstreams marked deleted for today
-        List bitstreams = reporter.getUnknownBitstreams();
+        //List bitstreams = reporter.getUnknownBitstreams();
+        List<DSpaceBitstreamInfo> bitstreams = ApplicationService.findUnknownBitstreams(context);
 
         osw.write("\n");
         osw.write(msg("unchecked-bitstream-report"));

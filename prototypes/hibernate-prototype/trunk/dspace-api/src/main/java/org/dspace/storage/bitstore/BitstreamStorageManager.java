@@ -560,7 +560,8 @@ public class BitstreamStorageManager
                     if (deleteDbRecords)
                     {
                         log.debug("deleting record");
-                        bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
+                        //bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
+                        ApplicationService.deleteBitstreamInfoWithHistory(bid, context);
 
                         // This is typically run from the command line where
                         // no user is authenticated, so we just grant permission
@@ -584,8 +585,8 @@ public class BitstreamStorageManager
                 if (deleteDbRecords)
                 {
                     log.debug("deleting db record");
-                    bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
-
+                    //bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
+                    ApplicationService.deleteBitstreamInfoWithHistory(bid, context);
                     // This is typically run from the command line where
                     // no user is authenticated, so we just grant permission
                     boolean ignoreAuth = context.ignoreAuthorization();

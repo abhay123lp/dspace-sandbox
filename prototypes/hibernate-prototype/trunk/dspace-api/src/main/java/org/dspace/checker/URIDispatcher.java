@@ -35,6 +35,7 @@ package org.dspace.checker;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.DSpaceObject;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.uri.ResolvableIdentifier;
@@ -144,7 +145,7 @@ public class URIDispatcher implements BitstreamDispatcher
             }
         }
 
-        List ids = new ArrayList();
+        List<Integer> ids = new ArrayList<Integer>();
 
         switch (dsoType)
         {
@@ -153,15 +154,18 @@ public class URIDispatcher implements BitstreamDispatcher
             break;
 
         case Constants.ITEM:
-            ids = bitstreamInfoDAO.getItemBitstreams(id);
+            //ids = bitstreamInfoDAO.getItemBitstreams(id);
+            ids = ApplicationService.findAllItemBitstreamsId(id, context);
             break;
 
         case Constants.COLLECTION:
-            ids = bitstreamInfoDAO.getCollectionBitstreams(id);
+            //ids = bitstreamInfoDAO.getCollectionBitstreams(id);
+            ids = ApplicationService.findAllCollectionBitstreamsId(id, context);
             break;
 
         case Constants.COMMUNITY:
-            ids = bitstreamInfoDAO.getCommunityBitstreams(id);
+            //ids = bitstreamInfoDAO.getCommunityBitstreams(id);
+            ids = ApplicationService.findAllCommunityBitstreamsId(id, context);
             break;
         }
 
@@ -174,7 +178,7 @@ public class URIDispatcher implements BitstreamDispatcher
      * 
      * @see org.dspace.checker.BitstreamDispatcher#next()
      */
-    public int next()
+    public int next(Context context)
     {
         synchronized (init)
         {
@@ -184,6 +188,6 @@ public class URIDispatcher implements BitstreamDispatcher
             }
         }
 
-        return delegate.next();
+        return delegate.next(context);
     }
 }

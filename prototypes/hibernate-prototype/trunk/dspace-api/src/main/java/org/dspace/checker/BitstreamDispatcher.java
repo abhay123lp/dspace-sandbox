@@ -33,6 +33,8 @@
  */
 package org.dspace.checker;
 
+import org.dspace.core.Context;
+
 
 /**
  * <p>
@@ -74,5 +76,5 @@ public interface BitstreamDispatcher
      *         isn't another value
      * 
      */
-    public int next();
+    public int next(Context context);
 }

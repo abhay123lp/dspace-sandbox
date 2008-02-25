@@ -37,6 +37,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.log4j.Logger;
+import org.dspace.core.ApplicationService;
+import org.dspace.core.Context;
 import org.dspace.core.I18N;
 
 /**
@@ -114,7 +116,7 @@ public class ResultsLogger implements ChecksumResultsCollector
      *            the BitstreamInfo representing the result.
      * @see org.dspace.checker.ChecksumResultsCollector#collect(org.dspace.checker.BitstreamInfo)
      */
-    public void collect(BitstreamInfo info)
+    public void collect(BitstreamInfo info, Context context)
     {
         LOG.info("******************************************************");
         LOG.info(msg("bitstream-id") + ": " + info.getBitstreamId());
@@ -140,7 +142,8 @@ public class ResultsLogger implements ChecksumResultsCollector
                         .getProcessEndDate()) : "unknown"));
         LOG.info(msg("new-checksum") + ": " + info.getCalculatedChecksum());
         LOG.info(msg("checksum-comparison-result") + ": "
-                + resultDAO.getChecksumCheckStr(info.getChecksumCheckResult()));
+                //+ resultDAO.getChecksumCheckStr(info.getChecksumCheckResult()));
+                + ApplicationService.findChecksumCheckStrByCode(info.getChecksumCheckResult(), context));
         LOG.info("\n\n");
     }
 }

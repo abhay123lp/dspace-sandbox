@@ -35,15 +35,6 @@ package org.dspace.checker;
 
 import java.util.Date;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-import javax.persistence.Transient;
 
 /**
  * <p>
@@ -56,8 +47,7 @@ import javax.persistence.Transient;
  * @author Nathan Sarr
  * 
  */
-@Entity
-@Table(name="checksum_history")
+
 public final class BitstreamInfo
 {
     /** deleted flag. */
@@ -91,16 +81,11 @@ public final class BitstreamInfo
     /** Date the processing was completed. */
     private Date processEndDate;
    
-    /** id of the bitstreaminfo */
-    private int id;
-    
-    /** id of the bistream associated with */
-    private int idBs;
     
     /**
      * Blanked off no-op default constructor.
      */
-    private BitstreamInfo(){}
+    protected BitstreamInfo(){}
 
     /**
      * Minimal constructor.
@@ -121,8 +106,7 @@ public final class BitstreamInfo
         calculatedChecksum = null;
         processEndDate = null;
         toBeProcessed = false;
-        processStartDate = new Date();  
-        idBs = dspaceBitstream.getBitstreamId();
+        processStartDate = new Date();        
     }
 
     /**
@@ -170,7 +154,7 @@ public final class BitstreamInfo
         this.toBeProcessed = toBeProc;
         this.processStartDate = procStartDate;
         this.infoFound = true;
-        this.idBs = bitstrmId;
+        
     }
 
     /**
@@ -178,7 +162,7 @@ public final class BitstreamInfo
      * 
      * @return true if the bitstream has been deleted
      */
-    @Transient
+   
     public boolean getDeleted()
     {
         return deleted;
@@ -200,7 +184,7 @@ public final class BitstreamInfo
      * 
      * @return int
      */
-    @Transient
+    
     public int getStoreNumber()
     {
         return dspaceBitstream.getStoreNumber();
@@ -222,7 +206,7 @@ public final class BitstreamInfo
      * 
      * @return int
      */
-    @Transient
+    
     public int getSize()
     {
         return dspaceBitstream.getSize();
@@ -244,7 +228,7 @@ public final class BitstreamInfo
      * 
      * @return int
      */
-    @Transient
+    
     public String getBitstreamFormatId()
     {
         return dspaceBitstream.getBitstreamFormatId();
@@ -266,7 +250,7 @@ public final class BitstreamInfo
      * 
      * @return int
      */
-    @Transient
+    
     public int getBitstreamId()
     {
         return dspaceBitstream.getBitstreamId();
@@ -277,7 +261,7 @@ public final class BitstreamInfo
      * 
      * @return String
      */
-    @Transient
+    
     public String getUserFormatDescription()
     {
         return dspaceBitstream.getUserFormatDescription();
@@ -299,7 +283,7 @@ public final class BitstreamInfo
      * 
      * @return String
      */
-    @Transient
+    
     public String getInternalId()
     {
         return dspaceBitstream.getInternalId();
@@ -321,7 +305,7 @@ public final class BitstreamInfo
      * 
      * @return String
      */
-    @Transient
+    
     public String getSource()
     {
         return dspaceBitstream.getSource();
@@ -343,7 +327,7 @@ public final class BitstreamInfo
      * 
      * @return String
      */
-    @Transient
+    
     public String getChecksumAlgorithm()
     {
         return dspaceBitstream.getChecksumAlgorithm();
@@ -365,7 +349,7 @@ public final class BitstreamInfo
      * 
      * @return String
      */
-    @Column(name="checksum_expected")
+    
     public String getStoredChecksum()
     {
         return dspaceBitstream.getStoredChecksum();
@@ -387,7 +371,7 @@ public final class BitstreamInfo
      * 
      * @return String
      */
-    @Transient
+    
     public String getName()
     {
         return dspaceBitstream.getName();
@@ -409,7 +393,7 @@ public final class BitstreamInfo
      * 
      * @return Returns the calculatedChecksum.
      */
-    @Column(name="checksum_calculated")
+   
     public String getCalculatedChecksum()
     {
         return calculatedChecksum;
@@ -431,7 +415,7 @@ public final class BitstreamInfo
      * 
      * @return Returns infoFound.
      */
-    @Transient
+    
     public boolean getInfoFound()
     {
         return this.infoFound;
@@ -453,7 +437,7 @@ public final class BitstreamInfo
      * 
      * @return Returns bitstreamFound.
      */
-    @Transient
+    
     public boolean getBitstreamFound()
     {
         return this.bitstreamFound;
@@ -529,7 +513,6 @@ public final class BitstreamInfo
      * 
      * @return value of toBeProcessed flag (from most_recent_checksum table)
      */
-    @Transient
     public boolean getToBeProcessed()
     {
         return this.toBeProcessed;
@@ -540,7 +523,7 @@ public final class BitstreamInfo
      * 
      * @return result code for comparison of previous and current checksums
      */
-    @Column(name="result")
+    
     public String getChecksumCheckResult()
     {
         return this.checksumCheckResult;
@@ -562,8 +545,7 @@ public final class BitstreamInfo
      * 
      * @return date
      */
-    @Column(name="process_start_date")
-    @Temporal(value=TemporalType.DATE)
+    
     public Date getProcessStartDate()
     {
         return this.processStartDate;
@@ -585,8 +567,7 @@ public final class BitstreamInfo
      * 
      * @return date
      */
-    @Column(name="process_end_date")
-    @Temporal(value=TemporalType.DATE)
+   
     public Date getProcessEndDate()
     {
         return this.processEndDate;
@@ -603,7 +584,7 @@ public final class BitstreamInfo
         this.processEndDate = endDate;
     }
 
-    @Transient
+    
     public DSpaceBitstreamInfo getDspaceBitstream()
     {
         return dspaceBitstream;
@@ -614,28 +595,5 @@ public final class BitstreamInfo
         this.dspaceBitstream = dspaceBitstream;
     }
 
-    @Id
-    @GeneratedValue(strategy=GenerationType.SEQUENCE)
-    @Column(name="check_id")
-    public int getId()
-    {
-        return id;
-    }
-
-    public void setId(int id)
-    {
-        this.id = id;
-    }
-
-    @Column(name="bitstream_id")
-    public int getIdBs()
-    {
-        return idBs;
-    }
-
-    public void setIdBs(int idBs)
-    {
-        this.idBs = idBs;
-    }
 
 }

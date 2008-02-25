@@ -118,7 +118,7 @@ public class Harvest
         //ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
       
         List<Item> itemList = ApplicationService.findItemForHarvest(scope, startDate, endDate, offset,
-                limit, items, collections, withdrawn);
+                limit, items, collections, withdrawn, context);
         
         List infoObjects = new LinkedList();
         int index = 0;

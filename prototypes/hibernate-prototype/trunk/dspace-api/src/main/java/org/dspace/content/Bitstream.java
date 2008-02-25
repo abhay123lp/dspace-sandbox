@@ -43,6 +43,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;

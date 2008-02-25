@@ -102,7 +102,7 @@ public class ChecksumCheckResults
     protected ChecksumCheckResults() {}
 
     @Id
-    @Column(name="result_code", insertable=false, updatable=false)
+    @Column(name="result_code")//FIXME , insertable=false, updatable=false)
     public String getCode()
     {
         return code;

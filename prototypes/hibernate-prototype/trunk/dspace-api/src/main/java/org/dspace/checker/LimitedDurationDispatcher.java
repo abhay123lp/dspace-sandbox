@@ -35,6 +35,8 @@ package org.dspace.checker;
 
 import java.util.Date;
 
+import org.dspace.core.Context;
+
 /**
  * <p>
  * A delegating dispatcher that puts a time limit on the operation of another
@@ -92,8 +94,8 @@ public class LimitedDurationDispatcher implements BitstreamDispatcher
     /**
      * @see org.dspace.checker.BitstreamDispatcher#next()
      */
-    public int next()
+    public int next(Context context)
     {
-        return (System.currentTimeMillis() > end) ? SENTINEL : delegate.next();
+        return (System.currentTimeMillis() > end) ? SENTINEL : delegate.next(context);
     }
 }

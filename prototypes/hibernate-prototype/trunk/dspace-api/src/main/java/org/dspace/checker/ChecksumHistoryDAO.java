@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.storage.rdbms.DatabaseManager;
 
@@ -229,42 +230,42 @@ public class ChecksumHistoryDAO extends DAOSupport
 
     }
 
-    /**
-     * Prune the history records from the database.
-     * 
-     * @param interests
-     *            set of results and the duration of time before they are
-     *            removed from the database
-     * 
-     * @return number of bitstreams deleted
-     */
-    public int prune(Map interests)
-    {
-        Connection conn = null;
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            long now = System.currentTimeMillis();
-            int count = 0;
-            for (Iterator iter = interests.keySet().iterator(); iter.hasNext();)
-            {
-                String result = (String) iter.next();
-                Long dur = (Long) interests.get(result);
-                count += deleteHistoryByDateAndCode(new Date(now
-                        - dur.longValue()), result, conn);
-                conn.commit();
-            }
-            return count;
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem pruning results: " + e.getMessage(), e);
-            throw new RuntimeException("Problem pruning results: "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            DatabaseManager.freeConnection(conn);
-        }
-    }
+//    /**
+//     * Prune the history records from the database.
+//     * 
+//     * @param interests
+//     *            set of results and the duration of time before they are
+//     *            removed from the database
+//     * 
+//     * @return number of bitstreams deleted
+//     */
+//    public int prune(Map interests)
+//    {
+//        Connection conn = null;
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            long now = System.currentTimeMillis();
+//            int count = 0;
+//            for (Iterator iter = interests.keySet().iterator(); iter.hasNext();)
+//            {
+//                String result = (String) iter.next();
+//                Long dur = (Long) interests.get(result);
+//                //count += deleteHistoryByDateAndCode(new Date(now- dur.longValue()), result, conn);
+//                count += ApplicationService.deleteHistoryByDateAndCode(new Date(now-dur.longValue()), result);
+//                conn.commit();
+//            }
+//            return count;
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem pruning results: " + e.getMessage(), e);
+//            throw new RuntimeException("Problem pruning results: "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            DatabaseManager.freeConnection(conn);
+//        }
+//    }
 }

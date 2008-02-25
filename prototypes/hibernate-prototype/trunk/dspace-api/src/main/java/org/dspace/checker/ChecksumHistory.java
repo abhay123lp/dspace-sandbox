@@ -35,6 +35,18 @@ package org.dspace.checker;
 
 import java.util.Date;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+
 /**
  * <p>
  * Represents a history record for the bitstream.
@@ -45,6 +57,8 @@ import java.util.Date;
  * @author Nathan Sarr
  * 
  */
+@Entity
+@Table(name="checksum_history")
 public class ChecksumHistory
 {
 
@@ -65,6 +79,9 @@ public class ChecksumHistory
 
     /** The string result. */
     private String result;
+    
+    /** id of the checksum history */
+    private int id;
 
     public ChecksumHistory()
     {
@@ -111,7 +128,8 @@ public class ChecksumHistory
 
     /**
      * @return Returns the bitstreamId.
-     */
+     */    
+    @Column(name="bitstream_id")
     public int getBitstreamId()
     {
         return bitstreamId;
@@ -120,6 +138,7 @@ public class ChecksumHistory
     /**
      * @return Returns the checksumCalculated.
      */
+    @Column(name="checksum_calculated")
     public String getChecksumCalculated()
     {
         return checksumCalculated;
@@ -141,6 +160,7 @@ public class ChecksumHistory
      * 
      * @return Returns the checksumExpected.
      */
+    @Column(name="checksum_expected")
     public String getChecksumExpected()
     {
         return checksumExpected;
@@ -162,6 +182,8 @@ public class ChecksumHistory
      * 
      * @return Returns the processEndDate.
      */
+    @Column(name="process_end_date")
+    @Temporal(TemporalType.DATE)
     public Date getProcessEndDate()
     {
         return processEndDate;
@@ -184,6 +206,8 @@ public class ChecksumHistory
      * 
      * @return Returns the processStartDate.
      */
+    @Column(name="process_start_date")
+    @Temporal(TemporalType.DATE)
     public Date getProcessStartDate()
     {
         return processStartDate;
@@ -206,6 +230,7 @@ public class ChecksumHistory
      * 
      * @return
      */
+    @Column(name="result")
     public String getResult()
     {
         return result;
@@ -220,5 +245,23 @@ public class ChecksumHistory
     public void setResult(String result)
     {
         this.result = result;
+    }
+
+    public void setBitstreamId(int bitstreamId)
+    {
+        this.bitstreamId = bitstreamId;
+    }
+
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="check_id")
+    public int getId()
+    {
+        return id;
+    }
+
+    public void setId(int id)
+    {
+        this.id = id;
     }
 }

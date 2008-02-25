@@ -33,6 +33,7 @@
  */
 package org.dspace.checker;
 
+import org.dspace.core.Context;
 import org.dspace.core.PluginManager;
 
 /**
@@ -93,13 +94,13 @@ public class LimitedCountDispatcher implements BitstreamDispatcher
      * @throws SQLException
      *             if database error occurs.
      */
-    public int next()
+    public int next(Context context)
     {
         if (remaining > 0)
         {
             remaining--;
 
-            return delegate.next();
+            return delegate.next(context);
         }
         else
         {
