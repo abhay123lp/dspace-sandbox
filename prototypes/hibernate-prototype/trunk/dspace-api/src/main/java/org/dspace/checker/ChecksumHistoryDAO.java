@@ -3,14 +3,10 @@ package org.dspace.checker;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Context;
 import org.dspace.storage.rdbms.DatabaseManager;
 
 /**
@@ -92,46 +88,46 @@ public class ChecksumHistoryDAO extends DAOSupport
      * @throws IllegalArgumentException
      *             if the <code>BitstreamInfo</code> is null.
      */
-    public void insertHistory(BitstreamInfo info)
-    {
-        if (info == null)
-        {
-            throw new IllegalArgumentException(
-                    "BitstreamInfo parameter may not be null");
-        }
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
-	            stmt = conn.prepareStatement(INSERT_HISTORY_ORACLE);
-            else
-            	stmt = conn.prepareStatement(INSERT_HISTORY);
-            stmt.setInt(1, info.getBitstreamId());
-            stmt.setTimestamp(2, new java.sql.Timestamp(info
-                    .getProcessStartDate().getTime()));
-            stmt.setTimestamp(3, new java.sql.Timestamp(info
-                    .getProcessEndDate().getTime()));
-            stmt.setString(4, info.getStoredChecksum());
-            stmt.setString(5, info.getCalculatedChecksum());
-            stmt.setString(6, info.getChecksumCheckResult());
-            stmt.executeUpdate();
-            conn.commit();
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem updating checksum row. " + e.getMessage(), e);
-            throw new RuntimeException("Problem updating checksum row. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(stmt, conn);
-        }
-    }
+//    public void insertHistory(BitstreamInfo info, Context context)
+//    {
+//        if (info == null)
+//        {
+//            throw new IllegalArgumentException(
+//                    "BitstreamInfo parameter may not be null");
+//        }
+//
+//        Connection conn = null;
+//        PreparedStatement stmt = null;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+//	            stmt = conn.prepareStatement(INSERT_HISTORY_ORACLE);
+//            else
+//            	stmt = conn.prepareStatement(INSERT_HISTORY);
+//            stmt.setInt(1, info.getBitstreamId());
+//            stmt.setTimestamp(2, new java.sql.Timestamp(info
+//                    .getProcessStartDate().getTime()));
+//            stmt.setTimestamp(3, new java.sql.Timestamp(info
+//                    .getProcessEndDate().getTime()));
+//            stmt.setString(4, info.getStoredChecksum());
+//            stmt.setString(5, info.getCalculatedChecksum());
+//            stmt.setString(6, info.getChecksumCheckResult());
+//            stmt.executeUpdate();
+//            conn.commit();
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem updating checksum row. " + e.getMessage(), e);
+//            throw new RuntimeException("Problem updating checksum row. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(stmt, conn);
+//        }
+//    }
 
     /**
      * Deletes the bitstream from the bitstream_history table if it exist.
@@ -141,61 +137,61 @@ public class ChecksumHistoryDAO extends DAOSupport
      * 
      * @return number of records deleted
      */
-    protected int deleteHistoryForBitstreamInfo(int id, Connection conn)
-    {
-        PreparedStatement stmt = null;
-
-        int numDeleted = 0;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            stmt = conn.prepareStatement(DELETE_BITSTREAM_HISTORY);
-            stmt.setInt(1, id);
-
-            numDeleted = stmt.executeUpdate();
-            conn.commit();
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem with inserting missing bitstream. "
-                    + e.getMessage(), e);
-            throw new RuntimeException("Problem inserting missing bitstream. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(stmt, conn);
-        }
-
-        return numDeleted;
-    }
+//    protected int deleteHistoryForBitstreamInfo(int id, Connection conn)
+//    {
+//        PreparedStatement stmt = null;
+//
+//        int numDeleted = 0;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            stmt = conn.prepareStatement(DELETE_BITSTREAM_HISTORY);
+//            stmt.setInt(1, id);
+//
+//            numDeleted = stmt.executeUpdate();
+//            conn.commit();
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem with inserting missing bitstream. "
+//                    + e.getMessage(), e);
+//            throw new RuntimeException("Problem inserting missing bitstream. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(stmt, conn);
+//        }
+//
+//        return numDeleted;
+//    }
 
     /**
      * @param conn
      */
-    protected void updateMissingBitstreams(Connection conn) throws SQLException
-    {
-        PreparedStatement stmt = null;
-        try
-        {
-            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
-	            stmt = conn.prepareStatement(INSERT_MISSING_HISTORY_BITSTREAMS_ORACLE);
-            else
-            	stmt = conn.prepareStatement(INSERT_MISSING_HISTORY_BITSTREAMS);
-            stmt.executeUpdate();
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem updating missing history. " + e.getMessage(), e);
-            throw new RuntimeException("Problem updating missing history. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(stmt);
-        }
-    }
+//    protected void updateMissingBitstreams(Connection conn) throws SQLException
+//    {
+//        PreparedStatement stmt = null;
+//        try
+//        {
+//            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+//	            stmt = conn.prepareStatement(INSERT_MISSING_HISTORY_BITSTREAMS_ORACLE);
+//            else
+//            	stmt = conn.prepareStatement(INSERT_MISSING_HISTORY_BITSTREAMS);
+//            stmt.executeUpdate();
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem updating missing history. " + e.getMessage(), e);
+//            throw new RuntimeException("Problem updating missing history. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(stmt);
+//        }
+//    }
 
     /**
      * Delete the history records from the database.
@@ -210,25 +206,25 @@ public class ChecksumHistoryDAO extends DAOSupport
      * @throws SQLException
      *             if database error occurs.
      */
-    protected int deleteHistoryByDateAndCode(Date retentionDate, String result,
-            Connection conn) throws SQLException
-    {
-        PreparedStatement update = null;
-
-        try
-        {
-            update = conn
-                    .prepareStatement("DELETE FROM checksum_history WHERE process_end_date<? AND result=?");
-            update.setTimestamp(1, new Timestamp(retentionDate.getTime()));
-            update.setString(2, result);
-            return update.executeUpdate();
-        }
-        finally
-        {
-            cleanup(update);
-        }
-
-    }
+//    protected int deleteHistoryByDateAndCode(Date retentionDate, String result,
+//            Connection conn) throws SQLException
+//    {
+//        PreparedStatement update = null;
+//
+//        try
+//        {
+//            update = conn
+//                    .prepareStatement("DELETE FROM checksum_history WHERE process_end_date<? AND result=?");
+//            update.setTimestamp(1, new Timestamp(retentionDate.getTime()));
+//            update.setString(2, result);
+//            return update.executeUpdate();
+//        }
+//        finally
+//        {
+//            cleanup(update);
+//        }
+//
+//    }
 
 //    /**
 //     * Prune the history records from the database.
@@ -239,6 +235,8 @@ public class ChecksumHistoryDAO extends DAOSupport
 //     * 
 //     * @return number of bitstreams deleted
 //     */
+    
+//    SPOSTATO IN checkmanager
 //    public int prune(Map interests)
 //    {
 //        Connection conn = null;

@@ -82,76 +82,76 @@ public final class ChecksumResultDAO extends DAOSupport
      *            to get the description for.
      * @return the found description.
      */
-    public String getChecksumCheckStr(String code)
-    {
-        String description = null;
-        Connection conn = null;
-        PreparedStatement stmt = null;
-        ResultSet rs = null;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            stmt = conn.prepareStatement(FIND_CHECK_STRING);
-            stmt.setString(1, code);
-
-            rs = stmt.executeQuery();
-
-            if (rs.next())
-            {
-                description = rs.getString(1);
-            }
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem selecting checker result description. "
-                    + e.getMessage(), e);
-            throw new RuntimeException("selecting checker result description. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(stmt, conn, rs);
-        }
-
-        return description;
-    }
-
-    /**
-     * Get a list of all the possible result codes.
-     * 
-     * @return a list of all the result codes
-     */
-    public List listAllCodes()
-    {
-        Connection conn = null;
-        Statement stmt = null;
-        ResultSet rs = null;
-        List<String> codes = new ArrayList<String>();
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            stmt = conn.createStatement();
-
-            rs = stmt.executeQuery("SELECT result_code FROM checksum_results");
-            while (rs.next())
-            {
-                String code = rs.getString("result_code");
-                codes.add(code);
-            }
-            return codes;
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem listing checksum results codes: "
-                    + e.getMessage(), e);
-            throw new RuntimeException(
-                    "Problem listing checksum results codes: " + e.getMessage(),
-                    e);
-        }
-        finally
-        {
-            cleanup(stmt, conn, rs);
-        }
-    }
+//    public String getChecksumCheckStr(String code)
+//    {
+//        String description = null;
+//        Connection conn = null;
+//        PreparedStatement stmt = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            stmt = conn.prepareStatement(FIND_CHECK_STRING);
+//            stmt.setString(1, code);
+//
+//            rs = stmt.executeQuery();
+//
+//            if (rs.next())
+//            {
+//                description = rs.getString(1);
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem selecting checker result description. "
+//                    + e.getMessage(), e);
+//            throw new RuntimeException("selecting checker result description. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(stmt, conn, rs);
+//        }
+//
+//        return description;
+//    }
+//
+//    /**
+//     * Get a list of all the possible result codes.
+//     * 
+//     * @return a list of all the result codes
+//     */
+//    public List listAllCodes()
+//    {
+//        Connection conn = null;
+//        Statement stmt = null;
+//        ResultSet rs = null;
+//        List<String> codes = new ArrayList<String>();
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            stmt = conn.createStatement();
+//
+//            rs = stmt.executeQuery("SELECT result_code FROM checksum_results");
+//            while (rs.next())
+//            {
+//                String code = rs.getString("result_code");
+//                codes.add(code);
+//            }
+//            return codes;
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem listing checksum results codes: "
+//                    + e.getMessage(), e);
+//            throw new RuntimeException(
+//                    "Problem listing checksum results codes: " + e.getMessage(),
+//                    e);
+//        }
+//        finally
+//        {
+//            cleanup(stmt, conn, rs);
+//        }
+//    }
 }

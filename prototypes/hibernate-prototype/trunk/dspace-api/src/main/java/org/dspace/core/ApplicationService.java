@@ -14,6 +14,7 @@ import org.dspace.checker.ChecksumHistory;
 import org.dspace.checker.ChecksumHistoryDAOJPA;
 import org.dspace.checker.ChecksumResultDAOJPA;
 import org.dspace.checker.DSpaceBitstreamInfo;
+import org.dspace.checker.MostRecentChecksum;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
@@ -47,7 +48,7 @@ import org.dspace.eperson.dao.hibernate.RegistrationDataDAOJPA;
 public class ApplicationService {
     
     
-    /* CRUD operations */
+    /* Generical CRUD operations */
     
     /**
      * Returns the object representing the entity with that id
@@ -94,19 +95,24 @@ public class ApplicationService {
     }
     
     
+    /* Delete methods */
+    
+    
     public static void deleteRegistrationDataByToken(Context context, String token) {
         RegistrationDataDAOJPA rddao = new RegistrationDataDAOJPA();
         rddao.deleteRegistrationDataByToken(context, token);
     }
     
-    //FIXME questa è già un po' di logica, non pertinente all'application service, ci vorrebbe un manager?
-    public static void deleteBitstreamInfoWithHistory(int id, Context context) {
+    
+    public static void deleteBitstreamInfo(int bitstreamId, Context context) {
         BitstreamInfoDAOJPA bidao = new BitstreamInfoDAOJPA();
-        ChecksumHistoryDAOJPA chdao = new ChecksumHistoryDAOJPA();
-        bidao.deleteBitstreamInfo(id, context);
-        chdao.deleteHistoryForBitstreamInfo(id, context);
+        bidao.deleteBitstreamInfo(bitstreamId, context);        
     }
     
+    public static void deleteHistoryForBitstreamInfo(int bitstreamId, Context context) {
+        ChecksumHistoryDAOJPA chdao = new ChecksumHistoryDAOJPA();
+        chdao.deleteHistoryForBitstreamInfo(bitstreamId, context);
+    }
     
     public static int deleteHistoryByDateAndCode(Date retentionDate, String result, Context context) {
         ChecksumHistoryDAOJPA chdao = new ChecksumHistoryDAOJPA();
@@ -218,17 +224,17 @@ public class ApplicationService {
         return bfs;
     }
     
-    //TODO implementare (bitstreaminfodao)
+    
     public static List<Integer> findAllCommunityBitstreamsId(int communityId, Context context) {
         return null;
     }
     
-    //TODO implementare
+    
     public static List<Integer> findAllCollectionBitstreamsId(int collectionId, Context context) {
         return null;
     }
     
-    //TODO implementare
+    
     public static List<Integer> findAllItemBitstreamsId(int itemId, Context context) {
         return null;
     }
@@ -284,33 +290,33 @@ public class ApplicationService {
         return null;
     }
     
-    //TODO implementare
+    
     public static RegistrationData findRegistrationDataByToken(String token, Context context) {
-        return null;
+        RegistrationDataDAOJPA rdao = new RegistrationDataDAOJPA();
+        return rdao.findRegistrationDataByToken(token, context);
     }
     
-    //TODO
+    
     public static RegistrationData findRegistrationDataByEmail(String email, Context context) {
-        return null;
+        RegistrationDataDAOJPA rdao = new RegistrationDataDAOJPA();
+        return rdao.findRegistrationDataByEmail(email, context);
     }
-    
-    //TODO bistreaminfodao
-    public static BitstreamInfo findBitstreamInfoByBitstreamId(int id, Context context) {
-        return null;
-    }
+   
     
     //TODO reporterdao
     public static List<DSpaceBitstreamInfo> findUnknownBitstreams(Context context) {
         return null;
     }
     
-    //TODO bistreaminfodao. non sarebbe necessario un context? direi di si.
-    public static int findOldestBitstream(Context context) {
-        return 0;
+    
+    public static int findOldestBitstreamId(Context context) {
+        BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
+        return bdao.findOldestBitstream(context);
     }
-    //TODO bitstreaminfodao
+    
     public static int findOldestBitstream(Timestamp lessThanDate, Context context) {
-        return 0;
+        BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
+        return bdao.findOldestBitstream(lessThanDate, context);
     }
     
     //TODO reporterdao
@@ -321,6 +327,11 @@ public class ApplicationService {
     //TODO reporterdao
     public static List<ChecksumHistory> findBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode, Context context) {
         return null;
+    }
+    
+    public static MostRecentChecksum findMostRecentChecksumByBitstreamId(int bitstreamId, Context context) {
+        BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
+        return bdao.findMostRecentChecksumByBitstreamId(bitstreamId, context);        
     }
     
     
@@ -367,9 +378,15 @@ public class ApplicationService {
         return cdao.count(community, context.getEntityManager());        
     }
     
-    //TODO implementare: bitstreaminfodao e checksumhistorydao
-    public static void updateMissingBitstreams(Context context) {
-        
+     
+    public static void insertMissingChecksumBitstreams(Context context) {
+        BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
+        bdao.insertMissingChecksumBitstreams(context);
+    }
+    
+    public static void insertMissingHistoryBitstream(Context context) {
+        BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
+        bdao.insertMissingHistoryBitstream(context);
     }
     
     

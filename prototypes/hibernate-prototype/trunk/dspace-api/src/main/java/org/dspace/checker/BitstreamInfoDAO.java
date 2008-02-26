@@ -202,140 +202,140 @@ public final class BitstreamInfoDAO extends DAOSupport
      * @throws IllegalArgumentException
      *             if the BitstreamInfo given is null.
      */
-    public void update(BitstreamInfo info)
-    {
-        if (info == null)
-        {
-            throw new IllegalArgumentException(
-                    "BitstreamInfo parameter may not be null");
-        }
-
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            stmt = conn.prepareStatement(UPDATE_CHECKSUM);
-            stmt.setString(1, (info.getCalculatedChecksum() != null) ? info
-                    .getCalculatedChecksum() : "");
-            stmt.setString(2, info.getStoredChecksum());
-            stmt.setBoolean(3, ChecksumCheckResults.CHECKSUM_MATCH.equals(info
-                    .getChecksumCheckResult()));
-            stmt.setBoolean(4, info.getToBeProcessed());
-            stmt.setTimestamp(5, new Timestamp(info.getProcessStartDate()
-                    .getTime()));
-            stmt.setTimestamp(6, new Timestamp(info.getProcessEndDate()
-                    .getTime()));
-            stmt.setString(7, info.getChecksumCheckResult());
-            stmt.setInt(8, info.getBitstreamId());
-            stmt.executeUpdate();
-            conn.commit();
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem updating checksum row. " + e.getMessage(), e);
-            throw new RuntimeException("Problem updating checksum row. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(stmt, conn);
-        }
-    }
-
-    /**
-     * Find a bitstream by its id.
-     * 
-     * @param id
-     *            the bitstream id
-     * 
-     * @return the bitstream information needed for checksum validation. Returns
-     *         null if bitstream info isn't found.
-     */
-    public BitstreamInfo findByBitstreamId(int id)
-    {
-        Connection conn = null;
-        BitstreamInfo info = null;
-        PreparedStatement prepStmt = null;
-
-        try
-        {
-            // create the connection and execute the statement
-            conn = DatabaseManager.getConnection();
-
-            prepStmt = conn.prepareStatement(FIND_BY_BITSTREAM_ID);
-
-            prepStmt.setInt(1, id);
-
-            ResultSet rs = prepStmt.executeQuery();
-
-            // if the bitstream is found return it
-            if (rs.next())
-            {
-                info = new BitstreamInfo(rs.getBoolean("deleted"), rs
-                        .getInt("store_number"), rs.getInt("size_bytes"), rs
-                        .getString("short_description"), rs
-                        .getInt("bitstream_id"), rs
-                        .getString("user_format_description"), rs
-                        .getString("internal_id"), rs.getString("source"), rs
-                        .getString("checksum_algorithm"), rs
-                        .getString("checksum"), rs.getString("name"), rs
-                        .getTimestamp("last_process_end_date"), rs
-                        .getBoolean("to_be_processed"), new Date());
-            }
-        }
-        catch (SQLException e)
-        {
-            LOG.warn("Bitstream metadata could not be retrieved. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(prepStmt, conn);
-        }
-
-        return info;
-    }
+//    public void update(BitstreamInfo info)
+//    {
+//        if (info == null)
+//        {
+//            throw new IllegalArgumentException(
+//                    "BitstreamInfo parameter may not be null");
+//        }
+//
+//        Connection conn = null;
+//        PreparedStatement stmt = null;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            stmt = conn.prepareStatement(UPDATE_CHECKSUM);
+//            stmt.setString(1, (info.getCalculatedChecksum() != null) ? info
+//                    .getCalculatedChecksum() : "");
+//            stmt.setString(2, info.getStoredChecksum());
+//            stmt.setBoolean(3, ChecksumCheckResults.CHECKSUM_MATCH.equals(info
+//                    .getChecksumCheckResult()));
+//            stmt.setBoolean(4, info.getToBeProcessed());
+//            stmt.setTimestamp(5, new Timestamp(info.getProcessStartDate()
+//                    .getTime()));
+//            stmt.setTimestamp(6, new Timestamp(info.getProcessEndDate()
+//                    .getTime()));
+//            stmt.setString(7, info.getChecksumCheckResult());
+//            stmt.setInt(8, info.getBitstreamId());
+//            stmt.executeUpdate();
+//            conn.commit();
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem updating checksum row. " + e.getMessage(), e);
+//            throw new RuntimeException("Problem updating checksum row. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(stmt, conn);
+//        }
+//    }
+//
+//    /**
+//     * Find a bitstream by its id.
+//     * 
+//     * @param id
+//     *            the bitstream id
+//     * 
+//     * @return the bitstream information needed for checksum validation. Returns
+//     *         null if bitstream info isn't found.
+//     */
+//    public BitstreamInfo findByBitstreamId(int id)
+//    {
+//        Connection conn = null;
+//        BitstreamInfo info = null;
+//        PreparedStatement prepStmt = null;
+//
+//        try
+//        {
+//            // create the connection and execute the statement
+//            conn = DatabaseManager.getConnection();
+//
+//            prepStmt = conn.prepareStatement(FIND_BY_BITSTREAM_ID);
+//
+//            prepStmt.setInt(1, id);
+//
+//            ResultSet rs = prepStmt.executeQuery();
+//
+//            // if the bitstream is found return it
+//            if (rs.next())
+//            {
+//                info = new BitstreamInfo(rs.getBoolean("deleted"), rs
+//                        .getInt("store_number"), rs.getInt("size_bytes"), rs
+//                        .getString("short_description"), rs
+//                        .getInt("bitstream_id"), rs
+//                        .getString("user_format_description"), rs
+//                        .getString("internal_id"), rs.getString("source"), rs
+//                        .getString("checksum_algorithm"), rs
+//                        .getString("checksum"), rs.getString("name"), rs
+//                        .getTimestamp("last_process_end_date"), rs
+//                        .getBoolean("to_be_processed"), new Date());
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.warn("Bitstream metadata could not be retrieved. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(prepStmt, conn);
+//        }
+//
+//        return info;
+//    }
 
     /**
      * Queries the bitstream table for bitstream IDs that are not yet in the
      * most_recent_checksum table, and inserts them into the
      * most_recent_checksum and checksum_history tables.
      */
-    public void updateMissingBitstreams()
-    {
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try
-        {
-            LOG.debug("updating missing bitstreams");
-            conn = DatabaseManager.getConnection();
-            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
-                stmt = conn.prepareStatement(INSERT_MISSING_CHECKSUM_BITSTREAMS_ORACLE);
-            else
-            	stmt = conn.prepareStatement(INSERT_MISSING_CHECKSUM_BITSTREAMS);
-            stmt.setTimestamp(1, new java.sql.Timestamp(new Date().getTime()));
-            stmt.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
-            stmt.executeUpdate();
-
-            checksumHistoryDAO.updateMissingBitstreams(conn);
-            conn.commit();
-        }
-        catch (SQLException e)
-        {
-            LOG.error(
-                    "Problem inserting missing bitstreams. " + e.getMessage(),
-                    e);
-            throw new RuntimeException("Problem inserting missing bitstreams. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(stmt, conn);
-        }
-    }
+//    public void updateMissingBitstreams()
+//    {
+//        Connection conn = null;
+//        PreparedStatement stmt = null;
+//
+//        try
+//        {
+//            LOG.debug("updating missing bitstreams");
+//            conn = DatabaseManager.getConnection();
+//            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+//                stmt = conn.prepareStatement(INSERT_MISSING_CHECKSUM_BITSTREAMS_ORACLE);
+//            else
+//            	stmt = conn.prepareStatement(INSERT_MISSING_CHECKSUM_BITSTREAMS);
+//            stmt.setTimestamp(1, new java.sql.Timestamp(new Date().getTime()));
+//            stmt.setTimestamp(2, new java.sql.Timestamp(new Date().getTime()));
+//            stmt.executeUpdate();
+//
+//            checksumHistoryDAO.updateMissingBitstreams(conn);
+//            conn.commit();
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error(
+//                    "Problem inserting missing bitstreams. " + e.getMessage(),
+//                    e);
+//            throw new RuntimeException("Problem inserting missing bitstreams. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(stmt, conn);
+//        }
+//    }
 
     /**
      * Deletes the bitstream from the most_recent_checksum table if it exist.
@@ -345,69 +345,69 @@ public final class BitstreamInfoDAO extends DAOSupport
      * 
      * @return number of records deleted
      */
-    protected int deleteBitstreamInfo(int id, Connection conn)
-    {
-        PreparedStatement stmt = null;
-
-        int numDeleted = 0;
-
-        try
-        {
-            stmt = conn.prepareStatement(DELETE_BITSTREAM_INFO);
-            stmt.setInt(1, id);
-
-            numDeleted = stmt.executeUpdate();
-
-            if (numDeleted > 1)
-            {
-                conn.rollback();
-                throw new IllegalStateException(
-                        "Too many rows deleted! Number of rows deleted: "
-                                + numDeleted
-                                + " only one row should be deleted for bitstream id "
-                                + id);
-            }
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem deleting bitstream. " + e.getMessage(), e);
-            throw new RuntimeException("Problem deleting bitstream. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(stmt);
-        }
-
-        return numDeleted;
-    }
-
-    public int deleteBitstreamInfoWithHistory(int id)
-    {
-        Connection conn = null;
-        int numDeleted = 0;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            deleteBitstreamInfo(id, conn);
-            checksumHistoryDAO.deleteHistoryForBitstreamInfo(id, conn);
-            conn.commit();
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem deleting bitstream. " + e.getMessage(), e);
-            throw new RuntimeException("Problem deleting bitstream. "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(conn);
-        }
-
-        return numDeleted;
-
-    }
+//    protected int deleteBitstreamInfo(int id, Connection conn)
+//    {
+//        PreparedStatement stmt = null;
+//
+//        int numDeleted = 0;
+//
+//        try
+//        {
+//            stmt = conn.prepareStatement(DELETE_BITSTREAM_INFO);
+//            stmt.setInt(1, id);
+//
+//            numDeleted = stmt.executeUpdate();
+//
+//            if (numDeleted > 1)
+//            {
+//                conn.rollback();
+//                throw new IllegalStateException(
+//                        "Too many rows deleted! Number of rows deleted: "
+//                                + numDeleted
+//                                + " only one row should be deleted for bitstream id "
+//                                + id);
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem deleting bitstream. " + e.getMessage(), e);
+//            throw new RuntimeException("Problem deleting bitstream. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(stmt);
+//        }
+//
+//        return numDeleted;
+//    }
+//
+//    public int deleteBitstreamInfoWithHistory(int id)
+//    {
+//        Connection conn = null;
+//        int numDeleted = 0;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            deleteBitstreamInfo(id, conn);
+//            checksumHistoryDAO.deleteHistoryForBitstreamInfo(id, conn);
+//            conn.commit();
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem deleting bitstream. " + e.getMessage(), e);
+//            throw new RuntimeException("Problem deleting bitstream. "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(conn);
+//        }
+//
+//        return numDeleted;
+//
+//    }
 
     /**
      * Get the oldest bitstream in the most recent checksum table. If more than
@@ -416,43 +416,43 @@ public final class BitstreamInfoDAO extends DAOSupport
      * @return the bitstream id or -1 if the no bitstreams are found
      * 
      */
-    public int getOldestBitstream()
-    {
-        Connection conn = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-
-        try
-        {
-
-            conn = DatabaseManager.getConnection();
-            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
-            	prepStmt = conn.prepareStatement(GET_OLDEST_BITSTREAM_ORACLE);
-            else
-            	prepStmt = conn.prepareStatement(GET_OLDEST_BITSTREAM);
-            rs = prepStmt.executeQuery();
-            if (rs.next())
-            {
-                return rs.getInt(1);
-            }
-            else
-            {
-                return SENTINEL;
-            }
-        }
-        catch (SQLException e)
-        {
-            LOG.error("Problem with get oldest bitstream " + e.getMessage(), e);
-            throw new RuntimeException("Oldest bitstream error. "
-                    + e.getMessage(), e);
-
-        }
-        finally
-        {
-            cleanup(prepStmt, conn);
-
-        }
-    }
+//    public int getOldestBitstream()
+//    {
+//        Connection conn = null;
+//        PreparedStatement prepStmt = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//
+//            conn = DatabaseManager.getConnection();
+//            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+//            	prepStmt = conn.prepareStatement(GET_OLDEST_BITSTREAM_ORACLE);
+//            else
+//            	prepStmt = conn.prepareStatement(GET_OLDEST_BITSTREAM);
+//            rs = prepStmt.executeQuery();
+//            if (rs.next())
+//            {
+//                return rs.getInt(1);
+//            }
+//            else
+//            {
+//                return SENTINEL;
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("Problem with get oldest bitstream " + e.getMessage(), e);
+//            throw new RuntimeException("Oldest bitstream error. "
+//                    + e.getMessage(), e);
+//
+//        }
+//        finally
+//        {
+//            cleanup(prepStmt, conn);
+//
+//        }
+//    }
 
     /**
      * Returns the oldest bistream that in the set of bitstreams that are less
@@ -461,44 +461,44 @@ public final class BitstreamInfoDAO extends DAOSupport
      * @param lessThanDate
      * @return id of olded bitstream or -1 if not bistreams are found
      */
-    public int getOldestBitstream(Timestamp lessThanDate)
-    {
-        Connection conn = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
-            	prepStmt = conn.prepareStatement(GET_OLDEST_BITSTREAM_DATE_ORACLE);
-            else
-            	prepStmt = conn.prepareStatement(GET_OLDEST_BITSTREAM_DATE);
-            prepStmt.setTimestamp(1, lessThanDate);
-            rs = prepStmt.executeQuery();
-            if (rs.next())
-            {
-                return rs.getInt(1);
-            }
-            else
-            {
-                return SENTINEL;
-            }
-        }
-        catch (SQLException e)
-        {
-            LOG.error("get oldest bitstream less than date " + e.getMessage(),
-                    e);
-            throw new RuntimeException("get oldest bitstream less than date. "
-                    + e.getMessage(), e);
-
-        }
-        finally
-        {
-            cleanup(prepStmt, conn);
-
-        }
-    }
+//    public int getOldestBitstream(Timestamp lessThanDate)
+//    {
+//        Connection conn = null;
+//        PreparedStatement prepStmt = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+//            	prepStmt = conn.prepareStatement(GET_OLDEST_BITSTREAM_DATE_ORACLE);
+//            else
+//            	prepStmt = conn.prepareStatement(GET_OLDEST_BITSTREAM_DATE);
+//            prepStmt.setTimestamp(1, lessThanDate);
+//            rs = prepStmt.executeQuery();
+//            if (rs.next())
+//            {
+//                return rs.getInt(1);
+//            }
+//            else
+//            {
+//                return SENTINEL;
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("get oldest bitstream less than date " + e.getMessage(),
+//                    e);
+//            throw new RuntimeException("get oldest bitstream less than date. "
+//                    + e.getMessage(), e);
+//
+//        }
+//        finally
+//        {
+//            cleanup(prepStmt, conn);
+//
+//        }
+//    }
 
     /**
      * Get the bitstream ids for a given Item
@@ -506,127 +506,127 @@ public final class BitstreamInfoDAO extends DAOSupport
      * @param itemId
      * @return the list of bitstream ids for this item
      */
-    public List getItemBitstreams(int itemId)
-    {
-        List ids = new ArrayList();
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            ps = conn.prepareStatement(ITEM_BITSTREAMS);
-            ps.setInt(1, itemId);
-
-            rs = ps.executeQuery();
-
-            while (rs.next())
-            {
-                ids.add(new Integer(rs.getInt(1)));
-            }
-
-        }
-        catch (SQLException e)
-        {
-            LOG.error("get item bitstreams " + e.getMessage(), e);
-            throw new RuntimeException(
-                    "get item bitstreams. " + e.getMessage(), e);
-
-        }
-        finally
-        {
-            cleanup(ps, conn, rs);
-        }
-
-        return ids;
-    }
-
-    /**
-     * Get the bitstream ids for a given collection
-     * 
-     * @param itemId
-     * @return the list of bitstream ids for this item
-     */
-    public List getCollectionBitstreams(int collectionId)
-    {
-        List ids = new ArrayList();
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            ps = conn.prepareStatement(COLLECTION_BITSTREAMS);
-            ps.setInt(1, collectionId);
-
-            rs = ps.executeQuery();
-
-            while (rs.next())
-            {
-                ids.add(new Integer(rs.getInt(1)));
-            }
-
-        }
-        catch (SQLException e)
-        {
-            LOG.error("get item bitstreams " + e.getMessage(), e);
-            throw new RuntimeException(
-                    "get item bitstreams. " + e.getMessage(), e);
-
-        }
-        finally
-        {
-            cleanup(ps, conn, rs);
-        }
-
-        return ids;
-    }
-
-    /**
-     * Get the bitstream ids for a given community
-     * 
-     * @param itemId
-     * @return the list of bitstream ids for this item
-     */
-    public List getCommunityBitstreams(int communityId)
-    {
-        List ids = new ArrayList();
-
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-
-        try
-        {
-            conn = DatabaseManager.getConnection();
-            ps = conn.prepareStatement(COMMUNITY_BITSTREAMS);
-            ps.setInt(1, communityId);
-
-            rs = ps.executeQuery();
-
-            while (rs.next())
-            {
-                ids.add(new Integer(rs.getInt(1)));
-            }
-
-        }
-        catch (SQLException e)
-        {
-            LOG.error("get item bitstreams " + e.getMessage(), e);
-            throw new RuntimeException(
-                    "get item bitstreams. " + e.getMessage(), e);
-
-        }
-        finally
-        {
-            cleanup(ps, conn, rs);
-        }
-
-        return ids;
-    }
+//    public List getItemBitstreams(int itemId)
+//    {
+//        List ids = new ArrayList();
+//
+//        Connection conn = null;
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            ps = conn.prepareStatement(ITEM_BITSTREAMS);
+//            ps.setInt(1, itemId);
+//
+//            rs = ps.executeQuery();
+//
+//            while (rs.next())
+//            {
+//                ids.add(new Integer(rs.getInt(1)));
+//            }
+//
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("get item bitstreams " + e.getMessage(), e);
+//            throw new RuntimeException(
+//                    "get item bitstreams. " + e.getMessage(), e);
+//
+//        }
+//        finally
+//        {
+//            cleanup(ps, conn, rs);
+//        }
+//
+//        return ids;
+//    }
+//
+//    /**
+//     * Get the bitstream ids for a given collection
+//     * 
+//     * @param itemId
+//     * @return the list of bitstream ids for this item
+//     */
+//    public List getCollectionBitstreams(int collectionId)
+//    {
+//        List ids = new ArrayList();
+//
+//        Connection conn = null;
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            ps = conn.prepareStatement(COLLECTION_BITSTREAMS);
+//            ps.setInt(1, collectionId);
+//
+//            rs = ps.executeQuery();
+//
+//            while (rs.next())
+//            {
+//                ids.add(new Integer(rs.getInt(1)));
+//            }
+//
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("get item bitstreams " + e.getMessage(), e);
+//            throw new RuntimeException(
+//                    "get item bitstreams. " + e.getMessage(), e);
+//
+//        }
+//        finally
+//        {
+//            cleanup(ps, conn, rs);
+//        }
+//
+//        return ids;
+//    }
+//
+//    /**
+//     * Get the bitstream ids for a given community
+//     * 
+//     * @param itemId
+//     * @return the list of bitstream ids for this item
+//     */
+//    public List getCommunityBitstreams(int communityId)
+//    {
+//        List ids = new ArrayList();
+//
+//        Connection conn = null;
+//        PreparedStatement ps = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//            conn = DatabaseManager.getConnection();
+//            ps = conn.prepareStatement(COMMUNITY_BITSTREAMS);
+//            ps.setInt(1, communityId);
+//
+//            rs = ps.executeQuery();
+//
+//            while (rs.next())
+//            {
+//                ids.add(new Integer(rs.getInt(1)));
+//            }
+//
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.error("get item bitstreams " + e.getMessage(), e);
+//            throw new RuntimeException(
+//                    "get item bitstreams. " + e.getMessage(), e);
+//
+//        }
+//        finally
+//        {
+//            cleanup(ps, conn, rs);
+//        }
+//
+//        return ids;
+//    }
 
 }

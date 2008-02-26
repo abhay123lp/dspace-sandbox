@@ -68,7 +68,7 @@ public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
     protected ItemDAO itemDAO;
     protected WorkspaceItemDAO wsiDAO;
 
-    public abstract WorkflowItem create() throws AuthorizeException;
+    //public abstract WorkflowItem create() throws AuthorizeException;
 
     public abstract WorkflowItem create(WorkspaceItem wsi)
         throws AuthorizeException;
@@ -89,7 +89,7 @@ public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
         
         wsiDAO.delete(wsi.getId());
         
-        update(wfi);
+        //update(wfi);
 
         return wfi;
     }
@@ -108,14 +108,14 @@ public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
      * Update the workflow item, including the unarchived item.
      */
     //FIXME non dovrebbe servire, al massimo solo per il loggig
-    public void update(WorkflowItem wfi) throws AuthorizeException
+/*    public void update(WorkflowItem wfi) throws AuthorizeException
     {
         //ItemDAOFactory.getInstance(context).update(wfi.getItem());
 
         log.info(LogManager.getHeader(context, "update_workflow_item",
                 "workflow_item_id=" + wfi.getId()));
     }
-
+*/
     /**
      * Delete the WorkflowItem, retaining the Item
      */

@@ -81,7 +81,7 @@ public class CheckerConsumer implements Consumer
     	{
             log.debug("Attempting to remove Checker Info");
     	    //bitstreamInfoDAO.deleteBitstreamInfoWithHistory(event.getSubjectID());
-            ApplicationService.deleteBitstreamInfoWithHistory(event.getSubjectID(), ctx);
+            CheckManager.deleteBitstreamInfoWithHistory(event.getSubjectID(), ctx);
             log.debug("Completed removing Checker Info");
     	}
     }

@@ -142,7 +142,7 @@ public final class CheckerCommand
         // bitstream table - this always done.
 
         // bitstreamInfoDAO.updateMissingBitstreams();
-        ApplicationService.updateMissingBitstreams(context);
+        CheckManager.updateMissingBitstreams(context);
 
         int id = dispatcher.next(context);
 
@@ -178,7 +178,7 @@ public final class CheckerCommand
     {
         // get bitstream info from bitstream table
         //BitstreamInfo info = bitstreamInfoDAO.findByBitstreamId(id);
-        BitstreamInfo info = ApplicationService.findBitstreamInfoByBitstreamId(id, context);
+        BitstreamInfo info = CheckManager.findBitstreamInfoByBitstreamId(id, context);
 
         // requested id was not found in bitstream
         // or most_recent_checksum table
@@ -290,7 +290,7 @@ public final class CheckerCommand
         info.setProcessEndDate(new Date());
         info.setToBeProcessed(false);
         updateInfo(info, context);
-        insertHistory(info, context);
+        CheckManager.insertHistory(info, context);
     }
 
     /**
@@ -386,7 +386,7 @@ public final class CheckerCommand
 
             // record new checksum and comparison result in db
             updateInfo(info, context);
-            insertHistory(info, context);
+            CheckManager.insertHistory(info, context);
             
         }
     }
@@ -406,17 +406,6 @@ public final class CheckerCommand
         mrc.setLastProcessStartDate(info.getProcessStartDate());
         mrc.setResult(info.getChecksumCheckResult());
         ApplicationService.update(context, MostRecentChecksum.class, mrc);
-    }
-    
-    private void insertHistory(BitstreamInfo info, Context context) {
-        ChecksumHistory history = new ChecksumHistory();
-        history.setBitstreamId(info.getBitstreamId());
-        history.setChecksumCalculated(info.getCalculatedChecksum());
-        history.setChecksumExpected(info.getStoredChecksum());
-        history.setProcessEndDate(info.getProcessEndDate());
-        history.setProcessStartDate(info.getProcessStartDate());
-        history.setResult(info.getChecksumCheckResult());
-        ApplicationService.save(context, ChecksumHistory.class, history); 
     }
 
     /**

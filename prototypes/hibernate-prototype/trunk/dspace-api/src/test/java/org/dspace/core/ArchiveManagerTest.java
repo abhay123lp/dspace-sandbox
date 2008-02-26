@@ -32,8 +32,7 @@ public class ArchiveManagerTest
     
     @Test
     public void testfake() {
-        Assert.assertTrue(true);
-        
+        Assert.assertTrue(true);        
     }
     
     /* Tutti i test ok */
