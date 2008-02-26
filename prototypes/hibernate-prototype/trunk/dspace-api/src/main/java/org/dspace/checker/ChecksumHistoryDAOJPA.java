@@ -1,6 +1,7 @@
 package org.dspace.checker;
 
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;

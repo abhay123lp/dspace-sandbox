@@ -53,11 +53,11 @@ public abstract class RegistrationDataDAO
 
     protected Context context;
 
-    public abstract RegistrationData create();
-    public abstract RegistrationData retrieve(int id);
-    public abstract RegistrationData retrieveByEmail(String email);
-    public abstract RegistrationData retrieveByToken(String token);
-    public abstract void update(RegistrationData registrationData);
-    public abstract void delete(int id);
-    public abstract void delete(String token);
+    //public abstract RegistrationData create();
+    //public abstract RegistrationData retrieve(int id);
+    public abstract RegistrationData findRegistrationDataByEmail(String email, Context context);
+    public abstract RegistrationData findRegistrationDataByToken(String token, Context context);
+    //public abstract void update(RegistrationData registrationData);
+    //public abstract void delete(int id);    
+    public abstract void deleteRegistrationDataByToken(Context context, String token);
 }

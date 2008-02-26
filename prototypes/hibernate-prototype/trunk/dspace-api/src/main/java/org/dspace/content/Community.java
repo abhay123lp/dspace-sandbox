@@ -190,7 +190,7 @@ public class Community extends DSpaceObject
     /* Returns all the collections owned by this community */
     @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
 //    @org.hibernate.annotations.Cascade(value = org.hibernate.annotations.CascadeType.DELETE_ORPHAN)
-    @JoinTable(name="collection2communities")
+    @JoinTable(name="community2collection")
     public List<Collection> getCollections() {
     	return this.collections;
     }

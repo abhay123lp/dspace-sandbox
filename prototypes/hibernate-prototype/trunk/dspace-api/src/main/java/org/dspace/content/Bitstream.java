@@ -193,7 +193,7 @@ public class Bitstream extends DSpaceObject
         // not null or Unknown
         return bitstreamFormat.getShortDescription();
     }    
-    @ManyToOne
+    @Transient
     public BitstreamFormat getFormat() {
         return bitstreamFormat;
     }

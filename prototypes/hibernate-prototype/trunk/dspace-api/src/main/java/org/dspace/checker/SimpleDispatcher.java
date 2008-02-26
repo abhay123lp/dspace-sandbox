@@ -113,7 +113,7 @@ public class SimpleDispatcher implements BitstreamDispatcher
         else
         {
             //return bitstreamInfoDAO.getOldestBitstream();
-            return ApplicationService.findOldestBitstream(context);
+            return ApplicationService.findOldestBitstreamId(context);
         }
 
     }

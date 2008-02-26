@@ -50,19 +50,16 @@ import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
 import org.dspace.checker.BitstreamInfoDAO;
+import org.dspace.checker.CheckManager;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
-import org.dspace.content.dao.BitstreamDAO;
-import org.dspace.content.dao.BitstreamDAOFactory;
 import org.dspace.content.factory.BitstreamFormatFactory;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.core.ItemManager;
 import org.dspace.core.Utils;
+
 import edu.sdsc.grid.io.FileFactory;
 import edu.sdsc.grid.io.GeneralFile;
 import edu.sdsc.grid.io.GeneralFileOutputStream;
@@ -561,7 +558,7 @@ public class BitstreamStorageManager
                     {
                         log.debug("deleting record");
                         //bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
-                        ApplicationService.deleteBitstreamInfoWithHistory(bid, context);
+                        CheckManager.deleteBitstreamInfoWithHistory(bid, context);
 
                         // This is typically run from the command line where
                         // no user is authenticated, so we just grant permission
@@ -586,7 +583,7 @@ public class BitstreamStorageManager
                 {
                     log.debug("deleting db record");
                     //bitstreamInfoDAO.deleteBitstreamInfoWithHistory(bid);
-                    ApplicationService.deleteBitstreamInfoWithHistory(bid, context);
+                    CheckManager.deleteBitstreamInfoWithHistory(bid, context);
                     // This is typically run from the command line where
                     // no user is authenticated, so we just grant permission
                     boolean ignoreAuth = context.ignoreAuthorization();

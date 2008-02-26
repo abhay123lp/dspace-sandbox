@@ -39,46 +39,89 @@
  */
 package org.dspace.workflow;
 
+import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.dspace.eperson.EPerson;
 
+@Entity
 public class TaskListItem
 {
-    private int id;
-    private int epersonID;
-    private int workflowItemID;
+    private int iD;
+//    private int epersonID;
+//    private int workflowItemID;
+    private EPerson eperson;
+    private WorkflowItem workflowItem;
 
+    protected TaskListItem() {}
+    
     public TaskListItem(int id)
     {
-        this.id = id;
+        this.iD = id;
     }
 
     public int getID()
     {
-        return id;
+        return iD;
     }
 
+    public void setID(int id)
+    {
+        iD = id;
+    }
+    
+    @ManyToOne
+    @JoinColumn(name="eperson_id")
+    public EPerson getEperson()
+    {
+        return eperson;
+    }
+
+    public void setEperson(EPerson eperson)
+    {
+        this.eperson = eperson;
+    }
+
+    @ManyToOne
+    @JoinColumn(name="workflow_id")
+    public WorkflowItem getWorkflowItem()
+    {
+        return workflowItem;
+    }
+
+    public void setWorkflowItem(WorkflowItem workflowItem)
+    {
+        this.workflowItem = workflowItem;
+    }
+
+    
+    @Transient
     public int getEPersonID()
     {
-        return epersonID;
+        return eperson.getId();
     }
 
-    public void setEPersonID(int epersonID)
-    {
-        this.epersonID = epersonID;
-    }
+//    public void setEPersonID(int epersonID)
+//    {
+//        this.epersonID = epersonID;
+//    }
 
+    @Transient
     public int getWorkflowItemID()
     {
-        return workflowItemID;
+        return workflowItem.getId();
     }
 
-    public void setWorkflowItemID(int workflowItemID)
-    {
-        this.workflowItemID = workflowItemID;
-    }
+//    public void setWorkflowItemID(int workflowItemID)
+//    {
+//        this.workflowItemID = workflowItemID;
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
@@ -99,4 +142,5 @@ public class TaskListItem
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
+
 }
