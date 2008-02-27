@@ -2,7 +2,7 @@
 <project>
 
    <modelVersion>4.0.0</modelVersion>
-   <groupId>org.dspace.xmlui</groupId>
+   <groupId>org.dspace</groupId>
    <artifactId>dspace-xmlui-lang</artifactId>
    <packaging>war</packaging>
    <name>DSpace XMLUI (Manakin) :: Translations</name>
