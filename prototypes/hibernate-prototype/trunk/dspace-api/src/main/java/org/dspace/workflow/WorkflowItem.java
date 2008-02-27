@@ -58,6 +58,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.uri.ObjectIdentifier;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.workflow.dao.WorkflowItemDAO;
@@ -206,7 +207,9 @@ public class WorkflowItem implements InProgressSubmission
 
     public void setMultipleTitles(boolean b)
     {
-        this.multipleTitlesOwner = multipleTitlesOwner;
+        //??
+        //this.multipleTitlesOwner = multipleTitlesOwner;
+        this.multipleTitlesOwner = b; 
     }
 
     @Column(name="published_before")
@@ -218,60 +221,6 @@ public class WorkflowItem implements InProgressSubmission
     public void setPublishedBefore(boolean publishedBefore)
     {
         this.publishedBefore = publishedBefore;
-    }
-
-    ////////////////////////////////////////////////////////////////////
-    // Deprecated methods
-    ////////////////////////////////////////////////////////////////////
-
-    @Deprecated
-    public void update() throws IOException, AuthorizeException
-    {
-//        dao.update(this);
-    }
-
-    @Deprecated
-    public void deleteWrapper() throws IOException, AuthorizeException
-    {
-//        dao.delete(getId());
-    }
-
-    @Deprecated
-    public static WorkflowItem find(Context context, int id)
-    {
-//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-//        return dao.retrieve(id);
-        return null;
-    }
-
-    @Deprecated
-    public static WorkflowItem[] findAll(Context c)
-    {
-//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
-//        List<WorkflowItem> wfItems = dao.getWorkflowItems();
-
-//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
-        return null;
-    }
-
-    @Deprecated
-    public static WorkflowItem[] findByEPerson(Context context, EPerson e)
-    {
-//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-//        List<WorkflowItem> wfItems = dao.getWorkflowItemsBySubmitter(e);
-
-//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
-        return null;
-    }
-
-    @Deprecated
-    public static WorkflowItem[] findByCollection(Context context, Collection c)
-    {
-//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-//        List<WorkflowItem> wfItems = dao.getWorkflowItems(c);
-
-//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
-        return null;
     }
 
     @Column(name="multiple_files")
@@ -300,4 +249,62 @@ public class WorkflowItem implements InProgressSubmission
     {
         this.id = id;
     }
+    
+    ////////////////////////////////////////////////////////////////////
+    // Deprecated methods
+    ////////////////////////////////////////////////////////////////////
+
+    @Deprecated
+    public void update() throws IOException, AuthorizeException
+    {
+//        dao.update(this);
+        //no need of an explicit update, entitymanager will take care of this
+    }
+
+    @Deprecated
+    public void deleteWrapper() throws IOException, AuthorizeException
+    {
+//        dao.delete(getId());
+        WorkflowManager.deleteWorkflowItem(id, context);
+    }
+
+    @Deprecated
+    public static WorkflowItem find(Context context, int id)
+    {
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+//        return dao.retrieve(id);
+        return ApplicationService.get(context, WorkflowItem.class, id);
+    }
+
+    @Deprecated
+    public static WorkflowItem[] findAll(Context c)
+    {
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
+//        List<WorkflowItem> wfItems = dao.getWorkflowItems();
+
+//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+        return (WorkflowItem[])ApplicationService.findAllWorkflowItem(c).toArray();
+    }
+
+    @Deprecated
+    public static WorkflowItem[] findByEPerson(Context context, EPerson e)
+    {
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+//        List<WorkflowItem> wfItems = dao.getWorkflowItemsBySubmitter(e);
+
+//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+        return (WorkflowItem[])ApplicationService.findWorkflowItemsBySubmitter(e, context).toArray();
+    }
+
+    @Deprecated
+    public static WorkflowItem[] findByCollection(Context context, Collection c)
+    {
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+//        List<WorkflowItem> wfItems = dao.getWorkflowItems(c);
+
+//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+        return (WorkflowItem[])ApplicationService.findWorkflowItemByCollection(c, context).toArray();
+    }
+
+
 }

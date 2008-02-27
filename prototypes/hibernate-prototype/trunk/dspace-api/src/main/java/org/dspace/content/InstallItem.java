@@ -47,6 +47,7 @@ import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.uri.ExternalIdentifier;
 import org.dspace.uri.dao.ExternalIdentifierDAO;
 import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
+import org.dspace.workflow.WorkflowManager;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Context;
@@ -170,7 +171,8 @@ public class InstallItem
         //itemDAO.update(item);
 
         // remove in-progress submission
-        is.deleteWrapper();
+        //is.deleteWrapper();
+        WorkflowManager.deleteWorkflowItem(is.getId(), c);
 
         // remove the item's policies and replace them with
         // the defaults from the collection

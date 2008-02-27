@@ -60,6 +60,7 @@ import org.dspace.eperson.dao.EPersonDAO;
 import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.eperson.dao.SubscriptionDAO;
 import org.dspace.eperson.dao.SubscriptionDAOFactory;
+import org.dspace.eperson.factory.SubscriptionFactory;
 import org.dspace.search.Harvest;
 import org.dspace.search.HarvestedItemInfo;
 import org.dspace.uri.IdentifierFactory;
@@ -106,13 +107,17 @@ public class SubscriptionManager
         {
             if (!isSubscribed(context, eperson, collection))
             {
-                SubscriptionDAO dao =
-                    SubscriptionDAOFactory.getInstance(context);
+                //SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
 
-                Subscription sub = dao.create();
-                sub.setEPersonID(eperson.getId());
-                sub.setCollectionID(collection.getId());
-                dao.update(sub);
+                //Subscription sub = dao.create();
+                Subscription sub = SubscriptionFactory.getInstance(context);
+//                sub.setEPersonID(eperson.getId());
+//                sub.setCollectionID(collection.getId());
+                sub.setEPerson(eperson);
+                sub.setCollection(collection);
+                ApplicationService.save(context, Subscription.class, sub); //new objects must be persisted
+                //dao.update(sub);
+                //no need
 
                 log.info(LogManager.getHeader(context, "subscribe",
                         "eperson_id=" + eperson.getId() + ",collection_id="
@@ -125,7 +130,7 @@ public class SubscriptionManager
                     "Only admin or e-person themselves can subscribe");
         }
     }
-
+   
     /**
      * Unsubscribe an e-person to a collection. Passing in <code>null</code>
      * for the collection unsubscribes the e-person from all collections they
@@ -150,26 +155,31 @@ public class SubscriptionManager
 
             if (collection == null)
             {
-                for (Subscription sub : dao.getSubscriptions(eperson))
+//                for (Subscription sub : dao.getSubscriptions(eperson))
+                for (Subscription sub : ApplicationService.findSubscriptionsByEPerson(eperson, context))
                 {
                     log.info(LogManager.getHeader(context, "unsubscribe",
-                            "eperson_id=" + sub.getEPersonID() +
-                            ",collection_id=" + sub.getCollectionID()));
+                            "eperson_id=" + sub.getEPerson().getId() +
+                            ",collection_id=" + sub.getCollection().getId()));
 
-                    dao.delete(sub.getID());
+                    //dao.delete(sub.getID());
+                    ApplicationService.delete(context, Subscription.class, sub);
                 }
             }
             else
             {
-                for (Subscription sub : dao.getSubscriptions(eperson))
+//                for (Subscription sub : dao.getSubscriptions(eperson))
+                for (Subscription sub : ApplicationService.findSubscriptionsByEPerson(eperson, context))
                 {
-                    if (collection.getId() == sub.getCollectionID())
+                    if (collection == sub.getCollection())
                     {
                         log.info(LogManager.getHeader(context, "unsubscribe",
-                                "eperson_id=" + sub.getEPersonID() +
-                                ",collection_id=" + sub.getCollectionID()));
+                                "eperson_id=" + sub.getEPerson().getId() +
+                                ",collection_id=" + sub.getCollection().getId()));
 
-                        dao.delete(sub.getID());
+//                        dao.delete(sub.getID());
+                        ApplicationService.delete(context, Subscription.class, sub);
+
                         break;
                     }
                 }
@@ -193,16 +203,17 @@ public class SubscriptionManager
      */
     public static Collection[] getSubscriptions(Context context, EPerson eperson)
     {
-        SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
+//        SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
         //CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
 
-        List<Subscription> subscriptions = dao.getSubscriptions(eperson);
+//        List<Subscription> subscriptions = dao.getSubscriptions(eperson);
+        List<Subscription> subscriptions = ApplicationService.findSubscriptionsByEPerson(eperson, context);
         List<Collection> collections = new ArrayList<Collection>();
 
         for (Subscription sub : subscriptions)
         {
             //collections.add(collectionDAO.retrieve(sub.getCollectionID()));
-            collections.add(ApplicationService.get(context, Collection.class, sub.getCollectionID()));
+            collections.add(ApplicationService.get(context, Collection.class, sub.getCollection().getId()));
         }
         
         return (Collection[]) collections.toArray(new Collection[0]);
@@ -222,8 +233,8 @@ public class SubscriptionManager
     public static boolean isSubscribed(Context context, EPerson eperson,
             Collection collection)
     {
-        SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
-        return dao.isSubscribed(eperson, collection);
+        Subscription subscription = ApplicationService.findEPersonSubscriptionInCollection(eperson, collection, context);
+        return (subscription!=null);
     }
 
     /**
@@ -249,7 +260,8 @@ public class SubscriptionManager
         CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
         EPersonDAO epersonDAO = EPersonDAOFactory.getInstance(context);
 
-        List<Subscription> subscriptions = dao.getSubscriptions();
+//        List<Subscription> subscriptions = dao.getSubscriptions();
+        List<Subscription> subscriptions = ApplicationService.findAllSubscriptions(context);
 
         EPerson currentEPerson = null;
         List<Collection> collections = null; // List of Collections
@@ -259,7 +271,7 @@ public class SubscriptionManager
         {
             // Does this row relate to the same e-person as the last?
             if ((currentEPerson == null)
-                    || (sub.getEPersonID() != currentEPerson.getId()))
+                    || (sub.getEPerson().getId() != currentEPerson.getId()))
             {
                 // New e-person. Send mail for previous e-person
                 if (currentEPerson != null)
@@ -277,12 +289,12 @@ public class SubscriptionManager
                 }
 
                 //currentEPerson = epersonDAO.retrieve(sub.getEPersonID());
-                currentEPerson = ApplicationService.get(context, EPerson.class, sub.getEPersonID());
+                currentEPerson = ApplicationService.get(context, EPerson.class, sub.getEPerson().getId());
                 collections = new ArrayList<Collection>();
             }
 
             //collections.add(collectionDAO.retrieve(sub.getCollectionID()));
-            collections.add(ApplicationService.get(context, Collection.class, sub.getCollectionID()));
+            collections.add(ApplicationService.get(context, Collection.class, sub.getCollection().getId()));
         }
         
         // Process the last person

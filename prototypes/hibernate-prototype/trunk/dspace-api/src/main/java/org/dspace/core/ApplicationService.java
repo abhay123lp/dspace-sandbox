@@ -8,13 +8,11 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
-import org.dspace.checker.BitstreamInfo;
 import org.dspace.checker.BitstreamInfoDAOJPA;
-import org.dspace.checker.ChecksumHistory;
 import org.dspace.checker.ChecksumHistoryDAOJPA;
 import org.dspace.checker.ChecksumResultDAOJPA;
-import org.dspace.checker.DSpaceBitstreamInfo;
 import org.dspace.checker.MostRecentChecksum;
+import org.dspace.checker.ReporterDAOJPA;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
@@ -41,8 +39,15 @@ import org.dspace.content.dao.MetadataFieldDAOFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.RegistrationData;
+import org.dspace.eperson.Subscription;
 import org.dspace.eperson.EPerson.EPersonMetadataField;
+import org.dspace.eperson.dao.hibernate.EPersonDAOHibernate;
+import org.dspace.eperson.dao.hibernate.GroupDAOHibernate;
 import org.dspace.eperson.dao.hibernate.RegistrationDataDAOJPA;
+import org.dspace.eperson.dao.hibernate.SubscriptionDAOJPA;
+import org.dspace.workflow.TaskListItem;
+import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.dao.jpa.WorkflowItemDAOJPA;
 
 
 public class ApplicationService {
@@ -238,10 +243,10 @@ public class ApplicationService {
     public static List<Integer> findAllItemBitstreamsId(int itemId, Context context) {
         return null;
     }
-    
-    // TODO implementare
+    //FIXME query sbagliata, da rifare    
     public static EPerson findEPersonByEmail(Context context, String email) {
-        return null;
+        EPersonDAOHibernate edao = new EPersonDAOHibernate(context);
+        return edao.findEPersonByEmail(context, email);
     }
     
     // TODO implementare
@@ -260,9 +265,10 @@ public class ApplicationService {
 // return null;
 // }
     
-    // TODO implemetare
+    
     public static Group findGroupByName(Context context, String name) {
-        return null;
+        GroupDAOHibernate gdao = new GroupDAOHibernate(context);
+        return gdao.findGroupByName(context, name);
     }
     
     //TODO implementare
@@ -301,11 +307,25 @@ public class ApplicationService {
         RegistrationDataDAOJPA rdao = new RegistrationDataDAOJPA();
         return rdao.findRegistrationDataByEmail(email, context);
     }
-   
     
-    //TODO reporterdao
-    public static List<DSpaceBitstreamInfo> findUnknownBitstreams(Context context) {
-        return null;
+    public static Subscription findEPersonSubscriptionInCollection(EPerson eperson, Collection collection, Context context) {
+        SubscriptionDAOJPA sdao = new SubscriptionDAOJPA();
+        return sdao.findEPersonSubscriptionInCollection(eperson, collection, context);
+    }
+    
+    public static List<Subscription> findAllSubscriptions(Context context) {
+        SubscriptionDAOJPA sdao = new SubscriptionDAOJPA();
+        return sdao.findAllSubscriptions(context);
+    }
+   
+    public static List<Subscription> findSubscriptionsByEPerson(EPerson eperson, Context context) {
+        SubscriptionDAOJPA sdao = new SubscriptionDAOJPA();
+        return sdao.findSubscriptionsByEPerson(eperson, context);
+    }
+    
+    public static List<Bitstream> findUnknownBitstreams(Context context) {
+        ReporterDAOJPA rdao = new ReporterDAOJPA();
+        return rdao.findUnknownBitstreams(context);
     }
     
     
@@ -318,15 +338,15 @@ public class ApplicationService {
         BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
         return bdao.findOldestBitstream(lessThanDate, context);
     }
-    
-    //TODO reporterdao
-    public static List<ChecksumHistory> findNotProcessedBitstreamsReport(Date startDate, Date endDate, Context context) {
-        return null;
+        
+    public static List<MostRecentChecksum> findMRCNotProcessedBitstreamsReport(Date startDate, Date endDate, Context context) {
+        ReporterDAOJPA rdao = new ReporterDAOJPA();
+        return rdao.findNotProcessedBitstreamsReport(startDate, endDate, context);
     }
     
-    //TODO reporterdao
-    public static List<ChecksumHistory> findBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode, Context context) {
-        return null;
+    public static List<MostRecentChecksum> findMRCForBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode, Context context) {
+        ReporterDAOJPA rdao = new ReporterDAOJPA();
+        return rdao.findMRCBitstreamResultTypeReport(startDate, endDate, resultCode, context);
     }
     
     public static MostRecentChecksum findMostRecentChecksumByBitstreamId(int bitstreamId, Context context) {
@@ -346,8 +366,36 @@ public class ApplicationService {
         return crdao.findAllCodes(context);
     }
     
+    public static List<TaskListItem> findTaskListItemByWorkflowId(int workflowId, Context context) {
+        WorkflowItemDAOJPA wdao = new WorkflowItemDAOJPA();
+        return wdao.findTaskListItemByWorkflowId(workflowId, context);        
+    }
     
+    //FIXME ricontrollare la query confrontandola con quella del dao originale
+    public static List<TaskListItem> findTaskListItemByEPerson(EPerson eperson, Context context) {
+        WorkflowItemDAOJPA wdao = new WorkflowItemDAOJPA();
+        return wdao.findTaskListItemByEPerson(eperson, context);
+    }
     
+    public static List<WorkflowItem> findWorkflowItemByCollection(Collection collection, Context context) {
+        WorkflowItemDAOJPA wdao = new WorkflowItemDAOJPA();
+        return wdao.findWorkflowItemByCollection(collection, context);        
+    }
+    
+    public static List<WorkflowItem> findWorkflowItemsByOwner(EPerson eperson, Context context) {
+        WorkflowItemDAOJPA wdao = new WorkflowItemDAOJPA();
+        return wdao.findWorkflowItemsByOwner(eperson, context);
+    }
+    
+    public static List<WorkflowItem> findWorkflowItemsBySubmitter(EPerson eperson, Context context) {
+        WorkflowItemDAOJPA wdao = new WorkflowItemDAOJPA();
+        return wdao.findWorkflowItemsBySubmitter(eperson, context);
+    }
+    
+    public static List<WorkflowItem> findAllWorkflowItem(Context context) {
+        WorkflowItemDAOJPA wdao = new WorkflowItemDAOJPA();
+        return wdao.findAllWorkflowItem(context);
+    }
     
     public static int getCountItems(Collection collection, Context context) {
         CollectionDAO cdao = CollectionDAOFactory.getInstance(context);

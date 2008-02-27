@@ -59,13 +59,13 @@ public abstract class SubscriptionDAO
 
     protected Context context;
 
-    public abstract Subscription create();
-    public abstract Subscription retrieve(int id);
+//    public abstract Subscription create();
+//    public abstract Subscription retrieve(int id);
     public abstract Subscription retrieve(UUID uuid);
-    public abstract void update(Subscription sub);
-    public abstract void delete(int id);
+//    public abstract void update(Subscription sub);
+//    public abstract void delete(int id);
 
-    public abstract boolean isSubscribed(EPerson eperson, Collection collection);
-    public abstract List<Subscription> getSubscriptions();
-    public abstract List<Subscription> getSubscriptions(EPerson eperson);
+//    public abstract boolean isSubscribed(EPerson eperson, Collection collection);
+//    public abstract List<Subscription> getSubscriptions();
+//    public abstract List<Subscription> getSubscriptions(EPerson eperson);
 }

@@ -46,6 +46,7 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.content.Collection;
@@ -65,85 +66,88 @@ public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
     protected Logger log = Logger.getLogger(WorkflowItemDAO.class);
 
     protected Context context;
-    protected ItemDAO itemDAO;
-    protected WorkspaceItemDAO wsiDAO;
+//    protected ItemDAO itemDAO;
+//    protected WorkspaceItemDAO wsiDAO;
 
-    //public abstract WorkflowItem create() throws AuthorizeException;
+//    public abstract WorkflowItem create() throws AuthorizeException;
 
-    public abstract WorkflowItem create(WorkspaceItem wsi)
-        throws AuthorizeException;
+//    public abstract WorkflowItem create(WorkspaceItem wsi)
+//        throws AuthorizeException;
 
-    // FIXME: This should be called something else, but I can't think of
-    // anything suitable. The reason this can't go in create() is because we
-    // need access to the item that was created, but we can't reach into the
-    // subclass to get it (storing it as a protected member variable would be
-    // even more filthy).
-    protected final WorkflowItem create(WorkflowItem wfi, WorkspaceItem wsi)
-        throws AuthorizeException
-    {
-        wfi.setItem(wsi.getItem());
-        wfi.setCollection(wsi.getCollection());
-        wfi.setMultipleFiles(wsi.hasMultipleFiles());
-        wfi.setMultipleTitles(wsi.hasMultipleTitles());
-        wfi.setPublishedBefore(wsi.isPublishedBefore());
-        
-        wsiDAO.delete(wsi.getId());
-        
-        //update(wfi);
+//    //  This should be called something else, but I can't think of
+//    // anything suitable. The reason this can't go in create() is because we
+//    // need access to the item that was created, but we can't reach into the
+//    // subclass to get it (storing it as a protected member variable would be
+//    // even more filthy).
+    
+//    SPOSTATO IN WORKFLOW MANAGER
+//    protected final WorkflowItem create(WorkflowItem wfi, WorkspaceItem wsi)
+//        throws AuthorizeException
+//    {
+//        wfi.setItem(wsi.getItem());
+//        wfi.setCollection(wsi.getCollection());
+//        wfi.setMultipleFiles(wsi.hasMultipleFiles());
+//        wfi.setMultipleTitles(wsi.hasMultipleTitles());
+//        wfi.setPublishedBefore(wsi.isPublishedBefore());
+//        
+//        wsiDAO.delete(wsi.getId());
+//        
+//        //update(wfi);
+//
+//        return wfi;
+//    }
 
-        return wfi;
-    }
+//    public WorkflowItem retrieve(int id)
+//    {
+//        return (WorkflowItem) context.fromCache(WorkflowItem.class, id);
+//    }
 
-    public WorkflowItem retrieve(int id)
-    {
-        return (WorkflowItem) context.fromCache(WorkflowItem.class, id);
-    }
-
-    public WorkflowItem retrieve(UUID uuid)
+    public WorkflowItem retrieve(UUID uuid)  //fare l'override sul dao jpa?
     {
         return null;
     }
 
-    /**
-     * Update the workflow item, including the unarchived item.
-     */
-    //FIXME non dovrebbe servire, al massimo solo per il loggig
-/*    public void update(WorkflowItem wfi) throws AuthorizeException
-    {
-        //ItemDAOFactory.getInstance(context).update(wfi.getItem());
-
-        log.info(LogManager.getHeader(context, "update_workflow_item",
-                "workflow_item_id=" + wfi.getId()));
-    }
-*/
-    /**
-     * Delete the WorkflowItem, retaining the Item
-     */
-    public void delete(int id) throws AuthorizeException
-    {
-        WorkflowItem wfi = retrieve(id);
-
-        context.removeCached(wfi, id);
-
-        // delete any pending tasks
-        deleteTasks(wfi);
-    }
+//    /**
+//     * Update the workflow item, including the unarchived item.
+//     */
+//    
+//    public void update(WorkflowItem wfi) throws AuthorizeException
+//    {
+//        //ItemDAOFactory.getInstance(context).update(wfi.getItem());
+//
+//        log.info(LogManager.getHeader(context, "update_workflow_item",
+//                "workflow_item_id=" + wfi.getId()));
+//    }
+//
+//    /**
+//     * Delete the WorkflowItem, retaining the Item
+//     */
+//    public void delete(int id) throws AuthorizeException
+//    {
+//        //WorkflowItem wfi = retrieve(id);
+//        WorkflowItem wfi = ApplicationService.get(context, WorkflowItem.class, id);
+//
+//        context.removeCached(wfi, id);
+//
+//        // delete any pending tasks
+//        deleteTasks(wfi);
+//    }
     
-    public abstract TaskListItem createTask(WorkflowItem wfi, EPerson eperson);
-    public abstract void deleteTasks(WorkflowItem wfi);
+//    public abstract TaskListItem createTask(WorkflowItem wfi, EPerson eperson);
+//    public abstract void deleteTasks(WorkflowItem wfi);
 
-    public abstract List<WorkflowItem> getWorkflowItems();
+//    public abstract List<WorkflowItem> getWorkflowItems();
 
-    /**
-     * Get all workflow items that were original submissions by a particular
-     * e-person. These are ordered by workflow ID, since this should likely keep
-     * them in the order in which they were created.
-     */
-    public abstract List<WorkflowItem> getWorkflowItemsBySubmitter(EPerson eperson);
+//    /**
+//     * Get all workflow items that were original submissions by a particular
+//     * e-person. These are ordered by workflow ID, since this should likely keep
+//     * them in the order in which they were created.
+//     */
+//    public abstract List<WorkflowItem> getWorkflowItemsBySubmitter(EPerson eperson);
 
-    public abstract List<WorkflowItem> getWorkflowItemsByOwner(EPerson eperson);
+//    public abstract List<WorkflowItem> getWorkflowItemsByOwner(EPerson eperson);
 
-    public abstract List<WorkflowItem> getWorkflowItems(Collection collection);
+//    public abstract List<WorkflowItem> getWorkflowItems(Collection collection);
 
-    public abstract List<TaskListItem> getTaskListItems(EPerson eperson);
+//    public abstract List<TaskListItem> getTaskListItems(EPerson eperson);
 }

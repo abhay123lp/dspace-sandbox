@@ -149,6 +149,25 @@ public class WorkflowManager
     /** log4j logger */
     private static Logger log = Logger.getLogger(WorkflowManager.class);
 
+    
+    public static WorkflowItem createWorkflowItem(WorkspaceItem wsi, Context context) 
+    throws AuthorizeException { //spostato qui da workflowitemdao
+        WorkflowItem wfi = WorkflowItemFactory.getInstance(context); 
+        wfi.setItem(wsi.getItem());
+        wfi.setCollection(wsi.getCollection());
+        wfi.setMultipleFiles(wsi.hasMultipleFiles());
+        wfi.setMultipleTitles(wsi.hasMultipleTitles());
+        wfi.setPublishedBefore(wsi.isPublishedBefore());
+        
+//        update(wfi);
+//        wsiDAO.delete(wsi.getId());
+        ApplicationService.save(context, WorkflowItem.class, wfi); 
+        ApplicationService.delete(context, WorkspaceItem.class, wsi);
+
+        return wfi;
+    }
+    
+
     /**
      * Translate symbolic name of workflow state into number.
      * The name is case-insensitive.  Returns -1 when name cannot
@@ -179,8 +198,9 @@ public class WorkflowManager
             throws AuthorizeException, IOException
     {
         // FIXME Check auth
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
-        WorkflowItem wfi = dao.create(wsi);
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
+//        WorkflowItem wfi = dao.create(wsi);
+        WorkflowItem wfi = createWorkflowItem(wsi, c);
         Item item = wfi.getItem();
 
         log.info(LogManager.getHeader(c, "start_workflow",
@@ -221,10 +241,11 @@ public class WorkflowManager
      * @param e
      *            The EPerson we want to fetch owned tasks for.
      */
-    public static List getOwnedTasks(Context context, EPerson eperson)
+    public static List<WorkflowItem> getOwnedTasks(Context context, EPerson eperson)
     {
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-        return dao.getWorkflowItemsByOwner(eperson);
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+//        return dao.getWorkflowItemsByOwner(eperson);
+        return ApplicationService.findWorkflowItemsByOwner(eperson, context);
     }
 
     /**
@@ -234,15 +255,17 @@ public class WorkflowManager
      * @param e
      *            The Eperson we want to fetch the pooled tasks for.
      */
-    public static List getPooledTasks(Context context, EPerson eperson)
+    public static List<WorkflowItem> getPooledTasks(Context context, EPerson eperson)
     {
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-        List<TaskListItem> tlItems = dao.getTaskListItems(eperson);
+//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+//        List<TaskListItem> tlItems = dao.getTaskListItems(eperson);
+        List<TaskListItem> tlItems = ApplicationService.findTaskListItemByEPerson(eperson, context);
         List<WorkflowItem> wfItems = new ArrayList<WorkflowItem>();
 
         for (TaskListItem tli : tlItems)
         {
-            wfItems.add(dao.retrieve(tli.getWorkflowItemID()));
+            //wfItems.add(dao.retrieve(tli.getWorkflowItemID()));
+            wfItems.add(ApplicationService.get(context, WorkflowItem.class, tli.getWorkflowItemID()));
         }
 
         return wfItems;
@@ -701,22 +724,23 @@ public class WorkflowManager
      *            WorkflowItem to be 'dismantled'
      * @return the workspace item
      */
-    private static WorkspaceItem returnToWorkspace(Context c, WorkflowItem wfi)
+    private static WorkspaceItem returnToWorkspace(Context context, WorkflowItem wfi)
         throws AuthorizeException, IOException
     {
-        WorkflowItemDAO wfiDAO = WorkflowItemDAOFactory.getInstance(c);
-        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(c);
+        //WorkflowItemDAO wfiDAO = WorkflowItemDAOFactory.getInstance(context);
+        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
         WorkspaceItem wsi = wsiDAO.create(wfi);
 
         // remove any licenses that the item may have been given
         wsi.getItem().removeLicenses();
 
         //myitem.update();
-        log.info(LogManager.getHeader(c, "return_to_workspace",
+        log.info(LogManager.getHeader(context, "return_to_workspace",
                 "workflow_item_id=" + wfi.getId() +
                 "workspace_item_id=" + wsi.getId()));
 
-        wfiDAO.delete(wfi.getId());
+        //wfiDAO.delete(wfi.getId());
+        WorkflowManager.deleteWorkflowItem(wfi.getId(), context);
 
         return wsi;
     }
@@ -778,22 +802,37 @@ public class WorkflowManager
 
     // creates workflow tasklist entries for a workflow
     // for all the given EPeople
-    private static void createTasks(Context c, WorkflowItem wfi, List<EPerson> e)
+    private static void createTasks(Context context, WorkflowItem wfi, List<EPerson> e)
     {
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
+        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
 
         // create a tasklist entry for each eperson
         for (EPerson eperson : e)
         {
-            dao.createTask(wfi, eperson);
+            //dao.createTask(wfi, eperson);
+            TaskListItem tli = new TaskListItem();
+            tli.setEperson(ApplicationService.get(context, EPerson.class, eperson.getId()));
+            tli.setWorkflowItem(ApplicationService.get(context, WorkflowItem.class, wfi.getId()));
+            ApplicationService.save(context, TaskListItem.class, tli);
         }
     }
 
     // deletes all tasks associated with a workflowitem
     static void deleteTasks(Context context, WorkflowItem wfi)
     {
-        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-        dao.deleteTasks(wfi);
+        //WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+        //dao.deleteTasks(wfi);
+        List<TaskListItem> tli = ApplicationService.findTaskListItemByWorkflowId(wfi.getId(), context);
+        for(TaskListItem item : tli) {
+            ApplicationService.delete(context, TaskListItem.class, item);
+        }
+    }
+    
+    public static void deleteWorkflowItem(int id, Context context) {
+        //first delete pending tasks, then the object
+        WorkflowItem wfi = ApplicationService.get(context, WorkflowItem.class, id);
+        deleteTasks(context, wfi);
+        ApplicationService.delete(context, WorkflowItem.class, wfi);
     }
 
     private static void notifyGroupOfTask(Context c, WorkflowItem wi,

@@ -108,7 +108,7 @@ public class SimpleReporterImpl implements SimpleReporter
     {
         // get all the bitstreams marked deleted for today
         //List history = reporter.getBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.BITSTREAM_MARKED_DELETED);
-        List<ChecksumHistory> history = ApplicationService.findBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.BITSTREAM_MARKED_DELETED, context);
+        List<ChecksumHistory> history = CheckManager.getBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.BITSTREAM_MARKED_DELETED, context);
 
         osw.write("\n");
         osw.write(msg("deleted-bitstream-intro"));
@@ -154,7 +154,7 @@ public class SimpleReporterImpl implements SimpleReporter
         // get all the bitstreams marked deleted for today
         //List history = reporter.getBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.CHECKSUM_NO_MATCH);
         
-        List<ChecksumHistory> history = ApplicationService.findBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.CHECKSUM_NO_MATCH, context);
+        List<ChecksumHistory> history = CheckManager.getBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.CHECKSUM_NO_MATCH, context);
 
         osw.write("\n");
         osw.write(msg("checksum-did-not-match"));
@@ -201,7 +201,7 @@ public class SimpleReporterImpl implements SimpleReporter
     {
         // get all the bitstreams marked deleted for today
         //List history = reporter.getBitstreamResultTypeReport(startDate,endDate, ChecksumCheckResults.BITSTREAM_NOT_FOUND);
-        List<ChecksumHistory> history = ApplicationService.findBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.BITSTREAM_NOT_FOUND, context);
+        List<ChecksumHistory> history = CheckManager.getBitstreamResultTypeReport(startDate, endDate, ChecksumCheckResults.BITSTREAM_NOT_FOUND, context);
 
         osw.write("\n");
         osw.write(msg("bitstream-not-found-report"));
@@ -247,7 +247,7 @@ public class SimpleReporterImpl implements SimpleReporter
     {
         // get all the bitstreams marked deleted for today
         //List history = reporter.getNotProcessedBitstreamsReport(startDate,endDate);
-        List<ChecksumHistory> history = ApplicationService.findNotProcessedBitstreamsReport(startDate, endDate, context);
+        List<ChecksumHistory> history = CheckManager.getNotProcessedBitstreamsReport(startDate, endDate, context);
         
         osw.write("\n");
         osw.write(msg("bitstream-will-no-longer-be-processed"));
@@ -289,7 +289,7 @@ public class SimpleReporterImpl implements SimpleReporter
     {
         // get all the bitstreams marked deleted for today
         //List bitstreams = reporter.getUnknownBitstreams();
-        List<DSpaceBitstreamInfo> bitstreams = ApplicationService.findUnknownBitstreams(context);
+        List<DSpaceBitstreamInfo> bitstreams = CheckManager.getUnknownBitstreams(context);
 
         osw.write("\n");
         osw.write(msg("unchecked-bitstream-report"));

@@ -98,7 +98,7 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 //    {
 //        return childDAO.create();
 //    }
-//
+
 //    public Group retrieve(int id)
 //    {
 //        return childDAO.retrieve(id);
@@ -118,29 +118,29 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 //    {
 //        childDAO.update(group);
 //    }
-//
-//    public void delete(int id) throws AuthorizeException
-//    {
-//        childDAO.delete(id);
-//    }
+
+    public void delete(int id) throws AuthorizeException
+    {
+        childDAO.delete(id);
+    }
 
 //    public List<Group> getGroups()
 //    {
 //        return childDAO.getGroups();
 //    }
-//
-//    public List<Group> getGroups(int sortField)
-//    {
-//        return childDAO.getGroups(sortField);
-//    }
+
+    public List<Group> getGroups(int sortField)
+    {
+        return childDAO.getGroups(sortField);
+    }
 
     /**
      * Returns a list of all the Groups the given EPerson is a member of.
      */
-//    public List<Group> getGroups(EPerson eperson)
-//    {
-//        return childDAO.getGroups(eperson);
-//    }
+    public List<Group> getGroups(EPerson eperson)
+    {
+        return childDAO.getGroups(eperson);
+    }
 
 //    public Set<Integer> getGroupIDs(EPerson eperson)
 //    {
@@ -164,10 +164,10 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
     /**
      * Returns a list of all the immediate subgroups of the given Group.
      */
-//    public List<Group> getMemberGroups(Group group)
-//    {
-//        return childDAO.getMemberGroups(group);
-//    }
+    public List<Group> getMemberGroups(Group group)
+    {
+        return childDAO.getMemberGroups(group);
+    }
 
     /**
      * Find the groups that match the search query across eperson_group_id or
@@ -213,7 +213,7 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 //    {
 //        childDAO.link(parent, child);
 //    }
-
+//
 //    public void unlink(Group parent, Group child)
 //    {
 //        childDAO.link(parent, child);
@@ -223,7 +223,7 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 //    {
 //        return childDAO.linked(parent, child);
 //    }
-
+//
 //    public void link(Group group, EPerson eperson)
 //    {
 //        childDAO.link(group, eperson);
@@ -249,7 +249,7 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 //    {
 //        childDAO.link(group, ips);
 //    }
-
+//
 //    public boolean linked(Group group, InProgressSubmission ips)
 //    {
 //        return childDAO.linked(group, ips);

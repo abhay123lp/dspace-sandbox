@@ -95,6 +95,11 @@ public class AccountManager
     public static Group createGroup(Context context) {
         return GroupFactory.getInstance(context);
     }
+    
+    //TODO implementare
+    public static void deleteGroup(Group group, Context context) {
+        
+    }
      
     /* Returns a list of all epeople in group (or any subgroups) */
     public static List<EPerson> getAllEPeople(Group group, Context context) {
