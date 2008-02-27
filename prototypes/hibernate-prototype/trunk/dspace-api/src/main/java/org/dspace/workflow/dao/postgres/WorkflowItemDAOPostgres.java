@@ -46,6 +46,7 @@ import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
@@ -67,16 +68,16 @@ import org.dspace.workflow.dao.WorkflowItemDAO;
 /**
  * @author James Rutherford
  */
-public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
+public class WorkflowItemDAOPostgres extends WorkflowItemDAO
 {
-//    public WorkflowItemDAOPostgres(Context context)
-//    {
-//        this.context = context;
-//
+    public WorkflowItemDAOPostgres(Context context)
+    {
+        this.context = context;
+
 //        itemDAO = ItemDAOFactory.getInstance(context);
 //        wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
-//    }
-//
+    }
+
 //    @Override
 //    public WorkflowItem create() throws AuthorizeException
 //    {
@@ -106,7 +107,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //        WorkflowItem wfi = create();
 //        return super.create(wfi, wsi);
 //    }
-//
+
 //    @Override
 //    public WorkflowItem retrieve(int id)
 //    {
@@ -128,7 +129,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public WorkflowItem retrieve(UUID uuid)
 //    {
@@ -151,7 +152,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void update(WorkflowItem wfi) throws AuthorizeException
 //    {
@@ -160,7 +161,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //        try
 //        {
 //            TableRow row =
-//                DatabaseManager.find(context, "workflowitem", wfi.getID());
+//                DatabaseManager.find(context, "workflowitem", wfi.getId());
 //
 //            if (row != null)
 //            {
@@ -170,7 +171,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            else
 //            {
 //                throw new RuntimeException("Didn't find workflow item " +
-//                        wfi.getID());
+//                        wfi.getId());
 //            }
 //        }
 //        catch (SQLException sqle)
@@ -178,7 +179,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void delete(int id) throws AuthorizeException
 //    {
@@ -193,21 +194,21 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public TaskListItem createTask(WorkflowItem wfi, EPerson eperson)
 //    {
 //        try
 //        {
 //            TableRow row = DatabaseManager.create(context, "tasklistitem");
-//            row.setColumn("eperson_id", eperson.getID());
-//            row.setColumn("workflow_id", wfi.getID());
+//            row.setColumn("eperson_id", eperson.getId());
+//            row.setColumn("workflow_id", wfi.getId());
 //            DatabaseManager.update(context, row);
 //
 //            int id = row.getIntColumn("tasklist_id");
 //            TaskListItem tli = new TaskListItem(id);
-//            tli.setEPersonID(eperson.getID());
-//            tli.setWorkflowItemID(wfi.getID());
+//            tli.setEperson(ApplicationService.get(context, EPerson.class, eperson.getId()));
+//            tli.setWorkflowItem(ApplicationService.get(context, WorkflowItem.class, wfi.getId()));
 //
 //            return tli;
 //        }
@@ -216,14 +217,14 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void deleteTasks(WorkflowItem wfi)
 //    {
 //        try
 //        {
 //            DatabaseManager.deleteByValue(context, "tasklistitem",
-//                    "workflow_id", wfi.getID() + "");
+//                    "workflow_id", wfi.getId() + "");
 //        }
 //        catch (SQLException sqle)
 //        {
@@ -247,7 +248,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public List<WorkflowItem> getWorkflowItemsByOwner(EPerson eperson)
 //    {
@@ -256,7 +257,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            TableRowIterator tri = DatabaseManager.query(context,
 //                    "SELECT workflow_id FROM workflowitem " +
 //                    "WHERE owner = ? ORDER BY workflow_id",
-//                    eperson.getID());
+//                    eperson.getId());
 //
 //            return returnAsList(tri);
 //        }
@@ -265,7 +266,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public List<WorkflowItem> getWorkflowItemsBySubmitter(EPerson eperson)
 //    {
@@ -276,7 +277,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //                    "WHERE wfi.item_id = i.item_id " +
 //                    "AND i.submitter_id = ? " + 
 //                    "ORDER BY wfi.workflow_id",
-//                    eperson.getID());
+//                    eperson.getId());
 //
 //            return returnAsList(tri);
 //        }
@@ -285,7 +286,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public List<WorkflowItem> getWorkflowItems(Collection collection)
 //    {
@@ -294,7 +295,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            TableRowIterator tri = DatabaseManager.query(context,
 //                    "SELECT workflow_id FROM workflowitem " +
 //                    "WHERE collection_id = ? ",
-//                    collection.getID());
+//                    collection.getId());
 //
 //            return returnAsList(tri);
 //        }
@@ -303,7 +304,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public List<TaskListItem> getTaskListItems(EPerson eperson)
 //    {
@@ -314,7 +315,7 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //                    "FROM workflowitem wfi, tasklistitem tli " +
 //                    "WHERE tli.eperson_id = ? " +
 //                    "AND tli.workflow_id = wfi.workflow_id",
-//                    eperson.getID());
+//                    eperson.getId());
 //
 //            List<TaskListItem> tlItems = new ArrayList<TaskListItem>();
 //
@@ -325,8 +326,8 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //                int workflowItemID = row.getIntColumn("workflow_id");
 //
 //                TaskListItem tli = new TaskListItem(id);
-//                tli.setEPersonID(epersonID);
-//                tli.setWorkflowItemID(workflowItemID);
+//                tli.setEperson(ApplicationService.get(context, EPerson.class, epersonID));
+//                tli.setWorkflowItem(ApplicationService.get(context, WorkflowItem.class, workflowItemID));
 //
 //                tlItems.add(tli);
 //            }
@@ -338,11 +339,11 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    ////////////////////////////////////////////////////////////////////
-//    // Utility methods
-//    ////////////////////////////////////////////////////////////////////
-//
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
 //    private WorkflowItem retrieve(TableRow row)
 //    {
 //        if (row == null)
@@ -365,12 +366,13 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //        for (TableRow row : tri.toList())
 //        {
 //            int id = row.getIntColumn("workflow_id");
-//            wfItems.add(retrieve(id));
+//            //wfItems.add(retrieve(id));
+//            wfItems.add(ApplicationService.get(context, WorkflowItem.class, id));
 //        }
 //
 //        return wfItems;
 //    }
-//
+
 //    private void populateWorkflowItemFromTableRow(WorkflowItem wfi,
 //            TableRow row)
 //    {
@@ -378,30 +380,30 @@ public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 //        CollectionDAO collectionDAO =
 //            CollectionDAOFactory.getInstance(context);
 //        EPersonDAO epersonDAO = EPersonDAOFactory.getInstance(context);
-//
-//        Item item = itemDAO.retrieve(row.getIntColumn("item_id"));
-//        Collection collection =
-//            collectionDAO.retrieve(row.getIntColumn("collection_id"));
-//        EPerson owner = epersonDAO.retrieve(row.getIntColumn("owner"));
-//
-//        wfi.setItem(item);
-//        wfi.setCollection(collection);
-//        wfi.setOwner(owner);
+////
+////        Item item = itemDAO.retrieve(row.getIntColumn("item_id"));
+////        Collection collection =
+////            collectionDAO.retrieve(row.getIntColumn("collection_id"));
+////        EPerson owner = epersonDAO.retrieve(row.getIntColumn("owner"));
+////
+////        wfi.setItem(item);
+////        wfi.setCollection(collection);
+////        wfi.setOwner(owner);
 //        wfi.setMultipleFiles(row.getBooleanColumn("multiple_files"));
 //        wfi.setMultipleTitles(row.getBooleanColumn("multiple_titles"));
 //        wfi.setPublishedBefore(row.getBooleanColumn("published_before"));
 //        wfi.setState(row.getIntColumn("state"));
 //    }
-//
+
 //    private void populateTableRowFromWorkflowItem(WorkflowItem wfi,
 //            TableRow row)
 //    {
-//        row.setColumn("item_id", wfi.getItem().getID());
-//        row.setColumn("collection_id", wfi.getCollection().getID());
+//        row.setColumn("item_id", wfi.getItem().getId());
+//        row.setColumn("collection_id", wfi.getCollection().getId());
 //        EPerson owner = wfi.getOwner();
 //        if (owner != null)
 //        {
-//            row.setColumn("owner", owner.getID());
+//            row.setColumn("owner", owner.getId());
 //        }
 //        else
 //        {

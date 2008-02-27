@@ -64,16 +64,16 @@ import org.dspace.storage.rdbms.TableRowIterator;
 /**
  * @author James Rutherford
  */
-public class GroupDAOPostgres// extends GroupDAO
+public class GroupDAOPostgres extends GroupDAO
 {
-//    public GroupDAOPostgres(Context context)
-//    {
-//        this.context = context;
-//
-//        epersonDAO = EPersonDAOFactory.getInstance(context);
-//    }
-//
-//    @Override
+    public GroupDAOPostgres(Context context)
+    {
+        this.context = context;
+
+        epersonDAO = EPersonDAOFactory.getInstance(context);
+    }
+
+//    @Override  //FACTORY
 //    public Group create() throws AuthorizeException
 //    {
 //        try
@@ -91,7 +91,7 @@ public class GroupDAOPostgres// extends GroupDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public Group retrieve(int id)
 //    {
@@ -106,23 +106,23 @@ public class GroupDAOPostgres// extends GroupDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
-//    public Group retrieve(UUID uuid)
-//    {
-//        try
-//        {
-//            TableRow row = DatabaseManager.findByUnique(context,
-//                    "epersongroup", "uuid", uuid.toString());
-//
-//            return retrieve(row);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
+
+    @Override
+    public Group retrieve(UUID uuid)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context,
+                    "epersongroup", "uuid", uuid.toString());
+
+            return retrieve(row);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
 //    @Override
 //    public Group retrieve(String name)
 //    {
@@ -138,7 +138,7 @@ public class GroupDAOPostgres// extends GroupDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void update(Group group) throws AuthorizeException
 //    {
@@ -163,78 +163,78 @@ public class GroupDAOPostgres// extends GroupDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    /**
-//     * FIXME We need link() and unlink() for EPerson <--> Group and
-//     * Group <--> Group mapping
-//     */
-//    @Override
-//    public void delete(int id) throws AuthorizeException
-//    {
-//        try
-//        {
-//            // Remove any group memberships first
-//            DatabaseManager.updateQuery(context,
-//                    "DELETE FROM epersongroup2eperson " +
-//                    "WHERE eperson_group_id = ? ",
-//                    id);
-//
-//            // remove any group2groupcache entries
-//            DatabaseManager.updateQuery(context,
-//                    "DELETE FROM group2groupcache " +
-//                    "WHERE parent_id = ? OR child_id = ? ",
-//                    id, id);
-//
-//            // Now remove any group2group assignments
-//            DatabaseManager.updateQuery(context,
-//                    "DELETE FROM group2group " +
-//                    "WHERE parent_id = ? OR child_id = ? ",
-//                    id, id);
-//
-//            // don't forget the new table
-//            DatabaseManager.updateQuery(context,
-//                    "DELETE FROM epersongroup2workspaceitem " +
-//                    "WHERE eperson_group_id = ? ",
-//                    id);
-//
-//            // Remove ourself
-//            DatabaseManager.delete(context, "epersongroup", id);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    @Override
-//    public List<Group> getGroups(int sortField)
-//    {
-//        String s;
-//
+
+    /**
+     * FIXME We need link() and unlink() for EPerson <--> Group and
+     * Group <--> Group mapping
+     */
+    @Override
+    public void delete(int id) throws AuthorizeException
+    {
+        try
+        {
+            // Remove any group memberships first
+            DatabaseManager.updateQuery(context,
+                    "DELETE FROM epersongroup2eperson " +
+                    "WHERE eperson_group_id = ? ",
+                    id);
+
+            // remove any group2groupcache entries
+            DatabaseManager.updateQuery(context,
+                    "DELETE FROM group2groupcache " +
+                    "WHERE parent_id = ? OR child_id = ? ",
+                    id, id);
+
+            // Now remove any group2group assignments
+            DatabaseManager.updateQuery(context,
+                    "DELETE FROM group2group " +
+                    "WHERE parent_id = ? OR child_id = ? ",
+                    id, id);
+
+            // don't forget the new table
+            DatabaseManager.updateQuery(context,
+                    "DELETE FROM epersongroup2workspaceitem " +
+                    "WHERE eperson_group_id = ? ",
+                    id);
+
+            // Remove ourself
+            DatabaseManager.delete(context, "epersongroup", id);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<Group> getGroups(int sortField)
+    {
+        String s;
+
 //        switch (sortField)
 //        {
 //            case Group.ID:
-//                s = "eperson_group_id";
+                s = "eperson_group_id";
 //                break;
 //            case Group.NAME:
 //            default:
 //                s = "name";
 //        }
-//
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.queryTable(context,
-//                    "epersongroup",
-//                    "SELECT eperson_group_id FROM epersongroup ORDER BY " + s);
-//
-//            return returnAsList(tri);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
+
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup",
+                    "SELECT eperson_group_id FROM epersongroup ORDER BY " + s);
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
 //    @Override
 //    public List<Group> getGroups(EPerson eperson)
 //    {
@@ -247,49 +247,49 @@ public class GroupDAOPostgres// extends GroupDAO
 //
 //        return groups;
 //    }
-//
-//    @Override
-//    public List<Group> getSupervisorGroups()
-//    {
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.queryTable(context,
-//                    "epersongroup",
-//                    "SELECT eg.eperson_group_id " +
-//                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
-//                    "WHERE eg2wsi.eperson_group_id = eg.eperson_group_id " +
-//                    "ORDER BY eg.name");
-//
-//            return returnAsList(tri);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    @Override
-//    public List<Group> getSupervisorGroups(InProgressSubmission ips)
-//    {
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.queryTable(context,
-//                    "epersongroup",
-//                    "SELECT eg.eperson_group_id " +
-//                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
-//                    "WHERE eg2wsi.workspace_item_id = ? " +
-//                    "AND eg2wsi.eperson_group_id = eg.eperson_group_id " +
-//                    "ORDER BY eg.name",
-//                    ips.getID());
-//
-//            return returnAsList(tri);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
+
+    @Override
+    public List<Group> getSupervisorGroups()
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup",
+                    "SELECT eg.eperson_group_id " +
+                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
+                    "WHERE eg2wsi.eperson_group_id = eg.eperson_group_id " +
+                    "ORDER BY eg.name");
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<Group> getSupervisorGroups(InProgressSubmission ips)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup",
+                    "SELECT eg.eperson_group_id " +
+                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
+                    "WHERE eg2wsi.workspace_item_id = ? " +
+                    "AND eg2wsi.eperson_group_id = eg.eperson_group_id " +
+                    "ORDER BY eg.name",
+                    ips.getId());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
 //    @Override
 //    public Set<Integer> getGroupIDs(EPerson eperson)
 //    {
@@ -365,68 +365,68 @@ public class GroupDAOPostgres// extends GroupDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
-//    public List<Group> getMemberGroups(Group group)
-//    {
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.queryTable(context,
-//                    "epersongroup",
-//                    "SELECT g.eperson_group_id " +
-//                    "FROM epersongroup g, group2group g2g " +
-//                    "WHERE g2g.child_id = g.eperson_group_id " +
-//                    "AND g2g.parent_id= ? ",
-//                    group.getID());
-//
-//            return returnAsList(tri);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    @Override
-//    public List<Group> search(String query, int offset, int limit)
-//	{
-//		String params = "%" + query.toLowerCase() + "%";
-//		String dbquery =
-//            "SELECT eperson_group_id FROM epersongroup " +
-//            "WHERE name ILIKE ? " +
-//            "OR eperson_group_id = ? " +
-//            "ORDER BY name ASC";
-//
-//		if (offset >= 0 && limit > 0)
-//        {
-//			dbquery += " LIMIT " + limit + " OFFSET " + offset;
-//		}
-//
-//        // When checking against the eperson-id, make sure the query can be
-//        // made into a number
-//		Integer int_param;
-//		try
-//        {
-//			int_param = Integer.valueOf(query);
-//		}
-//		catch (NumberFormatException e)
-//        {
-//			int_param = -1;
-//		}
-//
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.query(context, dbquery,
-//                    params, int_param);
-//
-//            return returnAsList(tri);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//	}
-//
+
+    @Override
+    public List<Group> getMemberGroups(Group group)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "epersongroup",
+                    "SELECT g.eperson_group_id " +
+                    "FROM epersongroup g, group2group g2g " +
+                    "WHERE g2g.child_id = g.eperson_group_id " +
+                    "AND g2g.parent_id= ? ",
+                    group.getID());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public List<Group> search(String query, int offset, int limit)
+	{
+		String params = "%" + query.toLowerCase() + "%";
+		String dbquery =
+            "SELECT eperson_group_id FROM epersongroup " +
+            "WHERE name ILIKE ? " +
+            "OR eperson_group_id = ? " +
+            "ORDER BY name ASC";
+
+		if (offset >= 0 && limit > 0)
+        {
+			dbquery += " LIMIT " + limit + " OFFSET " + offset;
+		}
+
+        // When checking against the eperson-id, make sure the query can be
+        // made into a number
+		Integer int_param;
+		try
+        {
+			int_param = Integer.valueOf(query);
+		}
+		catch (NumberFormatException e)
+        {
+			int_param = -1;
+		}
+
+        try
+        {
+            TableRowIterator tri = DatabaseManager.query(context, dbquery,
+                    params, int_param);
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+	}
+
 //    @Override
 //    public void link(Group parent, Group child)
 //    {
@@ -608,196 +608,196 @@ public class GroupDAOPostgres// extends GroupDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
-//    public void cleanSupervisionOrders()
-//    {
-//        try
-//        {
-//            // this horrid looking query tests to see if there are any groups or
-//            // workspace items which match up to the ones in the linking database
-//            // table.  If there aren't, we know that the link is out of date, and 
-//            // it can be deleted.
-//            String query =
-//                "DELETE FROM epersongroup2workspaceitem eg2wsi " +
-//                "WHERE NOT EXISTS ( " +
-//                    "SELECT 1 FROM workspaceitem " +
-//                    "WHERE workspace_item_id = eg2wsi.workspace_item_id " +
-//                ") OR NOT EXISTS ( " +
-//                    "SELECT 1 FROM epersongroup " +
-//                    "WHERE eperson_group_id = eg2wsi.eperson_group_id " +
-//                ")";
-//            
-//            DatabaseManager.updateQuery(context, query);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    ////////////////////////////////////////////////////////////////////
-//    // Utility methods
-//    ////////////////////////////////////////////////////////////////////
-//
-//    private Group retrieve(TableRow row)
-//    {
-//        if (row == null)
-//        {
-//            return null;
-//        }
-//
-//        int id = row.getIntColumn("eperson_group_id");
-//
-//        Group group = null; //new GroupProxy(context, id);//FIXME cambiamento
-//        populateGroupFromTableRow(group, row);
-//
-//        context.cache(group, id);
-//
-//        return group;
-//    }
-//
-//    private List<Group> returnAsList(TableRowIterator tri)
-//    {
-//        try
-//        {
-//            List<Group> groups = new ArrayList<Group>();
-//
-//            for (TableRow row : tri.toList())
-//            {
-//                int id = row.getIntColumn("eperson_group_id");
+
+    @Override
+    public void cleanSupervisionOrders()
+    {
+        try
+        {
+            // this horrid looking query tests to see if there are any groups or
+            // workspace items which match up to the ones in the linking database
+            // table.  If there aren't, we know that the link is out of date, and 
+            // it can be deleted.
+            String query =
+                "DELETE FROM epersongroup2workspaceitem eg2wsi " +
+                "WHERE NOT EXISTS ( " +
+                    "SELECT 1 FROM workspaceitem " +
+                    "WHERE workspace_item_id = eg2wsi.workspace_item_id " +
+                ") OR NOT EXISTS ( " +
+                    "SELECT 1 FROM epersongroup " +
+                    "WHERE eperson_group_id = eg2wsi.eperson_group_id " +
+                ")";
+            
+            DatabaseManager.updateQuery(context, query);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private Group retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("eperson_group_id");
+
+        Group group = null; //new GroupProxy(context, id);//FIXME cambiamento
+        populateGroupFromTableRow(group, row);
+
+        context.cache(group, id);
+
+        return group;
+    }
+
+    private List<Group> returnAsList(TableRowIterator tri)
+    {
+        try
+        {
+            List<Group> groups = new ArrayList<Group>();
+
+            for (TableRow row : tri.toList())
+            {
+                int id = row.getIntColumn("eperson_group_id");
 //                groups.add(retrieve(id));
-//            }
-//
-//            return groups;
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    private void populateGroupFromTableRow(Group group, TableRow row)
-//    {
-//        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
-//
-//        group.setName(row.getStringColumn("name"));
-//        group.setIdentifier(new ObjectIdentifier(uuid));
-//    }
-//
-//    private void populateTableRowFromGroup(Group group, TableRow row)
-//    {
-//        row.setColumn("name", group.getName());
-//        row.setColumn("uuid", group.getIdentifier().getUUID().toString());
-//    }
-//
-//    /**
-//     * Regenerate the group cache AKA the group2groupcache table in the
-//     * database - meant to be called when a group is added or removed from
-//     * another group
-//     */
-//    private void rethinkGroupCache() throws SQLException
-//    {
-//        // read in the group2group table
-//        TableRowIterator tri = DatabaseManager.queryTable(context,
-//                "group2group", "SELECT * FROM group2group");
-//
-//        Map<Integer, Set<Integer>> parents =
-//            new HashMap<Integer, Set<Integer>>();
-//
-//        for (TableRow row : tri.toList())
-//        {
-//            Integer parentID = row.getIntColumn("parent_id");
-//            Integer childID = row.getIntColumn("child_id");
-//
-//            // if parent doesn't have an entry, create one
-//            if (!parents.containsKey(parentID))
-//            {
-//                Set<Integer> children = new HashSet<Integer>();
-//
-//                // add child id to the list
-//                children.add(childID);
-//                parents.put(parentID, children);
-//            }
-//            else
-//            {
-//                // parent has an entry, now add the child to the parent's record
-//                // of children
-//                Set<Integer> children = (Set<Integer>) parents.get(parentID);
-//                children.add(childID);
-//            }
-//        }
-//        
-//        // now parents is a hash of all of the IDs of groups that are parents
-//        // and each hash entry is a hash of all of the IDs of children of those
-//        // parent groups
-//        // so now to establish all parent,child relationships we can iterate
-//        // through the parents hash
-//
-//        for (Integer parentID : parents.keySet())
-//        {
-//            Set<Integer> myChildren = getChildren(parents, parentID);
-//
-//            for (Integer childID : myChildren)
-//            {
-//                ((Set<Integer>) parents.get(parentID)).add(childID);
-//            }
-//        }
-//
-//        // empty out group2groupcache table
-//        DatabaseManager.updateQuery(context,
-//                "DELETE FROM group2groupcache WHERE id >= 0");
-//
-//        for (Integer parent : parents.keySet())
-//        {
-//            Set<Integer> children = parents.get(parent);
-//
-//            for (Integer child : children)
-//            {
-//                TableRow row = DatabaseManager.create(context,
-//                        "group2groupcache");
-//
-//                int parentID = parent.intValue();
-//                int childID = child.intValue();
-//
-//                row.setColumn("parent_id", parentID);
-//                row.setColumn("child_id", childID);
-//
-//                DatabaseManager.update(context, row);
-//            }
-//        }
-//    }
-//
-//    /**
-//     * Used recursively to generate a map of ALL of the children of the given
-//     * parent
-//     * 
-//     * @param parents
-//     *            Map of parent,child relationships
-//     * @param parent
-//     *            the parent you're interested in
-//     * @return Map whose keys are all of the children of a parent
-//     */
-//    private Set getChildren(Map<Integer, Set<Integer>> parents, Integer parent)
-//    {
-//        Set<Integer> myChildren = new HashSet<Integer>();
-//
-//        // degenerate case, this parent has no children
-//        if (!parents.containsKey(parent))
-//        {
-//            return myChildren;
-//        }
-//
-//        // got this far, so we must have children
-//        for (Integer childID : parents.get(parent))
-//        {
-//            // add this child's ID to our return set
-//            myChildren.add(childID);
-//
-//            // and now its children
-//            myChildren.addAll(getChildren(parents, childID));
-//        }
-//
-//        return myChildren;
-//    }
+            }
+
+            return groups;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    private void populateGroupFromTableRow(Group group, TableRow row)
+    {
+        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+
+        group.setName(row.getStringColumn("name"));
+        group.setIdentifier(new ObjectIdentifier(uuid));
+    }
+
+    private void populateTableRowFromGroup(Group group, TableRow row)
+    {
+        row.setColumn("name", group.getName());
+        row.setColumn("uuid", group.getIdentifier().getUUID().toString());
+    }
+
+    /**
+     * Regenerate the group cache AKA the group2groupcache table in the
+     * database - meant to be called when a group is added or removed from
+     * another group
+     */
+    private void rethinkGroupCache() throws SQLException
+    {
+        // read in the group2group table
+        TableRowIterator tri = DatabaseManager.queryTable(context,
+                "group2group", "SELECT * FROM group2group");
+
+        Map<Integer, Set<Integer>> parents =
+            new HashMap<Integer, Set<Integer>>();
+
+        for (TableRow row : tri.toList())
+        {
+            Integer parentID = row.getIntColumn("parent_id");
+            Integer childID = row.getIntColumn("child_id");
+
+            // if parent doesn't have an entry, create one
+            if (!parents.containsKey(parentID))
+            {
+                Set<Integer> children = new HashSet<Integer>();
+
+                // add child id to the list
+                children.add(childID);
+                parents.put(parentID, children);
+            }
+            else
+            {
+                // parent has an entry, now add the child to the parent's record
+                // of children
+                Set<Integer> children = (Set<Integer>) parents.get(parentID);
+                children.add(childID);
+            }
+        }
+        
+        // now parents is a hash of all of the IDs of groups that are parents
+        // and each hash entry is a hash of all of the IDs of children of those
+        // parent groups
+        // so now to establish all parent,child relationships we can iterate
+        // through the parents hash
+
+        for (Integer parentID : parents.keySet())
+        {
+            Set<Integer> myChildren = getChildren(parents, parentID);
+
+            for (Integer childID : myChildren)
+            {
+                ((Set<Integer>) parents.get(parentID)).add(childID);
+            }
+        }
+
+        // empty out group2groupcache table
+        DatabaseManager.updateQuery(context,
+                "DELETE FROM group2groupcache WHERE id >= 0");
+
+        for (Integer parent : parents.keySet())
+        {
+            Set<Integer> children = parents.get(parent);
+
+            for (Integer child : children)
+            {
+                TableRow row = DatabaseManager.create(context,
+                        "group2groupcache");
+
+                int parentID = parent.intValue();
+                int childID = child.intValue();
+
+                row.setColumn("parent_id", parentID);
+                row.setColumn("child_id", childID);
+
+                DatabaseManager.update(context, row);
+            }
+        }
+    }
+
+    /**
+     * Used recursively to generate a map of ALL of the children of the given
+     * parent
+     * 
+     * @param parents
+     *            Map of parent,child relationships
+     * @param parent
+     *            the parent you're interested in
+     * @return Map whose keys are all of the children of a parent
+     */
+    private Set getChildren(Map<Integer, Set<Integer>> parents, Integer parent)
+    {
+        Set<Integer> myChildren = new HashSet<Integer>();
+
+        // degenerate case, this parent has no children
+        if (!parents.containsKey(parent))
+        {
+            return myChildren;
+        }
+
+        // got this far, so we must have children
+        for (Integer childID : parents.get(parent))
+        {
+            // add this child's ID to our return set
+            myChildren.add(childID);
+
+            // and now its children
+            myChildren.addAll(getChildren(parents, childID));
+        }
+
+        return myChildren;
+    }
 }

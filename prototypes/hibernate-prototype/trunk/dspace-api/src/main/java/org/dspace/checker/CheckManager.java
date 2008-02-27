@@ -1,6 +1,8 @@
 package org.dspace.checker;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.Bitstream;
@@ -23,13 +25,11 @@ public class CheckManager
     }
     
 
-    public static BitstreamInfo findBitstreamInfoByBitstreamId(int bitstreamId, Context context) {
+    public static BitstreamInfo getBitstreamInfoByBitstreamId(int bitstreamId, Context context) {
         MostRecentChecksum mrc = ApplicationService.findMostRecentChecksumByBitstreamId(bitstreamId, context);
         Bitstream b = mrc.getBitstream();
-                     
-        long bitstream_size = b.getSize(); //FIXME ma questa discrepanza tra long e int nel size?
-        int bitstream_size_int = (int)bitstream_size;
-        BitstreamInfo bInfo = new BitstreamInfo(b.isDeleted(), b.getStoreNumber(), bitstream_size_int, 
+            
+        BitstreamInfo bInfo = new BitstreamInfo(b.isDeleted(), b.getStoreNumber(), b.getSize(), 
                 b.getBitstreamFormat().getShortDescription(), b.getId(), b.getUserFormatDescription(),                b.getInternalID(),
                 b.getSource(), b.getChecksumAlgorithm(), b.getChecksum(), b.getName(), 
                 mrc.getLastProcessEndDate(), mrc.isToBeProcessed(), new Date());
@@ -49,6 +49,67 @@ public class CheckManager
                         .getChecksumCheckResult());
         ApplicationService.save(context, ChecksumHistory.class, ch);
 
+    }
+    
+    public static List<ChecksumHistory> getBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode, Context context) {
+        List<ChecksumHistory> bitstreamHistory = new LinkedList<ChecksumHistory>();
+        ChecksumHistory checksumHistory;
+        String resultDescription;
+        
+        List<MostRecentChecksum> mrcs = ApplicationService.findMRCForBitstreamResultTypeReport(startDate, endDate, resultCode, context);
+        
+        for(MostRecentChecksum mrc : mrcs) {
+            resultDescription = ApplicationService.findChecksumCheckStrByCode(mrc.getResult(), context);
+            checksumHistory = new ChecksumHistory(mrc.getBitstream().getId(), 
+                    mrc.getLastProcessStartDate(),
+                    mrc.getLastProcessEndDate(),
+                    mrc.getExpectedChecksum(),
+                    mrc.getCurrentChecksum(),
+                    resultDescription);
+            bitstreamHistory.add(checksumHistory);
+        }
+        
+        return bitstreamHistory;
+    }
+    
+    public static List<ChecksumHistory> getNotProcessedBitstreamsReport(Date startDate, Date endDate, Context context) {
+        List<ChecksumHistory> bitstreamHistory = new LinkedList<ChecksumHistory>();
+        ChecksumHistory checksumHistory;
+        String resultDescription;
+        
+        List<MostRecentChecksum> mrcs = ApplicationService.findMRCNotProcessedBitstreamsReport(startDate, endDate, context);
+        
+        for(MostRecentChecksum mrc : mrcs) {
+            resultDescription = ApplicationService.findChecksumCheckStrByCode(mrc.getResult(), context);
+            checksumHistory = new ChecksumHistory(mrc.getBitstream().getId(), 
+                    mrc.getLastProcessStartDate(),
+                    mrc.getLastProcessEndDate(),
+                    mrc.getExpectedChecksum(),
+                    mrc.getCurrentChecksum(),
+                    resultDescription);
+            bitstreamHistory.add(checksumHistory);
+        }
+        
+        return bitstreamHistory;
+    }
+    
+    public static List<DSpaceBitstreamInfo> getUnknownBitstreams(Context context) {
+        List<DSpaceBitstreamInfo> unknownBitstreams = new LinkedList<DSpaceBitstreamInfo>();
+        List<Bitstream> bitstreams = ApplicationService
+                .findUnknownBitstreams(context);
+        DSpaceBitstreamInfo info;
+        
+        for (Bitstream b : bitstreams)
+        {          
+            info = new DSpaceBitstreamInfo(b.isDeleted(), b.getStoreNumber(),
+                    b.getSize(), b.getFormatDescription(), b.getId(), b
+                            .getUserFormatDescription(), b.getInternalID(), b
+                            .getSource(), b.getChecksumAlgorithm(), b
+                            .getChecksum(), b.getName(), b.getDescription());
+            unknownBitstreams.add(info);
+        }
+
+        return unknownBitstreams;
     }
     
 }

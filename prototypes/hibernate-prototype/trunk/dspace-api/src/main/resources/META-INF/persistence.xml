@@ -34,6 +34,7 @@
 		<class>org.dspace.eperson.RegistrationData</class>
 		<class>org.dspace.browse.ItemCounter</class>
 		<class>org.dspace.workflow.WorkflowItem</class>
+		<class>org.dspace.workflow.TaskListItem</class>
 		<class>org.dspace.authorize.ResourcePolicy</class>
 		<class>org.dspace.checker.ChecksumHistory</class>
 		<class>org.dspace.checker.ChecksumCheckResults</class>
@@ -52,7 +53,7 @@
             <property name="toplink.ddl-generation.output-mode" value="both"/>
                         
             <!--property name="toplink.ddl-generation" value="create-tables"/-->
-            <!--property name="toplink.ddl-generation" value="drop-and-create-tables"/--> 
+            <property name="toplink.ddl-generation" value="drop-and-create-tables"/> 
             
             
         </properties>   

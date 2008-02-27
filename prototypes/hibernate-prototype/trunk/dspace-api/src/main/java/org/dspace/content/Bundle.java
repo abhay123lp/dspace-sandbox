@@ -58,6 +58,7 @@ import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -123,7 +124,7 @@ public class Bundle extends DSpaceObject {
 		b.setSource(bitstreamPath);
 		b.setBundle(this);
 		bitstreams.add(b);
-
+		ApplicationService.save(context, Bitstream.class, b);
 		return b;
 	}
 

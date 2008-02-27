@@ -125,63 +125,63 @@ public class ReporterDAO extends DAOSupport
     }
 
     /**
-     * Select the most recent bitstream for a given date range with the
-     * specified status.
-     * 
-     * @param startDate
-     *            the start date range
-     * @param endDate
-     *            the end date range.
-     * @param resultCode
-     *            the result code
-     * 
-     * @return a list of BitstreamHistoryInfo objects
-     */
-    public List getBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode)
-    {
-        List bitstreamHistory = new LinkedList();
-
-        Connection conn = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-
-        try
-        {
-            // create the connection and execute the statement
-            conn = DatabaseManager.getConnection();
-
-            prepStmt = conn.prepareStatement(DATE_RANGE_BITSTREAMS);
-
-            prepStmt.setString(1, resultCode);
-            prepStmt.setDate(2, new java.sql.Date(startDate.getTime()));
-            prepStmt.setDate(3, new java.sql.Date(endDate.getTime()));
-
-            rs = prepStmt.executeQuery();
-
-            // add the bitstream history objects
-            while (rs.next())
-            {
-                bitstreamHistory.add(new ChecksumHistory(rs
-                        .getInt("bitstream_id"), rs
-                        .getTimestamp("last_process_start_date"), rs
-                        .getTimestamp("last_process_end_date"), rs
-                        .getString("expected_checksum"), rs
-                        .getString("current_checksum"), rs
-                        .getString("result_description")));
-            }
-        }
-        catch (SQLException e)
-        {
-            LOG.warn("Bitstream history could not be found for specified type "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(prepStmt, conn, rs);
-        }
-
-        return bitstreamHistory;
-    }
+//     * Select the most recent bitstream for a given date range with the
+//     * specified status.
+//     * 
+//     * @param startDate
+//     *            the start date range
+//     * @param endDate
+//     *            the end date range.
+//     * @param resultCode
+//     *            the result code
+//     * 
+//     * @return a list of BitstreamHistoryInfo objects
+//     */
+//    public List getBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode)
+//    {
+//        List bitstreamHistory = new LinkedList();
+//
+//        Connection conn = null;
+//        PreparedStatement prepStmt = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//            // create the connection and execute the statement
+//            conn = DatabaseManager.getConnection();
+//
+//            prepStmt = conn.prepareStatement(DATE_RANGE_BITSTREAMS);
+//
+//            prepStmt.setString(1, resultCode);
+//            prepStmt.setDate(2, new java.sql.Date(startDate.getTime()));
+//            prepStmt.setDate(3, new java.sql.Date(endDate.getTime()));
+//
+//            rs = prepStmt.executeQuery();
+//
+//            // add the bitstream history objects
+//            while (rs.next())
+//            {
+//                bitstreamHistory.add(new ChecksumHistory(rs
+//                        .getInt("bitstream_id"), rs
+//                        .getTimestamp("last_process_start_date"), rs
+//                        .getTimestamp("last_process_end_date"), rs
+//                        .getString("expected_checksum"), rs
+//                        .getString("current_checksum"), rs
+//                        .getString("result_description")));
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.warn("Bitstream history could not be found for specified type "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(prepStmt, conn, rs);
+//        }
+//
+//        return bitstreamHistory;
+//    }
 
     /**
      * Find all bitstreams that were set to not be processed for the specified
@@ -193,101 +193,101 @@ public class ReporterDAO extends DAOSupport
      *            the end of the date range
      * @return a list of BitstreamHistoryInfo objects
      */
-    public List getNotProcessedBitstreamsReport(Date startDate, Date endDate)
-    {
-        List bitstreamHistory = new LinkedList();
-
-        Connection conn = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-
-        try
-        {
-            // create the connection and execute the statement
-            conn = DatabaseManager.getConnection();
-
-            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
-            	prepStmt = conn.prepareStatement(DATE_RANGE_NOT_PROCESSED_BITSTREAMS_ORACLE);
-           	else
-            	prepStmt = conn.prepareStatement(DATE_RANGE_NOT_PROCESSED_BITSTREAMS);
-
-            prepStmt.setDate(1, new java.sql.Date(startDate.getTime()));
-            prepStmt.setDate(2, new java.sql.Date(endDate.getTime()));
-
-            rs = prepStmt.executeQuery();
-
-            // add the bitstream history objects
-            while (rs.next())
-            {
-                bitstreamHistory.add(new ChecksumHistory(rs
-                        .getInt("bitstream_id"), rs
-                        .getTimestamp("last_process_start_date"), rs
-                        .getTimestamp("last_process_end_date"), rs
-                        .getString("expected_checksum"), rs
-                        .getString("current_checksum"), rs
-                        .getString("result_description")));
-            }
-        }
-        catch (SQLException e)
-        {
-            LOG.warn("Bitstream history could not be found for specified type "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(prepStmt, conn, rs);
-        }
-
-        return bitstreamHistory;
-    }
+//    public List getNotProcessedBitstreamsReport(Date startDate, Date endDate)
+//    {
+//        List bitstreamHistory = new LinkedList();
+//
+//        Connection conn = null;
+//        PreparedStatement prepStmt = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//            // create the connection and execute the statement
+//            conn = DatabaseManager.getConnection();
+//
+//            if ("oracle".equals(ConfigurationManager.getProperty("db.name")))
+//            	prepStmt = conn.prepareStatement(DATE_RANGE_NOT_PROCESSED_BITSTREAMS_ORACLE);
+//           	else
+//            	prepStmt = conn.prepareStatement(DATE_RANGE_NOT_PROCESSED_BITSTREAMS);
+//
+//            prepStmt.setDate(1, new java.sql.Date(startDate.getTime()));
+//            prepStmt.setDate(2, new java.sql.Date(endDate.getTime()));
+//
+//            rs = prepStmt.executeQuery();
+//
+//            // add the bitstream history objects
+//            while (rs.next())
+//            {
+//                bitstreamHistory.add(new ChecksumHistory(rs
+//                        .getInt("bitstream_id"), rs
+//                        .getTimestamp("last_process_start_date"), rs
+//                        .getTimestamp("last_process_end_date"), rs
+//                        .getString("expected_checksum"), rs
+//                        .getString("current_checksum"), rs
+//                        .getString("result_description")));
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.warn("Bitstream history could not be found for specified type "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(prepStmt, conn, rs);
+//        }
+//
+//        return bitstreamHistory;
+//    }
 
     /**
      * Find all bitstreams that the checksum checker is currently not aware of
      * 
      * @return a List of DSpaceBitstreamInfo objects
      */
-    public List getUnknownBitstreams()
-    {
-        List<DSpaceBitstreamInfo> unknownBitstreams = new LinkedList<DSpaceBitstreamInfo>();
-
-        Connection conn = null;
-        PreparedStatement prepStmt = null;
-        ResultSet rs = null;
-
-        try
-        {
-            // create the connection and execute the statement
-            conn = DatabaseManager.getConnection();
-
-            prepStmt = conn.prepareStatement(FIND_UNKNOWN_BITSTREAMS);
-
-            rs = prepStmt.executeQuery();
-
-            // add the bitstream history objects
-            while (rs.next())
-            {
-                unknownBitstreams.add(new DSpaceBitstreamInfo(rs
-                        .getBoolean("deleted"), rs.getInt("store_number"), rs
-                        .getInt("size_bytes"), rs
-                        .getString("short_description"), rs
-                        .getInt("bitstream_id"), rs
-                        .getString("user_format_description"), rs
-                        .getString("internal_id"), rs.getString("source"), rs
-                        .getString("checksum_algorithm"), rs
-                        .getString("checksum"), rs.getString("name"), rs
-                        .getString("description")));
-            }
-        }
-        catch (SQLException e)
-        {
-            LOG.warn("Bitstream history could not be found for specified type "
-                    + e.getMessage(), e);
-        }
-        finally
-        {
-            cleanup(prepStmt, conn, rs);
-        }
-
-        return unknownBitstreams;
-    }
+//    public List getUnknownBitstreams()
+//    {
+//        List<DSpaceBitstreamInfo> unknownBitstreams = new LinkedList<DSpaceBitstreamInfo>();
+//
+//        Connection conn = null;
+//        PreparedStatement prepStmt = null;
+//        ResultSet rs = null;
+//
+//        try
+//        {
+//            // create the connection and execute the statement
+//            conn = DatabaseManager.getConnection();
+//
+//            prepStmt = conn.prepareStatement(FIND_UNKNOWN_BITSTREAMS);
+//
+//            rs = prepStmt.executeQuery();
+//
+//            // add the bitstream history objects
+//            while (rs.next())
+//            {
+//                unknownBitstreams.add(new DSpaceBitstreamInfo(rs
+//                        .getBoolean("deleted"), rs.getInt("store_number"), rs
+//                        .getInt("size_bytes"), rs
+//                        .getString("short_description"), rs
+//                        .getInt("bitstream_id"), rs
+//                        .getString("user_format_description"), rs
+//                        .getString("internal_id"), rs.getString("source"), rs
+//                        .getString("checksum_algorithm"), rs
+//                        .getString("checksum"), rs.getString("name"), rs
+//                        .getString("description")));
+//            }
+//        }
+//        catch (SQLException e)
+//        {
+//            LOG.warn("Bitstream history could not be found for specified type "
+//                    + e.getMessage(), e);
+//        }
+//        finally
+//        {
+//            cleanup(prepStmt, conn, rs);
+//        }
+//
+//        return unknownBitstreams;
+//    }
 }

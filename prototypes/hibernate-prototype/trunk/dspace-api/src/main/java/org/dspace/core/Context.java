@@ -545,7 +545,8 @@ public class Context
      */
     public void clearCache()
     {
-        objectCache.clear();
+//        objectCache.clear();
+        entityManager.clear();
     }
     
     /**

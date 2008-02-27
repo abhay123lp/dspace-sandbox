@@ -39,7 +39,11 @@
  */
 package org.dspace.workflow;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
@@ -66,6 +70,9 @@ public class TaskListItem
         this.iD = id;
     }
 
+    @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    @Column(name="tasklist_id")
     public int getID()
     {
         return iD;

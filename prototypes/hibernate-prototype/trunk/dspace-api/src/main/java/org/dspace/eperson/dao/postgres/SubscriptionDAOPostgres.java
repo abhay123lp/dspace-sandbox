@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.content.Collection;
 import org.dspace.eperson.EPerson;
@@ -65,41 +66,42 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
         this.context = context;
     }
 
-    @Override
-    public Subscription create()
-    {
-        UUID uuid = UUID.randomUUID();
+    
+//    @Override //FACTORY
+//    public Subscription create()
+//    {
+//        UUID uuid = UUID.randomUUID();
+//
+//        try
+//        {
+//            TableRow row = DatabaseManager.create(context, "subscription");
+//            row.setColumn("uuid", uuid.toString());
+//            DatabaseManager.update(context, row);
+//
+//            int id = row.getIntColumn("subscription_id");
+//            
+//            return new Subscription(id);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
-        try
-        {
-            TableRow row = DatabaseManager.create(context, "subscription");
-            row.setColumn("uuid", uuid.toString());
-            DatabaseManager.update(context, row);
-
-            int id = row.getIntColumn("subscription_id");
-            
-            return new Subscription(id);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public Subscription retrieve(int id)
-    {
-        try
-        {
-            TableRow row = DatabaseManager.find(context, "subscription", id);
-
-            return retrieve(row);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override //APPLICATION SERVICE GET
+//    public Subscription retrieve(int id)
+//    {
+//        try
+//        {
+//            TableRow row = DatabaseManager.find(context, "subscription", id);
+//
+//            return retrieve(row);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
     @Override
     public Subscription retrieve(UUID uuid)
@@ -117,100 +119,100 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
         }
     }
 
-    @Override
-    public void update(Subscription subscription)
-    {
-        try
-        {
-            int id = subscription.getID();
-            TableRow row = DatabaseManager.find(context, "subscription", id);
+//    @Override
+//    public void update(Subscription subscription)
+//    {
+//        try
+//        {
+//            int id = subscription.getID();
+//            TableRow row = DatabaseManager.find(context, "subscription", id);
+//
+//            if (row != null)
+//            {
+//                int epersonID = subscription.getEPersonID();
+//                int collectionID = subscription.getCollectionID();
+//
+//                row.setColumn("eperson_id", epersonID);
+//                row.setColumn("collection_id", collectionID);
+//                DatabaseManager.update(context, row);
+//            }
+//            else
+//            {
+//                throw new RuntimeException("Didn't find subscription " + id);
+//            }
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
-            if (row != null)
-            {
-                int epersonID = subscription.getEPersonID();
-                int collectionID = subscription.getCollectionID();
+//    @Override //APPLICATION SERVICE DELETE
+//    public void delete(int id)
+//    {
+//        try
+//        {
+//            DatabaseManager.delete(context, "subscription", id);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
-                row.setColumn("eperson_id", epersonID);
-                row.setColumn("collection_id", collectionID);
-                DatabaseManager.update(context, row);
-            }
-            else
-            {
-                throw new RuntimeException("Didn't find subscription " + id);
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    public boolean isSubscribed(EPerson eperson, Collection collection)
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.query(context,
+//                    "SELECT subscription_id FROM subscription " +
+//                    "WHERE eperson_id = ? AND collection_id = ?", 
+//                    eperson.getID(), collection.getID());
+//            
+//            boolean result = tri.hasNext();
+//            tri.close();
+//            
+//            return result;
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
-    @Override
-    public void delete(int id)
-    {
-        try
-        {
-            DatabaseManager.delete(context, "subscription", id);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override
+//    public List<Subscription> getSubscriptions()
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.query(context,
+//                    "SELECT subscription_id FROM subscription " +
+//                    "ORDER BY eperson_id");
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
-    public boolean isSubscribed(EPerson eperson, Collection collection)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.query(context,
-                    "SELECT subscription_id FROM subscription " +
-                    "WHERE eperson_id = ? AND collection_id = ?", 
-                    eperson.getID(), collection.getID());
-            
-            boolean result = tri.hasNext();
-            tri.close();
-            
-            return result;
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public List<Subscription> getSubscriptions()
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.query(context,
-                    "SELECT subscription_id FROM subscription " +
-                    "ORDER BY eperson_id");
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public List<Subscription> getSubscriptions(EPerson eperson)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.query(context,
-                    "SELECT subscription_id FROM subscription " +
-                    "WHERE eperson_id = ?", eperson.getID());
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override
+//    public List<Subscription> getSubscriptions(EPerson eperson)
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.query(context,
+//                    "SELECT subscription_id FROM subscription " +
+//                    "WHERE eperson_id = ?", eperson.getID());
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
@@ -227,8 +229,8 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
             int id = row.getIntColumn("subscription_id");
             Subscription sub = new Subscription(id);
 
-            sub.setEPersonID(row.getIntColumn("eperson_id"));
-            sub.setCollectionID(row.getIntColumn("collection_id"));
+            sub.setEPerson(ApplicationService.get(context, EPerson.class, row.getIntColumn("eperson_id")));
+            sub.setCollection(ApplicationService.get(context, Collection.class, row.getIntColumn("collection_id")));
 
             return sub;
         }
@@ -242,7 +244,8 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
         for (TableRow row : tri.toList())
         {
             int id = row.getIntColumn("subscription_id");
-            subscriptions.add(retrieve(id));
+            //subscriptions.add(retrieve(id));
+            subscriptions.add(ApplicationService.get(context, Subscription.class, id));
         }
 
         return subscriptions;

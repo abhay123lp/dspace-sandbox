@@ -39,31 +39,39 @@
  */
 package org.dspace.eperson;
 
+import java.util.UUID;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.dspace.content.Collection;
 
 @Entity
 public class Subscription
 {
     private int iD;
-    private int ePersonID;
-    private int collectionID;
-    //TODO aggiungere uuid
+//    private int ePersonID;
+//    private int collectionID;
+    private EPerson ePerson;
+    private Collection collection;
+    
+    private UUID uuid; //FIXME aggiunto con setter e getter, ma dovrà esserci?
 
     public Subscription(int id)
     {
         this.iD = id;
 
-        ePersonID = -1;
-        collectionID = -1;
+//        ePersonID = -1;
+//        collectionID = -1;
     }
     
     public Subscription() {}
@@ -80,28 +88,64 @@ public class Subscription
     {
         iD = id;
     }
+    
 
-    @Column(name="eperson_id")
-    public int getEPersonID()
+    @Column(name="UUID")
+    public UUID getUuid()
     {
-        return ePersonID;
+        return uuid;
     }
 
-    public void setEPersonID(int epersonID)
+    public void setUuid(UUID uuid)
     {
-        this.ePersonID = epersonID;
+        this.uuid = uuid;
+    }
+
+    @OneToMany
+    @JoinColumn(name="eperson_id")
+    public EPerson getEPerson()
+    {
+        return ePerson;
+    }
+
+    public void setEPerson(EPerson person)
+    {
+        ePerson = person;
     }
     
-    @Column(name="collection_id")
-    public int getCollectionID()
+    @OneToMany
+    @JoinColumn(name="collection_id")
+    public Collection getCollection()
     {
-        return collectionID;
+        return collection;
     }
 
-    public void setCollectionID(int collectionID)
+    public void setCollection(Collection collection)
     {
-        this.collectionID = collectionID;
+        this.collection = collection;
     }
+
+//    @Column(name="eperson_id")
+//    public int getEPersonID()
+//    {
+//        return ePersonID;
+//    }
+//
+//    public void setEPersonID(int epersonID)
+//    {
+//        this.ePersonID = epersonID;
+//    }
+//    
+//    @Column(name="collection_id")
+//    public int getCollectionID()
+//    {
+//        return collectionID;
+//    }
+//
+//    public void setCollectionID(int collectionID)
+//    {
+//        this.collectionID = collectionID;
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
@@ -122,4 +166,5 @@ public class Subscription
     {
         return HashCodeBuilder.reflectionHashCode(this);
     }
+
 }

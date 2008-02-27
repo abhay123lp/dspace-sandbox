@@ -178,7 +178,7 @@ public final class CheckerCommand
     {
         // get bitstream info from bitstream table
         //BitstreamInfo info = bitstreamInfoDAO.findByBitstreamId(id);
-        BitstreamInfo info = CheckManager.findBitstreamInfoByBitstreamId(id, context);
+        BitstreamInfo info = CheckManager.getBitstreamInfoByBitstreamId(id, context);
 
         // requested id was not found in bitstream
         // or most_recent_checksum table

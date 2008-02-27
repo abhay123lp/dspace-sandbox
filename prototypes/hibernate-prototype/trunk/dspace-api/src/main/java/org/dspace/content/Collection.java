@@ -69,6 +69,7 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
@@ -301,6 +302,7 @@ public class Collection extends DSpaceObject {
 	public void createTemplateItem() {
 		if (templateItem == null) {
 			templateItem = ItemFactory.getInstance(context);
+			ApplicationService.save(context, Item.class, templateItem);
 		}
 	}
 

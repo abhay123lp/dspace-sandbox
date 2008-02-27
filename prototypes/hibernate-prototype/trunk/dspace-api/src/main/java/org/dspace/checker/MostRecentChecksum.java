@@ -4,10 +4,9 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
@@ -28,7 +27,8 @@ public class MostRecentChecksum
     private Date lastProcessEndDate;
     private String checksumAlgorithm;
     private boolean matchedPrevChecksum;
-    private String result;
+//    private ChecksumCheckResults result;
+    private String result; //FIXME stringa o ccr?
     private int id; //FIXME fa schifo, da togliere. come si mettono le chiavi esterne in jpa????
     
     
@@ -125,6 +125,7 @@ public class MostRecentChecksum
         this.matchedPrevChecksum = matchedPrevChecksum;
     }
 
+    
     @Column(name="result")
     public String getResult()
     {
@@ -146,6 +147,18 @@ public class MostRecentChecksum
     {
         this.id = id;
     }
+
+//    @ManyToOne
+//    @JoinColumn(name="result")
+//    public ChecksumCheckResults getResult()
+//    {
+//        return result;
+//    }
+//
+//    public void setResult(ChecksumCheckResults result)
+//    {
+//        this.result = result;
+//    }
     
     
 }

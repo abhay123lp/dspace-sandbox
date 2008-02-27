@@ -53,6 +53,7 @@ public class ItemManager
         Bundle bundle = BundleFactory.getInstance(context);
         bundle.setName(name);
         addBundle(item, bundle, context);
+        ApplicationService.save(context, Bundle.class, bundle);
         return bundle;
     }
 
