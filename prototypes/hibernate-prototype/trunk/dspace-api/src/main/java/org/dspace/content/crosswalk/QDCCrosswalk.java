@@ -456,11 +456,11 @@ public class QDCCrosswalk extends SelfNamedPlugin
                     lang = me.getAttributeValue("lang");
 
                 if (qdc.length == 3) {
-                    MetadataField field = ApplicationService.getMetadataField(qdc[1], qdc[2], qdc[0], context);
+                    MetadataField field = ApplicationService.findMetadataField(qdc[1], qdc[2], qdc[0], context);
                     item.addMetadata(field, lang, me.getText());
                 }
                 else if (qdc.length == 2) {
-                    MetadataField field = ApplicationService.getMetadataField(qdc[1], null, qdc[0], context);
+                    MetadataField field = ApplicationService.findMetadataField(qdc[1], null, qdc[0], context);
                     item.addMetadata(field, lang, me.getText());
                 }
                 else

@@ -33,6 +33,8 @@
 		<class>org.dspace.eperson.Subscription</class>
 		<class>org.dspace.eperson.RegistrationData</class>
 		<class>org.dspace.browse.ItemCounter</class>
+		<class>org.dspace.browse.EntityDis</class>
+		<class>org.dspace.browse.EntityDmap</class>
 		<class>org.dspace.workflow.WorkflowItem</class>
 		<class>org.dspace.workflow.TaskListItem</class>
 		<class>org.dspace.authorize.ResourcePolicy</class>

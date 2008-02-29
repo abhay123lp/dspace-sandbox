@@ -228,7 +228,7 @@ public class DescribeStep extends AbstractProcessingStep
                             + element + "_remove_" + z)
                             && !thisVal.equals(""))
                     {
-                        MetadataField field = ApplicationService.getMetadataField(element, thisQual, schema, context);
+                        MetadataField field = ApplicationService.findMetadataField(element, thisQual, schema, context);
                         item.addMetadata(field, null, thisVal);
                         //item.addMetadata(schema, element, thisQual, null, thisVal);
                     }
@@ -243,7 +243,7 @@ public class DescribeStep extends AbstractProcessingStep
                     {
                         if (!vals[z].equals(""))
                         {
-                            MetadataField field = ApplicationService.getMetadataField(element, qualifier, schema, context);
+                            MetadataField field = ApplicationService.findMetadataField(element, qualifier, schema, context);
                             item.addMetadata(field, "en", vals[z]);
                             //item.addMetadata(schema, element, qualifier, "en", vals[z]);
                         }
@@ -499,7 +499,7 @@ public class DescribeStep extends AbstractProcessingStep
                 }
 
                 // Add to the database
-                MetadataField field = ApplicationService.getMetadataField(element, qualifier, schema, context);
+                MetadataField field = ApplicationService.findMetadataField(element, qualifier, schema, context);
                 item.addMetadata(field, null, new DCPersonName(l, f).toString());
                 //item.addMetadata(schema, element, qualifier, null, new DCPersonName(l, f).toString());
             }
@@ -588,7 +588,7 @@ public class DescribeStep extends AbstractProcessingStep
 
             if ((s != null) && !s.equals(""))
             {   
-                MetadataField field = ApplicationService.getMetadataField(element, qualifier, schema, context);
+                MetadataField field = ApplicationService.findMetadataField(element, qualifier, schema, context);
                 item.addMetadata(field, lang, s);                
             }
         }
@@ -636,7 +636,7 @@ public class DescribeStep extends AbstractProcessingStep
         if (year > 0)
         {
             // Only put in date if there is one!
-            MetadataField field = ApplicationService.getMetadataField(element, qualifier, schema, context);
+            MetadataField field = ApplicationService.findMetadataField(element, qualifier, schema, context);
             item.addMetadata(field, null, d.toString());
         }
     }
@@ -735,7 +735,7 @@ public class DescribeStep extends AbstractProcessingStep
             // Only add non-empty
             if (!s.equals("") || !n.equals(""))
             {
-                MetadataField field = ApplicationService.getMetadataField(element, qualifier, schema, context);
+                MetadataField field = ApplicationService.findMetadataField(element, qualifier, schema, context);
                 item.addMetadata(field, null, new DCSeriesNumber(s, n).toString());
             }
         }

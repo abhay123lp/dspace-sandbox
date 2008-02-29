@@ -62,7 +62,7 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //    {
 //        super(context);
 //    }
-//
+
 //    @Override
 //    public MetadataField create() throws AuthorizeException
 //    {
@@ -85,7 +85,7 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public MetadataField retrieve(int id)
 //    {
@@ -101,7 +101,7 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public MetadataField retrieve(UUID uuid)
 //    {
@@ -110,14 +110,15 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            TableRow row = DatabaseManager.findByUnique(context,
 //                    "metadatafieldregistry", "uuid", uuid.toString());
 //
-//            return retrieve(row);
+////            return retrieve(row);
+//            return null;
 //        }
 //        catch (SQLException sqle)
 //        {
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public MetadataField retrieve(int schemaID, String element,
 //            String qualifier)
@@ -160,13 +161,13 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void update(MetadataField field) throws AuthorizeException
 //    {
 //        try
 //        {
-//            int id = field.getID();
+//            int id = field.getId();
 //            TableRow row = DatabaseManager.find(context,
 //                    "metadatafieldregistry", id);
 //
@@ -176,7 +177,7 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            }
 //            else
 //            {
-//                int schemaID = field.getSchemaID();
+//                int schemaID = field.getSchema().getId();
 //                String element = field.getElement();
 //                String qualifier = field.getQualifier();
 //                String scopeNote = field.getScopeNote();
@@ -225,7 +226,7 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void delete(int id) throws AuthorizeException
 //    {
@@ -238,7 +239,7 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public boolean schemaChanged(MetadataField field)
 //    {
@@ -281,15 +282,15 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
-//    public List<MetadataField> getMetadataFields(MetadataSchema schema)
+//    public List<MetadataField> findMetadataFields(MetadataSchema schema)
 //    {
 //        try
 //        {
 //            TableRowIterator tri = DatabaseManager.query(context,
 //               "SELECT metadata_field_id FROM metadatafieldregistry " +
-//               "WHERE metadata_schema_id = ?", schema.getID());
+//               "WHERE metadata_schema_id = ?", schema.getId());
 //
 //            return returnAsList(tri);
 //        }
@@ -298,11 +299,11 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    ////////////////////////////////////////////////////////////////////
-//    // Utility methods
-//    ////////////////////////////////////////////////////////////////////
-//
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
 //    private MetadataField retrieve(TableRow row) throws SQLException
 //    {
 //        if (row == null)
@@ -338,7 +339,7 @@ public class MetadataFieldDAOPostgres //extends MetadataFieldDAO
 //
 //        return fields;
 //    }
-//
+
 //    @Override
 //    protected boolean unique(int fieldID, int schemaID, String element,
 //            String qualifier)

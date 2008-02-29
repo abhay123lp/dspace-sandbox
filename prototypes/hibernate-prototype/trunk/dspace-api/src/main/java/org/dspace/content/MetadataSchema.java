@@ -90,10 +90,10 @@ public class MetadataSchema
 
     protected MetadataSchema() {}
     
-    public MetadataSchema(Context context, int id)
+    public MetadataSchema(Context context)
     {
         this.context = context;
-        this.id = id;
+//        this.id = id;
 
         dao = MetadataSchemaDAOFactory.getInstance(context);
     }
@@ -102,7 +102,7 @@ public class MetadataSchema
     {
         return id;
     }
-    @Transient
+    @Column(name="short_id")
     public String getName()
     {
         return name;
@@ -123,48 +123,48 @@ public class MetadataSchema
         this.namespace = namespace;
     }
 
-    @Deprecated
-    public void update(Context context) throws AuthorizeException
-    {
-        dao.update(this);
-    }
+//    @Deprecated
+//    public void update(Context context) throws AuthorizeException
+//    {
+//        dao.update(this);
+//    }
 
-    @Deprecated
-    public void delete(Context context) throws AuthorizeException
-    {
-        dao.delete(getId());
-    }
+//    @Deprecated
+//    public void delete(Context context) throws AuthorizeException
+//    {
+//        dao.delete(getId());
+//    }
 
-    @Deprecated
-    public static MetadataSchema[] findAll(Context context)
-    {
-        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
-        List<MetadataSchema> schemas = dao.getMetadataSchemas();
+//    @Deprecated
+//    public static MetadataSchema[] findAll(Context context)
+//    {
+//        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
+//        List<MetadataSchema> schemas = dao.getMetadataSchemas();
+//
+//        return (MetadataSchema[]) schemas.toArray(new MetadataSchema[0]);
+//    }
 
-        return (MetadataSchema[]) schemas.toArray(new MetadataSchema[0]);
-    }
+//    @Deprecated
+//    public static MetadataSchema find(Context context, int id)
+//    {
+//        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
+//        return dao.retrieve(id);
+//    }
 
-    @Deprecated
-    public static MetadataSchema find(Context context, int id)
-    {
-        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
-        return dao.retrieve(id);
-    }
-
-    @Deprecated
-    public static MetadataSchema find(Context context, String name)
-    {
-        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
-        return dao.retrieveByName(name);
-    }
-
-    @Deprecated
-    public static MetadataSchema findByNamespace(Context context,
-            String namespace)
-    {
-        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
-        return dao.retrieveByNamespace(namespace);
-    }
+//    @Deprecated
+//    public static MetadataSchema find(Context context, String name)
+//    {
+//        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
+//        return dao.retrieveByName(name);
+//    }
+//
+//    @Deprecated
+//    public static MetadataSchema findByNamespace(Context context,
+//            String namespace)
+//    {
+//        MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
+//        return dao.retrieveByNamespace(namespace);
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods

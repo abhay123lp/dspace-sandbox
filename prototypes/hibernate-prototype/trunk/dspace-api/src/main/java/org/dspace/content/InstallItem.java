@@ -107,7 +107,7 @@ public class InstallItem
         // create accession date
         DCDate now = DCDate.getCurrent();
         //item.addDC("date", "accessioned", null, now.toString());
-        MetadataField field = ApplicationService.getMetadataField("date", "available", MetadataSchema.DC_SCHEMA, c);
+        MetadataField field = ApplicationService.findMetadataField("date", "available", MetadataSchema.DC_SCHEMA, c);
         item.addMetadata(field, null, now.toString());
         //item.addDC("date", "available", null, now.toString());
 
@@ -116,7 +116,7 @@ public class InstallItem
 
         if (currentDateIssued.length == 0)
         {
-            field = ApplicationService.getMetadataField("date", "issued", MetadataSchema.DC_SCHEMA, c);
+            field = ApplicationService.findMetadataField("date", "issued", MetadataSchema.DC_SCHEMA, c);
             item.addMetadata(field, null, now.toString());            
             //item.addDC("date", "issued", null, now.toString());
         }
@@ -153,7 +153,7 @@ public class InstallItem
         }
 
         // Add provenance description
-        field = ApplicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
+        field = ApplicationService.findMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
         item.addMetadata(field, "en", provDescription);
         //item.addDC("description", "provenance", "en", provDescription);
 

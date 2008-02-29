@@ -58,6 +58,8 @@ import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
 import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.dao.MetadataSchemaDAOFactory;
+import org.dspace.content.factory.MetadataFieldFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
@@ -283,14 +285,17 @@ public class RegistryLoader
         }
 
         // Find the matching schema object
-        MetadataSchema schemaObj = schemaDAO.retrieveByName(schema);
+//        MetadataSchema schemaObj = schemaDAO.retrieveByName(schema);
+        MetadataSchema schemaObj = ApplicationService.findMetadataSchemaByName(schema, context);
         
-        MetadataField field = fieldDAO.create();
+//        MetadataField field = fieldDAO.create();
+        MetadataField field = MetadataFieldFactory.getInstance(context);
         field.setSchema(schemaObj);
         field.setElement(element);
         field.setQualifier(qualifier);
         field.setScopeNote(scopeNote);
-        fieldDAO.update(field);
+//        fieldDAO.update(field);
+        ApplicationService.save(context, MetadataField.class, field);
     }
 
     // ===================== XML Utility Methods =========================

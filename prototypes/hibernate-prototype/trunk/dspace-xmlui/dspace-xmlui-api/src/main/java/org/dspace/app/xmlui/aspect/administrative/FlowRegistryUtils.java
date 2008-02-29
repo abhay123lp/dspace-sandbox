@@ -55,6 +55,9 @@ import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
 import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.dao.MetadataSchemaDAOFactory;
+import org.dspace.content.factory.MetadataFieldFactory;
+import org.dspace.content.factory.MetadataSchemaFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 
 /**
@@ -113,12 +116,14 @@ public class FlowRegistryUtils
 		
 		if (result.getErrors() == null)
 		{
-            MetadataSchemaDAO schemaDAO =
-                MetadataSchemaDAOFactory.getInstance(context);
-			MetadataSchema schema = schemaDAO.create();
+//            MetadataSchemaDAO schemaDAO =
+//                MetadataSchemaDAOFactory.getInstance(context);
+//			MetadataSchema schema = schemaDAO.create();
+		    MetadataSchema schema = MetadataSchemaFactory.getInstance(context);
 		    schema.setNamespace(namespace);
 		    schema.setName(name);
-		    schemaDAO.update(schema);
+//		    schemaDAO.update(schema);
+		    ApplicationService.save(context, MetadataSchema.class, schema);
 
 		    context.commit();
 		    
@@ -194,15 +199,17 @@ public class FlowRegistryUtils
 		
 		if (result.getErrors() == null)
 		{
-            MetadataFieldDAO fieldDAO =
-                MetadataFieldDAOFactory.getInstance(context);
-            MetadataField field = fieldDAO.create();
-            field.setSchemaID(schemaID);
+//            MetadataFieldDAO fieldDAO =
+//                MetadataFieldDAOFactory.getInstance(context);
+//            MetadataField field = fieldDAO.create();
+		    MetadataField field = MetadataFieldFactory.getInstance(context);
+            field.setSchema(ApplicationService.get(context, MetadataSchema.class, schemaID));
             field.setElement(element);
             field.setQualifier(qualifier);
             field.setScopeNote(note);
-            fieldDAO.update(field);
-            
+//            fieldDAO.update(field);
+            ApplicationService.save(context, MetadataField.class, field);
+
             context.commit();
             
             result.setContinue(true);
@@ -331,7 +338,7 @@ public class FlowRegistryUtils
             MetadataFieldDAO fieldDAO =
                 MetadataFieldDAOFactory.getInstance(context);
 			MetadataField field = fieldDAO.retrieve(Integer.valueOf(id));
-			field.setSchemaID(schemaID);
+			field.setSchema(ApplicationService.get(context, MetadataSchema.class, schemaID));
 			fieldDAO.update(field);
 			count++;
 		}

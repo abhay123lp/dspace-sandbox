@@ -56,6 +56,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.dao.MetadataSchemaDAOFactory;
+import org.dspace.content.factory.MetadataSchemaFactory;
 import org.dspace.core.Context;
 
 /**
@@ -117,7 +118,8 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
                     context.abort();
                     return;
                 }
-                schema = dao.create();
+//                schema = dao.create();
+                schema = MetadataSchemaFactory.getInstance(context);
                 schema.setName(name);
                 schema.setNamespace(namespace);
                 dao.update(schema);

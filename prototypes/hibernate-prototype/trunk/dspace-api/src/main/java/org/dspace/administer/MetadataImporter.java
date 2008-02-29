@@ -59,6 +59,9 @@ import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
 import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.dao.MetadataSchemaDAOFactory;
+import org.dspace.content.factory.MetadataFieldFactory;
+import org.dspace.content.factory.MetadataSchemaFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 
@@ -194,7 +197,8 @@ public class MetadataImporter
         System.out.print("Registering Schema: " + name + " - " + namespace + " ... ");
         
         // check to see if the schema already exists
-        MetadataSchema s = MetadataSchema.find(context, name);
+//        MetadataSchema s = MetadataSchema.find(context, name);
+        MetadataSchema s = ApplicationService.findMetadataSchemaByName(name, context);
         
         if (s == null)
         {
@@ -202,11 +206,13 @@ public class MetadataImporter
 //            MetadataSchema schema = new MetadataSchema(namespace, name);
 //            schema.create(context);
 
-            MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
-            MetadataSchema schema = dao.create();
+//            MetadataSchemaDAO dao = MetadataSchemaDAOFactory.getInstance(context);
+//            MetadataSchema schema = dao.create();
+            MetadataSchema schema = MetadataSchemaFactory.getInstance(context);
             schema.setName(name);
             schema.setNamespace(namespace);
-            dao.update(schema);
+//            dao.update(schema);
+            ApplicationService.save(context, MetadataSchema.class, schema);
             System.out.println("created");
         }
         else
@@ -223,7 +229,7 @@ public class MetadataImporter
             {
                 // Update the existing schema namespace and continue to type import
                 s.setNamespace(namespace);
-                s.update(context);
+//                s.update(context);
                 System.out.println("namespace updated (" + name + " = " + namespace + ")");
             }
             else
@@ -276,7 +282,8 @@ public class MetadataImporter
                 "." + qualifier + " ... ");
         
         // Find the matching schema object
-        MetadataSchema schemaObj = schemaDAO.retrieveByName(schema);
+//        MetadataSchema schemaObj = schemaDAO.retrieveByName(schema);
+        MetadataSchema schemaObj = ApplicationService.findMetadataSchemaByName(schema, context);
         
         if (schemaObj == null)
         {
@@ -284,21 +291,23 @@ public class MetadataImporter
                     + "' is not registered");
         }
         
-        MetadataField mf =
-            fieldDAO.retrieve(schemaObj.getId(), element, qualifier);
-
+//        MetadataField mf =
+//            fieldDAO.retrieve(schemaObj.getId(), element, qualifier);
+        MetadataField mf = ApplicationService.findMetadataField(schemaObj.getId(), element, qualifier, context);
         if (mf != null)
         {
             System.out.println("already exists, skipping");
             return;
         }
         
-        MetadataField field = fieldDAO.create();
+//        MetadataField field = fieldDAO.create();
+        MetadataField field = MetadataFieldFactory.getInstance(context);
         field.setSchema(schemaObj);
         field.setElement(element);
         field.setQualifier(qualifier);
         field.setScopeNote(scopeNote);
-        fieldDAO.update(field);
+//        fieldDAO.update(field);
+        ApplicationService.save(context, MetadataField.class, field);
         System.out.println("created");
     }
     

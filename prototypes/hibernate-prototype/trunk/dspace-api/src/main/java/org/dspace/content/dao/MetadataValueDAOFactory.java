@@ -39,6 +39,7 @@
  */
 package org.dspace.content.dao;
 
+import org.dspace.content.dao.hibernate.MetadataValueDAOJPA;
 import org.dspace.content.dao.postgres.MetadataValueDAOPostgres;
 import org.dspace.core.Context;
 
@@ -50,6 +51,6 @@ public class MetadataValueDAOFactory
     public static MetadataValueDAO getInstance(Context context)
     {
         //return new MetadataValueDAOPostgres(context);
-        return null; //FIXME cambiamento
+        return new MetadataValueDAOJPA(context);
         }
 }

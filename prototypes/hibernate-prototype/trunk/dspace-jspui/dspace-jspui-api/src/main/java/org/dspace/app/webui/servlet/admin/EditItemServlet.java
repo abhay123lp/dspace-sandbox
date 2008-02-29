@@ -433,7 +433,7 @@ public class EditItemServlet extends DSpaceServlet
         {
             String schemaName = schema.getName();
             // Get all fields for the given schema
-            List<MetadataField> fields = mfDAO.getMetadataFields(schema);
+            List<MetadataField> fields = mfDAO.findMetadataFields(schema);
             for (MetadataField field : fields)
             {
                 String displayName = schemaName + "." + field.getElement()

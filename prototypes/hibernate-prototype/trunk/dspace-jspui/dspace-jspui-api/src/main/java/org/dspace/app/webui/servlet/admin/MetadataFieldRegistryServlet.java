@@ -58,6 +58,8 @@ import org.dspace.content.MetadataSchema;
 import org.dspace.content.NonUniqueMetadataException;
 import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.factory.MetadataFieldFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 
 /**
@@ -122,14 +124,16 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
             String scopeNote = request.getParameter("scope_note");
 
             // Let's see if this field already exists
-            MetadataField dc = dao.retrieve(schemaID, element, qualifier);
+//            MetadataField dc = dao.retrieve(schemaID, element, qualifier);
+            MetadataField dc = ApplicationService.findMetadataField(schemaID, element, qualifier, context);
 
 //            try
 //            {
             if (dc == null)
             {
                 // Update the metadata for a DC type
-                dc = dao.retrieve(id);
+//                dc = dao.retrieve(id);
+                dc = ApplicationService.get(context, MetadataField.class, id);
 
                 dc.setElement(element);
 
@@ -140,7 +144,7 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
 
                 dc.setQualifier(qualifier);
                 dc.setScopeNote(scopeNote);
-                dao.update(dc);
+//                dao.update(dc);
                 showTypes(context, request, response, schemaID);
                 context.complete();
             }
@@ -169,15 +173,17 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
             String scopeNote = request.getParameter("scope_note");
 
             // Let's see if this field already exists
-            MetadataField dc = dao.retrieve(schemaID, element, qualifier);
+//            MetadataField dc = dao.retrieve(schemaID, element, qualifier);
+            MetadataField dc = ApplicationService.findMetadataField(schemaID, element, qualifier, context);
 
             // Add a new DC type - simply add to the list, and let the user
             // edit with the main form
 //            try
             if (dc == null)
             {
-                dc = dao.create();
-                dc.setSchemaID(schemaID);
+//                dc = dao.create();
+                dc = MetadataFieldFactory.getInstance(context);
+                dc.setSchema(ApplicationService.get(context, MetadataSchema.class, schemaID));
                 dc.setElement(element);
 
                 if (qualifier.equals(""))
@@ -187,7 +193,8 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
 
                 dc.setQualifier(qualifier);
                 dc.setScopeNote(scopeNote);
-                dao.update(dc);
+//                dao.update(dc);
+                ApplicationService.save(context, MetadataField.class, dc);
                 showTypes(context, request, response, schemaID);
                 context.complete();
             }
@@ -210,8 +217,8 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
         else if (button.equals("submit_delete"))
         {
             // Start delete process - go through verification step
-            MetadataField dc = MetadataField.find(context, UIUtil
-                    .getIntParameter(request, "dc_type_id"));
+//            MetadataField dc = MetadataField.find(context, UIUtil.getIntParameter(request, "dc_type_id"));
+            MetadataField dc = ApplicationService.get(context, MetadataField.class, UIUtil.getIntParameter(request, "dc_type_id"));
             request.setAttribute("type", dc);
             JSPManager.showJSP(request, response,
                     "/dspace-admin/confirm-delete-mdfield.jsp");
@@ -219,9 +226,10 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
         else if (button.equals("submit_confirm_delete"))
         {
             // User confirms deletion of type
-            MetadataField dc = MetadataField.find(context, UIUtil
-                    .getIntParameter(request, "dc_type_id"));
-            dc.delete(context);
+//            MetadataField dc = MetadataField.find(context, UIUtil.getIntParameter(request, "dc_type_id"));
+            MetadataField dc = ApplicationService.get(context, MetadataField.class, UIUtil.getIntParameter(request, "dc_type_id"));
+//            dc.delete(context);
+            ApplicationService.delete(context, MetadataField.class, dc);
             showTypes(context, request, response, schemaID);
             context.complete();
         }
@@ -249,10 +257,11 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
                     for (int ii = 0; ii < param.length; ii++)
                     {
                         int fieldID = Integer.parseInt(param[ii]);
-                        MetadataField field = dao.retrieve(fieldID);
-                        MetadataField existenceTest = dao.retrieve(schemaID,
-                                field.getElement(), field.getQualifier());
-
+//                        MetadataField field = dao.retrieve(fieldID);
+                        MetadataField field = ApplicationService.get(context, MetadataField.class, fieldID);
+//                        MetadataField existenceTest = dao.retrieve(schemaID,field.getElement(), field.getQualifier());
+                        MetadataField existenceTest = ApplicationService.findMetadataField(schemaID, field.getElement(), field.getQualifier(), context);
+                        
                         if (existenceTest != null)
                         {
                             error = true;
@@ -263,8 +272,9 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
                         }
                         else
                         {
-                            field.setSchemaID(schemaID);
-                            field.update(context);
+//                            field.setSchemaID(schemaID);
+                            field.setSchema(ApplicationService.get(context, MetadataSchema.class, schemaID));
+//                            field.update(context);
                         }
 
                     }

@@ -59,6 +59,7 @@ import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.content.dao.MetadataValueDAO;
 import org.dspace.content.dao.MetadataValueDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 
 /**
@@ -77,7 +78,7 @@ public class MetadataValue
     private static Logger log = Logger.getLogger(MetadataValue.class);
 
     private Context context;
-    private MetadataValueDAO dao;
+//    private MetadataValueDAO dao;
 
     private int ID;
 
@@ -99,12 +100,12 @@ public class MetadataValue
     
     protected MetadataValue() {}
     
-    public MetadataValue(Context context, int ID)
+    public MetadataValue(Context context)
     {
         this.context = context;
-        this.ID = ID;
+//        this.ID = ID;
 
-        dao = MetadataValueDAOFactory.getInstance(context);
+//        dao = MetadataValueDAOFactory.getInstance(context);
         place = 1;
     }
 
@@ -311,7 +312,8 @@ public class MetadataValue
 
         if (mdvschema == null)
         {
-            mdvschema = msDAO.retrieve(MetadataSchema.DC_SCHEMA_ID);
+//            mdvschema = msDAO.retrieve(MetadataSchema.DC_SCHEMA_ID);
+            mdvschema = ApplicationService.get(context, MetadataSchema.class, MetadataSchema.DC_SCHEMA_ID);
         }
 
         if (value == null)

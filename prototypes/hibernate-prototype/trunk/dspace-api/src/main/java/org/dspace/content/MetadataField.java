@@ -61,6 +61,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 
@@ -80,7 +81,7 @@ public class MetadataField
     private static Logger log = Logger.getLogger(MetadataField.class);
 
     private Context context;
-    private MetadataFieldDAO dao;
+//    private MetadataFieldDAO dao;
 
     private int id;
     private MetadataSchema schema;
@@ -90,10 +91,10 @@ public class MetadataField
 
     protected MetadataField() {}
     
-    public MetadataField(Context context, int id)
+    public MetadataField(Context context)
     {
         this.context = context;
-        this.id = id;
+//        this.id = id;
     }
 
     /**
@@ -192,43 +193,45 @@ public class MetadataField
         this.scopeNote = scopeNote;
     }
 
-    @Deprecated
-    public static MetadataField findByElement(Context context, int schemaID,
-            String element, String qualifier)
-    {
-        return MetadataFieldDAOFactory.getInstance(context).retrieve(schemaID,
-                element, qualifier);
-    }
+//    @Deprecated
+//    public static MetadataField findByElement(Context context, int schemaID,
+//            String element, String qualifier)
+//    {
+//        return MetadataFieldDAOFactory.getInstance(context).retrieve(schemaID,
+//                element, qualifier);
+//    }
 
-    @Deprecated
-    public static MetadataField[] findAll(Context context)
-    {
-        MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
-        List<MetadataField> fields = dao.getMetadataFields();
-
-        return (MetadataField[]) fields.toArray(new MetadataField[0]);
-    }
+//    @Deprecated
+//    public static List<MetadataField> findAll(Context context)
+//    {
+//        MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
+//        List<MetadataField> fields = dao.getMetadataFields();
+//
+//        return fields;
+//    }
 
     @Deprecated
     public static MetadataField[] findAllInSchema(Context context, int schemaID)
     {
         MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
-        List<MetadataField> fields = dao.getMetadataFields(schemaID);
+//        List<MetadataField> fields = dao.getMetadataFields(schemaID);
+        MetadataSchema schema = ApplicationService.get(context, MetadataSchema.class, schemaID);
+        List<MetadataField> fields = ApplicationService.findMetadataFields(schema, context);
 
         return (MetadataField[]) fields.toArray(new MetadataField[0]);
     }
 
-    @Deprecated
-    public void update(Context context) throws AuthorizeException
-    {
-        dao.update(this);
-    }
+//    @Deprecated
+//    public void update(Context context) throws AuthorizeException
+//    {
+//        dao.update(this);
+//    }
 
-    @Deprecated
-    public void delete(Context context) throws AuthorizeException
-    {
-        dao.delete(getId());
-    }
+//    @Deprecated
+//    public void delete(Context context) throws AuthorizeException
+//    {
+//        dao.delete(getId());
+//    }
 
     /**
      * Return the HTML FORM key for the given field.
@@ -253,11 +256,11 @@ public class MetadataField
         }
     }
 
-    @Deprecated
-    public static MetadataField find(Context context, int id)
-    {
-        return MetadataFieldDAOFactory.getInstance(context).retrieve(id);
-    }
+//    @Deprecated
+//    public static MetadataField find(Context context, int id)
+//    {
+//        return MetadataFieldDAOFactory.getInstance(context).retrieve(id);
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
