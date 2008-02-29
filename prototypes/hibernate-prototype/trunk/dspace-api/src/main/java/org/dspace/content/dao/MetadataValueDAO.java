@@ -88,20 +88,20 @@ public abstract class MetadataValueDAO extends ContentDAO
 //                    "metadata_value_id=" + id));
 //    }
 
-    @Deprecated
-    public List<MetadataValue> getMetadataValues(int fieldID)
-    {
-        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
-        return getMetadataValues(mfDAO.retrieve(fieldID));
-    }
+//    @Deprecated
+//    public List<MetadataValue> getMetadataValues(int fieldID)
+//    {
+//        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+//        return getMetadataValues(mfDAO.retrieve(fieldID));
+//    }
 
-    public abstract List<MetadataValue> getMetadataValues(MetadataField field);
-
-    public abstract List<MetadataValue> getMetadataValues(MetadataField field,
-            String value);
+    public abstract List<MetadataValue> getMetadataValues(MetadataField field, Context context);
 
     public abstract List<MetadataValue> getMetadataValues(MetadataField field,
-            String value, String language);
+            String value, Context context);
 
-    public abstract List<MetadataValue> getMetadataValues(Item item);
+    public abstract List<MetadataValue> getMetadataValues(MetadataField field,
+            String value, String language, Context context);
+
+    public abstract List<MetadataValue> getMetadataValues(Item item, Context context);
 }

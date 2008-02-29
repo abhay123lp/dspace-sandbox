@@ -163,7 +163,7 @@ public abstract class WorkspaceItemDAO extends ContentDAO
             MetadataField field;
             for (int n = 0; n < md.length; n++)
             {
-                field = ApplicationService.getMetadataField(md[n].getMetadataField().getElement(), md[n].getMetadataField().getQualifier(), md[n].getMetadataField().getSchema().getName(), context);
+                field = ApplicationService.findMetadataField(md[n].getMetadataField().getElement(), md[n].getMetadataField().getQualifier(), md[n].getMetadataField().getSchema().getName(), context);
                 item.addMetadata(field, md[n].getLanguage(), md[n].getValue());
             }
         }

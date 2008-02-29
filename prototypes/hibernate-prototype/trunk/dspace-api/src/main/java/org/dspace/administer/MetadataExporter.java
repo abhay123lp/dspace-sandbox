@@ -1,12 +1,11 @@
 package org.dspace.administer;
 
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.cli.CommandLine;
@@ -14,18 +13,14 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.xml.serialize.EncodingInfo;
-//import org.apache.xml.serialize.Encodings;
 import org.apache.xml.serialize.Method;
 import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.Serializer;
 import org.apache.xml.serialize.XMLSerializer;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.xml.sax.SAXException;
-
-import edu.sdsc.grid.io.MetaDataField;
 
 /**
  * @author Graham Triggs
@@ -101,25 +96,28 @@ public class MetadataExporter
         // Save the schema defintion(s)
         saveSchema(context, xmlSerializer, schema);
 
-        MetadataField[] mdFields = null;
+        List<MetadataField> mdFields = null;
 
         // If a single schema has been specified
         if (schema != null && !"".equals(schema))
         {
             // Get the id of that schema
-            MetadataSchema mdSchema = MetadataSchema.find(context, schema);
+//            MetadataSchema mdSchema = MetadataSchema.find(context, schema);
+            MetadataSchema mdSchema = ApplicationService.findMetadataSchemaByName(schema, context);
             if (mdSchema == null)
             {
                 throw new RegistryExportException("no schema to export");
             }
             
             // Get the metadata fields only for the specified schema
-            mdFields = MetadataField.findAllInSchema(context, mdSchema.getId());
+//            mdFields = MetadataField.findAllInSchema(context, mdSchema.getId());
+            mdFields = ApplicationService.findMetadataFields(mdSchema, context);
         }
         else
         {
             // Get the metadata fields for all the schemas
-            mdFields = MetadataField.findAll(context);
+//            mdFields = MetadataField.findAll(context);
+            mdFields = ApplicationService.findAllMetadataFields(context);
         }
         
         // Output the metadata fields
@@ -149,14 +147,16 @@ public class MetadataExporter
         if (schema != null && !"".equals(schema))
         {
             // Find a single named schema
-            MetadataSchema mdSchema = MetadataSchema.find(context, schema);
+//            MetadataSchema mdSchema = MetadataSchema.find(context, schema);
+            MetadataSchema mdSchema = ApplicationService.findMetadataSchemaByName(schema, context);
             
             saveSchema(xmlSerializer, mdSchema);
         }
         else
         {
             // Find all schemas
-            MetadataSchema[] mdSchemas = MetadataSchema.findAll(context);
+//            MetadataSchema[] mdSchemas = MetadataSchema.findAll(context);
+            List<MetadataSchema> mdSchemas = ApplicationService.findAllMetadataSchema(context);
             
             for (MetadataSchema mdSchema : mdSchemas)
             {
@@ -296,7 +296,8 @@ public class MetadataExporter
         if (name == null)
         {
             // Name not retrieved before, so get the schema now
-            MetadataSchema mdSchema = MetadataSchema.find(context, mdField.getSchema().getId());
+//            MetadataSchema mdSchema = MetadataSchema.find(context, mdField.getSchema().getId());
+            MetadataSchema mdSchema = ApplicationService.get(context, MetadataSchema.class, mdField.getSchema().getId());
             if (mdSchema != null)
             {
                 name = mdSchema.getName();

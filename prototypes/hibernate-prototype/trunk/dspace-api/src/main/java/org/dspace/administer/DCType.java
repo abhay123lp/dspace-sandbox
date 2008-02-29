@@ -122,7 +122,8 @@ public class DCType
     public static String[] quickFind(Context context, int id)
     {
         MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
-        MetadataField field = dao.retrieve(id);
+//        MetadataField field = dao.retrieve(id);
+        MetadataField field = ApplicationService.get(context, MetadataField.class, id);
 
         String[] result = new String[2];
 
@@ -152,7 +153,9 @@ public class DCType
     public static DCType find(Context context, int id)
     {
         MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
-        MetadataField field = dao.retrieve(id);
+//        MetadataField field = dao.retrieve(id);
+        MetadataField field = ApplicationService.get(context, MetadataField.class, id);
+
 
         return new DCType(context, field);
     }
@@ -178,8 +181,8 @@ public class DCType
             String qualifier) throws AuthorizeException
     {
         MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
-        MetadataField field = dao.retrieve(MetadataSchema.DC_SCHEMA_ID,
-                element, qualifier);
+//        MetadataField field = dao.retrieve(MetadataSchema.DC_SCHEMA_ID, element, qualifier);
+        MetadataField field = ApplicationService.findMetadataField(MetadataSchema.DC_SCHEMA_ID, element, qualifier, context);
 
         if (field == null)
         {
@@ -201,7 +204,8 @@ public class DCType
     {
         MetadataFieldDAO dao = MetadataFieldDAOFactory.getInstance(context);
 
-        List<MetadataField> fields = dao.getMetadataFields();
+//        List<MetadataField> fields = dao.getMetadataFields();
+        List<MetadataField> fields = ApplicationService.findAllMetadataFields(context);
         DCType[] typeArray = new DCType[fields.size()];
 
         int i = 0;
@@ -243,9 +247,10 @@ public class DCType
      * thrown in this case.
      * @deprecated
      */
-    public void delete() throws AuthorizeException
+    public void delete(Context context) throws AuthorizeException
     {
-        dao.delete(field.getId());
+//        dao.delete(field.getId());
+        ApplicationService.delete(context, MetadataField.class, field);
     }
 
     /**
@@ -329,8 +334,8 @@ public class DCType
      * @throws NonUniqueMetadataException
      * @deprecated
      */
-    public void update() throws AuthorizeException, NonUniqueMetadataException
-    {
-        dao.update(field);
-    }
+//    public void update() throws AuthorizeException, NonUniqueMetadataException
+//    {
+//        dao.update(field);
+//    }
 }

@@ -23,6 +23,7 @@ import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
+import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.dao.BitstreamDAOFactory;
@@ -38,6 +39,10 @@ import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
 import org.dspace.content.dao.MetadataFieldDAO;
 import org.dspace.content.dao.MetadataFieldDAOFactory;
+import org.dspace.content.dao.MetadataSchemaDAO;
+import org.dspace.content.dao.MetadataSchemaDAOFactory;
+import org.dspace.content.dao.MetadataValueDAO;
+import org.dspace.content.dao.MetadataValueDAOFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.RegistrationData;
@@ -130,14 +135,61 @@ public class ApplicationService {
    
     /* Finder operations */ 
     
-    /*
-     * Returns a particular metadatafield
-     */
-    public static MetadataField getMetadataField(String element, String qualifier,  String schema, Context context) {
-        MetadataFieldDAO mdfdao =  MetadataFieldDAOFactory.getInstance(context);
-        MetadataField mdf = mdfdao.retrieve(schema, element, qualifier);
-        return mdf;     
+    public static List<MetadataSchema> findAllMetadataSchema(Context context) {
+        MetadataSchemaDAO mdsdao = MetadataSchemaDAOFactory.getInstance(context);
+        return mdsdao.findAllMetadataSchema(context);
     }
+    
+    public static MetadataSchema findMetadataSchemaByName(String name, Context context) {
+        MetadataSchemaDAO mdsdao = MetadataSchemaDAOFactory.getInstance(context);
+        return mdsdao.findMetadataSchemaByName(name, context);
+    }
+    
+    public static MetadataSchema findMetadataSchemaByNamespace(String namespace, Context context) {
+        MetadataSchemaDAO mdsdao = MetadataSchemaDAOFactory.getInstance(context);
+        return mdsdao.findMetadataSchemaByNamespace(namespace, context);
+    }
+    
+    public static MetadataField findMetadataField(String element, String qualifier,  String schema, Context context) {
+        MetadataFieldDAO mdfdao =  MetadataFieldDAOFactory.getInstance(context);
+        return mdfdao.findMetadataField(schema, element, qualifier, context);             
+    }
+    
+    public static MetadataField findMetadataField(int schemaId, String element, String qualifier, Context context) {
+        MetadataFieldDAO mdfdao =  MetadataFieldDAOFactory.getInstance(context);
+        return mdfdao.findMetadataField(schemaId, element, qualifier, context);           
+    }
+    
+    public static List<MetadataField> findMetadataFields(MetadataSchema schema, Context context) {
+        MetadataFieldDAO mdfdao =  MetadataFieldDAOFactory.getInstance(context);
+        return mdfdao.findMetadataFields(schema, context);
+    }
+    
+    public static List<MetadataField> findAllMetadataFields(Context context) {
+        MetadataFieldDAO mdfdao =  MetadataFieldDAOFactory.getInstance(context);
+        return mdfdao.findAllMetadataFields(context);
+    }
+    
+    public static List<MetadataValue> findMetadataValues(MetadataField field, Context context) {
+        MetadataValueDAO mdao = MetadataValueDAOFactory.getInstance(context);
+        return mdao.getMetadataValues(field, context);
+    }
+    
+    public static List<MetadataValue> findMetadataValues(MetadataField field, String value, Context context) {
+        MetadataValueDAO mdao = MetadataValueDAOFactory.getInstance(context);
+        return mdao.getMetadataValues(field, value, context);
+    }
+    
+    public static List<MetadataValue> findMetadataValues(MetadataField field, String value, String language, Context context) {
+        MetadataValueDAO mdao = MetadataValueDAOFactory.getInstance(context);
+        return mdao.getMetadataValues(field, value, language, context);
+    }
+    
+    public static List<MetadataValue> findMetadataValues(Item item, Context context) {
+        MetadataValueDAO mdao = MetadataValueDAOFactory.getInstance(context);
+        return mdao.getMetadataValues(item, context);
+    }
+
     
     /*
      * Returns all communities

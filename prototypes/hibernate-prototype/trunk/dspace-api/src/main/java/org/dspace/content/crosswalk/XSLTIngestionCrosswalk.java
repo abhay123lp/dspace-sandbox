@@ -120,7 +120,7 @@ public class XSLTIngestionCrosswalk
         String qualifier = field.getAttributeValue("qualifier");
         String lang = field.getAttributeValue("lang");
         
-        MetadataField mdf = ApplicationService.getMetadataField(element, qualifier, schema, context);
+        MetadataField mdf = ApplicationService.findMetadataField(element, qualifier, schema, context);
         item.addMetadata(mdf, lang, field.getText());
     }
 
@@ -246,7 +246,8 @@ public class XSLTIngestionCrosswalk
                 String schema = elt.getAttributeValue("mdschema");
                 String element = elt.getAttributeValue("element");
                 String qualifier = elt.getAttributeValue("qualifier");
-                MetadataSchema ms = MetadataSchema.find(context, schema);
+//                MetadataSchema ms = MetadataSchema.find(context, schema);
+                MetadataSchema ms = ApplicationService.findMetadataSchemaByName(schema, context);
                 if (ms == null )
                 {
                     System.err.println("DIM Error, Cannot find metadata schema for: schema=\""+schema+
@@ -260,8 +261,8 @@ public class XSLTIngestionCrosswalk
                               " schema=\""+schema+"\", element=\""+element+"\", qualifier=\""+qualifier+"\"");
                         qualifier = null;
                     }
-                    MetadataField mf = MetadataField.findByElement(context,
-                                  ms.getId(), element, qualifier);
+//                    MetadataField mf = MetadataField.findByElement(context, ms.getId(), element, qualifier);
+                    MetadataField mf = ApplicationService.findMetadataField(ms.getId(), element, qualifier, context);
                     if (mf == null)
                         System.err.println("DIM Error, Cannot find metadata field for: schema=\""+schema+
                             "\", element=\""+element+"\", qualifier=\""+qualifier+"\"");

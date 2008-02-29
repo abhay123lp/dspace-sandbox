@@ -266,7 +266,7 @@ public class ItemManager
                     + e.getEmail() + ") on " + timestamp + "\n"
                     + "Item was in collections:\n" + collectionProv
                     + InstallItem.getBitstreamProvenanceMessage(item);
-            MetadataField mdf = ApplicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+            MetadataField mdf = ApplicationService.findMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
             item.addMetadata(mdf, "en", prov);
 
             // Update item in DB
@@ -325,7 +325,7 @@ public class ItemManager
                 + "Item was in collections:\n" + collectionProv
                 + InstallItem.getBitstreamProvenanceMessage(item);
         
-        MetadataField mdf = ApplicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+        MetadataField mdf = ApplicationService.findMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
         item.addMetadata(mdf, "en", prov);
 
         // Update item in DB

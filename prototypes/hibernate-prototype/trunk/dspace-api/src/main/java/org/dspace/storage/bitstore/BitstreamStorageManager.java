@@ -245,8 +245,9 @@ public class BitstreamStorageManager
     
     /** 
      * Creates a BitstreamFormat
+     * @throws AuthorizeException 
      */
-    public static BitstreamFormat createBistreamFormat(Context context) {
+    public static BitstreamFormat createBistreamFormat(Context context) throws AuthorizeException {
         return BitstreamFormatFactory.getInstance(context);
     }
 

@@ -780,7 +780,7 @@ public class WorkflowManager
                 + rejection_message + " on " + now + " (GMT) ";
 
         // Add to item as a DC field
-        MetadataField field = ApplicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
+        MetadataField field = ApplicationService.findMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
         myitem.addMetadata(field, "en", provDescription);
         //myitem.add("description", "provenance", "en", provDescription);
         //myitem.update();
@@ -1037,7 +1037,7 @@ public class WorkflowManager
         provDescription += InstallItem.getBitstreamProvenanceMessage(item);
 
         // Add to item as a DC field
-        MetadataField field = ApplicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
+        MetadataField field = ApplicationService.findMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
         item.addMetadata(field, "en", provDescription);
         //item.addDC("description", "provenance", "en", provDescription);
         //item.update();
@@ -1074,7 +1074,7 @@ public class WorkflowManager
         provmessage += InstallItem.getBitstreamProvenanceMessage(myitem);
 
         // Add message to the DC
-        MetadataField field = ApplicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
+        MetadataField field = ApplicationService.findMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, c);
         myitem.addMetadata(field, "en", provmessage);    
         //myitem.addDC("description", "provenance", "en", provmessage);
         //myitem.update();

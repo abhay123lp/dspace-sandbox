@@ -60,7 +60,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //    {
 //        super(context);
 //    }
-//
+
 //    @Override
 //    public MetadataValue create() throws AuthorizeException
 //    {
@@ -82,7 +82,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public MetadataValue retrieve(int id)
 //    {
@@ -97,7 +97,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public MetadataValue retrieve(UUID uuid)
 //    {
@@ -113,7 +113,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void update(MetadataValue value) throws AuthorizeException
 //    {
@@ -187,7 +187,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void delete(int id) throws AuthorizeException
 //    {
@@ -200,7 +200,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public List<MetadataValue> getMetadataValues(MetadataField field)
 //    {
@@ -219,7 +219,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public List<MetadataValue> getMetadataValues(MetadataField field,
 //                                                 String value)
@@ -240,7 +240,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public List<MetadataValue> getMetadataValues(MetadataField field,
 //            String value, String language)
@@ -261,7 +261,7 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public List<MetadataValue> getMetadataValues(Item item)
 //    {
@@ -280,11 +280,11 @@ public class MetadataValueDAOPostgres //extends MetadataValueDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    ////////////////////////////////////////////////////////////////////
-//    // Utility methods
-//    ////////////////////////////////////////////////////////////////////
-//
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
 //    private MetadataValue retrieve(TableRow row) throws SQLException
 //    {
 //        if (row == null)

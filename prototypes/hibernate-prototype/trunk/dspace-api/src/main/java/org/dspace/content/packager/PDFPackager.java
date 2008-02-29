@@ -317,29 +317,29 @@ public class PDFPackager
             if (title == null)
                 throw new MetadataValidationException("This PDF file is unacceptable, it does not have a value for \"Title\" in its Info dictionary.");
             log.debug("PDF Info dict title=\""+title+"\"");
-            MetadataField field = ApplicationService.getMetadataField("title", null, MetadataSchema.DC_SCHEMA, context);
+            MetadataField field = ApplicationService.findMetadataField("title", null, MetadataSchema.DC_SCHEMA, context);
             item.addMetadata(field, "en", title);
             String value;
             Calendar date;
             if ((value = docinfo.getAuthor()) != null)
             {
-                field = ApplicationService.getMetadataField("contributor", "author", MetadataSchema.DC_SCHEMA, context);               
+                field = ApplicationService.findMetadataField("contributor", "author", MetadataSchema.DC_SCHEMA, context);               
                 item.addMetadata(field, null, value);
                 log.debug("PDF Info dict author=\""+value+"\"");
             }
             if ((value = docinfo.getCreator()) != null)
-                field = ApplicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+                field = ApplicationService.findMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
                 item.addMetadata(field, "en",
                               "Application that created the original document: "+value);
             if ((value = docinfo.getProducer()) != null)
-                field = ApplicationService.getMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
+                field = ApplicationService.findMetadataField("description", "provenance", MetadataSchema.DC_SCHEMA, context);
                 item.addMetadata(field, "en",
                               "Original document converted to PDF by: "+value);
             if ((value = docinfo.getSubject()) != null)
-                field = ApplicationService.getMetadataField("description", "abstract", MetadataSchema.DC_SCHEMA, context);
+                field = ApplicationService.findMetadataField("description", "abstract", MetadataSchema.DC_SCHEMA, context);
                 item.addMetadata(field, null, value);
             if ((value = docinfo.getKeywords()) != null)
-                field = ApplicationService.getMetadataField("subject", "other", MetadataSchema.DC_SCHEMA, context);
+                field = ApplicationService.findMetadataField("subject", "other", MetadataSchema.DC_SCHEMA, context);
                 item.addMetadata(field, null, value);
 
             // Take either CreationDate or ModDate as "date.created",
@@ -348,7 +348,7 @@ public class PDFPackager
             if ((calValue = docinfo.getCreationDate()) == null)
                 calValue = docinfo.getModificationDate();
             if (calValue != null)
-                field = ApplicationService.getMetadataField("date", "created", MetadataSchema.DC_SCHEMA, context);
+                field = ApplicationService.findMetadataField("date", "created", MetadataSchema.DC_SCHEMA, context);
                 item.addMetadata(field, null,
                              (new DCDate(calValue.getTime())).toString());
             //item.update();

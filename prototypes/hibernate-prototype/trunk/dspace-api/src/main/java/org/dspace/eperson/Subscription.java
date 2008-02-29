@@ -47,7 +47,9 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -101,7 +103,7 @@ public class Subscription
         this.uuid = uuid;
     }
 
-    @OneToMany
+    @OneToOne //FIXME ricontrollare cardinalità
     @JoinColumn(name="eperson_id")
     public EPerson getEPerson()
     {
@@ -113,7 +115,7 @@ public class Subscription
         ePerson = person;
     }
     
-    @OneToMany
+    @OneToOne //FIXME ricontrollare cardinalità
     @JoinColumn(name="collection_id")
     public Collection getCollection()
     {

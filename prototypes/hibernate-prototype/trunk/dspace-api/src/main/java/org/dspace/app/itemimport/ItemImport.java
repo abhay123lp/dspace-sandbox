@@ -945,13 +945,14 @@ public class ItemImport
         if (!isTest)
         {
             //i.addMetadata(schema, element, qualifier, language, value);
-            MetadataField field = ApplicationService.getMetadataField(element, qualifier, schema, context);
+            MetadataField field = ApplicationService.findMetadataField(element, qualifier, schema, context);
             i.addMetadata(field, language, value);
         }
         else
         {
             // If we're just test the import, let's check that the actual metadata field exists.
-            MetadataSchema foundSchema = MetadataSchema.find(c,schema);
+//            MetadataSchema foundSchema = MetadataSchema.find(c,schema);
+            MetadataSchema foundSchema = ApplicationService.findMetadataSchemaByName(schema, context);
 
             if (foundSchema == null)
             {
@@ -960,7 +961,8 @@ public class ItemImport
             }
 
             int schemaID = foundSchema.getId();
-            MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
+//            MetadataField foundField = MetadataField.findByElement(c, schemaID, element, qualifier);
+            MetadataField foundField = ApplicationService.findMetadataField(schemaID, element, qualifier, c);
 
             if (foundField == null)
             {
