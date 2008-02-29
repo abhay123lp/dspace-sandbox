@@ -79,19 +79,19 @@ public abstract class BitstreamFormatDAO extends ContentDAO
 //        return null;
 //    }
 
-    // FIXME: This should be called something else, but I can't think of
-    // anything suitable. The reason this can't go in create() is because we
-    // need access to the item that was created, but we can't reach into the
-    // subclass to get it (storing it as a protected member variable would be
-    // even more filthy).
-    protected final BitstreamFormat create(BitstreamFormat bitstreamFormat)
-        throws AuthorizeException
-    {
-        log.info(LogManager.getHeader(context, "create_bitstream_format",
-                "bitstream_format_id=" + bitstreamFormat.getId()));
-
-        return bitstreamFormat;
-    }
+//    // FIXME: This should be called something else, but I can't think of
+//    // anything suitable. The reason this can't go in create() is because we
+//    // need access to the item that was created, but we can't reach into the
+//    // subclass to get it (storing it as a protected member variable would be
+//    // even more filthy).
+//    protected final BitstreamFormat create(BitstreamFormat bitstreamFormat)
+//        throws AuthorizeException
+//    {
+//        log.info(LogManager.getHeader(context, "create_bitstream_format",
+//                "bitstream_format_id=" + bitstreamFormat.getId()));
+//
+//        return bitstreamFormat;
+//    }
 
 //    public BitstreamFormat retrieve(int id)
 //    {

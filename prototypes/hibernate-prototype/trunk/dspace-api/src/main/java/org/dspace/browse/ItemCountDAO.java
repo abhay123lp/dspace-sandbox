@@ -55,7 +55,7 @@ public interface ItemCountDAO
 	 * @param context
 	 * @throws ItemCountException
 	 */
-	public void setContext(Context context) throws ItemCountException;
+//	public void setContext(Context context) throws ItemCountException;
 	
 	/**
 	 * Set the given count as the number of items in the given community
@@ -64,7 +64,7 @@ public interface ItemCountDAO
 	 * @param count
 	 * @throws ItemCountException
 	 */
-	public void communityCount(Community community, int count) throws ItemCountException;
+//	public void communityCount(Community community, int count) throws ItemCountException;
 	
 	/**
 	 * Set the given count as the number of items in the given collection
@@ -73,7 +73,7 @@ public interface ItemCountDAO
 	 * @param count
 	 * @throws ItemCountException
 	 */
-	public void collectionCount(Collection collection, int count) throws ItemCountException;
+//	public void collectionCount(Collection collection, int count) throws ItemCountException;
 	
 	/**
 	 * Get the number of items in the given DSpaceObject container.  This method will
@@ -84,7 +84,7 @@ public interface ItemCountDAO
 	 * @return
 	 * @throws ItemCountException
 	 */
-	public int getCount(DSpaceObject dso) throws ItemCountException;
+//	public int getCount(DSpaceObject dso) throws ItemCountException;
 	
 	/**
 	 * Remove any cached data regarding the given DSpaceObject container.  This method will
@@ -94,5 +94,5 @@ public interface ItemCountDAO
 	 * @param dso
 	 * @throws ItemCountException
 	 */
-	public void remove(DSpaceObject dso) throws ItemCountException;
+//	public void remove(DSpaceObject dso) throws ItemCountException;
 }

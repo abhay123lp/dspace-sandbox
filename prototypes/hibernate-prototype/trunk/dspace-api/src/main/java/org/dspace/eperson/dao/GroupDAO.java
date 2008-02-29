@@ -129,10 +129,10 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 //        return childDAO.getGroups();
 //    }
 
-    public List<Group> getGroups(int sortField)
-    {
-        return childDAO.getGroups(sortField);
-    }
+//    public List<Group> getGroups(int sortField)
+//    {
+//        return childDAO.getGroups(sortField);
+//    }
 
     /**
      * Returns a list of all the Groups the given EPerson is a member of.
@@ -161,26 +161,27 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
     }
 
 
-    /**
-     * Returns a list of all the immediate subgroups of the given Group.
-     */
-    public List<Group> getMemberGroups(Group group)
-    {
-        return childDAO.getMemberGroups(group);
-    }
+    //basta group.getMembers
+//    /**
+//     * Returns a list of all the immediate subgroups of the given Group.
+//     */
+//    public List<Group> getMemberGroups(Group group)
+//    {
+//        return childDAO.getMemberGroups(group);
+//    }
 
-    /**
-     * Find the groups that match the search query across eperson_group_id or
-     * name.
-     *
-     * @param query The search string
-     *
-     * @return List of Group objects
-     */
-    public List<Group> search(String query)
-    {
-        return childDAO.search(query);
-    }
+//    /**
+//     * Find the groups that match the search query across eperson_group_id or
+//     * name.
+//     *
+//     * @param query The search string
+//     *
+//     * @return List of Group objects
+//     */
+//    public List<Group> search(String query)
+//    {
+//        return childDAO.search(query);
+//    }
 
     /**
      * Find the groups that match the search query across eperson_group_id or

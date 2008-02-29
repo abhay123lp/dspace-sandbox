@@ -391,14 +391,16 @@ public class AuthorizeManager
     public static void addPolicy(Context c, DSpaceObject o, int actionID,
             EPerson e) throws AuthorizeException
     {
-        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
-        ResourcePolicy rp = dao.create();
+//        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+//        ResourcePolicy rp = dao.create();
+        ResourcePolicy rp = ResourcePolicyFactory.getInstance(c);
 
         rp.setResource(o);
         rp.setAction(actionID);
         rp.setEPerson(e);
 
-        dao.update(rp);
+//        dao.update(rp);
+        ApplicationService.save(c, ResourcePolicy.class, rp);
     }
 
     /**
@@ -418,14 +420,17 @@ public class AuthorizeManager
     public static void addPolicy(Context c, DSpaceObject o, int actionID,
             Group g) throws AuthorizeException
     {
-        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
-        ResourcePolicy rp = dao.create();
+//        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+//        ResourcePolicy rp = dao.create();
+        ResourcePolicy rp = ResourcePolicyFactory.getInstance(c);
 
         rp.setResource(o);
         rp.setAction(actionID);
         rp.setGroup(g);
 
-        dao.update(rp);
+//        dao.update(rp);
+        ApplicationService.save(c, ResourcePolicy.class, rp);
+
     }
 
     /**
@@ -439,7 +444,8 @@ public class AuthorizeManager
     @Deprecated
     public static List<ResourcePolicy> getPolicies(Context c, DSpaceObject o)
     {
-        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(o);
+//        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(o);
+        return ApplicationService.findPolicies(o, c);
     }
 
     /**
@@ -452,7 +458,8 @@ public class AuthorizeManager
      */
     public static List<ResourcePolicy> getPoliciesForGroup(Context c, Group g)
     {
-        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(g);
+//        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(g);
+        return ApplicationService.findPolicies(g, c);
     }
     
     /**
@@ -468,7 +475,8 @@ public class AuthorizeManager
     public static List<ResourcePolicy> getPoliciesActionFilter(Context c, DSpaceObject o,
             int actionID)
     {
-        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(o, actionID);
+//        return ResourcePolicyDAOFactory.getInstance(c).getPolicies(o, actionID);
+        return ApplicationService.findPolicies(o, actionID, c);
     }
 
     /**
@@ -485,10 +493,11 @@ public class AuthorizeManager
     public static void inheritPolicies(Context c, DSpaceObject src,
             DSpaceObject dest) throws AuthorizeException
     {
-        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+//        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
 
         // find all policies for the source object
-        List<ResourcePolicy> policies = dao.getPolicies(src);
+//        List<ResourcePolicy> policies = dao.getPolicies(src);
+        List<ResourcePolicy> policies = ApplicationService.findPolicies(src, c);
 
         addPolicies(c, policies, dest);
     }
@@ -513,7 +522,8 @@ public class AuthorizeManager
         // now add them to the destination object
         for (ResourcePolicy srp : policies)
         {
-            ResourcePolicy drp = dao.create();
+//            ResourcePolicy drp = dao.create();
+            ResourcePolicy drp = ResourcePolicyFactory.getInstance(c);
 
             // copy over values
             drp.setResource(dest);
@@ -524,7 +534,8 @@ public class AuthorizeManager
             drp.setEndDate(srp.getEndDate());
 
             // and write out new policy
-            dao.update(drp);
+//            dao.update(drp);
+            ApplicationService.save(c, ResourcePolicy.class, drp);
         }
     }
 
@@ -538,11 +549,13 @@ public class AuthorizeManager
      */
     public static void removeAllPolicies(Context c, DSpaceObject dso)
     {
-        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+//        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
 
-        for (ResourcePolicy rp : dao.getPolicies(dso))
+//        for (ResourcePolicy rp : dao.getPolicies(dso))
+        for(ResourcePolicy rp : ApplicationService.findPolicies(dso, c))
         {
-            dao.delete(rp.getID());
+//            dao.delete(rp.getID());
+            ApplicationService.delete(c, ResourcePolicy.class, rp);
         }
     }
 
@@ -568,11 +581,13 @@ public class AuthorizeManager
         }
         else
         {
-            ResourcePolicyDAO dao =
-                ResourcePolicyDAOFactory.getInstance(context);
-            for (ResourcePolicy rp : dao.getPolicies(dso, actionID))
+//            ResourcePolicyDAO dao =
+//                ResourcePolicyDAOFactory.getInstance(context);
+//            for (ResourcePolicy rp : dao.getPolicies(dso, actionID))
+            for(ResourcePolicy rp : ApplicationService.findPolicies(dso, actionID, context))
             {
-                dao.delete(rp.getID());
+//                dao.delete(rp.getID());
+                ApplicationService.delete(context, ResourcePolicy.class, rp);
             }
         }
     }
@@ -588,7 +603,7 @@ public class AuthorizeManager
      */
     public static void removeGroupPolicies(Context context, int groupID)
     {
-        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(context);
+//        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(context);
         //Group group = GroupDAOFactory.getInstance(context).retrieve(groupID);
         Group group = ApplicationService.get(context, Group.class, groupID);
 
@@ -598,9 +613,11 @@ public class AuthorizeManager
                     groupID);
         }
 
-        for (ResourcePolicy rp : dao.getPolicies(group))
+//        for (ResourcePolicy rp : dao.getPolicies(group))
+        for (ResourcePolicy rp : ApplicationService.findPolicies(group, context))
         {
-            dao.delete(rp.getID());
+//            dao.delete(rp.getID());
+            ApplicationService.delete(context, ResourcePolicy.class, rp);
         }
     }
 
@@ -619,9 +636,11 @@ public class AuthorizeManager
     {
         ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
 
-        for (ResourcePolicy rp : dao.getPolicies(o, g))
+//        for (ResourcePolicy rp : dao.getPolicies(o, g))
+        for (ResourcePolicy rp : ApplicationService.findPolicies(o,g,c))
         {
-            dao.delete(rp.getID());
+//            dao.delete(rp.getID());
+            ApplicationService.delete(c, ResourcePolicy.class, rp);
         }
     }
 
@@ -641,10 +660,11 @@ public class AuthorizeManager
     public static Group[] getAuthorizedGroups(Context c, DSpaceObject dso,
             int actionID)
     {
-        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+//        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
         List<Group> groups = new ArrayList<Group>();
 
-        for (ResourcePolicy rp : dao.getPolicies(dso, actionID))
+//        for (ResourcePolicy rp : dao.getPolicies(dso, actionID))
+        for(ResourcePolicy rp : ApplicationService.findPolicies(dso, actionID, c))
         {
             groups.add(rp.getGroup());
         }

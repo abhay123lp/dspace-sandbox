@@ -467,7 +467,9 @@ public class ResourcePolicy implements Identifiable
     public static ResourcePolicy create(Context context)
         throws AuthorizeException
     {
-        return ResourcePolicyDAOFactory.getInstance(context).create();
+//        return ResourcePolicyDAOFactory.getInstance(context).create();
+        return ResourcePolicyFactory.getInstance(context);
+
     }
 
 //    @Deprecated
