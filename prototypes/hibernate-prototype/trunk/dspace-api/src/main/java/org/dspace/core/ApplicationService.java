@@ -8,6 +8,8 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
+import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.dao.jpa.ResourcePolicyDAOJPA;
 import org.dspace.checker.BitstreamInfoDAOJPA;
 import org.dspace.checker.ChecksumHistoryDAOJPA;
 import org.dspace.checker.ChecksumResultDAOJPA;
@@ -277,14 +279,16 @@ public class ApplicationService {
     }
     
     
-    //TODO implementare
+    
     public static List<Group> findAllGroupsSortedById(Context context) {
-        return null;
+        GroupDAOHibernate gdao = new GroupDAOHibernate(context);
+        return gdao.findAllGroupsSortedById(context);
     }
     
-    //TODO implementare
+    
     public static List<Group> findAllGroupsSortedByName(Context context) {
-        return null;
+        GroupDAOHibernate gdao = new GroupDAOHibernate(context);
+        return gdao.findAllGroupsSortedByName(context);
     }
     
     //TODO implementare
@@ -294,8 +298,7 @@ public class ApplicationService {
      */  
     public static List<Group> findAllGroups(EPerson eperson, Context context) {
         return null;
-    }
-    
+    }    
     
     public static RegistrationData findRegistrationDataByToken(String token, Context context) {
         RegistrationDataDAOJPA rdao = new RegistrationDataDAOJPA();
@@ -397,6 +400,29 @@ public class ApplicationService {
         return wdao.findAllWorkflowItem(context);
     }
     
+    public static List<ResourcePolicy> findPolicies(DSpaceObject dso, int actionID, Context context) {
+        ResourcePolicyDAOJPA rdao = new ResourcePolicyDAOJPA();
+        return rdao.getPolicies(dso, actionID, context);
+    }
+    
+    public static List<ResourcePolicy> findPolicies(DSpaceObject dso, Context context) {
+        ResourcePolicyDAOJPA rdao = new ResourcePolicyDAOJPA();
+        return rdao.getPolicies(dso, context);
+    }
+    
+    public static List<ResourcePolicy> findPolicies(Group group, Context context) {
+        ResourcePolicyDAOJPA rdao = new ResourcePolicyDAOJPA();
+        return rdao.getPolicies(group, context);
+    }
+    
+    public static List<ResourcePolicy> findPolicies(DSpaceObject dso, Group group, Context context) {
+        ResourcePolicyDAOJPA rdao = new ResourcePolicyDAOJPA();
+        return rdao.getPolicies(dso, group, context);
+    }
+    
+    /* Other methods */
+    
+    /** Returns the recorded number of items in one collection */
     public static int getCountItems(Collection collection, Context context) {
         CollectionDAO cdao = CollectionDAOFactory.getInstance(context);
         Integer ccount = cdao.getCount(collection, context.getEntityManager());
@@ -406,6 +432,7 @@ public class ApplicationService {
         } else return ccount.intValue();
     }
     
+    /** Returns the recorded number of items in one community */
     public static int getCountItems(Community community, Context context)
     {
         CommunityDAO cdao = CommunityDAOFactory.getInstance(context);
@@ -416,11 +443,13 @@ public class ApplicationService {
         } else return ccount.intValue();
     }
     
+    /** Calculates and return the number of item in one collection */
     public static Integer countItems(Collection collection, Context context) {
         CollectionDAO cdao = CollectionDAOFactory.getInstance(context);
         return cdao.count(collection, context.getEntityManager());        
     }
     
+    /** Calculates and return the number of item in one community (no sub-communities, no collections)*/
     public static Integer countItems(Community community, Context context) {
         CommunityDAO cdao = CommunityDAOFactory.getInstance(context);
         return cdao.count(community, context.getEntityManager());        

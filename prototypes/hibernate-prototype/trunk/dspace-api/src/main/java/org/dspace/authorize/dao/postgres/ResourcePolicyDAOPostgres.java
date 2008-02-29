@@ -69,50 +69,50 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         this.context = context;
     }
 
-    @Override
-    public ResourcePolicy create()
-    {
-        try
-        {
-            SimpleIdentifier sid = ObjectIdentifierMint.mintSimple();
-            TableRow row = DatabaseManager.create(context, "resourcepolicy");
-            row.setColumn("uuid", sid.getUUID().toString()); //inserire l'attributo uuid in resourcepolicy?
-            DatabaseManager.update(context, row);
+//    @Override  FACTORY
+//    public ResourcePolicy create()
+//    {
+//        try
+//        {
+//            SimpleIdentifier sid = ObjectIdentifierMint.mintSimple();
+//            TableRow row = DatabaseManager.create(context, "resourcepolicy");
+//            row.setColumn("uuid", sid.getUUID().toString()); //inserire l'attributo uuid in resourcepolicy?
+//            DatabaseManager.update(context, row);
+//
+//            int id = row.getIntColumn("policy_id");
+//            //ResourcePolicy rp = new ResourcePolicy(context, id);
+//            ResourcePolicy rp = new ResourcePolicy(context);
+//            rp.setSimpleIdentifier(sid);
+//
+//            return rp;
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
-            int id = row.getIntColumn("policy_id");
-            //ResourcePolicy rp = new ResourcePolicy(context, id);
-            ResourcePolicy rp = new ResourcePolicy(context);
-            rp.setSimpleIdentifier(sid);
-
-            return rp;
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public ResourcePolicy retrieve(int id)
-    {
-        ResourcePolicy rp = super.retrieve(id);
-
-        if (rp != null)
-        {
-            return rp;
-        }
-
-        try
-        {
-            TableRow row = DatabaseManager.find(context, "resourcepolicy", id);
-
-            return retrieve(row);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override  //APPLICATION SERVICE
+//    public ResourcePolicy retrieve(int id)
+//    {
+//        ResourcePolicy rp = super.retrieve(id);
+//
+//        if (rp != null)
+//        {
+//            return rp;
+//        }
+//
+//        try
+//        {
+//            TableRow row = DatabaseManager.find(context, "resourcepolicy", id);
+//
+//            return retrieve(row);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
     @Override
     public ResourcePolicy retrieve(UUID uuid)
@@ -137,123 +137,123 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         }
     }
 
-    @Override
-    public void update(ResourcePolicy rp)
-    {
-        try
-        {
-            TableRow row =
-                DatabaseManager.find(context, "resourcepolicy", rp.getID());
+//    @Override
+//    public void update(ResourcePolicy rp)
+//    {
+//        try
+//        {
+//            TableRow row =
+//                DatabaseManager.find(context, "resourcepolicy", rp.getID());
+//
+//            if (row != null)
+//            {
+//                populateTableRowFromResourcePolicy(rp, row);
+//                DatabaseManager.update(context, row);
+//            }
+//            else
+//            {
+//                throw new RuntimeException("Didn't find resource policy " +
+//                        rp.getID());
+//            }
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
-            if (row != null)
-            {
-                populateTableRowFromResourcePolicy(rp, row);
-                DatabaseManager.update(context, row);
-            }
-            else
-            {
-                throw new RuntimeException("Didn't find resource policy " +
-                        rp.getID());
-            }
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override //APPLICATION SERVICE
+//    public void delete(int id)
+//    {
+//        super.delete(id);
+//
+//        try
+//        {
+//            DatabaseManager.delete(context, "resourcepolicy", id);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(":(");
+//        }
+//    }
 
-    @Override
-    public void delete(int id)
-    {
-        super.delete(id);
+//    @Override //AS
+//    public List<ResourcePolicy> getPolicies(DSpaceObject dso)
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "resourcepolicy",
+//                    "SELECT policy_id FROM resourcepolicy " +
+//                    "WHERE resource_type_id = ? AND resource_id = ? ",
+//                    dso.getType(), dso.getID());
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(":(");
+//        }
+//    }
 
-        try
-        {
-            DatabaseManager.delete(context, "resourcepolicy", id);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(":(");
-        }
-    }
+//    @Override //AS
+//    public List<ResourcePolicy> getPolicies(Group group)
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "resourcepolicy",
+//                    "SELECT policy_id FROM resourcepolicy " +
+//                    "WHERE epersongroup_id = ?",
+//                    group.getID());
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(":(");
+//        }
+//    }
 
-    @Override
-    public List<ResourcePolicy> getPolicies(DSpaceObject dso)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "resourcepolicy",
-                    "SELECT policy_id FROM resourcepolicy " +
-                    "WHERE resource_type_id = ? AND resource_id = ? ",
-                    dso.getType(), dso.getID());
+//    @Override //AS
+//    public List<ResourcePolicy> getPolicies(DSpaceObject dso, Group group)
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "resourcepolicy",
+//                    "SELECT policy_id FROM resourcepolicy " +
+//                    "WHERE resource_type_id = ? AND resource_id = ? " +
+//                    "AND epersongroup_id = ? ",
+//                    dso.getType(), dso.getID(), group.getID());
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(":(");
+//        }
+//    }
 
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(":(");
-        }
-    }
-
-    @Override
-    public List<ResourcePolicy> getPolicies(Group group)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "resourcepolicy",
-                    "SELECT policy_id FROM resourcepolicy " +
-                    "WHERE epersongroup_id = ?",
-                    group.getID());
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(":(");
-        }
-    }
-
-    @Override
-    public List<ResourcePolicy> getPolicies(DSpaceObject dso, Group group)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "resourcepolicy",
-                    "SELECT policy_id FROM resourcepolicy " +
-                    "WHERE resource_type_id = ? AND resource_id = ? " +
-                    "AND epersongroup_id = ? ",
-                    dso.getType(), dso.getID(), group.getID());
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(":(");
-        }
-    }
-
-    @Override
-    public List<ResourcePolicy> getPolicies(DSpaceObject dso, int actionID)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "resourcepolicy",
-                    "SELECT policy_id FROM resourcepolicy " +
-                    "WHERE resource_type_id = ? AND resource_id = ? " +
-                    "AND action_id = ? ",
-                    dso.getType(), dso.getID(), actionID);
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(":(");
-        }
-    }
+//    @Override //AS
+//    public List<ResourcePolicy> getPolicies(DSpaceObject dso, int actionID)
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "resourcepolicy",
+//                    "SELECT policy_id FROM resourcepolicy " +
+//                    "WHERE resource_type_id = ? AND resource_id = ? " +
+//                    "AND action_id = ? ",
+//                    dso.getType(), dso.getID(), actionID);
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(":(");
+//        }
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
@@ -274,19 +274,19 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         return rp;
     }
 
-    private List<ResourcePolicy> returnAsList(TableRowIterator tri)
-            throws SQLException
-    {
-        List<ResourcePolicy> policies = new ArrayList<ResourcePolicy>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("policy_id");
-            policies.add(retrieve(id));
-        }
-
-        return policies;
-    }
+//    private List<ResourcePolicy> returnAsList(TableRowIterator tri)
+//            throws SQLException
+//    {
+//        List<ResourcePolicy> policies = new ArrayList<ResourcePolicy>();
+//
+//        for (TableRow row : tri.toList())
+//        {
+//            int id = row.getIntColumn("policy_id");
+//            policies.add(retrieve(id));
+//        }
+//
+//        return policies;
+//    }
 
     private void populateResourcePolicyFromTableRow(ResourcePolicy rp,
             TableRow row)

@@ -185,7 +185,7 @@ public class PolicySet
         {
             //GroupDAO groupDAO = GroupDAOFactory.getInstance(c);
             //ItemDAO itemDAO = ItemDAOFactory.getInstance(c);
-            ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(c);
+//            ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(c);
 
             //Collection collection = CollectionDAOFactory.getInstance(c).retrieve(containerID);
             Collection collection = ApplicationService.get(c, Collection.class, containerID);
@@ -207,13 +207,15 @@ public class PolicySet
                     if (!clearOnly)
                     {
                         // now add the policy
-                        ResourcePolicy rp = rpDAO.create();
+//                        ResourcePolicy rp = rpDAO.create();
+                        ResourcePolicy rp = ResourcePolicyFactory.getInstance(c);
 
                         rp.setResource(item);
                         rp.setAction(actionID);
                         rp.setGroup(group);
 
-                        rpDAO.update(rp);
+//                        rpDAO.update(rp);
+                        ApplicationService.save(c, ResourcePolicy.class, rp);
                     }
                 }
                 else if (contentType == Constants.BUNDLE)
@@ -233,13 +235,15 @@ public class PolicySet
                         if (!clearOnly)
                         {
                             // now add the policy
-                            ResourcePolicy rp = rpDAO.create();
+//                            ResourcePolicy rp = rpDAO.create();
+                            ResourcePolicy rp = ResourcePolicyFactory.getInstance(c);
 
                             rp.setResource(t);
                             rp.setAction(actionID);
                             rp.setGroup(group);
 
-                            rpDAO.update(rp);
+//                            rpDAO.update(rp);
+                            ApplicationService.save(c, ResourcePolicy.class, rp);
                         }
                     }
                 }
@@ -272,13 +276,15 @@ public class PolicySet
                                 if (!clearOnly)
                                 {
                                         // now add the policy
-                                        ResourcePolicy rp = rpDAO.create();
+//                                        ResourcePolicy rp = rpDAO.create();
+                                        ResourcePolicy rp = ResourcePolicyFactory.getInstance(c);
 
                                         rp.setResource(t);
                                         rp.setAction(actionID);
                                         rp.setGroup(group);
 
-                                        rpDAO.update(rp);
+//                                        rpDAO.update(rp);
+                                        ApplicationService.save(c, ResourcePolicy.class, rp);
                                 }
                             }
                         }

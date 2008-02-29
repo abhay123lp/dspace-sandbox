@@ -57,13 +57,13 @@ import org.dspace.storage.rdbms.TableRowIterator;
 /**
  * @author James Rutherford
  */
-public class BitstreamFormatDAOPostgres //extends BitstreamFormatDAO
+public class BitstreamFormatDAOPostgres// extends BitstreamFormatDAO
 {
 //    public BitstreamFormatDAOPostgres(Context context)
 //    {
 //        super(context);
 //    }
-//
+
 //    @Override
 //    public BitstreamFormat create() throws AuthorizeException
 //    {
@@ -87,7 +87,7 @@ public class BitstreamFormatDAOPostgres //extends BitstreamFormatDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public BitstreamFormat retrieve(int id)
 //    {
@@ -170,7 +170,7 @@ public class BitstreamFormatDAOPostgres //extends BitstreamFormatDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void update(BitstreamFormat bitstreamFormat) throws AuthorizeException
 //    {
@@ -199,7 +199,7 @@ public class BitstreamFormatDAOPostgres //extends BitstreamFormatDAO
 //                    DatabaseManager.update(context, r);
 //                }
 //
-//                populateTableRowFromBitstreamFormat(bitstreamFormat, row);
+////                populateTableRowFromBitstreamFormat(bitstreamFormat, row);
 //                DatabaseManager.update(context, row);
 //            }
 //            else
@@ -213,7 +213,7 @@ public class BitstreamFormatDAOPostgres //extends BitstreamFormatDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public void delete(int id) throws AuthorizeException
 //    {

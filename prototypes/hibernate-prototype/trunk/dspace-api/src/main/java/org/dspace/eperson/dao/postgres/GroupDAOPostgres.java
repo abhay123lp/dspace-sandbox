@@ -206,34 +206,34 @@ public class GroupDAOPostgres extends GroupDAO
         }
     }
 
-    @Override
-    public List<Group> getGroups(int sortField)
-    {
-        String s;
-
-//        switch (sortField)
+//    @Override
+//    public List<Group> getGroups(int sortField)
+//    {
+//        String s;
+//
+////        switch (sortField)
+////        {
+////            case Group.ID:
+//                s = "eperson_group_id";
+////                break;
+////            case Group.NAME:
+////            default:
+////                s = "name";
+////        }
+//
+//        try
 //        {
-//            case Group.ID:
-                s = "eperson_group_id";
-//                break;
-//            case Group.NAME:
-//            default:
-//                s = "name";
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "epersongroup",
+//                    "SELECT eperson_group_id FROM epersongroup ORDER BY " + s);
+//
+//            return returnAsList(tri);
 //        }
-
-        try
-        {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "epersongroup",
-                    "SELECT eperson_group_id FROM epersongroup ORDER BY " + s);
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
 //    @Override
 //    public List<Group> getGroups(EPerson eperson)
@@ -366,26 +366,26 @@ public class GroupDAOPostgres extends GroupDAO
 //        }
 //    }
 
-    @Override
-    public List<Group> getMemberGroups(Group group)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "epersongroup",
-                    "SELECT g.eperson_group_id " +
-                    "FROM epersongroup g, group2group g2g " +
-                    "WHERE g2g.child_id = g.eperson_group_id " +
-                    "AND g2g.parent_id= ? ",
-                    group.getID());
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override
+//    public List<Group> getMemberGroups(Group group)
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "epersongroup",
+//                    "SELECT g.eperson_group_id " +
+//                    "FROM epersongroup g, group2group g2g " +
+//                    "WHERE g2g.child_id = g.eperson_group_id " +
+//                    "AND g2g.parent_id= ? ",
+//                    group.getID());
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
     @Override
     public List<Group> search(String query, int offset, int limit)
@@ -691,113 +691,113 @@ public class GroupDAOPostgres extends GroupDAO
         row.setColumn("uuid", group.getIdentifier().getUUID().toString());
     }
 
-    /**
-     * Regenerate the group cache AKA the group2groupcache table in the
-     * database - meant to be called when a group is added or removed from
-     * another group
-     */
-    private void rethinkGroupCache() throws SQLException
-    {
-        // read in the group2group table
-        TableRowIterator tri = DatabaseManager.queryTable(context,
-                "group2group", "SELECT * FROM group2group");
+//    /**
+//     * Regenerate the group cache AKA the group2groupcache table in the
+//     * database - meant to be called when a group is added or removed from
+//     * another group
+//     */
+//    private void rethinkGroupCache() throws SQLException
+//    {
+//        // read in the group2group table
+//        TableRowIterator tri = DatabaseManager.queryTable(context,
+//                "group2group", "SELECT * FROM group2group");
+//
+//        Map<Integer, Set<Integer>> parents =
+//            new HashMap<Integer, Set<Integer>>();
+//
+//        for (TableRow row : tri.toList())
+//        {
+//            Integer parentID = row.getIntColumn("parent_id");
+//            Integer childID = row.getIntColumn("child_id");
+//
+//            // if parent doesn't have an entry, create one
+//            if (!parents.containsKey(parentID))
+//            {
+//                Set<Integer> children = new HashSet<Integer>();
+//
+//                // add child id to the list
+//                children.add(childID);
+//                parents.put(parentID, children);
+//            }
+//            else
+//            {
+//                // parent has an entry, now add the child to the parent's record
+//                // of children
+//                Set<Integer> children = (Set<Integer>) parents.get(parentID);
+//                children.add(childID);
+//            }
+//        }
+//        
+//        // now parents is a hash of all of the IDs of groups that are parents
+//        // and each hash entry is a hash of all of the IDs of children of those
+//        // parent groups
+//        // so now to establish all parent,child relationships we can iterate
+//        // through the parents hash
+//
+//        for (Integer parentID : parents.keySet())
+//        {
+//            Set<Integer> myChildren = getChildren(parents, parentID);
+//
+//            for (Integer childID : myChildren)
+//            {
+//                ((Set<Integer>) parents.get(parentID)).add(childID);
+//            }
+//        }
+//
+//        // empty out group2groupcache table
+//        DatabaseManager.updateQuery(context,
+//                "DELETE FROM group2groupcache WHERE id >= 0");
+//
+//        for (Integer parent : parents.keySet())
+//        {
+//            Set<Integer> children = parents.get(parent);
+//
+//            for (Integer child : children)
+//            {
+//                TableRow row = DatabaseManager.create(context,
+//                        "group2groupcache");
+//
+//                int parentID = parent.intValue();
+//                int childID = child.intValue();
+//
+//                row.setColumn("parent_id", parentID);
+//                row.setColumn("child_id", childID);
+//
+//                DatabaseManager.update(context, row);
+//            }
+//        }
+//    }
 
-        Map<Integer, Set<Integer>> parents =
-            new HashMap<Integer, Set<Integer>>();
-
-        for (TableRow row : tri.toList())
-        {
-            Integer parentID = row.getIntColumn("parent_id");
-            Integer childID = row.getIntColumn("child_id");
-
-            // if parent doesn't have an entry, create one
-            if (!parents.containsKey(parentID))
-            {
-                Set<Integer> children = new HashSet<Integer>();
-
-                // add child id to the list
-                children.add(childID);
-                parents.put(parentID, children);
-            }
-            else
-            {
-                // parent has an entry, now add the child to the parent's record
-                // of children
-                Set<Integer> children = (Set<Integer>) parents.get(parentID);
-                children.add(childID);
-            }
-        }
-        
-        // now parents is a hash of all of the IDs of groups that are parents
-        // and each hash entry is a hash of all of the IDs of children of those
-        // parent groups
-        // so now to establish all parent,child relationships we can iterate
-        // through the parents hash
-
-        for (Integer parentID : parents.keySet())
-        {
-            Set<Integer> myChildren = getChildren(parents, parentID);
-
-            for (Integer childID : myChildren)
-            {
-                ((Set<Integer>) parents.get(parentID)).add(childID);
-            }
-        }
-
-        // empty out group2groupcache table
-        DatabaseManager.updateQuery(context,
-                "DELETE FROM group2groupcache WHERE id >= 0");
-
-        for (Integer parent : parents.keySet())
-        {
-            Set<Integer> children = parents.get(parent);
-
-            for (Integer child : children)
-            {
-                TableRow row = DatabaseManager.create(context,
-                        "group2groupcache");
-
-                int parentID = parent.intValue();
-                int childID = child.intValue();
-
-                row.setColumn("parent_id", parentID);
-                row.setColumn("child_id", childID);
-
-                DatabaseManager.update(context, row);
-            }
-        }
-    }
-
-    /**
-     * Used recursively to generate a map of ALL of the children of the given
-     * parent
-     * 
-     * @param parents
-     *            Map of parent,child relationships
-     * @param parent
-     *            the parent you're interested in
-     * @return Map whose keys are all of the children of a parent
-     */
-    private Set getChildren(Map<Integer, Set<Integer>> parents, Integer parent)
-    {
-        Set<Integer> myChildren = new HashSet<Integer>();
-
-        // degenerate case, this parent has no children
-        if (!parents.containsKey(parent))
-        {
-            return myChildren;
-        }
-
-        // got this far, so we must have children
-        for (Integer childID : parents.get(parent))
-        {
-            // add this child's ID to our return set
-            myChildren.add(childID);
-
-            // and now its children
-            myChildren.addAll(getChildren(parents, childID));
-        }
-
-        return myChildren;
-    }
+//    /**
+//     * Used recursively to generate a map of ALL of the children of the given
+//     * parent
+//     * 
+//     * @param parents
+//     *            Map of parent,child relationships
+//     * @param parent
+//     *            the parent you're interested in
+//     * @return Map whose keys are all of the children of a parent
+//     */
+//    private Set getChildren(Map<Integer, Set<Integer>> parents, Integer parent)
+//    {
+//        Set<Integer> myChildren = new HashSet<Integer>();
+//
+//        // degenerate case, this parent has no children
+//        if (!parents.containsKey(parent))
+//        {
+//            return myChildren;
+//        }
+//
+//        // got this far, so we must have children
+//        for (Integer childID : parents.get(parent))
+//        {
+//            // add this child's ID to our return set
+//            myChildren.add(childID);
+//
+//            // and now its children
+//            myChildren.addAll(getChildren(parents, childID));
+//        }
+//
+//        return myChildren;
+//    }
 }

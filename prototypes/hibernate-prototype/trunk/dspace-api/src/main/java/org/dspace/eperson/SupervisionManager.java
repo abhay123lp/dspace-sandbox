@@ -41,6 +41,7 @@ package org.dspace.eperson;
 
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.ResourcePolicyFactory;
 import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.Item;
@@ -157,8 +158,8 @@ public abstract class SupervisionManager
     public static void add(Context context, int groupID, int wsItemID, int policy)
         throws AuthorizeException
     {
-        GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
-        ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(context);
+//        GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
+//        ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(context);
         WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
 
         // get the workspace item and the group from the request values
@@ -184,32 +185,41 @@ public abstract class SupervisionManager
             // "Observer" implies READ permissions
             if (policy == POLICY_EDITOR)
             {
-                ResourcePolicy r = rpDAO.create();
+                //ResourcePolicy r = rpDAO.create();
+                ResourcePolicy r = ResourcePolicyFactory.getInstance(context);
                 r.setResource(item);
                 r.setGroup(group);
                 r.setAction(Constants.READ);
-                rpDAO.update(r);
+                //rpDAO.update(r);
+                ApplicationService.save(context, ResourcePolicy.class, r);
                 
-                r = rpDAO.create();
+                //r = rpDAO.create();
+                r = ResourcePolicyFactory.getInstance(context);
                 r.setResource(item);
                 r.setGroup(group);
                 r.setAction(Constants.WRITE);
-                rpDAO.update(r);
-                
-                r = rpDAO.create();
+                //rpDAO.update(r);
+                ApplicationService.save(context, ResourcePolicy.class, r);
+
+                //r = rpDAO.create();
+                r = ResourcePolicyFactory.getInstance(context);
                 r.setResource(item);
                 r.setGroup(group);
                 r.setAction(Constants.ADD);
-                rpDAO.update(r);
-                
+                //rpDAO.update(r);
+                ApplicationService.save(context, ResourcePolicy.class, r);
+
             } 
             else if (policy == POLICY_OBSERVER)
             {
-                ResourcePolicy r = rpDAO.create();
+//                ResourcePolicy r = rpDAO.create();
+                ResourcePolicy r = ResourcePolicyFactory.getInstance(context);
                 r.setResource(item);
                 r.setGroup(group);
                 r.setAction(Constants.READ);
-                rpDAO.update(r);
+//                rpDAO.update(r);
+                ApplicationService.save(context, ResourcePolicy.class, r);
+
             }
         }
     }

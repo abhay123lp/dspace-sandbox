@@ -176,7 +176,6 @@ public abstract class CollectionDAO extends ContentDAO
 */
     public abstract Integer getCount(Collection collection, EntityManager em);
     public abstract Integer count(Collection collection, EntityManager em);
-    //public abstract Integer setCount(Collection collection, Integer ccount, EntityManager em);
     
         
     
@@ -320,32 +319,32 @@ public abstract class CollectionDAO extends ContentDAO
      * Useful for trimming 'select to collection' list, or figuring out which
      * collections a person is an editor for.
      */
-    public List<Collection> getCollectionsByAuthority(Community parent,
-            int actionID, EntityManager em)
-    {
-        List<Collection> results = new ArrayList<Collection>();
-        List<Collection> collections = null;
-
-        if (parent != null)
-        {
-            collections = parent.getCollections();//getChildCollections(parent);
-        }
-        else
-        {
-            collections = getCollections(em);
-        }
-
-        for (Collection collection : collections)
-        {
-            if (AuthorizeManager.authorizeActionBoolean(context,
-                    collection, actionID))
-            {
-                results.add(collection);
-            }
-        }
-
-        return results;
-    }
+    public abstract List<Collection> getCollectionsByAuthority(Community parent,
+            int actionID, EntityManager em);
+//    {
+//        List<Collection> results = new ArrayList<Collection>();
+//        List<Collection> collections = null;
+//
+//        if (parent != null)
+//        {
+//            collections = parent.getCollections();//getChildCollections(parent);
+//        }
+//        else
+//        {
+//            collections = getCollections(em);
+//        }
+//
+//        for (Collection collection : collections)
+//        {
+//            if (AuthorizeManager.authorizeActionBoolean(context,
+//                    collection, actionID))
+//            {
+//                results.add(collection);
+//            }
+//        }
+//
+//        return results;
+//    }
 
 //    public abstract List<Collection> getParentCollections(Item item); //Item
 //    public abstract List<Collection> getChildCollections(Community community); //Community

@@ -71,6 +71,7 @@ import org.apache.xpath.XPathAPI;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.ResourcePolicyFactory;
 import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.Bitstream;
@@ -1531,19 +1532,21 @@ public class ItemImport
     {
         if (!isTest)
         {
-            ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(c);
+//            ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(c);
 
             // remove the default policy
             AuthorizeManager.removeAllPolicies(c, bs);
 
             // add the policy
-            ResourcePolicy rp = rpDAO.create();
+//            ResourcePolicy rp = rpDAO.create();
+            ResourcePolicy rp = ResourcePolicyFactory.getInstance(c);
 
             rp.setResource(bs);
             rp.setAction(actionID);
             rp.setGroup(g);
 
-            rpDAO.update(rp);
+//            rpDAO.update(rp);
+            ApplicationService.save(c, ResourcePolicy.class, rp);
         }
         else
         {

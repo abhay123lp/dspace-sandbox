@@ -58,34 +58,33 @@ public abstract class ResourcePolicyDAO
 
     protected Context context;
 
-    public abstract ResourcePolicy create();
+//    public abstract ResourcePolicy create();
 
-    public ResourcePolicy retrieve(int id)
-    {
-        return (ResourcePolicy) context.fromCache(ResourcePolicy.class, id);
-    }
+//    public ResourcePolicy retrieve(int id)
+//    {
+//        return (ResourcePolicy) context.fromCache(ResourcePolicy.class, id);
+//    }
 
     public ResourcePolicy retrieve(UUID uuid)
     {
         return null;
     }
 
-    public abstract void update(ResourcePolicy rp);
+//    public abstract void update(ResourcePolicy rp);
 
-    public void delete(int id)
-    {
-        ResourcePolicy rp = retrieve(id);
-
-        context.removeCached(rp, id);
-    }
+//    public void delete(int id)
+//    {
+//        ResourcePolicy rp = retrieve(id);
+//
+//        context.removeCached(rp, id);
+//    }
 
     // FIXME: Should we have methods that take an object, an action, and an
     // EPerson / Group?
 
-    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso);
-    public abstract List<ResourcePolicy> getPolicies(Group group);
-    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso,
-            Group group);
-    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso,
-            int actionID);
+//    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso);
+//    public abstract List<ResourcePolicy> getPolicies(Group group);
+//    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso, Group group);
+//    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso,
+//            int actionID);
 }

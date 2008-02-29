@@ -1,5 +1,7 @@
 package org.dspace.eperson.dao.hibernate;
 
+import java.util.List;
+
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
@@ -18,6 +20,20 @@ public class GroupDAOHibernate extends GroupDAO
         Query q = em.createQuery("SELECT g FROM Group g WHERE g.name = :name");
         q.setParameter("name", name);
         Group group = (Group)q.getSingleResult();
+        return group;
+    }
+    
+    public List<Group> findAllGroupsSortedById(Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT g FROM Group g ORDER BY g.id");
+        List<Group> group = q.getResultList();
+        return group;
+    }
+    
+    public List<Group> findAllGroupsSortedByName(Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT g FROM Group g ORDER BY g.name");
+        List<Group> group = q.getResultList();
         return group;
     }
 }

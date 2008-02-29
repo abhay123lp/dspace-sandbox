@@ -179,46 +179,46 @@ public abstract class BundleDAO extends ContentDAO
 //        }
 //    }
 //
-    public void link(Bundle bundle, Bitstream bitstream) throws AuthorizeException
-    {
-        if (!linked(bundle, bitstream))
-        {
-            AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
-
-            log.info(LogManager.getHeader(context, "add_bitstream",
-                        "bundle_id=" + bundle.getId() +
-                        ",bitstream_id=" + bitstream.getId()));
-
-            //bundle.addBitstream(bitstream);
-            
-        }
-    }
-
-    public void unlink(Bundle bundle, Bitstream bitstream) throws AuthorizeException
-    {
-        if (linked(bundle, bitstream))
-        {
-            AuthorizeManager.authorizeAction(context, bundle,
-                    Constants.REMOVE);
-
-            log.info(LogManager.getHeader(context, "remove_bitstream",
-                        "bundle_id=" + bundle.getId() +
-                        ",bitstream_id=" + bitstream.getId()));
-
-            //bundle.removeBitstream(bitstream);
-        }
-    }
-
-    public boolean linked(Bundle bundle, Bitstream bitstream)
-    {
-        for (Bitstream b : bundle.getBitstreams())
-        {
-            if (b.equals(bitstream))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
+//    public void link(Bundle bundle, Bitstream bitstream) throws AuthorizeException
+//    {
+//        if (!linked(bundle, bitstream))
+//        {
+//            AuthorizeManager.authorizeAction(context, bundle, Constants.ADD);
+//
+//            log.info(LogManager.getHeader(context, "add_bitstream",
+//                        "bundle_id=" + bundle.getId() +
+//                        ",bitstream_id=" + bitstream.getId()));
+//
+//            //bundle.addBitstream(bitstream);
+//            
+//        }
+//    }
+//
+//    public void unlink(Bundle bundle, Bitstream bitstream) throws AuthorizeException
+//    {
+//        if (linked(bundle, bitstream))
+//        {
+//            AuthorizeManager.authorizeAction(context, bundle,
+//                    Constants.REMOVE);
+//
+//            log.info(LogManager.getHeader(context, "remove_bitstream",
+//                        "bundle_id=" + bundle.getId() +
+//                        ",bitstream_id=" + bitstream.getId()));
+//
+//            //bundle.removeBitstream(bitstream);
+//        }
+//    }
+//
+//    public boolean linked(Bundle bundle, Bitstream bitstream)
+//    {
+//        for (Bitstream b : bundle.getBitstreams())
+//        {
+//            if (b.equals(bitstream))
+//            {
+//                return true;
+//            }
+//        }
+//
+//        return false;
+//    }
 }

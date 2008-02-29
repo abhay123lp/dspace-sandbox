@@ -86,77 +86,77 @@ public class ItemCountDAOPostgres implements ItemCountDAO
 	/** SQL to remove a community record */
 	private String communityRemove = "DELETE FROM community_item_count WHERE community_id = ?";
 	
-	/**
-	 * Store the count of the given collection
-	 * 
-	 * @param collection
-	 * @param count
-	 * @throws ItemCountException
-	 */
-	public void collectionCount(Collection collection, int count) 
-		throws ItemCountException
-	{
-		try
-		{
-			// first find out if we have a record
-			Object[] sparams = { new Integer(collection.getID()) };
-			TableRowIterator tri = DatabaseManager.query(context, collectionSelect, sparams);
-			
-			if (tri.hasNext())
-			{
-				Object[] params = { new Integer(count), new Integer(collection.getID()) };
-				DatabaseManager.updateQuery(context, collectionUpdate, params);
-			}
-			else
-			{
-				Object[] params = { new Integer(collection.getID()), new Integer(count) };
-				DatabaseManager.updateQuery(context, collectionInsert, params);
-			}
-			
-			tri.close();
-		}
-		catch (SQLException e)
-		{
-			log.error("caught exception: ", e);
-			throw new ItemCountException(e);
-		}
-	}
-
-	/**
-	 * Store the count of the given community
-	 * 
-	 * @param community
-	 * @param count
-	 * @throws ItemCountException
-	 */
-	public void communityCount(Community community, int count) 
-		throws ItemCountException
-	{
-		try
-		{
-			// first find out if we have a record
-			Object[] sparams = { new Integer(community.getID()) };
-			TableRowIterator tri = DatabaseManager.query(context, communitySelect, sparams);
-			
-			if (tri.hasNext())
-			{
-				Object[] params = { new Integer(count), new Integer(community.getID()) };
-				DatabaseManager.updateQuery(context, communityUpdate, params);
-			}
-			else
-			{
-				Object[] params = { new Integer(community.getID()), new Integer(count) };
-				DatabaseManager.updateQuery(context, communityInsert, params);
-			}
-			
-			tri.close();
-		}
-		catch (SQLException e)
-		{
-			log.error("caught exception: ", e);
-			throw new ItemCountException(e);
-		}
-	}
+//	/**
+//	 * Store the count of the given collection
+//	 * 
+//	 * @param collection
+//	 * @param count
+//	 * @throws ItemCountException
+//	 */
+//	public void collectionCount(Collection collection, int count) 
+//		throws ItemCountException
+//	{
+//		try
+//		{
+//			// first find out if we have a record
+//			Object[] sparams = { new Integer(collection.getID()) };
+//			TableRowIterator tri = DatabaseManager.query(context, collectionSelect, sparams);
+//			
+//			if (tri.hasNext())
+//			{
+//				Object[] params = { new Integer(count), new Integer(collection.getID()) };
+//				DatabaseManager.updateQuery(context, collectionUpdate, params);
+//			}
+//			else
+//			{
+//				Object[] params = { new Integer(collection.getID()), new Integer(count) };
+//				DatabaseManager.updateQuery(context, collectionInsert, params);
+//			}
+//			
+//			tri.close();
+//		}
+//		catch (SQLException e)
+//		{
+//			log.error("caught exception: ", e);
+//			throw new ItemCountException(e);
+//		}
+//	}
+//
+//	/**
+//	 * Store the count of the given community
+//	 * 
+//	 * @param community
+//	 * @param count
+//	 * @throws ItemCountException
+//	 */
+//	public void communityCount(Community community, int count) 
+//		throws ItemCountException
+//	{
+//		try
+//		{
+//			// first find out if we have a record
+//			Object[] sparams = { new Integer(community.getID()) };
+//			TableRowIterator tri = DatabaseManager.query(context, communitySelect, sparams);
+//			
+//			if (tri.hasNext())
+//			{
+//				Object[] params = { new Integer(count), new Integer(community.getID()) };
+//				DatabaseManager.updateQuery(context, communityUpdate, params);
+//			}
+//			else
+//			{
+//				Object[] params = { new Integer(community.getID()), new Integer(count) };
+//				DatabaseManager.updateQuery(context, communityInsert, params);
+//			}
+//			
+//			tri.close();
+//		}
+//		catch (SQLException e)
+//		{
+//			log.error("caught exception: ", e);
+//			throw new ItemCountException(e);
+//		}
+//	}
 
 	/**
 	 * Set the dspace context to use
@@ -164,35 +164,35 @@ public class ItemCountDAOPostgres implements ItemCountDAO
 	 * @param context
 	 * @throws ItemCountException
 	 */
-	public void setContext(Context context) 
-		throws ItemCountException
-	{
-		this.context = context;
-	}
+//	public void setContext(Context context) 
+//		throws ItemCountException
+//	{
+//		this.context = context;
+//	}
 
-	/**
-	 * get the count of the items in the given container
-	 * 
-	 * @param dso
-	 * @return
-	 * @throws ItemCountException
-	 */
-	public int getCount(DSpaceObject dso) 
-		throws ItemCountException
-	{
-		if (dso instanceof Collection)
-		{
-			return getCollectionCount((Collection) dso);
-		}
-		else if (dso instanceof Community)
-		{
-			return getCommunityCount((Community) dso);
-		}
-		else
-		{
-			throw new ItemCountException("We can only count items in Communities or Collections");
-		}
-	}
+//	/**
+//	 * get the count of the items in the given container
+//	 * 
+//	 * @param dso
+//	 * @return
+//	 * @throws ItemCountException
+//	 */
+//	public int getCount(DSpaceObject dso) 
+//		throws ItemCountException
+//	{
+//		if (dso instanceof Collection)
+//		{
+//			return getCollectionCount((Collection) dso);
+//		}
+//		else if (dso instanceof Community)
+//		{
+//			return getCommunityCount((Community) dso);
+//		}
+//		else
+//		{
+//			throw new ItemCountException("We can only count items in Communities or Collections");
+//		}
+//	}
 
 	/**
 	 * remove the cache for the given container
@@ -200,137 +200,137 @@ public class ItemCountDAOPostgres implements ItemCountDAO
 	 * @param dso
 	 * @throws ItemCountException
 	 */
-	public void remove(DSpaceObject dso) throws ItemCountException
-	{
-		if (dso instanceof Collection)
-		{
-			removeCollection((Collection) dso);
-		}
-		else if (dso instanceof Community)
-		{
-			removeCommunity((Community) dso);
-		}
-		else
-		{
-			throw new ItemCountException("We can only delete count of items from Communities or Collections");
-		}
-	}
+//	public void remove(DSpaceObject dso) throws ItemCountException
+//	{
+//		if (dso instanceof Collection)
+//		{
+//			removeCollection((Collection) dso);
+//		}
+//		else if (dso instanceof Community)
+//		{
+//			removeCommunity((Community) dso);
+//		}
+//		else
+//		{
+//			throw new ItemCountException("We can only delete count of items from Communities or Collections");
+//		}
+//	}
 
-	/**
-	 * remove the cache for the given collection 
-	 * 
-	 * @param collection
-	 * @throws ItemCountException
-	 */
-	private void removeCollection(Collection collection)
-		throws ItemCountException
-	{
-		try
-		{
-			Object[] params = { new Integer(collection.getID()) };
-			DatabaseManager.updateQuery(context, collectionRemove, params);
-		}
-		catch (SQLException e)
-		{
-			log.error("caught exception: ", e);
-			throw new ItemCountException(e);
-		}
-	}
-	
-	/**
-	 * Remove the cache for the given community
-	 * 
-	 * @param community
-	 * @throws ItemCountException
-	 */
-	private void removeCommunity(Community community)
-		throws ItemCountException
-	{
-		try
-		{
-			Object[] params = { new Integer(community.getID()) };
-			DatabaseManager.updateQuery(context, communityRemove, params);
-		}
-		catch (SQLException e)
-		{
-			log.error("caught exception: ", e);
-			throw new ItemCountException(e);
-		}
-	}
-	
-	/**
-	 * Get the count for the given collection
-	 * 
-	 * @param collection
-	 * @return
-	 * @throws ItemCountException
-	 */
-	private int getCollectionCount(Collection collection)
-		throws ItemCountException
-	{
-		try
-		{
-			Object[] params = { new Integer(collection.getID()) };
-			TableRowIterator tri = DatabaseManager.query(context, collectionSelect, params);
-			
-			if (!tri.hasNext())
-			{
-				return 0;
-			}
-			
-			TableRow tr = tri.next();
-			
-			if (tri.hasNext())
-			{
-				throw new ItemCountException("More than one count row in the database");
-			}
-			
-			tri.close();
-			
-			return tr.getIntColumn("count");
-		}
-		catch (SQLException e)
-		{
-			log.error("caught exception: ", e);
-			throw new ItemCountException(e);
-		}
-	}
-	
-	/**
-	 * get the count for the given community
-	 * 
-	 * @param community
-	 * @return
-	 * @throws ItemCountException
-	 */
-	private int getCommunityCount(Community community)
-		throws ItemCountException
-	{
-		try
-		{
-			Object[] params = { new Integer(community.getID()) };
-			TableRowIterator tri = DatabaseManager.query(context, communitySelect, params);
-			
-			if (!tri.hasNext())
-			{
-				return 0;
-			}
-			
-			TableRow tr = tri.next();
-			
-			if (tri.hasNext())
-			{
-				throw new ItemCountException("More than one count row in the database");
-			}
-			
-			tri.close();
-			
-			return tr.getIntColumn("count");
-		}
-		catch (SQLException e)
-		{
-			log.error("caught exception: ", e);
-			throw new ItemCountException(e);
-		}
-	}
+//	/**
+//	 * remove the cache for the given collection 
+//	 * 
+//	 * @param collection
+//	 * @throws ItemCountException
+//	 */
+//	private void removeCollection(Collection collection)
+//		throws ItemCountException
+//	{
+//		try
+//		{
+//			Object[] params = { new Integer(collection.getID()) };
+//			DatabaseManager.updateQuery(context, collectionRemove, params);
+//		}
+//		catch (SQLException e)
+//		{
+//			log.error("caught exception: ", e);
+//			throw new ItemCountException(e);
+//		}
+//	}
+//	
+//	/**
+//	 * Remove the cache for the given community
+//	 * 
+//	 * @param community
+//	 * @throws ItemCountException
+//	 */
+//	private void removeCommunity(Community community)
+//		throws ItemCountException
+//	{
+//		try
+//		{
+//			Object[] params = { new Integer(community.getID()) };
+//			DatabaseManager.updateQuery(context, communityRemove, params);
+//		}
+//		catch (SQLException e)
+//		{
+//			log.error("caught exception: ", e);
+//			throw new ItemCountException(e);
+//		}
+//	}
+//	
+//	/**
+//	 * Get the count for the given collection
+//	 * 
+//	 * @param collection
+//	 * @return
+//	 * @throws ItemCountException
+//	 */
+//	private int getCollectionCount(Collection collection)
+//		throws ItemCountException
+//	{
+//		try
+//		{
+//			Object[] params = { new Integer(collection.getID()) };
+//			TableRowIterator tri = DatabaseManager.query(context, collectionSelect, params);
+//			
+//			if (!tri.hasNext())
+//			{
+//				return 0;
+//			}
+//			
+//			TableRow tr = tri.next();
+//			
+//			if (tri.hasNext())
+//			{
+//				throw new ItemCountException("More than one count row in the database");
+//			}
+//			
+//			tri.close();
+//			
+//			return tr.getIntColumn("count");
+//		}
+//		catch (SQLException e)
+//		{
+//			log.error("caught exception: ", e);
+//			throw new ItemCountException(e);
+//		}
+//	}
+//	
+//	/**
+//	 * get the count for the given community
+//	 * 
+//	 * @param community
+//	 * @return
+//	 * @throws ItemCountException
+//	 */
+//	private int getCommunityCount(Community community)
+//		throws ItemCountException
+//	{
+//		try
+//		{
+//			Object[] params = { new Integer(community.getID()) };
+//			TableRowIterator tri = DatabaseManager.query(context, communitySelect, params);
+//			
+//			if (!tri.hasNext())
+//			{
+//				return 0;
+//			}
+//			
+//			TableRow tr = tri.next();
+//			
+//			if (tri.hasNext())
+//			{
+//				throw new ItemCountException("More than one count row in the database");
+//			}
+//			
+//			tri.close();
+//			
+//			return tr.getIntColumn("count");
+//		}
+//		catch (SQLException e)
+//		{
+//			log.error("caught exception: ", e);
+//			throw new ItemCountException(e);
+//		}
+//	}
 }

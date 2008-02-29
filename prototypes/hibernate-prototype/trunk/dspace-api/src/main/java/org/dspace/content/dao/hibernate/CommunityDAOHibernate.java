@@ -36,7 +36,10 @@ public class CommunityDAOHibernate extends CommunityDAO {
 	 */
 	public List<Community> getTopCommunities(EntityManager em) {
 	    List<Community> topcommunities = null;
-	    Query q = em.createQuery("SELECT c FROM Community c WHERE c.subCommunities IS NOT EMPTY");
+	    Query q = em.createQuery("SELECT c " +
+	    		"FROM Community c " +
+	    		"WHERE c IS NOT IN " +
+	    		"(SELECT comm FROM Community comm WHERE comm.parentCommunities IS NOT NULL)");
 	    topcommunities = q.getResultList();
 	    return topcommunities;
 	}
