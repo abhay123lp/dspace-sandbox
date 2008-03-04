@@ -470,51 +470,51 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#getDistinctID(java.lang.String, java.lang.String, java.lang.String)
      */
-    public int getDistinctID(String table, String value, String sortValue)
-        throws BrowseException
-    {
-        TableRowIterator tri = null;
-        
-        if (log.isDebugEnabled())
-        {
-            log.debug("getDistinctID: table=" + table + ",value=" + value + ",sortValue=" + sortValue);
-        }
-        
-        try
-        {
-            Object[] params = { value };
-            String select = "SELECT id FROM " + table + " WHERE value = ?";
-            tri = DatabaseManager.query(context, select, params);
-            int distinctID = -1;
-            if (!tri.hasNext())
-            {
-                distinctID = insertDistinctRecord(table, value, sortValue);
-            }
-            else
-            {
-                distinctID = tri.next().getIntColumn("id");
-            }
-
-            if (log.isDebugEnabled())
-            {
-                log.debug("getDistinctID: return=" + distinctID);
-            }
-
-            return distinctID;
-        }
-        catch (SQLException e)
-        {
-            log.error("caught exception: ", e);
-            throw new BrowseException(e);
-        }
-        finally
-        {
-            if (tri != null)
-            {
-                tri.close();
-            }
-        }
-    }
+//    public int getDistinctID(String table, String value, String sortValue)
+//        throws BrowseException
+//    {
+//        TableRowIterator tri = null;
+//        
+//        if (log.isDebugEnabled())
+//        {
+//            log.debug("getDistinctID: table=" + table + ",value=" + value + ",sortValue=" + sortValue);
+//        }
+//        
+//        try
+//        {
+//            Object[] params = { value };
+//            String select = "SELECT id FROM " + table + " WHERE value = ?";
+//            tri = DatabaseManager.query(context, select, params);
+//            int distinctID = -1;
+//            if (!tri.hasNext())
+//            {
+//                distinctID = insertDistinctRecord(table, value, sortValue);
+//            }
+//            else
+//            {
+//                distinctID = tri.next().getIntColumn("id");
+//            }
+//
+//            if (log.isDebugEnabled())
+//            {
+//                log.debug("getDistinctID: return=" + distinctID);
+//            }
+//
+//            return distinctID;
+//        }
+//        catch (SQLException e)
+//        {
+//            log.error("caught exception: ", e);
+//            throw new BrowseException(e);
+//        }
+//        finally
+//        {
+//            if (tri != null)
+//            {
+//                tri.close();
+//            }
+//        }
+//    }
 
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#insertCommunityMappings(java.lang.String, java.lang.String, java.lang.String)
@@ -857,5 +857,69 @@ public class BrowseCreateDAOPostgres implements BrowseCreateDAO
         }
 
         return true;
+    }
+    
+    /* (non-Javadoc)
+     * @see org.dspace.browse.BrowseCreateDAO#updateCommunityMappings(int)
+     */
+    public void updateCommunityMappings(int itemID) throws BrowseException
+    {
+        try
+        {
+            // Get all the communities for this item
+            int[] commID = getAllCommunityIDs(itemID);
+
+            // Remove (set to -1) any duplicate communities
+            for (int i = 0; i < commID.length; i++)
+            {
+                if (!isFirstOccurrence(commID, i))
+                    commID[i] = -1;
+            }
+
+            // Find all existing mappings for this item
+            TableRowIterator tri = DatabaseManager.queryTable(context, "Communities2Item", "SELECT * FROM Communities2Item WHERE item_id=?", itemID);
+            if (tri != null)
+            {
+                while (tri.hasNext())
+                {
+                    TableRow tr = tri.next();
+
+                    // Check the item mappings to see if it contains this community mapping
+                    boolean itemIsMapped = false;
+                    int trCommID = tr.getIntColumn("community_id");
+                    for (int i = 0; i < commID.length; i++)
+                    {
+                        // Found this community
+                        if (commID[i] == trCommID)
+                        {
+                            // Flag it, and remove (-1) from the item mappings
+                            itemIsMapped = true;
+                            commID[i] = -1;
+                        }
+                    }
+
+                    // The item is no longer mapped to this community, so remove the database record
+                    if (!itemIsMapped)
+                        DatabaseManager.delete(context, tr);
+                }
+            }
+
+            // Any remaining mappings need to be added to the database
+            for (int i = 0; i < commID.length; i++)
+            {
+                if (commID[i] > -1)
+                {
+                    TableRow row = DatabaseManager.create(context, "Communities2Item");
+                    row.setColumn("item_id", itemID);
+                    row.setColumn("community_id", commID[i]);
+                    DatabaseManager.update(context, row);
+                }
+            }
+        }
+        catch (SQLException e)
+        {
+            log.error("caught exception: ", e);
+            throw new BrowseException(e);
+        }
     }
 }

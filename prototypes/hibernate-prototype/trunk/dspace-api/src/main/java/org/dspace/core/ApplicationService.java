@@ -10,6 +10,8 @@ import javax.persistence.EntityTransaction;
 
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.dao.jpa.ResourcePolicyDAOJPA;
+import org.dspace.browse.ItemIndexEntry;
+import org.dspace.browse.MetadataIndexEntry;
 import org.dspace.checker.BitstreamInfoDAOJPA;
 import org.dspace.checker.ChecksumHistoryDAOJPA;
 import org.dspace.checker.ChecksumResultDAOJPA;
@@ -129,6 +131,31 @@ public class ApplicationService {
     public static int deleteHistoryByDateAndCode(Date retentionDate, String result, Context context) {
         ChecksumHistoryDAOJPA chdao = new ChecksumHistoryDAOJPA();
         return chdao.deleteHistoryByDateAndCode(retentionDate, result, context);
+    }
+    
+    //TODO implementare
+    public static void deleteMetadataIndexForItem(Item item, Context context) {
+        
+    }
+    
+    // TODO implementare (indexbrowse.indexItem)
+    public static void deleteCommunityMappings(Item item, Context context) {
+        
+    }
+    
+    //TODO implemetare (IndexBrowse)
+    public static void deleteItemIndexForItem(Item item, Context context) {
+        
+    }
+    
+    //TODO implementare (indexbrowse)
+    public static void pruneMetadataIndex(Context context) {
+        
+    }
+    
+    //TODO implementare (indexbrowse)
+    public static void pruneItemIndex(Context context) {
+        
     }
   
  
@@ -283,17 +310,17 @@ public class ApplicationService {
         return bfs;
     }
     
-    
+    //TODO
     public static List<Integer> findAllCommunityBitstreamsId(int communityId, Context context) {
         return null;
     }
     
-    
+    //TODO
     public static List<Integer> findAllCollectionBitstreamsId(int collectionId, Context context) {
         return null;
     }
     
-    
+    //TODO
     public static List<Integer> findAllItemBitstreamsId(int itemId, Context context) {
         return null;
     }
@@ -470,6 +497,21 @@ public class ApplicationService {
     public static List<ResourcePolicy> findPolicies(DSpaceObject dso, Group group, Context context) {
         ResourcePolicyDAOJPA rdao = new ResourcePolicyDAOJPA();
         return rdao.getPolicies(dso, group, context);
+    }
+    
+    //TODO
+    public static MetadataIndexEntry findMetadataIndexEntryByValue(String value, Context context) {
+        return null;
+    }
+    
+    //TODO implementare (ma controllare prima se vengono utilizzati)
+    public static ItemIndexEntry findItemIndexByItem(Item item, Context context) {
+        return null;
+    }
+    
+  //TODO implementare (ma controllare prima se vengono utilizzati)
+    public static MetadataIndexEntry findMetadataIndexEntryByItem(Item item, Context context) {
+        return null;
     }
     
     /* Other methods */

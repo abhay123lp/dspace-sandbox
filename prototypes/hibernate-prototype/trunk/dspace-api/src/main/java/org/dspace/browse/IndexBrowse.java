@@ -37,7 +37,6 @@ package org.dspace.browse;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -50,8 +49,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.dspace.content.DCValue;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
 import org.dspace.core.ApplicationService;
@@ -321,8 +320,10 @@ public class IndexBrowse
         if (bi.isMetadataIndex())
         {
             // remove old metadata from the item index
-            dao.deleteByItemID(bi.getTableName(), itemID);
-            dao.deleteByItemID(bi.getMapName(), itemID);
+//            dao.deleteByItemID(bi.getTableName(), itemID);
+//            dao.deleteByItemID(bi.getMapName(), itemID);
+            ApplicationService.deleteMetadataIndexForItem(
+                        ApplicationService.get(context, Item.class, itemID), context);
         }
     }
     
@@ -343,13 +344,15 @@ public class IndexBrowse
             if (bis[i].isMetadataIndex())
             {
                 log.debug("Pruning metadata index: " + bis[i].getTableName());
-                dao.pruneExcess(bis[i].getTableName(false, false, false, false), bis[i].getTableName(false, false, false, true), false);
-                dao.pruneDistinct(bis[i].getTableName(false, false, true, false), bis[i].getTableName(false, false, false, true));
+                ApplicationService.pruneMetadataIndex(context);
+//                dao.pruneExcess(bis[i].getTableName(false, false, false, false), bis[i].getTableName(false, false, false, true), false);
+//                dao.pruneDistinct(bis[i].getTableName(false, false, true, false), bis[i].getTableName(false, false, false, true));
             }
         }
 
-        dao.pruneExcess(BrowseIndex.getItemBrowseIndex().getTableName(false, false, false, false), null, false);
-        dao.pruneExcess(BrowseIndex.getWithdrawnBrowseIndex().getTableName(false, false, false, false), null, true);
+//        dao.pruneExcess(BrowseIndex.getItemBrowseIndex().getTableName(false, false, false, false), null, false);
+//        dao.pruneExcess(BrowseIndex.getWithdrawnBrowseIndex().getTableName(false, false, false, false), null, true);
+        ApplicationService.pruneItemIndex(context);
     }
 
     /**
@@ -394,61 +397,162 @@ public class IndexBrowse
         
         try
         {
+            boolean reqCommunityMappings = false;
             // Remove from the item indexes (archive and withdrawn)
-            removeIndex(item.getID(), BrowseIndex.getItemBrowseIndex().getTableName());
-            removeIndex(item.getID(), BrowseIndex.getWithdrawnBrowseIndex().getTableName());
-            dao.deleteCommunityMappings(item.getID());
+//            removeIndex(item.getID(), BrowseIndex.getItemBrowseIndex().getTableName());
+//            removeIndex(item.getID(), BrowseIndex.getWithdrawnBrowseIndex().getTableName());
+            Item it = ApplicationService.get(context, Item.class, item.getID());
+            ApplicationService.deleteItemIndexForItem(it, context);
+            
+//            dao.deleteCommunityMappings(item.getID());
 
             // Index any archived item that isn't withdrawn
-            if (item.isArchived() && !item.isWithdrawn())
+            if (item.isArchived())
             {
-                Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
-                dao.insertIndex(BrowseIndex.getItemBrowseIndex().getTableName(), item.getID(), sortMap);
-                dao.insertCommunityMappings(item.getID());
+                Map<Integer, String> sortMap = getSortValues(item, itemMDMap);                
+//                dao.insertIndex(BrowseIndex.getItemBrowseIndex().getTableName(), item.getID(), sortMap);
+                ItemIndexEntry itemIndexEntry;
+                for(Integer key : sortMap.keySet()) {
+                    itemIndexEntry = new ItemIndexEntry();
+                    itemIndexEntry.setIndexNumber(key);
+                    itemIndexEntry.setItem(it);
+                    itemIndexEntry.setWithdrawn(it.isWithdrawn());
+                    itemIndexEntry.setSortValue(sortMap.get(key)); //FIXME truncateSortValue nel dao: il valore viene manipolato prima dell'inserimento
+                    ApplicationService.save(context, ItemIndexEntry.class, itemIndexEntry);
+                    if(!it.isWithdrawn()) {
+                        reqCommunityMappings = true;
+                    }
+                }
+                                
+//                dao.insertCommunityMappings(item.getID());
             }
-            else if (item.isWithdrawn())
+//            else if (item.isWithdrawn())
+//            {
+//                // If it's withdrawn, add it to the withdrawn items index
+//                Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
+//                dao.insertIndex(BrowseIndex.getWithdrawnBrowseIndex().getTableName(), item.getID(), sortMap);
+//            }
+
+            
+            // Update the community mappings if they are required, or remove them if they aren't
+            if (reqCommunityMappings)
             {
-                // If it's withdrawn, add it to the withdrawn items index
-                Map<Integer, String> sortMap = getSortValues(item, itemMDMap);
-                dao.insertIndex(BrowseIndex.getWithdrawnBrowseIndex().getTableName(), item.getID(), sortMap);
+                dao.updateCommunityMappings(item.getID());
+            }
+            else
+            {
+//                dao.deleteCommunityMappings(item.getID());
+                ApplicationService.deleteCommunityMappings(it, context);
             }
 
+            
             // Now update the metadata indexes
             for (int i = 0; i < bis.length; i++)
             {
-                log.debug("Indexing for item " + item.getID() + ", for index: " + bis[i].getTableName());
-                
+                log.debug("Indexing for item " + item.getID() + ", for index: "
+                        + bis[i].getTableName());
+
                 if (bis[i].isMetadataIndex())
                 {
                     // remove old metadata from the item index
                     removeIndex(item.getID(), bis[i]);
-        
-                    // now index the new details - but only if it's archived and not withdrawn
+
+                    // MetadataIndex mi = new MetadataIndex();
+                    // mi.setIndexName(bis[i].getName());
+                    // mi.setValue(value)
+
+                    // now index the new details - but only if it's archived and
+                    // not withdrawn
                     if (item.isArchived() && !item.isWithdrawn())
                     {
+
                         // get the metadata from the item
                         for (int mdIdx = 0; mdIdx < bis[i].getMetadataCount(); mdIdx++)
                         {
+
                             String[] md = bis[i].getMdBits(mdIdx);
-                            MetadataValue[] values = item.getMetadata(md[0], md[1], md[2], Item.ANY);
+                            MetadataValue[] values = item.getMetadata(md[0],
+                                    md[1], md[2], Item.ANY);
 
                             // if we have values to index on, then do so
                             if (values != null)
                             {
                                 for (int x = 0; x < values.length; x++)
                                 {
-                                    // get the normalised version of the value
-                                    String nVal = OrderFormat.makeSortString(values[x].getValue(), values[x].getLanguage(), bis[i].getDataType());
-
-                                    Map sortMap = getSortValues(item, itemMDMap);
-
-                                    dao.insertIndex(bis[i].getTableName(), item.getID(), values[x].getValue(), nVal, sortMap);
-
-                                    if (bis[i].isMetadataIndex())
+                                    // Ensure that there is a value to index
+                                    // before inserting it
+                                    if (StringUtils.isEmpty(values[x]
+                                            .getValue()))
                                     {
-                                        int distinctID = dao.getDistinctID(bis[i].getTableName(true, false, false), values[x].getValue(), nVal);
-                                        dao.createDistinctMapping(bis[i].getMapName(), item.getID(), distinctID);
+                                        log
+                                                .error("Null metadata value for item "
+                                                        + item.getID()
+                                                        + ", field: "
+                                                        + values[x]
+                                                                .getMetadataField()
+                                                                .getSchema()
+                                                        + "."
+                                                        + values[x]
+                                                                .getMetadataField()
+                                                                .getElement()
+                                                        + (values[x]
+                                                                .getMetadataField()
+                                                                .getQualifier() == null ? ""
+                                                                : "."
+                                                                        + values[x]
+                                                                                .getMetadataField()
+                                                                                .getElement()));
                                     }
+                                    else
+                                    {
+
+                                        // get the normalised version of the
+                                        // value
+                                        String nVal = OrderFormat
+                                                .makeSortString(values[x]
+                                                        .getValue(), values[x]
+                                                        .getLanguage(), bis[i]
+                                                        .getDataType());
+
+                                        // Map<Integer, String> sortMap =
+                                        // getSortValues(item, itemMDMap);
+
+                                        // dao.insertIndex(bis[i].getTableName(),
+                                        // item.getID(), values[x].getValue(),
+                                        // nVal, sortMap);
+
+                                        // MetadataIndex mi = new
+                                        // MetadataIndex();
+                                        // mi.setIndexName(bis[i].getName());
+                                        // mi.setValue(values[x].getValue());
+                                        // mi.setSortValue(nVal);
+
+                                        MetadataIndexEntry mie = ApplicationService
+                                                .findMetadataIndexEntryByValue(
+                                                        values[x].getValue(),
+                                                        context);
+                                        if (mie == null)
+                                        {
+                                            mie = new MetadataIndexEntry();
+                                            mie.setIndexNumber(i);
+                                            mie.setValue(values[x].getValue());
+                                            mie.setSortValue(nVal);
+                                            ApplicationService.save(context,
+                                                    MetadataIndexEntry.class,
+                                                    mie);
+                                        }
+                                        mie.addItem(it);
+                                    }
+                                    //mie.setMetadataIndex(mi);
+                                    //mi.addEntry(mie);
+
+                                    //ApplicationService.save(context, MetadataIndex.class, mi);
+
+//                                    if (bis[i].isMetadataIndex())
+//                                    {
+//                                        int distinctID = dao.getDistinctID(bis[i].getTableName(true, false, false), values[x].getValue(), nVal);
+//                                        dao.createDistinctMapping(bis[i].getMapName(), item.getID(), distinctID);
+//                                    }
                                 }
                             }
                         }
@@ -679,11 +783,12 @@ public class IndexBrowse
 	    	}
 	    }
 	    
-	    if (line.hasOption("t"))
-	    {
-	    	indexer.prepTables();
-	    	return;
-	    }
+	    //no need to build tables
+//	    if (line.hasOption("t"))
+//	    {
+//	    	indexer.prepTables();
+//	    	return;
+//	    }
 	    
 	    if (line.hasOption("f"))
 	    {
@@ -712,38 +817,41 @@ public class IndexBrowse
 	 * 
 	 * @throws BrowseException
 	 */
-	private void prepTables()
-    	throws BrowseException
-    {
-        try
-        {
-            // first, erase the existing indexes
-            clearDatabase();
-
-            createItemTables();
-
-            // for each current browse index, make all the relevant tables
-            for (int i = 0; i < bis.length; i++)
-            {
-                createTables(bis[i]);
-
-                // prepare some CLI output
-                StringBuffer logMe = new StringBuffer();
-                for (SortOption so : SortOption.getSortOptions())
-                {
-                    logMe.append(" " + so.getMetadata() + " ");
-                }
-
-                output.message("Creating browse index " + bis[i].getName() +
-                        ": index by " + bis[i].getMetadata() +
-                        " sortable by: " + logMe.toString());
-            }
-        }
-        catch (SortException se)
-        {
-            throw new BrowseException("Error in SortOptions", se);
-        }
-    }
+//	private void prepTables()
+//    	throws BrowseException
+//    {
+//        try
+//        {
+//            // first, erase the existing indexes
+//            
+//            //No need to clear db
+//            clearDatabase();
+//
+//            //Tables are automatically created
+//            createItemTables();
+//
+//            // for each current browse index, make all the relevant tables
+//            for (int i = 0; i < bis.length; i++)
+//            {
+//                createTables(bis[i]);
+//
+//                // prepare some CLI output
+//                StringBuffer logMe = new StringBuffer();
+//                for (SortOption so : SortOption.getSortOptions())
+//                {
+//                    logMe.append(" " + so.getMetadata() + " ");
+//                }
+//
+//                output.message("Creating browse index " + bis[i].getName() +
+//                        ": index by " + bis[i].getMetadata() +
+//                        " sortable by: " + logMe.toString());
+//            }
+//        }
+//        catch (SortException se)
+//        {
+//            throw new BrowseException("Error in SortOptions", se);
+//        }
+//    }
     
 	/**
 	 * delete all the existing browse tables
@@ -887,153 +995,153 @@ public class IndexBrowse
         }
     }
 
-    /**
-     * Create the internal full item tables
-     * @throws BrowseException
-     */
-    private void createItemTables() throws BrowseException
-    {
-        try
-        {
-            // prepare the array list of sort options
-            List<Integer> sortCols = new ArrayList<Integer>();
-            for (SortOption so : SortOption.getSortOptions())
-            {
-                sortCols.add(new Integer(so.getNumber()));
-            }
+//    /**
+//     * Create the internal full item tables
+//     * @throws BrowseException
+//     */
+//    private void createItemTables() throws BrowseException
+//    {
+//        try
+//        {
+//            // prepare the array list of sort options
+//            List<Integer> sortCols = new ArrayList<Integer>();
+//            for (SortOption so : SortOption.getSortOptions())
+//            {
+//                sortCols.add(new Integer(so.getNumber()));
+//            }
+//
+//            createItemTables(BrowseIndex.getItemBrowseIndex(), sortCols);
+//            createItemTables(BrowseIndex.getWithdrawnBrowseIndex(), sortCols);
+//            
+//            if (execute())
+//            {
+//                context.commit();
+//            }
+//        }
+//        catch (SortException se)
+//        {
+//            throw new BrowseException("Error in SortOptions", se);
+//        }
+//        catch (SQLException e)
+//        {
+//            log.error("caught exception: ", e);
+//            throw new BrowseException(e);
+//        }
+//    }
 
-            createItemTables(BrowseIndex.getItemBrowseIndex(), sortCols);
-            createItemTables(BrowseIndex.getWithdrawnBrowseIndex(), sortCols);
-            
-            if (execute())
-            {
-                context.commit();
-            }
-        }
-        catch (SortException se)
-        {
-            throw new BrowseException("Error in SortOptions", se);
-        }
-        catch (SQLException e)
-        {
-            log.error("caught exception: ", e);
-            throw new BrowseException(e);
-        }
-    }
-
-    /**
-     * Create the internal full item tables for a particular index
-     * (ie. withdrawn / in archive)
-     * @param bix
-     * @param sortCols
-     * @throws BrowseException
-     */
-    private void createItemTables(BrowseIndex bix, List<Integer> sortCols)
-            throws BrowseException
-    {
-        String tableName = bix.getTableName(false, false, false, false);
-        String colViewName = bix.getTableName(false, true, false, false);
-        String comViewName = bix.getTableName(true, false, false, false);
-        
-        String itemSeq   = dao.createSequence(bix.getSequenceName(false, false), this.execute());
-        String itemTable = dao.createPrimaryTable(tableName, sortCols, execute);
-        String[] itemIndices = dao.createDatabaseIndices(tableName, sortCols, false, this.execute());
-        String itemColView = dao.createCollectionView(tableName, colViewName, this.execute());
-        String itemComView = dao.createCommunityView(tableName, comViewName, this.execute());
-
-        output.sql(itemSeq);
-        output.sql(itemTable);
-        for (int i = 0; i < itemIndices.length; i++)
-        {
-            output.sql(itemIndices[i]);
-        }
-        output.sql(itemColView);
-        output.sql(itemComView);
-    }
-    /**
-     * Create the browse tables for the given browse index
-     * 
-     * @param bi		the browse index to create
-     * @throws BrowseException
-     */
-	private void createTables(BrowseIndex bi)
-    	throws BrowseException
-    {
-		try
-		{
-	        // prepare the array list of sort options
-            List<Integer> sortCols = new ArrayList<Integer>();
-            for (SortOption so : SortOption.getSortOptions())
-            {
-                sortCols.add(new Integer(so.getNumber()));
-            }
-
-	        // get the table names that the browse index is in charge of
-			String tableName   = bi.getTableName();
-			String sequence    = bi.getSequenceName(false, false);
-			String colViewName = bi.getTableName(false, true);
-			String comViewName = bi.getTableName(true, false);
-			
-			// if this is a single view, create the DISTINCT tables and views
-			if (bi.isMetadataIndex())
-			{
-	            String createSeq = dao.createSequence(sequence, this.execute());
-	            String createTable = dao.createSecondaryTable(tableName, sortCols, this.execute());
-	            String[] databaseIndices = dao.createDatabaseIndices(tableName, sortCols, true, this.execute());
-                String createColView = dao.createCollectionView(tableName, colViewName, this.execute());
-                String createComView = dao.createCommunityView(tableName, comViewName, this.execute());
-	            
-	            output.sql(createSeq);
-	            output.sql(createTable);
-	            for (int i = 0; i < databaseIndices.length; i++)
-	            {
-	                output.sql(databaseIndices[i]);
-	            }
-                output.sql(createColView);
-                output.sql(createComView);
-
-	            // if this is a single view, create the DISTINCT tables and views
-	            String distinctTableName = bi.getTableName(false, false, true, false);
-				String distinctSeq = bi.getSequenceName(true, false);
-				String distinctMapName = bi.getTableName(false, false, false, true);
-				String mapSeq = bi.getSequenceName(false, true);
-				String distinctColMapName = bi.getTableName(false, true, false, true);
-				String distinctComMapName = bi.getTableName(true, false, false, true);
-				
-				
-				// FIXME: at the moment we have not defined INDEXes for this data
-				// add this later when necessary
-				
-				String distinctTableSeq = dao.createSequence(distinctSeq, this.execute());
-				String distinctMapSeq = dao.createSequence(mapSeq, this.execute());
-				String createDistinctTable = dao.createDistinctTable(distinctTableName, this.execute());
-				String createDistinctMap = dao.createDistinctMap(distinctTableName, distinctMapName, this.execute());
-				String createDistinctColView = dao.createCollectionView(distinctMapName, distinctColMapName, this.execute());
-				String createDistinctComView = dao.createCommunityView(distinctMapName, distinctComMapName, this.execute());
-				
-				output.sql(distinctTableSeq);
-				output.sql(distinctMapSeq);
-				output.sql(createDistinctTable);
-				output.sql(createDistinctMap);
-				output.sql(createDistinctColView);
-				output.sql(createDistinctComView);
-			}
-
-			if (execute())
-			{
-				context.commit();
-			}
-		}
-        catch (SortException se)
-        {
-            throw new BrowseException("Error in SortOptions", se);
-        }
-		catch (SQLException e)
-		{
-			log.error("caught exception: ", e);
-			throw new BrowseException(e);
-		}
-    }
+//    /**
+//     * Create the internal full item tables for a particular index
+//     * (ie. withdrawn / in archive)
+//     * @param bix
+//     * @param sortCols
+//     * @throws BrowseException
+//     */
+//    private void createItemTables(BrowseIndex bix, List<Integer> sortCols)
+//            throws BrowseException
+//    {
+//        String tableName = bix.getTableName(false, false, false, false);
+////        String colViewName = bix.getTableName(false, true, false, false);
+////        String comViewName = bix.getTableName(true, false, false, false);
+//        
+//        String itemSeq   = dao.createSequence(bix.getSequenceName(false, false), this.execute());
+//        String itemTable = dao.createPrimaryTable(tableName, sortCols, execute);
+//        String[] itemIndices = dao.createDatabaseIndices(tableName, sortCols, false, this.execute());
+////        String itemColView = dao.createCollectionView(tableName, colViewName, this.execute());
+////        String itemComView = dao.createCommunityView(tableName, comViewName, this.execute());
+//
+//        output.sql(itemSeq);
+//        output.sql(itemTable);
+//        for (int i = 0; i < itemIndices.length; i++)
+//        {
+//            output.sql(itemIndices[i]);
+//        }
+////        output.sql(itemColView);
+////        output.sql(itemComView);
+//    }
+//    /**
+//     * Create the browse tables for the given browse index
+//     * 
+//     * @param bi		the browse index to create
+//     * @throws BrowseException
+//     */
+//	private void createTables(BrowseIndex bi)
+//    	throws BrowseException
+//    {
+//		try
+//		{
+//	        // prepare the array list of sort options
+//            List<Integer> sortCols = new ArrayList<Integer>();
+//            for (SortOption so : SortOption.getSortOptions())
+//            {
+//                sortCols.add(new Integer(so.getNumber()));
+//            }
+//
+//	        // get the table names that the browse index is in charge of
+//			String tableName   = bi.getTableName();
+//			String sequence    = bi.getSequenceName(false, false);
+//			String colViewName = bi.getTableName(false, true);
+//			String comViewName = bi.getTableName(true, false);
+//			
+//			// if this is a single view, create the DISTINCT tables and views
+//			if (bi.isMetadataIndex())
+//			{
+//	            String createSeq = dao.createSequence(sequence, this.execute());
+//	            String createTable = dao.createSecondaryTable(tableName, sortCols, this.execute());
+//	            String[] databaseIndices = dao.createDatabaseIndices(tableName, sortCols, true, this.execute());
+//                String createColView = dao.createCollectionView(tableName, colViewName, this.execute());
+//                String createComView = dao.createCommunityView(tableName, comViewName, this.execute());
+//	            
+//	            output.sql(createSeq);
+//	            output.sql(createTable);
+//	            for (int i = 0; i < databaseIndices.length; i++)
+//	            {
+//	                output.sql(databaseIndices[i]);
+//	            }
+//                output.sql(createColView);
+//                output.sql(createComView);
+//
+//	            // if this is a single view, create the DISTINCT tables and views
+//	            String distinctTableName = bi.getTableName(false, false, true, false);
+//				String distinctSeq = bi.getSequenceName(true, false);
+//				String distinctMapName = bi.getTableName(false, false, false, true);
+//				String mapSeq = bi.getSequenceName(false, true);
+//				String distinctColMapName = bi.getTableName(false, true, false, true);
+//				String distinctComMapName = bi.getTableName(true, false, false, true);
+//				
+//				
+//				// FIXME: at the moment we have not defined INDEXes for this data
+//				// add this later when necessary
+//				
+//				String distinctTableSeq = dao.createSequence(distinctSeq, this.execute());
+//				String distinctMapSeq = dao.createSequence(mapSeq, this.execute());
+//				String createDistinctTable = dao.createDistinctTable(distinctTableName, this.execute());
+//				String createDistinctMap = dao.createDistinctMap(distinctTableName, distinctMapName, this.execute());
+//				String createDistinctColView = dao.createCollectionView(distinctMapName, distinctColMapName, this.execute());
+//				String createDistinctComView = dao.createCommunityView(distinctMapName, distinctComMapName, this.execute());
+//				
+//				output.sql(distinctTableSeq);
+//				output.sql(distinctMapSeq);
+//				output.sql(createDistinctTable);
+//				output.sql(createDistinctMap);
+//				output.sql(createDistinctColView);
+//				output.sql(createDistinctComView);
+//			}
+//
+//			if (execute())
+//			{
+//				context.commit();
+//			}
+//		}
+//        catch (SortException se)
+//        {
+//            throw new BrowseException("Error in SortOptions", se);
+//        }
+//		catch (SQLException e)
+//		{
+//			log.error("caught exception: ", e);
+//			throw new BrowseException(e);
+//		}
+//    }
     
 	/**
 	 * index everything
@@ -1053,23 +1161,24 @@ public class IndexBrowse
 	    
 	    output.message("init complete (" + Long.toString(init) + " ms)");
 	    
-	    if (delete())
-	    {
-	    	output.message("Deleting browse tables");
-	    	
-	    	clearDatabase();
-	    	
-	    	output.message("Browse tables deleted");
-	    	return;
-	    }
-	    else if (rebuild())
-	    {
-	    	output.message("Preparing browse tables");
-	    	
-	    	prepTables();
-	    	
-	    	output.message("Browse tables prepared");
-	    }
+	    //no need to rebuild the db
+//	    if (delete())
+//	    {
+//	    	output.message("Deleting browse tables");
+//	    	
+//	    	clearDatabase();
+//	    	
+//	    	output.message("Browse tables deleted");
+//	    	return;
+//	    }
+//	    else if (rebuild())
+//	    {
+//	    	output.message("Preparing browse tables");
+//	    	
+//	    	prepTables();
+//	    	
+//	    	output.message("Browse tables prepared");
+//	    }
 	    
 	    Date prepDate = new Date();
 	    long prep = prepDate.getTime() - start.getTime();

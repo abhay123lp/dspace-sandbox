@@ -81,7 +81,7 @@ public interface BrowseCreateDAO
 	public void deleteByItemID(String table, int itemID) throws BrowseException;
 
     public void deleteCommunityMappings(int itemID) throws BrowseException;
-    public void insertCommunityMappings(int itemID) throws BrowseException;
+//    public void insertCommunityMappings(int itemID) throws BrowseException;
 	
 	/**
 	 * Insert an index record into the given table for the given item id.  The Map should contain
@@ -104,7 +104,7 @@ public interface BrowseCreateDAO
 	 * @param sortCols	an Integer-String map of sort column numbers and values
 	 * @throws BrowseException
 	 */
-    public void insertIndex(String table, int itemID, Map sortCols) throws BrowseException;
+//    public void insertIndex(String table, int itemID, Map sortCols) throws BrowseException;
 
     /**
      * Insert an index record into the given table for the given item id.  The value
@@ -131,7 +131,7 @@ public interface BrowseCreateDAO
      * @param sortCols  an Integer-String map of sort column numbers and values
      * @throws BrowseException
      */
-    public void insertIndex(String table, int itemID, String value, String sortValue, Map sortCols) throws BrowseException;
+//    public void insertIndex(String table, int itemID, String value, String sortValue, Map sortCols) throws BrowseException;
 	
 	/**
 	 * Get the browse index's internal id for the location of the given string
@@ -156,7 +156,7 @@ public interface BrowseCreateDAO
 	 * @return			the database id of the distinct record
 	 * @throws BrowseException
 	 */
-	public int getDistinctID(String table, String value, String sortValue) throws BrowseException;
+//	public int getDistinctID(String table, String value, String sortValue) throws BrowseException;
 	
 	/**
 	 * Insert the given value and sort value into the distinct index table.  This
@@ -178,7 +178,7 @@ public interface BrowseCreateDAO
 	 * @return			the database id of the created record
 	 * @throws BrowseException
 	 */
-	public int insertDistinctRecord(String table, String value, String sortValue) throws BrowseException;
+//	public int insertDistinctRecord(String table, String value, String sortValue) throws BrowseException;
 	
 	/**
 	 * Create a mapping between an item id and a distinct metadata field such as an author,
@@ -190,7 +190,7 @@ public interface BrowseCreateDAO
 	 * @param distinctID	the id of the distinct record
 	 * @throws BrowseException
 	 */
-	public void createDistinctMapping(String table, int itemID, int distinctID) throws BrowseException;
+//	public void createDistinctMapping(String table, int itemID, int distinctID) throws BrowseException;
 	
 	/**
 	 * Find out of a given table exists.
@@ -252,7 +252,7 @@ public interface BrowseCreateDAO
 	 * @return				the instructions (SQL) that effect the creation
 	 * @throws BrowseException
 	 */
-	public String createSequence(String sequence, boolean execute) throws BrowseException;
+//	public String createSequence(String sequence, boolean execute) throws BrowseException;
 	
 	/**
 	 * Create the main index table.  This is the one which will contain a single row per
@@ -279,7 +279,7 @@ public interface BrowseCreateDAO
 	 * @return			the instructions (SQL) that effect the creation
 	 * @throws BrowseException
 	 */
-	public String createSecondaryTable(String table, List sortCols, boolean execute) throws BrowseException;
+//	public String createSecondaryTable(String table, List sortCols, boolean execute) throws BrowseException;
 
     /**
      * Create the main index table.  This is the one which will contain a single row per
@@ -306,7 +306,7 @@ public interface BrowseCreateDAO
      * @return          the instructions (SQL) that effect the creation
      * @throws BrowseException
      */
-    public String createPrimaryTable(String table, List sortCols, boolean execute) throws BrowseException;
+//    public String createPrimaryTable(String table, List sortCols, boolean execute) throws BrowseException;
 	
     /**
 	 * Create any indices that the implementing DAO sees fit to maximise performance.
@@ -321,7 +321,7 @@ public interface BrowseCreateDAO
 	 * @return			the instructions (SQL) that effect the indices
 	 * @throws BrowseException
 	 */
-	public String[] createDatabaseIndices(String table, List<Integer> sortCols, boolean value, boolean execute) throws BrowseException;
+//	public String[] createDatabaseIndices(String table, List<Integer> sortCols, boolean value, boolean execute) throws BrowseException;
 	
 	/**
 	 * Create the View of the full item index as seen from a collection.
@@ -335,7 +335,7 @@ public interface BrowseCreateDAO
 	 * @return			the instructions (SQL) that effects the create
 	 * @throws BrowseException
 	 */
-	public String createCollectionView(String table, String view, boolean execute) throws BrowseException;
+//	public String createCollectionView(String table, String view, boolean execute) throws BrowseException;
 	
 	/**
 	 * Create the View of the full item index as seen from a community
@@ -349,7 +349,7 @@ public interface BrowseCreateDAO
 	 * @return			the instructions (SQL) that effects the create
 	 * @throws BrowseException
 	 */
-	public String createCommunityView(String table, String view, boolean execute) throws BrowseException;
+//	public String createCommunityView(String table, String view, boolean execute) throws BrowseException;
 	
 	/**
 	 * Create the table which will hold the distinct metadata values that appear in multiple
@@ -364,7 +364,7 @@ public interface BrowseCreateDAO
 	 * @return			the instructions (SQL) that effects the create
 	 * @throws BrowseException
 	 */
-	public String createDistinctTable(String table, boolean execute) throws BrowseException;
+//	public String createDistinctTable(String table, boolean execute) throws BrowseException;
 	
 	/**
 	 * Create a table to hold a mapping between an item and a distinct metadata value that can appear
@@ -377,7 +377,7 @@ public interface BrowseCreateDAO
 	 * @return
 	 * @throws BrowseException
 	 */
-	public String createDistinctMap(String table, String map, boolean execute) throws BrowseException;
+//	public String createDistinctMap(String table, String map, boolean execute) throws BrowseException;
 	
 	/**
 	 * So that any left over indices for items which have been deleted can be assured to have
@@ -389,7 +389,7 @@ public interface BrowseCreateDAO
 	 * @param withdrawn TODO
 	 * @throws BrowseException
 	 */
-	public void pruneExcess(String table, String map, boolean withdrawn) throws BrowseException;
+//	public void pruneExcess(String table, String map, boolean withdrawn) throws BrowseException;
 	
 	/**
 	 * So that there are no distinct values indexed which are no longer referenced from the
@@ -400,5 +400,5 @@ public interface BrowseCreateDAO
 	 * @param map		the name of the associated distinct mapping table.
 	 * @throws BrowseException
 	 */
-	public void pruneDistinct(String table, String map) throws BrowseException;
+//	public void pruneDistinct(String table, String map) throws BrowseException;
 }
