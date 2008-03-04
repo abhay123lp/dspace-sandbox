@@ -463,56 +463,56 @@ public class BrowseCreateDAOOracle implements BrowseCreateDAO
         return "";
     }
     
-    /* (non-Javadoc)
-     * @see org.dspace.browse.BrowseCreateDAO#getDistinctID(java.lang.String, java.lang.String, java.lang.String)
-     */
-    public int getDistinctID(String table, String value, String sortValue) throws BrowseException
-    {
-        TableRowIterator tri = null;
-        
-        if (log.isDebugEnabled())
-        {
-            log.debug("getDistinctID: table=" + table + ",value=" + value + ",sortValue=" + sortValue);
-        }
-        
-        try
-        {
-            Object[] params = { value };
-            String select = "SELECT id FROM " + table;
-            
-            if (isValueColumnClob())
-                select = select + " WHERE TO_CHAR(value)=?";
-            else
-                select = select + " WHERE value=?";
-               
-            tri = DatabaseManager.query(context, select, params);
-            int distinctID = -1;
-            if (!tri.hasNext())
-            {
-                distinctID = insertDistinctRecord(table, value, sortValue);
-            }
-            else
-            {
-                distinctID = tri.next().getIntColumn("id");
-            }
-            
-            if (log.isDebugEnabled())
-            {
-                log.debug("getDistinctID: return=" + distinctID);
-            }
-            
-            return distinctID;
-        }
-        catch (SQLException e)
-        {
-            log.error("caught exception: ", e);
-            throw new BrowseException(e);
-        }
-        finally
-        {
-            tri.close();
-        }
-    }
+//    /* (non-Javadoc)
+//     * @see org.dspace.browse.BrowseCreateDAO#getDistinctID(java.lang.String, java.lang.String, java.lang.String)
+//     */
+//    public int getDistinctID(String table, String value, String sortValue) throws BrowseException
+//    {
+//        TableRowIterator tri = null;
+//        
+//        if (log.isDebugEnabled())
+//        {
+//            log.debug("getDistinctID: table=" + table + ",value=" + value + ",sortValue=" + sortValue);
+//        }
+//        
+//        try
+//        {
+//            Object[] params = { value };
+//            String select = "SELECT id FROM " + table;
+//            
+//            if (isValueColumnClob())
+//                select = select + " WHERE TO_CHAR(value)=?";
+//            else
+//                select = select + " WHERE value=?";
+//               
+//            tri = DatabaseManager.query(context, select, params);
+//            int distinctID = -1;
+//            if (!tri.hasNext())
+//            {
+//                distinctID = insertDistinctRecord(table, value, sortValue);
+//            }
+//            else
+//            {
+//                distinctID = tri.next().getIntColumn("id");
+//            }
+//            
+//            if (log.isDebugEnabled())
+//            {
+//                log.debug("getDistinctID: return=" + distinctID);
+//            }
+//            
+//            return distinctID;
+//        }
+//        catch (SQLException e)
+//        {
+//            log.error("caught exception: ", e);
+//            throw new BrowseException(e);
+//        }
+//        finally
+//        {
+//            tri.close();
+//        }
+//    }
 
     /* (non-Javadoc)
      * @see org.dspace.browse.BrowseCreateDAO#insertCommunityMappings(java.lang.String, java.lang.String, java.lang.String)
