@@ -47,6 +47,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
@@ -56,7 +58,6 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
-import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
@@ -93,7 +94,8 @@ public class ResourcePolicy implements Identifiable
 
     // FIXME: Figure out a way to replace all of this using the
     // ObjectIdentifier class.
-    private int resourceID;
+    private DSpaceObject dso;
+//    private int resourceID;
     private int resourceTypeID;
 
     private int actionID;
@@ -112,7 +114,7 @@ public class ResourcePolicy implements Identifiable
         //epersonDAO = EPersonDAOFactory.getInstance(context);
         //groupDAO = GroupDAOFactory.getInstance(context);
 
-        resourceID = -1;
+//        resourceID = -1;
         resourceTypeID = -1;
         actionID = -1;
         ePersonID = -1;
@@ -196,7 +198,8 @@ public class ResourcePolicy implements Identifiable
     public void setResource(DSpaceObject o)
     {
         setResourceType(o.getType());
-        setResourceID(o.getID());
+//        setResourceID(o.getID());
+        setDso(o);
     }
 
     /**
@@ -207,24 +210,24 @@ public class ResourcePolicy implements Identifiable
         this.resourceTypeID = resourceTypeID;
     }
 
-    /**
-     * Get the ID of a resource pointed to by the policy (is null if policy
-     * doesn't apply to a single resource.)
-     */
-    @Column(name="resource_id")
-    public int getResourceID()
-    {
-        return resourceID;
-    }
-
-    /**
-     * If the policy refers to a single resource, this is the ID of that
-     * resource.
-     */
-    public void setResourceID(int resourceID)
-    {
-        this.resourceID = resourceID;
-    }
+//    /**
+//     * Get the ID of a resource pointed to by the policy (is null if policy
+//     * doesn't apply to a single resource.)
+//     */
+//    @Column(name="resource_id")
+//    public int getResourceID()
+//    {
+//        return resourceID;
+//    }
+//
+//    /**
+//     * If the policy refers to a single resource, this is the ID of that
+//     * resource.
+//     */
+//    public void setResourceID(int resourceID)
+//    {
+//        this.resourceID = resourceID;
+//    }
 
     /**
      * Returns the action this policy authorizes.
@@ -533,5 +536,17 @@ public class ResourcePolicy implements Identifiable
     public void setResourceTypeID(int resourceTypeID)
     {
         this.resourceTypeID = resourceTypeID;
+    }
+
+    @ManyToOne
+    @JoinColumn(name="resource")
+    public DSpaceObject getDso()
+    {
+        return dso;
+    }
+
+    public void setDso(DSpaceObject dso)
+    {
+        this.dso = dso;
     }
 }

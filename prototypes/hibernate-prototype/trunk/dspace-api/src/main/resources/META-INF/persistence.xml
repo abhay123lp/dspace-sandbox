@@ -13,6 +13,7 @@
 
     <persistence-unit name="persistentUnit"> 
         <provider>oracle.toplink.essentials.ejb.cmp3.EntityManagerFactoryProvider</provider>
+        <class>org.dspace.content.DSpaceObject</class>
         <class>org.dspace.content.Site</class>
 		<class>org.dspace.content.Community</class>
 		<class>org.dspace.content.CommunityMetadata</class>

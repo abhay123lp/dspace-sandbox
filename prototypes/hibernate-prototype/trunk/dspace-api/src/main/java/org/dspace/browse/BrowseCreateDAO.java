@@ -78,9 +78,9 @@ public interface BrowseCreateDAO
 	 * @param	itemID	the database id of the item to remove the index for
 	 * @throws BrowseException
 	 */
-	public void deleteByItemID(String table, int itemID) throws BrowseException;
+//	public void deleteByItemID(String table, int itemID) throws BrowseException;
 
-    public void deleteCommunityMappings(int itemID) throws BrowseException;
+//    public void deleteCommunityMappings(int itemID) throws BrowseException;
 //    public void insertCommunityMappings(int itemID) throws BrowseException;
 	
 	/**
@@ -199,7 +199,7 @@ public interface BrowseCreateDAO
 	 * @return			true if exists, false if not
 	 * @throws BrowseException
 	 */
-	public boolean testTableExistance(String table) throws BrowseException;
+//	public boolean testTableExistance(String table) throws BrowseException;
 	
 	/**
 	 * Drop the given table name, and all other resources that are attached to it.  In normal
@@ -213,7 +213,7 @@ public interface BrowseCreateDAO
 	 * @return			The instructions (SQL) that effect the removal
 	 * @throws BrowseException
 	 */
-	public String dropIndexAndRelated(String table, boolean execute) throws BrowseException;
+//	public String dropIndexAndRelated(String table, boolean execute) throws BrowseException;
 	
 	/**
 	 * Drop the given sequence name.  This is relevant to most forms of database, but not all.
@@ -226,7 +226,7 @@ public interface BrowseCreateDAO
 	 * @return				The instructions (SQL) that effect the removal
 	 * @throws BrowseException
 	 */
-	public String dropSequence(String sequence, boolean execute) throws BrowseException;
+//	public String dropSequence(String sequence, boolean execute) throws BrowseException;
 	
     /**
      * Drop the given view name.  This is relevant to most forms of database, but not all.
@@ -239,7 +239,7 @@ public interface BrowseCreateDAO
      * @return              The instructions (SQL) that effect the removal
      * @throws BrowseException
      */
-    public String dropView(String view, boolean execute) throws BrowseException;
+//    public String dropView(String view, boolean execute) throws BrowseException;
     
 	/**
 	 * Create the sequence with the given name.  This is relevant to most forms of database, but not all.
