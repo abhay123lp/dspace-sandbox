@@ -53,7 +53,7 @@ public class WorkflowItemDAOJPA //extends WorkflowItemDAO
     public List<TaskListItem> findTaskListItemByEPerson(EPerson eperson, Context context) {
         EntityManager em = context.getEntityManager();
         Query q = em.createQuery("SELECT tli FROM TaskListItem tli " +
-        		"WHERE tli.eperson = :eperson AND tli.workflowitem IS NOT NULL ");
+        		"WHERE tli.eperson = :eperson AND tli.iD = tli.workflowitem.id");
         q.setParameter("eperson", eperson);
         List<TaskListItem> tlis = q.getResultList();
         return tlis;

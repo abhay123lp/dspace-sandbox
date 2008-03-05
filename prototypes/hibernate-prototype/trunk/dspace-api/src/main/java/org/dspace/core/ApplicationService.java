@@ -4,12 +4,15 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.dao.jpa.ResourcePolicyDAOJPA;
+import org.dspace.browse.BrowseCreateDAOJPA;
+import org.dspace.browse.CommunityMapping;
 import org.dspace.browse.ItemIndexEntry;
 import org.dspace.browse.MetadataIndexEntry;
 import org.dspace.checker.BitstreamInfoDAOJPA;
@@ -133,29 +136,30 @@ public class ApplicationService {
         return chdao.deleteHistoryByDateAndCode(retentionDate, result, context);
     }
     
-    //TODO implementare
     public static void deleteMetadataIndexForItem(Item item, Context context) {
+        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        bcdao.deleteMetadataIndexForItem(item, context);
         
     }
     
-    // TODO implementare (indexbrowse.indexItem)
-    public static void deleteCommunityMappings(Item item, Context context) {
-        
-    }
-    
-    //TODO implemetare (IndexBrowse)
     public static void deleteItemIndexForItem(Item item, Context context) {
-        
+        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        bcdao.deleteItemIndexForItem(item, context);
     }
     
-    //TODO implementare (indexbrowse)
+    public static void deleteCommunityMappings(Item item, Context context) {
+        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        bcdao.deleteCommunityMappings(item, context);
+    }
+    
     public static void pruneMetadataIndex(Context context) {
-        
+        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        bcdao.pruneMetadataIndex(context);
     }
     
-    //TODO implementare (indexbrowse)
     public static void pruneItemIndex(Context context) {
-        
+        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        bcdao.pruneItemIndex(context);
     }
   
  
@@ -352,17 +356,16 @@ public class ApplicationService {
         return gdao.findGroupByName(context, name);
     }
     
-    //TODO implementare
-    public static List<Group> findAllGroups(Context context) {
-        return null;
-    }
+//    
+//    public static List<Group> findAllGroups(Context context) {
+//        return null;
+//    }
+//    
     
-    
-    
-    public static List<Group> findAllGroupsSortedById(Context context) {
-        GroupDAOHibernate gdao = new GroupDAOHibernate(context);
-        return gdao.findAllGroupsSortedById(context);
-    }
+//    public static List<Group> findAllGroupsSortedById(Context context) {
+//        GroupDAOHibernate gdao = new GroupDAOHibernate(context);
+//        return gdao.findAllGroupsSortedById(context);
+//    }
     
     
     public static List<Group> findAllGroupsSortedByName(Context context) {
@@ -370,14 +373,14 @@ public class ApplicationService {
         return gdao.findAllGroupsSortedByName(context);
     }
     
-    //TODO implementare
-    /**
-     * Returns all groups the eperson belongs to, and 
-     * all parent groups for groups eperson is a member of
-     */  
-    public static List<Group> findAllGroups(EPerson eperson, Context context) {
-        return null;
-    }    
+//    
+//    /**
+//     * Returns all groups the eperson belongs to, and 
+//     * all parent groups for groups eperson is a member of
+//     */  
+//    public static List<Group> findAllGroups(EPerson eperson, Context context) {
+//        return null;
+//    }    
     
     public static RegistrationData findRegistrationDataByToken(String token, Context context) {
         RegistrationDataDAOJPA rdao = new RegistrationDataDAOJPA();
@@ -453,7 +456,6 @@ public class ApplicationService {
         return wdao.findTaskListItemByWorkflowId(workflowId, context);        
     }
     
-    //FIXME ricontrollare la query confrontandola con quella del dao originale
     public static List<TaskListItem> findTaskListItemByEPerson(EPerson eperson, Context context) {
         WorkflowItemDAOJPA wdao = new WorkflowItemDAOJPA();
         return wdao.findTaskListItemByEPerson(eperson, context);
@@ -499,19 +501,19 @@ public class ApplicationService {
         return rdao.getPolicies(dso, group, context);
     }
     
-    //TODO
+    public static Set<Integer> findCommunitiesAndAncestorsId(Item item, Context context) {
+        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        return bcdao.findCommunitiesAndAncestorsId(item, context);
+    }
+    
+    public static List<CommunityMapping> findCommunityMappings(Item item, Context context) {
+        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        return bcdao.findCommunityMappings(item, context);
+    }
+    
     public static MetadataIndexEntry findMetadataIndexEntryByValue(String value, Context context) {
-        return null;
-    }
-    
-    //TODO implementare (ma controllare prima se vengono utilizzati)
-    public static ItemIndexEntry findItemIndexByItem(Item item, Context context) {
-        return null;
-    }
-    
-  //TODO implementare (ma controllare prima se vengono utilizzati)
-    public static MetadataIndexEntry findMetadataIndexEntryByItem(Item item, Context context) {
-        return null;
+        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        return bcdao.findMetadataIndexEntryByValue(value, context);
     }
     
     /* Other methods */

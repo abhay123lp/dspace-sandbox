@@ -66,10 +66,10 @@ public class BrowseDAOFactory
 		{
 			return new BrowseDAOPostgres(context);
 		}
-		else if ("oracle".equals(db))
-		{
-            return new BrowseDAOOracle(context);
-		}
+//		else if ("oracle".equals(db))
+//		{
+//            return new BrowseDAOOracle(context);
+//		}
 		else
 		{
 			throw new BrowseException("The configuration for db.name is either invalid, or contains an unrecognised database");

@@ -67,7 +67,7 @@ import org.dspace.storage.rdbms.TableRowIterator;
  * @author Graham Triggs
  * 
  */
-public class BrowseDAOOracle implements BrowseDAO
+public class BrowseDAOOracle //implements BrowseDAO
 {
     /** Log4j log */
     private static Logger log = Logger.getLogger(BrowseDAOOracle.class);

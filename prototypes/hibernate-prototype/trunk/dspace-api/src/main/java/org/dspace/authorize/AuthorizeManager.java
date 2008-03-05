@@ -517,7 +517,7 @@ public class AuthorizeManager
     public static void addPolicies(Context c, List<ResourcePolicy> policies, DSpaceObject dest)
             throws AuthorizeException
     {
-        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
+//        ResourcePolicyDAO dao = ResourcePolicyDAOFactory.getInstance(c);
 
         // now add them to the destination object
         for (ResourcePolicy srp : policies)

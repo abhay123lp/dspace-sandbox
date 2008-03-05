@@ -301,7 +301,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
         Date endDate = row.getDateColumn("end_date");
 
         rp.setSimpleIdentifier(new SimpleIdentifier(uuid));
-        rp.setResourceID(resourceID);
+//        rp.setResourceID(resourceID); per far compilare
         rp.setResourceType(resourceTypeID);
         rp.setAction(actionID);
         rp.setEPersonID(epersonID);
@@ -313,7 +313,7 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
     private void populateTableRowFromResourcePolicy(ResourcePolicy rp,
             TableRow row)
     {
-        int resourceID = rp.getResourceID();
+        int resourceID = 0;//rp.getResourceID(); per far compilare
         int resourceTypeID = rp.getResourceType();
         int actionID = rp.getAction();
         int epersonID = rp.getEPersonID();

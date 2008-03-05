@@ -84,7 +84,8 @@ public class InitializeDatabase
                     IndexBrowse browse = new IndexBrowse();
                     browse.setDelete(true);
                     browse.setExecute(true);
-                    browse.clearDatabase();
+//                    browse.clearDatabase();
+                    log.info("clean-database is not supported anymore. all tables are created statically");
                 }
                 catch (BrowseException e)
                 {

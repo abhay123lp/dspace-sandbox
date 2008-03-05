@@ -43,23 +43,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
-
-import org.dspace.core.Context;
-import org.dspace.uri.ExternalIdentifier;
-import org.dspace.uri.ObjectIdentifier;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
+import org.dspace.core.Context;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.ObjectIdentifier;
 
 /**
  * Abstract base class for DSpace objects
  */
+@Entity @Inheritance(strategy=InheritanceType.JOINED)
 @MappedSuperclass
 public abstract class DSpaceObject
 {
