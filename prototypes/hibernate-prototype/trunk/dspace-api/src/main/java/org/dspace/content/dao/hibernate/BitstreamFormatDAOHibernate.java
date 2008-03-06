@@ -30,9 +30,49 @@ public class BitstreamFormatDAOHibernate extends BitstreamFormatDAO {
         
     }
     
-    //TODO implementare o cancellare dal dao
-    public List<BitstreamFormat> getBitstreamFormats() {return null;}
-    public List<BitstreamFormat> getBitstreamFormats(String extension) {return null;}
-    public List<BitstreamFormat> getBitstreamFormats(boolean internal) {return null;}
+    public BitstreamFormat findBitstreamFormatByMimeType(String mimeType, EntityManager em) {
+        Query q = em.createQuery("SELECT bf FROM BitstreamFormat bf " +
+        		"WHERE bf.mimeType = :mimeType AND bf.internale = false");
+        q.setParameter("mimeType", mimeType);
+        BitstreamFormat bf = (BitstreamFormat)q.getSingleResult();
+        return bf;
+    }
+    
+    public void deleteBitstreamFormat(BitstreamFormat bf, BitstreamFormat unknown, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("UPDATE Bitstream b " +
+        		"SET b.bitstreamFormat = :unknown " +
+        		"WHERE b.bistreamFormat = :format");
+        q.setParameter("unknown", unknown);
+        q.setParameter("format", bf);
+        q.executeUpdate();
+        em.remove(bf);
+    }
+    
+    public List<BitstreamFormat> getBitstreamFormats(Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createNamedQuery("SELECT bf FROM BitstreamFormat bf ORDER BY bf.id");
+        List<BitstreamFormat> bfs = q.getResultList();
+        return bfs;
+    }
+    public List<BitstreamFormat> getBitstreamFormats(String extension, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT bf FROM BitstreamFormat bf, " +
+        		"IN (bf.fileExtensions) AS ext " +
+        		"WHERE ext.extension LIKE :extension");
+        q.setParameter("extension", extension);
+        List<BitstreamFormat> bfs = q.getResultList();
+        return bfs;
+    }
+    public List<BitstreamFormat> getBitstreamFormats(boolean internal, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT bf FROM BitstreamFormat bf " +
+                "WHERE bf.internal = :internal " +
+                "AND bf.shortDescription NOT LIKE 'Unknown' " +
+                "ORDER BY bf.supportLevel DESC, bf.shortDescription");
+        q.setParameter("internal", internal);
+        List<BitstreamFormat> bfs = q.getResultList();
+        return bfs;
+    }
 
 }

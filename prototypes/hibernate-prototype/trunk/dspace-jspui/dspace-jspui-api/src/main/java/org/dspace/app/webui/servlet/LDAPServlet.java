@@ -52,9 +52,11 @@ import org.dspace.app.webui.util.Authenticate;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.authenticate.AuthenticationManager;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.AccountManager;
 import org.dspace.eperson.EPerson;
 import java.util.Hashtable;
 
@@ -107,8 +109,11 @@ public class LDAPServlet extends DSpaceServlet
         String password = request.getParameter("login_password");
         
         // Locate the eperson
-        EPerson eperson = EPerson.findByNetid(context, netid.toLowerCase());
-        EPerson eperson2 = EPerson.findByEmail(context, netid.toLowerCase());
+//        EPerson eperson = EPerson.findByNetid(context, netid.toLowerCase());
+        EPerson eperson = ApplicationService.findEPersonByNetid(context, netid.toLowerCase());
+//        EPerson eperson2 = EPerson.findByEmail(context, netid.toLowerCase());
+        EPerson eperson2 = ApplicationService.findEPersonByEmail(context, netid.toLowerCase());
+        
         boolean loggedIn = false;
 
         // make sure ldap values are null with every request
@@ -197,7 +202,8 @@ public class LDAPServlet extends DSpaceServlet
 
                     if ((ldapResult.email!=null)&&(!ldapResult.email.equals(""))) 
                     {
-                        eperson = EPerson.findByEmail(context, ldapResult.email);
+//                        eperson = EPerson.findByEmail(context, ldapResult.email);
+                        eperson = ApplicationService.findEPersonByEmail(context, ldapResult.email);
                         if (eperson!=null)
                         {
                             log.info(LogManager.getHeader(context,
@@ -209,7 +215,8 @@ public class LDAPServlet extends DSpaceServlet
                     }
                     // TEMPORARILY turn off authorisation
                     context.setIgnoreAuthorization(true);
-                    eperson = EPerson.create(context);
+//                    eperson = EPerson.create(context);
+                    eperson = AccountManager.createEPerson(context);
                     if ((ldapResult.email!=null)&&(!ldapResult.email.equals(""))) eperson.setEmail(ldapResult.email);
                     else eperson.setEmail(netid);
                     if ((ldapResult.givenName!=null)&&(!ldapResult.givenName.equals(""))) eperson.setFirstName(ldapResult.givenName);
@@ -218,7 +225,8 @@ public class LDAPServlet extends DSpaceServlet
                     eperson.setNetid(netid);
                     eperson.setCanLogIn(true);
                     AuthenticationManager.initEPerson(context, request, eperson);
-                    eperson.update();
+//                    eperson.update();
+                    ApplicationService.save(context, EPerson.class, eperson);
                     context.commit();
                     context.setIgnoreAuthorization(false); 
 

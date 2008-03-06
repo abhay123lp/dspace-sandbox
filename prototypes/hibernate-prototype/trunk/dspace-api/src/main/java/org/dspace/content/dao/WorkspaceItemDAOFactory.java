@@ -39,6 +39,7 @@
  */
 package org.dspace.content.dao;
 
+import org.dspace.content.dao.hibernate.WorkspaceItemDAOJPA;
 import org.dspace.content.dao.postgres.WorkspaceItemDAOPostgres;
 import org.dspace.core.Context;
 
@@ -47,6 +48,6 @@ public class WorkspaceItemDAOFactory
     public static WorkspaceItemDAO getInstance(Context context)
     {
         //return new WorkspaceItemDAOPostgres(context);
-        return null; //FIXME cambiamento
+        return new WorkspaceItemDAOJPA(context);
     }
 }

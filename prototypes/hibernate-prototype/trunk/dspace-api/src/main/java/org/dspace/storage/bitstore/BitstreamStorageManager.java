@@ -250,6 +250,11 @@ public class BitstreamStorageManager
     public static BitstreamFormat createBistreamFormat(Context context) throws AuthorizeException {
         return BitstreamFormatFactory.getInstance(context);
     }
+    
+    public static void deleteBitstreamFormat(BitstreamFormat bitstreamFormat, Context context) {
+        BitstreamFormat unknown = ApplicationService.findBitstreamFormatByShortDescription("Unknown", context);
+        ApplicationService.deleteBitstreamFormat(bitstreamFormat, unknown, context);
+    }
 
     /**
      * Store a stream of bits.

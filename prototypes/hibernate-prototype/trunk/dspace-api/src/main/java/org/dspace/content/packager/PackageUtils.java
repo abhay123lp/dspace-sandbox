@@ -269,8 +269,7 @@ public class PackageUtils
             bsf.setMIMEType(MIMEType);
             bsf.setDescription(desc);
             bsf.setSupportLevel(BitstreamFormat.KNOWN);
-            //bsf.update();
-            //no need
+//            bsf.update(); FIXME controllare
         }
         return bsf;
     }

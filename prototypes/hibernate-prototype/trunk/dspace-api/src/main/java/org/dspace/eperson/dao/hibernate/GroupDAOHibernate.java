@@ -5,7 +5,11 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import org.dspace.content.InProgressSubmission;
+import org.dspace.content.WorkspaceItem;
+import org.dspace.content.WorkspaceItemLink;
 import org.dspace.core.Context;
+import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 
@@ -36,4 +40,6 @@ public class GroupDAOHibernate extends GroupDAO
         List<Group> group = q.getResultList();
         return group;
     }
+    
+    
 }

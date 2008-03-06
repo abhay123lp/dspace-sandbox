@@ -123,6 +123,7 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
     {
         childDAO.delete(id);
     }
+    
 
 //    public List<Group> getGroups()
 //    {

@@ -62,6 +62,7 @@ import org.dspace.content.SupervisedItem;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -182,7 +183,8 @@ public class MyDSpaceServlet extends DSpaceServlet
         try
         {
             int wfID = Integer.parseInt(request.getParameter("workflow_id"));
-            workflowItem = wfDAO.retrieve(wfID);
+//            workflowItem = wfDAO.retrieve(wfID);
+            workflowItem = ApplicationService.get(context, WorkflowItem.class, wfID);
         }
         catch (NumberFormatException nfe)
         {

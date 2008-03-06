@@ -218,8 +218,7 @@ public class RegistryLoader
         format.setExtensions(extensions);
 
         // Write to database
-        //format.update();
-        //no need
+//        format.update(); FIXME controllare
     }
 
     /**

@@ -13,7 +13,6 @@ import org.dspace.authorize.ResourcePolicy;
 import org.dspace.authorize.dao.jpa.ResourcePolicyDAOJPA;
 import org.dspace.browse.BrowseCreateDAOJPA;
 import org.dspace.browse.CommunityMapping;
-import org.dspace.browse.ItemIndexEntry;
 import org.dspace.browse.MetadataIndexEntry;
 import org.dspace.checker.BitstreamInfoDAOJPA;
 import org.dspace.checker.ChecksumHistoryDAOJPA;
@@ -26,10 +25,13 @@ import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.MetadataValue;
+import org.dspace.content.WorkspaceItem;
+import org.dspace.content.WorkspaceItemLink;
 import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.dao.BitstreamDAOFactory;
 import org.dspace.content.dao.BitstreamFormatDAO;
@@ -48,6 +50,8 @@ import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.content.dao.MetadataValueDAO;
 import org.dspace.content.dao.MetadataValueDAOFactory;
+import org.dspace.content.dao.WorkspaceItemDAO;
+import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.RegistrationData;
@@ -152,6 +156,11 @@ public class ApplicationService {
         bcdao.deleteCommunityMappings(item, context);
     }
     
+    public static void deleteBitstreamFormat(BitstreamFormat bf, BitstreamFormat unknown, Context context) {
+        BitstreamFormatDAO bdao = BitstreamFormatDAOFactory.getInstance(context);
+        bdao.deleteBitstreamFormat(bf, unknown, context);
+    }
+    
     public static void pruneMetadataIndex(Context context) {
         BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
         bcdao.pruneMetadataIndex(context);
@@ -162,7 +171,11 @@ public class ApplicationService {
         bcdao.pruneItemIndex(context);
     }
   
- 
+    public static void deleteWorkspaceItemLink(Group group, Context context) {
+        WorkspaceItemDAO widao = WorkspaceItemDAOFactory.getInstance(context);
+        widao.deleteWorkspaceItemLink(group, context);
+    }
+    
    
     /* Finder operations */ 
     
@@ -285,13 +298,14 @@ public class ApplicationService {
         return bdao.findBundleByName(item, name, context.getEntityManager());
     }
     
-    //TODO implementare
     public static List<Item> findItemForHarvest(DSpaceObject scope,
             String startDate, String endDate, int offset, int limit,
             boolean items, boolean collections, boolean withdrawn, Context context)
             throws ParseException
     {
-        return null;
+        ItemDAO idao = ItemDAOFactory.getInstance(context);
+        return idao.findItemForHarvest(scope, startDate, endDate, offset, limit, items, 
+                collections, withdrawn, context.getEntityManager());
     }
     
 
@@ -307,6 +321,11 @@ public class ApplicationService {
         BitstreamFormat bf = bdao.getBitstreamFormatByShortDescription(description, context.getEntityManager());
         return bf;      
     }
+    
+    public static BitstreamFormat findBitstreamFormatByMimeType(String mimeType, Context context) {
+        BitstreamFormatDAO bdao = BitstreamFormatDAOFactory.getInstance(context);
+        return bdao.findBitstreamFormatByMimeType(mimeType, context.getEntityManager());
+    }
         
     public static List<BitstreamFormat> findBitstreamFormatByInternal(boolean internal, Context context) {
         BitstreamFormatDAO bdao = BitstreamFormatDAOFactory.getInstance(context);
@@ -314,29 +333,28 @@ public class ApplicationService {
         return bfs;
     }
     
-    //TODO
     public static List<Integer> findAllCommunityBitstreamsId(int communityId, Context context) {
-        return null;
+        BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
+        return bdao.findAllCommunityBitstreamsId(communityId, context);
     }
     
-    //TODO
     public static List<Integer> findAllCollectionBitstreamsId(int collectionId, Context context) {
-        return null;
+        BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
+        return bdao.findAllCollectionBitstreamsId(collectionId, context);
     }
     
-    //TODO
     public static List<Integer> findAllItemBitstreamsId(int itemId, Context context) {
-        return null;
+        BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
+        return bdao.findAllItemBitstreamsId(itemId, context);
     }
-    //FIXME query sbagliata, da rifare    
     public static EPerson findEPersonByEmail(Context context, String email) {
         EPersonDAOHibernate edao = new EPersonDAOHibernate(context);
         return edao.findEPersonByEmail(context, email);
     }
     
-    // TODO implementare
     public static EPerson findEPersonByNetid(Context context, String netid) {
-        return null;
+        EPersonDAOHibernate edao = new EPersonDAOHibernate(context);
+        return edao.findEPersonByNetid(context, netid);
     }
     
     public static EPerson findEPersonByEPersonMetadataField(Context context, EPersonMetadataField field, String value) {
@@ -346,9 +364,10 @@ public class ApplicationService {
     // FIXME //ritorna tutte le persone nel gruppo e nei suoi sottogruppi,
     // ricorsivamente
     // questo metodo sta nell'account manager, perchè?
-// public static List<EPerson> findAllEPeople(Group group) {
-// return null;
-// }
+    public static List<EPerson> findAllEPeople(Group group)
+    {
+        return null;
+    }
     
     
     public static Group findGroupByName(Context context, String name) {
@@ -356,16 +375,16 @@ public class ApplicationService {
         return gdao.findGroupByName(context, name);
     }
     
-//    
-//    public static List<Group> findAllGroups(Context context) {
-//        return null;
-//    }
-//    
+    //TODO
+    public static List<Group> findAllGroups(Context context) {
+        return null;
+    }
     
-//    public static List<Group> findAllGroupsSortedById(Context context) {
-//        GroupDAOHibernate gdao = new GroupDAOHibernate(context);
-//        return gdao.findAllGroupsSortedById(context);
-//    }
+    
+    public static List<Group> findAllGroupsSortedById(Context context) {
+        GroupDAOHibernate gdao = new GroupDAOHibernate(context);
+        return gdao.findAllGroupsSortedById(context);
+    }
     
     
     public static List<Group> findAllGroupsSortedByName(Context context) {
@@ -373,14 +392,14 @@ public class ApplicationService {
         return gdao.findAllGroupsSortedByName(context);
     }
     
-//    
-//    /**
-//     * Returns all groups the eperson belongs to, and 
-//     * all parent groups for groups eperson is a member of
-//     */  
-//    public static List<Group> findAllGroups(EPerson eperson, Context context) {
-//        return null;
-//    }    
+    
+    /**
+     * Returns all groups the eperson belongs to, and 
+     * all parent groups for groups eperson is a member of
+     */  //TODO
+    public static List<Group> findAllGroups(EPerson eperson, Context context) {
+        return null;
+    }    
     
     public static RegistrationData findRegistrationDataByToken(String token, Context context) {
         RegistrationDataDAOJPA rdao = new RegistrationDataDAOJPA();
@@ -479,6 +498,24 @@ public class ApplicationService {
     public static List<WorkflowItem> findAllWorkflowItem(Context context) {
         WorkflowItemDAOJPA wdao = new WorkflowItemDAOJPA();
         return wdao.findAllWorkflowItem(context);
+    }
+    
+    public static WorkspaceItemLink findWorkspaceItemLink(Group group, InProgressSubmission ips, Context context) {
+        WorkspaceItemDAO widao = WorkspaceItemDAOFactory.getInstance(context);
+        return widao.findWorkspaceItemLink(group, ips, context);
+    }
+    
+    //FIXME implementare
+    public static List<WorkspaceItem> findWorkspaceItems(Context context){
+        return null;
+    }
+    //FIXME implementare    
+    public static List<WorkspaceItem> findWorkspaceItems(Collection collection,Context context){
+        return null;
+    }
+    //FIXME implementare
+    public static List<WorkspaceItem> findWorkspaceItems(EPerson eperson,Context context){
+        return null;
     }
     
     public static List<ResourcePolicy> findPolicies(DSpaceObject dso, int actionID, Context context) {

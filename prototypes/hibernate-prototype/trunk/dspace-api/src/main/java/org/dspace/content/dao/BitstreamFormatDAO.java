@@ -103,15 +103,18 @@ public abstract class BitstreamFormatDAO extends ContentDAO
         return null;
     }
 
-    public BitstreamFormat retrieveByMimeType(String mimeType)
-    {
-        return null;
-    }
+//    public BitstreamFormat retrieveByMimeType(String mimeType)
+//    {
+//        return null;
+//    }
+    public abstract BitstreamFormat findBitstreamFormatByMimeType(String mimeType, EntityManager em);
 
-    public BitstreamFormat retrieveByShortDescription(String desc)
-    {
-        return null;
-    }
+//    public BitstreamFormat retrieveByShortDescription(String desc)
+//    {
+//        return null;
+//    }
+    
+    
 
 //    public void update(BitstreamFormat bitstreamFormat)
 //        throws AuthorizeException
@@ -158,13 +161,14 @@ public abstract class BitstreamFormatDAO extends ContentDAO
     public abstract BitstreamFormat getBitstreamFormatByShortDescription(String description, EntityManager em);
     public abstract List<BitstreamFormat> getBitstreamFormatByInternal(boolean internal, EntityManager em);
 
-    public abstract List<BitstreamFormat> getBitstreamFormats();
-    public abstract List<BitstreamFormat> getBitstreamFormats(String extension);
+    public abstract List<BitstreamFormat> getBitstreamFormats(Context context);
+    public abstract List<BitstreamFormat> getBitstreamFormats(String extension, Context context);
 
     /**
      * Retrieve all non-internal bitstream formats from the registry. The
      * "unknown" format is not included, and the formats are ordered by support
      * level (highest first) first then short description.
      */
-    public abstract List<BitstreamFormat> getBitstreamFormats(boolean internal);
+    public abstract List<BitstreamFormat> getBitstreamFormats(boolean internal, Context context);
+    public abstract void deleteBitstreamFormat(BitstreamFormat bf, BitstreamFormat unknown, Context context);
 }

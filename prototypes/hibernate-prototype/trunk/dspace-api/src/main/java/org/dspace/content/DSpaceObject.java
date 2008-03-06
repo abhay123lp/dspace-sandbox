@@ -135,6 +135,7 @@ public abstract class DSpaceObject
     }
     
     @Transient
+    @Deprecated
     public int getID() {
         return getId();
     }

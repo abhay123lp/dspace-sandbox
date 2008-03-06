@@ -17,6 +17,7 @@ import org.dspace.authorize.AuthorizeManager;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.Authenticate;
 import org.dspace.app.webui.util.UIUtil;
+import org.dspace.storage.bitstore.BitstreamStorageManager;
 import org.dspace.uri.IdentifierService;
 import org.dspace.plugin.CommunityHomeProcessor;
 import org.dspace.plugin.CollectionHomeProcessor;
@@ -55,8 +56,9 @@ public class DSpaceObjectServlet extends DSpaceServlet
                     "bitstream_id=" + bitstream.getID()));
 
             // Pipe the bits
-            InputStream is = bitstream.retrieve();
-
+//            InputStream is = bitstream.retrieve();
+            InputStream is = BitstreamStorageManager.retrieve(context, bitstream);
+            
                     // Set the response MIME type
             response.setContentType(bitstream.getFormat().getMIMEType());
 
