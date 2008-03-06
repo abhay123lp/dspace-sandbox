@@ -717,7 +717,8 @@ public class MediaFilterManager
         // Find the proper format
         BitstreamFormatDAO bfDAO = BitstreamFormatDAOFactory.getInstance(c);
         BitstreamFormat bf =
-                bfDAO.retrieveByShortDescription(formatFilter.getFormatString());
+//                bfDAO.retrieveByShortDescription(formatFilter.getFormatString());
+            ApplicationService.findBitstreamFormatByShortDescription(formatFilter.getFormatString(), c);
         b.setFormat(bf);
 
         BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(c);

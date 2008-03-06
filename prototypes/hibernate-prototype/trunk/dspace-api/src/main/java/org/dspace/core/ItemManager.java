@@ -183,7 +183,7 @@ public class ItemManager
         if (bundle == null)
         {            
             throw new IllegalArgumentException(
-                    "A Item owner of the bundle is needed");
+                    "A Bundle owner of the bitstream is needed");
         }
         bundle.getBitstreams().remove(bitstream);
         // no need to delete it using applicationservice        

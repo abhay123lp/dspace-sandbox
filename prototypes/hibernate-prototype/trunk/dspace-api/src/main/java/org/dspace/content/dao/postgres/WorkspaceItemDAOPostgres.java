@@ -65,12 +65,12 @@ import org.dspace.workflow.WorkflowItem;
 /**
  * @author James Rutherford
  */
-public class WorkspaceItemDAOPostgres //extends WorkspaceItemDAO
+public class WorkspaceItemDAOPostgres extends WorkspaceItemDAO
 {
-//    public WorkspaceItemDAOPostgres(Context context)
-//    {
-//        super(context);
-//    }
+    public WorkspaceItemDAOPostgres(Context context)
+    {
+        super(context);
+    }
 //
 //    @Override
 //    public WorkspaceItem create(Collection collection, boolean template)
@@ -91,7 +91,7 @@ public class WorkspaceItemDAOPostgres //extends WorkspaceItemDAO
 //    {
 //        return null;
 //    }
-//
+
 //    @Override
 //    public WorkspaceItem create()
 //    {
@@ -114,7 +114,7 @@ public class WorkspaceItemDAOPostgres //extends WorkspaceItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public WorkspaceItem retrieve(int id)
 //    {
@@ -129,7 +129,7 @@ public class WorkspaceItemDAOPostgres //extends WorkspaceItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
+
 //    @Override
 //    public WorkspaceItem retrieve(UUID uuid)
 //    {
@@ -145,200 +145,200 @@ public class WorkspaceItemDAOPostgres //extends WorkspaceItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
-//    public void update(WorkspaceItem wsi) throws AuthorizeException
-//    {
-//        try
-//        {
-//            TableRow row =
-//                DatabaseManager.find(context, "workspaceitem", wsi.getID());
-//
-//            if (row != null)
-//            {
-//                populateTableRowFromWorkspaceItem(wsi, row);
-//                DatabaseManager.update(context, row);
-//            }
-//            else
-//            {
-//                throw new RuntimeException("Didn't find workspace item " +
-//                        wsi.getID());
-//            }
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    @Override
-//    public void delete(int id) throws AuthorizeException
-//    {
-//        try
-//        {
-//            DatabaseManager.delete(context, "workspaceitem", id);
-//            DatabaseManager.updateQuery(context,
-//                "DELETE FROM epersongroup2workspaceitem " +
-//                "WHERE workspace_item_id = ?", id);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    public void deleteAll(int id) throws AuthorizeException
-//    {
-//    }
-//
-//    @Override
-//    public List<WorkspaceItem> getWorkspaceItems()
-//    {
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.queryTable(context,
-//                    "workspaceitem",
-//                    "SELECT workspace_item_id FROM workspaceitem " +
-//                    "ORDER BY item_id");
-//
-//            return returnAsList(tri);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    public List<WorkspaceItem> getWorkspaceItems(EPerson eperson)
-//    {
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.queryTable(context,
-//                    "workspaceitem",
-//                    "SELECT wsi.workspace_item_id " +
-//                    "FROM workspaceitem wsi, item " +
-//                    "WHERE wsi.item_id = item.item_id " +
-//                    "AND item.submitter_id = ? " +
-//                    "ORDER BY wsi.workspace_item_id", 
-//                    eperson.getID());
-//
-//            return returnAsList(tri);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    public List<WorkspaceItem> getWorkspaceItems(Collection collection)
-//    {
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.queryTable(context,
-//                    "workspaceitem",
-//                    "SELECT workspace_item_id FROM workspaceitem WHERE " +
-//                    "collection_id = ? ", collection.getID());
-//
-//            return returnAsList(tri);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    @Override
-//    public <T extends WorkspaceItem> void populate(T t)
-//    {
-//        try
-//        {
-//            TableRow row = DatabaseManager.find(context, "workspaceitem",
-//                    t.getID());
-//
-//            if (row == null)
-//            {
-//                log.warn("workspace item " + t.getID() + " not found");
-//            }
-//            else
-//            {
-//                populateWorkspaceItemFromTableRow(t, row);
-//            }
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    ////////////////////////////////////////////////////////////////////
-//    // Utility methods
-//    ////////////////////////////////////////////////////////////////////
-//
-//    private WorkspaceItem retrieve(TableRow row)
-//    {
-//        if (row == null)
-//        {
-//            return null;
-//        }
-//
-//        int id = row.getIntColumn("workspace_item_id");
-//        WorkspaceItem wsi = new WorkspaceItem(context, id);
-//        populateWorkspaceItemFromTableRow(wsi, row);
-//
-//        return wsi;
-//    }
-//
-//    private List<WorkspaceItem> returnAsList(TableRowIterator tri)
-//            throws SQLException
-//    {
-//        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
-//
-//        for (TableRow row : tri.toList())
-//        {
-//            int id = row.getIntColumn("workspace_item_id");
-//            wsItems.add(retrieve(id));
-//        }
-//
-//        return wsItems;
-//    }
-//
-//    private void populateWorkspaceItemFromTableRow(WorkspaceItem wsi,
-//            TableRow row)
-//    {
-//        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-//        CollectionDAO collectionDAO =
-//            CollectionDAOFactory.getInstance(context);
-//
-//        Item item = itemDAO.retrieve(row.getIntColumn("item_id"));
-//        Collection collection =
-//            collectionDAO.retrieve(row.getIntColumn("collection_id"));
-//
-//        wsi.setItem(item);
-//        wsi.setCollection(collection);
-//        wsi.setMultipleFiles(row.getBooleanColumn("multiple_files"));
-//        wsi.setMultipleTitles(row.getBooleanColumn("multiple_titles"));
-//        wsi.setPublishedBefore(row.getBooleanColumn("published_before"));
-//        wsi.setStageReached(row.getIntColumn("stage_reached"));
-//        wsi.setPageReached(row.getIntColumn("page_reached"));
-//    }
-//
-//    private void populateTableRowFromWorkspaceItem(WorkspaceItem wsi,
-//            TableRow row)
-//    {
-//        row.setColumn("item_id", wsi.getItem().getID());
-//        Collection collection  = wsi.getCollection();
-//        if (collection != null)
-//        {
-//            row.setColumn("collection_id", collection.getID());
-//        }
-//        else
-//        {
-//            row.setColumnNull("collection_id");
-//        }
-//        row.setColumn("multiple_titles", wsi.hasMultipleTitles());
-//        row.setColumn("multiple_files", wsi.hasMultipleFiles());
-//        row.setColumn("published_before", wsi.isPublishedBefore());
-//        row.setColumn("stage_reached", wsi.getStageReached());
-//        row.setColumn("page_reached", wsi.getPageReached());
-//    }
+
+    @Override
+    public void update(WorkspaceItem wsi) throws AuthorizeException
+    {
+        try
+        {
+            TableRow row =
+                DatabaseManager.find(context, "workspaceitem", wsi.getID());
+
+            if (row != null)
+            {
+                populateTableRowFromWorkspaceItem(wsi, row);
+                DatabaseManager.update(context, row);
+            }
+            else
+            {
+                throw new RuntimeException("Didn't find workspace item " +
+                        wsi.getID());
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public void delete(int id) throws AuthorizeException
+    {
+        try
+        {
+            DatabaseManager.delete(context, "workspaceitem", id);
+            DatabaseManager.updateQuery(context,
+                "DELETE FROM epersongroup2workspaceitem " +
+                "WHERE workspace_item_id = ?", id);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public void deleteAll(int id) throws AuthorizeException
+    {
+    }
+
+    @Override
+    public List<WorkspaceItem> getWorkspaceItems()
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "workspaceitem",
+                    "SELECT workspace_item_id FROM workspaceitem " +
+                    "ORDER BY item_id");
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public List<WorkspaceItem> getWorkspaceItems(EPerson eperson)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "workspaceitem",
+                    "SELECT wsi.workspace_item_id " +
+                    "FROM workspaceitem wsi, item " +
+                    "WHERE wsi.item_id = item.item_id " +
+                    "AND item.submitter_id = ? " +
+                    "ORDER BY wsi.workspace_item_id", 
+                    eperson.getID());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    public List<WorkspaceItem> getWorkspaceItems(Collection collection)
+    {
+        try
+        {
+            TableRowIterator tri = DatabaseManager.queryTable(context,
+                    "workspaceitem",
+                    "SELECT workspace_item_id FROM workspaceitem WHERE " +
+                    "collection_id = ? ", collection.getID());
+
+            return returnAsList(tri);
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    @Override
+    public <T extends WorkspaceItem> void populate(T t)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.find(context, "workspaceitem",
+                    t.getID());
+
+            if (row == null)
+            {
+                log.warn("workspace item " + t.getID() + " not found");
+            }
+            else
+            {
+                populateWorkspaceItemFromTableRow(t, row);
+            }
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    ////////////////////////////////////////////////////////////////////
+
+    private WorkspaceItem retrieve(TableRow row)
+    {
+        if (row == null)
+        {
+            return null;
+        }
+
+        int id = row.getIntColumn("workspace_item_id");
+        WorkspaceItem wsi = new WorkspaceItem(context, id);
+        populateWorkspaceItemFromTableRow(wsi, row);
+
+        return wsi;
+    }
+
+    private List<WorkspaceItem> returnAsList(TableRowIterator tri)
+            throws SQLException
+    {
+        List<WorkspaceItem> wsItems = new ArrayList<WorkspaceItem>();
+
+        for (TableRow row : tri.toList())
+        {
+            int id = row.getIntColumn("workspace_item_id");
+            wsItems.add(retrieve(id));
+        }
+
+        return wsItems;
+    }
+
+    private void populateWorkspaceItemFromTableRow(WorkspaceItem wsi,
+            TableRow row)
+    {
+        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+        CollectionDAO collectionDAO =
+            CollectionDAOFactory.getInstance(context);
+
+        Item item = itemDAO.retrieve(row.getIntColumn("item_id"));
+        Collection collection =
+            collectionDAO.retrieve(row.getIntColumn("collection_id"));
+
+        wsi.setItem(item);
+        wsi.setCollection(collection);
+        wsi.setMultipleFiles(row.getBooleanColumn("multiple_files"));
+        wsi.setMultipleTitles(row.getBooleanColumn("multiple_titles"));
+        wsi.setPublishedBefore(row.getBooleanColumn("published_before"));
+        wsi.setStageReached(row.getIntColumn("stage_reached"));
+        wsi.setPageReached(row.getIntColumn("page_reached"));
+    }
+
+    private void populateTableRowFromWorkspaceItem(WorkspaceItem wsi,
+            TableRow row)
+    {
+        row.setColumn("item_id", wsi.getItem().getID());
+        Collection collection  = wsi.getCollection();
+        if (collection != null)
+        {
+            row.setColumn("collection_id", collection.getID());
+        }
+        else
+        {
+            row.setColumnNull("collection_id");
+        }
+        row.setColumn("multiple_titles", wsi.hasMultipleTitles());
+        row.setColumn("multiple_files", wsi.hasMultipleFiles());
+        row.setColumn("published_before", wsi.isPublishedBefore());
+        row.setColumn("stage_reached", wsi.getStageReached());
+        row.setColumn("page_reached", wsi.getPageReached());
+    }
 }

@@ -316,7 +316,8 @@ public abstract class AbstractMETSIngester
                     //  2. if that fails, guess from "name" extension.
                     String mimeType = mfile.getAttributeValue("MIMETYPE");
                     BitstreamFormat bf = (mimeType == null) ? null :
-                            bfDAO.retrieveByMimeType(mimeType);
+//                            bfDAO.retrieveByMimeType(mimeType);
+                        ApplicationService.findBitstreamFormatByMimeType(mimeType, context);
                     if (bf == null)
                         bf = FormatIdentifier.guessFormat(context, bs);
                     bs.setFormat(bf);

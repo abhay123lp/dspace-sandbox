@@ -59,6 +59,7 @@ import org.dspace.content.dao.BitstreamDAO;
 import org.dspace.content.dao.BitstreamDAOFactory;
 import org.dspace.content.dao.BitstreamFormatDAO;
 import org.dspace.content.dao.BitstreamFormatDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -200,7 +201,8 @@ public class PREMISCrosswalk
                 // get it from that, otherwise try to divine from file extension
                 // (guessFormat() looks at bitstream Name, which we just set)
                 BitstreamFormat bf = (MIMEType == null) ? null :
-                        bfDAO.retrieveByMimeType(MIMEType);
+//                        bfDAO.retrieveByMimeType(MIMEType);
+                            ApplicationService.findBitstreamFormatByMimeType(MIMEType, context);
                 if (bf == null)
                     bf = FormatIdentifier.guessFormat(context, bitstream);
                 if (bf != null)

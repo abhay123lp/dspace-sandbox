@@ -164,47 +164,47 @@ public class GroupDAOPostgres extends GroupDAO
 //        }
 //    }
 
-    /**
-     * FIXME We need link() and unlink() for EPerson <--> Group and
-     * Group <--> Group mapping
-     */
-    @Override
-    public void delete(int id) throws AuthorizeException
-    {
-        try
-        {
-            // Remove any group memberships first
-            DatabaseManager.updateQuery(context,
-                    "DELETE FROM epersongroup2eperson " +
-                    "WHERE eperson_group_id = ? ",
-                    id);
-
-            // remove any group2groupcache entries
-            DatabaseManager.updateQuery(context,
-                    "DELETE FROM group2groupcache " +
-                    "WHERE parent_id = ? OR child_id = ? ",
-                    id, id);
-
-            // Now remove any group2group assignments
-            DatabaseManager.updateQuery(context,
-                    "DELETE FROM group2group " +
-                    "WHERE parent_id = ? OR child_id = ? ",
-                    id, id);
-
-            // don't forget the new table
-            DatabaseManager.updateQuery(context,
-                    "DELETE FROM epersongroup2workspaceitem " +
-                    "WHERE eperson_group_id = ? ",
-                    id);
-
-            // Remove ourself
-            DatabaseManager.delete(context, "epersongroup", id);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    /**
+//     * FIXME We need link() and unlink() for EPerson <--> Group and
+//     * Group <--> Group mapping
+//     */
+//    @Override
+//    public void delete(int id) throws AuthorizeException
+//    {
+//        try
+//        {
+//            // Remove any group memberships first
+//            DatabaseManager.updateQuery(context,
+//                    "DELETE FROM epersongroup2eperson " +
+//                    "WHERE eperson_group_id = ? ",
+//                    id);
+//
+//            // remove any group2groupcache entries
+//            DatabaseManager.updateQuery(context,
+//                    "DELETE FROM group2groupcache " +
+//                    "WHERE parent_id = ? OR child_id = ? ",
+//                    id, id);
+//
+//            // Now remove any group2group assignments
+//            DatabaseManager.updateQuery(context,
+//                    "DELETE FROM group2group " +
+//                    "WHERE parent_id = ? OR child_id = ? ",
+//                    id, id);
+//
+//            // don't forget the new table
+//            DatabaseManager.updateQuery(context,
+//                    "DELETE FROM epersongroup2workspaceitem " +
+//                    "WHERE eperson_group_id = ? ",
+//                    id);
+//
+//            // Remove ourself
+//            DatabaseManager.delete(context, "epersongroup", id);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
 //    @Override
 //    public List<Group> getGroups(int sortField)

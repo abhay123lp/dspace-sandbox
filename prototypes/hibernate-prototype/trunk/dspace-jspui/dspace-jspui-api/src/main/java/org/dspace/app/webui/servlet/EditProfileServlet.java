@@ -120,7 +120,8 @@ public class EditProfileServlet extends DSpaceServlet
             // Update the DB
             log.info(LogManager.getHeader(context, "edit_profile",
                     "password_changed=" + settingPassword));
-            eperson.update();
+//            eperson.update();
+            //no need
 
             // Show confirmation
             request.setAttribute("password.updated", new Boolean(

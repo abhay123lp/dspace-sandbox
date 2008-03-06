@@ -18,11 +18,22 @@ public class EPersonDAOHibernate extends EPersonDAO
     
     public EPerson findEPersonByEmail(Context context, String email) {
         EntityManager em = context.getEntityManager();
-        Query q = em.createQuery("SELECT e FROM EPerson e WHERE e.email = :email");
-        q.setParameter("email", email);
+        Query q = em.createQuery("SELECT p FROM EPersonMetadata m, IN (m.eperson) AS p " +
+        "WHERE m.field = email AND m.value = :value");
+        q.setParameter("value", email);
         EPerson e = (EPerson)q.getSingleResult();
         return e;
     }
+    
+    public EPerson findEPersonByNetid(Context context, String netid) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT p FROM EPersonMetadata m, IN (m.eperson) AS p " +
+        		"WHERE m.field = netid AND m.value = :value");
+        q.setParameter("value", netid);
+        EPerson e = (EPerson)q.getSingleResult();
+        return e;
+    }
+
     
     //TODO implementare (??? nel daopostgres non c'è)
     public List<EPerson> search(String query){

@@ -87,6 +87,10 @@ public abstract class ItemDAO extends ContentDAO
         this.context = context;
 
     }
+    
+    public abstract List<Item> findItemForHarvest(DSpaceObject scope,
+            String startDate, String endDate, int offset, int limit,
+            boolean items, boolean collections, boolean withdrawn, EntityManager em);
 
 //    public abstract Item create() throws AuthorizeException;
 

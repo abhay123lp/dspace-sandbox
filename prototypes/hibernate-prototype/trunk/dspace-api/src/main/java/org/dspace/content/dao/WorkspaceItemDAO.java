@@ -46,10 +46,12 @@ import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Collection;
+import org.dspace.content.InProgressSubmission;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataValue;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.content.WorkspaceItemLink;
 import org.dspace.content.factory.ItemFactory;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
@@ -305,4 +307,6 @@ public abstract class WorkspaceItemDAO extends ContentDAO
      * think of achieving what I want.
      */
     public abstract <T extends WorkspaceItem> void populate(T t);
+    public abstract WorkspaceItemLink findWorkspaceItemLink(Group group, InProgressSubmission ips, Context context);
+    public abstract void deleteWorkspaceItemLink(Group group, Context context);
 }

@@ -98,7 +98,7 @@ public class FormatIdentifier
 
         // See if the extension is associated with any formats
         BitstreamFormatDAO dao = BitstreamFormatDAOFactory.getInstance(context);
-        List<BitstreamFormat> formats = dao.getBitstreamFormats(extension);
+        List<BitstreamFormat> formats = dao.getBitstreamFormats(extension, context);
 
         BitstreamFormat retFormat = null;
 

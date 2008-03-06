@@ -50,6 +50,8 @@ import javax.mail.MessagingException;
 
 import org.apache.log4j.Logger;
 import org.dspace.content.InProgressSubmission;
+import org.dspace.content.WorkspaceItem;
+import org.dspace.content.WorkspaceItemLink;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
@@ -57,8 +59,6 @@ import org.dspace.core.Context;
 import org.dspace.core.Email;
 import org.dspace.core.I18nUtil;
 import org.dspace.core.Utils;
-import org.dspace.eperson.dao.RegistrationDataDAO;
-import org.dspace.eperson.dao.RegistrationDataDAOFactory;
 import org.dspace.eperson.factory.EPersonFactory;
 import org.dspace.eperson.factory.GroupFactory;
 import org.dspace.event.Event;
@@ -96,9 +96,19 @@ public class AccountManager
         return GroupFactory.getInstance(context);
     }
     
-    //TODO implementare
+    public static void deleteEPerson(EPerson eperson, Context context) {
+        //TODO implementare e controllare come viene risolto ora
+    }
+    
     public static void deleteGroup(Group group, Context context) {
-        
+        group.setMembers(null);
+        List<Group> groups = group.getGroups();
+        for(Group g : groups) {
+            g.removeParentGroup(group);
+        }
+        group.setMembers(null);
+        ApplicationService.deleteWorkspaceItemLink(group, context);
+        ApplicationService.delete(context, Group.class, group);
     }
      
     /* Returns a list of all epeople in group (or any subgroups) */
@@ -138,19 +148,22 @@ public class AccountManager
         }        
     }
     
-    //TODO implementare
     public static void removeIPSFromGroup(Group group, InProgressSubmission ips, Context context) {
-        
+        WorkspaceItemLink wil = ApplicationService.findWorkspaceItemLink(group, ips, context);
+        ApplicationService.delete(context, WorkspaceItemLink.class, wil);
     }
     
-    //TODO implementare
+    //FIXME questione ips: workflowitem vs workspaceitem
     public static void addIPSToGroup(Group group, InProgressSubmission ips, Context context) {
-        
+        WorkspaceItemLink wil = new WorkspaceItemLink();
+        wil.setGroup(group);
+        wil.setWorkspaceItem((WorkspaceItem)ips);
+        ApplicationService.save(context, WorkspaceItemLink.class, wil);
     }
     
-    //TODO implementare
     public static boolean isIPSLinkedToGroup(Group group, InProgressSubmission ips, Context context) {
-        return true;
+        WorkspaceItemLink wil = ApplicationService.findWorkspaceItemLink(group, ips, context);
+        return (wil!=null);
     }
 
     /**
@@ -166,7 +179,7 @@ public class AccountManager
      * @param email
      *            Email address to send the registration email to
      */
-    public void sendRegistrationInfo(Context context, String email)
+    public static void sendRegistrationInfo(Context context, String email)
             throws IOException, MessagingException
     {
         sendInfo(context, email, true, true);
@@ -185,7 +198,7 @@ public class AccountManager
      * @param email
      *            Email address to send the forgot-password email to
      */
-    public void sendForgotPasswordInfo(Context context, String email)
+    public static void sendForgotPasswordInfo(Context context, String email)
             throws IOException, MessagingException
     {
         sendInfo(context, email, false, true);
@@ -211,7 +224,7 @@ public class AccountManager
      *                If the token or eperson cannot be retrieved from the
      *                database.
      */
-    public EPerson getEPerson(Context context, String token)
+    public static EPerson getEPerson(Context context, String token)
     {
         String email = getEmail(context, token);
 
@@ -236,7 +249,7 @@ public class AccountManager
      *            Account token
      * @return The email address corresponding to token, or null.
      */
-    public String getEmail(Context context, String token)
+    public static String getEmail(Context context, String token)
     {
 //        RegistrationDataDAO dao =
 //            RegistrationDataDAOFactory.getInstance(context);
@@ -262,7 +275,7 @@ public class AccountManager
      * @exception SQLException
      *                If a database error occurs
      */
-    public void deleteToken(Context context, String token)
+    public static void deleteToken(Context context, String token)
     {
         //RegistrationDataDAOFactory.getInstance(context).delete(token);
         ApplicationService.deleteRegistrationDataByToken(context, token);
@@ -286,7 +299,7 @@ public class AccountManager
      * registration; otherwise, it is for forgot-password @param send If true,
      * send email; otherwise do not send any email
      */
-    protected void sendInfo(Context context, String email,
+    protected static void sendInfo(Context context, String email,
             boolean isRegister, boolean send)
         throws IOException, MessagingException
     {
@@ -300,7 +313,7 @@ public class AccountManager
         // If it already exists, just re-issue it
         if (rd == null)
         {
-            //rd = dao.create(); //FIXME va bene cosi' con il costruttore esplicitamente?
+            //rd = dao.create(); 
             rd = new RegistrationData();
             rd.setToken(Utils.generateHexKey());
 
@@ -346,7 +359,7 @@ public class AccountManager
      * @exception IOException
      *                If an error occurs while reading the email template.
      */
-    private void sendEmail(Context context, String email,
+    private static void sendEmail(Context context, String email,
             boolean isRegister, RegistrationData rd)
         throws IOException, MessagingException
     {
@@ -378,7 +391,7 @@ public class AccountManager
      * 
      * @return - The date on which registrations expire
      */
-    private Timestamp getDefaultExpirationDate()
+    private static Timestamp getDefaultExpirationDate()
     {
         Calendar calendar = Calendar.getInstance();
 
