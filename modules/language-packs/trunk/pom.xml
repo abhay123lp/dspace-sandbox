@@ -61,13 +61,13 @@
    -->
    <scm>
       <connection>
-         scm:svn:http://dspace.svn.sourceforge.net/svnroot/dspace/branches/dspace-1_5_x/language-packs
+         scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/language-packs/trunk
       </connection>
       <developerConnection>
-         scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/branches/dspace-1_5_x/language-packs
+         scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/language-packs/trunk
       </developerConnection>
       <url>
-         http://dspace.svn.sourceforge.net/viewvc/dspace/branches/dspace-1_5_x/language-packs
+         http://dspace-sandbox.googlecode.com/svn/modules/language-packs/trunk
       </url>
    </scm>
 
