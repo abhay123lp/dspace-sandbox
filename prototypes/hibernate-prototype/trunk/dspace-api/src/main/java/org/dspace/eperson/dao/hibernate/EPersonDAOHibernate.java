@@ -34,20 +34,61 @@ public class EPersonDAOHibernate extends EPersonDAO
         return e;
     }
 
-    
-    //TODO implementare (??? nel daopostgres non c'è)
-    public List<EPerson> search(String query){
-        return null;
+    public List<EPerson> findAllEPeopleSorted(int sortField,
+            Context context)
+    {
+        String s;
+
+        switch (sortField)
+        {
+        case EPerson.ID:
+            s = "eperson_id";
+            break;
+        case EPerson.EMAIL:
+            s = "email";
+            break;
+        case EPerson.LANGUAGE:
+            s = "language";
+            break;
+        case EPerson.NETID:
+            s = "netid";
+            break;
+        case EPerson.LASTNAME:
+        default:
+            s = "lastname";
+        }
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT p FROM EPerson p ORDER BY p.:s");
+        q.setParameter("s", s);
+        List<EPerson> epeople = q.getResultList();
+        return epeople;
     }
     
-    //TODO implementare
-    public List<EPerson> search(String query, int offset, int limit) {
-        return null;
-    }
     
-    //TODO implementare
-    public List<EPerson> getEPeople(int sortField) {
-        return null;
+    public List<EPerson> findEPeople(String query, int offset, int limit, Context context) {
+        EntityManager em = context.getEntityManager();
+        String dbquery = "SELECT p FROM EPerson p " +
+            "WHERE p.id LIKE :id " +
+            "OR p.firstname LIKE :fn " +
+            "OR p.lastname LIKE :ln " +
+            "OR p.email LIKE :email " +
+            "ORDER BY p.lastname, p.firstname ASC";
+                
+        Query q = em.createQuery(dbquery);
+        
+        String params = "%" + query.toLowerCase() + "%";
+        q.setParameter("id", Integer.valueOf(params));
+        q.setParameter("fn", params);
+        q.setParameter("ln", params);
+        q.setParameter("email", params);
+        if (offset >= 0 && limit > 0)
+        {
+              q.setMaxResults(limit);
+              q.setFirstResult(offset);
+        }
+        
+        List<EPerson> epeople = q.getResultList();
+        return epeople;
     }
     
     //TODO implementare

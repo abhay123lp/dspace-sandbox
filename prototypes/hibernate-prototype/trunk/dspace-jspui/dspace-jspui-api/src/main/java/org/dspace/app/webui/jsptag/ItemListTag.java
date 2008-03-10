@@ -62,8 +62,8 @@ import org.dspace.browse.CrossLinks;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.DCDate;
-import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -276,7 +276,7 @@ public class ItemListTag extends TagSupport
                 for (int i = 0; i < items.length; i++)
                 {
                     // first get hold of the relevant metadata for this column
-                    DCValue[] metadataArray;
+                    MetadataValue[] metadataArray;
                     if (qualifier.equals("*"))
                     {
                         metadataArray = items[i].getMetadata(schema, element, Item.ANY, Item.ANY);
@@ -293,7 +293,7 @@ public class ItemListTag extends TagSupport
                     // save on a null check which would make the code untidy
                     if (metadataArray == null)
                     {
-                        metadataArray = new DCValue[0];
+                        metadataArray = new MetadataValue[0];
                     }
                     
                     // now prepare the content of the table division
@@ -310,20 +310,20 @@ public class ItemListTag extends TagSupport
                             {
                                 thumbs = getThumbMarkup(hrq, items[i]);
                             }
-                            DCDate dd = new DCDate(metadataArray[0].value);
+                            DCDate dd = new DCDate(metadataArray[0].getValue());
                             metadata = UIUtil.displayDate(dd, false, false, (HttpServletRequest)pageContext.getRequest()) + thumbs;
                         }
                         // format the title field correctly for withdrawn items (ie. don't link)
                         else if (field.equals(titleField) && items[i].isWithdrawn())
                         {
-                            metadata = Utils.addEntities(metadataArray[0].value);
+                            metadata = Utils.addEntities(metadataArray[0].getValue());
                         }
                         // format the title field correctly
                         else if (field.equals(titleField))
                         {
                             metadata = "<a href=\"" 
                             + IdentifierService.getURL(items[i]).toString() + "\">"
-                            + Utils.addEntities(metadataArray[0].value)
+                            + Utils.addEntities(metadataArray[0].getValue())
                             + "</a>";
                         }
                         // format all other fields
@@ -354,12 +354,12 @@ public class ItemListTag extends TagSupport
                                         argument = "vfocus";
                                     }
                                     startLink = "<a href=\"" + hrq.getContextPath() + "/browse?type=" + browseType + "&amp;" +
-                                            argument + "=" + Utils.addEntities(metadataArray[j].value);
+                                            argument + "=" + Utils.addEntities(metadataArray[j].getValue());
 
-                                    if (metadataArray[j].language != null)
+                                    if (metadataArray[j].getLanguage() != null)
                                     {
                                         startLink = startLink + "&amp;" +
-                                            argument + "_lang=" + Utils.addEntities(metadataArray[j].language) +
+                                            argument + "_lang=" + Utils.addEntities(metadataArray[j].getLanguage()) +
                                             "\">";
                                     }
                                     else
@@ -369,7 +369,7 @@ public class ItemListTag extends TagSupport
                                     endLink = "</a>";
                                 }
                                 sb.append(startLink);
-                                sb.append(Utils.addEntities(metadataArray[j].value));
+                                sb.append(Utils.addEntities(metadataArray[j].getValue()));
                                 sb.append(endLink);
                                 if (j < (loopLimit - 1))
                                 {
@@ -663,8 +663,7 @@ public class ItemListTag extends TagSupport
         {
             Context c = UIUtil.obtainContext(hrq);
 
-            InputStream is = BitstreamStorageManager.retrieve(c, bitstream
-                    .getID());
+            InputStream is = BitstreamStorageManager.retrieve(c, bitstream);
 
             //AuthorizeManager.authorizeAction(bContext, this, Constants.READ);
             // 	read in bitstream's image
@@ -716,7 +715,7 @@ public class ItemListTag extends TagSupport
     private String getThumbMarkup(HttpServletRequest hrq, Item item)
             throws JspException
     {
-        Bundle[] original = item.getBundles("ORIGINAL");
+        Bundle[] original = (Bundle[])item.getBundles("ORIGINAL").toArray();
 
         if (original.length == 0)
         {
@@ -726,13 +725,13 @@ public class ItemListTag extends TagSupport
         boolean html = false;
 
         // if multiple bitstreams, check if the primary one is HTML
-        if (original[0].getBitstreams().length > 1)
+        if (original[0].getBitstreams().size() > 1)
         {
-            Bitstream[] bitstreams = original[0].getBitstreams();
+            Bitstream[] bitstreams = (Bitstream[])original[0].getBitstreams().toArray();
 
             for (int i = 0; (i < bitstreams.length) && !html; i++)
             {
-                if (bitstreams[i].getID() == original[0]
+                if (bitstreams[i].getId() == original[0]
                         .getPrimaryBitstreamID())
                 {
                     html = bitstreams[i].getFormat().getMIMEType().equals(
@@ -743,7 +742,7 @@ public class ItemListTag extends TagSupport
 
         try
         {
-        	Bundle[] thumbs = item.getBundles("THUMBNAIL");
+        	Bundle[] thumbs = (Bundle[])item.getBundles("THUMBNAIL").toArray();
 
         	// if there are thumbs and we're not dealing with an HTML item
         	// then show the thumbnail
@@ -754,7 +753,7 @@ public class ItemListTag extends TagSupport
                 Bitstream thumbnailBitstream;
                 Bitstream originalBitstream;
 
-                if ((original[0].getBitstreams().length > 1)
+                if ((original[0].getBitstreams().size() > 1)
                         && (original[0].getPrimaryBitstreamID() > -1))
                 {
                     originalBitstream = original[0].getPrimaryBitstream();
@@ -764,8 +763,8 @@ public class ItemListTag extends TagSupport
                 }
                 else
                 {
-                    originalBitstream = original[0].getBitstreams()[0];
-                    thumbnailBitstream = thumbs[0].getBitstreams()[0];
+                    originalBitstream = original[0].getBitstreams().get(0);
+                    thumbnailBitstream = thumbs[0].getBitstreams().get(0);
                 }
 
                 if ((thumbnailBitstream != null)

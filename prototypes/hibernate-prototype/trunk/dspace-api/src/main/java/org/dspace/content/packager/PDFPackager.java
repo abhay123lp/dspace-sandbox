@@ -69,6 +69,7 @@ import org.dspace.core.LogManager;
 import org.dspace.core.SelfNamedPlugin;
 import org.dspace.core.Utils;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
+import org.dspace.workflow.WorkflowManager;
 import org.pdfbox.cos.COSDocument;
 import org.pdfbox.pdfparser.PDFParser;
 import org.pdfbox.pdmodel.PDDocument;
@@ -179,7 +180,8 @@ public class PDFPackager
         {
             // Save the PDF in a bitstream first, since the parser
             // has to read it as well, and we cannot "rewind" it after that.
-            wi = WorkspaceItem.create(context, collection, false);
+//            wi = WorkspaceItem.create(context, collection, false);
+            wi = WorkflowManager.createWorkspaceItem(collection, false, context);
             Item myitem = wi.getItem();
             //original = myitem.createBundle("ORIGINAL");
             original = ItemManager.createBundle(myitem, context);
@@ -194,7 +196,8 @@ public class PDFPackager
 
             crosswalkPDF(context, myitem, BitstreamStorageManager.retrieve(context, bs));
 
-            wi.update();
+//            wi.update();
+            ApplicationService.save(context, WorkspaceItem.class, wi);
             context.commit();
             success = true;
             log.info(LogManager.getHeader(context, "ingest",
@@ -222,7 +225,8 @@ public class PDFPackager
                     //original.removeBitstream(bs);
                     ItemManager.removeBitstream(original, bs);
                 if (wi != null)
-                    wi.deleteAll();
+//                    wi.deleteAll();
+                    WorkflowManager.WorkspaceItemDeleteAll(wi, context);
             }
             context.commit();
         }

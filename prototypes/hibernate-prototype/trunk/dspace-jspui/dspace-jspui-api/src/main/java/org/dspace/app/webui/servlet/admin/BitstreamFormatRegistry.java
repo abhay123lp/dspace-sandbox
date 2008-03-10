@@ -54,7 +54,10 @@ import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.BitstreamFormat;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
+import org.dspace.core.ItemManager;
+import org.dspace.storage.bitstore.BitstreamStorageManager;
 
 /**
  * Servlet for editing the bitstream format registry
@@ -99,8 +102,8 @@ public class BitstreamFormatRegistry extends DSpaceServlet
         if (button.equals("submit_update"))
         {
             // Update the metadata for a bitstream format
-            BitstreamFormat bf = BitstreamFormat.find(context, UIUtil
-                    .getIntParameter(request, "format_id"));
+//            BitstreamFormat bf = BitstreamFormat.find(context, UIUtil.getIntParameter(request, "format_id"));
+            BitstreamFormat bf = ApplicationService.get(context, BitstreamFormat.class, UIUtil.getIntParameter(request, "format_id"));
 
             bf.setMIMEType(request.getParameter("mimetype"));
             bf.setShortDescription(request.getParameter("short_description"));
@@ -139,7 +142,7 @@ public class BitstreamFormatRegistry extends DSpaceServlet
                     .toArray(new String[extensions.size()]);
             bf.setExtensions(extArray);
 
-            bf.update();
+//            bf.update();//NO NEED
 
             showFormats(context, request, response);
             context.complete();
@@ -148,12 +151,14 @@ public class BitstreamFormatRegistry extends DSpaceServlet
         {
             // Add a new bitstream - simply add to the list, and let the user
             // edit with the main form
-            BitstreamFormat bf = BitstreamFormat.create(context);
+//            BitstreamFormat bf = BitstreamFormat.create(context);
+            BitstreamFormat bf = BitstreamStorageManager.createBistreamFormat(context);
 
             // We set the "internal" flag to true, so that the empty bitstream
             // format doesn't show up in the submission UI yet
             bf.setInternal(true);
-            bf.update();
+//            bf.update(); 
+            ApplicationService.save(context, BitstreamFormat.class, bf);
 
             showFormats(context, request, response);
             context.complete();
@@ -161,8 +166,8 @@ public class BitstreamFormatRegistry extends DSpaceServlet
         else if (button.equals("submit_delete"))
         {
             // Start delete process - go through verification step
-            BitstreamFormat bf = BitstreamFormat.find(context, UIUtil
-                    .getIntParameter(request, "format_id"));
+//            BitstreamFormat bf = BitstreamFormat.find(context, UIUtil.getIntParameter(request, "format_id"));
+            BitstreamFormat bf = ApplicationService.get(context, BitstreamFormat.class, UIUtil.getIntParameter(request, "format_id"));
             request.setAttribute("format", bf);
             JSPManager.showJSP(request, response,
                     "/dspace-admin/confirm-delete-format.jsp");
@@ -170,9 +175,10 @@ public class BitstreamFormatRegistry extends DSpaceServlet
         else if (button.equals("submit_confirm_delete"))
         {
             // User confirms deletion of format
-            BitstreamFormat bf = BitstreamFormat.find(context, UIUtil
-                    .getIntParameter(request, "format_id"));
-            bf.delete();
+//            BitstreamFormat bf = BitstreamFormat.find(context, UIUtil.getIntParameter(request, "format_id"));
+            BitstreamFormat bf = ApplicationService.get(context, BitstreamFormat.class, UIUtil.getIntParameter(request, "format_id"));
+//            bf.delete();
+            BitstreamStorageManager.deleteBitstreamFormat(bf, context);
 
             showFormats(context, request, response);
             context.complete();
@@ -198,7 +204,8 @@ public class BitstreamFormatRegistry extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
-        BitstreamFormat[] formats = BitstreamFormat.findAll(context);
+//        BitstreamFormat[] formats = BitstreamFormat.findAll(context);
+        BitstreamFormat[] formats = (BitstreamFormat[]) ApplicationService.findAllBitstreamFormat(context).toArray();
 
         request.setAttribute("formats", formats);
         JSPManager.showJSP(request, response, "/dspace-admin/list-formats.jsp");

@@ -48,6 +48,8 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.dspace.content.DCPersonName;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 
@@ -83,21 +85,23 @@ public class SFXLinkTag extends TagSupport
 
             String sfxQuery = "";
 
-            DCValue[] titles = item.getDC("title", null, Item.ANY);
+//            DCValue[] titles = item.getDC("title", null, Item.ANY);
+            MetadataValue[] titles = item.getMetadata(MetadataSchema.DC_SCHEMA, "title", null, Item.ANY);
 
             if (titles.length > 0)
             {
                 sfxQuery = sfxQuery
                         + "&title="
-                        + URLEncoder.encode(titles[0].value,
+                        + URLEncoder.encode(titles[0].getValue(),
                                 Constants.DEFAULT_ENCODING);
             }
 
-            DCValue[] authors = item.getDC("contributor", "author", Item.ANY);
+//            DCValue[] authors = item.getDC("contributor", "author", Item.ANY);
+            MetadataValue[] authors = item.getMetadata(MetadataSchema.DC_SCHEMA, "contributor", "author", Item.ANY);
 
             if (authors.length > 0)
             {
-                DCPersonName dpn = new DCPersonName(authors[0].value);
+                DCPersonName dpn = new DCPersonName(authors[0].getValue());
                 sfxQuery = sfxQuery
                         + "&aulast="
                         + URLEncoder.encode(dpn.getLastName(),
@@ -108,31 +112,34 @@ public class SFXLinkTag extends TagSupport
                                 Constants.DEFAULT_ENCODING);
             }
 
-            DCValue[] isbn = item.getDC("identifier", "isbn", Item.ANY);
+//            DCValue[] isbn = item.getDC("identifier", "isbn", Item.ANY);
+            MetadataValue[] isbn = item.getMetadata(MetadataSchema.DC_SCHEMA, "identifier", "isbn", Item.ANY);
 
             if (isbn.length > 0)
             {
                 sfxQuery = sfxQuery
                         + "&isbn="
-                        + URLEncoder.encode(isbn[0].value,
+                        + URLEncoder.encode(isbn[0].getValue(),
                                 Constants.DEFAULT_ENCODING);
             }
 
-            DCValue[] issn = item.getDC("identifier", "issn", Item.ANY);
+//            DCValue[] issn = item.getDC("identifier", "issn", Item.ANY);
+            MetadataValue[] issn = item.getMetadata(MetadataSchema.DC_SCHEMA, "identifier", "issn", Item.ANY);
 
             if (issn.length > 0)
             {
                 sfxQuery = sfxQuery
                         + "&issn="
-                        + URLEncoder.encode(issn[0].value,
+                        + URLEncoder.encode(issn[0].getValue(),
                                 Constants.DEFAULT_ENCODING);
             }
 
-            DCValue[] dates = item.getDC("date", "issued", Item.ANY);
+//            DCValue[] dates = item.getDC("date", "issued", Item.ANY);
+            MetadataValue[] dates = item.getMetadata(MetadataSchema.DC_SCHEMA, "date", "issued", Item.ANY);
 
             if (dates.length > 0)
             {
-                String fullDate = dates[0].value;
+                String fullDate = dates[0].getValue();
 
                 // Remove the time if there is one - day is greatest granularity
                 // for SFX

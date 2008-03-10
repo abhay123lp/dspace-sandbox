@@ -133,8 +133,8 @@ public abstract class EPersonDAO //extends StackableDAO<EPersonDAO>
      *
      * @return array of EPerson objects
      */
-    public abstract List<EPerson> getEPeople(int sortField);
-
+//    public abstract List<EPerson> getEPeople(int sortField);
+    public abstract List<EPerson> findAllEPeopleSorted(int sortField,Context context);
     /**
      * 
      */
@@ -182,7 +182,7 @@ public abstract class EPersonDAO //extends StackableDAO<EPersonDAO>
      *
      * @return array of EPerson objects
      */
-    public abstract List<EPerson> search(String query);
+//    public abstract List<EPerson> search(String query);
 
     /**
      * Find the epeople that match the search query across firstname, lastname
@@ -200,5 +200,6 @@ public abstract class EPersonDAO //extends StackableDAO<EPersonDAO>
      *
      * @return array of EPerson objects
      */
-    public abstract List<EPerson> search(String query, int offset, int limit);
+//    public abstract List<EPerson> search(String query, int offset, int limit);
+    public abstract List<EPerson> findEPeople(String query, int offset, int limit, Context context);
 }

@@ -305,7 +305,8 @@ public class AuthorizeManager
                 }
 
                 if ((rp.getGroupID() != -1) &&
-                        groupDAO.currentUserInGroup(rp.getGroupID()))
+//                        groupDAO.currentUserInGroup(rp.getGroupID()))
+                        rp.getGroup().getEpeople().contains(c.getCurrentUser()));
                 {
                     // group was set, and eperson is a member
                     // of that group
@@ -352,7 +353,8 @@ public class AuthorizeManager
         else
         {
             // FIXME: horrible assumption about the admin group having ID '1'.
-            return groupDAO.currentUserInGroup(1);
+//            return groupDAO.currentUserInGroup(1);
+            return ApplicationService.get(c, Group.class, 1).getEpeople().contains(c.getCurrentUser());
         }
     }
 

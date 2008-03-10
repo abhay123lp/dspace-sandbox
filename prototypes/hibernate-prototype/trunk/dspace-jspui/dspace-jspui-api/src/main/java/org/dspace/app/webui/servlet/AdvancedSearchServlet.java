@@ -50,6 +50,7 @@ import org.apache.log4j.Logger;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Community;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 
 /**
@@ -68,7 +69,8 @@ public class AdvancedSearchServlet extends DSpaceServlet
             SQLException, AuthorizeException
     {
         // just build a list of top-level communities and pass along to the jsp
-        Community[] communities = Community.findAllTop(context);
+//        Community[] communities = Community.findAllTop(context);
+        Community[] communities = (Community[])ApplicationService.findAllTopCommunities(context).toArray();
 
         request.setAttribute("communities", communities);
 

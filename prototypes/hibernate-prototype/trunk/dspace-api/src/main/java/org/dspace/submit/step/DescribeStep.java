@@ -290,7 +290,8 @@ public class DescribeStep extends AbstractProcessingStep
 
         // Step 4:
         // Save changes to database
-        wsiDAO.update((WorkspaceItem) subInfo.getSubmissionItem());
+        //FIXME controllare che chi lo invoca faccia il save
+//        wsiDAO.update((WorkspaceItem) subInfo.getSubmissionItem()); 
 
         // commit changes
         context.commit();
@@ -307,6 +308,7 @@ public class DescribeStep extends AbstractProcessingStep
         }
 
         // completed without errors
+        ApplicationService.save(context, WorkspaceItem.class, (WorkspaceItem) subInfo.getSubmissionItem());
         return STATUS_COMPLETE;
     }
 

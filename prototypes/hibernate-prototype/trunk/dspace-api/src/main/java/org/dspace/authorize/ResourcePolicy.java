@@ -83,7 +83,7 @@ public class ResourcePolicy implements Identifiable
     private static Logger log = Logger.getLogger(ResourcePolicy.class);
 
     private Context context;
-    //private ResourcePolicyDAO dao;
+//    private ResourcePolicyDAO dao;
     //private EPersonDAO epersonDAO;
     //private GroupDAO groupDAO;
 

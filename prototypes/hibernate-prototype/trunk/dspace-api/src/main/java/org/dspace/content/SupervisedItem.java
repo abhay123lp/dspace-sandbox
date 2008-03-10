@@ -42,13 +42,15 @@ package org.dspace.content;
 
 import java.util.List;
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
 import org.dspace.content.dao.SupervisedItemDAO;
 import org.dspace.content.dao.SupervisedItemDAOFactory;
 import org.dspace.content.dao.WorkspaceItemDAO;
 import org.dspace.content.dao.WorkspaceItemDAOFactory;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
 
@@ -59,37 +61,41 @@ import org.dspace.eperson.dao.GroupDAOFactory;
  * @author Richard Jones
  * @version  $Revision: 2417 $
  */
+@Entity
+@DiscriminatorValue(value="supervised")
 public class SupervisedItem extends WorkspaceItem
 {
-    private GroupDAO groupDAO;
-    private WorkspaceItemDAO wsiDAO;
+//    private GroupDAO groupDAO;
+//    private WorkspaceItemDAO wsiDAO;
     
     public SupervisedItem(Context context, int id)
     {
         // construct a new workspace item
-        super(context, id);
+        super(context);//, id);
 
-        wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
-        groupDAO = GroupDAOFactory.getInstance(context);
-    }
-
-    @Deprecated
-    public static SupervisedItem[] getAll(Context context)
-    {
-        SupervisedItemDAO dao = SupervisedItemDAOFactory.getInstance(context);
-        List<SupervisedItem> items = dao.getSupervisedItems();
-
-        return items.toArray(new SupervisedItem[0]);
+//        wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
+//        groupDAO = GroupDAOFactory.getInstance(context);
     }
     
-    @Deprecated
-    public static SupervisedItem[] findbyEPerson(Context context, EPerson ep)
-    {
-        SupervisedItemDAO dao = SupervisedItemDAOFactory.getInstance(context);
-        List<SupervisedItem> items = dao.getSupervisedItems(ep);
+    protected SupervisedItem() {}
 
-        return items.toArray(new SupervisedItem[0]);
-    }
+//    @Deprecated
+//    public static SupervisedItem[] getAll(Context context)
+//    {
+//        SupervisedItemDAO dao = SupervisedItemDAOFactory.getInstance(context);
+//        List<SupervisedItem> items = dao.getSupervisedItems();
+//
+//        return items.toArray(new SupervisedItem[0]);
+//    }
+//    
+//    @Deprecated
+//    public static SupervisedItem[] findbyEPerson(Context context, EPerson ep)
+//    {
+//        SupervisedItemDAO dao = SupervisedItemDAOFactory.getInstance(context);
+//        List<SupervisedItem> items = dao.getSupervisedItems(ep);
+//
+//        return items.toArray(new SupervisedItem[0]);
+//    }
     
 //    @Deprecated
 //    public Group[] getSupervisorGroups(Context context, int id)

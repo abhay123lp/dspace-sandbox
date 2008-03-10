@@ -40,40 +40,6 @@
 
 package org.dspace.app.webui.servlet;
 
-import com.sun.syndication.feed.rss.Channel;
-import com.sun.syndication.feed.rss.Description;
-import com.sun.syndication.feed.rss.Image;
-import com.sun.syndication.feed.rss.TextInput;
-import com.sun.syndication.io.FeedException;
-import com.sun.syndication.io.WireFeedOutput;
-import org.apache.log4j.Logger;
-import org.dspace.app.webui.util.JSPManager;
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.browse.BrowseEngine;
-import org.dspace.browse.BrowseException;
-import org.dspace.browse.BrowseIndex;
-import org.dspace.browse.BrowseInfo;
-import org.dspace.browse.BrowserScope;
-import org.dspace.sort.SortOption;
-import org.dspace.sort.SortException;
-import org.dspace.content.Bitstream;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
-import org.dspace.content.DCDate;
-import org.dspace.content.DCValue;
-import org.dspace.content.DSpaceObject;
-import org.dspace.content.Item;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Constants;
-import org.dspace.core.Context;
-import org.dspace.core.LogManager;
-import org.dspace.search.Harvest;
-import org.dspace.uri.ResolvableIdentifier;
-import org.dspace.uri.IdentifierService;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -87,6 +53,42 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.dspace.app.webui.util.JSPManager;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.browse.BrowseEngine;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.BrowseIndex;
+import org.dspace.browse.BrowseInfo;
+import org.dspace.browse.BrowserScope;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
+import org.dspace.content.DCDate;
+import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Constants;
+import org.dspace.core.Context;
+import org.dspace.core.LogManager;
+import org.dspace.search.Harvest;
+import org.dspace.sort.SortException;
+import org.dspace.sort.SortOption;
+import org.dspace.uri.IdentifierService;
+import org.dspace.uri.ResolvableIdentifier;
+
+import com.sun.syndication.feed.rss.Channel;
+import com.sun.syndication.feed.rss.Description;
+import com.sun.syndication.feed.rss.Image;
+import com.sun.syndication.feed.rss.TextInput;
+import com.sun.syndication.io.FeedException;
+import com.sun.syndication.io.WireFeedOutput;
 
 /**
  * Servlet for handling requests for a syndication feed. The URI of the collection
@@ -501,7 +503,7 @@ public class FeedServlet extends DSpaceServlet
         String title = null;
         try
         {
-            title = dspaceItem.getMetadata(titleField)[0].value;
+            title = dspaceItem.getMetadata(titleField)[0].getValue();
            
         }
         catch (ArrayIndexOutOfBoundsException e)
@@ -538,7 +540,7 @@ public class FeedServlet extends DSpaceServlet
 
             
             //print out this field, along with its value(s)
-            DCValue[] values = dspaceItem.getMetadata(field);
+            MetadataValue[] values = dspaceItem.getMetadata(field);
            
             if(values != null && values.length>0)
             {
@@ -562,7 +564,7 @@ public class FeedServlet extends DSpaceServlet
                 
                 for(int i=0; i<values.length; i++)
                 {    
-                    String fieldValue = values[i].value;
+                    String fieldValue = values[i].getValue();
                     if(isDate)
                         fieldValue = (new DCDate(fieldValue)).toString();
                     descBuf.append(fieldValue);
@@ -583,7 +585,7 @@ public class FeedServlet extends DSpaceServlet
         String dcDate = null;
         try
         {
-            dcDate = dspaceItem.getMetadata(dateField)[0].value;
+            dcDate = dspaceItem.getMetadata(dateField)[0].getValue();
            
         }
         catch (ArrayIndexOutOfBoundsException e)

@@ -1,40 +1,43 @@
 package org.dspace.app.webui.servlet;
 
-import org.dspace.core.Context;
-import org.dspace.core.Constants;
-import org.dspace.core.LogManager;
-import org.dspace.core.Utils;
-import org.dspace.core.ConfigurationManager;
-import org.dspace.core.PluginManager;
-import org.dspace.content.DSpaceObject;
-import org.dspace.content.Bitstream;
-import org.dspace.content.Item;
-import org.dspace.content.Collection;
-import org.dspace.content.Community;
-import org.dspace.content.DCValue;
-import org.dspace.authorize.AuthorizeException;
-import org.dspace.authorize.AuthorizeManager;
-import org.dspace.app.webui.util.JSPManager;
-import org.dspace.app.webui.util.Authenticate;
-import org.dspace.app.webui.util.UIUtil;
-import org.dspace.storage.bitstore.BitstreamStorageManager;
-import org.dspace.uri.IdentifierService;
-import org.dspace.plugin.CommunityHomeProcessor;
-import org.dspace.plugin.CollectionHomeProcessor;
-import org.dspace.eperson.SubscriptionManager;
-import org.dspace.eperson.EPerson;
-import org.dspace.eperson.Group;
-import org.apache.log4j.Logger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.sql.SQLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.sql.SQLException;
 import java.util.List;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.log4j.Logger;
+import org.dspace.app.webui.util.Authenticate;
+import org.dspace.app.webui.util.JSPManager;
+import org.dspace.app.webui.util.UIUtil;
+import org.dspace.authorize.AuthorizeException;
+import org.dspace.authorize.AuthorizeManager;
+import org.dspace.content.Bitstream;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
+import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
+import org.dspace.core.ApplicationService;
+import org.dspace.core.ConfigurationManager;
+import org.dspace.core.Constants;
+import org.dspace.core.Context;
+import org.dspace.core.LogManager;
+import org.dspace.core.PluginManager;
+import org.dspace.core.Utils;
+import org.dspace.eperson.EPerson;
+import org.dspace.eperson.Group;
+import org.dspace.eperson.SubscriptionManager;
+import org.dspace.plugin.CollectionHomeProcessor;
+import org.dspace.plugin.CommunityHomeProcessor;
+import org.dspace.storage.bitstore.BitstreamStorageManager;
+import org.dspace.uri.IdentifierService;
 
 public class DSpaceObjectServlet extends DSpaceServlet
 {
@@ -106,7 +109,7 @@ public class DSpaceObjectServlet extends DSpaceServlet
              * the collection is in. This should probably be more context
              * sensitive when we have multiple inclusion.
              */
-            Community[] parents = c.getCommunities();
+            Community[] parents = (Community[])c.getCommunities().toArray();
             request.setAttribute("dspace.community", parents[0]);
 
             /*
@@ -204,7 +207,7 @@ public class DSpaceObjectServlet extends DSpaceServlet
         }
 
         // Get the collections
-        Collection[] collections = item.getCollections();
+        Collection[] collections = (Collection[])item.getCollections().toArray();
 
         // For the breadcrumbs, get the first collection and the first community
         // that is in. FIXME: Not multiple-inclusion friendly--should be
@@ -214,7 +217,7 @@ public class DSpaceObjectServlet extends DSpaceServlet
         Collection collection = item.getOwningCollection();
         if (collection != null)
         {
-            Community[] comms = collection.getCommunities();
+            Community[] comms = (Community[])collection.getCommunities().toArray();
             if (comms.length > 0)
             {
                 request.setAttribute("dspace.community", comms[0]);
@@ -290,10 +293,10 @@ public class DSpaceObjectServlet extends DSpaceServlet
                     "community_id=" + community.getID()));
 
             // Get the collections within the community
-            Collection[] collections = community.getCollections();
+            Collection[] collections = (Collection[])community.getCollections().toArray();
 
             // get any subcommunities of the community
-            Community[] subcommunities = community.getSubcommunities();
+            Community[] subcommunities = (Community[])community.getSubCommunities().toArray();
 
             // perform any necessary pre-processing
             preProcessCommunityHome(context, request, response, community);
@@ -583,7 +586,7 @@ public class DSpaceObjectServlet extends DSpaceServlet
             Item item = (Item) items.get(i);
 
             // FIXME: Should probably check for preferred language?
-            DCValue[] titlesForThis = item.getDC("title", null, Item.ANY);
+            MetadataValue[] titlesForThis = item.getMetadata(MetadataSchema.DC_SCHEMA,"title", null, Item.ANY);
 
             // Just use the first title, if any
             if (titlesForThis.length == 0)
@@ -594,7 +597,7 @@ public class DSpaceObjectServlet extends DSpaceServlet
             else
             {
                 // Use first title
-                titles[i] = titlesForThis[0].value;
+                titles[i] = titlesForThis[0].getValue();
             }
         }
 
@@ -635,7 +638,8 @@ public class DSpaceObjectServlet extends DSpaceServlet
             throws SQLException
     {
         // Find all the "parent" communities for the community
-        Community[] parents = c.getAllParents();
+//        Community[] parents = c.getAllParents();
+        Community[] parents = (Community[])c.getAllParentCommunities().toArray();
 
         // put into an array in reverse order
         int revLength = include ? (parents.length + 1) : parents.length;

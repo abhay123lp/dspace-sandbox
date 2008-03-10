@@ -56,6 +56,7 @@ import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.submit.step.SelectCollectionStep;
@@ -141,7 +142,8 @@ public class JSPSelectCollectionStep extends JSPStep
 
         if (collectionID != null)
         {
-            col = Collection.find(context, Integer.parseInt(collectionID));
+            col = ApplicationService.get(context, Collection.class, Integer.parseInt(collectionID));
+//            col = Collection.find(context, Integer.parseInt(collectionID));
         }
 
         // if we already have a valid collection, then we can forward directly
@@ -162,8 +164,7 @@ public class JSPSelectCollectionStep extends JSPStep
             if (com != null)
             {
                 // In a community. Show collections in that community only.
-                collections = Collection.findAuthorized(context, com,
-                        Constants.ADD);
+                collections = Collection.findAuthorized(context, com, Constants.ADD);
             }
             else
             {

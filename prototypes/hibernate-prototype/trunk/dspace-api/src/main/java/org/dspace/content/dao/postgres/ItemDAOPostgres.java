@@ -119,13 +119,14 @@ public class ItemDAOPostgres //extends ItemDAO
 //        "        WHERE short_id = ? " +
 //        "    )" +
 //        ")";
-//
+
 //    public ItemDAOPostgres(Context context)
 //    {
 //        super(context);
 //    }
-//
-//    @Override
+
+    Context context;
+    //factory
 //    public Item create() throws AuthorizeException
 //    {
 //        // UUID is not longer created here
@@ -138,7 +139,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            DatabaseManager.update(context, row);
 //
 //            int id = row.getIntColumn("item_id");
-//            Item item = new ItemProxy(context, id);
+//            Item item = null;//new ItemProxy(context, id);
 //            // item.setIdentifier(new ObjectIdentifier(uuid));
 //
 //            return item;
@@ -148,8 +149,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+
 //    public Item retrieve(int id)
 //    {
 //        try
@@ -163,24 +163,23 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
-//    public Item retrieve(UUID uuid)
-//    {
-//        try
-//        {
-//            TableRow row = DatabaseManager.findByUnique(context, "item",
-//                    "uuid", uuid.toString());
-//
+    //TODO UUID
+    public Item retrieve(UUID uuid)
+    {
+        try
+        {
+            TableRow row = DatabaseManager.findByUnique(context, "item",
+                    "uuid", uuid.toString());
+
 //            return retrieve(row);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    @Override
+            return null;
+        }
+        catch (SQLException sqle)
+        {
+            throw new RuntimeException(sqle);
+        }
+    }
+
 //    public void update(Item item) throws AuthorizeException
 //    {
 //        try
@@ -205,8 +204,8 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+
+//    applicationservice + cascade
 //    public void delete(int id) throws AuthorizeException
 //    {
 //        try
@@ -220,8 +219,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+
 //    public List<Item> getItems()
 //    {
 //        try
@@ -237,8 +235,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+
 //    public List<Item> getItems(DSpaceObject scope,
 //            String startDate, String endDate, int offset, int limit,
 //            boolean items, boolean collections, boolean withdrawn)
@@ -381,8 +378,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+
 //    public List<Item> getItems(MetadataValue value, Date startDate, Date endDate)
 //    {
 //        // FIXME: Of course, this should actually go somewhere else
@@ -480,7 +476,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            else
 //            {
 //                tri = DatabaseManager.query(context, query.toString(),
-//                        value.getFieldID(), value.getValue());
+//                        value.getMetadataField().getId(), value.getValue());
 //            }
 //
 //            return returnAsList(tri);
@@ -490,8 +486,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+//      collection.getitems
 //    public List<Item> getItemsByCollection(Collection collection)
 //    {
 //        try
@@ -511,8 +506,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+
 //    public List<Item> getItemsBySubmitter(EPerson eperson)
 //    {
 //        try
@@ -530,8 +524,8 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+
+//    bundle.getitems
 //    public List<Item> getParentItems(Bundle bundle)
 //    {
 //        try
@@ -550,8 +544,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+//        itemmanager.addbundletoitem
 //    public void link(Item item, Bundle bundle) throws AuthorizeException
 //    {
 //        if (linked(item, bundle))
@@ -575,8 +568,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+//      itemmanager.removebundle
 //    public void unlink(Item item, Bundle bundle) throws AuthorizeException
 //    {
 //        if (!linked(item, bundle))
@@ -597,8 +589,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    @Override
+//        item.getbundles.contains
 //    public boolean linked(Item item, Bundle bundle)
 //    {
 //        try
@@ -618,14 +609,14 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-//
-//    ////////////////////////////////////////////////////////////////////
-//    // Utility methods
-//    //
-//    // Note: the methods below marked public are mostly to serve the
-//    // ItemProxy class. The situation isn't really ideal.
-//    ////////////////////////////////////////////////////////////////////
-//
+
+    ////////////////////////////////////////////////////////////////////
+    // Utility methods
+    //
+    // Note: the methods below marked public are mostly to serve the
+    // ItemProxy class. The situation isn't really ideal.
+    ////////////////////////////////////////////////////////////////////
+
 //    private Item retrieve(TableRow row)
 //    {
 //        if (row == null)
@@ -634,7 +625,7 @@ public class ItemDAOPostgres //extends ItemDAO
 //        }
 //
 //        int id = row.getIntColumn("item_id");
-//        Item item = new ItemProxy(context, id);
+//        Item item=null;// = new ItemProxy(context, id);
 //        populateItemFromTableRow(item, row);
 //
 //        // FIXME: I'd like to bump the rest of this up into the superclass
@@ -690,134 +681,132 @@ public class ItemDAOPostgres //extends ItemDAO
 //        Date lastModified = row.getDateColumn("last_modified");
 //
 //        item.setIdentifier(new ObjectIdentifier(uuid));
-//        item.setSubmitter(submitterId);
-//        item.setOwningCollectionId(owningCollectionId);
+////        item.setSubmitter(submitterId);
+////        item.setOwningCollectionId(owningCollectionId);
 //        item.setArchived(inArchive);
 //        item.setWithdrawn(withdrawn);
 //        item.setLastModified(lastModified);
 //    }
 //
-//    @Override
-//    public void loadMetadata(Item item)
-//    {
-//        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
-//        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+////    public void loadMetadata(Item item)
+////    {
+////        MetadataFieldDAO mfDAO = MetadataFieldDAOFactory.getInstance(context);
+////        MetadataSchemaDAO msDAO = MetadataSchemaDAOFactory.getInstance(context);
+////
+////        try
+////        {
+////            TableRowIterator tri = DatabaseManager.queryTable(context,
+////                    "metadatavalue",
+////                    "SELECT * FROM MetadataValue " +
+////                    "WHERE item_id = ? " +
+////                    "ORDER BY metadata_field_id, place",
+////                    item.getID());
+////
+////            List<DCValue> metadata = new ArrayList<DCValue>();
+////
+////            for (TableRow row : tri.toList())
+////            {
+////                // Get the associated metadata field and schema information
+////                int fieldID = row.getIntColumn("metadata_field_id");
+////                MetadataField field =null;// mfDAO.retrieve(fieldID);
+////
+////                if (field == null)
+////                {
+//////                    log.error("Loading item - cannot find metadata field "
+//////                            + fieldID);
+////                }
+////                else
+////                {
+////                    MetadataSchema schema =null;
+//////                        msDAO.retrieve(field.getSchemaID());
+////
+////                    // Make a DCValue object
+////                    DCValue dcv = new DCValue();
+////                    dcv.schema = schema.getName();
+////                    dcv.element = field.getElement();
+////                    dcv.qualifier = field.getQualifier();
+////                    dcv.language = row.getStringColumn("text_lang");
+////                    dcv.value = row.getStringColumn("text_value");
+////
+////                    // Add it to the item
+////                    metadata.add(dcv);
+////                }
+////            }
+////
+//////            item.setMetadata(metadata);
+////        }
+////        catch (SQLException sqle)
+////        {
+////            throw new RuntimeException(sqle);
+////        }
+////    }
 //
-//        try
-//        {
-//            TableRowIterator tri = DatabaseManager.queryTable(context,
-//                    "metadatavalue",
-//                    "SELECT * FROM MetadataValue " +
-//                    "WHERE item_id = ? " +
-//                    "ORDER BY metadata_field_id, place",
-//                    item.getID());
+////    /**
+////     * Perform a database query to obtain the string array of values
+////     * corresponding to the passed parameters. This is only really called from
+////     *
+////     * <code>
+////     * getMetadata(schema, element, qualifier, lang);
+////     * </code>
+////     *
+////     * which will obtain the value from cache if available first.
+////     *
+////     * @param schema
+////     * @param element
+////     * @param qualifier
+////     * @param lang
+////     */
+////    public List<DCValue> getMetadata(Item item, String schema, String element,
+////            String qualifier, String lang)
+////    {
+////        List<DCValue> metadata = new ArrayList<DCValue>();
+////        try
+////        {
+////            TableRowIterator tri;
+////
+////            if (qualifier == null)
+////            {
+////                Object[] params = { item.getID(), element, schema };
+////                tri = DatabaseManager.query(context, getByMetadataElement,
+////                        params);
+////            }
+////            else if (Item.ANY.equals(qualifier))
+////            {
+////                Object[] params = { item.getID(), element, schema };
+////                tri = DatabaseManager.query(context, getByMetadataAnyQualifier,
+////                        params);
+////            }
+////            else
+////            {
+////                Object[] params = { item.getID(), element, qualifier, schema };
+////                tri = DatabaseManager.query(context, getByMetadata, params);
+////            }
+////
+////            while (tri.hasNext())
+////            {
+////                TableRow tr = tri.next();
+////                DCValue dcv = new DCValue();
+////                dcv.schema = schema;
+////                dcv.element = element;
+////                dcv.qualifier = qualifier;
+////                dcv.language = lang;
+////                dcv.value = tr.getStringColumn("text_value");
+////                metadata.add(dcv);
+////            }
+////        }
+////        catch (SQLException sqle)
+////        {
+////            throw new RuntimeException(sqle);
+////        }
+////        return metadata;
+////    }
 //
-//            List<DCValue> metadata = new ArrayList<DCValue>();
-//
-//            for (TableRow row : tri.toList())
-//            {
-//                // Get the associated metadata field and schema information
-//                int fieldID = row.getIntColumn("metadata_field_id");
-//                MetadataField field = mfDAO.retrieve(fieldID);
-//
-//                if (field == null)
-//                {
-//                    log.error("Loading item - cannot find metadata field "
-//                            + fieldID);
-//                }
-//                else
-//                {
-//                    MetadataSchema schema =
-//                        msDAO.retrieve(field.getSchemaID());
-//
-//                    // Make a DCValue object
-//                    DCValue dcv = new DCValue();
-//                    dcv.schema = schema.getName();
-//                    dcv.element = field.getElement();
-//                    dcv.qualifier = field.getQualifier();
-//                    dcv.language = row.getStringColumn("text_lang");
-//                    dcv.value = row.getStringColumn("text_value");
-//
-//                    // Add it to the item
-//                    metadata.add(dcv);
-//                }
-//            }
-//
-//            item.setMetadata(metadata);
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//    }
-//
-//    /**
-//     * Perform a database query to obtain the string array of values
-//     * corresponding to the passed parameters. This is only really called from
-//     *
-//     * <code>
-//     * getMetadata(schema, element, qualifier, lang);
-//     * </code>
-//     *
-//     * which will obtain the value from cache if available first.
-//     *
-//     * @param schema
-//     * @param element
-//     * @param qualifier
-//     * @param lang
-//     */
-//    @Override
-//    public List<DCValue> getMetadata(Item item, String schema, String element,
-//            String qualifier, String lang)
-//    {
-//        List<DCValue> metadata = new ArrayList<DCValue>();
-//        try
-//        {
-//            TableRowIterator tri;
-//
-//            if (qualifier == null)
-//            {
-//                Object[] params = { item.getID(), element, schema };
-//                tri = DatabaseManager.query(context, getByMetadataElement,
-//                        params);
-//            }
-//            else if (Item.ANY.equals(qualifier))
-//            {
-//                Object[] params = { item.getID(), element, schema };
-//                tri = DatabaseManager.query(context, getByMetadataAnyQualifier,
-//                        params);
-//            }
-//            else
-//            {
-//                Object[] params = { item.getID(), element, qualifier, schema };
-//                tri = DatabaseManager.query(context, getByMetadata, params);
-//            }
-//
-//            while (tri.hasNext())
-//            {
-//                TableRow tr = tri.next();
-//                DCValue dcv = new DCValue();
-//                dcv.schema = schema;
-//                dcv.element = element;
-//                dcv.qualifier = qualifier;
-//                dcv.language = lang;
-//                dcv.value = tr.getStringColumn("text_value");
-//                metadata.add(dcv);
-//            }
-//        }
-//        catch (SQLException sqle)
-//        {
-//            throw new RuntimeException(sqle);
-//        }
-//        return metadata;
-//    }
-//
-//    private void removeMetadataFromDatabase(int itemId) throws SQLException
-//    {
-//        DatabaseManager.updateQuery(context,
-//                "DELETE FROM MetadataValue WHERE item_id= ? ",
-//                itemId);
-//    }
+////    private void removeMetadataFromDatabase(int itemId) throws SQLException
+////    {
+////        DatabaseManager.updateQuery(context,
+////                "DELETE FROM MetadataValue WHERE item_id= ? ",
+////                itemId);
+////    }
 //
 //    /**
 //     * Convert a String to a java.sql.Timestamp object

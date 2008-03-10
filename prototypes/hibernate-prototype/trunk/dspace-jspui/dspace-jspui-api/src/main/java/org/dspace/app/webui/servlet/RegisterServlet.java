@@ -45,6 +45,7 @@ import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authenticate.AuthenticationManager;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -148,7 +149,8 @@ public class RegisterServlet extends DSpaceServlet
 
             if (email != null)
             {
-                eperson = EPerson.findByEmail(context, email);
+//                eperson = EPerson.findByEmail(context, email);
+                eperson = ApplicationService.findEPersonByEmail(context, email);
             }
 
             // Both forms need an EPerson object (if any)
@@ -251,9 +253,11 @@ public class RegisterServlet extends DSpaceServlet
         
         String netid = request.getParameter("netid");
         String password = request.getParameter("password");
-        EPerson eperson = EPerson.findByEmail(context, email);
+//        EPerson eperson = EPerson.findByEmail(context, email);
+        EPerson eperson = ApplicationService.findEPersonByEmail(context, email);
         EPerson eperson2 = null;
-        if (netid!=null) eperson2 = EPerson.findByNetid(context, netid);
+//        if (netid!=null) eperson2 = EPerson.findByNetid(context, netid);
+        if (netid!=null) eperson2 = ApplicationService.findEPersonByNetid(context, netid);
 
         try
         {
@@ -474,9 +478,11 @@ public class RegisterServlet extends DSpaceServlet
 
         // If the token is valid, we create an eperson record if need be
         EPerson eperson = null;
-        if (email!=null) eperson = EPerson.findByEmail(context, email);
+//        if (email!=null) eperson = EPerson.findByEmail(context, email);
+        if (email!=null) eperson = ApplicationService.findEPersonByEmail(context, email);
         EPerson eperson2 = null;
-        eperson2 = EPerson.findByNetid(context, netid);
+//        eperson2 = EPerson.findByNetid(context, netid);
+        eperson2=ApplicationService.findEPersonByNetid(context, netid);
         if (eperson2 !=null) eperson = eperson2;
         
         if (eperson == null)
@@ -485,11 +491,13 @@ public class RegisterServlet extends DSpaceServlet
             // FIXME: TEMPORARILY need to turn off authentication, as usually
             // only site admins can create e-people
             context.setIgnoreAuthorization(true);
-            eperson = EPerson.create(context);
+//            eperson = EPerson.create(context);
+            eperson = AccountManager.createEPerson(context);
             eperson.setEmail(email);
             eperson.setNetid(netid);
-            eperson.update();
+//            eperson.update();            
             context.setIgnoreAuthorization(false);
+            ApplicationService.save(context, EPerson.class, eperson);
         }
 
         // Now set the current user of the context
@@ -526,7 +534,7 @@ public class RegisterServlet extends DSpaceServlet
             if (token!=null) AccountManager.deleteToken(context, token);
             
             // Update user record
-            eperson.update();
+//            eperson.update(); //NO NEED
 
             request.setAttribute("eperson", eperson);
             JSPManager.showJSP(request, response, "/register/registered.jsp");
@@ -601,7 +609,7 @@ public class RegisterServlet extends DSpaceServlet
             log.info(LogManager.getHeader(context, "usedtoken_forgotpw",
                     "email=" + eperson.getEmail()));
 
-            eperson.update();
+//            eperson.update(); NO NEED
             AccountManager.deleteToken(context, token);
 
             JSPManager.showJSP(request, response,

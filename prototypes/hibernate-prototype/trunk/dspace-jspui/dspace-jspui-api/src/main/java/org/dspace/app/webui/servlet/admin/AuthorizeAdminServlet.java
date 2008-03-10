@@ -62,6 +62,7 @@ import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -70,6 +71,8 @@ import org.dspace.uri.ResolvableIdentifier;
 import org.dspace.uri.IdentifierService;
 import org.dspace.uri.dao.ExternalIdentifierDAO;
 import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
+
+import com.sun.org.apache.regexp.internal.RE;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -144,7 +147,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         if (button.equals("submit_collection"))
         {
             // select a collection to work on
-            Collection[] collections = Collection.findAll(c);
+//            Collection[] collections = Collection.findAll(c);
+            Collection[] collections = (Collection[])ApplicationService.findAllCollections(c).toArray();
 
             request.setAttribute("collections", collections);
             JSPManager.showJSP(request, response,
@@ -153,7 +157,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community"))
         {
             // select a community to work on
-            Community[] communities = Community.findAll(c);
+//            Community[] communities = Community.findAll(c);
+            Community[] communities = (Community[])ApplicationService.findAllCommunities(c).toArray();
 
             request.setAttribute("communities", communities);
             JSPManager.showJSP(request, response,
@@ -162,8 +167,11 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_advanced"))
         {
             // select a collections to work on
-            Collection[] collections = Collection.findAll(c);
-            Group[] groups = Group.findAll(c, Group.NAME);
+//            Collection[] collections = Collection.findAll(c);
+            Collection[] collections = (Collection[])ApplicationService.findAllCollections(c).toArray();
+
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[])ApplicationService.findAllGroupsSortedByName(c).toArray();
 
             request.setAttribute("collections", collections);
             request.setAttribute("groups", groups);
@@ -187,7 +195,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             // if id is set, use it
             if (itemID > 0)
             {
-                item = itemDAO.retrieve(itemID);
+//                item = itemDAO.retrieve(itemID);
+                item = ApplicationService.get(c, Item.class, itemID);
             }
             else if ((uri != null) && !uri.equals(""))
             {
@@ -221,22 +230,25 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_item_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Item item = itemDAO.retrieve(itemID);
+//            Item item = itemDAO.retrieve(itemID);
+            Item item = ApplicationService.get(c, Item.class, itemID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(item);
-            policy.update();
+//            policy.update(); //NO NEED
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[])ApplicationService.findAllGroupsSortedByName(c).toArray();
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+            EPerson[] epeople = (EPerson[])ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
 
             // return to item permission page
-            request.setAttribute("edit_title", "Item " + item.getID());
+            request.setAttribute("edit_title", "Item " + item.getId());
             request.setAttribute("policy", policy);
             request.setAttribute("groups", groups);
             request.setAttribute("epeople", epeople);
             request.setAttribute("id_name", "item_id");
-            request.setAttribute("id", "" + item.getID());
+            request.setAttribute("id", "" + item.getId());
             request.setAttribute("newpolicy", "true");
 
             JSPManager.showJSP(request, response,
@@ -245,15 +257,19 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_item_edit_policy"))
         {
             // edit an item's policy - set up and call policy editor
-            Item item = itemDAO.retrieve(itemID);
+//            Item item = itemDAO.retrieve(itemID);
+            Item item = ApplicationService.get(c, Item.class, itemID);
 
             int policy_id = UIUtil.getIntParameter(request, "policy_id");
             ResourcePolicy policy = null;
 
-            policy = ResourcePolicy.find(c, policy_id);
+//            policy = ResourcePolicy.find(c, policy_id);
+            policy = ApplicationService.get(c, ResourcePolicy.class, policy_id);
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[])ApplicationService.findAllGroupsSortedByName(c).toArray();
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+            EPerson[] epeople = (EPerson[])ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
 
             // return to collection permission page
             request.setAttribute("edit_title", "Item " + item.getID());
@@ -268,24 +284,27 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_bundle_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Item item = itemDAO.retrieve(itemID);
-            Bundle bundle = bundleDAO.retrieve(bundleID);
+//            Item item = itemDAO.retrieve(itemID);
+            Item item = ApplicationService.get(c, Item.class, itemID);
+//            Bundle bundle = bundleDAO.retrieve(bundleID);
+            Bundle bundle = ApplicationService.get(c, Bundle.class, bundleID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(bundle);
-            policy.update();
+//            policy.update();//NO NEED
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
-
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[])ApplicationService.findAllGroupsSortedByName(c).toArray();
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+            EPerson[] epeople = (EPerson[]) ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
             // return to item permission page
             request.setAttribute("edit_title", "(Item, Bundle) = ("
-                    + item.getID() + "," + bundle.getID() + ")");
+                    + item.getId() + "," + bundle.getId() + ")");
             request.setAttribute("policy", policy);
             request.setAttribute("groups", groups);
             request.setAttribute("epeople", epeople);
             request.setAttribute("id_name", "item_id");
-            request.setAttribute("id", "" + item.getID());
+            request.setAttribute("id", "" + item.getId());
             request.setAttribute("newpolicy", "true");
 
             JSPManager.showJSP(request, response,
@@ -294,24 +313,28 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_bitstream_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Item item = itemDAO.retrieve(itemID);
-            Bitstream bitstream = bitstreamDAO.retrieve(bitstreamID);
+//            Item item = itemDAO.retrieve(itemID);
+            Item item = ApplicationService.get(c, Item.class, itemID);
+//            Bitstream bitstream = bitstreamDAO.retrieve(bitstreamID);
+            Bitstream bitstream = ApplicationService.get(c,Bitstream.class, bitstreamID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(bitstream);
-            policy.update();
+//            policy.update();//NO NEED
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[])ApplicationService.findAllGroupsSortedByName(c).toArray();
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+            EPerson[] epeople = (EPerson[])ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
 
             // return to item permission page
             request.setAttribute("edit_title", "(Item,Bitstream) = ("
-                    + item.getID() + "," + bitstream.getID() + ")");
+                    + item.getId() + "," + bitstream.getId() + ")");
             request.setAttribute("policy", policy);
             request.setAttribute("groups", groups);
             request.setAttribute("epeople", epeople);
             request.setAttribute("id_name", "item_id");
-            request.setAttribute("id", "" + item.getID());
+            request.setAttribute("id", "" + item.getId());
             request.setAttribute("newpolicy", "true");
 
             JSPManager.showJSP(request, response,
@@ -320,12 +343,15 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_item_delete_policy"))
         {
             // delete a permission from an item
-            Item item = itemDAO.retrieve(itemID);
-            ResourcePolicy policy = ResourcePolicy.find(c, UIUtil
+//            Item item = itemDAO.retrieve(itemID);
+            Item item = ApplicationService.get(c, Item.class, itemID);
+//            ResourcePolicy policy = ResourcePolicy.find(c, UIUtil.getIntParameter(request, "policy_id"));
+            ResourcePolicy policy = ApplicationService.get(c, ResourcePolicy.class, UIUtil
                     .getIntParameter(request, "policy_id"));
 
             // do the remove
-            policy.delete();
+//            policy.delete();
+            ApplicationService.delete(c, ResourcePolicy.class , policy);
 
             // show edit form!
             prepItemEditForm(c, request, item);
@@ -337,18 +363,21 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Collection collection = collectionDAO.retrieve(collectionID);
+//            Collection collection = collectionDAO.retrieve(collectionID);
+            Collection collection = ApplicationService.get(c, Collection.class, collectionID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(collection);
-            policy.update();
+//            policy.update(); //NO NEED
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[]) ApplicationService.findAllGroupsSortedByName(c).toArray();
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+            EPerson[] epeople = (EPerson[])ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
 
             // return to collection permission page
             request.setAttribute("edit_title", "Collection "
-                    + collection.getID());
+                    + collection.getId());
             request.setAttribute("policy", policy);
             request.setAttribute("groups", groups);
             request.setAttribute("epeople", epeople);
@@ -362,7 +391,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community_select"))
         {
             // edit the collection's permissions
-            Community target = communityDAO.retrieve(communityID);
+//            Community target = communityDAO.retrieve(communityID);
+            Community target = ApplicationService.get(c, Community.class, communityID);
             List policies = AuthorizeManager.getPolicies(c, target);
 
             request.setAttribute("community", target);
@@ -373,12 +403,14 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_delete_policy"))
         {
             // delete a permission from a collection
-            Collection collection = collectionDAO.retrieve(collectionID);
-            ResourcePolicy policy = ResourcePolicy.find(c, UIUtil
-                    .getIntParameter(request, "policy_id"));
+//            Collection collection = collectionDAO.retrieve(collectionID);
+            Collection collection = ApplicationService.get(c, Collection.class, collectionID);
+//            ResourcePolicy policy = ResourcePolicy.find(c, UIUtil.getIntParameter(request, "policy_id"));
+            ResourcePolicy policy = ApplicationService.get(c, ResourcePolicy.class, UIUtil.getIntParameter(request, "policy_id"));
 
             // do the remove
-            policy.delete();
+//            policy.delete();
+            ApplicationService.delete(c, ResourcePolicy.class, policy);
 
             // return to collection permission page
             request.setAttribute("collection", collection);
@@ -392,12 +424,14 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community_delete_policy"))
         {
             // delete a permission from a community
-            Community community = communityDAO.retrieve(communityID);
-            ResourcePolicy policy = ResourcePolicy.find(c, UIUtil
-                    .getIntParameter(request, "policy_id"));
+//            Community community = communityDAO.retrieve(communityID);
+            Community community = ApplicationService.get(c, Community.class, communityID);
+//            ResourcePolicy policy = ResourcePolicy.find(c, UIUtil.getIntParameter(request, "policy_id"));
+            ResourcePolicy policy = ApplicationService.get(c, ResourcePolicy.class, UIUtil.getIntParameter(request, "policy_id"));
 
             // do the remove
-            policy.delete();
+//            policy.delete();
+            ApplicationService.delete(c, ResourcePolicy.class, policy);
 
             // return to collection permission page
             request.setAttribute("community", community);
@@ -411,7 +445,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_edit_policy"))
         {
             // edit a collection's policy - set up and call policy editor
-            Collection collection = collectionDAO.retrieve(collectionID);
+//            Collection collection = collectionDAO.retrieve(collectionID);
+            Collection collection = ApplicationService.get(c, Collection.class, collectionID);
 
             int policy_id = UIUtil.getIntParameter(request, "policy_id");
             ResourcePolicy policy = null;
@@ -421,19 +456,22 @@ public class AuthorizeAdminServlet extends DSpaceServlet
                 // create new policy
                 policy = ResourcePolicy.create(c);
                 policy.setResource(collection);
-                policy.update();
+//                policy.update(); //NO NEED
             }
             else
             {
-                policy = ResourcePolicy.find(c, policy_id);
+//                policy = ResourcePolicy.find(c, policy_id);
+                policy = ApplicationService.get(c, ResourcePolicy.class, policy_id);
             }
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[])ApplicationService.findAllGroupsSortedByName(c).toArray();
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+            EPerson[] epeople = (EPerson[])ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
 
             // return to collection permission page
             request.setAttribute("edit_title", "Collection "
-                    + collection.getID());
+                    + collection.getId());
             request.setAttribute("policy", policy);
             request.setAttribute("groups", groups);
             request.setAttribute("epeople", epeople);
@@ -445,7 +483,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community_edit_policy"))
         {
             // edit a community's policy - set up and call policy editor
-            Community community = communityDAO.retrieve(communityID);
+//            Community community = communityDAO.retrieve(communityID);
+            Community community = ApplicationService.get(c, Community.class, communityID);
 
             int policy_id = UIUtil.getIntParameter(request, "policy_id");
             ResourcePolicy policy = null;
@@ -455,15 +494,18 @@ public class AuthorizeAdminServlet extends DSpaceServlet
                 // create new policy
                 policy = ResourcePolicy.create(c);
                 policy.setResource(community);
-                policy.update();
+//                policy.update(); //NO NEED
             }
             else
             {
-                policy = ResourcePolicy.find(c, policy_id);
+//                policy = ResourcePolicy.find(c, policy_id);
+                policy = ApplicationService.get(c, ResourcePolicy.class, policy_id);
             }
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[]) ApplicationService.findAllGroupsSortedByName(c).toArray();
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+            EPerson[] epeople = (EPerson[]) ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
 
             // return to collection permission page
             request
@@ -480,14 +522,17 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Collection collection = collectionDAO.retrieve(collectionID);
+//            Collection collection = collectionDAO.retrieve(collectionID);
+            Collection collection = ApplicationService.get(c, Collection.class, collectionID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(collection);
-            policy.update();
+//            policy.update();//NO NEED
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+//            Group[] groups = Group.findAll(c, Group.NAME);
+            Group[] groups = (Group[]) ApplicationService.findAllGroupsSortedByName(c).toArray();
+            EPerson[] epeople = (EPerson[]) ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
 
             // return to collection permission page
             request.setAttribute("edit_title", "Collection "
@@ -505,14 +550,17 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_community_add_policy"))
         {
             // want to add a policy, create an empty one and invoke editor
-            Community community = communityDAO.retrieve(communityID);
+//            Community community = communityDAO.retrieve(communityID);
+            Community community = ApplicationService.get(c, Community.class, communityID);
 
             ResourcePolicy policy = ResourcePolicy.create(c);
             policy.setResource(community);
-            policy.update();
+//            policy.update();//NO NEED
 
-            Group[] groups = Group.findAll(c, Group.NAME);
-            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+//            Group[] groups = Group.findAll(c, Group.NAME);
+//            EPerson[] epeople = EPerson.findAll(c, EPerson.EMAIL);
+            Group[] groups = (Group[]) ApplicationService.findAllGroupsSortedByName(c).toArray();
+            EPerson[] epeople = (EPerson[]) ApplicationService.findAllEPeopleSorted(EPerson.EMAIL, c).toArray();
 
             // return to collection permission page
             request
@@ -539,17 +587,20 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             Community community = null;
             String display_page = null;
 
-            ResourcePolicy policy = ResourcePolicy.find(c, policy_id);
-            Group group = Group.find(c, group_id);
+//            ResourcePolicy policy = ResourcePolicy.find(c, policy_id);
+            ResourcePolicy policy = ApplicationService.get(c, ResourcePolicy.class,policy_id);
+//            Group group = Group.find(c, group_id);
+            Group group = ApplicationService.get(c, Group.class, group_id);
 
             if (collectionID > 0)
             {
-                collection = collectionDAO.retrieve(collectionID);
+//                collection = collectionDAO.retrieve(collectionID);
+                collection = ApplicationService.get(c, Collection.class, collectionID);
 
                 // modify the policy
                 policy.setAction(action_id);
                 policy.setGroup(group);
-                policy.update();
+//                policy.update();//NO NEED
 
                 // if it is a read, policy, modify the logo policy to match
                 if (action_id == Constants.READ)
@@ -576,12 +627,13 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             }
             else if (communityID > 0)
             {
-                community = communityDAO.retrieve(communityID);
+//                community = communityDAO.retrieve(communityID);
+                community = ApplicationService.get(c, Community.class, communityID);
 
                 // modify the policy
                 policy.setAction(action_id);
                 policy.setGroup(group);
-                policy.update();
+//                policy.update();//NO NEED
 
                 // if it is a read, policy, modify the logo policy to match
                 if (action_id == Constants.READ)
@@ -608,12 +660,13 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             }
             else if (itemID > 0)
             {
-                item = itemDAO.retrieve(itemID);
+//                item = itemDAO.retrieve(itemID);
+                item = ApplicationService.get(c, Item.class, itemID);
 
                 // modify the policy
                 policy.setAction(action_id);
                 policy.setGroup(group);
-                policy.update();
+//                policy.update();//NO NEED
 
                 // show edit form!
                 prepItemEditForm(c, request, item);
@@ -630,8 +683,10 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             if ((request.getParameter("newpolicy") != null))
             {
                 int policy_id = UIUtil.getIntParameter(request, "policy_id");
-                ResourcePolicy rp = ResourcePolicy.find(c, policy_id);
-                rp.delete();
+//                ResourcePolicy rp = ResourcePolicy.find(c, policy_id);
+                ResourcePolicy rp = ApplicationService.get(c, ResourcePolicy.class, policy_id);
+//                rp.delete();
+                ApplicationService.delete(c, ResourcePolicy.class, rp);
             }
 
             // return to the previous page
@@ -640,7 +695,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             if (collectionID > 0)
             {
                 // set up for return to collection edit page
-                Collection t = collectionDAO.retrieve(collectionID);
+//                Collection t = collectionDAO.retrieve(collectionID);
+                Collection t = ApplicationService.get(c, Collection.class, collectionID);
 
                 request.setAttribute("collection", t);
                 request.setAttribute("policies", AuthorizeManager.getPolicies(
@@ -650,7 +706,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             else if (communityID > 0)
             {
                 // set up for return to community edit page
-                Community t = communityDAO.retrieve(communityID);
+//                Community t = communityDAO.retrieve(communityID);
+                Community t = ApplicationService.get(c, Community.class, communityID);
 
                 request.setAttribute("community", t);
                 request.setAttribute("policies", AuthorizeManager.getPolicies(
@@ -660,7 +717,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             else if (itemID > 0)
             {
                 // set up for return to item edit page
-                Item t = itemDAO.retrieve(itemID);
+//                Item t = itemDAO.retrieve(itemID);
+                Item t = ApplicationService.get(c, Item.class, itemID);
 
                 // show edit form!
                 prepItemEditForm(c, request, t);
@@ -713,7 +771,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         else if (button.equals("submit_collection_select"))
         {
             // edit the collection's permissions
-            Collection collection = collectionDAO.retrieve(collectionID);
+//            Collection collection = collectionDAO.retrieve(collectionID);
+            Collection collection = ApplicationService.get(c, Collection.class, collectionID);
             List policies = AuthorizeManager.getPolicies(c, collection);
 
             request.setAttribute("collection", collection);
@@ -747,7 +806,8 @@ public class AuthorizeAdminServlet extends DSpaceServlet
         Map bundle_policies = new HashMap();
         Map bitstream_policies = new HashMap();
 
-        Bundle[] bundles = item.getBundles();
+//        Bundle[] bundles = item.getBundles();
+        Bundle[] bundles = (Bundle[])item.getBundles().toArray();
 
         for (int i = 0; i < bundles.length; i++)
         {
@@ -758,7 +818,7 @@ public class AuthorizeAdminServlet extends DSpaceServlet
             bundle_policies.put(new Integer(myBundle.getID()), myPolicies);
 
             // go through all bundle's bitstreams, add to bitstream map
-            Bitstream[] bitstreams = myBundle.getBitstreams();
+            Bitstream[] bitstreams = (Bitstream[])myBundle.getBitstreams().toArray();
 
             for (int j = 0; j < bitstreams.length; j++)
             {

@@ -56,6 +56,7 @@ import org.dspace.authenticate.AuthenticationManager;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.DCDate;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -122,7 +123,9 @@ public class UIUtil extends Util
                 String remAddr = (String)session.getAttribute("dspace.current.remote.addr");
                 if (remAddr != null && remAddr.equals(request.getRemoteAddr()))
                 {
-                EPerson e = EPerson.find(c, userID.intValue());
+                    EPerson e = ApplicationService.get(c, EPerson.class, userID.intValue());
+//                EPerson e = EPerson.find(c, userID.intValue());
+                    
 
                 Authenticate.loggedIn(c, request, e);
             }

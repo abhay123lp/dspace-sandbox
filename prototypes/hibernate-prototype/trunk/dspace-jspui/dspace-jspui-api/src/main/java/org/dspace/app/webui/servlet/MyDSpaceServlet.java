@@ -170,7 +170,8 @@ public class MyDSpaceServlet extends DSpaceServlet
         try
         {
             int wsID = Integer.parseInt(request.getParameter("workspace_id"));
-            workspaceItem = wsDAO.retrieve(wsID);
+//            workspaceItem = wsDAO.retrieve(wsID);
+            workspaceItem = ApplicationService.get(context, WorkspaceItem.class, wsID);
         }
         catch (NumberFormatException nfe)
         {
@@ -313,7 +314,8 @@ public class MyDSpaceServlet extends DSpaceServlet
         try
         {
             int wsID = Integer.parseInt(request.getParameter("workspace_id"));
-            workspaceItem = WorkspaceItem.find(context, wsID);
+//            workspaceItem = WorkspaceItem.find(context, wsID);
+            workspaceItem = ApplicationService.get(context, WorkspaceItem.class, wsID);
         }
         catch (NumberFormatException nfe)
         {
@@ -335,8 +337,9 @@ public class MyDSpaceServlet extends DSpaceServlet
             // User has clicked on "delete"
             log.info(LogManager.getHeader(context, "remove_submission",
                     "workspace_item_id=" + workspaceItem.getId() + ",item_id="
-                            + workspaceItem.getItem().getID()));
-            workspaceItem.deleteAll();
+                            + workspaceItem.getItem().getId()));
+//            workspaceItem.deleteAll();
+            WorkflowManager.WorkspaceItemDeleteAll(workspaceItem, context);
             showMainPage(context, request, response);
             context.complete();
         }
@@ -371,7 +374,8 @@ public class MyDSpaceServlet extends DSpaceServlet
         try
         {
             int wfID = Integer.parseInt(request.getParameter("workflow_id"));
-            workflowItem = WorkflowItem.find(context, wfID);
+            workflowItem = ApplicationService.get(context, WorkflowItem.class, wfID);
+//            workflowItem = WorkflowItem.find(context, wfID);
         }
         catch (NumberFormatException nfe)
         {
@@ -428,7 +432,8 @@ public class MyDSpaceServlet extends DSpaceServlet
         try
         {
             int wfID = Integer.parseInt(request.getParameter("workflow_id"));
-            workflowItem = WorkflowItem.find(context, wfID);
+            workflowItem = ApplicationService.get(context, WorkflowItem.class, wfID);
+//            workflowItem = WorkflowItem.find(context, wfID);
         }
         catch (NumberFormatException nfe)
         {
@@ -531,7 +536,8 @@ public class MyDSpaceServlet extends DSpaceServlet
         try
         {
             int wfID = Integer.parseInt(request.getParameter("workflow_id"));
-            workflowItem = WorkflowItem.find(context, wfID);
+            workflowItem = ApplicationService.get(context, WorkflowItem.class, wfID);
+//            workflowItem = WorkflowItem.find(context, wfID);
         }
         catch (NumberFormatException nfe)
         {
@@ -567,7 +573,8 @@ public class MyDSpaceServlet extends DSpaceServlet
             int lastStep = subConfig.getNumberOfSteps() - 2;
             wsi.setStageReached(lastStep);
             wsi.setPageReached(AbstractProcessingStep.LAST_PAGE_REACHED);
-            wsi.update();
+//            wsi.update();
+            ApplicationService.save(context, WorkspaceItem.class, wsi);
 
             JSPManager
                     .showJSP(request, response, "/mydspace/task-complete.jsp");
@@ -614,10 +621,12 @@ public class MyDSpaceServlet extends DSpaceServlet
         pooled = (WorkflowItem[]) pooledList.toArray(pooled);
 
         // User's WorkflowItems
-        WorkflowItem[] workflowItems = WorkflowItem.findByEPerson(context, currentUser);
+//        WorkflowItem[] workflowItems = WorkflowItem.findByEPerson(context, currentUser);
+        WorkflowItem[] workflowItems = (WorkflowItem[])ApplicationService.findWorkflowItemsBySubmitter(currentUser, context).toArray();
 
         // User's PersonalWorkspace
-        WorkspaceItem[] workspaceItems = WorkspaceItem.findByEPerson(context, currentUser);
+//        WorkspaceItem[] workspaceItems = WorkspaceItem.findByEPerson(context, currentUser);
+        WorkspaceItem[] workspaceItems = (WorkspaceItem[])ApplicationService.findWorkspaceItems(currentUser, context).toArray();
 
         // User's authorization groups
         Group[] memberships = Group.allMemberGroups(context, currentUser);
@@ -625,8 +634,8 @@ public class MyDSpaceServlet extends DSpaceServlet
         // Should the group memberships be displayed
         boolean displayMemberships = ConfigurationManager.getBooleanProperty("webui.mydspace.showgroupmemberships", false);
 
-        SupervisedItem[] supervisedItems = SupervisedItem.findbyEPerson(
-                context, currentUser);
+//        SupervisedItem[] supervisedItems = SupervisedItem.findbyEPerson(context, currentUser);
+        SupervisedItem[] supervisedItems = (SupervisedItem[])ApplicationService.findSupervisedItems(currentUser, context).toArray();
 
         // Set attributes
         request.setAttribute("mydspace.user", currentUser);
@@ -657,16 +666,16 @@ public class MyDSpaceServlet extends DSpaceServlet
             throws ServletException, IOException, SQLException,
             AuthorizeException
     {
-        ItemIterator subs = Item.findBySubmitter(context, context
-                .getCurrentUser());
+//        ItemIterator subs = Item.findBySubmitter(context, context.getCurrentUser());
+        List<Item> subList = ApplicationService.findItemsBySubmitter(context.getCurrentUser(), context);
 
         // Turn the iterator into a list
-        List subList = new LinkedList();
-
-        while (subs.hasNext())
-        {
-            subList.add(subs.next());
-        }
+//        List subList = new LinkedList();
+//
+//        while (subs.hasNext())
+//        {
+//            subList.add(subs.next());
+//        }
 
         Item[] items = new Item[subList.size()];
 

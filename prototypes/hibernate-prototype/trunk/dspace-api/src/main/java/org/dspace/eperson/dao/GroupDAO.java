@@ -42,6 +42,7 @@ package org.dspace.eperson.dao;
 import org.apache.log4j.Logger;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.InProgressSubmission;
+import org.dspace.content.WorkspaceItem;
 import org.dspace.core.Context;
 import org.dspace.dao.CRUD;
 import org.dspace.dao.Link;
@@ -61,16 +62,16 @@ import java.util.UUID;
  *
  * @author James Rutherford
  */
-public abstract class GroupDAO extends StackableDAO<GroupDAO>
-        implements CRUD<Group>, Link<Group, Group>
+public abstract class GroupDAO //extends StackableDAO<GroupDAO>
+        //implements CRUD<Group>, Link<Group, Group>
 {
     protected Logger log = Logger.getLogger(GroupDAO.class);
 
     protected Context context;
-    protected EPersonDAO epersonDAO;
-    protected ObjectIdentifierDAO oidDAO;
+//    protected EPersonDAO epersonDAO;
+//    protected ObjectIdentifierDAO oidDAO;
 
-    protected GroupDAO childDAO;
+//    protected GroupDAO childDAO;
 
     public GroupDAO()
     {
@@ -80,19 +81,19 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
     {
         this.context = context;
 
-        epersonDAO = EPersonDAOFactory.getInstance(context);
-        oidDAO = ObjectIdentifierDAOFactory.getInstance(context);
+//        epersonDAO = EPersonDAOFactory.getInstance(context);
+//        oidDAO = ObjectIdentifierDAOFactory.getInstance(context);
     }
 
-    public GroupDAO getChild()
-    {
-        return childDAO;
-    }
-
-    public void setChild(GroupDAO childDAO)
-    {
-        this.childDAO = childDAO;
-    }
+//    public GroupDAO getChild()
+//    {
+//        return childDAO;
+//    }
+//
+//    public void setChild(GroupDAO childDAO)
+//    {
+//        this.childDAO = childDAO;
+//    }
 
 //    public Group create() throws AuthorizeException
 //    {
@@ -106,7 +107,7 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 
     public Group retrieve(UUID uuid)
     {
-        return childDAO.retrieve(uuid);
+        return null;// childDAO.retrieve(uuid);
     }
 
 //    public Group retrieve(String name)
@@ -119,10 +120,10 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 //        childDAO.update(group);
 //    }
 
-    public void delete(int id) throws AuthorizeException
-    {
-        childDAO.delete(id);
-    }
+//    public void delete(int id) throws AuthorizeException
+//    {
+//        childDAO.delete(id);
+//    }
     
 
 //    public List<Group> getGroups()
@@ -138,28 +139,30 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
     /**
      * Returns a list of all the Groups the given EPerson is a member of.
      */
-    public List<Group> getGroups(EPerson eperson)
-    {
-        return childDAO.getGroups(eperson);
-    }
+//    public List<Group> getGroups(EPerson eperson)
+//    {
+//        return childDAO.getGroups(eperson);
+//    }
 
 //    public Set<Integer> getGroupIDs(EPerson eperson)
 //    {
 //        return childDAO.getGroupIDs(eperson);
 //    }
 
-    public List<Group> getSupervisorGroups()
-    {
-        return childDAO.getSupervisorGroups();
-    }
-
+//    public List<Group> getSupervisorGroups()
+//    {
+//        return childDAO.getSupervisorGroups();
+//    }
+    
+    public abstract List<Group> findSupervisorGroup(WorkspaceItem workspaceItem, Context context);
+    public abstract List<Group> findAllSupervisorGroup(Context context);
     /**
      * Gets all the groups that are supervising an in-progress submission
      */
-    public List<Group> getSupervisorGroups(InProgressSubmission ips)
-    {
-        return childDAO.getSupervisorGroups(ips);
-    }
+//    public List<Group> getSupervisorGroups(InProgressSubmission ips)
+//    {
+//        return childDAO.getSupervisorGroups(ips);
+//    }
 
 
     //basta group.getMembers
@@ -194,10 +197,11 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
      *
      * @return List of Group objects
      */
-    public List<Group> search(String query, int offset, int limit)
-    {
-        return childDAO.search(query, offset, limit);
-    }
+//    public List<Group> search(String query, int offset, int limit)
+//    {
+//        return childDAO.search(query, offset, limit);
+//    }
+    public abstract List<Group> findGroups(String query, int offset, int limit, Context context);
 
     /**
      * Find out whether or not the logged in EPerson is a member of the given
@@ -205,10 +209,10 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
      * may be able to give a really quick answer without having to actually
      * inspect the Group beyond knowing its ID.
      */
-    public boolean currentUserInGroup(int groupID)
-    {
-        return childDAO.currentUserInGroup(groupID);
-    }
+//    public boolean currentUserInGroup(int groupID)
+//    {
+//        return childDAO.currentUserInGroup(groupID);
+//    }
 
 //    // FIXME: All of these should probably check authorization
 //    public void link(Group parent, Group child)
@@ -257,10 +261,10 @@ public abstract class GroupDAO extends StackableDAO<GroupDAO>
 //        return childDAO.linked(group, ips);
 //    }
 
-    public void cleanSupervisionOrders()
-    {
-        childDAO.cleanSupervisionOrders();
-    }
+//    public void cleanSupervisionOrders()
+//    {
+//        childDAO.cleanSupervisionOrders();
+//    }
 
 }
 

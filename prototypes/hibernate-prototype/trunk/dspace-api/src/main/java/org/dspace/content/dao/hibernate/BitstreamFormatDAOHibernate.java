@@ -15,6 +15,13 @@ public class BitstreamFormatDAOHibernate extends BitstreamFormatDAO {
         super(context);
     } 
     
+    public List<BitstreamFormat> findAllBitstreamFormat(Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT bf FROM BitstreamFormat bf");
+        List<BitstreamFormat> bfs = q.getResultList();
+        return bfs;
+    }
+    
     public List<BitstreamFormat> getBitstreamFormatByInternal(boolean internal, EntityManager em) {
         Query q = em.createQuery("SELECT b FROM BitstreamFormat b WHERE b.internal := internal");
         q.setParameter("internal", internal);

@@ -47,7 +47,7 @@ public class WorkspaceItemDAOFactory
 {
     public static WorkspaceItemDAO getInstance(Context context)
     {
-        //return new WorkspaceItemDAOPostgres(context);
-        return new WorkspaceItemDAOJPA(context);
+        return null;
+//        return new WorkspaceItemDAOJPA(context);
     }
 }

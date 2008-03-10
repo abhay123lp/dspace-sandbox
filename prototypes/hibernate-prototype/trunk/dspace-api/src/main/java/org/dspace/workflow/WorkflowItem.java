@@ -254,57 +254,57 @@ public class WorkflowItem implements InProgressSubmission
     // Deprecated methods
     ////////////////////////////////////////////////////////////////////
 
-    @Deprecated
-    public void update() throws IOException, AuthorizeException
-    {
-//        dao.update(this);
-        //no need of an explicit update, entitymanager will take care of this
-    }
-
-    @Deprecated
-    public void deleteWrapper() throws IOException, AuthorizeException
-    {
-//        dao.delete(getId());
-        WorkflowManager.deleteWorkflowItem(id, context);
-    }
-
-    @Deprecated
-    public static WorkflowItem find(Context context, int id)
-    {
-//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-//        return dao.retrieve(id);
-        return ApplicationService.get(context, WorkflowItem.class, id);
-    }
-
-    @Deprecated
-    public static WorkflowItem[] findAll(Context c)
-    {
-//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
-//        List<WorkflowItem> wfItems = dao.getWorkflowItems();
-
-//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
-        return (WorkflowItem[])ApplicationService.findAllWorkflowItem(c).toArray();
-    }
-
-    @Deprecated
-    public static WorkflowItem[] findByEPerson(Context context, EPerson e)
-    {
-//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-//        List<WorkflowItem> wfItems = dao.getWorkflowItemsBySubmitter(e);
-
-//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
-        return (WorkflowItem[])ApplicationService.findWorkflowItemsBySubmitter(e, context).toArray();
-    }
-
-    @Deprecated
-    public static WorkflowItem[] findByCollection(Context context, Collection c)
-    {
-//        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
-//        List<WorkflowItem> wfItems = dao.getWorkflowItems(c);
-
-//        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
-        return (WorkflowItem[])ApplicationService.findWorkflowItemByCollection(c, context).toArray();
-    }
+//    @Deprecated
+//    public void update() throws IOException, AuthorizeException
+//    {
+////        dao.update(this);
+//        //no need of an explicit update, entitymanager will take care of this
+//    }
+//
+//    @Deprecated
+//    public void deleteWrapper() throws IOException, AuthorizeException
+//    {
+////        dao.delete(getId());
+//        WorkflowManager.deleteWorkflowItem(id, context);
+//    }
+//
+//    @Deprecated
+//    public static WorkflowItem find(Context context, int id)
+//    {
+////        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+////        return dao.retrieve(id);
+//        return ApplicationService.get(context, WorkflowItem.class, id);
+//    }
+//
+//    @Deprecated
+//    public static WorkflowItem[] findAll(Context c)
+//    {
+////        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(c);
+////        List<WorkflowItem> wfItems = dao.getWorkflowItems();
+//
+////        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+//        return (WorkflowItem[])ApplicationService.findAllWorkflowItem(c).toArray();
+//    }
+//
+//    @Deprecated
+//    public static WorkflowItem[] findByEPerson(Context context, EPerson e)
+//    {
+////        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+////        List<WorkflowItem> wfItems = dao.getWorkflowItemsBySubmitter(e);
+//
+////        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+//        return (WorkflowItem[])ApplicationService.findWorkflowItemsBySubmitter(e, context).toArray();
+//    }
+//
+//    @Deprecated
+//    public static WorkflowItem[] findByCollection(Context context, Collection c)
+//    {
+////        WorkflowItemDAO dao = WorkflowItemDAOFactory.getInstance(context);
+////        List<WorkflowItem> wfItems = dao.getWorkflowItems(c);
+//
+////        return (WorkflowItem[]) wfItems.toArray(new WorkflowItem[0]);
+//        return (WorkflowItem[])ApplicationService.findWorkflowItemByCollection(c, context).toArray();
+//    }
 
 
 }

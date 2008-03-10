@@ -39,11 +39,9 @@
  */
 package org.dspace.app.webui.util;
 
-import java.sql.SQLException;
-
 import org.apache.log4j.Logger;
-import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 
 /**
@@ -66,7 +64,7 @@ public class MetadataStyleSelection extends AKeyBasedStyleSelection
     public String getStyleForItem(Item item)
     {
         String metadata = ConfigurationManager.getProperty("webui.itemdisplay.metadata-style");
-        DCValue[] value = item.getMetadata(metadata);
+        MetadataValue[] value = item.getMetadata(metadata);
         String styleName = "default";
         if (value.length > 0)
         {
@@ -77,7 +75,7 @@ public class MetadataStyleSelection extends AKeyBasedStyleSelection
                         + metadata
                         + "'. Using the first one");
             }
-            styleName = value[0].value.toLowerCase();            
+            styleName = value[0].getValue().toLowerCase();            
         }
         
        

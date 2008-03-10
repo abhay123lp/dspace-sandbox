@@ -40,6 +40,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -235,7 +236,8 @@ public class ControlledVocabularySearchServlet extends DSpaceServlet
         else
         {
             // Get all communities for dropdown box
-            Community[] communities = Community.findAll(context);
+//            Community[] communities = Community.findAll(context);
+            Community[] communities = (Community[])ApplicationService.findAllCommunities(context).toArray();
             request.setAttribute("community.array", communities);
 
             qResults = DSQuery.doQuery(context, qArgs);

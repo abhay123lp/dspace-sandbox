@@ -64,14 +64,15 @@ import org.dspace.storage.rdbms.TableRowIterator;
 /**
  * @author James Rutherford
  */
-public class GroupDAOPostgres extends GroupDAO
+public class GroupDAOPostgres //extends GroupDAO
 {
-    public GroupDAOPostgres(Context context)
-    {
-        this.context = context;
-
-        epersonDAO = EPersonDAOFactory.getInstance(context);
-    }
+    Context context;
+//    public GroupDAOPostgres(Context context)
+//    {
+//        this.context = context;
+//
+//        epersonDAO = EPersonDAOFactory.getInstance(context);
+//    }
 
 //    @Override  //FACTORY
 //    public Group create() throws AuthorizeException
@@ -82,7 +83,7 @@ public class GroupDAOPostgres extends GroupDAO
 //            DatabaseManager.update(context, row);
 //
 //            int id = row.getIntColumn("eperson_group_id");
-//            Group group = null;//new GroupProxy(context, id); FIXME cambiamento
+//            Group group = null;//new GroupProxy(context, id); 
 //
 //            return group;
 //        }
@@ -107,7 +108,7 @@ public class GroupDAOPostgres extends GroupDAO
 //        }
 //    }
 
-    @Override
+//    @Override
     public Group retrieve(UUID uuid)
     {
         try
@@ -115,7 +116,7 @@ public class GroupDAOPostgres extends GroupDAO
             TableRow row = DatabaseManager.findByUnique(context,
                     "epersongroup", "uuid", uuid.toString());
 
-            return retrieve(row);
+            return null;//retrieve(row);
         }
         catch (SQLException sqle)
         {
@@ -248,47 +249,47 @@ public class GroupDAOPostgres extends GroupDAO
 //        return groups;
 //    }
 
-    @Override
-    public List<Group> getSupervisorGroups()
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "epersongroup",
-                    "SELECT eg.eperson_group_id " +
-                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
-                    "WHERE eg2wsi.eperson_group_id = eg.eperson_group_id " +
-                    "ORDER BY eg.name");
+//    @Override
+//    public List<Group> getSupervisorGroups()
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "epersongroup",
+//                    "SELECT eg.eperson_group_id " +
+//                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
+//                    "WHERE eg2wsi.eperson_group_id = eg.eperson_group_id " +
+//                    "ORDER BY eg.name");
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public List<Group> getSupervisorGroups(InProgressSubmission ips)
-    {
-        try
-        {
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "epersongroup",
-                    "SELECT eg.eperson_group_id " +
-                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
-                    "WHERE eg2wsi.workspace_item_id = ? " +
-                    "AND eg2wsi.eperson_group_id = eg.eperson_group_id " +
-                    "ORDER BY eg.name",
-                    ips.getId());
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override
+//    public List<Group> getSupervisorGroups(InProgressSubmission ips)
+//    {
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "epersongroup",
+//                    "SELECT eg.eperson_group_id " +
+//                    "FROM epersongroup eg, epersongroup2workspaceitem eg2wsi " +
+//                    "WHERE eg2wsi.workspace_item_id = ? " +
+//                    "AND eg2wsi.eperson_group_id = eg.eperson_group_id " +
+//                    "ORDER BY eg.name",
+//                    ips.getId());
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
 //    @Override
 //    public Set<Integer> getGroupIDs(EPerson eperson)
@@ -366,7 +367,7 @@ public class GroupDAOPostgres extends GroupDAO
 //        }
 //    }
 
-//    @Override
+//    @Override //getmembers dell'oggetto
 //    public List<Group> getMemberGroups(Group group)
 //    {
 //        try
@@ -387,45 +388,46 @@ public class GroupDAOPostgres extends GroupDAO
 //        }
 //    }
 
-    @Override
-    public List<Group> search(String query, int offset, int limit)
-	{
-		String params = "%" + query.toLowerCase() + "%";
-		String dbquery =
-            "SELECT eperson_group_id FROM epersongroup " +
-            "WHERE name ILIKE ? " +
-            "OR eperson_group_id = ? " +
-            "ORDER BY name ASC";
-
-		if (offset >= 0 && limit > 0)
-        {
-			dbquery += " LIMIT " + limit + " OFFSET " + offset;
-		}
-
-        // When checking against the eperson-id, make sure the query can be
-        // made into a number
-		Integer int_param;
-		try
-        {
-			int_param = Integer.valueOf(query);
-		}
-		catch (NumberFormatException e)
-        {
-			int_param = -1;
-		}
-
-        try
-        {
-            TableRowIterator tri = DatabaseManager.query(context, dbquery,
-                    params, int_param);
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-	}
+////    @Override
+//    public List<Group> search(String query, int offset, int limit)
+//	{
+//		String dbquery =
+//            "SELECT eperson_group_id FROM epersongroup " +
+//            "WHERE name ILIKE ? " +
+//            "OR eperson_group_id = ? " +
+//            "ORDER BY name ASC";
+//
+//		String params = "%" + query.toLowerCase() + "%";
+//		
+//		if (offset >= 0 && limit > 0)
+//        {
+//			dbquery += " LIMIT " + limit + " OFFSET " + offset;
+//		}
+//
+//        // When checking against the eperson-id, make sure the query can be
+//        // made into a number
+//		Integer int_param;
+//		try
+//        {
+//			int_param = Integer.valueOf(query);
+//		}
+//		catch (NumberFormatException e)
+//        {
+//			int_param = -1;
+//		}
+//
+//        try
+//        {
+//            TableRowIterator tri = DatabaseManager.query(context, dbquery,
+//                    params, int_param);
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//	}
 
 //    @Override
 //    public void link(Group parent, Group child)
@@ -609,87 +611,87 @@ public class GroupDAOPostgres extends GroupDAO
 //        }
 //    }
 
-    @Override
-    public void cleanSupervisionOrders()
-    {
-        try
-        {
-            // this horrid looking query tests to see if there are any groups or
-            // workspace items which match up to the ones in the linking database
-            // table.  If there aren't, we know that the link is out of date, and 
-            // it can be deleted.
-            String query =
-                "DELETE FROM epersongroup2workspaceitem eg2wsi " +
-                "WHERE NOT EXISTS ( " +
-                    "SELECT 1 FROM workspaceitem " +
-                    "WHERE workspace_item_id = eg2wsi.workspace_item_id " +
-                ") OR NOT EXISTS ( " +
-                    "SELECT 1 FROM epersongroup " +
-                    "WHERE eperson_group_id = eg2wsi.eperson_group_id " +
-                ")";
-            
-            DatabaseManager.updateQuery(context, query);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override
+//    public void cleanSupervisionOrders()
+//    {
+//        try
+//        {
+//            // this horrid looking query tests to see if there are any groups or
+//            // workspace items which match up to the ones in the linking database
+//            // table.  If there aren't, we know that the link is out of date, and 
+//            // it can be deleted.
+//            String query =
+//                "DELETE FROM epersongroup2workspaceitem eg2wsi " +
+//                "WHERE NOT EXISTS ( " +
+//                    "SELECT 1 FROM workspaceitem " +
+//                    "WHERE workspace_item_id = eg2wsi.workspace_item_id " +
+//                ") OR NOT EXISTS ( " +
+//                    "SELECT 1 FROM epersongroup " +
+//                    "WHERE eperson_group_id = eg2wsi.eperson_group_id " +
+//                ")";
+//            
+//            DatabaseManager.updateQuery(context, query);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
-    private Group retrieve(TableRow row)
-    {
-        if (row == null)
-        {
-            return null;
-        }
-
-        int id = row.getIntColumn("eperson_group_id");
-
-        Group group = null; //new GroupProxy(context, id);//FIXME cambiamento
-        populateGroupFromTableRow(group, row);
-
-        context.cache(group, id);
-
-        return group;
-    }
-
-    private List<Group> returnAsList(TableRowIterator tri)
-    {
-        try
-        {
-            List<Group> groups = new ArrayList<Group>();
-
-            for (TableRow row : tri.toList())
-            {
-                int id = row.getIntColumn("eperson_group_id");
-//                groups.add(retrieve(id));
-            }
-
-            return groups;
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    private void populateGroupFromTableRow(Group group, TableRow row)
-    {
-        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
-
-        group.setName(row.getStringColumn("name"));
-        group.setIdentifier(new ObjectIdentifier(uuid));
-    }
-
-    private void populateTableRowFromGroup(Group group, TableRow row)
-    {
-        row.setColumn("name", group.getName());
-        row.setColumn("uuid", group.getIdentifier().getUUID().toString());
-    }
+//    private Group retrieve(TableRow row)
+//    {
+//        if (row == null)
+//        {
+//            return null;
+//        }
+//
+//        int id = row.getIntColumn("eperson_group_id");
+//
+//        Group group = null; //new GroupProxy(context, id);//FIXME cambiamento
+//        populateGroupFromTableRow(group, row);
+//
+//        context.cache(group, id);
+//
+//        return group;
+//    }
+//
+//    private List<Group> returnAsList(TableRowIterator tri)
+//    {
+//        try
+//        {
+//            List<Group> groups = new ArrayList<Group>();
+//
+//            for (TableRow row : tri.toList())
+//            {
+//                int id = row.getIntColumn("eperson_group_id");
+////                groups.add(retrieve(id));
+//            }
+//
+//            return groups;
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
+//
+//    private void populateGroupFromTableRow(Group group, TableRow row)
+//    {
+//        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+//
+//        group.setName(row.getStringColumn("name"));
+//        group.setIdentifier(new ObjectIdentifier(uuid));
+//    }
+//
+//    private void populateTableRowFromGroup(Group group, TableRow row)
+//    {
+//        row.setColumn("name", group.getName());
+//        row.setColumn("uuid", group.getIdentifier().getUUID().toString());
+//    }
 
 //    /**
 //     * Regenerate the group cache AKA the group2groupcache table in the

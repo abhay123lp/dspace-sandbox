@@ -62,6 +62,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.I18nUtil;
@@ -372,7 +373,7 @@ public class ItemTag extends TagSupport
                 qualifier = eq[2];
             }
             // FIXME: Still need to fix for metadata language?
-            DCValue[] values = item.getMetadata(schema, element, qualifier, Item.ANY);
+            MetadataValue[] values = item.getMetadata(schema, element, qualifier, Item.ANY);
 
             if (values.length > 0)
             {
@@ -405,12 +406,12 @@ public class ItemTag extends TagSupport
 
                     if (isLink)
                     {
-                        out.print("<a href=\"" + values[j].value + "\">"
-                                + Utils.addEntities(values[j].value) + "</a>");
+                        out.print("<a href=\"" + values[j].getValue() + "\">"
+                                + Utils.addEntities(values[j].getValue()) + "</a>");
                     }
                     else if (isDate)
                     {
-                        DCDate dd = new DCDate(values[j].value);
+                        DCDate dd = new DCDate(values[j].getValue());
 
                         // Parse the date
                         out.print(UIUtil.displayDate(dd, false, false, (HttpServletRequest)pageContext.getRequest()));
@@ -418,12 +419,12 @@ public class ItemTag extends TagSupport
                     else if (browseIndex != null)
                     {
                     	out.print("<a href=\"" + request.getContextPath() + "/browse?type=" + browseIndex + "&value="
-                    				+ URLEncoder.encode(values[j].value, "UTF-8") + "\">" + Utils.addEntities(values[j].value)
+                    				+ URLEncoder.encode(values[j].getValue(), "UTF-8") + "\">" + Utils.addEntities(values[j].getValue())
                     				+ "</a>");
                     }
                     else
                     {
-                        out.print(Utils.addEntities(values[j].value));
+                        out.print(Utils.addEntities(values[j].getValue()));
                     }
                 }
 
@@ -454,7 +455,7 @@ public class ItemTag extends TagSupport
         JspWriter out = pageContext.getOut();
 
         // Get all the metadata
-        DCValue[] values = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+        MetadataValue[] values = item.getMetadata(Item.ANY, Item.ANY, Item.ANY, Item.ANY);
 
         out.println("<p align=\"center\">"
                 + LocaleSupport.getLocalizedMessage(pageContext,
@@ -478,8 +479,8 @@ public class ItemTag extends TagSupport
             boolean hidden = false;
 
             // Mask description.provenance
-            if (values[i].element.equals("description")
-                    && ((values[i].qualifier != null) && values[i].qualifier
+            if (values[i].getMetadataField().getElement().equals("description")
+                    && ((values[i].getMetadataField().getQualifier() != null) && values[i].getMetadataField().getQualifier()
                             .equals("provenance")))
             {
                 hidden = true;
@@ -488,25 +489,25 @@ public class ItemTag extends TagSupport
             if (!hidden)
             {
                 out.print("<tr><td headers=\"s1\" class=\"metadataFieldLabel\">");
-                out.print(values[i].schema);
-                out.print("." + values[i].element);
+                out.print(values[i].getMetadataField().getSchema());
+                out.print("." + values[i].getMetadataField().getSchema());
 
-                if (values[i].qualifier != null)
+                if (values[i].getMetadataField().getQualifier() != null)
                 {
-                    out.print("." + values[i].qualifier);
+                    out.print("." + values[i].getMetadataField().getQualifier());
                 }
 
                 out.print("</td><td headers=\"s2\" class=\"metadataFieldValue\">");
-                out.print(Utils.addEntities(values[i].value));
+                out.print(Utils.addEntities(values[i].getValue()));
                 out.print("</td><td headers=\"s3\" class=\"metadataFieldValue\">");
 
-                if (values[i].language == null)
+                if (values[i].getLanguage() == null)
                 {
                     out.print("-");
                 }
                 else
                 {
-                    out.print(values[i].language);
+                    out.print(values[i].getLanguage());
                 }
 
                 out.println("</td></tr>");
@@ -580,7 +581,7 @@ public class ItemTag extends TagSupport
                         "org.dspace.app.webui.jsptag.ItemTag.files")
                 + "</strong></p>");
 
-        Bundle[] bundles = item.getBundles("ORIGINAL");
+        Bundle[] bundles = (Bundle[])item.getBundles("ORIGINAL").toArray();
 
         if (bundles.length == 0)
         {
@@ -596,25 +597,25 @@ public class ItemTag extends TagSupport
 
             Bitstream primaryBitstream = null;
 
-            Bundle[] bunds = item.getBundles("ORIGINAL");
-            Bundle[] thumbs = item.getBundles("THUMBNAIL");
+            Bundle[] bunds = (Bundle[])item.getBundles("ORIGINAL").toArray();
+            Bundle[] thumbs = (Bundle[])item.getBundles("THUMBNAIL").toArray();
 
             // if item contains multiple bitstreams, display bitstream
             // description
             boolean multiFile = false;
-            Bundle[] allBundles = item.getBundles();
+            Bundle[] allBundles = (Bundle[])item.getBundles().toArray();
 
             for (int i = 0, filecount = 0; (i < allBundles.length)
                     && !multiFile; i++)
             {
-                filecount += allBundles[i].getBitstreams().length;
+                filecount += allBundles[i].getBitstreams().size();
                 multiFile = (filecount > 1);
             }
 
             // check if primary bitstream is html
             if (bunds[0] != null)
             {
-                Bitstream[] bits = bunds[0].getBitstreams();
+                Bitstream[] bits = (Bitstream[])bunds[0].getBitstreams().toArray();
 
                 for (int i = 0; (i < bits.length) && !html; i++)
                 {
@@ -708,7 +709,7 @@ public class ItemTag extends TagSupport
             {
                 for (int i = 0; i < bundles.length; i++)
                 {
-                    Bitstream[] bitstreams = bundles[i].getBitstreams();
+                    Bitstream[] bitstreams = (Bitstream[])bundles[i].getBitstreams().toArray();
 
                     for (int k = 0; k < bitstreams.length; k++)
                     {
@@ -795,7 +796,7 @@ public class ItemTag extends TagSupport
                 .getRequest();
 
         Bundle[] bundles = null;
-        bundles = item.getBundles("LICENSE");
+        bundles = (Bundle[])item.getBundles("LICENSE").toArray();
 
         out.println("<table align=\"center\" class=\"attentionTable\"><tr>");
 
@@ -806,7 +807,7 @@ public class ItemTag extends TagSupport
 
         for (int i = 0; i < bundles.length; i++)
         {
-            Bitstream[] bitstreams = bundles[i].getBitstreams();
+            Bitstream[] bitstreams = (Bitstream[])bundles[i].getBitstreams().toArray();
 
             for (int k = 0; k < bitstreams.length; k++)
             {

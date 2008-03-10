@@ -61,6 +61,7 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.ItemManager;
 import org.dspace.submit.AbstractProcessingStep;
+import org.dspace.workflow.WorkflowManager;
 
 /**
  * Initial Submission servlet for DSpace. Handles the initial questions which
@@ -162,7 +163,8 @@ public class InitialQuestionsStep extends AbstractProcessingStep
         if (isThesis)
         {
             WorkspaceItem wi = (WorkspaceItem) subInfo.getSubmissionItem();
-            wi.deleteAll();
+//            wi.deleteAll();
+            WorkflowManager.WorkspaceItemDeleteAll(wi, context);
             subInfo.setSubmissionItem(null);
 
             // Remember that we've removed a thesis in the session
@@ -253,7 +255,7 @@ public class InitialQuestionsStep extends AbstractProcessingStep
         }
 
         // commit all changes to DB
-        subInfo.getSubmissionItem().update();
+//        subInfo.getSubmissionItem().update(); //NO NEED
         context.commit();
 
         return STATUS_COMPLETE; // no errors!

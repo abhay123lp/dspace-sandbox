@@ -62,8 +62,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
+import org.dspace.eperson.AccountManager;
 import org.dspace.eperson.Group;
 
 /** 
@@ -99,7 +101,8 @@ public class StatisticsServlet extends org.dspace.app.webui.servlet.DSpaceServle
         request.setAttribute("navbar", navbar);
         
         // is the user a member of the Administrator (1) group
-        boolean admin = Group.isMember(c, 1);
+//        boolean admin = Group.isMember(c, 1);
+        boolean admin = ApplicationService.get(c, Group.class, 1).getEpeople().contains(c.getCurrentUser());
         
         if (publicise || admin)
         {

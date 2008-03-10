@@ -3,6 +3,7 @@ package org.dspace.core;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 
 import org.dspace.authorize.AuthorizeException;
@@ -190,6 +191,7 @@ public class ItemManager
         bitstream.setDeleted(true);
         
     }
+    
 
     public static void licenseGranted(Item item, String license, EPerson eperson, Context context)
             throws IOException, AuthorizeException
@@ -271,6 +273,7 @@ public class ItemManager
 
             // Update item in DB
             //itemDAO.update(item);
+            item.setLastModified(new Date());
 
             // Remove from indicies
             IndexBrowse ib = new IndexBrowse(context);
@@ -329,6 +332,7 @@ public class ItemManager
         item.addMetadata(mdf, "en", prov);
 
         // Update item in DB
+        item.setLastModified(new Date());
         //itemDAO.update(item);
 
         // Add to indicies

@@ -54,6 +54,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Item;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -152,7 +153,8 @@ public class WorkspaceServlet extends DSpaceServlet
         int wsItemID = UIUtil.getIntParameter(request, "workspace_id");
         
         // get the workspace item
-        WorkspaceItem wsItem = WorkspaceItem.find(context, wsItemID);
+        WorkspaceItem wsItem = ApplicationService.get(context, WorkspaceItem.class, wsItemID);
+//        WorkspaceItem wsItem = WorkspaceItem.find(context, wsItemID);
         
         // Ensure the user has authorisation
         Item item = wsItem.getItem();

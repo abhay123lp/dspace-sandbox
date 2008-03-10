@@ -52,6 +52,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -113,7 +114,8 @@ public class ViewWorkspaceItemServlet
         int wsItemID = UIUtil.getIntParameter(request,"workspace_id");
         
         // get the workspace item, item and collections from the request value
-        WorkspaceItem wsItem = WorkspaceItem.find(c, wsItemID);
+//        WorkspaceItem wsItem = WorkspaceItem.find(c, wsItemID);
+        WorkspaceItem wsItem = ApplicationService.get(c, WorkspaceItem.class, wsItemID);
         Item item = wsItem.getItem();
         //Collection[] collections = item.getCollections();
         Collection[] collections = {wsItem.getCollection()};

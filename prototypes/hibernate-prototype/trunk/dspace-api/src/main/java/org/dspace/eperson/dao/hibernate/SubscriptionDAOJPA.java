@@ -35,4 +35,11 @@ public class SubscriptionDAOJPA
         List<Subscription> subs = q.getResultList();
         return subs;
     }
+    
+    public void deleteAllSubscription(EPerson eperson, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("DELETE FROM Subscription s WHERE s.eperson = :eperson");
+        q.setParameter("eperson", eperson);
+        q.executeUpdate();
+    }
 }

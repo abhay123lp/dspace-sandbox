@@ -55,22 +55,22 @@ public abstract class SupervisedItemDAO extends ContentDAO
     protected Logger log = Logger.getLogger(SupervisedItemDAO.class);
 
     protected Context context;
-    protected WorkspaceItemDAO dao;
+//    protected WorkspaceItemDAO dao;
 
     public SupervisedItemDAO(Context context)
     {
         this.context = context;
 
-        dao = WorkspaceItemDAOFactory.getInstance(context);
+//        dao = WorkspaceItemDAOFactory.getInstance(context);
     }
 
     /**
      * Get all workspace items that are being supervised.
      */
-    public abstract List<SupervisedItem> getSupervisedItems();
+    public abstract List<SupervisedItem> findSupervisedItems(Context context);
 
     /**
      * Get workspace items being supervised by given EPerson.
      */
-    public abstract List<SupervisedItem> getSupervisedItems(EPerson eperson);
+    public abstract List<SupervisedItem> findSupervisedItems(EPerson eperson, Context context);
 }

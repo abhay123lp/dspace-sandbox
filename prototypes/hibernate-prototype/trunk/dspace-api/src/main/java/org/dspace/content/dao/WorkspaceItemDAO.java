@@ -82,126 +82,129 @@ public abstract class WorkspaceItemDAO extends ContentDAO
 
         itemDAO = ItemDAOFactory.getInstance(context);
     }
+    
+    public abstract void deleteOutOfDateWorkspaceItemLink(Context context);
+    public abstract List<WorkspaceItem> findAllWorkspaceItems(Context context);
+    public abstract List<WorkspaceItem> findWorkspaceItems(Collection collection,Context context);
+    public abstract List<WorkspaceItem> findWorkspaceItems(EPerson eperson,Context context);
 
-    public abstract WorkspaceItem create() throws AuthorizeException;
+//    public abstract WorkspaceItem create() throws AuthorizeException;
 
-    /**
-     * Create a new workspace item, with a new ID. An Item is also created. The
-     * submitter is the current user in the context.
-     */
-    public abstract WorkspaceItem create(Collection collection,
-            boolean template) throws AuthorizeException;
+//    /**
+//     * Create a new workspace item, with a new ID. An Item is also created. The
+//     * submitter is the current user in the context.
+//     */
+//    public abstract WorkspaceItem create(Collection collection,
+//            boolean template) throws AuthorizeException;
 
-    /**
-     * Create a WorkspaceItem from a WorkflowItem. This is for returning Items
-     * to a user without submitting it to the archive.
-     */
-    public abstract WorkspaceItem create(WorkflowItem wfi)
-        throws AuthorizeException;
+//    /**
+//     * Create a WorkspaceItem from a WorkflowItem. This is for returning Items
+//     * to a user without submitting it to the archive.
+//     */
+//    public abstract WorkspaceItem create(WorkflowItem wfi)
+//        throws AuthorizeException;
 
-    // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
     // need access to the item that was created, but we can't reach into the
     // subclass to get it (storing it as a protected member variable would be
     // even more filthy).
-    protected final WorkspaceItem create(WorkspaceItem wsi,
-            Collection collection, boolean template)
-        throws AuthorizeException
-    {
-        // Check the user has permission to ADD to the collection
-        AuthorizeManager.authorizeAction(context, collection, Constants.ADD);
+//    protected final WorkspaceItem create(WorkspaceItem wsi,
+//            Collection collection, boolean template)
+//        throws AuthorizeException
+//    {
+//        // Check the user has permission to ADD to the collection
+//        AuthorizeManager.authorizeAction(context, collection, Constants.ADD);
+//
+//        EPerson currentUser = context.getCurrentUser();
+//
+//        // Create an item
+//        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+//        //Item item = itemDAO.create();
+//        Item item = ItemFactory.getInstance(context);//
+//        item.setSubmitter(currentUser);
+//
+//        // Now create the policies for the submitter and workflow users to
+//        // modify item and contents (contents = bitstreams, bundles)
+//        Group stepGroups[] = {
+//            collection.getWorkflowGroup(1),
+//            collection.getWorkflowGroup(2),
+//            collection.getWorkflowGroup(3)
+//        };
+//
+//        int actions[] = {
+//            Constants.READ,
+//            Constants.WRITE,
+//            Constants.ADD,
+//            Constants.REMOVE
+//        };
+//
+//        // Give read, write, add, and remove privileges to the current user
+//        for (int action : actions)
+//        {
+//            AuthorizeManager.addPolicy(context, item, action, currentUser);
+//        }
+//
+//        // Give read, write, add, and remove privileges to the various
+//        // workflow groups (if any).
+//        for (Group stepGroup : stepGroups)
+//        {
+//            if (stepGroup != null)
+//            {
+//                for (int action : actions)
+//                {
+//                    AuthorizeManager.addPolicy(context, item, action,
+//                            stepGroup);
+//                }
+//            }
+//        }
+//
+//        // Copy template if appropriate
+//        Item templateItem = collection.getTemplateItem();
+//
+//        if (template && (templateItem != null))
+//        {
+//            MetadataValue[] md = templateItem.getMetadata(
+//                    Item.ANY, Item.ANY, Item.ANY, Item.ANY);
+//            MetadataField field;
+//            for (int n = 0; n < md.length; n++)
+//            {
+//                field = ApplicationService.findMetadataField(md[n].getMetadataField().getElement(), md[n].getMetadataField().getQualifier(), md[n].getMetadataField().getSchema().getName(), context);
+//                item.addMetadata(field, md[n].getLanguage(), md[n].getValue());
+//            }
+//        }
+//
+//        //itemDAO.update(item);
+//        //no need
+//
+//        wsi.setItem(item);
+//        wsi.setCollection(collection);
+//        update(wsi);
+//
+//        log.info(LogManager.getHeader(context, "create_workspace_item",
+//                "workspace_item_id=" + wsi.getId() +
+//                "item_id=" + item.getId() +
+//                "collection_id=" + collection.getId()));
+//
+//        return wsi;
+//    }
 
-        EPerson currentUser = context.getCurrentUser();
+//    public WorkspaceItem create(WorkspaceItem wsi, WorkflowItem wfi)
+//        throws AuthorizeException
+//    {
+//        wsi.setItem(wfi.getItem());
+//        wsi.setCollection(wfi.getCollection());
+//        wsi.setMultipleFiles(wfi.hasMultipleFiles());
+//        wsi.setMultipleTitles(wfi.hasMultipleTitles());
+//        wsi.setPublishedBefore(wfi.isPublishedBefore());
+//        update(wsi);
+//
+//        return wsi;
+//    }
 
-        // Create an item
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-        //Item item = itemDAO.create();
-        Item item = ItemFactory.getInstance(context);//FIXME cambiamento
-        item.setSubmitter(currentUser);
-
-        // Now create the policies for the submitter and workflow users to
-        // modify item and contents (contents = bitstreams, bundles)
-        // FIXME: hardcoded workflow steps
-        Group stepGroups[] = {
-            collection.getWorkflowGroup(1),
-            collection.getWorkflowGroup(2),
-            collection.getWorkflowGroup(3)
-        };
-
-        int actions[] = {
-            Constants.READ,
-            Constants.WRITE,
-            Constants.ADD,
-            Constants.REMOVE
-        };
-
-        // Give read, write, add, and remove privileges to the current user
-        for (int action : actions)
-        {
-            AuthorizeManager.addPolicy(context, item, action, currentUser);
-        }
-
-        // Give read, write, add, and remove privileges to the various
-        // workflow groups (if any).
-        for (Group stepGroup : stepGroups)
-        {
-            if (stepGroup != null)
-            {
-                for (int action : actions)
-                {
-                    AuthorizeManager.addPolicy(context, item, action,
-                            stepGroup);
-                }
-            }
-        }
-
-        // Copy template if appropriate
-        Item templateItem = collection.getTemplateItem();
-
-        if (template && (templateItem != null))
-        {
-            MetadataValue[] md = templateItem.getMetadata(
-                    Item.ANY, Item.ANY, Item.ANY, Item.ANY);
-            MetadataField field;
-            for (int n = 0; n < md.length; n++)
-            {
-                field = ApplicationService.findMetadataField(md[n].getMetadataField().getElement(), md[n].getMetadataField().getQualifier(), md[n].getMetadataField().getSchema().getName(), context);
-                item.addMetadata(field, md[n].getLanguage(), md[n].getValue());
-            }
-        }
-
-        //itemDAO.update(item);
-        //no need
-
-        wsi.setItem(item);
-        wsi.setCollection(collection);
-        update(wsi);
-
-        log.info(LogManager.getHeader(context, "create_workspace_item",
-                "workspace_item_id=" + wsi.getId() +
-                "item_id=" + item.getId() +
-                "collection_id=" + collection.getId()));
-
-        return wsi;
-    }
-
-    public WorkspaceItem create(WorkspaceItem wsi, WorkflowItem wfi)
-        throws AuthorizeException
-    {
-        wsi.setItem(wfi.getItem());
-        wsi.setCollection(wfi.getCollection());
-        wsi.setMultipleFiles(wfi.hasMultipleFiles());
-        wsi.setMultipleTitles(wfi.hasMultipleTitles());
-        wsi.setPublishedBefore(wfi.isPublishedBefore());
-        update(wsi);
-
-        return wsi;
-    }
-
-    public WorkspaceItem retrieve(int id)
-    {
-        return (WorkspaceItem) context.fromCache(WorkspaceItem.class, id);
-    }
+//    public WorkspaceItem retrieve(int id)
+//    {
+//        return (WorkspaceItem) context.fromCache(WorkspaceItem.class, id);
+//    }
 
     public WorkspaceItem retrieve(UUID uuid)
     {
@@ -211,102 +214,98 @@ public abstract class WorkspaceItemDAO extends ContentDAO
     /**
      * Update the workspace item, including the unarchived item.
      */
-    public void update(WorkspaceItem wsi) throws AuthorizeException
-    {
-        // Authorisation is checked by the item update
-        log.info(LogManager.getHeader(context, "update_workspace_item",
-                "workspace_item_id=" + wsi.getId()));
+//    public void update(WorkspaceItem wsi) throws AuthorizeException
+//    {
+//        // Authorisation is checked by the item update
+//        log.info(LogManager.getHeader(context, "update_workspace_item",
+//                "workspace_item_id=" + wsi.getId()));
+//
+//        //itemDAO.update(wsi.getItem());
+//        //no need
+//    }
 
-        //itemDAO.update(wsi.getItem());
-        //no need
-    }
-
-    public void delete(int id) throws AuthorizeException
-    {
-        WorkspaceItem wsi = retrieve(id);
-        update(wsi); // Sync in-memory object before removal
-
-        context.removeCached(wsi, id);
-
-        // Check authorisation. We check permissions on the enclosed item.
-        AuthorizeManager.authorizeAction(context, wsi.getItem(),
-                Constants.WRITE);
-
-        // Collection might be null
-        Collection collection = wsi.getCollection();
-        int collectionID = -1;
-
-        if (collection != null)
-        {
-            collectionID = collection.getId();
-        }
-
-        log.info(LogManager.getHeader(context, "delete_workspace_item",
-                    "workspace_item_id=" + id +
-                    "item_id=" + wsi.getItem().getId() +
-                    "collection_id=" + collectionID));
-    }
+//    public void delete(int id) throws AuthorizeException
+//    {
+//        WorkspaceItem wsi = retrieve(id);
+//        update(wsi); // Sync in-memory object before removal
+//
+//        context.removeCached(wsi, id);
+//
+//        // Check authorisation. We check permissions on the enclosed item.
+//        AuthorizeManager.authorizeAction(context, wsi.getItem(),
+//                Constants.WRITE);
+//
+//        // Collection might be null
+//        Collection collection = wsi.getCollection();
+//        int collectionID = -1;
+//
+//        if (collection != null)
+//        {
+//            collectionID = collection.getId();
+//        }
+//
+//        log.info(LogManager.getHeader(context, "delete_workspace_item",
+//                    "workspace_item_id=" + id +
+//                    "item_id=" + wsi.getItem().getId() +
+//                    "collection_id=" + collectionID));
+//    }
 
     /**
      * Delete the workspace item. The entry in workspaceitem, the unarchived
      * item and its contents are all removed (multiple inclusion
      * notwithstanding.)
      */
-    public void deleteAll(int id) throws AuthorizeException
-    {
-        WorkspaceItem wsi = retrieve(id);
-        update(wsi); // Sync in-memory object before removal
-        Item item = wsi.getItem();
-        Collection collection = wsi.getCollection();
+//    public void deleteAll(int id) throws AuthorizeException
+//    {
+//        WorkspaceItem wsi = retrieve(id);
+//        update(wsi); // Sync in-memory object before removal
+//        Item item = wsi.getItem();
+//        Collection collection = wsi.getCollection();
+//
+//        /*
+//         * Authorisation is a special case. The submitter won't have REMOVE
+//         * permission on the collection, so our policy is this: Only the
+//         * original submitter or an administrator can delete a workspace item.
+//         */
+//        if (!AuthorizeManager.isAdmin(context) &&
+//                ((context.getCurrentUser() == null) ||
+//                 (context.getCurrentUser().getId() !=
+//                  item.getSubmitter().getId())))
+//        {
+//            // Not an admit, not the submitter
+//            throw new AuthorizeException("Must be an administrator or the "
+//                    + "original submitter to delete a workspace item");
+//        }
+//
+//        int collectionID = -1;
+//        if (collection != null)
+//        {
+//            collectionID = collection.getId();
+//        }
+//
+//        log.info(LogManager.getHeader(context, "delete_workspace_item",
+//                "workspace_item_id=" + wsi.getId() +
+//                "item_id=" + item.getId() +
+//                "collection_id=" + collectionID));
+//
+//        // Remove any Group <-> WorkspaceItem mappings
+//        GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
+//        for (Group group : groupDAO.getSupervisorGroups(wsi))
+//        {
+//            //groupDAO.unlink(group, wsi);
+//            AccountManager.removeIPSFromGroup(group, wsi, context);
+//        }
+//
+//        delete(id);
+//        //itemDAO.delete(wsi.getItem().getId());
+//        //no need
+//    }
 
-        /*
-         * Authorisation is a special case. The submitter won't have REMOVE
-         * permission on the collection, so our policy is this: Only the
-         * original submitter or an administrator can delete a workspace item.
-         */
-        if (!AuthorizeManager.isAdmin(context) &&
-                ((context.getCurrentUser() == null) ||
-                 (context.getCurrentUser().getId() !=
-                  item.getSubmitter().getId())))
-        {
-            // Not an admit, not the submitter
-            throw new AuthorizeException("Must be an administrator or the "
-                    + "original submitter to delete a workspace item");
-        }
+//    public abstract List<WorkspaceItem> getWorkspaceItems();
+//    public abstract List<WorkspaceItem> getWorkspaceItems(EPerson eperson);
+//    public abstract List<WorkspaceItem> getWorkspaceItems(Collection collection);
 
-        int collectionID = -1;
-        if (collection != null)
-        {
-            collectionID = collection.getId();
-        }
-
-        log.info(LogManager.getHeader(context, "delete_workspace_item",
-                "workspace_item_id=" + wsi.getId() +
-                "item_id=" + item.getId() +
-                "collection_id=" + collectionID));
-
-        // Remove any Group <-> WorkspaceItem mappings
-        GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
-        for (Group group : groupDAO.getSupervisorGroups(wsi))
-        {
-            //groupDAO.unlink(group, wsi);
-            AccountManager.removeIPSFromGroup(group, wsi, context);
-        }
-
-        delete(id);
-        //itemDAO.delete(wsi.getItem().getId());
-        //no need
-    }
-
-    public abstract List<WorkspaceItem> getWorkspaceItems();
-    public abstract List<WorkspaceItem> getWorkspaceItems(EPerson eperson);
-    public abstract List<WorkspaceItem> getWorkspaceItems(Collection collection);
-
-    /**
-     * FIXME: I don't like doing this, but it's the least filthy way I can
-     * think of achieving what I want.
-     */
-    public abstract <T extends WorkspaceItem> void populate(T t);
+//    public abstract <T extends WorkspaceItem> void populate(T t);
     public abstract WorkspaceItemLink findWorkspaceItemLink(Group group, InProgressSubmission ips, Context context);
     public abstract void deleteWorkspaceItemLink(Group group, Context context);
 }
