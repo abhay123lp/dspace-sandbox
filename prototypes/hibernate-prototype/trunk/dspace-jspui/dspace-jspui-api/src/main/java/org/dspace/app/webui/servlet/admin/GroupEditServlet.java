@@ -56,6 +56,7 @@ import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
@@ -310,8 +311,9 @@ public class GroupEditServlet extends DSpaceServlet
             HttpServletResponse response) throws ServletException, IOException,
             SQLException, AuthorizeException
     {
-        GroupDAO dao = GroupDAOFactory.getInstance(c);
-        List<Group> groups = dao.getGroups(Group.NAME);
+//        GroupDAO dao = GroupDAOFactory.getInstance(c);
+//        List<Group> groups = dao.getGroups(Group.NAME);
+        List<Group> groups = ApplicationService.findAllGroupsSortedByName(c);
 
         request.setAttribute("groups", (Group[]) groups.toArray(new Group[0]));
 

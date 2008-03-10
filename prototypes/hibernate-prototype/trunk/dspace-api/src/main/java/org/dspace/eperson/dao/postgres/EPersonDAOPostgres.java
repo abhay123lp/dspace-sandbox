@@ -162,7 +162,6 @@ public class EPersonDAOPostgres //extends EPersonDAO
 //    }
 //
 //    /**
-//     * FIXME We need link() and unlink() for EPerson <--> Group mapping
 //     */
 //    @Override
 //    public void delete(int id) throws AuthorizeException
@@ -235,7 +234,7 @@ public class EPersonDAOPostgres //extends EPersonDAO
 //        }
 //    }
 //
-//    @Override
+//    @Override  //get epeople dall'oggetto
 //    public List<EPerson> getEPeople(Group group)
 //    {
 //        try

@@ -67,9 +67,12 @@ import org.dspace.content.Item;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAO;
 import org.dspace.content.dao.CommunityDAOFactory;
+import org.dspace.core.ApplicationService;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.AccountManager;
 import org.dspace.eperson.Group;
 import org.dspace.uri.IdentifierService;
 
@@ -152,14 +155,12 @@ public class EditCommunitiesServlet extends DSpaceServlet
          * get null if we try and find something with ID -1, we'll just try and
          * find both here to save hassle later on
          */
-        Community community = dao.retrieve(UIUtil.getIntParameter(request,
-                    "community_id"));
-        Community parentCommunity =
-            dao.retrieve(UIUtil.getIntParameter(request,
-                        "parent_community_id"));
-        Collection collection =
-            CollectionDAOFactory.getInstance(context).retrieve(
-                    UIUtil.getIntParameter(request, "collection_id"));
+        Community community = ApplicationService.get(context, Community.class, UIUtil.getIntParameter(request,"community_id"));
+//        Community community = dao.retrieve(UIUtil.getIntParameter(request,"community_id"));
+        Community parentCommunity = ApplicationService.get(context, Community.class, UIUtil.getIntParameter(request,"parent_community_id"));
+//        Community parentCommunity = dao.retrieve(UIUtil.getIntParameter(request,"parent_community_id"));
+        Collection collection = ApplicationService.get(context, Collection.class, UIUtil.getIntParameter(request, "collection_id"));
+//        Collection collection = CollectionDAOFactory.getInstance(context).retrieve(UIUtil.getIntParameter(request, "collection_id"));
 
         // Just about every JSP will need the values we received
         request.setAttribute("community", community);
@@ -244,10 +245,11 @@ public class EditCommunitiesServlet extends DSpaceServlet
 
             // remember the parent community, if any
             //Community parent = community.getParentCommunity();
-            List<Community> parents = dao.getParentCommunities(community);
+            List<Community> parents = community.getParentCommunities();
+//            List<Community> parents = dao.getParentCommunities(community);
 
-            // Delete the community
-            dao.delete(community.getID());
+            // Delete the community (spostato in fondo, non si sa mai)
+//            dao.delete(community.getID());
 
             // if community was top-level, redirect to community-list page
             if (parents.size() == 0)
@@ -261,7 +263,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
             {
                 response.sendRedirect(response.encodeRedirectURL(IdentifierService.getURL(parents.get(0)).toString()));
             }
-
+            ArchiveManager.removeCommunity(null, community, context);
             // Show main control page
             //showControls(context, request, response);
             // Commit changes to DB
@@ -280,7 +282,8 @@ public class EditCommunitiesServlet extends DSpaceServlet
         case CONFIRM_DELETE_COLLECTION:
 
             // Delete the collection
-            community.removeCollection(collection);
+            ArchiveManager.removeCollection(community, collection, context);
+//            community.removeCollection(collection);
 
             // Show main control page
             showControls(context, request, response);
@@ -360,7 +363,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
     {
         if (request.getParameter("create").equals("true"))
         {
-            CommunityDAO dao = CommunityDAOFactory.getInstance(context);
+//            CommunityDAO dao = CommunityDAOFactory.getInstance(context);
 
             // if there is a parent community id specified, create community
             // as its child; otherwise, create it as a top-level community
@@ -369,16 +372,19 @@ public class EditCommunitiesServlet extends DSpaceServlet
 
             if (parentID != -1)
             {
-                Community parent = dao.retrieve(parentID);
+                Community parent = ApplicationService.get(context, Community.class, parentID);
+//                Community parent = dao.retrieve(parentID);
 
                 if (parent != null)
                 {
-                    community = parent.createSubcommunity();
+                    community = ArchiveManager.createCommunity(parent, context);
+//                    community = parent.createSubcommunity();
                 }
             }
             else
             {
-                community = dao.create();
+//                community = dao.create();
+                community = ArchiveManager.createCommunity(null, context);
             }
 
             // Set attribute
@@ -413,7 +419,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         community.setMetadata("introductory_text", intro);
         community.setMetadata("copyright_text", copy);
         community.setMetadata("side_bar_text", side);
-        community.update();
+//        community.update(); NO NEED
 
         // Which button was pressed?
         String button = UIUtil.getSubmitButton(request, "submit");
@@ -422,7 +428,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         {
             // Change the logo - delete any that might be there first
             community.setLogo(null);
-            community.update();
+//            community.update(); // NO NEED
 
             // Display "upload logo" page. Necessary attributes already set by
             // doDSPost()
@@ -433,7 +439,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         {
             // Simply delete logo
             community.setLogo(null);
-            community.update();
+//            community.update(); //NO NEED
 
             // Show edit page again - attributes set in doDSPost()
             JSPManager.showJSP(request, response, "/tools/edit-community.jsp");
@@ -453,6 +459,9 @@ public class EditCommunitiesServlet extends DSpaceServlet
         }
 
         // Commit changes to DB
+        if (request.getParameter("create").equals("true")) {
+            ApplicationService.save(context, Community.class, community);
+        }
         context.complete();
     }
 
@@ -479,7 +488,8 @@ public class EditCommunitiesServlet extends DSpaceServlet
         if (request.getParameter("create").equals("true"))
         {
             // We need to create a new community
-            collection = community.createCollection();
+            ArchiveManager.createCollection(community, context);
+//            collection = community.createCollection();
             request.setAttribute("collection", collection);
         }
 
@@ -556,7 +566,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
 
             // Create new group
             Group newGroup = collection.createWorkflowGroup(step);
-            collection.update();
+//            collection.update(); NO NEED
 
             // Forward to group edit page
             response.sendRedirect(response.encodeRedirectURL(request
@@ -626,8 +636,9 @@ public class EditCommunitiesServlet extends DSpaceServlet
             collection.setWorkflowGroup(step, null);
 
             // Have to update to avoid ref. integrity error
-            collection.update();
-            g.delete();
+//            collection.update(); // NO NEED
+//            g.delete();
+            AccountManager.deleteGroup(g, context);
 
             // Show edit page again - attributes set in doDSPost()
             JSPManager.showJSP(request, response, "/tools/edit-collection.jsp");
@@ -642,8 +653,8 @@ public class EditCommunitiesServlet extends DSpaceServlet
             i.setOwningCollection(collection);
 
             // have to update to avoid ref. integrity error
-            i.update();
-            collection.update();
+//            i.update(); //NO NEED
+//            collection.update(); //NO NEED
             context.complete();
             response.sendRedirect(response.encodeRedirectURL(request
                     .getContextPath()
@@ -673,7 +684,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         }
 
         // Commit changes to DB
-        collection.update();
+//        collection.update(); //NO NEED
         context.complete();
     }
 
@@ -695,11 +706,10 @@ public class EditCommunitiesServlet extends DSpaceServlet
         FileUploadRequest wrapper = new FileUploadRequest(request);
 
         int id = UIUtil.getIntParameter(wrapper, "community_id");
-        Community community =
-            CommunityDAOFactory.getInstance(context).retrieve(id);
-        Collection collection =
-            CollectionDAOFactory.getInstance(context).retrieve(
-                    UIUtil.getIntParameter(wrapper, "collection_id"));
+        Community community = ApplicationService.get(context, Community.class, id);
+//        Community community = CommunityDAOFactory.getInstance(context).retrieve(id);
+        Collection collection = ApplicationService.get(context, Collection.class, UIUtil.getIntParameter(wrapper, "collection_id"));
+//        Collection collection = CollectionDAOFactory.getInstance(context).retrieve(UIUtil.getIntParameter(wrapper, "collection_id"));
 
         File temp = wrapper.getFile("file");
 
@@ -738,7 +748,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         logoBS.setFormat(bf);
         AuthorizeManager.addPolicy(context, logoBS, Constants.WRITE, context
                 .getCurrentUser());
-        logoBS.update();
+//        logoBS.update(); //NO NEED
 
         if (AuthorizeManager.isAdmin(context))
         {
@@ -748,7 +758,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
 
         if (collection == null)
         {
-            community.update();
+//            community.update(); //NO NEED
 
             // Show community edit page
             request.setAttribute("community", community);
@@ -756,7 +766,7 @@ public class EditCommunitiesServlet extends DSpaceServlet
         }
         else
         {
-            collection.update();
+//            collection.update(); //NO NEED
 
             // Show collection edit page
             request.setAttribute("collection", collection);

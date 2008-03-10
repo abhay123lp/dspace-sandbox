@@ -90,7 +90,8 @@ public abstract class SupervisionManager
 
         //Group group = groupDAO.retrieve(groupID);
         Group group = ApplicationService.get(context, Group.class, groupID);
-        WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
+        WorkspaceItem wsi = ApplicationService.get(context, WorkspaceItem.class, wsItemID);
+//        WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
 
         if (group == null || wsi == null)
         {
@@ -118,7 +119,9 @@ public abstract class SupervisionManager
         WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
 
         // get the workspace item and the group from the request values
-        WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
+//        WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
+        WorkspaceItem wsi = ApplicationService.get(context, WorkspaceItem.class, wsItemID);
+
         //Group group = groupDAO.retrieve(groupID);
         Group group = ApplicationService.get(context, Group.class, groupID);
 
@@ -142,8 +145,9 @@ public abstract class SupervisionManager
      */
     public static void removeRedundant(Context context)
     {
-        GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
-        groupDAO.cleanSupervisionOrders();
+//        GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
+//        groupDAO.cleanSupervisionOrders();
+        AccountManager.cleanSupervisionOrders(context);
     }
 
     /**
@@ -160,10 +164,12 @@ public abstract class SupervisionManager
     {
 //        GroupDAO groupDAO = GroupDAOFactory.getInstance(context);
 //        ResourcePolicyDAO rpDAO = ResourcePolicyDAOFactory.getInstance(context);
-        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
+//        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
 
         // get the workspace item and the group from the request values
-        WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
+//        WorkspaceItem wsi = wsiDAO.retrieve(wsItemID);
+        WorkspaceItem wsi = ApplicationService.get(context, WorkspaceItem.class, wsItemID);
+
         //Group group = groupDAO.retrieve(groupID);
         Group group = ApplicationService.get(context, Group.class, groupID);
 

@@ -67,6 +67,8 @@ public abstract class BitstreamFormatDAO extends ContentDAO
     {
         this.context = context;
     }
+    
+    public abstract List<BitstreamFormat> findAllBitstreamFormat(Context context);
 
 //    public BitstreamFormat create() throws AuthorizeException
 //    {

@@ -50,8 +50,9 @@ import javax.servlet.jsp.tagext.TagSupport;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
-import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 
@@ -107,17 +108,17 @@ public class ItemPreviewTag extends TagSupport
         
         // Only shows 1 preview image at the moment (the first encountered) regardless
         // of the number of bundles/bitstreams of this type
-        Bundle[] bundles = item.getBundles("BRANDED_PREVIEW");
+        Bundle[] bundles = (Bundle[])item.getBundles("BRANDED_PREVIEW").toArray();
         
         if (bundles.length > 0)
         {
-        	Bitstream[] bitstreams = bundles[0].getBitstreams();
+        	Bitstream[] bitstreams = (Bitstream[])bundles[0].getBitstreams().toArray();
         	
             HttpServletRequest request = (HttpServletRequest)pageContext.getRequest();
             out.println("<br/><p align=\"center\">");
             out.println("<img src=\""
             		    + request.getContextPath() + "/retrieve/"
-            		    + bitstreams[0].getID() + "/"
+            		    + bitstreams[0].getId() + "/"
             		    + UIUtil.encodeBitstreamName(bitstreams[0].getName(),
             		    		  Constants.DEFAULT_ENCODING)
             		    + "\"/>");
@@ -126,22 +127,24 @@ public class ItemPreviewTag extends TagSupport
             String s = ConfigurationManager.getProperty("webui.preview.dc");
             if (s != null)
             {
-            	DCValue[] dcValue;
+            	MetadataValue[] dcValue;
             	
             	int i = s.indexOf('.');
             	
             	if (i == -1)
             	{
-            		dcValue = item.getDC(s, Item.ANY, Item.ANY);
+//            		dcValue = item.getDC(s, Item.ANY, Item.ANY);
+            		dcValue = item.getMetadata(MetadataSchema.DC_SCHEMA, s, Item.ANY, Item.ANY);
             	}
             	else
             	{
-            		dcValue = item.getDC(s.substring(0,1), s.substring(i + 1), Item.ANY);
+//            		dcValue = item.getDC(s.substring(0,1), s.substring(i + 1), Item.ANY);
+            	    dcValue = item.getMetadata(MetadataSchema.DC_SCHEMA, s.substring(0,1), s.substring(i + 1), Item.ANY);
             	}
             	
             	if (dcValue.length > 0)
             	{
-            		out.println("<br/>" + dcValue[0].value);
+            		out.println("<br/>" + dcValue[0].getValue());
             	}
             }
             

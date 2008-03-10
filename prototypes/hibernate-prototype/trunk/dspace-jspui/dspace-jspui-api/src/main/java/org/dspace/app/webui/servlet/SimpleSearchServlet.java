@@ -59,6 +59,7 @@ import org.dspace.content.Collection;
 import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.uri.ObjectIdentifier;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -236,7 +237,8 @@ public class SimpleSearchServlet extends DSpaceServlet
         else
         {
             // Get all communities for dropdown box
-            Community[] communities = Community.findAll(context);
+//            Community[] communities = Community.findAll(context);
+            Community[] communities = (Community[])ApplicationService.findAllCommunities(context).toArray();
             request.setAttribute("community.array", communities);
 
             qResults = DSQuery.doQuery(context, qArgs);
@@ -281,7 +283,8 @@ public class SimpleSearchServlet extends DSpaceServlet
             case Constants.ITEM:
                 if (myId != null)
                 {
-                    resultsItems[itemCount] = Item.find(context, myId);
+//                    resultsItems[itemCount] = Item.find(context, myId);
+                    resultsItems[itemCount] = ApplicationService.get(context, Item.class, myId);
                 }
                 else
                 {
@@ -300,7 +303,8 @@ public class SimpleSearchServlet extends DSpaceServlet
             case Constants.COLLECTION:
                 if (myId != null)
                 {
-                    resultsCollections[collCount] = Collection.find(context, myId);
+//                    resultsCollections[collCount] = Collection.find(context, myId);
+                    resultsCollections[collCount] = ApplicationService.get(context, Collection.class, myId);
                 }
                 else
                 {
@@ -320,7 +324,8 @@ public class SimpleSearchServlet extends DSpaceServlet
             case Constants.COMMUNITY:
                 if (myId != null)
                 {
-                    resultsCommunities[commCount] = Community.find(context, myId);
+//                    resultsCommunities[commCount] = Community.find(context, myId);
+                    resultsCommunities[commCount] = ApplicationService.get(context, Community.class, myId);
                 }
                 else
                 {
@@ -380,7 +385,8 @@ public class SimpleSearchServlet extends DSpaceServlet
         if ((fromAdvanced != null) && (qResults.getHitCount() == 0))
         {
             // send back to advanced form if no results
-            Community[] communities = Community.findAll(context);
+            Community[] communities = (Community[])ApplicationService.findAllCommunities(context).toArray();
+//            Community[] communities = Community.findAll(context);
             request.setAttribute("communities", communities);
             request.setAttribute("no_results", "yes");
 

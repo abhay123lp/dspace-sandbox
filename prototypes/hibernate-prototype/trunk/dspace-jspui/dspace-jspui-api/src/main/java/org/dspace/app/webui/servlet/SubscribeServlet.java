@@ -52,6 +52,7 @@ import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
 import org.dspace.content.dao.CollectionDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.SubscriptionManager;
@@ -100,7 +101,8 @@ public class SubscribeServlet extends DSpaceServlet
         else if (submit.equals("submit_unsubscribe"))
         {
             int collID = UIUtil.getIntParameter(request, "collection");
-            Collection c = CollectionDAOFactory.getInstance(context).retrieve(collID);
+//            Collection c = CollectionDAOFactory.getInstance(context).retrieve(collID);
+            Collection c = ApplicationService.get(context, Collection.class, collID);
 
             // Sanity check - ignore duff values
             if (c != null)

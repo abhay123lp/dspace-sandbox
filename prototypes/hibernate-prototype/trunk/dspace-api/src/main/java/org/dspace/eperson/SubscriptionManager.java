@@ -151,7 +151,7 @@ public class SubscriptionManager
                 || ((context.getCurrentUser() != null) && (context
                         .getCurrentUser().getId() == eperson.getId())))
         {
-            SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
+//            SubscriptionDAO dao = SubscriptionDAOFactory.getInstance(context);
 
             if (collection == null)
             {

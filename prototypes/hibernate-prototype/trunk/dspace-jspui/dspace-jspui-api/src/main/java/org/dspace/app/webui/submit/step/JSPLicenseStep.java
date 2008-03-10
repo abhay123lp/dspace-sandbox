@@ -62,6 +62,7 @@ import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.license.CreativeCommons;
 import org.dspace.submit.step.LicenseStep;
+import org.dspace.workflow.WorkflowManager;
 
 /**
  * License step for DSpace JSP-UI. Presents the user with license information
@@ -192,7 +193,8 @@ public class JSPLicenseStep extends JSPStep
                     && (SubmissionController.getStepReached(subInfo) <= SubmissionController.FIRST_STEP))
             {
                 WorkspaceItem wi = (WorkspaceItem) subInfo.getSubmissionItem();
-                wi.deleteAll();
+//                wi.deleteAll();
+                WorkflowManager.WorkspaceItemDeleteAll(wi, context);
 
                 // commit changes
                 context.commit();

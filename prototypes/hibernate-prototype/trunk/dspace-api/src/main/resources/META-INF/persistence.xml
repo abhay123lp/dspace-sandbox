@@ -28,6 +28,8 @@
 		<class>org.dspace.content.MetadataField</class>
 		<class>org.dspace.content.MetadataSchema</class>
 		<class>org.dspace.content.WorkspaceItem</class>
+		<class>org.dspace.content.WorkspaceItemLink</class>
+		<class>org.dspace.content.SupervisedItem</class>
 		<class>org.dspace.eperson.EPerson</class>
 		<class>org.dspace.eperson.EPersonMetadata</class>
 		<class>org.dspace.eperson.Group</class>

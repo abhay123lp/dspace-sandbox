@@ -43,10 +43,15 @@ import java.io.IOException;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
@@ -77,6 +82,9 @@ import org.dspace.eperson.EPerson;
  * @version $Revision: 2417 $
  */
 @Entity
+@Inheritance(strategy=InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name="type")
+@DiscriminatorValue(value="workspace")
 public class WorkspaceItem implements InProgressSubmission //FIXME interfaccia modificata, controllare
 {
     /** log4j logger */
@@ -97,9 +105,9 @@ public class WorkspaceItem implements InProgressSubmission //FIXME interfaccia m
     private Item item;
     private Collection collection;
 
-    public WorkspaceItem(Context context, int id)
+    public WorkspaceItem(Context context)//, int id)
     {
-        this.id = id;
+//        this.id = id;
         this.context = context;
 
         //dao = WorkspaceItemDAOFactory.getInstance(context);
@@ -234,74 +242,74 @@ public class WorkspaceItem implements InProgressSubmission //FIXME interfaccia m
 
     /** Deprecated by the introduction of DAOs */
     /* FIXME dovrebbero essere eliminati..*/
-    @Deprecated
-    public static WorkspaceItem create(Context context, Collection collection,
-            boolean template)
-        throws AuthorizeException, IOException
-    {
-//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-//        return dao.create(collection, template);
-        return null;
-    }
-
-    @Deprecated
-    public static WorkspaceItem find(Context context, int id)
-    {
-//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-//        return dao.retrieve(id);
-        return null;
-    }
-
-    @Deprecated
-    public void update() throws AuthorizeException, IOException
-    {
-        //dao.update(this);
-    }
-
-    @Deprecated
-    public void deleteWrapper() throws AuthorizeException, IOException
-    {
-        //dao.delete(getID());
-//        ApplicationService.delete(context, WorkspaceItem.class, this); //
-    }
-
-    @Deprecated
-    public void deleteAll() throws AuthorizeException,
-            IOException
-    {
-        //dao.deleteAll(getID());
-        
-    }
-
-    @Deprecated
-    public static WorkspaceItem[] findAll(Context context)
-    {
-//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-//        List<WorkspaceItem> wsItems = dao.getWorkspaceItems();
+//    @Deprecated
+//    public static WorkspaceItem create(Context context, Collection collection,
+//            boolean template)
+//        throws AuthorizeException, IOException
+//    {
+////        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+////        return dao.create(collection, template);
+//        return null;
+//    }
 //
-//        return wsItems.toArray(new WorkspaceItem[0]);
-        return null;
-    }
-
-    @Deprecated
-    public static WorkspaceItem[] findByEPerson(Context context, EPerson ep)
-    {
-//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-//        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(ep);
+//    @Deprecated
+//    public static WorkspaceItem find(Context context, int id)
+//    {
+////        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+////        return dao.retrieve(id);
+//        return null;
+//    }
 //
-//        return wsItems.toArray(new WorkspaceItem[0]);
-        return null;
-    }
-
-    @Deprecated
-    public static WorkspaceItem[] findByCollection(Context context, Collection c)
-    {
-//        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
-//        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(c);
+//    @Deprecated
+//    public void update() throws AuthorizeException, IOException
+//    {
+//        //dao.update(this);
+//    }
 //
-//        return wsItems.toArray(new WorkspaceItem[0]);
-        return null;
-    }
+//    @Deprecated
+//    public void deleteWrapper() throws AuthorizeException, IOException
+//    {
+//        //dao.delete(getID());
+////        ApplicationService.delete(context, WorkspaceItem.class, this); //
+//    }
+//
+//    @Deprecated
+//    public void deleteAll() throws AuthorizeException,
+//            IOException
+//    {
+//        //dao.deleteAll(getID());
+//        
+//    }
+//
+//    @Deprecated
+//    public static WorkspaceItem[] findAll(Context context)
+//    {
+////        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+////        List<WorkspaceItem> wsItems = dao.getWorkspaceItems();
+////
+////        return wsItems.toArray(new WorkspaceItem[0]);
+//        return null;
+//    }
+//
+//    @Deprecated
+//    public static WorkspaceItem[] findByEPerson(Context context, EPerson ep)
+//    {
+////        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+////        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(ep);
+////
+////        return wsItems.toArray(new WorkspaceItem[0]);
+//        return null;
+//    }
+//
+//    @Deprecated
+//    public static WorkspaceItem[] findByCollection(Context context, Collection c)
+//    {
+////        WorkspaceItemDAO dao = WorkspaceItemDAOFactory.getInstance(context);
+////        List<WorkspaceItem> wsItems = dao.getWorkspaceItems(c);
+////
+////        return wsItems.toArray(new WorkspaceItem[0]);
+//        return null;
+//    }
 
     @Column(name="multiple_files")
     public boolean isMultipleFilesOwner()
@@ -328,5 +336,15 @@ public class WorkspaceItem implements InProgressSubmission //FIXME interfaccia m
     public void setId(int id)
     {
         this.id = id;
+    }
+    @Transient
+    public ObjectIdentifier getOid()
+    {
+        return oid;
+    }
+
+    public void setOid(ObjectIdentifier oid)
+    {
+        this.oid = oid;
     }
 }

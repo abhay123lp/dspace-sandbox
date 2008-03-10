@@ -42,6 +42,7 @@ package org.dspace.submit.step;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -458,6 +459,7 @@ public class UploadStep extends AbstractProcessingStep
         {
             ItemManager.removeBundle(item, bundle, context);
             //item.removeBundle(bundle);
+            item.setLastModified(new Date());
             //itemDAO.update(item);
             
         }
@@ -577,6 +579,7 @@ public class UploadStep extends AbstractProcessingStep
         
                     // Update to DB
                     //bsDAO.update(b);
+                    item.setLastModified(new Date());
                     //itemDAO.update(item);
                     //FIXME ci vuole un commit dell as?
 

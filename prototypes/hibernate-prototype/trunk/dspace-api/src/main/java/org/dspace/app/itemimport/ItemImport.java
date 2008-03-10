@@ -675,7 +675,8 @@ public class ItemImport
 
         if (!isTest)
         {
-            wi = wsiDAO.create(mycollections[0], template);
+//            wi = wsiDAO.create(mycollections[0], template);
+            wi = WorkflowManager.createWorkspaceItem(mycollections[0], template, context);
             myitem = wi.getItem();
         }
 

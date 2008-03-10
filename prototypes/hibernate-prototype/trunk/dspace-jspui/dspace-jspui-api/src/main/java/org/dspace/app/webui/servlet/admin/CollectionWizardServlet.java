@@ -68,9 +68,12 @@ import org.dspace.content.MetadataField;
 import org.dspace.content.MetadataSchema;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.CommunityDAOFactory;
+import org.dspace.core.ApplicationService;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
+import org.dspace.eperson.AccountManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
@@ -162,8 +165,8 @@ public class CollectionWizardServlet extends DSpaceServlet
         if (communityID > -1)
         {
             // We have a community ID, "create new collection" button pressed
-            Community c =
-                CommunityDAOFactory.getInstance(context).retrieve(communityID);
+            Community c = ApplicationService.get(context, Community.class, communityID);
+//                CommunityDAOFactory.getInstance(context).retrieve(communityID);
 
             if (c == null)
             {
@@ -175,7 +178,8 @@ public class CollectionWizardServlet extends DSpaceServlet
             }
 
             // Create the collection
-            Collection newCollection = c.createCollection();
+//            Collection newCollection = c.createCollection();
+            Collection newCollection = ArchiveManager.createCollection(c, context);
             request.setAttribute("collection", newCollection);
             if (AuthorizeManager.isAdmin(context))
             {
@@ -184,6 +188,7 @@ public class CollectionWizardServlet extends DSpaceServlet
             }
             JSPManager.showJSP(request, response,
                     "/dspace-admin/wizard-questions.jsp");
+            //FIXME applicationservice.save?
             context.complete();
         }
         else
@@ -193,8 +198,8 @@ public class CollectionWizardServlet extends DSpaceServlet
             int stage = UIUtil.getIntParameter(request, "stage");
 
             // Get the collection
-            Collection collection =
-                CollectionDAOFactory.getInstance(context).retrieve(collectionID);
+            Collection collection = ApplicationService.get(context, Collection.class, collectionID);
+//                CollectionDAOFactory.getInstance(context).retrieve(collectionID);
 
             // Put it in request attributes, as most JSPs will need it
             request.setAttribute("collection", collection);
@@ -210,7 +215,7 @@ public class CollectionWizardServlet extends DSpaceServlet
 
             // All pages will need this attribute
             request.setAttribute("collection.id", String.valueOf(collection
-                    .getID()));
+                    .getId()));
 
             switch (stage)
             {
@@ -254,7 +259,8 @@ public class CollectionWizardServlet extends DSpaceServlet
             Collection collection) throws SQLException, ServletException,
             IOException, AuthorizeException
     {
-        Group anonymousGroup = Group.find(context, 0);
+//        Group anonymousGroup = Group.find(context, 0);
+        Group anonymousGroup = ApplicationService.get(context, Group.class, 0);
 
         // "Public read" checkbox. Only need to do anything
         // if it's not checked.
@@ -299,7 +305,7 @@ public class CollectionWizardServlet extends DSpaceServlet
 
         // Need to set a name so that the indexer won't throw an exception
         collection.setMetadata("name", "");
-        collection.update();
+//        collection.update();//NO NEED
 
         // Now display "basic info" screen
         JSPManager.showJSP(request, response,
@@ -330,7 +336,8 @@ public class CollectionWizardServlet extends DSpaceServlet
         // First, we deal with the special case of the MIT group...
         if (UIUtil.getBoolParameter(request, "mitgroup"))
         {
-            Group mitGroup = Group.findByName(context, "MIT Users");
+//            Group mitGroup = Group.findByName(context, "MIT Users");
+            Group mitGroup = ApplicationService.findGroupByName(context, "MIT Users");
             int action;
 
             if (permission == PERM_READ)
@@ -358,7 +365,8 @@ public class CollectionWizardServlet extends DSpaceServlet
         case PERM_READ:
 
             // Actually need to create a group for this.
-            g = Group.create(context);
+//            g = Group.create(context);
+            g = AccountManager.createGroup(context);
 
             // Name it according to our conventions
             g
@@ -369,7 +377,7 @@ public class CollectionWizardServlet extends DSpaceServlet
             AuthorizeManager.addPolicy(context, collection,
                     Constants.DEFAULT_ITEM_READ, g);
             AuthorizeManager.addPolicy(context, collection,
-                    Constants.DEFAULT_BITSTREAM_READ, g);
+                    Constants.DEFAULT_BITSTREAM_READ, g);           
 
             break;
 
@@ -407,11 +415,13 @@ public class CollectionWizardServlet extends DSpaceServlet
         {
             for (int i = 0; i < eperson_ids.length; i++)
             {
-                EPerson eperson = EPerson.find(context, eperson_ids[i]);
+//                EPerson eperson = EPerson.find(context, eperson_ids[i]);
+                EPerson eperson = ApplicationService.get(context, EPerson.class, eperson_ids[i]);
 
                 if (eperson != null)
                 {
-                    g.addMember(eperson);
+//                    g.addMember(eperson);
+                    AccountManager.addMemberToGroup(g, eperson, context);
                 }
             }
         }
@@ -420,18 +430,23 @@ public class CollectionWizardServlet extends DSpaceServlet
         {
             for (int i = 0; i < group_ids.length; i++)
             {
-                Group group = Group.find(context, group_ids[i]);
+//                Group group = Group.find(context, group_ids[i]);
+                Group group = ApplicationService.get(context, Group.class, group_ids[i]);
             
                 if (group != null)
                 {
-                    g.addMember(group);
+//                    g.addMember(group);
+                    AccountManager.addGroupToGroup(g, group, context);
                 }
             }
         }
         
 
         // Update group
-        g.update();
+        if(permission == PERM_READ) {
+            ApplicationService.save(context, Group.class, g);
+        } 
+//        g.update();// NO NEED
 
         showNextPage(context, request, response, collection, permission);
 
@@ -457,9 +472,9 @@ public class CollectionWizardServlet extends DSpaceServlet
         // Wrap multipart request to get the submission info
         FileUploadRequest wrapper = new FileUploadRequest(request);
 
-        Collection collection =
-            CollectionDAOFactory.getInstance(context).retrieve(
-                    UIUtil.getIntParameter(wrapper, "collection_id"));
+        Collection collection = ApplicationService.get(context, Collection.class, UIUtil.getIntParameter(wrapper, "collection_id"));
+//            CollectionDAOFactory.getInstance(context).retrieve(
+//                    UIUtil.getIntParameter(wrapper, "collection_id"));
 
         if (collection == null)
         {
@@ -520,13 +535,13 @@ public class CollectionWizardServlet extends DSpaceServlet
             // Identify the format
             BitstreamFormat bf = FormatIdentifier.guessFormat(context, logoBS);
             logoBS.setFormat(bf);
-            logoBS.update();
+//            logoBS.update(); //NO NEED
 
             // Remove temp file
             temp.delete();
         }
 
-        collection.update();
+//        collection.update();//NO NEED
 
         // Now work out what next page is
         showNextPage(context, request, response, collection, BASIC_INFO);
@@ -561,13 +576,15 @@ public class CollectionWizardServlet extends DSpaceServlet
 
             if ((dcTypeID != -1) && (value != null) && !value.equals(""))
             {
-                MetadataField field = MetadataField.find(context,dcTypeID);
-                MetadataSchema schema = MetadataSchema.find(context,field.getSchemaID());
-                item.addMetadata(schema.getName(),field.getElement(), field.getQualifier(), lang, value);
+//                MetadataField field = MetadataField.find(context,dcTypeID);
+                MetadataField field = ApplicationService.get(context, MetadataField.class, dcTypeID);
+//                MetadataSchema schema = MetadataSchema.find(context,field.getSchemaID());
+                item.addMetadata(field, lang, value);                
+//                item.addMetadata(schema.getName(),field.getElement(), field.getQualifier(), lang, value);
             }
         }
 
-        item.update();
+//        item.update();//NO NEED
 
         // Now work out what next page is
         showNextPage(context, request, response, collection, DEFAULT_ITEM);
@@ -599,7 +616,8 @@ public class CollectionWizardServlet extends DSpaceServlet
         request.setAttribute("collection", collection);
 
         // FIXME: Not a nice hack -- do we show the MIT users checkbox?
-        if (Group.findByName(context, "MIT Users") != null)
+//        if (Group.findByName(context, "MIT Users") != null)
+        if(ApplicationService.findGroupByName(context, "MIT Users")!=null)
         {
             request.setAttribute("mitgroup", new Boolean(true));
         }
@@ -696,7 +714,8 @@ public class CollectionWizardServlet extends DSpaceServlet
             // Next page is 'default item' iff there's a default item
             if (collection.getTemplateItem() != null)
             {
-                MetadataField[] types = MetadataField.findAll(context);
+//                MetadataField[] types = MetadataField.findAll(context);
+                MetadataField[] types = (MetadataField[])ApplicationService.findAllMetadataFields(context).toArray();
                 request.setAttribute("dctypes", types);
                 JSPManager.showJSP(request, response,
                         "/dspace-admin/wizard-default-item.jsp");
@@ -712,7 +731,7 @@ public class CollectionWizardServlet extends DSpaceServlet
             // which needs it in other contexts
             if (collection != null)
             {
-                Community[] communities = collection.getCommunities();
+                Community[] communities = (Community[])collection.getCommunities().toArray();
                 request.setAttribute("community", communities[0]);
 
                 if (AuthorizeManager.isAdmin(context))

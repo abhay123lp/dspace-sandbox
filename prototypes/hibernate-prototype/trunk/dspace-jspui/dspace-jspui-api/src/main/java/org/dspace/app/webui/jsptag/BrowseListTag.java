@@ -39,6 +39,20 @@
  */
 package org.dspace.app.webui.jsptag;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.sql.SQLException;
+import java.util.StringTokenizer;
+
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.jsp.JspException;
+import javax.servlet.jsp.JspWriter;
+import javax.servlet.jsp.jstl.fmt.LocaleSupport;
+import javax.servlet.jsp.tagext.TagSupport;
+
 import org.apache.log4j.Logger;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.browse.BrowseException;
@@ -50,26 +64,14 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.DCDate;
 import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
+import org.dspace.sort.SortOption;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
 import org.dspace.uri.IdentifierService;
-import org.dspace.sort.SortOption;
-
-import javax.imageio.ImageIO;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.JspWriter;
-import javax.servlet.jsp.jstl.fmt.LocaleSupport;
-import javax.servlet.jsp.tagext.TagSupport;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.sql.SQLException;
-import java.util.StringTokenizer;
 
 /**
  * Tag for display a list of items
@@ -313,7 +315,7 @@ public class BrowseListTag extends TagSupport
                 for (int i = 0; i < items.length; i++)
                 {
                     // first get hold of the relevant metadata for this column
-                    DCValue[] metadataArray;
+                    MetadataValue[] metadataArray;
                     if (qualifier.equals("*"))
                     {
                         metadataArray = items[i].getMetadata(schema, element, Item.ANY, Item.ANY);
@@ -330,7 +332,7 @@ public class BrowseListTag extends TagSupport
                     // save on a null check which would make the code untidy
                     if (metadataArray == null)
                     {
-                    	metadataArray = new DCValue[0];
+                    	metadataArray = new MetadataValue[0];
                     }
                     
                     // now prepare the content of the table division
@@ -347,13 +349,13 @@ public class BrowseListTag extends TagSupport
                             {
                                 thumbs = getThumbMarkup(hrq, items[i]);
                             }
-                            DCDate dd = new DCDate(metadataArray[0].value);
+                            DCDate dd = new DCDate(metadataArray[0].getValue());
                             metadata = UIUtil.displayDate(dd, false, false, hrq) + thumbs;
                         }
                         // format the title field correctly for withdrawn items (ie. don't link)                      
                         else if (field.equals(titleField) && items[i].isWithdrawn())
                         {
-                            metadata = Utils.addEntities(metadataArray[0].value);
+                            metadata = Utils.addEntities(metadataArray[0].getValue());
                         }
                         // format the title field correctly (as long as the item isn't withdrawn, link to it)
                         else if (field.equals(titleField))
@@ -365,7 +367,7 @@ public class BrowseListTag extends TagSupport
                             // IdentifierService.getURL(items[i]).toString()
                             metadata = "<a href=\""
                             + IdentifierService.getURL(items[i]).toString() + "\">"
-                            + Utils.addEntities(metadataArray[0].value)
+                            + Utils.addEntities(metadataArray[0].getValue())
                             + "</a>";
                         }
                         // format all other fields
@@ -396,12 +398,12 @@ public class BrowseListTag extends TagSupport
                             			argument = "vfocus";
                             		}
                             		startLink = "<a href=\"" + hrq.getContextPath() + "/browse?type=" + browseType + "&amp;" +
-                                            argument + "=" + Utils.addEntities(metadataArray[j].value);
+                                            argument + "=" + Utils.addEntities(metadataArray[j].getValue());
                                     
-                                    if (metadataArray[j].language != null)
+                                    if (metadataArray[j].getLanguage() != null)
                                     {
                                         startLink = startLink + "&amp;" +
-                                            argument + "_lang=" + Utils.addEntities(metadataArray[j].language) +
+                                            argument + "_lang=" + Utils.addEntities(metadataArray[j].getLanguage()) +
                                             "\">";
                                     }
                                     else
@@ -411,7 +413,7 @@ public class BrowseListTag extends TagSupport
                             		endLink = "</a>";
                             	}
                             	sb.append(startLink);
-                                sb.append(Utils.addEntities(metadataArray[j].value));
+                                sb.append(Utils.addEntities(metadataArray[j].getValue()));
                                 sb.append(endLink);
                                 if (j < (loopLimit - 1))
                                 {
@@ -700,8 +702,7 @@ public class BrowseListTag extends TagSupport
         {
             Context c = UIUtil.obtainContext(hrq);
 
-            InputStream is = BitstreamStorageManager.retrieve(c, bitstream
-                    .getID());
+            InputStream is = BitstreamStorageManager.retrieve(c, bitstream);
 
             //AuthorizeManager.authorizeAction(bContext, this, Constants.READ);
             // 	read in bitstream's image

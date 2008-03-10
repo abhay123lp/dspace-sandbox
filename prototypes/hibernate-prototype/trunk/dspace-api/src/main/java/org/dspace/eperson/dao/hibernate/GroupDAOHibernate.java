@@ -9,6 +9,7 @@ import org.dspace.content.InProgressSubmission;
 import org.dspace.content.WorkspaceItem;
 import org.dspace.content.WorkspaceItemLink;
 import org.dspace.core.Context;
+import org.dspace.dao.StackableDAO;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
@@ -37,6 +38,40 @@ public class GroupDAOHibernate extends GroupDAO
     public List<Group> findAllGroupsSortedByName(Context context) {
         EntityManager em = context.getEntityManager();
         Query q = em.createQuery("SELECT g FROM Group g ORDER BY g.name");
+        List<Group> group = q.getResultList();
+        return group;
+    }
+    
+    public List<Group> findAllSupervisorGroup(Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT g FROM WorkspaceItemLink wil, " +
+        		"IN (wil.group) AS g ORDER BY g.name");
+        List<Group> group = q.getResultList();
+        return group;
+    }
+    
+    public List<Group> findSupervisorGroup(WorkspaceItem workspaceItem, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT g FROM WorkspaceItemLink wil, IN (wil.group) AS g " +
+        		"WHERE wil := :workspaceItem ORDER BY g.name");
+        List<Group> group = q.getResultList();
+        return group;
+    }
+    
+    public List<Group> findGroups(String query, int offset, int limit, Context context) {
+        EntityManager em = context.getEntityManager();
+        String dbquery = "SELECT g FROM Group g " +
+        		"WHERE g.name = :name " +
+        		"OR g.id = :id";
+        
+        Query q = em.createQuery(dbquery);
+        q.setParameter("name", query);
+        q.setParameter("id", Integer.valueOf(query));
+        if (offset >= 0 && limit > 0)
+        {
+              q.setMaxResults(limit);
+              q.setFirstResult(offset);
+        }
         List<Group> group = q.getResultList();
         return group;
     }

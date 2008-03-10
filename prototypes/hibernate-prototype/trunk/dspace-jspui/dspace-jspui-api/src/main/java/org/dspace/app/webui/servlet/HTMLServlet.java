@@ -46,11 +46,14 @@ import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Item;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
+import org.dspace.core.ItemManager;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
+import org.dspace.storage.bitstore.BitstreamStorageManager;
 import org.dspace.uri.ResolvableIdentifier;
 import org.dspace.uri.IdentifierService;
 import org.dspace.uri.dao.ExternalIdentifierDAO;
@@ -120,11 +123,11 @@ public class HTMLServlet extends DSpaceServlet
     private static Bitstream getItemBitstreamByName(Item item, String bsName)
     						throws SQLException
     {
-        Bundle[] bundles = item.getBundles();
+        Bundle[] bundles = (Bundle[])item.getBundles().toArray();
 
         for (int i = 0; i < bundles.length; i++)
         {
-            Bitstream[] bitstreams = bundles[i].getBitstreams();
+            Bitstream[] bitstreams = (Bitstream[])bundles[i].getBitstreams().toArray();
 
             for (int k = 0; k < bitstreams.length; k++)
             {
@@ -214,7 +217,9 @@ public class HTMLServlet extends DSpaceServlet
                     String dbIDString = uri
                             .substring(uri.indexOf('/') + 1);
                     int dbID = Integer.parseInt(dbIDString);
-                    item = ItemDAOFactory.getInstance(context).retrieve(dbID);
+                    item = ApplicationService.get(context, Item.class, dbID);
+//                    item = ItemDAOFactory.getInstance(context).retrieve(dbID);
+                    
                 }
                 else
                 {
@@ -257,7 +262,8 @@ public class HTMLServlet extends DSpaceServlet
                     .getSize()));
 
             // Pipe the bits
-            InputStream is = bitstream.retrieve();
+//            InputStream is = bitstream.retrieve();
+            InputStream is = BitstreamStorageManager.retrieve(context, bitstream);
 
             Utils.bufferedCopy(is, response.getOutputStream());
             is.close();

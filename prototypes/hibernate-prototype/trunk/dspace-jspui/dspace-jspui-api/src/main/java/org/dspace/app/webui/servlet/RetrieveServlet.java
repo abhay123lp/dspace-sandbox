@@ -52,10 +52,12 @@ import org.dspace.app.webui.util.JSPManager;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.dao.BitstreamDAOFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.core.Utils;
+import org.dspace.storage.bitstore.BitstreamStorageManager;
 
 /**
  * Servlet for retrieving bitstreams. The bits are simply piped to the user.
@@ -100,8 +102,8 @@ public class RetrieveServlet extends DSpaceServlet
             try
             {
                 int id = Integer.parseInt(idString);
-                bitstream =
-                    BitstreamDAOFactory.getInstance(context).retrieve(id);
+//                bitstream = BitstreamDAOFactory.getInstance(context).retrieve(id);
+                bitstream = ApplicationService.get(context, Bitstream.class, id);
             }
             catch (NumberFormatException nfe)
             {
@@ -123,7 +125,8 @@ public class RetrieveServlet extends DSpaceServlet
                     .getSize()));
 
             // Pipe the bits
-            InputStream is = bitstream.retrieve();
+//            InputStream is = bitstream.retrieve();
+            InputStream is = BitstreamStorageManager.retrieve(context, bitstream);
 
             Utils.bufferedCopy(is, response.getOutputStream());
             is.close();

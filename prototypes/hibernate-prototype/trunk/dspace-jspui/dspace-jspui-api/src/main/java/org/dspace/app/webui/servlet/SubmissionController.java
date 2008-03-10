@@ -64,9 +64,11 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.WorkflowManager;
 import org.dspace.submit.AbstractProcessingStep;
 import org.dspace.submit.step.UploadStep;
 
@@ -170,8 +172,8 @@ public class SubmissionController extends DSpaceServlet
             try
             {
                 // load the workspace item
-                WorkspaceItem wi = WorkspaceItem.find(context, Integer
-                        .parseInt(workspaceID));
+//                WorkspaceItem wi = WorkspaceItem.find(context, Integer.parseInt(workspaceID));
+                WorkspaceItem wi = ApplicationService.get(context, WorkspaceItem.class, Integer.parseInt(workspaceID));
 
                 //load submission information
                 SubmissionInfo si = SubmissionInfo.load(request, wi);
@@ -190,7 +192,7 @@ public class SubmissionController extends DSpaceServlet
                     wi.setPageReached(AbstractProcessingStep.LAST_PAGE_REACHED);
                     
                     //commit all changes to database immediately
-                    wi.update();
+//                    wi.update(); //NO NEED
                     context.commit();
                     
                     //update submission info
@@ -214,8 +216,8 @@ public class SubmissionController extends DSpaceServlet
             try
             {
                 // load the workflow item
-                WorkflowItem wi = WorkflowItem.find(context, Integer
-                        .parseInt(workflowID));
+//                WorkflowItem wi = WorkflowItem.find(context, Integer.parseInt(workflowID));
+                WorkflowItem wi = ApplicationService.get(context, WorkflowItem.class, Integer.parseInt(workspaceID));
 
                 //load submission information
                 SubmissionInfo si = SubmissionInfo.load(request, wi);
@@ -823,7 +825,8 @@ public class SubmissionController extends DSpaceServlet
             // Cancellation page only applies to workspace items
             WorkspaceItem wi = (WorkspaceItem) subInfo.getSubmissionItem();
 
-            wi.deleteAll();
+//            wi.deleteAll();
+            WorkflowManager.deleteWorkflowItem(wi.getId(), context);
 
             JSPManager.showJSP(request, response,
                     "/submit/cancelled-removed.jsp");
@@ -898,15 +901,15 @@ public class SubmissionController extends DSpaceServlet
             if (request.getParameter("workflow_id") != null)
             {
                 int workflowID = UIUtil.getIntParameter(request, "workflow_id");
-                
-                info = SubmissionInfo.load(request, WorkflowItem.find(context, workflowID));
+                WorkflowItem wfi = ApplicationService.get(context, WorkflowItem.class,workflowID);
+                info = SubmissionInfo.load(request, wfi);
             }
             else if(request.getParameter("workspace_item_id") != null)
             {
                 int workspaceID = UIUtil.getIntParameter(request,
                         "workspace_item_id");
-                
-                info = SubmissionInfo.load(request, WorkspaceItem.find(context, workspaceID));
+                WorkspaceItem wsi = ApplicationService.get(context, WorkspaceItem.class,workspaceID);
+                info = SubmissionInfo.load(request, wsi);
             }
             else
             {
@@ -929,14 +932,16 @@ public class SubmissionController extends DSpaceServlet
             if (request.getParameter("bundle_id") != null)
             {
                 int bundleID = UIUtil.getIntParameter(request, "bundle_id");
-                info.setBundle(Bundle.find(context, bundleID));
+//                info.setBundle(Bundle.find(context, bundleID));
+                info.setBundle(ApplicationService.get(context, Bundle.class, bundleID));
             }
 
             if (request.getParameter("bitstream_id") != null)
             {
                 int bitstreamID = UIUtil.getIntParameter(request,
                         "bitstream_id");
-                info.setBitstream(Bitstream.find(context, bitstreamID));
+//                info.setBitstream(Bitstream.find(context, bitstreamID));
+                info.setBitstream(ApplicationService.get(context,Bitstream.class,bitstreamID));
             }
 
             // save to Request Attribute
@@ -1218,7 +1223,7 @@ public class SubmissionController extends DSpaceServlet
                 wi.setStageReached(step);
                 wi.setPageReached(1); // reset page reached back to 1 (since
                                         // it's page 1 of the new step)
-                wi.update();
+//                wi.update();//NO NEED
             }
         }
     }

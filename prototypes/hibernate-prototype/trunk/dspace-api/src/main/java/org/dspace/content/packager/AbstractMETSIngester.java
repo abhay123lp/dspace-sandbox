@@ -80,6 +80,7 @@ import org.dspace.core.ItemManager;
 import org.dspace.core.LogManager;
 import org.dspace.core.PluginManager;
 import org.dspace.storage.bitstore.BitstreamStorageManager;
+import org.dspace.workflow.WorkflowManager;
 import org.jdom.Element;
 
 /**
@@ -194,10 +195,10 @@ public abstract class AbstractMETSIngester
         throws PackageValidationException, CrosswalkException,
                AuthorizeException, SQLException, IOException
     {
-        BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(context);
-        BitstreamFormatDAO bfDAO = BitstreamFormatDAOFactory.getInstance(context);
-        BundleDAO bundleDAO = BundleDAOFactory.getInstance(context);
-        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
+//        BitstreamDAO bsDAO = BitstreamDAOFactory.getInstance(context);
+//        BitstreamFormatDAO bfDAO = BitstreamFormatDAOFactory.getInstance(context);
+//        BundleDAO bundleDAO = BundleDAOFactory.getInstance(context);
+//        WorkspaceItemDAO wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
 
         ZipInputStream zip = new ZipInputStream(pkg);
         HashMap fileIdToBitstream = new HashMap();
@@ -216,7 +217,8 @@ public abstract class AbstractMETSIngester
              *  match the URL references in <Flocat> and <mdRef> elements.
              */
             METSManifest manifest = null;
-            wi = wsiDAO.create(collection, false);
+//            wi = wsiDAO.create(collection, false);
+            wi = WorkflowManager.createWorkspaceItem(collection, false, context);
             Item item = wi.getItem();
             //Bundle contentBundle = item.createBundle(Constants.CONTENT_BUNDLE_NAME);
             Bundle contentBundle = ItemManager.createBundle(item, Constants.CONTENT_BUNDLE_NAME, context);
@@ -483,10 +485,11 @@ public abstract class AbstractMETSIngester
 //                bundleDAO.update(allBn[i]);
 //            }
 
-            wsiDAO.update(wi);
+//            wsiDAO.update(wi);
+            ApplicationService.save(context, WorkspaceItem.class, wi);
             success = true;
             log.info(LogManager.getHeader(context, "ingest",
-                "Created new Item, db ID="+String.valueOf(item.getID())+
+                "Created new Item, db ID="+String.valueOf(item.getId())+
                 ", WorkspaceItem ID="+String.valueOf(wi.getId())));
             return wi;
         }
@@ -504,7 +507,8 @@ public abstract class AbstractMETSIngester
         {
             // kill item (which also deletes bundles, bitstreams) if ingest fails
             if (!success && wi != null)
-                wsiDAO.deleteAll(wi.getId());
+//                wsiDAO.deleteAll(wi.getId());
+                WorkflowManager.WorkspaceItemDeleteAll(wi, context);
         }
     }
 

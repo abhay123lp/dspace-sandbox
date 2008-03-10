@@ -53,83 +53,82 @@ import org.dspace.storage.rdbms.DatabaseManager;
 import org.dspace.storage.rdbms.TableRow;
 import org.dspace.storage.rdbms.TableRowIterator;
 
-public class SupervisedItemDAOPostgres extends SupervisedItemDAO
+public class SupervisedItemDAOPostgres //extends SupervisedItemDAO
 {
-    public SupervisedItemDAOPostgres(Context context)
-    {
-        super(context);
-    }
+//    public SupervisedItemDAOPostgres(Context context)
+//    {
+//        super(context);
+//    }
+    Context context;
 
-    @Override
-    public List<SupervisedItem> getSupervisedItems()
-    {
-        try
-        {
-            // The following query pulls out distinct workspace items which have 
-            // entries in the supervisory linking database.  We use DISTINCT to
-            // prevent multiple instances of the item in the case that it is 
-            // supervised by more than one group
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "workspaceitem",
-                    "SELECT DISTINCT wsi.workspace_item_id " +
-                    "FROM workspaceitem wsi, epersongroup2workspaceitem eg2wsi " +
-                    "WHERE wsi.workspace_item_id = eg2wsi.workspace_item_id " +
-                    "ORDER BY wsi.workspace_item_id");
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
-
-    @Override
-    public List<SupervisedItem> getSupervisedItems(EPerson eperson)
-    {
-        try
-        {
-            // The following query pulls out distinct workspace items which have 
-            // entries in the supervisory linking database.  We use DISTINCT to
-            // prevent multiple instances of the item in the case that it is 
-            // supervised by more than one group
-            TableRowIterator tri = DatabaseManager.queryTable(context,
-                    "workspaceitem",
-                    "SELECT DISTINCT wsi.workspace_item_id " +
-                    "FROM workspaceitem wsi, " +
-                    "epersongroup2workspaceitem eg2wsi, " +
-                    "epersongroup2eperson eg2e " +
-                    "WHERE wsi.workspace_item_id = eg2wsi.workspace_item_id " +
-                    "AND eg2wsi.eperson_group_id = eg2e.eperson_group_id " +
-                    "AND eg2e.eperson_id = ? " + 
-                    "ORDER BY wsi.workspace_item_id",
-                    eperson.getID());
-
-            return returnAsList(tri);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    public List<SupervisedItem> getSupervisedItems()
+//    {
+//        try
+//        {
+//            // The following query pulls out distinct workspace items which have 
+//            // entries in the supervisory linking database.  We use DISTINCT to
+//            // prevent multiple instances of the item in the case that it is 
+//            // supervised by more than one group
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "workspaceitem",
+//                    "SELECT DISTINCT wsi.workspace_item_id " +
+//                    "FROM workspaceitem wsi, epersongroup2workspaceitem eg2wsi " +
+//                    "WHERE wsi.workspace_item_id = eg2wsi.workspace_item_id " +
+//                    "ORDER BY wsi.workspace_item_id");
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
+//
+//    public List<SupervisedItem> getSupervisedItems(EPerson eperson)
+//    {
+//        try
+//        {
+//            // The following query pulls out distinct workspace items which have 
+//            // entries in the supervisory linking database.  We use DISTINCT to
+//            // prevent multiple instances of the item in the case that it is 
+//            // supervised by more than one group
+//            TableRowIterator tri = DatabaseManager.queryTable(context,
+//                    "workspaceitem",
+//                    "SELECT DISTINCT wsi.workspace_item_id " +
+//                    "FROM workspaceitem wsi, " +
+//                    "epersongroup2workspaceitem eg2wsi, " +
+//                    "epersongroup2eperson eg2e " +
+//                    "WHERE wsi.workspace_item_id = eg2wsi.workspace_item_id " +
+//                    "AND eg2wsi.eperson_group_id = eg2e.eperson_group_id " +
+//                    "AND eg2e.eperson_id = ? " + 
+//                    "ORDER BY wsi.workspace_item_id",
+//                    eperson.getId());
+//
+//            return returnAsList(tri);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
     ////////////////////////////////////////////////////////////////////
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
-    private List<SupervisedItem> returnAsList(TableRowIterator tri)
-        throws SQLException
-    {
-        List<SupervisedItem> items = new ArrayList<SupervisedItem>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("workspace_item_id");
-            SupervisedItem si = new SupervisedItem(context, id);
-            dao.populate(si);
-            items.add(si);
-        }
-
-        return items;
-    }
+//    private List<SupervisedItem> returnAsList(TableRowIterator tri)
+//        throws SQLException
+//    {
+//        List<SupervisedItem> items = new ArrayList<SupervisedItem>();
+//
+//        for (TableRow row : tri.toList())
+//        {
+//            int id = row.getIntColumn("workspace_item_id");
+//            SupervisedItem si = new SupervisedItem(context, id);
+////            dao.populate(si);
+//            items.add(si);
+//        }
+//
+//        return items;
+//    }
 }

@@ -237,7 +237,7 @@ public class Item extends DSpaceObject {
 		this.owningCollection = owningCollection;
 	}
 
-	@OneToMany
+	@OneToMany(cascade=CascadeType.ALL)
 	@JoinTable(name = "item2metadatavalue")
 	public List<MetadataValue> getMetadata() {
 		return metadata;

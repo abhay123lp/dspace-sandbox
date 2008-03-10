@@ -40,12 +40,22 @@
 
 package org.dspace.app.webui.servlet;
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.MissingResourceException;
+
+import javax.mail.MessagingException;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Collection;
-import org.dspace.content.DCValue;
 import org.dspace.content.Item;
+import org.dspace.content.MetadataSchema;
+import org.dspace.content.MetadataValue;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.Email;
@@ -54,18 +64,10 @@ import org.dspace.core.LogManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.uri.ExternalIdentifier;
 import org.dspace.uri.ExternalIdentifierService;
-import org.dspace.uri.ObjectIdentifier;
 import org.dspace.uri.IdentifierService;
+import org.dspace.uri.ObjectIdentifier;
 import org.dspace.uri.dao.ExternalIdentifierDAO;
 import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
-
-import javax.mail.MessagingException;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.MissingResourceException;
 
 
 /**
@@ -105,12 +107,12 @@ public class SuggestServlet extends DSpaceServlet
 
             if (item != null)
             {   
-                DCValue[] titleDC = item.getDC("title", null, Item.ANY);
+                MetadataValue[] titleDC = item.getMetadata(MetadataSchema.DC_SCHEMA,"title", null, Item.ANY);
                 if (titleDC != null || titleDC.length > 0)
                 {
-                    title = titleDC[0].value;
+                    title = titleDC[0].getValue();
                 }
-                Collection[] colls = item.getCollections();
+                Collection[] colls = (Collection[])item.getCollections().toArray();
                 collName = colls[0].getMetadata("name");
             }
         }

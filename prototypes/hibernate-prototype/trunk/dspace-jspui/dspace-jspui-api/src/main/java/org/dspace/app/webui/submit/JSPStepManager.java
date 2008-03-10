@@ -592,7 +592,7 @@ public class JSPStepManager
             if (page > wi.getPageReached())
             {
                 wi.setPageReached(page);
-                wi.update();
+//                wi.update(); //NO NEED
             }
         }
     }

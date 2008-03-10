@@ -63,12 +63,12 @@ public interface InProgressSubmission
     /**
      * Deletes submission wrapper, doesn't delete item contents
      */
-    void deleteWrapper() throws IOException, AuthorizeException;
+//    void deleteWrapper() throws IOException, AuthorizeException;
 
     /**
      * Update the submission, including the unarchived item.
      */
-    void update() throws IOException, AuthorizeException;
+//    void update() throws IOException, AuthorizeException;
 
     /**
      * Get the incomplete item object

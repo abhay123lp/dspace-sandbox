@@ -66,6 +66,7 @@ import org.dspace.content.BitstreamFormat;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
 import org.dspace.content.FormatIdentifier;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
@@ -205,8 +206,8 @@ public class JSPUploadStep extends JSPStep
         if (buttonPressed.equalsIgnoreCase(UploadStep.SUBMIT_SKIP_BUTTON) ||
             (buttonPressed.equalsIgnoreCase(UploadStep.SUBMIT_UPLOAD_BUTTON) && !fileRequired))
         {
-            Bundle[] bundles = subInfo.getSubmissionItem().getItem()
-                    .getBundles("ORIGINAL");
+            Bundle[] bundles = (Bundle[])subInfo.getSubmissionItem().getItem()
+                    .getBundles("ORIGINAL").toArray();
 
             // if user already has uploaded at least one file
             if (bundles.length > 0)
@@ -300,7 +301,8 @@ public class JSPUploadStep extends JSPStep
             try
             {
                 int id = Integer.parseInt(buttonPressed.substring(16));
-                bitstream = Bitstream.find(context, id);
+                bitstream = ApplicationService.get(context, Bitstream.class, id);
+//                bitstream = Bitstream.find(context, id);
             }
             catch (NumberFormatException nfe)
             {
@@ -331,7 +333,8 @@ public class JSPUploadStep extends JSPStep
             try
             {
                 int id = Integer.parseInt(buttonPressed.substring(14));
-                bitstream = Bitstream.find(context, id);
+                bitstream = ApplicationService.get(context, Bitstream.class, id);
+//                bitstream = Bitstream.find(context, id);
             }
             catch (NumberFormatException nfe)
             {
@@ -389,8 +392,8 @@ public class JSPUploadStep extends JSPStep
             boolean justUploaded) throws SQLException, ServletException,
             IOException
     {
-        Bundle[] bundles = subInfo.getSubmissionItem().getItem().getBundles(
-                "ORIGINAL");
+        Bundle[] bundles = (Bundle[])subInfo.getSubmissionItem().getItem().getBundles(
+                "ORIGINAL").toArray();
 
         if (justUploaded || bundles.length > 0)
         {
@@ -491,7 +494,8 @@ public class JSPUploadStep extends JSPStep
             JSPManager.showIntegrityError(request, response);
         }
 
-        BitstreamFormat[] formats = BitstreamFormat.findNonInternal(context);
+        BitstreamFormat[] formats = (BitstreamFormat[])ApplicationService.findBitstreamFormatByInternal(false, context).toArray();
+//        BitstreamFormat[] formats = BitstreamFormat.findNonInternal(context);
 
         request.setAttribute("bitstream.formats", formats);
 

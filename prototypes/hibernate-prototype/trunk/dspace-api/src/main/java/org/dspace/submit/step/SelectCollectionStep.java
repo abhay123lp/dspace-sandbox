@@ -56,6 +56,7 @@ import org.dspace.content.WorkspaceItem;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.submit.AbstractProcessingStep;
+import org.dspace.workflow.WorkflowManager;
 
 /**
  * SelectCollection Step which processes the collection that the user selected
@@ -140,7 +141,8 @@ public class SelectCollectionStep extends AbstractProcessingStep
         else
         {
             // create our new Workspace Item
-            WorkspaceItem wi = WorkspaceItem.create(context, col, true);
+//            WorkspaceItem wi = WorkspaceItem.create(context, col, true);
+            WorkspaceItem wi = WorkflowManager.createWorkspaceItem(col, true, context);
 
             // update Submission Information with this Workspace Item
             subInfo.setSubmissionItem(wi);

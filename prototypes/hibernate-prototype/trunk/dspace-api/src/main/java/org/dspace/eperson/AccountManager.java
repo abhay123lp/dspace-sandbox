@@ -97,7 +97,11 @@ public class AccountManager
     }
     
     public static void deleteEPerson(EPerson eperson, Context context) {
-        //TODO implementare e controllare come viene risolto ora
+        ApplicationService.deleteAllSubscription(eperson, context);
+        List<Group> groups = ApplicationService.findAllGroups(context);
+        for(Group group : groups) {
+            removeMemberFromGroup(group, eperson, context);
+        }        
     }
     
     public static void deleteGroup(Group group, Context context) {
@@ -141,6 +145,15 @@ public class AccountManager
         }
     }
     
+    /* Removes a group from group */
+    public static void removeGroupFromGroup(Group parent, Group member, Context context) {
+        if(parent.getGroups().contains(member) && member.getParentGroups().contains(parent)) {
+            parent.getGroups().remove(member);
+            member.getGroups().remove(parent);
+            context.addEvent(new Event(Event.REMOVE, Constants.GROUP, parent.getId(), Constants.GROUP, member.getId(), member.getName()));
+        }
+    }
+    
     public static void removeMemberFromGroup(Group group, EPerson eperson, Context context) {
         if(group.getMembers().remove(eperson)) {
             group.setEpeopleChanged(true);
@@ -159,6 +172,10 @@ public class AccountManager
         wil.setGroup(group);
         wil.setWorkspaceItem((WorkspaceItem)ips);
         ApplicationService.save(context, WorkspaceItemLink.class, wil);
+    }
+    
+    public static void cleanSupervisionOrders(Context context) {
+        ApplicationService.deleteOutOfDateWorkspaceItemLink(context);
     }
     
     public static boolean isIPSLinkedToGroup(Group group, InProgressSubmission ips, Context context) {

@@ -54,6 +54,7 @@ import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 
@@ -80,18 +81,19 @@ public class CommunityListServlet extends DSpaceServlet
         // This will map communityIDs to arrays of sub-communities
         Map commMap = new HashMap();
 
-        Community[] communities = Community.findAllTop(context);
-
+//        Community[] communities = Community.findAllTop(context);
+        Community[] communities = (Community[])ApplicationService.findAllTopCommunities(context).toArray();
+                  
         for (int com = 0; com < communities.length; com++)
         {
-            Integer comID = new Integer(communities[com].getID());
+            Integer comID = new Integer(communities[com].getId());
 
             // Find collections in community
-            Collection[] colls = communities[com].getCollections();
+            Collection[] colls = (Collection[])communities[com].getCollections().toArray();
             colMap.put(comID, colls);
 
             // Find subcommunties in community
-            Community[] comms = communities[com].getSubcommunities();
+            Community[] comms = (Community[])communities[com].getSubCommunities().toArray();
             commMap.put(comID, comms);
         }
 

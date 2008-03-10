@@ -40,17 +40,14 @@
 package org.dspace.content;
 
 import java.io.IOException;
+import java.util.Date;
 
 import org.dspace.authorize.AuthorizeException;
-import org.dspace.content.dao.ItemDAO;
-import org.dspace.content.dao.ItemDAOFactory;
-import org.dspace.uri.ExternalIdentifier;
-import org.dspace.uri.dao.ExternalIdentifierDAO;
-import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
-import org.dspace.workflow.WorkflowManager;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.ArchiveManager;
 import org.dspace.core.Context;
+import org.dspace.uri.ExternalIdentifier;
+import org.dspace.workflow.WorkflowManager;
 
 /**
  * Support to install item in the archive
@@ -168,6 +165,7 @@ public class InstallItem
 
         // save changes ;-)
         // entitymanager takes care of it
+        item.setLastModified(new Date());
         //itemDAO.update(item);
 
         // remove in-progress submission

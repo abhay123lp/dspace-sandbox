@@ -39,13 +39,14 @@
  */
 package org.dspace.content.dao;
 
-import org.dspace.content.dao.postgres.SupervisedItemDAOPostgres;
+import org.dspace.content.dao.hibernate.SupervisedItemDAOJPA;
 import org.dspace.core.Context;
 
 public class SupervisedItemDAOFactory
 {
     public static SupervisedItemDAO getInstance(Context context)
     {
-        return new SupervisedItemDAOPostgres(context);
+//        return new SupervisedItemDAOPostgres(context);
+        return new SupervisedItemDAOJPA(context);
     }
 }

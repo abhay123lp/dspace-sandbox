@@ -90,8 +90,10 @@ public abstract class ItemDAO extends ContentDAO
     
     public abstract List<Item> findItemForHarvest(DSpaceObject scope,
             String startDate, String endDate, int offset, int limit,
-            boolean items, boolean collections, boolean withdrawn, EntityManager em);
+            boolean items, boolean collections, boolean withdrawn, EntityManager em)
+            throws ParseException ;
 
+    public abstract List<Item> findItemsBySubmitter(EPerson eperson, Context context);
 //    public abstract Item create() throws AuthorizeException;
 
     // FIXME: This should be called something else, but I can't think of
@@ -398,6 +400,7 @@ public abstract class ItemDAO extends ContentDAO
       public abstract List<Item> getItems(EntityManager em);
       public abstract List<Item> getWithdrawnItems(Collection collection, EntityManager em);
       public abstract List<Item> getItemsByMetadataValue(MetadataValue value, EntityManager em);
+      public abstract List<Item> findItemsByMetadataValue(MetadataValue value, Date startDate, Date endDate, Context context);
 //      public abstract void removeFromCollections(EntityManager em, Item item);
 //
 //    /**

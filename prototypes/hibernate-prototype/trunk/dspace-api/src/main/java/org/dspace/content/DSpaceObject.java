@@ -43,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -62,8 +63,10 @@ import org.dspace.uri.ObjectIdentifier;
 /**
  * Abstract base class for DSpace objects
  */
-@Entity @Inheritance(strategy=InheritanceType.JOINED)
 @MappedSuperclass
+@Entity 
+@Inheritance(strategy=InheritanceType.JOINED)
+
 public abstract class DSpaceObject
 {
     private static Logger log = Logger.getLogger(DSpaceObject.class);
@@ -235,4 +238,15 @@ public abstract class DSpaceObject
 	public void setId(int id) {
 		this.id = id;
 	}
+
+	@Column(name="uuid")
+    public UUID getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid)
+    {
+        this.uuid = uuid;
+    }
 }

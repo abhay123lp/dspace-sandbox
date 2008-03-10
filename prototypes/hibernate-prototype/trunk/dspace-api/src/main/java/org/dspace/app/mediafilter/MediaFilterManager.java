@@ -40,6 +40,14 @@
 
 package org.dspace.app.mediafilter;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -81,13 +89,6 @@ import org.dspace.uri.ExternalIdentifierMint;
 import org.dspace.uri.ObjectIdentifier;
 import org.dspace.uri.dao.ExternalIdentifierDAO;
 import org.dspace.uri.dao.ExternalIdentifierDAOFactory;
-
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * MediaFilterManager is the class that invokes the media/format filters over the
@@ -605,7 +606,9 @@ public class MediaFilterManager
 		            if (processBitstream(c, myItem, myBitstream, filterClasses[i]))
             	    {
 		           		//itemDAO.update(myItem); // Make sure new bitstream has a
-		                                 	    // sequence number
+		                             
+		                // sequence number
+		                myItem.setLastModified(new Date());
 		           		filtered = true;
 		            }
             	}
