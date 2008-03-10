@@ -3,12 +3,12 @@
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.dspace</groupId>
-   <artifactId>language-packs</artifactId>
+   <artifactId>dspace-api-lang</artifactId>
    <name>DSpace I18N :: Language Packs</name>
    <description>
       DSpace Language Packs to support multiple languages.
    </description>
-   <url>http://projects.dspace.org/language-packs</url>
+   <url>http://projects.dspace.org/dspace-api-lang</url>
 
    <!-- 
       A Parent POM that Maven inherits DSpace Default 
@@ -61,13 +61,13 @@
    -->
    <scm>
       <connection>
-         scm:svn:http://dspace.svn.sourceforge.net/svnroot/dspace/branches/dspace-1_5_x/language-packs
+         scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/trunk
       </connection>
       <developerConnection>
-         scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/branches/dspace-1_5_x/language-packs
+         scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/trunk
       </developerConnection>
       <url>
-         http://dspace.svn.sourceforge.net/viewvc/dspace/branches/dspace-1_5_x/language-packs
+         http://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/trunk
       </url>
    </scm>
 
