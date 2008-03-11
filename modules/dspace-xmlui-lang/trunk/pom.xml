@@ -4,7 +4,7 @@
    <artifactId>dspace-xmlui-lang</artifactId>
    <packaging>war</packaging>
    <name>DSpace XMLUI (Manakin) :: Translations</name>
-   <version>1.5.0.0-SNAPSHOT</version>
+   <version>1.5.0.0</version>
    <description>
       DSpace Language Packs to support multiple languages in xmlui.
    </description>
@@ -184,9 +184,9 @@
       into the snapshot repository below.
    -->
    <scm>
-      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-xmlui-lang/trunk</connection>
-      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-xmlui-lang/trunk</developerConnection>
-      <url>http://dspace-sandbox.googlecode.com/svn/modules/dspace-xmlui-lang/trunk</url>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-xmlui-lang/tags/dspace-xmlui-lang-1.5.0.0</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-xmlui-lang/tags/dspace-xmlui-lang-1.5.0.0</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/modules/dspace-xmlui-lang/tags/dspace-xmlui-lang-1.5.0.0</url>
    </scm>
    
    <reporting>
