@@ -1,11 +1,9 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.dspace</groupId>
    <artifactId>dspace-api-lang</artifactId>
    <name>DSpace I18N :: Language Packs</name>
-   <version>1.5.0.0-SNAPSHOT</version>
+   <version>1.5.0.0</version>
    <description>
       DSpace Language Packs to support multiple languages.
    </description>
@@ -193,15 +191,9 @@
       into the snapshot repository below.
    -->
    <scm>
-      <connection>
-         scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/trunk
-      </connection>
-      <developerConnection>
-         scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/trunk
-      </developerConnection>
-      <url>
-         http://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/trunk
-      </url>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/tags/dspace-api-lang-1.5.0.0</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/tags/dspace-api-lang-1.5.0.0</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/modules/dspace-api-lang/tags/dspace-api-lang-1.5.0.0</url>
    </scm>
 
    <profiles>
@@ -217,10 +209,7 @@
                   <configuration>
                      <tasks>
                         <mkdir dir="target/classes" />
-                        <native2ascii encoding="UTF8"
-                           src="${basedir}/src/main/native2ascii"
-                           dest="${basedir}/src/main/resources"
-                           includes="**/*.properties.UTF-8" ext="" />
+                        <native2ascii encoding="UTF8" src="${basedir}/src/main/native2ascii" dest="${basedir}/src/main/resources" includes="**/*.properties.UTF-8" ext="" />
                      </tasks>
                   </configuration>
                   <executions>
