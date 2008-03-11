@@ -141,10 +141,11 @@ public abstract class BitstreamDAO extends ContentDAO
         return (Bitstream) context.fromCache(Bitstream.class, id);
     }
 */
-    public Bitstream retrieve(UUID uuid)
-    {
-        return null;
-    }
+//    public Bitstream retrieve(UUID uuid)
+//    {
+//        return null;
+//    }
+    public abstract Bitstream getBitstreamByUUID(UUID uuid, Context context);
 /*
     public void update(Bitstream bitstream) throws AuthorizeException
     {

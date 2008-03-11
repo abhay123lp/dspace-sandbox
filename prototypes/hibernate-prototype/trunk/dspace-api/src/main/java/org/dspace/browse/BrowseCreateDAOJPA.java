@@ -11,7 +11,7 @@ import org.dspace.content.Community;
 import org.dspace.content.Item;
 import org.dspace.core.Context;
 
-public class BrowseCreateDAOJPA //implements BrowseCreateDAO?
+public class BrowseCreateDAOJPA implements BrowseCreateDAO
 {
     public void pruneItemIndex(Context context) {
         EntityManager em = context.getEntityManager();

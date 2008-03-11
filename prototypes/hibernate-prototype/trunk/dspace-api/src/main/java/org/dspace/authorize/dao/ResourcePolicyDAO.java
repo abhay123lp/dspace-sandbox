@@ -57,6 +57,13 @@ public abstract class ResourcePolicyDAO
     protected Logger log = Logger.getLogger(ResourcePolicyDAO.class);
 
     protected Context context;
+    
+    public abstract ResourcePolicy findResourcePolicyByUUID(UUID uuid, Context context);
+    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso, int actionID, Context context);
+    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso, Context context);
+    public abstract List<ResourcePolicy> getPolicies(Group group, Context context);
+    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso, Group group, Context context);
+
 
 //    public abstract ResourcePolicy create();
 
@@ -65,10 +72,11 @@ public abstract class ResourcePolicyDAO
 //        return (ResourcePolicy) context.fromCache(ResourcePolicy.class, id);
 //    }
 
-    public ResourcePolicy retrieve(UUID uuid)
-    {
-        return null;
-    }
+//    public ResourcePolicy retrieve(UUID uuid)
+//    {
+//        return null;
+//    }
+    
 
 //    public abstract void update(ResourcePolicy rp);
 
@@ -79,12 +87,5 @@ public abstract class ResourcePolicyDAO
 //        context.removeCached(rp, id);
 //    }
 
-    // FIXME: Should we have methods that take an object, an action, and an
-    // EPerson / Group?
 
-//    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso);
-//    public abstract List<ResourcePolicy> getPolicies(Group group);
-//    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso, Group group);
-//    public abstract List<ResourcePolicy> getPolicies(DSpaceObject dso,
-//            int actionID);
 }

@@ -39,6 +39,8 @@
  */
 package org.dspace.content.dao;
 
+import org.dspace.content.dao.hibernate.BitstreamDAOHibernate;
+import org.dspace.content.dao.hibernate.BitstreamFormatDAOHibernate;
 import org.dspace.content.dao.postgres.BitstreamFormatDAOPostgres;
 import org.dspace.core.Context;
 
@@ -50,6 +52,6 @@ public class BitstreamFormatDAOFactory
     public static BitstreamFormatDAO getInstance(Context context)
     {
         //return new BitstreamFormatDAOPostgres(context);
-        return null; //FIXME cambiamento
+        return new BitstreamFormatDAOHibernate(context);
     }
 }

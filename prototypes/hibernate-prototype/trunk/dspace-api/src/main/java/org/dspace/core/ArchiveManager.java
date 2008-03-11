@@ -399,6 +399,18 @@ public class ArchiveManager
             deleteItem(child, context);
         }
     }
+    
+    public static void removeItemFromAllCollections(Item item, Context context) {
+        if(item==null) {
+            throw new IllegalArgumentException(
+            "Item must not be null");
+        }
+        
+        List<Collection> collections = item.getCollections();
+        for(Collection collection : collections) {
+            removeItem(collection, item, context);
+        }
+    }
             
     ////////////////////////////////////////////////////////////////////
     // Utility methods

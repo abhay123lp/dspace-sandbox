@@ -43,10 +43,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
-
 import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
+import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
+import org.dspace.content.Item;
 import org.dspace.core.ApplicationService;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
@@ -672,5 +674,79 @@ public class AuthorizeManager
         }
 
         return groups.toArray(new Group[0]);
+    }
+    
+    public static boolean canEdit(Community community, Context context) 
+    {
+        List<Community> parents = community.getAllParentCommunities();
+        if (canEditApp(parents, context)) {
+            return true;
+        }
+        try
+        {
+            AuthorizeManager.authorizeAction(context, community, Constants.WRITE);
+            return true;
+        }
+        catch (AuthorizeException e)
+        {
+            return false;
+        }
+        
+    }
+    
+    public static boolean canEdit(Collection collection, Context context) 
+    {
+        List<Community> parents = collection.getCommunities();
+        if (canEditApp(parents, context)) {
+            return true;
+        }
+        try
+        {
+            AuthorizeManager.authorizeAction(context, collection, Constants.WRITE);
+            return true;
+        }
+        catch (AuthorizeException e)
+        {
+            return false;
+        }
+        
+    }
+    
+    public static boolean canEdit(Item item, Context context) 
+    {
+        List<Community> parents = ApplicationService.findCommunities(item, context);
+        
+        if (canEditApp(parents, context)) {
+            return true;
+        }
+        try
+        {
+            AuthorizeManager.authorizeAction(context, item, Constants.WRITE);
+            return true;
+        }
+        catch (AuthorizeException e)
+        {
+            return false;
+        }
+        
+    }
+    
+    private static boolean canEditApp(List<Community> parents, Context context) {
+        for (Community parent : parents)
+        {
+            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+                    Constants.WRITE))
+            {
+                return true;
+            }
+
+            if (AuthorizeManager.authorizeActionBoolean(context, parent,
+                    Constants.ADD))
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

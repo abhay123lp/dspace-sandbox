@@ -41,6 +41,7 @@ package org.dspace.authorize;
 
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -89,6 +90,7 @@ public class ResourcePolicy implements Identifiable
 
     private int iD;
     // private ObjectIdentifier oid;
+    private UUID uuid;
 
     private SimpleIdentifier sid;
 
@@ -548,5 +550,16 @@ public class ResourcePolicy implements Identifiable
     public void setDso(DSpaceObject dso)
     {
         this.dso = dso;
+    }
+
+    @Column(name="uuid")
+    public UUID getUuid()
+    {
+        return uuid;
+    }
+
+    public void setUuid(UUID uuid)
+    {
+        this.uuid = uuid;
     }
 }

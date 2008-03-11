@@ -42,6 +42,9 @@ package org.dspace.eperson.dao;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
@@ -59,9 +62,15 @@ public abstract class SubscriptionDAO
 
     protected Context context;
 
-//    public abstract Subscription create();
+    public abstract Subscription findEPersonSubscriptionInCollection(EPerson eperson, Collection collection, Context context);
+    public abstract List<Subscription> findAllSubscriptions(Context context);
+    public abstract List<Subscription> findSubscriptionsByEPerson(EPerson eperson, Context context);
+    public abstract void deleteAllSubscription(EPerson eperson, Context context);
+    public abstract Subscription getSubscriptionByUUID(UUID uuid, Context context);
+
+        //    public abstract Subscription create();
 //    public abstract Subscription retrieve(int id);
-    public abstract Subscription retrieve(UUID uuid);
+//    public abstract Subscription retrieve(UUID uuid);
 //    public abstract void update(Subscription sub);
 //    public abstract void delete(int id);
 

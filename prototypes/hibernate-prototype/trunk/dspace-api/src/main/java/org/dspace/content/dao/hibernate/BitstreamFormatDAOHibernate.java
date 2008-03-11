@@ -1,6 +1,7 @@
 package org.dspace.content.dao.hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -80,6 +81,14 @@ public class BitstreamFormatDAOHibernate extends BitstreamFormatDAO {
         q.setParameter("internal", internal);
         List<BitstreamFormat> bfs = q.getResultList();
         return bfs;
+    }
+    
+    public BitstreamFormat getBitstreamFormatByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT bf FROM BitstreamFormat bf WHERE bf.uuid = :uuid");
+        q.setParameter("uuid", uuid);
+        BitstreamFormat bf = (BitstreamFormat)q.getSingleResult();
+        return bf;
     }
 
 }

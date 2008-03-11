@@ -40,6 +40,7 @@
 package org.dspace.eperson.dao;
 
 import org.dspace.core.Context;
+import org.dspace.eperson.dao.hibernate.SubscriptionDAOJPA;
 import org.dspace.eperson.dao.postgres.SubscriptionDAOPostgres;
 
 /**
@@ -49,6 +50,7 @@ public class SubscriptionDAOFactory
 {
     public static SubscriptionDAO getInstance(Context context)
     {
-        return new SubscriptionDAOPostgres(context);
+//        return new SubscriptionDAOPostgres(context);
+        return new SubscriptionDAOJPA();
     }
 }

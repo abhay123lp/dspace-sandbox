@@ -176,13 +176,13 @@ public abstract class CollectionDAO extends ContentDAO
 */
     public abstract Integer getCount(Collection collection, EntityManager em);
     public abstract Integer count(Collection collection, EntityManager em);
+    public abstract List<Collection> findNotLinkedCollection(Item item, Context context);
+    public abstract Collection getCollectionByUUID(UUID uuid, Context context);
     
-        
-    
-    public Collection retrieve(UUID uuid)
-    {
-        return null;
-    }
+//    public Collection retrieve(UUID uuid)
+//    {
+//        return null;
+//    }
 
 /*    public void update(Collection collection) throws AuthorizeException //Application Service
     {
@@ -319,8 +319,8 @@ public abstract class CollectionDAO extends ContentDAO
      * Useful for trimming 'select to collection' list, or figuring out which
      * collections a person is an editor for.
      */
-    public abstract List<Collection> getCollectionsByAuthority(Community parent,
-            int actionID, EntityManager em);
+    public abstract List<Collection> findCollectionsByAuthority(Community parent,
+            int actionID, Context context);
 //    {
 //        List<Collection> results = new ArrayList<Collection>();
 //        List<Collection> collections = null;

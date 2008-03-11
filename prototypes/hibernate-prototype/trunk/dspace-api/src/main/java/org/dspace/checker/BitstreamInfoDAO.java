@@ -60,148 +60,148 @@ import org.dspace.storage.rdbms.DatabaseManager;
  */
 public final class BitstreamInfoDAO extends DAOSupport
 {
-    /**
-     * This value should be returned by <code>next()</code> to indicate that
-     * there are no more values.
-     */
-    public static int SENTINEL = -1;
-
-    /** Query that gets bitstream information for a specified ID. */
-    private static final String FIND_BY_BITSTREAM_ID = "select bitstream.deleted, bitstream.store_number, bitstream.size_bytes, "
-            + "bitstreamformatregistry.short_description, bitstream.bitstream_id,  "
-            + "bitstream.user_format_description, bitstream.internal_id, "
-            + "bitstream.source, bitstream.checksum_algorithm, bitstream.checksum, "
-            + "bitstream.name, most_recent_checksum.last_process_end_date,"
-            + "most_recent_checksum.to_be_processed "
-            + "from bitstream left outer join bitstreamformatregistry on "
-            + "bitstream.bitstream_format_id = bitstreamformatregistry.bitstream_format_id, "
-            + "most_recent_checksum "
-            + "where bitstream.bitstream_id = ? "
-            + "and bitstream.bitstream_id = most_recent_checksum.bitstream_id";
-
-    /**
-     * Query that selects bitstream IDs from bitstream table that are not yet in
-     * the most_recent_checksum table, and inserts them into
-     * most_recent_checksum.
-     */
-    private static final String INSERT_MISSING_CHECKSUM_BITSTREAMS = "insert into most_recent_checksum ( "
-            + "bitstream_id, to_be_processed, expected_checksum, current_checksum, "
-            + "last_process_start_date, last_process_end_date, "
-            + "checksum_algorithm, matched_prev_checksum, result ) "
-            + "select bitstream.bitstream_id, "
-            + "CASE WHEN bitstream.deleted = false THEN true ELSE false END, "
-            + "CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, "
-            + "CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, "
-            + "?, ?, CASE WHEN bitstream.checksum_algorithm IS NULL "
-            + "THEN 'MD5' ELSE bitstream.checksum_algorithm END, true, "
-            + "CASE WHEN bitstream.deleted = true THEN 'BITSTREAM_MARKED_DELETED' else 'CHECKSUM_MATCH' END "
-            + "from bitstream where not exists( "
-            + "select 'x' from most_recent_checksum "
-            + "where most_recent_checksum.bitstream_id = bitstream.bitstream_id )";
-
-    private static final String INSERT_MISSING_CHECKSUM_BITSTREAMS_ORACLE = "insert into most_recent_checksum ( "
-        + "bitstream_id, to_be_processed, expected_checksum, current_checksum, "
-        + "last_process_start_date, last_process_end_date, "
-        + "checksum_algorithm, matched_prev_checksum, result ) "
-        + "select bitstream.bitstream_id, "
-        + "CASE WHEN bitstream.deleted = 0 THEN 1 ELSE 0 END, "
-        + "CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, "
-        + "CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, "
-        + "? AS last_process_start_date, ? AS last_process_end_date, CASE WHEN bitstream.checksum_algorithm IS NULL "
-        + "THEN 'MD5' ELSE bitstream.checksum_algorithm END, 1, "
-        + "CASE WHEN bitstream.deleted = 1 THEN 'BITSTREAM_MARKED_DELETED' else 'CHECKSUM_MATCH' END "
-        + "from bitstream where not exists( "
-        + "select 'x' from most_recent_checksum "
-        + "where most_recent_checksum.bitstream_id = bitstream.bitstream_id )";
-    
-    /**
-     * Query that updates most_recent_checksum table with checksum result for
-     * specified bitstream ID.
-     */
-    private static final String UPDATE_CHECKSUM = "UPDATE  most_recent_checksum "
-            + "SET current_checksum = ?, expected_checksum = ?, matched_prev_checksum = ?, to_be_processed= ?, "
-            + "last_process_start_date=?, last_process_end_date=?, result=? WHERE bitstream_id = ? ";
-
-    /**
-     * Deletes from the most_recent_checksum where the bitstream id is found
-     */
-    private static final String DELETE_BITSTREAM_INFO = "Delete from most_recent_checksum "
-            + "where bitstream_id = ?";
-
-    /**
-     * This selects the next bitstream in order of last processing end date. The
-     * timestamp is truncated to milliseconds this is because the Date for java
-     * does not support nanoseconds and milliseconds were considered accurate
-     * enough
-     */
-    public static final String GET_OLDEST_BITSTREAM = "select bitstream_id  "
-            + "from most_recent_checksum " + "where to_be_processed = true "
-            + "order by date_trunc('milliseconds', last_process_end_date), "
-            + "bitstream_id " + "ASC LIMIT 1";
-
-    public static final String GET_OLDEST_BITSTREAM_ORACLE = "SELECT bitstream_id FROM (select bitstream_id  "
-        + "from most_recent_checksum " + "where to_be_processed = 1 "
-        + "order by trunc(last_process_end_date, 'mi'), "
-        + "bitstream_id " + "ASC) WHERE rownum=1";
-    
-    /**
-     * Selects the next bitstream in order of last processing end date, ensuring
-     * that no bitstream is checked more than once since the date parameter
-     * used.
-     */
-    public static final String GET_OLDEST_BITSTREAM_DATE = "select bitstream_id  "
-            + "from most_recent_checksum "
-            + "where to_be_processed = true "
-            + "and last_process_start_date < ? "
-            + "order by date_trunc('milliseconds', last_process_end_date), "
-            + "bitstream_id " + "ASC LIMIT 1";
-
-    public static final String GET_OLDEST_BITSTREAM_DATE_ORACLE = "SELECT bitstream_id FROM (select bitstream_id  "
-        + "from most_recent_checksum "
-        + "where to_be_processed = 1 "
-        + "and last_process_start_date < ? "
-        + "order by trunc(last_process_end_date, 'mi'), "
-        + "bitstream_id " + "ASC) WHERE rownum=1";
-    
-    /** SQL query to retrieve bitstreams for a given item. */
-    private static final String ITEM_BITSTREAMS = "SELECT b2b.bitstream_id "
-            + "FROM bundle2bitstream b2b, item2bundle i2b WHERE "
-            + "b2b.bundle_id=i2b.bundle_id AND i2b.item_id=?";
-
-    /** SQL query to retrieve bitstreams for a given collection. */
-    private static final String COLLECTION_BITSTREAMS = "SELECT b2b.bitstream_id "
-            + "FROM bundle2bitstream b2b, item2bundle i2b, collection2item c2i WHERE "
-            + "b2b.bundle_id=i2b.bundle_id AND c2i.item_id=i2b.item_id AND c2i.collection_id=?";
-
-    /** SQL query to retrieve bitstreams for a given community. */
-    private static final String COMMUNITY_BITSTREAMS = "SELECT b2b.bitstream_id FROM bundle2bitstream b2b, item2bundle i2b, collection2item c2i, community2collection c2c WHERE b2b.bundle_id=i2b.bundle_id AND c2i.item_id=i2b.item_id AND c2c.collection_id=c2i.collection_id AND c2c.community_id=?";
-
-    /** Standard Log4J logger. */
-    private static final Logger LOG = Logger.getLogger(BitstreamInfoDAO.class);
-
-    /**
-     * History data access object for checksum_history table
-     */
-    private ChecksumHistoryDAO checksumHistoryDAO;
-
-    /**
-     * Default constructor
-     */
-    public BitstreamInfoDAO()
-    {
-        checksumHistoryDAO = new ChecksumHistoryDAO();
-    }
-
-    /**
-     * Updates most_recent_checksum with latest checksum and result of
-     * comparison with previous checksum.
-     * 
-     * @param info
-     *            The BitstreamInfo to update.
-     * 
-     * @throws IllegalArgumentException
-     *             if the BitstreamInfo given is null.
-     */
+//    /**
+//     * This value should be returned by <code>next()</code> to indicate that
+//     * there are no more values.
+//     */
+//    public static int SENTINEL = -1;
+//
+//    /** Query that gets bitstream information for a specified ID. */
+//    private static final String FIND_BY_BITSTREAM_ID = "select bitstream.deleted, bitstream.store_number, bitstream.size_bytes, "
+//            + "bitstreamformatregistry.short_description, bitstream.bitstream_id,  "
+//            + "bitstream.user_format_description, bitstream.internal_id, "
+//            + "bitstream.source, bitstream.checksum_algorithm, bitstream.checksum, "
+//            + "bitstream.name, most_recent_checksum.last_process_end_date,"
+//            + "most_recent_checksum.to_be_processed "
+//            + "from bitstream left outer join bitstreamformatregistry on "
+//            + "bitstream.bitstream_format_id = bitstreamformatregistry.bitstream_format_id, "
+//            + "most_recent_checksum "
+//            + "where bitstream.bitstream_id = ? "
+//            + "and bitstream.bitstream_id = most_recent_checksum.bitstream_id";
+//
+//    /**
+//     * Query that selects bitstream IDs from bitstream table that are not yet in
+//     * the most_recent_checksum table, and inserts them into
+//     * most_recent_checksum.
+//     */
+//    private static final String INSERT_MISSING_CHECKSUM_BITSTREAMS = "insert into most_recent_checksum ( "
+//            + "bitstream_id, to_be_processed, expected_checksum, current_checksum, "
+//            + "last_process_start_date, last_process_end_date, "
+//            + "checksum_algorithm, matched_prev_checksum, result ) "
+//            + "select bitstream.bitstream_id, "
+//            + "CASE WHEN bitstream.deleted = false THEN true ELSE false END, "
+//            + "CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, "
+//            + "CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, "
+//            + "?, ?, CASE WHEN bitstream.checksum_algorithm IS NULL "
+//            + "THEN 'MD5' ELSE bitstream.checksum_algorithm END, true, "
+//            + "CASE WHEN bitstream.deleted = true THEN 'BITSTREAM_MARKED_DELETED' else 'CHECKSUM_MATCH' END "
+//            + "from bitstream where not exists( "
+//            + "select 'x' from most_recent_checksum "
+//            + "where most_recent_checksum.bitstream_id = bitstream.bitstream_id )";
+//
+//    private static final String INSERT_MISSING_CHECKSUM_BITSTREAMS_ORACLE = "insert into most_recent_checksum ( "
+//        + "bitstream_id, to_be_processed, expected_checksum, current_checksum, "
+//        + "last_process_start_date, last_process_end_date, "
+//        + "checksum_algorithm, matched_prev_checksum, result ) "
+//        + "select bitstream.bitstream_id, "
+//        + "CASE WHEN bitstream.deleted = 0 THEN 1 ELSE 0 END, "
+//        + "CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, "
+//        + "CASE WHEN bitstream.checksum IS NULL THEN '' ELSE bitstream.checksum END, "
+//        + "? AS last_process_start_date, ? AS last_process_end_date, CASE WHEN bitstream.checksum_algorithm IS NULL "
+//        + "THEN 'MD5' ELSE bitstream.checksum_algorithm END, 1, "
+//        + "CASE WHEN bitstream.deleted = 1 THEN 'BITSTREAM_MARKED_DELETED' else 'CHECKSUM_MATCH' END "
+//        + "from bitstream where not exists( "
+//        + "select 'x' from most_recent_checksum "
+//        + "where most_recent_checksum.bitstream_id = bitstream.bitstream_id )";
+//    
+//    /**
+//     * Query that updates most_recent_checksum table with checksum result for
+//     * specified bitstream ID.
+//     */
+//    private static final String UPDATE_CHECKSUM = "UPDATE  most_recent_checksum "
+//            + "SET current_checksum = ?, expected_checksum = ?, matched_prev_checksum = ?, to_be_processed= ?, "
+//            + "last_process_start_date=?, last_process_end_date=?, result=? WHERE bitstream_id = ? ";
+//
+//    /**
+//     * Deletes from the most_recent_checksum where the bitstream id is found
+//     */
+//    private static final String DELETE_BITSTREAM_INFO = "Delete from most_recent_checksum "
+//            + "where bitstream_id = ?";
+//
+//    /**
+//     * This selects the next bitstream in order of last processing end date. The
+//     * timestamp is truncated to milliseconds this is because the Date for java
+//     * does not support nanoseconds and milliseconds were considered accurate
+//     * enough
+//     */
+//    public static final String GET_OLDEST_BITSTREAM = "select bitstream_id  "
+//            + "from most_recent_checksum " + "where to_be_processed = true "
+//            + "order by date_trunc('milliseconds', last_process_end_date), "
+//            + "bitstream_id " + "ASC LIMIT 1";
+//
+//    public static final String GET_OLDEST_BITSTREAM_ORACLE = "SELECT bitstream_id FROM (select bitstream_id  "
+//        + "from most_recent_checksum " + "where to_be_processed = 1 "
+//        + "order by trunc(last_process_end_date, 'mi'), "
+//        + "bitstream_id " + "ASC) WHERE rownum=1";
+//    
+//    /**
+//     * Selects the next bitstream in order of last processing end date, ensuring
+//     * that no bitstream is checked more than once since the date parameter
+//     * used.
+//     */
+//    public static final String GET_OLDEST_BITSTREAM_DATE = "select bitstream_id  "
+//            + "from most_recent_checksum "
+//            + "where to_be_processed = true "
+//            + "and last_process_start_date < ? "
+//            + "order by date_trunc('milliseconds', last_process_end_date), "
+//            + "bitstream_id " + "ASC LIMIT 1";
+//
+//    public static final String GET_OLDEST_BITSTREAM_DATE_ORACLE = "SELECT bitstream_id FROM (select bitstream_id  "
+//        + "from most_recent_checksum "
+//        + "where to_be_processed = 1 "
+//        + "and last_process_start_date < ? "
+//        + "order by trunc(last_process_end_date, 'mi'), "
+//        + "bitstream_id " + "ASC) WHERE rownum=1";
+//    
+//    /** SQL query to retrieve bitstreams for a given item. */
+//    private static final String ITEM_BITSTREAMS = "SELECT b2b.bitstream_id "
+//            + "FROM bundle2bitstream b2b, item2bundle i2b WHERE "
+//            + "b2b.bundle_id=i2b.bundle_id AND i2b.item_id=?";
+//
+//    /** SQL query to retrieve bitstreams for a given collection. */
+//    private static final String COLLECTION_BITSTREAMS = "SELECT b2b.bitstream_id "
+//            + "FROM bundle2bitstream b2b, item2bundle i2b, collection2item c2i WHERE "
+//            + "b2b.bundle_id=i2b.bundle_id AND c2i.item_id=i2b.item_id AND c2i.collection_id=?";
+//
+//    /** SQL query to retrieve bitstreams for a given community. */
+//    private static final String COMMUNITY_BITSTREAMS = "SELECT b2b.bitstream_id FROM bundle2bitstream b2b, item2bundle i2b, collection2item c2i, community2collection c2c WHERE b2b.bundle_id=i2b.bundle_id AND c2i.item_id=i2b.item_id AND c2c.collection_id=c2i.collection_id AND c2c.community_id=?";
+//
+//    /** Standard Log4J logger. */
+//    private static final Logger LOG = Logger.getLogger(BitstreamInfoDAO.class);
+//
+//    /**
+//     * History data access object for checksum_history table
+//     */
+//    private ChecksumHistoryDAO checksumHistoryDAO;
+//
+//    /**
+//     * Default constructor
+//     */
+//    public BitstreamInfoDAO()
+//    {
+//        checksumHistoryDAO = new ChecksumHistoryDAO();
+//    }
+//
+//    /**
+//     * Updates most_recent_checksum with latest checksum and result of
+//     * comparison with previous checksum.
+//     * 
+//     * @param info
+//     *            The BitstreamInfo to update.
+//     * 
+//     * @throws IllegalArgumentException
+//     *             if the BitstreamInfo given is null.
+//     */
 //    public void update(BitstreamInfo info)
 //    {
 //        if (info == null)

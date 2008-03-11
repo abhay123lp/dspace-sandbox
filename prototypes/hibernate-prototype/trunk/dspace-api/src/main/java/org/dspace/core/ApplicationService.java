@@ -5,13 +5,18 @@ import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.dao.ResourcePolicyDAO;
+import org.dspace.authorize.dao.ResourcePolicyDAOFactory;
 import org.dspace.authorize.dao.jpa.ResourcePolicyDAOJPA;
+import org.dspace.browse.BrowseCreateDAO;
 import org.dspace.browse.BrowseCreateDAOJPA;
+import org.dspace.browse.BrowseDAOFactory;
 import org.dspace.browse.CommunityMapping;
 import org.dspace.browse.MetadataIndexEntry;
 import org.dspace.checker.BitstreamInfoDAOJPA;
@@ -60,14 +65,20 @@ import org.dspace.eperson.Group;
 import org.dspace.eperson.RegistrationData;
 import org.dspace.eperson.Subscription;
 import org.dspace.eperson.EPerson.EPersonMetadataField;
+import org.dspace.eperson.dao.EPersonDAO;
+import org.dspace.eperson.dao.EPersonDAOFactory;
 import org.dspace.eperson.dao.GroupDAO;
 import org.dspace.eperson.dao.GroupDAOFactory;
+import org.dspace.eperson.dao.SubscriptionDAO;
+import org.dspace.eperson.dao.SubscriptionDAOFactory;
 import org.dspace.eperson.dao.hibernate.EPersonDAOHibernate;
 import org.dspace.eperson.dao.hibernate.GroupDAOHibernate;
 import org.dspace.eperson.dao.hibernate.RegistrationDataDAOJPA;
 import org.dspace.eperson.dao.hibernate.SubscriptionDAOJPA;
 import org.dspace.workflow.TaskListItem;
 import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.dao.WorkflowItemDAO;
+import org.dspace.workflow.dao.WorkflowItemDAOFactory;
 import org.dspace.workflow.dao.jpa.WorkflowItemDAOJPA;
 
 
@@ -279,6 +290,17 @@ public class ApplicationService {
         return collections;
     }
     
+    public static List<Collection> findNotLinkedCollections(Item item, Context context) {
+        CollectionDAO cdao = CollectionDAOFactory.getInstance(context);
+        return cdao.findNotLinkedCollection(item, context);
+    }
+    
+    public static List<Collection> findCollectionsByAuthority(Community parent, int actionID, Context context)    
+    {
+        CollectionDAO cdao = CollectionDAOFactory.getInstance(context);
+        return cdao.findCollectionsByAuthority(parent, actionID, context);
+    }
+    
     /* Returns all item with in_archive=true and withdrawn=false */
     public static List<Item> findAllItems(Context context) {
         ItemDAO idao = ItemDAOFactory.getInstance(context);
@@ -439,7 +461,17 @@ public class ApplicationService {
      */  //TODO
     public static List<Group> findAllGroups(EPerson eperson, Context context) {
         return null;
-    }    
+    }
+    
+    /**
+     * Returns a list of the groups that eperson is a member of
+     * @param eperson
+     * @param context
+     * @return the list of groups
+     */
+    public static List<Group> findGroups(EPerson eperson, Context context) {
+        return null;
+    }
     
     public static RegistrationData findRegistrationDataByToken(String token, Context context) {
         RegistrationDataDAOJPA rdao = new RegistrationDataDAOJPA();
@@ -601,17 +633,22 @@ public class ApplicationService {
     }
     
     public static Set<Integer> findCommunitiesAndAncestorsId(Item item, Context context) {
-        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        BrowseCreateDAO bcdao = BrowseDAOFactory.getCreateInstance(context);
         return bcdao.findCommunitiesAndAncestorsId(item, context);
     }
     
     public static List<CommunityMapping> findCommunityMappings(Item item, Context context) {
-        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        BrowseCreateDAO bcdao = BrowseDAOFactory.getCreateInstance(context);
         return bcdao.findCommunityMappings(item, context);
     }
     
+    public static List<Community> findCommunities(Item item, Context context) {
+        ItemDAO idao = ItemDAOFactory.getInstance(context);
+        return idao.findCommunities(item, context);
+    }
+    
     public static MetadataIndexEntry findMetadataIndexEntryByValue(String value, Context context) {
-        BrowseCreateDAOJPA bcdao = new BrowseCreateDAOJPA();
+        BrowseCreateDAO bcdao = BrowseDAOFactory.getCreateInstance(context);
         return bcdao.findMetadataIndexEntryByValue(value, context);
     }
     
@@ -659,6 +696,79 @@ public class ApplicationService {
     public static void insertMissingHistoryBitstream(Context context) {
         BitstreamInfoDAOJPA bdao = new BitstreamInfoDAOJPA();
         bdao.insertMissingHistoryBitstream(context);
+    }
+    
+    
+    /* Getter methods by UUID */
+    
+    public static Bitstream getBitstreamByUUID(UUID uuid, Context context) {
+        BitstreamDAO bdao = BitstreamDAOFactory.getInstance(context);
+        return bdao.getBitstreamByUUID(uuid, context);
+    }
+    
+    public static ResourcePolicy getResourcePolicyByUUID(UUID uuid, Context context) {
+        ResourcePolicyDAO rdao = ResourcePolicyDAOFactory.getInstance(context);
+        return rdao.findResourcePolicyByUUID(uuid, context);
+    }
+    
+    public static BitstreamFormat getBitstreamFormatByUUID(UUID uuid, Context context) {
+        BitstreamFormatDAO bdao = BitstreamFormatDAOFactory.getInstance(context);
+        return bdao.getBitstreamFormatByUUID(uuid, context);
+    }
+    
+    public static Bundle getBundleByUUID(UUID uuid, Context context) {
+        BundleDAO bdao = BundleDAOFactory.getInstance(context);
+        return bdao.getBundleByUUID(uuid, context);
+    }
+    
+    public static Collection getCollectionByUUID(UUID uuid, Context context) {
+        CollectionDAO cdao = CollectionDAOFactory.getInstance(context);
+        return cdao.getCollectionByUUID(uuid, context);
+    }
+    
+    public static Community getCommunityByUUID(UUID uuid, Context context) {
+        CommunityDAO cdao = CommunityDAOFactory.getInstance(context);
+        return cdao.getCommunityByUUID(uuid, context);
+    }
+    
+    public static Item getItemByUUID (UUID uuid, Context context) {
+        ItemDAO idao = ItemDAOFactory.getInstance(context);
+        return idao.getItemByUUID(uuid, context);
+    }
+    
+    public static MetadataField getMetadataFieldByUUID (UUID uuid, Context context) {
+        MetadataFieldDAO mdao = MetadataFieldDAOFactory.getInstance(context);
+        return mdao.getMetadataFieldByUUID(uuid, context);
+    }
+    
+    public static MetadataSchema getMetadataSchemaByUUID(UUID uuid, Context context) {
+        MetadataSchemaDAO mdao = MetadataSchemaDAOFactory.getInstance(context);
+        return mdao.getMetadataSchemaByUUID(uuid, context);
+    }
+    
+    public static MetadataValue getMetadataValueByUUID(UUID uuid, Context context) {
+        MetadataValueDAO mdao = MetadataValueDAOFactory.getInstance(context);
+        return mdao.getMetadataValueByUUID(uuid, context);
+    }
+    
+    public static WorkflowItem getWorkflowItemByUUID(UUID uuid, Context context) {
+        WorkflowItemDAO wdao = WorkflowItemDAOFactory.getInstance(context);
+        return wdao.getWorkflowItemByUUID(uuid, context);
+    }
+
+    public static EPerson getEPersonByUUID(UUID uuid, Context context) {
+        EPersonDAO edao = EPersonDAOFactory.getInstance(context);
+        return edao.getEPersonByUUID(uuid, context);
+    }
+    
+    public static Group getGroupByUUID(UUID uuid, Context context) {
+        GroupDAO gdao = GroupDAOFactory.getInstance(context);
+        return gdao.getGroupByUUID(uuid, context);
+    }
+    
+    public static Subscription getSubscriptionByUUID(UUID uuid, Context context) {
+        SubscriptionDAO sdao = SubscriptionDAOFactory.getInstance(context);
+        return sdao.getSubscriptionByUUID(uuid, context);
     }
     
     

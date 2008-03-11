@@ -69,6 +69,7 @@ public abstract class BitstreamFormatDAO extends ContentDAO
     }
     
     public abstract List<BitstreamFormat> findAllBitstreamFormat(Context context);
+    public abstract BitstreamFormat getBitstreamFormatByUUID(UUID uuid, Context context);
 
 //    public BitstreamFormat create() throws AuthorizeException
 //    {

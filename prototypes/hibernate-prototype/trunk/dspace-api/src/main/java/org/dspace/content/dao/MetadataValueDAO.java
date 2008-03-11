@@ -70,12 +70,13 @@ public abstract class MetadataValueDAO extends ContentDAO
 //    {
 //        return (MetadataValue) context.fromCache(MetadataValue.class, id);
 //    }
-
-    public MetadataValue retrieve(UUID uuid)
-    {
-        return null;
-    }
-
+//
+//    public MetadataValue retrieve(UUID uuid)
+//    {
+//        return null;
+//    }
+    public abstract MetadataValue getMetadataValueByUUID(UUID uuid, Context context);
+        
 //    public void update(MetadataValue value) throws AuthorizeException
 //    {
 //        log.info(LogManager.getHeader(context, "update_metadatavalue",

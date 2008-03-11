@@ -9,7 +9,7 @@ import javax.persistence.Query;
 import org.dspace.content.Bitstream;
 import org.dspace.core.Context;
 
-public class ReporterDAOJPA
+public class ReporterDAOJPA extends ReporterDAO
 {
 
     public List<MostRecentChecksum> findMRCBitstreamResultTypeReport(Date startDate, Date endDate, String resultCode, Context context) {

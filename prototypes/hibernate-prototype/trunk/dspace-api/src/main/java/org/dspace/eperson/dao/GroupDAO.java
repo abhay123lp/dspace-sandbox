@@ -56,6 +56,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
 /**
  * FIXME: We actually implement the Link interface for two other pairs of
  * classes as well, but we can't cleanly express this below.
@@ -84,6 +87,12 @@ public abstract class GroupDAO //extends StackableDAO<GroupDAO>
 //        epersonDAO = EPersonDAOFactory.getInstance(context);
 //        oidDAO = ObjectIdentifierDAOFactory.getInstance(context);
     }
+    
+    
+    public abstract Group findGroupByName(Context context, String name);
+    public abstract List<Group> findAllGroupsSortedById(Context context);
+    public abstract List<Group> findAllGroupsSortedByName(Context context);
+    public abstract Group getGroupByUUID(UUID uuid, Context context);
 
 //    public GroupDAO getChild()
 //    {
@@ -105,10 +114,10 @@ public abstract class GroupDAO //extends StackableDAO<GroupDAO>
 //        return childDAO.retrieve(id);
 //    }
 
-    public Group retrieve(UUID uuid)
-    {
-        return null;// childDAO.retrieve(uuid);
-    }
+//    public Group retrieve(UUID uuid)
+//    {
+//        return null;// childDAO.retrieve(uuid);
+//    }
 
 //    public Group retrieve(String name)
 //    {

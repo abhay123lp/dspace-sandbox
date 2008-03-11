@@ -76,11 +76,12 @@ public class CommunityDAOHibernate extends CommunityDAO {
 	    return itemCount;
     }
 	
-	@Override
-	//TODO implementare?
-	public Community retrieve(UUID uuid) {
-		Community community = null;
-		return community;
-	}
+    public Community getCommunityByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT c FROM Collection c WHERE c.uuid = :uuid");
+        q.setParameter("uuid", uuid);
+        Community community = (Community)q.getSingleResult();
+        return community;
+    }
 
 }

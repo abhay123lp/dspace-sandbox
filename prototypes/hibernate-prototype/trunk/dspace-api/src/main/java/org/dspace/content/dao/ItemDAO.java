@@ -57,6 +57,7 @@ import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Bitstream;
 import org.dspace.content.Bundle;
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DCValue;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
@@ -92,10 +93,10 @@ public abstract class ItemDAO extends ContentDAO
             String startDate, String endDate, int offset, int limit,
             boolean items, boolean collections, boolean withdrawn, EntityManager em)
             throws ParseException ;
-
+    public abstract Item getItemByUUID(UUID uuid, Context context);
     public abstract List<Item> findItemsBySubmitter(EPerson eperson, Context context);
 //    public abstract Item create() throws AuthorizeException;
-
+    public abstract List<Community> findCommunities(Item item, Context context);
     // FIXME: This should be called something else, but I can't think of
     // anything suitable. The reason this can't go in create() is because we
     // need access to the item that was created, but we can't reach into the

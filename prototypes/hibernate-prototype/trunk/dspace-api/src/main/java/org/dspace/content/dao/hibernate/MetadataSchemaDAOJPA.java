@@ -1,6 +1,7 @@
 package org.dspace.content.dao.hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -38,5 +39,12 @@ public class MetadataSchemaDAOJPA extends MetadataSchemaDAO
         return mds;
     }
 
+    public MetadataSchema getMetadataSchemaByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT ms FROM MetadataSchema ms WHERE ms.uuid = :uuid");
+        q.setParameter("uuid", "uuid");
+        MetadataSchema ms = (MetadataSchema)q.getSingleResult();
+        return ms;
+    }
     
 }

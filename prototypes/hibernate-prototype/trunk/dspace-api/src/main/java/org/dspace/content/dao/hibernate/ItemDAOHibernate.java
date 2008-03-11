@@ -7,11 +7,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.TimeZone;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.dspace.content.Collection;
+import org.dspace.content.Community;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.MetadataValue;
@@ -213,6 +215,23 @@ public class ItemDAOHibernate extends ItemDAO {
         // Use SimpleDateFormat
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy'-'MM'-'dd");
         return sdf.format(date);
+    }
+    
+    public List<Community> findCommunities(Item item, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT cm.community FROM CommunityMapping cm " +
+        		"WHERE cm.item = :item");
+        q.setParameter("item", item);
+        List<Community> communities = q.getResultList();
+        return communities;
+    }
+    
+    public Item getItemByUUID (UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT c FROM Community c WHERE c.uuid = :uuid");
+        q.setParameter("uuid", uuid);
+        Item item = (Item)q.getSingleResult();
+        return item;
     }
 	
 }

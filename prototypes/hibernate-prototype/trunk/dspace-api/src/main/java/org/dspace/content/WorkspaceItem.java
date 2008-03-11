@@ -41,6 +41,7 @@ package org.dspace.content;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.Column;
 import javax.persistence.DiscriminatorColumn;
@@ -96,6 +97,7 @@ public class WorkspaceItem implements InProgressSubmission //FIXME interfaccia m
     //private WorkspaceItemDAO dao;
 
     private ObjectIdentifier oid;
+    private UUID uuid;
     private boolean multipleFilesOwner; //hasMultipleFiles
     private boolean multipleTitlesOwner; //hasMultipleTitles
     private boolean publishedBefore;
@@ -346,5 +348,16 @@ public class WorkspaceItem implements InProgressSubmission //FIXME interfaccia m
     public void setOid(ObjectIdentifier oid)
     {
         this.oid = oid;
+    }
+
+    @Column(name="uuid")
+    public UUID getUuid()
+    {
+        return uuid;
+    }
+
+    protected void setUuid(UUID uuid)
+    {
+        this.uuid = uuid;
     }
 }

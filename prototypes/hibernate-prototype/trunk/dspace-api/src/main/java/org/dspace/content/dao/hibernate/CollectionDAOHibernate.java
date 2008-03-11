@@ -57,16 +57,19 @@ public class CollectionDAOHibernate extends CollectionDAO {
 	    return itemCount;
 	}
 	
-
-	public Collection retrieve(UUID uuid)
-    {
-        return null;
+    public Collection getCollectionByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT c FROM Collection c WHERE c.uuid = :uuid");
+        q.setParameter("uuid", uuid);
+        Collection collection = (Collection)q.getSingleResult();
+        return collection;
     }
+
 	
 	
-    public List<Collection> getCollectionsByAuthority(Community parent,
-            int actionID, EntityManager em)
-    {
+	
+    public List<Collection> findCollectionsByAuthority(Community parent, int actionID, Context context)    {
+        EntityManager em = context.getEntityManager();
         List<Collection> results = new ArrayList<Collection>();
         List<Collection> collections = null;
 
@@ -89,6 +92,16 @@ public class CollectionDAOHibernate extends CollectionDAO {
         }
 
         return results;
+    }
+    
+    public List<Collection> findNotLinkedCollection(Item item, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT c FROM Collection c, WHERE c NOT IN " +
+        		"(SELECT coll FROM Item i, IN (i.collections) AS coll WHERE " +
+        		"i = :item)");
+        q.setParameter("item", item);
+        List<Collection> cols = q.getResultList();
+        return cols;
     }
 	
 }

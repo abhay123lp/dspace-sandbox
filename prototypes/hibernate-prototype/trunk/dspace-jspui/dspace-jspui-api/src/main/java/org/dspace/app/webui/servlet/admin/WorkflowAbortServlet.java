@@ -50,6 +50,7 @@ import org.dspace.app.webui.servlet.DSpaceServlet;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.workflow.WorkflowItem;
 import org.dspace.workflow.WorkflowManager;
@@ -79,8 +80,8 @@ public class WorkflowAbortServlet extends DSpaceServlet
         if (button.equals("submit_abort"))
         {
             // bring up the confirm page
-            WorkflowItem wi = WorkflowItem.find(c, UIUtil.getIntParameter(
-                    request, "workflow_id"));
+            WorkflowItem wi = ApplicationService.get(c, WorkflowItem.class, UIUtil.getIntParameter(request, "workflow_id"));
+//            WorkflowItem wi = WorkflowItem.find(c, UIUtil.getIntParameter(request, "workflow_id"));
 
             request.setAttribute("workflow", wi);
             JSPManager.showJSP(request, response,
@@ -89,8 +90,8 @@ public class WorkflowAbortServlet extends DSpaceServlet
         else if (button.equals("submit_abort_confirm"))
         {
             // do the actual abort
-            WorkflowItem wi = WorkflowItem.find(c, UIUtil.getIntParameter(
-                    request, "workflow_id"));
+            WorkflowItem wi = ApplicationService.get(c, WorkflowItem.class, UIUtil.getIntParameter(request, "workflow_id"));
+//            WorkflowItem wi = WorkflowItem.find(c, UIUtil.getIntParameter(request, "workflow_id"));
 
             WorkflowManager.abort(c, wi, c.getCurrentUser());
 
@@ -111,7 +112,8 @@ public class WorkflowAbortServlet extends DSpaceServlet
             HttpServletResponse response)
         throws AuthorizeException, IOException, ServletException
     {
-        WorkflowItem[] w = WorkflowItem.findAll(c);
+        WorkflowItem[] w = (WorkflowItem[])ApplicationService.findAllWorkflowItem(c).toArray();
+//        WorkflowItem[] w = WorkflowItem.findAll(c);
 
         request.setAttribute("workflows", w);
         JSPManager.showJSP(request, response, "/dspace-admin/workflow-list.jsp");

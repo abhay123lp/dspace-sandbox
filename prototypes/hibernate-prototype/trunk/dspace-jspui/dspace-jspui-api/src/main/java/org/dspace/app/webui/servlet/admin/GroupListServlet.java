@@ -50,6 +50,7 @@ import org.dspace.app.webui.servlet.DSpaceServlet;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 
@@ -68,25 +69,34 @@ public class GroupListServlet extends DSpaceServlet
 		// Are we for selecting a single or multiple groups?
 		boolean multiple = UIUtil.getBoolParameter(request, "multiple");
 		
+		// What's the index of the first group to show?  Default is 0
+        int first = UIUtil.getIntParameter(request, "first");
+        if (first == -1) first = 0;
+		
 		// What are we sorting by?  Name is default
-		int sortBy = Group.NAME;
+//		int sortBy = Group.NAME;
+//		int sortBy = 1;
 		
 		String sbParam = request.getParameter("sortby");
-
+		Group[] groups;
 		if (sbParam != null && sbParam.equals("id"))
 		{
-			sortBy = Group.ID;
+//			sortBy = Group.ID;
+//		    sortBy = 0;
+		    groups = (Group[])ApplicationService.findAllGroupsSortedById(context).toArray();
+		    request.setAttribute("sortby", 0);
+		} else {
+		    groups = (Group[])ApplicationService.findAllGroupsSortedByName(context).toArray();
+		    request.setAttribute("sortby", 1);
 		}
 		
-		// What's the index of the first group to show?  Default is 0
-		int first = UIUtil.getIntParameter(request, "first");
-		if (first == -1) first = 0;
+		
 
 		// Retrieve the e-people in the specified order
-		Group[] groups = Group.findAll(context, sortBy);
+//		Group[] groups = Group.findAll(context, sortBy);
 		
 		// Set attributes for JSP
-		request.setAttribute("sortby", new Integer(sortBy));
+//		request.setAttribute("sortby", new Integer(sortBy));
 		request.setAttribute("first",  new Integer(first));
 		request.setAttribute("groups", groups);
 		if (multiple)

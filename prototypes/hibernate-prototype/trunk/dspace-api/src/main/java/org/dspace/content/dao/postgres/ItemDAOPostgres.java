@@ -163,22 +163,22 @@ public class ItemDAOPostgres //extends ItemDAO
 //            throw new RuntimeException(sqle);
 //        }
 //    }
-    //TODO UUID
-    public Item retrieve(UUID uuid)
-    {
-        try
-        {
-            TableRow row = DatabaseManager.findByUnique(context, "item",
-                    "uuid", uuid.toString());
-
-//            return retrieve(row);
-            return null;
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    //TODO UUID
+//    public Item retrieve(UUID uuid)
+//    {
+//        try
+//        {
+//            TableRow row = DatabaseManager.findByUnique(context, "item",
+//                    "uuid", uuid.toString());
+//
+////            return retrieve(row);
+//            return null;
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
 //    public void update(Item item) throws AuthorizeException
 //    {

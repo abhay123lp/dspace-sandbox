@@ -302,7 +302,8 @@ public class DSpaceObjectServlet extends DSpaceServlet
             preProcessCommunityHome(context, request, response, community);
 
             // is the user a COMMUNITY_EDITOR?
-            if (community.canEditBoolean())
+//            if (community.canEditBoolean())
+            if(AuthorizeManager.canEdit(community, context))
             {
                 // set a variable to create an edit button
                 request.setAttribute("editor_button", new Boolean(true));
@@ -416,7 +417,8 @@ public class DSpaceObjectServlet extends DSpaceServlet
                 subscribed = SubscriptionManager.isSubscribed(context, e, collection);
 
                 // is the user a COLLECTION_EDITOR?
-                if (collection.canEditBoolean())
+//                if (collection.canEditBoolean())
+                if(AuthorizeManager.canEdit(collection, context))
                 {
                     // set a variable to create an edit button
                     request.setAttribute("editor_button", new Boolean(true));

@@ -309,7 +309,7 @@ public class Group extends DSpaceObject
         return group;
     }
 
-    @Deprecated
+    @Deprecated //i group e i parent group
     public static EPerson[] allMembers(Context context, Group group)
     {
         EPersonDAO dao = EPersonDAOFactory.getInstance(context);

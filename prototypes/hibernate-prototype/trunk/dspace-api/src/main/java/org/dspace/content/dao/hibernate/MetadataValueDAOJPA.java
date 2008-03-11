@@ -1,6 +1,7 @@
 package org.dspace.content.dao.hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -59,4 +60,13 @@ public class MetadataValueDAOJPA extends MetadataValueDAO
         List<MetadataValue> values = q.getResultList();
         return values;        
     }
+    
+    public MetadataValue getMetadataValueByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT mv FROM MetadataValue mv WHERE mv.uuid = :uuid)");
+        q.setParameter("uuid", uuid);
+        MetadataValue mv = (MetadataValue)q.getSingleResult();
+        return mv;
+    }
+        
 }
