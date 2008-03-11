@@ -90,10 +90,10 @@ public abstract class MetadataSchemaDAO extends ContentDAO
 //        return (MetadataSchema) context.fromCache(MetadataSchema.class, id);
 //    }
 
-    public MetadataSchema retrieve(UUID uuid)
-    {
-        return null;
-    }
+//    public MetadataSchema retrieve(UUID uuid)
+//    {
+//        return null;
+//    }
 
     /**
      * Get the schema object corresponding to this short name (eg: dc).
@@ -102,7 +102,7 @@ public abstract class MetadataSchemaDAO extends ContentDAO
 //    {
 //        return null;
 //    }
-    
+    public abstract MetadataSchema getMetadataSchemaByUUID(UUID uuid, Context context);
     public abstract MetadataSchema findMetadataSchemaByName(String name, Context context);
     public abstract MetadataSchema findMetadataSchemaByNamespace(String namespace, Context context);
 

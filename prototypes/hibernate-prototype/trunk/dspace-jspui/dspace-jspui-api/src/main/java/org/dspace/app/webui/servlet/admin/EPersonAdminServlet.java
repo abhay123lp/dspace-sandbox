@@ -51,7 +51,9 @@ import org.dspace.app.webui.servlet.DSpaceServlet;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
+import org.dspace.eperson.AccountManager;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.EPersonDeletionException;
@@ -83,11 +85,13 @@ public class EPersonAdminServlet extends DSpaceServlet
         if (button.equals("submit_add"))
         {
             // add an EPerson, then jump user to edit page
-            EPerson e = EPerson.create(context);
+            EPerson e = AccountManager.createEPerson(context);
+//            EPerson e = EPerson.create(context);
 
             // create clever name and do update before continuing
-            e.setEmail("newuser" + e.getID());
-            e.update();
+            e.setEmail("newuser" + e.getId());
+//            e.update();
+            ApplicationService.save(context, EPerson.class, e);
 
             request.setAttribute("eperson", e);
 
@@ -99,8 +103,9 @@ public class EPersonAdminServlet extends DSpaceServlet
         else if (button.equals("submit_edit"))
         {
             // edit an eperson
-            EPerson e = EPerson.find(context, UIUtil.getIntParameter(request,
-                    "eperson_id"));
+//            EPerson e = EPerson.find(context, UIUtil.getIntParameter(request,"eperson_id"));
+            EPerson e = ApplicationService
+            .get(context, EPerson.class, UIUtil.getIntParameter(request,"eperson_id"));
             
             // Check the EPerson exists
             if (e == null)
@@ -111,7 +116,8 @@ public class EPersonAdminServlet extends DSpaceServlet
             else 
             {            
 	            // what groups is this person a member of?
-	            Group[] groupMemberships = Group.allMemberGroups(context, e);
+//	            Group[] groupMemberships = Group.allMemberGroups(context, e);
+                Group[] groupMemberships = (Group[])ApplicationService.findAllGroups(e, context).toArray();
 	
 	            request.setAttribute("eperson", e);
 	            request.setAttribute("group.memberships", groupMemberships);
@@ -125,8 +131,8 @@ public class EPersonAdminServlet extends DSpaceServlet
         else if (button.equals("submit_save"))
         {
             // Update the metadata for an e-person
-            EPerson e = EPerson.find(context, UIUtil.getIntParameter(request,
-                    "eperson_id"));
+            EPerson e = ApplicationService.get(context, EPerson.class, UIUtil.getIntParameter(request,"eperson_id"));
+//            EPerson e = EPerson.find(context, UIUtil.getIntParameter(request,"eperson_id"));
 
             // see if the user changed the email - if so, make sure
             // the new email is unique
@@ -137,7 +143,8 @@ public class EPersonAdminServlet extends DSpaceServlet
             if (!newEmail.equals(oldEmail))
             {
                 // change to email, now see if it's unique
-                if (EPerson.findByEmail(context, newEmail) == null)
+//                if (EPerson.findByEmail(context, newEmail) == null)
+                if(ApplicationService.findEPersonByEmail(context, newEmail)==null)
                 {
                     // it's unique - proceed!
                     e.setEmail(newEmail);
@@ -177,7 +184,7 @@ public class EPersonAdminServlet extends DSpaceServlet
                             && request.getParameter("require_certificate")
                                     .equals("true"));
 
-                    e.update();
+//                    e.update(); //NO NEED
 
                     showMain(context, request, response);
                     context.complete();
@@ -231,7 +238,7 @@ public class EPersonAdminServlet extends DSpaceServlet
                         && request.getParameter("require_certificate").equals(
                                 "true"));
 
-                e.update();
+//                e.update(); //NO NEED
 
                 showMain(context, request, response);
                 context.complete();
@@ -240,8 +247,8 @@ public class EPersonAdminServlet extends DSpaceServlet
         else if (button.equals("submit_delete"))
         {
             // Start delete process - go through verification step
-            EPerson e = EPerson.find(context, UIUtil.getIntParameter(request,
-                    "eperson_id"));
+            EPerson e = ApplicationService.get(context, EPerson.class, UIUtil.getIntParameter(request,"eperson_id"));
+//            EPerson e = EPerson.find(context, UIUtil.getIntParameter(request,"eperson_id"));
             
             // Check the EPerson exists
             if (e == null)
@@ -260,20 +267,21 @@ public class EPersonAdminServlet extends DSpaceServlet
         else if (button.equals("submit_confirm_delete"))
         {
             // User confirms deletion of type
-            EPerson e = EPerson.find(context, UIUtil.getIntParameter(request,
-                    "eperson_id"));
+            EPerson e = ApplicationService.get(context, EPerson.class, UIUtil.getIntParameter(request,"eperson_id"));
+//            EPerson e = EPerson.find(context, UIUtil.getIntParameter(request,"eperson_id"));
 
-            try
-            {
-                e.delete();
-            }
-            catch (EPersonDeletionException ex)
-            {
-                request.setAttribute("eperson", e);
-                request.setAttribute("tableList", ex.getTables());
-                JSPManager.showJSP(request, response,
-                        "/dspace-admin/eperson-deletion-error.jsp");
-            }
+//            try
+//            {
+//                e.delete();
+                AccountManager.deleteEPerson(e, context);
+//            }
+//            catch (EPersonDeletionException ex)
+//            {
+//                request.setAttribute("eperson", e);
+//                request.setAttribute("tableList", ex.getTables());
+//                JSPManager.showJSP(request, response,
+//                        "/dspace-admin/eperson-deletion-error.jsp");
+//            }
 
             showMain(context, request, response);
             context.complete();

@@ -97,7 +97,8 @@ public abstract class EPersonDAO //extends StackableDAO<EPersonDAO>
 //        return childDAO.retrieve(id);
 //    }
 
-    public abstract EPerson retrieve(UUID uuid);
+//    public abstract EPerson retrieve(UUID uuid);
+    public abstract EPerson getEPersonByUUID(UUID uuid, Context context);
     
         
     

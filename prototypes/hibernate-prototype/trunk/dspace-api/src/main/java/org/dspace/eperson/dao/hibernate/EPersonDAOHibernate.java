@@ -91,8 +91,11 @@ public class EPersonDAOHibernate extends EPersonDAO
         return epeople;
     }
     
-    //TODO implementare
-    public EPerson retrieve(UUID uuid) {
-        return null;
+    public EPerson getEPersonByUUID(UUID uuid, Context context) {
+        EntityManager em= context.getEntityManager();
+        Query q = em.createQuery("SELECT ep FROM EPerson ep WHERE ep.uuid = :uuid");
+        q.setParameter("uuid", uuid);
+        EPerson ep = (EPerson)q.getSingleResult();
+        return ep;
     }
 }

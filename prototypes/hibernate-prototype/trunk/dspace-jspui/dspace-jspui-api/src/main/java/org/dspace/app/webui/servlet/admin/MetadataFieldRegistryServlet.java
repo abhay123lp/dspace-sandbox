@@ -358,16 +358,19 @@ public class MetadataFieldRegistryServlet extends DSpaceServlet
             AuthorizeException
     {
         // Find matching metadata fields
-        MetadataField[] types = MetadataField
-                .findAllInSchema(context, schemaID);
+//        MetadataField[] types = MetadataField.findAllInSchema(context, schemaID);
+        MetadataSchema myschema = ApplicationService.get(context, MetadataSchema.class, schemaID);
+        MetadataField[] types = (MetadataField[])ApplicationService.findMetadataFields(myschema, context).toArray();
         request.setAttribute("types", types);
 
         // Pull the metadata schema object as well
-        MetadataSchema schema = MetadataSchema.find(context, schemaID);
+        MetadataSchema schema = ApplicationService.get(context, MetadataSchema.class, schemaID);
+//        MetadataSchema schema = MetadataSchema.find(context, schemaID);
         request.setAttribute("schema", schema);
 
         // Pull all metadata schemas for the pulldown
-        MetadataSchema[] schemas = MetadataSchema.findAll(context);
+//        MetadataSchema[] schemas = MetadataSchema.findAll(context);
+        MetadataSchema[] schemas = (MetadataSchema[])ApplicationService.findAllMetadataSchema(context).toArray();
         request.setAttribute("schemas", schemas);
 
         JSPManager

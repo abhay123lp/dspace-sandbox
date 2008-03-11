@@ -58,7 +58,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.log4j.Logger;
 import org.dspace.core.Context;
 import org.dspace.uri.ExternalIdentifier;
+import org.dspace.uri.Identifiable;
 import org.dspace.uri.ObjectIdentifier;
+import org.dspace.uri.SimpleIdentifier;
+import org.dspace.uri.UnsupportedIdentifierException;
 
 /**
  * Abstract base class for DSpace objects
@@ -67,7 +70,7 @@ import org.dspace.uri.ObjectIdentifier;
 @Entity 
 @Inheritance(strategy=InheritanceType.JOINED)
 
-public abstract class DSpaceObject
+public abstract class DSpaceObject implements Identifiable
 {
     private static Logger log = Logger.getLogger(DSpaceObject.class);
     
@@ -80,6 +83,7 @@ public abstract class DSpaceObject
     protected UUID uuid;
     protected ObjectIdentifier oid;
     protected List<ExternalIdentifier> externalIdentifiers;
+    protected SimpleIdentifier sid;
     
     /**
      * Reset the cache of event details.
@@ -211,12 +215,12 @@ public abstract class DSpaceObject
         return ToStringBuilder.reflectionToString(this,
                 ToStringStyle.MULTI_LINE_STYLE);
     }
-/*
-    public boolean equals(Object o)
-    {
-        return EqualsBuilder.reflectionEquals(this, o);
-    }
-*/
+
+//    public boolean equals(Object o)
+//    {
+//        return EqualsBuilder.reflectionEquals(this, o);
+//    }
+
     public boolean equals(DSpaceObject other)
     {
         if (this.getType() == other.getType())
@@ -229,12 +233,12 @@ public abstract class DSpaceObject
 
         return false;
     }
-/*
-    public int hashCode()
-    {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
-*/
+
+//    public int hashCode()
+//    {
+//        return HashCodeBuilder.reflectionHashCode(this);
+//    }
+
 	public void setId(int id) {
 		this.id = id;
 	}
@@ -248,5 +252,23 @@ public abstract class DSpaceObject
     public void setUuid(UUID uuid)
     {
         this.uuid = uuid;
+    }
+    
+    @Transient
+    public SimpleIdentifier getSimpleIdentifier()
+    {
+        return oid;
+    }
+    
+    public void setSimpleIdentifier(SimpleIdentifier sid) throws UnsupportedIdentifierException
+    {
+        if (sid instanceof ObjectIdentifier)
+        {
+            this.setIdentifier((ObjectIdentifier) sid);
+        }
+        else
+        {
+            throw new UnsupportedIdentifierException("DSpaceObjects must use ObjectIdentifiers, not SimpleIdentifiers");
+        }
     }
 }

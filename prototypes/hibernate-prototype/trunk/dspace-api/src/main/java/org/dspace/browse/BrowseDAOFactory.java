@@ -85,21 +85,23 @@ public class BrowseDAOFactory
 	 * @throws BrowseException
 	 */
 	public static BrowseCreateDAO getCreateInstance(Context context)
-		throws BrowseException
+//		throws BrowseException
 	{
-		String db = ConfigurationManager.getProperty("db.name");
-		if ("postgres".equals(db))
-		{
-			return new BrowseCreateDAOPostgres(context);
-		}
-		else if ("oracle".equals(db))
-		{
-            return new BrowseCreateDAOOracle(context);
-		}
-		else
-		{
-			throw new BrowseException("The configuration for db.name is either invalid, or contains an unrecognised database");
-		}
+	    return new BrowseCreateDAOJPA();
+//		String db = ConfigurationManager.getProperty("db.name");
+//		if ("postgres".equals(db))
+//		{
+//			return new BrowseCreateDAOPostgres(context);
+//		    return new BrowseCreateDAOJPA();
+//		}
+//		else if ("oracle".equals(db))
+//		{
+//            return new BrowseCreateDAOOracle(context);
+//		}
+//		else
+//		{
+//			throw new BrowseException("The configuration for db.name is either invalid, or contains an unrecognised database");
+//		}
 	}
 
     /**

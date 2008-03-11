@@ -14,11 +14,12 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 
-public class WorkspaceItemDAOJPA //extends WorkspaceItemDAO
+public class WorkspaceItemDAOJPA extends WorkspaceItemDAO
 {
-//    public WorkspaceItemDAOJPA(Context context) {
-//        super(context);
-//    }
+    public WorkspaceItemDAOJPA(Context context) {
+        super(context);
+    }
+    
     public WorkspaceItemLink findWorkspaceItemLink(Group group, InProgressSubmission ips, Context context) {
         EntityManager em = context.getEntityManager();
         Query q = em.createQuery("SELECT wil FROM WorkspaceItemLink wil " +
@@ -50,7 +51,7 @@ public class WorkspaceItemDAOJPA //extends WorkspaceItemDAO
         return wis;
     }
     
-    public static List<WorkspaceItem> findWorkspaceItems(Collection collection,Context context){
+    public List<WorkspaceItem> findWorkspaceItems(Collection collection,Context context){
         EntityManager em = context.getEntityManager();
         Query q = em.createQuery("SELECT wi FROM WorkspaceItem wi WHERE wi.collection = :collection");
         q.setParameter("collection", collection);
@@ -58,7 +59,7 @@ public class WorkspaceItemDAOJPA //extends WorkspaceItemDAO
         return wis;
     }
     
-    public static List<WorkspaceItem> findWorkspaceItems(EPerson eperson,Context context){
+    public List<WorkspaceItem> findWorkspaceItems(EPerson eperson,Context context){
         EntityManager em = context.getEntityManager();
         Query q = em.createQuery("SELECT wi FROM WorkspaceItem wi, IN (wi.item) AS i " +
         		"WHERE i.submitter = :eperson");

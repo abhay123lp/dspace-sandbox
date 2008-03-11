@@ -57,6 +57,7 @@ import org.dspace.content.MetadataSchema;
 import org.dspace.content.dao.MetadataSchemaDAO;
 import org.dspace.content.dao.MetadataSchemaDAOFactory;
 import org.dspace.content.factory.MetadataSchemaFactory;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 
 /**
@@ -105,10 +106,12 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
             MetadataSchema schema = null;
             if (id.equals(""))
             {
-                schema = dao.retrieveByName(name);
+//                schema = dao.retrieveByName(name);
+                schema = ApplicationService.findMetadataSchemaByName(name, context);
                 if (schema == null)
                 {
-                    schema = dao.retrieveByNamespace(namespace);
+//                    schema = dao.retrieveByNamespace(namespace);
+                    schema = ApplicationService.findMetadataSchemaByNamespace(namespace, context);
                 }
                 if (schema != null)
                 {
@@ -122,16 +125,17 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
                 schema = MetadataSchemaFactory.getInstance(context);
                 schema.setName(name);
                 schema.setNamespace(namespace);
-                dao.update(schema);
+//                dao.update(schema); //NO NEED
                 showSchemas(context, request, response);
                 context.complete();
             }
             else
             {
-                schema = dao.retrieve(Integer.parseInt(id));
+                schema = ApplicationService.get(context, MetadataSchema.class, Integer.parseInt(id));
+//                schema = dao.retrieve(Integer.parseInt(id));
                 schema.setName(name);
                 schema.setNamespace(namespace);
-                dao.update(schema);
+//                dao.update(schema); //NO NEED
                 showSchemas(context, request, response);
                 context.complete();
             }
@@ -139,8 +143,8 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
         else if (button.equals("submit_delete"))
         {
             // Start delete process - go through verification step
-            MetadataSchema schema =
-                dao.retrieve(UIUtil.getIntParameter(request, "dc_schema_id"));
+            MetadataSchema schema = ApplicationService.get(context, MetadataSchema.class, UIUtil.getIntParameter(request, "dc_schema_id"));
+//            MetadataSchema schema = dao.retrieve(UIUtil.getIntParameter(request, "dc_schema_id"));
             request.setAttribute("schema", schema);
             JSPManager.showJSP(request, response,
                     "/dspace-admin/confirm-delete-mdschema.jsp");
@@ -148,7 +152,9 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
         else if (button.equals("submit_confirm_delete"))
         {
             // User confirms deletion of type
-            dao.delete(UIUtil.getIntParameter(request, "dc_schema_id"));
+            MetadataSchema schema = ApplicationService.get(context, MetadataSchema.class, UIUtil.getIntParameter(request, "dc_schema_id"));
+            ApplicationService.delete(context, MetadataSchema.class, schema);
+//            dao.delete(UIUtil.getIntParameter(request, "dc_schema_id"));
             showSchemas(context, request, response);
             context.complete();
         }
@@ -173,7 +179,6 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
         ResourceBundle labels =
             ResourceBundle.getBundle("Messages", locale);
         
-        // TODO: add more namespace checks
         String namespace = request.getParameter("namespace");
         if (namespace.length() == 0)
         {
@@ -231,7 +236,8 @@ public class MetadataSchemaRegistryServlet extends DSpaceServlet
     private void showSchemas(Context context, HttpServletRequest request,
             HttpServletResponse response) throws ServletException, IOException
     {
-        MetadataSchema[] schemas = MetadataSchema.findAll(context);
+//        MetadataSchema[] schemas = MetadataSchema.findAll(context);
+        MetadataSchema[] schemas = (MetadataSchema[])ApplicationService.findAllMetadataSchema(context).toArray();
         request.setAttribute("schemas", schemas);
         log.info("Showing Schemas");
         JSPManager.showJSP(request, response,

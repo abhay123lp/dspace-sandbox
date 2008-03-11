@@ -1,6 +1,7 @@
 package org.dspace.eperson.dao.hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -9,8 +10,9 @@ import org.dspace.content.Collection;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Subscription;
+import org.dspace.eperson.dao.SubscriptionDAO;
 
-public class SubscriptionDAOJPA
+public class SubscriptionDAOJPA extends SubscriptionDAO
 {
     public Subscription findEPersonSubscriptionInCollection(EPerson eperson, Collection collection, Context context) {
         EntityManager em = context.getEntityManager();
@@ -41,5 +43,13 @@ public class SubscriptionDAOJPA
         Query q = em.createQuery("DELETE FROM Subscription s WHERE s.eperson = :eperson");
         q.setParameter("eperson", eperson);
         q.executeUpdate();
+    }
+    
+    public Subscription getSubscriptionByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT s FROM Subscription s WHERE s.uuid = :uuid");
+        q.setParameter("uuid", uuid);
+        Subscription s = (Subscription)q.getSingleResult();
+        return s;
     }
 }

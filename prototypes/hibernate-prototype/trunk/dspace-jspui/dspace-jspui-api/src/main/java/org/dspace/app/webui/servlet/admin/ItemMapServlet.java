@@ -39,13 +39,28 @@
  */
 package org.dspace.app.webui.servlet.admin;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 import org.dspace.app.webui.servlet.DSpaceServlet;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.authorize.AuthorizeManager;
-import org.dspace.browse.*;
+import org.dspace.browse.BrowseEngine;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.BrowseIndex;
+import org.dspace.browse.BrowseInfo;
+import org.dspace.browse.BrowserScope;
+import org.dspace.browse.IndexBrowse;
 import org.dspace.content.Collection;
 import org.dspace.content.Item;
 import org.dspace.content.ItemIterator;
@@ -53,18 +68,12 @@ import org.dspace.content.dao.CollectionDAO;
 import org.dspace.content.dao.CollectionDAOFactory;
 import org.dspace.content.dao.ItemDAO;
 import org.dspace.content.dao.ItemDAOFactory;
+import org.dspace.core.ApplicationService;
+import org.dspace.core.ArchiveManager;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.sort.SortOption;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
 
 /**
  * Servlet for editing and deleting (expunging) items
@@ -99,7 +108,8 @@ public class ItemMapServlet extends DSpaceServlet
     	int myID = UIUtil.getIntParameter(request, "cid");
     	
     	// get collection
-    	Collection myCollection = collectionDAO.retrieve(myID);
+    	Collection myCollection = ApplicationService.get(context, Collection.class, myID);
+//    	Collection myCollection = collectionDAO.retrieve(myID);
     	
     	// authorize check
     	AuthorizeManager.authorizeAction(context, myCollection,
@@ -133,17 +143,19 @@ public class ItemMapServlet extends DSpaceServlet
     		Map myCounts = new HashMap(); // counts for each collection
     		
     		// get all items from that collection, add them to a hash
-    		ItemIterator i = myCollection.getItems();
+    		List<Item> items = myCollection.getItems();
+//    		ItemIterator i = myCollection.getItems();
     		
     		// iterate through the items in this collection, and count how many
     		// are native, and how many are imports, and which collections they
     		// came from
-    		while (i.hasNext())
+//    		while (i.hasNext())
+    		for(Item myItem : items)
     		{
-    			Item myItem = i.next();
+//    			Item myItem = i.next();
     			
     			// get key for hash
-    			Integer myKey = new Integer(myItem.getID());
+    			Integer myKey = new Integer(myItem.getId());
     			
     			if (myItem.isOwningCollection(myCollection))
     			{
@@ -189,9 +201,7 @@ public class ItemMapServlet extends DSpaceServlet
     		request.setAttribute("items", myItems);
     		request.setAttribute("collections", myCollections);
     		request.setAttribute("collection_counts", myCounts);
-    		request
-    		.setAttribute("all_collections", Collection
-    				.findAll(context));
+    		request.setAttribute("all_collections", (Collection[])ApplicationService.findAllCollections(context).toArray());
     		
     		// show this page when we're done
     		jspPage = "itemmap-main.jsp";
@@ -211,12 +221,14 @@ public class ItemMapServlet extends DSpaceServlet
     			int i = Integer.parseInt(itemIDs[j]);
     			removedItems.add(itemIDs[j]);
     			
-    			Item myItem = itemDAO.retrieve(i);
+    			Item myItem = ApplicationService.get(context, Item.class, i);
+//    			Item myItem = itemDAO.retrieve(i);
     			
     			// make sure item doesn't belong to this collection
     			if (!myItem.isOwningCollection(myCollection))
     			{
-    				myCollection.removeItem(myItem);
+    			    ArchiveManager.removeItem(myCollection, myItem, context);
+//    				myCollection.removeItem(myItem);
     				try
     				{
     					IndexBrowse ib = new IndexBrowse(context);
@@ -258,7 +270,8 @@ public class ItemMapServlet extends DSpaceServlet
     			{
     				int i = Integer.parseInt(itemIDs[j]);
     				
-    				Item myItem = itemDAO.retrieve(i);
+    				Item myItem = ApplicationService.get(context, Item.class, i);
+//    				Item myItem = itemDAO.retrieve(i);
     				
     				if (AuthorizeManager.authorizeActionBoolean(context,
     						myItem, Constants.READ))
@@ -266,7 +279,8 @@ public class ItemMapServlet extends DSpaceServlet
     					// make sure item doesn't belong to this collection
     					if (!myItem.isOwningCollection(myCollection))
     					{
-    						myCollection.addItem(myItem);
+    					    ArchiveManager.addItem(myCollection, myItem);
+//    						myCollection.addItem(myItem);
     						try
     	    				{
     	    					IndexBrowse ib = new IndexBrowse(context);
@@ -322,11 +336,14 @@ public class ItemMapServlet extends DSpaceServlet
     			
     			// FIXME: oh god this is so annoying - what an API /Richard
     			// we need to deduplicate against existing items in this collection
-    			ItemIterator itr = myCollection.getItems();
-    			ArrayList idslist = new ArrayList();
-    			while (itr.hasNext())
+    			List<Item> myCollectionItems = myCollection.getItems();
+//    			ItemIterator itr = myCollection.getItems();
+    			ArrayList<Integer> idslist = new ArrayList<Integer>();
+//    			while (itr.hasNext())
+    			for(Item it : myCollectionItems)
     			{
-    				idslist.add(new Integer(itr.nextID()));
+    			    idslist.add(new Integer(it.getId()));
+//    				idslist.add(new Integer(itr.nextID()));
     			}
     			
     			for (int i = 0; i < browseItems.length; i++)
@@ -362,16 +379,19 @@ public class ItemMapServlet extends DSpaceServlet
     		// target collection to browse
     		int t = UIUtil.getIntParameter(request, "t");
     		
-    		Collection targetCollection = collectionDAO.retrieve(t);
+    		Collection targetCollection = ApplicationService.get(context, Collection.class, t);
+//    		Collection targetCollection = collectionDAO.retrieve(t);
     		
     		// now find all imported items from that collection
     		// seemingly inefficient, but database should have this query cached
-    		ItemIterator i = myCollection.getItems();
+    		List<Item> myCollectionItems = myCollection.getItems();
+//    		ItemIterator i = myCollection.getItems();
     		Map items = new HashMap();
     		
-    		while (i.hasNext())
+//    		while (i.hasNext())
+    		for(Item myItem : myCollectionItems)
     		{
-    			Item myItem = i.next();
+//    			Item myItem = i.next();
     			
     			if (myItem.isOwningCollection(targetCollection))
     			{

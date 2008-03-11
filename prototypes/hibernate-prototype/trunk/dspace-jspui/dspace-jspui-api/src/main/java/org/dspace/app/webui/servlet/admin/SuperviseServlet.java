@@ -53,6 +53,7 @@ import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.SupervisedItem;
 import org.dspace.content.WorkspaceItem;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.core.LogManager;
 import org.dspace.eperson.Group;
@@ -143,8 +144,10 @@ public class SuperviseServlet extends org.dspace.app.webui.servlet.DSpaceServlet
         int groupID = UIUtil.getIntParameter(request,"gID");
         
         // get the workspace item and the group from the request values
-        WorkspaceItem wsItem = WorkspaceItem.find(context, wsItemID);
-        Group group = Group.find(context, groupID);
+        WorkspaceItem wsItem = ApplicationService.get(context, WorkspaceItem.class, wsItemID);
+//        WorkspaceItem wsItem = WorkspaceItem.find(context, wsItemID);
+        Group group = ApplicationService.get(context, Group.class, groupID);
+//        Group group = Group.find(context, groupID);
         
         // set the attributes for the JSP
         request.setAttribute("wsItem",wsItem);
@@ -166,10 +169,12 @@ public class SuperviseServlet extends org.dspace.app.webui.servlet.DSpaceServlet
         throws ServletException, IOException, SQLException, AuthorizeException
     {
         // get all the groups
-        Group[] groups = Group.findAll(context,1);
+        Group[] groups = (Group[])ApplicationService.findAllGroupsSortedByName(context).toArray();
+//        Group[] groups = Group.findAll(context,1);
         
         // get all the workspace items
-        WorkspaceItem[] wsItems = WorkspaceItem.findAll(context);
+        WorkspaceItem[] wsItems =  (WorkspaceItem[])ApplicationService.findAllWorkspaceItems(context).toArray();
+//        WorkspaceItem[] wsItems = WorkspaceItem.findAll(context);
         
         // set the attributes for the JSP
         request.setAttribute("groups",groups);
@@ -205,7 +210,8 @@ public class SuperviseServlet extends org.dspace.app.webui.servlet.DSpaceServlet
         throws ServletException, IOException, SQLException, AuthorizeException
     {
         // get all the supervised items
-        SupervisedItem[] si = SupervisedItem.getAll(context);
+        SupervisedItem[] si = (SupervisedItem[])ApplicationService.findSupervisedItems(context).toArray();
+//        SupervisedItem[] si = SupervisedItem.getAll(context);
         
         // set the attributes for the JSP
         request.setAttribute("supervised",si);

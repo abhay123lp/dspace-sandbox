@@ -104,10 +104,12 @@ public abstract class MetadataFieldDAO extends ContentDAO
 //        return (MetadataField) context.fromCache(MetadataField.class, id);
 //    }
 
-    public MetadataField retrieve(UUID uuid)
-    {
-        return null;
-    }
+//    public MetadataField retrieve(UUID uuid)
+//    {
+//        return null;
+//    }
+    public abstract MetadataField getMetadataFieldByUUID (UUID uuid, Context context);
+
 
     /**
      * Retrieves the metadata field from the database.

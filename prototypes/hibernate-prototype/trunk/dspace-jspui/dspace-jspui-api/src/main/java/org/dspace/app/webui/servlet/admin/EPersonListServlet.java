@@ -50,6 +50,7 @@ import org.dspace.app.webui.servlet.DSpaceServlet;
 import org.dspace.app.webui.util.JSPManager;
 import org.dspace.app.webui.util.UIUtil;
 import org.dspace.authorize.AuthorizeException;
+import org.dspace.core.ApplicationService;
 import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 
@@ -114,13 +115,15 @@ public class EPersonListServlet extends DSpaceServlet
         String search = request.getParameter("search");
         if (search != null && !search.equals(""))
         {
-            epeople = EPerson.search(context, search);
+//            epeople = EPerson.search(context, search);
+            epeople = (EPerson[])ApplicationService.findEPeople(search, -1, -1, context).toArray();
             request.setAttribute("offset", new Integer(offset));
         }
         else
         {
             // Retrieve the e-people in the specified order
-            epeople = EPerson.findAll(context, sortBy);
+            epeople = (EPerson[])ApplicationService.findAllEPeopleSorted(sortBy, context).toArray();
+//            epeople = EPerson.findAll(context, sortBy);
             request.setAttribute("offset", new Integer(0));            
         }        
         

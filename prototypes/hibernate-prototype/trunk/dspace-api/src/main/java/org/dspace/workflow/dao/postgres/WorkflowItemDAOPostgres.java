@@ -68,15 +68,15 @@ import org.dspace.workflow.dao.WorkflowItemDAO;
 /**
  * @author James Rutherford
  */
-public class WorkflowItemDAOPostgres extends WorkflowItemDAO
+public class WorkflowItemDAOPostgres //extends WorkflowItemDAO
 {
-    public WorkflowItemDAOPostgres(Context context)
-    {
-        this.context = context;
+//    public WorkflowItemDAOPostgres(Context context)
+//    {
+//        this.context = context;
 
 //        itemDAO = ItemDAOFactory.getInstance(context);
 //        wsiDAO = WorkspaceItemDAOFactory.getInstance(context);
-    }
+//    }
 
 //    @Override
 //    public WorkflowItem create() throws AuthorizeException

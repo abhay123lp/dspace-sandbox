@@ -62,12 +62,12 @@ import java.util.UUID;
 /**
  * @author James Rutherford
  */
-public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
+public class ResourcePolicyDAOPostgres //extends ResourcePolicyDAO
 {
-    public ResourcePolicyDAOPostgres(Context context)
-    {
-        this.context = context;
-    }
+//    public ResourcePolicyDAOPostgres(Context context)
+//    {
+//        this.context = context;
+//    }
 
 //    @Override  FACTORY
 //    public ResourcePolicy create()
@@ -114,28 +114,28 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
 //        }
 //    }
 
-    @Override
-    public ResourcePolicy retrieve(UUID uuid)
-    {
-        ResourcePolicy rp = super.retrieve(uuid);
-
-        if (rp != null)
-        {
-            return rp;
-        }
-
-        try
-        {
-            TableRow row = DatabaseManager.findByUnique(context,
-                    "resourcepolicy", "uuid", uuid.toString());
-
-            return retrieve(row);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override
+//    public ResourcePolicy retrieve(UUID uuid)
+//    {
+//        ResourcePolicy rp = super.retrieve(uuid);
+//
+//        if (rp != null)
+//        {
+//            return rp;
+//        }
+//
+//        try
+//        {
+//            TableRow row = DatabaseManager.findByUnique(context,
+//                    "resourcepolicy", "uuid", uuid.toString());
+//
+//            return retrieve(row);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
 //    @Override
 //    public void update(ResourcePolicy rp)
@@ -259,20 +259,20 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
     // Utility methods
     ////////////////////////////////////////////////////////////////////
 
-    private ResourcePolicy retrieve(TableRow row)
-    {
-        if (row == null)
-        {
-            return null;
-        }
-
-        int id = row.getIntColumn("policy_id");
-//        ResourcePolicy rp = new ResourcePolicy(context, id);
-//        populateResourcePolicyFromTableRow(rp, row);
-        ResourcePolicy rp = ApplicationService.get(context, ResourcePolicy.class, id);
-
-        return rp;
-    }
+//    private ResourcePolicy retrieve(TableRow row)
+//    {
+//        if (row == null)
+//        {
+//            return null;
+//        }
+//
+//        int id = row.getIntColumn("policy_id");
+////        ResourcePolicy rp = new ResourcePolicy(context, id);
+////        populateResourcePolicyFromTableRow(rp, row);
+//        ResourcePolicy rp = ApplicationService.get(context, ResourcePolicy.class, id);
+//
+//        return rp;
+//    }
 
 //    private List<ResourcePolicy> returnAsList(TableRowIterator tri)
 //            throws SQLException
@@ -288,95 +288,95 @@ public class ResourcePolicyDAOPostgres extends ResourcePolicyDAO
 //        return policies;
 //    }
 
-    private void populateResourcePolicyFromTableRow(ResourcePolicy rp,
-            TableRow row)
-    {
-        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
-        int resourceID = row.getIntColumn("resource_id");
-        int resourceTypeID = row.getIntColumn("resource_type_id");
-        int actionID = row.getIntColumn("action_id");
-        int epersonID = row.getIntColumn("eperson_id");
-        int groupID = row.getIntColumn("epersongroup_id");
-        Date startDate = row.getDateColumn("start_date");
-        Date endDate = row.getDateColumn("end_date");
-
-        rp.setSimpleIdentifier(new SimpleIdentifier(uuid));
-//        rp.setResourceID(resourceID); per far compilare
-        rp.setResourceType(resourceTypeID);
-        rp.setAction(actionID);
-        rp.setEPersonID(epersonID);
-        rp.setGroupID(groupID);
-        rp.setStartDate(startDate);
-        rp.setEndDate(endDate);
-    }
-
-    private void populateTableRowFromResourcePolicy(ResourcePolicy rp,
-            TableRow row)
-    {
-        int resourceID = 0;//rp.getResourceID(); per far compilare
-        int resourceTypeID = rp.getResourceType();
-        int actionID = rp.getAction();
-        int epersonID = rp.getEPersonID();
-        int groupID = rp.getGroupID();
-        Date startDate = rp.getStartDate();
-        Date endDate = rp.getEndDate();
-
-        // FIXME This would be much cleaner with a ResourcePolicyMetadata enum
-        if (resourceID > 0)
-        {
-            row.setColumn("resource_id", resourceID);
-        }
-        else
-        {
-            row.setColumnNull("resource_id");
-        }
-        if (resourceTypeID >= 0)
-        {
-            row.setColumn("resource_type_id", resourceTypeID);
-        }
-        else
-        {
-            row.setColumnNull("resource_type_id");
-        }
-        if (actionID >= 0)
-        {
-            row.setColumn("action_id", actionID);
-        }
-        else
-        {
-            row.setColumnNull("action_id");
-        }
-        if (epersonID > 0)
-        {
-            row.setColumn("eperson_id", epersonID);
-        }
-        else
-        {
-            row.setColumnNull("eperson_id");
-        }
-        if (groupID >= 0)
-        {
-            row.setColumn("epersongroup_id", groupID);
-        }
-        else
-        {
-            row.setColumnNull("epersongroup_id");
-        }
-        if (startDate != null)
-        {
-            row.setColumn("start_date", startDate);
-        }
-        else
-        {
-            row.setColumnNull("start_date");
-        }
-        if (endDate != null)
-        {
-            row.setColumn("end_date", endDate);
-        }
-        else
-        {
-            row.setColumnNull("end_date");
-        }
-    }
+//    private void populateResourcePolicyFromTableRow(ResourcePolicy rp,
+//            TableRow row)
+//    {
+//        UUID uuid = UUID.fromString(row.getStringColumn("uuid"));
+//        int resourceID = row.getIntColumn("resource_id");
+//        int resourceTypeID = row.getIntColumn("resource_type_id");
+//        int actionID = row.getIntColumn("action_id");
+//        int epersonID = row.getIntColumn("eperson_id");
+//        int groupID = row.getIntColumn("epersongroup_id");
+//        Date startDate = row.getDateColumn("start_date");
+//        Date endDate = row.getDateColumn("end_date");
+//
+//        rp.setSimpleIdentifier(new SimpleIdentifier(uuid));
+////        rp.setResourceID(resourceID); per far compilare
+//        rp.setResourceType(resourceTypeID);
+//        rp.setAction(actionID);
+//        rp.setEPersonID(epersonID);
+//        rp.setGroupID(groupID);
+//        rp.setStartDate(startDate);
+//        rp.setEndDate(endDate);
+//    }
+//
+//    private void populateTableRowFromResourcePolicy(ResourcePolicy rp,
+//            TableRow row)
+//    {
+//        int resourceID = 0;//rp.getResourceID(); per far compilare
+//        int resourceTypeID = rp.getResourceType();
+//        int actionID = rp.getAction();
+//        int epersonID = rp.getEPersonID();
+//        int groupID = rp.getGroupID();
+//        Date startDate = rp.getStartDate();
+//        Date endDate = rp.getEndDate();
+//
+//        // FIXME This would be much cleaner with a ResourcePolicyMetadata enum
+//        if (resourceID > 0)
+//        {
+//            row.setColumn("resource_id", resourceID);
+//        }
+//        else
+//        {
+//            row.setColumnNull("resource_id");
+//        }
+//        if (resourceTypeID >= 0)
+//        {
+//            row.setColumn("resource_type_id", resourceTypeID);
+//        }
+//        else
+//        {
+//            row.setColumnNull("resource_type_id");
+//        }
+//        if (actionID >= 0)
+//        {
+//            row.setColumn("action_id", actionID);
+//        }
+//        else
+//        {
+//            row.setColumnNull("action_id");
+//        }
+//        if (epersonID > 0)
+//        {
+//            row.setColumn("eperson_id", epersonID);
+//        }
+//        else
+//        {
+//            row.setColumnNull("eperson_id");
+//        }
+//        if (groupID >= 0)
+//        {
+//            row.setColumn("epersongroup_id", groupID);
+//        }
+//        else
+//        {
+//            row.setColumnNull("epersongroup_id");
+//        }
+//        if (startDate != null)
+//        {
+//            row.setColumn("start_date", startDate);
+//        }
+//        else
+//        {
+//            row.setColumnNull("start_date");
+//        }
+//        if (endDate != null)
+//        {
+//            row.setColumn("end_date", endDate);
+//        }
+//        else
+//        {
+//            row.setColumnNull("end_date");
+//        }
+//    }
 }

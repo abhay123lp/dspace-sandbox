@@ -164,13 +164,14 @@ public class JSPSelectCollectionStep extends JSPStep
             if (com != null)
             {
                 // In a community. Show collections in that community only.
-                collections = Collection.findAuthorized(context, com, Constants.ADD);
+//                collections = Collection.findAuthorized(context, com, Constants.ADD);
+                collections = (Collection[])ApplicationService.findCollectionsByAuthority(com, Constants.ADD, context).toArray();
             }
             else
             {
                 // Show all collections
-                collections = Collection.findAuthorized(context, null,
-                        Constants.ADD);
+//                collections = Collection.findAuthorized(context, null, Constants.ADD);
+                collections = (Collection[])ApplicationService.findCollectionsByAuthority(null, Constants.ADD, context).toArray();
             }
 
             // This is a special case, where the user came back to this

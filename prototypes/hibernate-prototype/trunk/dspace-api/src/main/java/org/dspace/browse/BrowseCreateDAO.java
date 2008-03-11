@@ -41,6 +41,10 @@ package org.dspace.browse;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import org.dspace.content.Item;
+import org.dspace.core.Context;
 
 /**
  * Interface for any class wishing to provide a browse storage later.  This particular
@@ -68,6 +72,15 @@ public interface BrowseCreateDAO
 	// an argument, thus:
 	//
 	// public BrowseCreateDAO(Context context)
+    
+    public void pruneItemIndex(Context context);
+    public void pruneMetadataIndex(Context context);
+    public void deleteMetadataIndexForItem(Item item, Context context);
+    public void deleteItemIndexForItem(Item item, Context context);
+    public void deleteCommunityMappings(Item item, Context context);
+    public Set<Integer> findCommunitiesAndAncestorsId(Item item, Context context);
+    public List<CommunityMapping> findCommunityMappings(Item item, Context context);
+    public MetadataIndexEntry findMetadataIndexEntryByValue(String value, Context context);
 	
 	/**
 	 * Delete the record for the given item id from the specified table.

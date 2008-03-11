@@ -66,7 +66,7 @@ public class Subscription
     private EPerson ePerson;
     private Collection collection;
     
-    private UUID uuid; //FIXME aggiunto con setter e getter, ma dovrà esserci?
+    private UUID uuid; 
 
     public Subscription(int id)
     {

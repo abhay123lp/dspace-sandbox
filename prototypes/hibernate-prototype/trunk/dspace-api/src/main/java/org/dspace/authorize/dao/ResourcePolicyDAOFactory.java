@@ -39,6 +39,7 @@
  */
 package org.dspace.authorize.dao;
 
+import org.dspace.authorize.dao.jpa.ResourcePolicyDAOJPA;
 import org.dspace.authorize.dao.postgres.ResourcePolicyDAOPostgres;
 import org.dspace.core.Context;
 
@@ -49,6 +50,7 @@ public class ResourcePolicyDAOFactory
 {
     public static ResourcePolicyDAO getInstance(Context context)
     {
-        return new ResourcePolicyDAOPostgres(context);
+//        return new ResourcePolicyDAOPostgres(context);
+        return new ResourcePolicyDAOJPA();
     }
 }

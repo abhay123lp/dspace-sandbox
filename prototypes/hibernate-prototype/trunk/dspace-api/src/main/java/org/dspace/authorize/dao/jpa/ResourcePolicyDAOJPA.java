@@ -1,16 +1,18 @@
 package org.dspace.authorize.dao.jpa;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
 import org.dspace.authorize.ResourcePolicy;
+import org.dspace.authorize.dao.ResourcePolicyDAO;
 import org.dspace.content.DSpaceObject;
 import org.dspace.core.Context;
 import org.dspace.eperson.Group;
 
-public class ResourcePolicyDAOJPA
+public class ResourcePolicyDAOJPA extends ResourcePolicyDAO
 {
     public List<ResourcePolicy> getPolicies(DSpaceObject dso, int actionID, Context context) {
         EntityManager em = context.getEntityManager();
@@ -51,5 +53,13 @@ public class ResourcePolicyDAOJPA
         q.setParameter("group_id", group.getId());
         List<ResourcePolicy> rps = q.getResultList();
         return rps;
+    }
+    
+    public ResourcePolicy findResourcePolicyByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT rp FROM ResourcePolicy rp " +
+        		"WHERE rp.uuid = :uuid");
+        ResourcePolicy rp = (ResourcePolicy)q.getSingleResult();
+        return rp;
     }
 }

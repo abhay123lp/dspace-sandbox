@@ -171,10 +171,11 @@ public abstract class CommunityDAO extends ContentDAO
         return (Community) context.fromCache(Community.class, id);
     }
 */
-    public Community retrieve(UUID uuid)
-    {
-        return null;
-    }
+//    public Community retrieve(UUID uuid)
+//    {
+//        return null;
+//    }
+    public abstract Community getCommunityByUUID(UUID uuid, Context context);
 /*
     public void update(Community community) throws AuthorizeException //ApplicationService
     {

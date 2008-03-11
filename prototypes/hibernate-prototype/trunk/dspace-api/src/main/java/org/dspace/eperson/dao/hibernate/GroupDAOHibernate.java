@@ -1,16 +1,13 @@
 package org.dspace.eperson.dao.hibernate;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
-import org.dspace.content.InProgressSubmission;
 import org.dspace.content.WorkspaceItem;
-import org.dspace.content.WorkspaceItemLink;
 import org.dspace.core.Context;
-import org.dspace.dao.StackableDAO;
-import org.dspace.eperson.EPerson;
 import org.dspace.eperson.Group;
 import org.dspace.eperson.dao.GroupDAO;
 
@@ -76,5 +73,12 @@ public class GroupDAOHibernate extends GroupDAO
         return group;
     }
     
+    public Group getGroupByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT g FROM Group g WHERE g.uuid = :uuid");
+        q.setParameter("uuid", uuid);
+        Group g = (Group)q.getSingleResult();
+        return g;
+    }
     
 }

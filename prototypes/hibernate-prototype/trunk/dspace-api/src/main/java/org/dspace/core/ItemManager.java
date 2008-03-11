@@ -76,10 +76,15 @@ public class ItemManager
     }
         
 
-    /* Creates a bitstream inside the input item, in a bundle called "original" */
+    /* Creates a bitstream inside the input item, in a bundle whose name is given
+     * by input, usually "original" */
     public static Bitstream createSingleBitstream(Item item, InputStream is, String name, 
             Context context) throws IOException, AuthorizeException
     {
+        
+        if(name==null) {
+            name = "ORIGINAL";
+        }
         
         Bitstream bitstream = BitstreamFactory.getInstance(context, is);
         Bundle bundle = ApplicationService.findBundleByName(item, name,

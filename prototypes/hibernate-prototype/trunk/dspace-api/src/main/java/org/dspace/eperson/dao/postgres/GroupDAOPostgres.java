@@ -108,21 +108,21 @@ public class GroupDAOPostgres //extends GroupDAO
 //        }
 //    }
 
-//    @Override
-    public Group retrieve(UUID uuid)
-    {
-        try
-        {
-            TableRow row = DatabaseManager.findByUnique(context,
-                    "epersongroup", "uuid", uuid.toString());
-
-            return null;//retrieve(row);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+////    @Override
+//    public Group retrieve(UUID uuid)
+//    {
+//        try
+//        {
+//            TableRow row = DatabaseManager.findByUnique(context,
+//                    "epersongroup", "uuid", uuid.toString());
+//
+//            return null;//retrieve(row);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
 //    @Override
 //    public Group retrieve(String name)

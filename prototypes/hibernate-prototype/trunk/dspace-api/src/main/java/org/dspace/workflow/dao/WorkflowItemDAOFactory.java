@@ -40,6 +40,7 @@
 package org.dspace.workflow.dao;
 
 import org.dspace.core.Context;
+import org.dspace.workflow.dao.jpa.WorkflowItemDAOJPA;
 import org.dspace.workflow.dao.postgres.WorkflowItemDAOPostgres;
 
 public class WorkflowItemDAOFactory
@@ -47,6 +48,6 @@ public class WorkflowItemDAOFactory
     public static WorkflowItemDAO getInstance(Context context)
     {
         //return new WorkflowItemDAOPostgres(context);
-        return null; //FIXME cambiamento
+        return new WorkflowItemDAOJPA();
     }
 }

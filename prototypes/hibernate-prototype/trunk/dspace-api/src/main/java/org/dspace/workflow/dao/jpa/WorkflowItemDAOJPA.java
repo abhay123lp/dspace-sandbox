@@ -1,6 +1,7 @@
 package org.dspace.workflow.dao.jpa;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -10,8 +11,9 @@ import org.dspace.core.Context;
 import org.dspace.eperson.EPerson;
 import org.dspace.workflow.TaskListItem;
 import org.dspace.workflow.WorkflowItem;
+import org.dspace.workflow.dao.WorkflowItemDAO;
 
-public class WorkflowItemDAOJPA //extends WorkflowItemDAO
+public class WorkflowItemDAOJPA extends WorkflowItemDAO
 {
     public List<TaskListItem> findTaskListItemByWorkflowId(int workflowId, Context context) {
         EntityManager em = context.getEntityManager();
@@ -57,5 +59,13 @@ public class WorkflowItemDAOJPA //extends WorkflowItemDAO
         q.setParameter("eperson", eperson);
         List<TaskListItem> tlis = q.getResultList();
         return tlis;
+    }
+    
+    public WorkflowItem getWorkflowItemByUUID(UUID uuid, Context context) {
+        EntityManager em = context.getEntityManager();
+        Query q = em.createQuery("SELECT w FROM WorkflowItem w WHERE w.uuid = :uuid");
+        q.setParameter("uuid", uuid);
+        WorkflowItem workflowItem = (WorkflowItem)q.getSingleResult();
+        return workflowItem;
     }
 }

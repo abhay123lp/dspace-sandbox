@@ -59,12 +59,12 @@ import org.dspace.storage.rdbms.TableRowIterator;
 /**
  * @author James Rutherford
  */
-public class SubscriptionDAOPostgres extends SubscriptionDAO
+public class SubscriptionDAOPostgres //extends SubscriptionDAO
 {
-    public SubscriptionDAOPostgres(Context context)
-    {
-        this.context = context;
-    }
+//    public SubscriptionDAOPostgres(Context context)
+//    {
+//        this.context = context;
+//    }
 
     
 //    @Override //FACTORY
@@ -103,21 +103,21 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
 //        }
 //    }
 
-    @Override
-    public Subscription retrieve(UUID uuid)
-    {
-        try
-        {
-            TableRow row = DatabaseManager.findByUnique(context,
-                    "subscription", "uuid", uuid.toString());
-
-            return retrieve(row);
-        }
-        catch (SQLException sqle)
-        {
-            throw new RuntimeException(sqle);
-        }
-    }
+//    @Override
+//    public Subscription retrieve(UUID uuid)
+//    {
+//        try
+//        {
+//            TableRow row = DatabaseManager.findByUnique(context,
+//                    "subscription", "uuid", uuid.toString());
+//
+//            return retrieve(row);
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new RuntimeException(sqle);
+//        }
+//    }
 
 //    @Override
 //    public void update(Subscription subscription)
@@ -214,40 +214,40 @@ public class SubscriptionDAOPostgres extends SubscriptionDAO
 //        }
 //    }
 
-    ////////////////////////////////////////////////////////////////////
-    // Utility methods
-    ////////////////////////////////////////////////////////////////////
-
-    private Subscription retrieve(TableRow row) throws SQLException
-    {
-        if (row == null)
-        {
-            return null;
-        }
-        else
-        {
-            int id = row.getIntColumn("subscription_id");
-            Subscription sub = new Subscription(id);
-
-            sub.setEPerson(ApplicationService.get(context, EPerson.class, row.getIntColumn("eperson_id")));
-            sub.setCollection(ApplicationService.get(context, Collection.class, row.getIntColumn("collection_id")));
-
-            return sub;
-        }
-    }
-
-    private List<Subscription> returnAsList(TableRowIterator tri)
-        throws SQLException
-    {
-        List<Subscription> subscriptions = new ArrayList<Subscription>();
-
-        for (TableRow row : tri.toList())
-        {
-            int id = row.getIntColumn("subscription_id");
-            //subscriptions.add(retrieve(id));
-            subscriptions.add(ApplicationService.get(context, Subscription.class, id));
-        }
-
-        return subscriptions;
-    }
+//    ////////////////////////////////////////////////////////////////////
+//    // Utility methods
+//    ////////////////////////////////////////////////////////////////////
+//
+//    private Subscription retrieve(TableRow row) throws SQLException
+//    {
+//        if (row == null)
+//        {
+//            return null;
+//        }
+//        else
+//        {
+//            int id = row.getIntColumn("subscription_id");
+//            Subscription sub = new Subscription(id);
+//
+//            sub.setEPerson(ApplicationService.get(context, EPerson.class, row.getIntColumn("eperson_id")));
+//            sub.setCollection(ApplicationService.get(context, Collection.class, row.getIntColumn("collection_id")));
+//
+//            return sub;
+//        }
+//    }
+//
+//    private List<Subscription> returnAsList(TableRowIterator tri)
+//        throws SQLException
+//    {
+//        List<Subscription> subscriptions = new ArrayList<Subscription>();
+//
+//        for (TableRow row : tri.toList())
+//        {
+//            int id = row.getIntColumn("subscription_id");
+//            //subscriptions.add(retrieve(id));
+//            subscriptions.add(ApplicationService.get(context, Subscription.class, id));
+//        }
+//
+//        return subscriptions;
+//    }
 }

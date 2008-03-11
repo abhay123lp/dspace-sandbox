@@ -76,7 +76,7 @@ public abstract class BundleDAO extends ContentDAO
     }
     
     public abstract Bundle findBundleByName(Item item, String name, EntityManager em);
-    
+    public abstract Bundle getBundleByUUID(UUID uuid, Context context);
 //    public abstract Bundle create() throws AuthorizeException;
 
     // FIXME: This should be called something else, but I can't think of

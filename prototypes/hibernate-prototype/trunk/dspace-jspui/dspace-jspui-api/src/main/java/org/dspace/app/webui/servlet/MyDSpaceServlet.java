@@ -629,7 +629,8 @@ public class MyDSpaceServlet extends DSpaceServlet
         WorkspaceItem[] workspaceItems = (WorkspaceItem[])ApplicationService.findWorkspaceItems(currentUser, context).toArray();
 
         // User's authorization groups
-        Group[] memberships = Group.allMemberGroups(context, currentUser);
+//        Group[] memberships = Group.allMemberGroups(context, currentUser);
+        Group[] memberships = (Group[])ApplicationService.findAllGroups(currentUser, context).toArray();
         
         // Should the group memberships be displayed
         boolean displayMemberships = ConfigurationManager.getBooleanProperty("webui.mydspace.showgroupmemberships", false);

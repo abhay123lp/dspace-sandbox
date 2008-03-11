@@ -42,6 +42,9 @@ package org.dspace.workflow.dao;
 import java.util.List;
 import java.util.UUID;
 
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
 import org.apache.log4j.Logger;
 
 import org.dspace.authorize.AuthorizeException;
@@ -69,6 +72,14 @@ public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
 //    protected ItemDAO itemDAO;
 //    protected WorkspaceItemDAO wsiDAO;
 
+    
+    public abstract List<TaskListItem> findTaskListItemByWorkflowId(int workflowId, Context context);
+    public abstract List<WorkflowItem> findWorkflowItemByCollection(Collection collection, Context context);
+    public abstract List<WorkflowItem> findWorkflowItemsByOwner(EPerson eperson, Context context);
+    public abstract List<WorkflowItem> findWorkflowItemsBySubmitter(EPerson eperson, Context context);
+    public abstract List<WorkflowItem> findAllWorkflowItem(Context context); 
+    public abstract List<TaskListItem> findTaskListItemByEPerson(EPerson eperson, Context context);
+    public abstract WorkflowItem getWorkflowItemByUUID(UUID uuid, Context context);
 //    public abstract WorkflowItem create() throws AuthorizeException;
 
 //    public abstract WorkflowItem create(WorkspaceItem wsi)
@@ -101,11 +112,11 @@ public abstract class WorkflowItemDAO implements CRUD<WorkflowItem>
 //    {
 //        return (WorkflowItem) context.fromCache(WorkflowItem.class, id);
 //    }
-
-    public WorkflowItem retrieve(UUID uuid)  //fare l'override sul dao jpa?
-    {
-        return null;
-    }
+//
+//    public WorkflowItem retrieve(UUID uuid)  //fare l'override sul dao jpa?
+//    {
+//        return null;
+//    }
 
 //    /**
 //     * Update the workflow item, including the unarchived item.
