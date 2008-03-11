@@ -241,11 +241,13 @@
    <reporting>
       <excludeDefaults>true</excludeDefaults>
       <plugins>
+         <!-- Breaks build because Messages.properties isn't stored here.
          <plugin>
             <groupId>org.dspace.maven.plugins</groupId>
             <artifactId>dspace-i18n-report-plugin</artifactId>
             <version>1.0</version>
          </plugin>
+         -->
          <plugin>
             <artifactId>maven-javadoc-plugin</artifactId>
             <configuration>
