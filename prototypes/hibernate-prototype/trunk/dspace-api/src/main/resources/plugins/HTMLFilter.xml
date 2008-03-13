@@ -1,0 +1,3 @@
+<beans>
+     <bean name="HTMLFilter" class="org.dspace.app.mediafilter.HTMLFilter" />          
+</beans>
