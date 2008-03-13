@@ -1,0 +1,7 @@
+<beans>
+	<bean name="JPEGFilter"
+		class="org.dspace.app.mediafilter.JPEGFilter" />
+	<bean name="HTMLFilter"
+		class="org.dspace.app.mediafilter.HTMLFilter" />
+
+</beans>

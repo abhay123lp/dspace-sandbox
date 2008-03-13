@@ -1,0 +1,3 @@
+<beans>
+     <bean name="JPEGFilter" class="org.dspace.app.mediafilter.JPEGFilter" />          
+</beans>

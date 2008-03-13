@@ -40,24 +40,27 @@
 
 package org.dspace.core;
 
-import java.util.Map;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Enumeration;
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
-import java.util.regex.Pattern;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Array;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.File;
-import java.io.IOException;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.dspace.app.mediafilter.MediaFilter;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * The Plugin Manager is a very simple component container.  It creates and
@@ -97,7 +100,10 @@ public class PluginManager
 {
     /** log4j category */
     private static Logger log = Logger.getLogger(PluginManager.class);
-
+    
+    /** Application context for Spring */
+    private static ApplicationContext applicationContext;
+    
     /**
      * Prefixes of names of properties to look for in DSpace Configuration
      */
@@ -130,6 +136,7 @@ public class PluginManager
             boolean reusable = ConfigurationManager.getBooleanProperty(key, true);
             cacheMeCache.put(implClass, new Boolean(reusable));
             return reusable;
+            
         }
     }
 
@@ -750,6 +757,23 @@ public class PluginManager
             if (!(allImpls.containsKey(rk)))
                 log.error("In plugin.reusable configuration, class \""+rk+"\" is NOT a plugin implementation class.");
         }
+    }
+    
+    /**
+     * Method to test spring configuration
+     * @return
+     */
+    public static <T> List<T> getPlugin(Class<T> clazz) {
+        if(applicationContext==null) {
+            applicationContext = new FileSystemXmlApplicationContext("file: " + "pathfile");
+        }
+        String[] pluginNames = applicationContext.getBeanNamesForType(clazz);
+        List<T> plugins = new LinkedList<T>();
+        for(String pluginName : pluginNames) {
+            T plugin = (T) applicationContext.getBean(pluginName);
+            plugins.add(plugin);
+        }
+        return plugins;
     }
 
     /**

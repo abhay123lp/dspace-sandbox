@@ -540,7 +540,7 @@ public class BitstreamStorageManager
         throws IOException, AuthorizeException
     {
         Context context = null;
-        BitstreamInfoDAO bitstreamInfoDAO = new BitstreamInfoDAO();
+//        BitstreamInfoDAO bitstreamInfoDAO = new BitstreamInfoDAO();
         int commit_counter = 0;
 
         try
