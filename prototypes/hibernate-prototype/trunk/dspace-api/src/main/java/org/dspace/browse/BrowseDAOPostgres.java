@@ -378,8 +378,7 @@ public class BrowseDAOPostgres implements BrowseDAO
 //                                                  itemsWithdrawn);
 //                results.add(browseItem);
                 
-                
-//                commentata per far compilare
+                //ho commentato solo questo
 //                results.add(itemDAO.retrieve(row.getIntColumn("item_id")));
             }
             

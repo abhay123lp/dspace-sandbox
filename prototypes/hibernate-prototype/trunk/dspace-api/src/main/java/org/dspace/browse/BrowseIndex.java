@@ -59,7 +59,7 @@ import org.dspace.sort.SortException;
  */
 public class BrowseIndex
 {
-	/** the configuration number, as specified in the config */
+    /** the configuration number, as specified in the config */
     /** used for single metadata browse tables for generating the table name */
     private int number;
     
@@ -134,12 +134,12 @@ public class BrowseIndex
      * [data type] must be either "title", "date" or "text"
      * [display type] must be either "single" or "full"
      * 
-     * @param definition	the configuration definition of this index
-     * @param number		the configuration number of this index
+     * @param definition    the configuration definition of this index
+     * @param number        the configuration number of this index
      * @throws BrowseException 
      */
     private BrowseIndex(String definition, int number)
-    	throws BrowseException
+        throws BrowseException
     {
         try
         {
@@ -179,7 +179,7 @@ public class BrowseIndex
                             this.defaultOrder = SortOption.DESCENDING;
                     }
 
-                    tableBaseName = makeTableBaseName(number);
+                    tableBaseName = getItemBrowseIndex().tableBaseName;
                 }
                 else if (isItemIndex())
                 {
@@ -236,23 +236,23 @@ public class BrowseIndex
     }
 
     /**
-	 * @return Returns the datatype.
-	 */
-	public String getDataType()
-	{
+     * @return Returns the datatype.
+     */
+    public String getDataType()
+    {
         if (sortOption != null)
             return sortOption.getType();
 
-		return datatype;
-	}
+        return datatype;
+    }
 
-	/**
-	 * @return Returns the displayType.
-	 */
-	public String getDisplayType()
-	{
+    /**
+     * @return Returns the displayType.
+     */
+    public String getDisplayType()
+    {
         return displayType;
-	}
+    }
 
     /**
      * @return Returns the number of metadata fields for this index
@@ -266,62 +266,62 @@ public class BrowseIndex
     }
 
     /**
-	 * @return Returns the mdBits.
-	 */
-	public String[] getMdBits(int idx)
-	{
-	    if (isMetadataIndex())
-	        return mdBits[idx];
-	    
-	    return null;
-	}
+     * @return Returns the mdBits.
+     */
+    public String[] getMdBits(int idx)
+    {
+        if (isMetadataIndex())
+            return mdBits[idx];
+        
+        return null;
+    }
 
-	/**
-	 * @return Returns the metadata.
-	 */
-	public String getMetadata()
-	{
+    /**
+     * @return Returns the metadata.
+     */
+    public String getMetadata()
+    {
         return metadataAll;
-	}
+    }
 
     public String getMetadata(int idx)
     {
         return metadata[idx];
     }
 
-	/**
-	 * @return Returns the name.
-	 */
-	public String getName()
-	{
-		return name;
-	}
-
-	/**
-	 * @param name The name to set.
-	 */
-//	public void setName(String name)
-//	{
-//		this.name = name;
-//	}
-	
-	/**
-	 * Get the SortOption associated with this index.
-	 */
-	public SortOption getSortOption()
-	{
-	    return sortOption;
-	}
-	
-	/**
-	 * Populate the internal array containing the bits of metadata, for
-	 * ease of use later
-	 */
-	public void generateMdBits()
+    /**
+     * @return Returns the name.
+     */
+    public String getName()
     {
-    	try
-    	{
-    	    if (isMetadataIndex())
+        return name;
+    }
+
+    /**
+     * @param name The name to set.
+     */
+//  public void setName(String name)
+//  {
+//      this.name = name;
+//  }
+    
+    /**
+     * Get the SortOption associated with this index.
+     */
+    public SortOption getSortOption()
+    {
+        return sortOption;
+    }
+    
+    /**
+     * Populate the internal array containing the bits of metadata, for
+     * ease of use later
+     */
+    public void generateMdBits()
+    {
+        try
+        {
+            if (isMetadataIndex())
             {
                 mdBits = new String[metadata.length][];
                 for (int i = 0; i < metadata.length; i++)
@@ -330,32 +330,35 @@ public class BrowseIndex
                 }
             }
         }
-    	catch(IOException e)
-    	{
-    		// it's not obvious what we really ought to do here
-    		//log.error("caught exception: ", e);
-    	}
+        catch(IOException e)
+        {
+            // it's not obvious what we really ought to do here
+            //log.error("caught exception: ", e);
+        }
     }
     
-	/**
-	 * Get the name of the sequence that will be used in the given circumnstances
-	 * 
-	 * @param isDistinct	is a distinct table
-	 * @param isMap			is a map table
-	 * @return				the name of the sequence
-	 */
+    /**
+     * Get the name of the sequence that will be used in the given circumnstances
+     * 
+     * @param isDistinct    is a distinct table
+     * @param isMap         is a map table
+     * @return              the name of the sequence
+     */
     public String getSequenceName(boolean isDistinct, boolean isMap)
     {
+        if (isDistinct || isMap)
+            return BrowseIndex.getSequenceName(number, isDistinct, isMap);
+
         return BrowseIndex.getSequenceName(tableBaseName, isDistinct, isMap);
     }
     
     /**
      * Get the name of the sequence that will be used in the given circumstances
      * 
-     * @param number		the index configuration number
-     * @param isDistinct	is a distinct table
-     * @param isMap			is a map table
-     * @return				the name of the sequence
+     * @param number        the index configuration number
+     * @param isDistinct    is a distinct table
+     * @param isMap         is a map table
+     * @return              the name of the sequence
      */
     public static String getSequenceName(int number, boolean isDistinct, boolean isMap)
     {
@@ -390,12 +393,13 @@ public class BrowseIndex
      * This is provided solely for cleaning the database, where you are
      * trying to create table names that may not be reflected in the current index
      * 
-     * @param number		the index configuration number
-     * @param isCommunity	whether this is a community constrained index (view)
-     * @param isCollection	whether this is a collection constrainted index (view)
-     * @param isDistinct	whether this is a distinct table
-     * @param isMap			whether this is a distinct map table
-     * @return				the name of the table
+     * @param number        the index configuration number
+     * @param isCommunity   whether this is a community constrained index (view)
+     * @param isCollection  whether this is a collection constrainted index (view)
+     * @param isDistinct    whether this is a distinct table
+     * @param isMap         whether this is a distinct map table
+     * @return              the name of the table
+     * @deprecated 1.5
      */
     public static String getTableName(int number, boolean isCommunity, boolean isCollection, boolean isDistinct, boolean isMap)
     {
@@ -413,44 +417,45 @@ public class BrowseIndex
      */
     private static String getTableName(String baseName, boolean isCommunity, boolean isCollection, boolean isDistinct, boolean isMap)
     {
-    	// isDistinct is meaningless in relation to isCommunity and isCollection
-    	// so we bounce that back first, ignoring other arguments
-    	if (isDistinct)
-    	{
-    		return baseName + "_dis";
-    	}
-    	
-    	// isCommunity and isCollection are mutually exclusive
-    	if (isCommunity)
-    	{
-    		baseName = baseName + "_com"; 
-    	}
-    	else if (isCollection)
-    	{
-    		baseName = baseName + "_col";
-    	}
-    	
-    	// isMap is additive to isCommunity and isCollection
-    	if (isMap)
-    	{
-    		baseName = baseName + "_dmap";
-    	}
-    	
-    	return baseName;
+        // isDistinct is meaningless in relation to isCommunity and isCollection
+        // so we bounce that back first, ignoring other arguments
+        if (isDistinct)
+        {
+            return baseName + "_dis";
+        }
+        
+        // isCommunity and isCollection are mutually exclusive
+        if (isCommunity)
+        {
+            baseName = baseName + "_com"; 
+        }
+        else if (isCollection)
+        {
+            baseName = baseName + "_col";
+        }
+        
+        // isMap is additive to isCommunity and isCollection
+        if (isMap)
+        {
+            baseName = baseName + "_dmap";
+        }
+        
+        return baseName;
     }
     
     /**
      * Get the name of the table in the given circumstances
      * 
-     * @param isCommunity	whether this is a community constrained index (view)
-     * @param isCollection	whether this is a collection constrainted index (view)
-     * @param isDistinct	whether this is a distinct table
-     * @param isMap			whether this is a distinct map table
-     * @return				the name of the table
+     * @param isCommunity   whether this is a community constrained index (view)
+     * @param isCollection  whether this is a collection constrainted index (view)
+     * @param isDistinct    whether this is a distinct table
+     * @param isMap         whether this is a distinct map table
+     * @return              the name of the table
+     * @deprecated 1.5
      */
     public String getTableName(boolean isCommunity, boolean isCollection, boolean isDistinct, boolean isMap)
     {
-        if (this.isMetadataIndex())
+        if (isDistinct || isMap)
             return BrowseIndex.getTableName(number, isCommunity, isCollection, isDistinct, isMap);
         
         return BrowseIndex.getTableName(tableBaseName, isCommunity, isCollection, isDistinct, isMap);
@@ -463,9 +468,10 @@ public class BrowseIndex
      * getTableName(isCommunity, isCollection, false, false);
      * </code>
      * 
-     * @param isCommunity	whether this is a community constrained index (view)
-     * @param isCollection	whether this is a collection constrainted index (view)
-     * @return				the name of the table
+     * @param isCommunity   whether this is a community constrained index (view)
+     * @param isCollection  whether this is a collection constrainted index (view)
+     * @return              the name of the table
+     * @deprecated 1.5
      */
     public String getTableName(boolean isCommunity, boolean isCollection)
     {
@@ -495,31 +501,15 @@ public class BrowseIndex
      * getTableName(isCommunity, isCollection, isDistinct, false);
      * </code>
      * 
-     * @param isDistinct	is this a distinct table
+     * @param isDistinct    is this a distinct table
      * @param isCommunity
      * @param isCollection
      * @return
+     * @deprecated 1.5
      */
     public String getTableName(boolean isDistinct, boolean isCommunity, boolean isCollection)
     {
-    	return getTableName(isCommunity, isCollection, isDistinct, false);
-    }
-    
-    /**
-     * Get the name of the distinct map table for the given set of circumstances.  This
-     * is the same as calling
-     * 
-     * <code>
-     * getTableName(isCommunity, isCollection, false, true);
-     * </code>
-     * 
-     * @param isCommunity
-     * @param isCollection
-     * @return	the map table name
-     */
-    public String getMapName(boolean isCommunity, boolean isCollection)
-    {
-    	return getTableName(isCommunity, isCollection, false, true);
+        return getTableName(isCommunity, isCollection, isDistinct, false);
     }
     
     /**
@@ -531,15 +521,29 @@ public class BrowseIndex
      * 
      * @return
      */
-    public String getMapName()
+    public String getMapTableName()
     {
-    	return getTableName(false, false, false, true);
+        return getTableName(false, false, false, true);
     }
-    
+
+    /**
+     * Get the default name of the distinct table.  This is the same as calling
+     *
+     * <code>
+     * getTableName(false, false, true, false);
+     * </code>
+     *
+     * @return
+     */
+    public String getDistinctTableName()
+    {
+        return getTableName(false, false, true, false);
+    }
+
     /**
      * Get the name of the colum that is used to store the default value column
      * 
-     * @return	the name of the value column
+     * @return  the name of the value column
      */
     public String getValueColumn()
     {
@@ -556,7 +560,7 @@ public class BrowseIndex
     /**
      * Get the name of the primary key index column
      * 
-     * @return	the name of the primary key index column
+     * @return  the name of the primary key index column
      */
     public String getIndexColumn()
     {
@@ -566,7 +570,7 @@ public class BrowseIndex
     /**
      * Is this browse index type for a title?
      * 
-     * @return	true if title type, false if not
+     * @return  true if title type, false if not
      */
 //    public boolean isTitle()
 //    {
@@ -576,7 +580,7 @@ public class BrowseIndex
     /**
      * Is the browse index type for a date?
      * 
-     * @return	true if date type, false if not
+     * @return  true if date type, false if not
      */
     public boolean isDate()
     {
@@ -586,7 +590,7 @@ public class BrowseIndex
     /**
      * Is the browse index type for a plain text type?
      * 
-     * @return	true if plain text type, false if not
+     * @return  true if plain text type, false if not
      */
 //    public boolean isText()
 //    {
@@ -606,7 +610,7 @@ public class BrowseIndex
     /**
      * Is the browse index of display type full?
      * 
-     * @return	true if full, false if not
+     * @return  true if full, false if not
      */
     public boolean isItemIndex()
     {
@@ -618,10 +622,10 @@ public class BrowseIndex
      * @return
      * @throws BrowseException
      */
-    public String getSortField() throws BrowseException
+    public String getSortField(boolean isSecondLevel) throws BrowseException
     {
         String focusField;
-        if (isMetadataIndex())
+        if (isMetadataIndex() && !isSecondLevel)
         {
             focusField = "sort_value";
         }
@@ -632,7 +636,7 @@ public class BrowseIndex
             else
                 focusField = "sort_1";  // Use the first sort column
         }
-        
+
         return focusField;
     }
     
@@ -657,11 +661,11 @@ public class BrowseIndex
     /**
      * Get an array of all the browse indices for the current configuration
      * 
-     * @return	an array of all the current browse indices
+     * @return  an array of all the current browse indices
      * @throws BrowseException
      */
     public static BrowseIndex[] getBrowseIndices()
-    	throws BrowseException
+        throws BrowseException
     {
         int idx = 1;
         String definition;
@@ -684,12 +688,12 @@ public class BrowseIndex
      * Get the browse index from configuration with the specified name.
      * The name is the first part of the browse configuration
      *
-     * @param name		the name to retrieve
-     * @return			the specified browse index
+     * @param name      the name to retrieve
+     * @return          the specified browse index
      * @throws BrowseException
      */
     public static BrowseIndex getBrowseIndex(String name)
-    	throws BrowseException
+        throws BrowseException
     {
         for (BrowseIndex bix : BrowseIndex.getBrowseIndices())
         {
@@ -743,30 +747,30 @@ public class BrowseIndex
      * representation up by its delimiter (.), and stick it in an array, inserting
      * the value of the init parameter when there is no metadata field part.
      * 
-     * @param mfield	the string representation of the metadata
-     * @param init	the default value of the array elements
-     * @return	a three element array with schema, element and qualifier respectively
+     * @param mfield    the string representation of the metadata
+     * @param init  the default value of the array elements
+     * @return  a three element array with schema, element and qualifier respectively
      */
     public String[] interpretField(String mfield, String init)
-    	throws IOException
+        throws IOException
     {
-    	StringTokenizer sta = new StringTokenizer(mfield, ".");
-    	String[] field = {init, init, init};
-    	
-    	int i = 0;
-    	while (sta.hasMoreTokens())
-    	{
-    		field[i++] = sta.nextToken();
-    	}
-    	
-    	// error checks to make sure we have at least a schema and qualifier for both
-    	if (field[0] == null || field[1] == null)
-    	{
-    		throw new IOException("at least a schema and element be " +
-    				"specified in configuration.  You supplied: " + mfield);
-    	}
-    	
-    	return field;
+        StringTokenizer sta = new StringTokenizer(mfield, ".");
+        String[] field = {init, init, init};
+        
+        int i = 0;
+        while (sta.hasMoreTokens())
+        {
+            field[i++] = sta.nextToken();
+        }
+        
+        // error checks to make sure we have at least a schema and qualifier for both
+        if (field[0] == null || field[1] == null)
+        {
+            throw new IOException("at least a schema and element be " +
+                    "specified in configuration.  You supplied: " + mfield);
+        }
+        
+        return field;
     }
     
     /**

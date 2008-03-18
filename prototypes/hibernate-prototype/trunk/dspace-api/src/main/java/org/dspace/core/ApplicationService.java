@@ -17,6 +17,8 @@ import org.dspace.authorize.dao.jpa.ResourcePolicyDAOJPA;
 import org.dspace.browse.BrowseCreateDAO;
 import org.dspace.browse.BrowseCreateDAOJPA;
 import org.dspace.browse.BrowseDAOFactory;
+import org.dspace.browse.BrowseDAOJPA;
+import org.dspace.browse.BrowseException;
 import org.dspace.browse.CommunityMapping;
 import org.dspace.browse.MetadataIndexEntry;
 import org.dspace.checker.BitstreamInfoDAOJPA;
@@ -650,6 +652,26 @@ public class ApplicationService {
     public static MetadataIndexEntry findMetadataIndexEntryByValue(String value, Context context) {
         BrowseCreateDAO bcdao = BrowseDAOFactory.getCreateInstance(context);
         return bcdao.findMetadataIndexEntryByValue(value, context);
+    }
+    
+    public static String findMaxForItemIndex(int indexNumber, int itemID, Context context) {
+        BrowseDAOJPA bdao = new BrowseDAOJPA();
+        return bdao.findMaxForItemIndex(indexNumber, itemID, context);
+    }
+
+    public static String findMaxForMetadataIndex(int itemID, Context context) throws BrowseException{
+        BrowseDAOJPA bdao = new BrowseDAOJPA();
+        return bdao.findMaxForMetadataIndex(itemID, context);
+    }
+    
+    public static int findMaxOffsetForItemIndex(int sortNumber, String value, Context context) {
+        BrowseDAOJPA bdao = new BrowseDAOJPA();
+        return bdao.findMaxOffsetForItemIndex(sortNumber, value, context);
+    }
+    
+    public static int findMaxOffsetForMetadataIndex(String value, Context context) {
+        BrowseDAOJPA bdao = new BrowseDAOJPA();
+        return bdao.findMaxOffsetForMetadataIndex(value, context);
     }
     
     /* Other methods */

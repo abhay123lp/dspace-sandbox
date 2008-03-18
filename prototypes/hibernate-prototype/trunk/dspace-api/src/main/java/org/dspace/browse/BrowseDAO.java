@@ -107,7 +107,7 @@ public interface BrowseDAO
      * @return          String representing the max value in the given column
      * @throws BrowseException
      */
-    public String doMaxQuery(String column, String table, int itemID) throws BrowseException;
+//    public String doMaxQuery(String column, String table, int itemID) throws BrowseException;
     
     /**
      * This executes a query which returns the offset where the value (or nearest greater
@@ -118,7 +118,7 @@ public interface BrowseDAO
      * @return          the offset into the table
      * @throws BrowseException
      */
-    public int doOffsetQuery(String column, String value) throws BrowseException;
+//    public int doOffsetQuery(String column, String value) throws BrowseException;
 
     /**
      * This executes a query which returns the offset where the value (or nearest greater
@@ -129,7 +129,7 @@ public interface BrowseDAO
      * @return          the offset into the table
      * @throws BrowseException
      */
-    public int doDistinctOffsetQuery(String column, String value) throws BrowseException;
+//    public int doDistinctOffsetQuery(String column, String value) throws BrowseException;
 
     /**
      * Does the query use the equals comparator when doing less than or greater than
