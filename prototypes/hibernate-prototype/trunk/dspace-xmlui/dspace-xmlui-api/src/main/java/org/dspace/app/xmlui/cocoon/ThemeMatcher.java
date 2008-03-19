@@ -81,65 +81,66 @@ import java.util.regex.Pattern;
  * @author Scott Phillips
  */
 
-public class ThemeMatcher extends AbstractLogEnabled implements Matcher {
-
-	/**
-	 * @param pattern
-	 *            name of sitemap parameter to find
-	 * @param objectModel
-	 *            environment passed through via cocoon
-	 * @return null or map containing value of sitemap parameter 'pattern'
-	 */
-	public Map match(String src, Map objectModel, Parameters parameters)
-			throws PatternException {
-		try {
-			Request request = ObjectModelHelper.getRequest(objectModel);
-			String uri = request.getSitemapURI();
-			DSpaceObject dso = URIUtil.resolve(objectModel);
-
-			List<Theme> rules = XMLUIConfiguration.getThemeRules();
-			getLogger().debug("Checking if URL=" + uri + " matches any theme rules.");
-			for (Theme rule : rules) {
-				getLogger().debug("rule=" + rule.getName());
-				if (!(rule.hasRegex() || rule.hasHandle()))
-					// Skip any rule with out a pattern or handle
-					continue;
-
-				getLogger().debug("checking for patterns");
-				if (rule.hasRegex()) {
-					// If the rule has a pattern insure that the URL matches it.
-					Pattern pattern = rule.getPattern();
-					if (!pattern.matcher(uri).find())
-						continue;
-				}
-
-				getLogger().debug("checking for handles");
-				if (rule.hasHandle()) {
-					// If the rules has a handle insure that the DSO matches it.
-					if (!HandleUtil.inheritsFrom(dso, rule.getHandle()))
-						continue;
-
-				}
-
-				getLogger().debug("rule selected!!");
-				Map<String, String> result = new HashMap<String, String>();
-				result.put("themeName", rule.getName());
-				result.put("theme", rule.getPath());
-				result.put("themeID", rule.getId());
-				
-				request.getSession().setAttribute("themeName", rule.getName());
-				request.getSession().setAttribute("theme", rule.getPath());
-				request.getSession().setAttribute("themeID", rule.getId());
-				
-				return result;
-			}
-
-		} catch (SQLException sqle) {
-			throw new PatternException(sqle);
-		}
-
-		// No themes matched.
-		return null;
-	}
+public class ThemeMatcher //extends AbstractLogEnabled implements Matcher 
+{
+//
+//	/**
+//	 * @param pattern
+//	 *            name of sitemap parameter to find
+//	 * @param objectModel
+//	 *            environment passed through via cocoon
+//	 * @return null or map containing value of sitemap parameter 'pattern'
+//	 */
+//	public Map match(String src, Map objectModel, Parameters parameters)
+//			throws PatternException {
+//		try {
+//			Request request = ObjectModelHelper.getRequest(objectModel);
+//			String uri = request.getSitemapURI();
+//			DSpaceObject dso = URIUtil.resolve(objectModel);
+//
+//			List<Theme> rules = XMLUIConfiguration.getThemeRules();
+//			getLogger().debug("Checking if URL=" + uri + " matches any theme rules.");
+//			for (Theme rule : rules) {
+//				getLogger().debug("rule=" + rule.getName());
+//				if (!(rule.hasRegex() || rule.hasHandle()))
+//					// Skip any rule with out a pattern or handle
+//					continue;
+//
+//				getLogger().debug("checking for patterns");
+//				if (rule.hasRegex()) {
+//					// If the rule has a pattern insure that the URL matches it.
+//					Pattern pattern = rule.getPattern();
+//					if (!pattern.matcher(uri).find())
+//						continue;
+//				}
+//
+//				getLogger().debug("checking for handles");
+//				if (rule.hasHandle()) {
+//					// If the rules has a handle insure that the DSO matches it.
+//					if (!HandleUtil.inheritsFrom(dso, rule.getHandle()))
+//						continue;
+//
+//				}
+//
+//				getLogger().debug("rule selected!!");
+//				Map<String, String> result = new HashMap<String, String>();
+//				result.put("themeName", rule.getName());
+//				result.put("theme", rule.getPath());
+//				result.put("themeID", rule.getId());
+//				
+//				request.getSession().setAttribute("themeName", rule.getName());
+//				request.getSession().setAttribute("theme", rule.getPath());
+//				request.getSession().setAttribute("themeID", rule.getId());
+//				
+//				return result;
+//			}
+//
+//		} catch (SQLException sqle) {
+//			throw new PatternException(sqle);
+//		}
+//
+//		// No themes matched.
+//		return null;
+//	}
 
 }

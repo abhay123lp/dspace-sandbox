@@ -66,150 +66,150 @@ import org.dspace.core.ConfigurationManager;
 public class DSpaceCocoonServlet extends CocoonServlet 
 {
 	
-	private static final long serialVersionUID = 1L;
-	
-	
-    /**
-     * The DSpace config paramater, this is where the path to the DSpace
-     * configuration file can be obtained
-     */
-    public static final String DSPACE_CONFIG_PARAMETER = "dspace-config";
-	
-    
-    
-    
-    /**
-     * Before this servlet will become functional replace 
-     */
-    public void init() throws ServletException
-    {
-        // On Windows, URL caches can cause problems, particularly with undeployment
-        // So, here we attempt to disable them if we detect that we are running on Windows
-        try
-        {
-            String osName = System.getProperty("os.name");
-            if (osName != null)
-                osName = osName.toLowerCase();
-
-            if (osName != null && osName.contains("windows"))
-            {
-                URL url = new URL("http://localhost/");
-                URLConnection urlConn = url.openConnection();
-                urlConn.setDefaultUseCaches(false);
-            }
-        }
-        catch (Throwable t)
-        {
-            // Any errors thrown in disabling the caches aren't significant to
-            // the normal execution of the application, so we ignore them
-        }
-
-    	// Check if cocoon needs to do anything at init time?
-    	super.init();
-
-    	// Paths to the various config files
-    	String dspaceConfig = null;
-    	String log4jConfig  = null;
-    	String xmluiConfig  = null;
-    	
-    	/**
-    	 * Stage 1
-    	 * 
-    	 * Locate the dspace config
-    	 */
-    	
-    	// first check the local per webapp parameter, then check the global parameter.
-    	dspaceConfig = super.getInitParameter(DSPACE_CONFIG_PARAMETER);
-    	if (dspaceConfig == null)
-    		dspaceConfig = super.getServletContext().getInitParameter(DSPACE_CONFIG_PARAMETER);
-        
-    	// Finaly, if no config parameter found throw an error
-    	if (dspaceConfig == null || "".equals(dspaceConfig))
-    	{
-    		throw new ServletException(
-    				"\n\nDSpace has failed to initialize. This has occurred because it was unable to determine \n" +
-    				"where the dspace.cfg file is located. The path to the configuration file should be stored \n" +
-    				"in a context variable, '"+DSPACE_CONFIG_PARAMETER+"', in either the local servlet or global contexts. \n" +
-    				"No context variable was found in either location.\n\n");
-    	}
-        	
-    	/**
-    	 * Stage 2
-    	 * 
-    	 * Load the dspace config. Also may load log4j configuration.
-    	 * (Please rely on ConfigurationManager or Log4j to configure logging)
-    	 * 
-    	 */
-    	try 
-    	{
-            ConfigurationManager.loadConfig(dspaceConfig);
-    	}
-    	catch (Throwable t)
-    	{
-    		throw new ServletException(
-    				"\n\nDSpace has failed to initialize, during stage 2. Error while attempting to read the \n" +
-    				"DSpace configuration file (Path: '"+dspaceConfig+"'). \n" +
-    				"This has likely occurred because either the file does not exist, or it's permissions \n" +
-    				"are set incorrectly, or the path to the configuration file is incorrect. The path to \n" +
-    				"the DSpace configuration file is stored in a context variable, 'dspace-config', in \n" +
-    				"either the local servlet or global context.\n\n",t);
-    	}
-                	            
-        /**
-         * Stage 3
-         * 
-         * Load the XML UI configuration
-         */
-    	try
-    	{
-	        xmluiConfig = ConfigurationManager.getProperty("dspace.dir")
-	                + File.separator + "config" + File.separator + "xmlui.xconf";
-	        XMLUIConfiguration.loadConfig(xmluiConfig);
-    	}   
-    	catch (Throwable t)
-    	{
-    		throw new ServletException(
-    				"\n\nDSpace has failed to initialize, during stage 3. Error while attempting to read \n" +
-    				"the XML UI configuration file (Path: "+xmluiConfig+").\n" + 
-    				"This has likely occurred because either the file does not exist, or it's permissions \n" +
-    				"are set incorrectly, or the path to the configuration file is incorrect. The XML UI \n" +
-    				"configuration file should be named \"xmlui.xconf\" and located inside the standard \n" +
-    				"DSpace configuration directory. \n\n",t);
-    	}
-   
-    	
-    }
-    
-	
-	/**
-     * Before passing off a request to the cocoon servlet check to see if there is a request that 
-     * should be resumed? If so replace the real request with a faked request and pass that off to 
-     * cocoon.
-     */
-    public void service(HttpServletRequest realRequest, HttpServletResponse realResponse)
-    throws ServletException, IOException 
-    {
-    	// Check if there is a request to be resumed.
-    	realRequest = AuthenticationUtil.resumeRequest(realRequest);
-        
-        // Send the real request or the resumed request off to
-        // cocoon....
-    	
-    	// if force ssl is on and the user has authenticated and the request is not secure redirect to https
-    	if ((ConfigurationManager.getBooleanProperty("xmlui.force.ssl")) && (realRequest.getSession().getAttribute("dspace.current.user.id")!=null) && (!realRequest.isSecure())) {
-				StringBuffer location = new StringBuffer("https://");
-				location.append(ConfigurationManager.getProperty("dspace.hostname")).append(realRequest.getContextPath()).append(realRequest.getServletPath()).append(
-						realRequest.getQueryString() == null ? ""
-								: ("?" + realRequest.getQueryString()));
-				realResponse.sendRedirect(location.toString());
-		}
-    	
-    	super.service(realRequest, realResponse);
-    	
-    	// Close out the DSpace context no matter what.
-    	ContextUtil.closeContext(realRequest);
-    }
-    
-    
+//	private static final long serialVersionUID = 1L;
+//	
+//	
+//    /**
+//     * The DSpace config paramater, this is where the path to the DSpace
+//     * configuration file can be obtained
+//     */
+//    public static final String DSPACE_CONFIG_PARAMETER = "dspace-config";
+//	
+//    
+//    
+//    
+//    /**
+//     * Before this servlet will become functional replace 
+//     */
+//    public void init() throws ServletException
+//    {
+//        // On Windows, URL caches can cause problems, particularly with undeployment
+//        // So, here we attempt to disable them if we detect that we are running on Windows
+//        try
+//        {
+//            String osName = System.getProperty("os.name");
+//            if (osName != null)
+//                osName = osName.toLowerCase();
+//
+//            if (osName != null && osName.contains("windows"))
+//            {
+//                URL url = new URL("http://localhost/");
+//                URLConnection urlConn = url.openConnection();
+//                urlConn.setDefaultUseCaches(false);
+//            }
+//        }
+//        catch (Throwable t)
+//        {
+//            // Any errors thrown in disabling the caches aren't significant to
+//            // the normal execution of the application, so we ignore them
+//        }
+//
+//    	// Check if cocoon needs to do anything at init time?
+//    	super.init();
+//
+//    	// Paths to the various config files
+//    	String dspaceConfig = null;
+//    	String log4jConfig  = null;
+//    	String xmluiConfig  = null;
+//    	
+//    	/**
+//    	 * Stage 1
+//    	 * 
+//    	 * Locate the dspace config
+//    	 */
+//    	
+//    	// first check the local per webapp parameter, then check the global parameter.
+//    	dspaceConfig = super.getInitParameter(DSPACE_CONFIG_PARAMETER);
+//    	if (dspaceConfig == null)
+//    		dspaceConfig = super.getServletContext().getInitParameter(DSPACE_CONFIG_PARAMETER);
+//        
+//    	// Finaly, if no config parameter found throw an error
+//    	if (dspaceConfig == null || "".equals(dspaceConfig))
+//    	{
+//    		throw new ServletException(
+//    				"\n\nDSpace has failed to initialize. This has occurred because it was unable to determine \n" +
+//    				"where the dspace.cfg file is located. The path to the configuration file should be stored \n" +
+//    				"in a context variable, '"+DSPACE_CONFIG_PARAMETER+"', in either the local servlet or global contexts. \n" +
+//    				"No context variable was found in either location.\n\n");
+//    	}
+//        	
+//    	/**
+//    	 * Stage 2
+//    	 * 
+//    	 * Load the dspace config. Also may load log4j configuration.
+//    	 * (Please rely on ConfigurationManager or Log4j to configure logging)
+//    	 * 
+//    	 */
+//    	try 
+//    	{
+//            ConfigurationManager.loadConfig(dspaceConfig);
+//    	}
+//    	catch (Throwable t)
+//    	{
+//    		throw new ServletException(
+//    				"\n\nDSpace has failed to initialize, during stage 2. Error while attempting to read the \n" +
+//    				"DSpace configuration file (Path: '"+dspaceConfig+"'). \n" +
+//    				"This has likely occurred because either the file does not exist, or it's permissions \n" +
+//    				"are set incorrectly, or the path to the configuration file is incorrect. The path to \n" +
+//    				"the DSpace configuration file is stored in a context variable, 'dspace-config', in \n" +
+//    				"either the local servlet or global context.\n\n",t);
+//    	}
+//                	            
+//        /**
+//         * Stage 3
+//         * 
+//         * Load the XML UI configuration
+//         */
+//    	try
+//    	{
+//	        xmluiConfig = ConfigurationManager.getProperty("dspace.dir")
+//	                + File.separator + "config" + File.separator + "xmlui.xconf";
+//	        XMLUIConfiguration.loadConfig(xmluiConfig);
+//    	}   
+//    	catch (Throwable t)
+//    	{
+//    		throw new ServletException(
+//    				"\n\nDSpace has failed to initialize, during stage 3. Error while attempting to read \n" +
+//    				"the XML UI configuration file (Path: "+xmluiConfig+").\n" + 
+//    				"This has likely occurred because either the file does not exist, or it's permissions \n" +
+//    				"are set incorrectly, or the path to the configuration file is incorrect. The XML UI \n" +
+//    				"configuration file should be named \"xmlui.xconf\" and located inside the standard \n" +
+//    				"DSpace configuration directory. \n\n",t);
+//    	}
+//   
+//    	
+//    }
+//    
+//	
+//	/**
+//     * Before passing off a request to the cocoon servlet check to see if there is a request that 
+//     * should be resumed? If so replace the real request with a faked request and pass that off to 
+//     * cocoon.
+//     */
+//    public void service(HttpServletRequest realRequest, HttpServletResponse realResponse)
+//    throws ServletException, IOException 
+//    {
+//    	// Check if there is a request to be resumed.
+//    	realRequest = AuthenticationUtil.resumeRequest(realRequest);
+//        
+//        // Send the real request or the resumed request off to
+//        // cocoon....
+//    	
+//    	// if force ssl is on and the user has authenticated and the request is not secure redirect to https
+//    	if ((ConfigurationManager.getBooleanProperty("xmlui.force.ssl")) && (realRequest.getSession().getAttribute("dspace.current.user.id")!=null) && (!realRequest.isSecure())) {
+//				StringBuffer location = new StringBuffer("https://");
+//				location.append(ConfigurationManager.getProperty("dspace.hostname")).append(realRequest.getContextPath()).append(realRequest.getServletPath()).append(
+//						realRequest.getQueryString() == null ? ""
+//								: ("?" + realRequest.getQueryString()));
+//				realResponse.sendRedirect(location.toString());
+//		}
+//    	
+//    	super.service(realRequest, realResponse);
+//    	
+//    	// Close out the DSpace context no matter what.
+//    	ContextUtil.closeContext(realRequest);
+//    }
+//    
+//    
 
 }

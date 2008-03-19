@@ -70,162 +70,162 @@ import org.dspace.core.Context;
 public class HandleUtil
 {
 
-    /** The URL prefix of all handle */
-    protected static final String HANDLE_PREFIX = "handle/";
-
-    protected static final String DSPACE_OBJECT = "dspace.object";
-
-    /**
-     * Obtain the current DSpace handle for the specified request.
-     * 
-     * @param objectModel
-     *            The cocoon model.
-     * @return A DSpace handle, or null if none found.
-     */
-    public static DSpaceObject obtainHandle(Map objectModel)
-            throws SQLException
-    {
-        Request request = ObjectModelHelper.getRequest(objectModel);
-
-        DSpaceObject dso = (DSpaceObject) request.getAttribute(DSPACE_OBJECT);
-
-        if (dso == null)
-        {
-            String uri = request.getSitemapURI();
-
-            if (!uri.startsWith(HANDLE_PREFIX))
-                // Dosn't start with the prefix then no match
-                return null;
-
-            String handle = uri.substring(HANDLE_PREFIX.length());
-
-            // now fudge the legacy version of the handle
-            handle = "hdl:" + handle;
-
-            Context context = ContextUtil.obtainContext(objectModel);
-
-            ResolvableIdentifier ri = IdentifierService.resolve(context, handle);
-            dso = ri.getObject(context);
-
-            request.setAttribute(DSPACE_OBJECT, dso);
-        }
-
-        return dso;
-    }
-
-    /**
-     * Determine if the given DSO is an ancestor of the the parent handle.
-     * 
-     * @param dso
-     *            The child DSO object.
-     * @param parent
-     *            The Handle to test against.
-     * @return The matched DSO object or null if none found.
-     */
-    public static boolean inheritsFrom(DSpaceObject dso, String parent)
-            throws SQLException
-    {
-
-        DSpaceObject current = dso;
-
-        while (current != null)
-        {
-
-            // Check if the current object has the handle we are looking for.
-            if (current.getExternalIdentifier().getCanonicalForm().equals(parent))
-                return true;
-
-            if (current.getType() == Constants.ITEM)
-            {
-                current = ((Item) current).getOwningCollection();
-            }
-            else if (current.getType() == Constants.COLLECTION)
-            {
-                current = ((Collection) current).getCommunities()[0];
-            }
-            else if (current.getType() == Constants.COMMUNITY)
-            {
-                current = ((Community) current).getParentCommunity();
-            }
-        }
-
-        // If the loop finished then we searched the entire parant-child chain
-        // and did not find this handle, so the object was not found.
-
-        return false;
-    }
-
-    /**
-     * Build a list of trail metadata starting with the owning collection and
-     * ending with the root level parent. If the Object is an item the item is
-     * not included but all it's parents are. However if the item is a community
-     * or collection then it is included along with all parents.
-     * 
-     * @param dso
-     * @param pageMeta
-     */
-    public static void buildHandleTrail(DSpaceObject dso, PageMeta pageMeta,
-            String contextPath) throws SQLException, WingException
-    {
-        // Add the trail back to the repository root.
-        Stack<DSpaceObject> stack = new Stack<DSpaceObject>();
-
-        if (dso instanceof Bitstream)
-        {
-        	Bitstream bitstream = (Bitstream) dso;
-        	Bundle[] bundles = bitstream.getBundles();
-        	
-        	dso = bundles[0];
-        }
-        
-        if (dso instanceof Bundle)
-        {
-        	Bundle bundle = (Bundle) dso;
-        	Item[] items = bundle.getItems();
-        	
-        	dso = items[0];
-        }
-        
-        if (dso instanceof Item)
-        {
-            Item item = (Item) dso;
-            Collection collection = item.getOwningCollection();
-            dso = collection;
-        }
-
-        if (dso instanceof Collection)
-        {
-            Collection collection = (Collection) dso;
-            stack.push(collection);
-            Community[] communities = collection.getCommunities();
-
-            dso = communities[0];
-        }
-
-        if (dso instanceof Community)
-        {
-            Community community = (Community) dso;
-            stack.push(community);
-
-            for (Community parent : community.getAllParents())
-            {
-                stack.push(parent);
-            }
-        }
-
-        while (!stack.empty())
-        {
-            DSpaceObject pop = stack.pop();
-            if (pop instanceof Collection)
-                pageMeta.addTrailLink(contextPath + "/handle/"
-                        + pop.getExternalIdentifier().getCanonicalForm(), ((Collection) pop)
-                        .getMetadata("name"));
-            else if (pop instanceof Community)
-                pageMeta.addTrailLink(contextPath + "/handle/"
-                        + pop.getExternalIdentifier().getCanonicalForm(), ((Community) pop)
-                        .getMetadata("name"));
-
-        }
-    }
+//    /** The URL prefix of all handle */
+//    protected static final String HANDLE_PREFIX = "handle/";
+//
+//    protected static final String DSPACE_OBJECT = "dspace.object";
+//
+//    /**
+//     * Obtain the current DSpace handle for the specified request.
+//     * 
+//     * @param objectModel
+//     *            The cocoon model.
+//     * @return A DSpace handle, or null if none found.
+//     */
+//    public static DSpaceObject obtainHandle(Map objectModel)
+//            throws SQLException
+//    {
+//        Request request = ObjectModelHelper.getRequest(objectModel);
+//
+//        DSpaceObject dso = (DSpaceObject) request.getAttribute(DSPACE_OBJECT);
+//
+//        if (dso == null)
+//        {
+//            String uri = request.getSitemapURI();
+//
+//            if (!uri.startsWith(HANDLE_PREFIX))
+//                // Dosn't start with the prefix then no match
+//                return null;
+//
+//            String handle = uri.substring(HANDLE_PREFIX.length());
+//
+//            // now fudge the legacy version of the handle
+//            handle = "hdl:" + handle;
+//
+//            Context context = ContextUtil.obtainContext(objectModel);
+//
+//            ResolvableIdentifier ri = IdentifierService.resolve(context, handle);
+//            dso = ri.getObject(context);
+//
+//            request.setAttribute(DSPACE_OBJECT, dso);
+//        }
+//
+//        return dso;
+//    }
+//
+//    /**
+//     * Determine if the given DSO is an ancestor of the the parent handle.
+//     * 
+//     * @param dso
+//     *            The child DSO object.
+//     * @param parent
+//     *            The Handle to test against.
+//     * @return The matched DSO object or null if none found.
+//     */
+//    public static boolean inheritsFrom(DSpaceObject dso, String parent)
+//            throws SQLException
+//    {
+//
+//        DSpaceObject current = dso;
+//
+//        while (current != null)
+//        {
+//
+//            // Check if the current object has the handle we are looking for.
+//            if (current.getExternalIdentifier().getCanonicalForm().equals(parent))
+//                return true;
+//
+//            if (current.getType() == Constants.ITEM)
+//            {
+//                current = ((Item) current).getOwningCollection();
+//            }
+//            else if (current.getType() == Constants.COLLECTION)
+//            {
+//                current = ((Collection) current).getCommunities()[0];
+//            }
+//            else if (current.getType() == Constants.COMMUNITY)
+//            {
+//                current = ((Community) current).getParentCommunity();
+//            }
+//        }
+//
+//        // If the loop finished then we searched the entire parant-child chain
+//        // and did not find this handle, so the object was not found.
+//
+//        return false;
+//    }
+//
+//    /**
+//     * Build a list of trail metadata starting with the owning collection and
+//     * ending with the root level parent. If the Object is an item the item is
+//     * not included but all it's parents are. However if the item is a community
+//     * or collection then it is included along with all parents.
+//     * 
+//     * @param dso
+//     * @param pageMeta
+//     */
+//    public static void buildHandleTrail(DSpaceObject dso, PageMeta pageMeta,
+//            String contextPath) throws SQLException, WingException
+//    {
+//        // Add the trail back to the repository root.
+//        Stack<DSpaceObject> stack = new Stack<DSpaceObject>();
+//
+//        if (dso instanceof Bitstream)
+//        {
+//        	Bitstream bitstream = (Bitstream) dso;
+//        	Bundle[] bundles = bitstream.getBundles();
+//        	
+//        	dso = bundles[0];
+//        }
+//        
+//        if (dso instanceof Bundle)
+//        {
+//        	Bundle bundle = (Bundle) dso;
+//        	Item[] items = bundle.getItems();
+//        	
+//        	dso = items[0];
+//        }
+//        
+//        if (dso instanceof Item)
+//        {
+//            Item item = (Item) dso;
+//            Collection collection = item.getOwningCollection();
+//            dso = collection;
+//        }
+//
+//        if (dso instanceof Collection)
+//        {
+//            Collection collection = (Collection) dso;
+//            stack.push(collection);
+//            Community[] communities = collection.getCommunities();
+//
+//            dso = communities[0];
+//        }
+//
+//        if (dso instanceof Community)
+//        {
+//            Community community = (Community) dso;
+//            stack.push(community);
+//
+//            for (Community parent : community.getAllParents())
+//            {
+//                stack.push(parent);
+//            }
+//        }
+//
+//        while (!stack.empty())
+//        {
+//            DSpaceObject pop = stack.pop();
+//            if (pop instanceof Collection)
+//                pageMeta.addTrailLink(contextPath + "/handle/"
+//                        + pop.getExternalIdentifier().getCanonicalForm(), ((Collection) pop)
+//                        .getMetadata("name"));
+//            else if (pop instanceof Community)
+//                pageMeta.addTrailLink(contextPath + "/handle/"
+//                        + pop.getExternalIdentifier().getCanonicalForm(), ((Community) pop)
+//                        .getMetadata("name"));
+//
+//        }
+//    }
 
 }
