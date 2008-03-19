@@ -61,53 +61,53 @@ import org.xml.sax.SAXException;
  * 
  * @author Scott Phillips
  */
-public class Navigation extends AbstractDSpaceTransformer implements CacheableProcessingComponent
+public class Navigation// extends AbstractDSpaceTransformer implements CacheableProcessingComponent
 {
 	
-    
-	/** Language Strings **/
-    protected static final Message T_submissions = 
-        message("xmlui.Submission.Navigation.submissions");
-	
-	 /**
-     * Generate the unique caching key.
-     * This key must be unique inside the space of this component.
-     */
-    public Serializable getKey() {
-        
-        return 1;
-    }
-
-    /**
-     * Generate the cache validity object.
-     */
-    public SourceValidity getValidity() 
-    {
-        return NOPValidity.SHARED_INSTANCE;
-    }
-	
-   
-    public void addOptions(Options options) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
-    {
-		// Basic navigation skeleton
-        options.addList("browse");
-        List account = options.addList("account");
-        options.addList("context");
-        options.addList("administrative");
-    	
-//      This dosn't flow very well, lets remove it and see if anyone misses it.  
-//    	DSpaceObject dso = URIUtil.resolve(objectModel);
-//    	if (dso != null && dso instanceof Collection)
-//    	{
-//    		Collection collection = (Collection) dso;  		
-//    		if (AuthorizeManager.authorizeActionBoolean(context, collection, Constants.ADD))
-//    		{
-//    	        String submitURL = contextPath + "/handle/" + collection.getExternalIdentifier().getCanonicalForm() + "/submit";
-//		        account.addItemXref(submitURL,"Submit to this collection");
-//    		}
-//    	}
-    	
-    	account.addItemXref(contextPath+"/submissions",T_submissions);
-    }
+//    
+//	/** Language Strings **/
+//    protected static final Message T_submissions = 
+//        message("xmlui.Submission.Navigation.submissions");
+//	
+//	 /**
+//     * Generate the unique caching key.
+//     * This key must be unique inside the space of this component.
+//     */
+//    public Serializable getKey() {
+//        
+//        return 1;
+//    }
+//
+//    /**
+//     * Generate the cache validity object.
+//     */
+//    public SourceValidity getValidity() 
+//    {
+//        return NOPValidity.SHARED_INSTANCE;
+//    }
+//	
+//   
+//    public void addOptions(Options options) throws SAXException, WingException,
+//            UIException, SQLException, IOException, AuthorizeException
+//    {
+//		// Basic navigation skeleton
+//        options.addList("browse");
+//        List account = options.addList("account");
+//        options.addList("context");
+//        options.addList("administrative");
+//    	
+////      This dosn't flow very well, lets remove it and see if anyone misses it.  
+////    	DSpaceObject dso = URIUtil.resolve(objectModel);
+////    	if (dso != null && dso instanceof Collection)
+////    	{
+////    		Collection collection = (Collection) dso;  		
+////    		if (AuthorizeManager.authorizeActionBoolean(context, collection, Constants.ADD))
+////    		{
+////    	        String submitURL = contextPath + "/handle/" + collection.getExternalIdentifier().getCanonicalForm() + "/submit";
+////		        account.addItemXref(submitURL,"Submit to this collection");
+////    		}
+////    	}
+//    	
+//    	account.addItemXref(contextPath+"/submissions",T_submissions);
+//    }
 }

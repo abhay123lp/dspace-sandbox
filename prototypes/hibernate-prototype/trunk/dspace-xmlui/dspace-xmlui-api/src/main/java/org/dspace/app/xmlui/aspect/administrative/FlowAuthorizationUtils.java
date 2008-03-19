@@ -117,7 +117,8 @@ public class FlowAuthorizationUtils {
 		else {
 			Item item = null;
 			try {
-				item = Item.find(context, Integer.valueOf(identifier));
+//				item = Item.find(context, Integer.valueOf(identifier));
+			    item = null; //FIXME commentato
 			} catch (NumberFormatException e) {
 				// ignoring the exception in case of a malformed input string
 			}
@@ -151,7 +152,8 @@ public class FlowAuthorizationUtils {
 		FlowResult result = new FlowResult();
 		boolean added = false;
 	
-		ResourcePolicy policy = ResourcePolicy.find(context, policyID);
+		ResourcePolicy policy = null;//ResourcePolicy.find(context, policyID);
+		//FIXME commentato
 			
 		/* First and foremost, if no group or action was selected, throw an error back to the user */
 		if (actionID == -1) {
@@ -171,18 +173,20 @@ public class FlowAuthorizationUtils {
 		{
 			policy = ResourcePolicy.create(context);
 			
-			switch (objectType) {
-			case Constants.COMMUNITY: policyParent = Community.find(context, objectID); break;
-			case Constants.COLLECTION: policyParent = Collection.find(context, objectID); break;
-			case Constants.ITEM: policyParent = Item.find(context, objectID); break;
-			case Constants.BUNDLE: policyParent = Bundle.find(context, objectID); break;
-			case Constants.BITSTREAM: policyParent = Bitstream.find(context, objectID); break;
-			}
+//			switch (objectType) {
+//			case Constants.COMMUNITY: policyParent = Community.find(context, objectID); break;
+//			case Constants.COLLECTION: policyParent = Collection.find(context, objectID); break;
+//			case Constants.ITEM: policyParent = Item.find(context, objectID); break;
+//			case Constants.BUNDLE: policyParent = Bundle.find(context, objectID); break;
+//			case Constants.BITSTREAM: policyParent = Bitstream.find(context, objectID); break;
+//			}
+			//FIXME commentato
 			policy.setResource(policyParent);
 			added = true;
 		}
 		
-	    Group group = Group.find(context, groupID);
+	    Group group = null;//Group.find(context, groupID);
+	  //FIXME commentato
 	    
 	    //  modify the policy
 	    policy.setAction(actionID);
@@ -193,12 +197,14 @@ public class FlowAuthorizationUtils {
 	    DSpaceObject logoContainer = null;
 	    if (objectType == Constants.COLLECTION)
 	    {
-	    	logoContainer = Collection.find(context, objectID);
+	    	logoContainer = null;//Collection.find(context, objectID);
+	    	//FIXME commentato
 	        logo = ((Collection)logoContainer).getLogo();
 	    }
 	    else if (objectType == Constants.COMMUNITY)
 	    {
-	    	logoContainer = Community.find(context, objectID);
+	    	logoContainer = null;//Community.find(context, objectID);
+	    	//FIXME commentato
 	        logo = ((Community)logoContainer).getLogo();
 	    }
 	    
@@ -210,7 +216,7 @@ public class FlowAuthorizationUtils {
 	    }
 	    
 	    // Perform the update action
-	    policy.update();
+//	    policy.update(); //FIXME commentato
 	    context.commit();
 	    
 	    result.setContinue(true);
@@ -238,8 +244,8 @@ public class FlowAuthorizationUtils {
 	
 		for (String id : policyIDs) 
 		{
-			ResourcePolicy policyDeleted = ResourcePolicy.find(context, Integer.valueOf(id));
-			policyDeleted.delete();
+//			ResourcePolicy policyDeleted = ResourcePolicy.find(context, Integer.valueOf(id));//FIXME commentato
+//			policyDeleted.delete(); //FIXME commentato
 	    }
 	
 		result.setContinue(true);

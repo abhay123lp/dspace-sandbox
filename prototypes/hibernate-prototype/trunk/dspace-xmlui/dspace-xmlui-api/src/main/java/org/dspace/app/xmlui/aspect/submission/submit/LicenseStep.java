@@ -73,141 +73,141 @@ import java.util.Map;
  * @author Scott Phillips
  * @author Tim Donohue (updated for Configurable Submission)
  */
-public class LicenseStep extends AbstractSubmissionStep
+public class LicenseStep //extends AbstractSubmissionStep
 {
 
 	/** Language Strings **/
-    protected static final Message T_head = 
-        message("xmlui.Submission.submit.LicenseStep.head");
-    protected static final Message T_info1 = 
-        message("xmlui.Submission.submit.LicenseStep.info1");
-    protected static final Message T_info2 = 
-        message("xmlui.Submission.submit.LicenseStep.info2");
-    protected static final Message T_info3 = 
-        message("xmlui.Submission.submit.LicenseStep.info3");
-    protected static final Message T_decision_label = 
-        message("xmlui.Submission.submit.LicenseStep.decision_label");
-    protected static final Message T_decision_checkbox = 
-        message("xmlui.Submission.submit.LicenseStep.decision_checkbox");
-    protected static final Message T_decision_error = 
-        message("xmlui.Submission.submit.LicenseStep.decision_error");
-    protected static final Message T_submit_remove = 
-        message("xmlui.Submission.submit.LicenseStep.submit_remove");
-    protected static final Message T_submit_complete = 
-        message("xmlui.Submission.submit.LicenseStep.submit_complete");
-	
-    /** 
-     * Global reference to Creative Commons license page
-     * (this is used when CC Licensing is enabled in dspace.cfg)
-     **/
-    private CCLicenseStep ccLicenseStep = null;
-    
-    /**
-	 * Establish our required parameters, abstractStep will enforce these.
-	 */
-	public LicenseStep()
-	{
-		this.requireSubmission = true;
-		this.requireStep = true;
-	}
-    
-     /**
-     * Check if this is actually the creative commons license step
-     */
-    public void setup(SourceResolver resolver, Map objectModel, String src, Parameters parameters) 
-        throws ProcessingException, SAXException, IOException
-    { 
-        super.setup(resolver,objectModel,src,parameters);
-        
-        //if Creative Commons licensing is enabled, and
-        //we are on the 1st page of Licensing, 
-        //then this is the CC License page
-        if (CreativeCommons.isEnabled() && this.getPage()==1)
-        {
-           ccLicenseStep = new CCLicenseStep();
-           ccLicenseStep.setup(resolver, objectModel, src, parameters);
-        }
-        else
-           ccLicenseStep = null;
-    
-    }
-    
-	public void addBody(Body body) throws SAXException, WingException,
-	UIException, SQLException, IOException, AuthorizeException
-	{
-        // If Creative Commons licensing is enabled,
-        // and we've initialized the CC license Page
-        // then load the CreativeCommons page!
-        if (CreativeCommons.isEnabled() && ccLicenseStep!=null)
-        {
-           //add body for CC License page
-           ccLicenseStep.addBody(body);
-           return;
-        }
-        
-        // Get the full text for the actuial licese
-		Collection collection = submission.getCollection();
-		String actionURL = IdentifierService.getURL(collection).toString() + "/submit";
-		String licenseText = collection.getLicense();
-		
-		Division div = body.addInteractiveDivision("submit-license",actionURL, Division.METHOD_POST,"primary submission");
-		div.setHead(T_submission_head);
-		addSubmissionProgressList(div);
-		
-		Division inner = div.addDivision("submit-license-inner");
-		inner.setHead(T_head);
-		inner.addPara(T_info1);
-		inner.addPara(T_info2);
-		
-		
-		// Add the actual text of the license:
-		Division displayLicense = inner.addDivision("submit-license-standard-text","license-text");
-		displayLicense.addSimpleHTMLFragment(true, licenseText);
-		
-		inner.addPara(T_info3);
-		
-		List controls = inner.addList("submit-review", List.TYPE_FORM);
-		
-		CheckBox decision = controls.addItem().addCheckBox("decision");
-		decision.setLabel(T_decision_label);
-		decision.addOption("accept",T_decision_checkbox);
-
-		// If user did not check "I accept" checkbox 
-		if(this.errorFlag==org.dspace.submit.step.LicenseStep.STATUS_LICENSE_REJECTED)
-		{
-			decision.addError(T_decision_error);
-		}
-		
-		//add standard control/paging buttons
-        addControlButtons(controls);
-        
-		div.addHidden("submission-continue").setValue(knot.getId()); 
-	}
-    
-    /** 
-     * Each submission step must define its own information to be reviewed
-     * during the final Review/Verify Step in the submission process.
-     * <P>
-     * The information to review should be tacked onto the passed in 
-     * List object.
-     * <P>
-     * NOTE: To remain consistent across all Steps, you should first
-     * add a sub-List object (with this step's name as the heading),
-     * by using a call to reviewList.addList().   This sublist is
-     * the list you return from this method!
-     * 
-     * @param reviewList
-     *      The List to which all reviewable information should be added
-     * @return 
-     *      The new sub-List object created by this step, which contains
-     *      all the reviewable information.  If this step has nothing to
-     *      review, then return null!   
-     */
-    public List addReviewSection(List reviewList) throws SAXException,
-        WingException, UIException, SQLException, IOException,
-        AuthorizeException
-    {
-        //License step doesn't require reviewing
-        return null;
-    }
+//    protected static final Message T_head = 
+//        message("xmlui.Submission.submit.LicenseStep.head");
+//    protected static final Message T_info1 = 
+//        message("xmlui.Submission.submit.LicenseStep.info1");
+//    protected static final Message T_info2 = 
+//        message("xmlui.Submission.submit.LicenseStep.info2");
+//    protected static final Message T_info3 = 
+//        message("xmlui.Submission.submit.LicenseStep.info3");
+//    protected static final Message T_decision_label = 
+//        message("xmlui.Submission.submit.LicenseStep.decision_label");
+//    protected static final Message T_decision_checkbox = 
+//        message("xmlui.Submission.submit.LicenseStep.decision_checkbox");
+//    protected static final Message T_decision_error = 
+//        message("xmlui.Submission.submit.LicenseStep.decision_error");
+//    protected static final Message T_submit_remove = 
+//        message("xmlui.Submission.submit.LicenseStep.submit_remove");
+//    protected static final Message T_submit_complete = 
+//        message("xmlui.Submission.submit.LicenseStep.submit_complete");
+//	
+//    /** 
+//     * Global reference to Creative Commons license page
+//     * (this is used when CC Licensing is enabled in dspace.cfg)
+//     **/
+//    private CCLicenseStep ccLicenseStep = null;
+//    
+//    /**
+//	 * Establish our required parameters, abstractStep will enforce these.
+//	 */
+//	public LicenseStep()
+//	{
+//		this.requireSubmission = true;
+//		this.requireStep = true;
+//	}
+//    
+//     /**
+//     * Check if this is actually the creative commons license step
+//     */
+//    public void setup(SourceResolver resolver, Map objectModel, String src, Parameters parameters) 
+//        throws ProcessingException, SAXException, IOException
+//    { 
+//        super.setup(resolver,objectModel,src,parameters);
+//        
+//        //if Creative Commons licensing is enabled, and
+//        //we are on the 1st page of Licensing, 
+//        //then this is the CC License page
+//        if (CreativeCommons.isEnabled() && this.getPage()==1)
+//        {
+//           ccLicenseStep = new CCLicenseStep();
+//           ccLicenseStep.setup(resolver, objectModel, src, parameters);
+//        }
+//        else
+//           ccLicenseStep = null;
+//    
+//    }
+//    
+//	public void addBody(Body body) throws SAXException, WingException,
+//	UIException, SQLException, IOException, AuthorizeException
+//	{
+//        // If Creative Commons licensing is enabled,
+//        // and we've initialized the CC license Page
+//        // then load the CreativeCommons page!
+//        if (CreativeCommons.isEnabled() && ccLicenseStep!=null)
+//        {
+//           //add body for CC License page
+//           ccLicenseStep.addBody(body);
+//           return;
+//        }
+//        
+//        // Get the full text for the actuial licese
+//		Collection collection = submission.getCollection();
+//		String actionURL = IdentifierService.getURL(collection).toString() + "/submit";
+//		String licenseText = collection.getLicense();
+//		
+//		Division div = body.addInteractiveDivision("submit-license",actionURL, Division.METHOD_POST,"primary submission");
+//		div.setHead(T_submission_head);
+//		addSubmissionProgressList(div);
+//		
+//		Division inner = div.addDivision("submit-license-inner");
+//		inner.setHead(T_head);
+//		inner.addPara(T_info1);
+//		inner.addPara(T_info2);
+//		
+//		
+//		// Add the actual text of the license:
+//		Division displayLicense = inner.addDivision("submit-license-standard-text","license-text");
+//		displayLicense.addSimpleHTMLFragment(true, licenseText);
+//		
+//		inner.addPara(T_info3);
+//		
+//		List controls = inner.addList("submit-review", List.TYPE_FORM);
+//		
+//		CheckBox decision = controls.addItem().addCheckBox("decision");
+//		decision.setLabel(T_decision_label);
+//		decision.addOption("accept",T_decision_checkbox);
+//
+//		// If user did not check "I accept" checkbox 
+//		if(this.errorFlag==org.dspace.submit.step.LicenseStep.STATUS_LICENSE_REJECTED)
+//		{
+//			decision.addError(T_decision_error);
+//		}
+//		
+//		//add standard control/paging buttons
+//        addControlButtons(controls);
+//        
+//		div.addHidden("submission-continue").setValue(knot.getId()); 
+//	}
+//    
+//    /** 
+//     * Each submission step must define its own information to be reviewed
+//     * during the final Review/Verify Step in the submission process.
+//     * <P>
+//     * The information to review should be tacked onto the passed in 
+//     * List object.
+//     * <P>
+//     * NOTE: To remain consistent across all Steps, you should first
+//     * add a sub-List object (with this step's name as the heading),
+//     * by using a call to reviewList.addList().   This sublist is
+//     * the list you return from this method!
+//     * 
+//     * @param reviewList
+//     *      The List to which all reviewable information should be added
+//     * @return 
+//     *      The new sub-List object created by this step, which contains
+//     *      all the reviewable information.  If this step has nothing to
+//     *      review, then return null!   
+//     */
+//    public List addReviewSection(List reviewList) throws SAXException,
+//        WingException, UIException, SQLException, IOException,
+//        AuthorizeException
+//    {
+//        //License step doesn't require reviewing
+//        return null;
+//    }
 }

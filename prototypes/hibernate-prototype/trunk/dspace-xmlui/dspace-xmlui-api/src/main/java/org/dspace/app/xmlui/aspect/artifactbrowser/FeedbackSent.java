@@ -61,61 +61,61 @@ import org.xml.sax.SAXException;
  * 
  * @author Scott Phillips
  */
-public class FeedbackSent extends AbstractDSpaceTransformer implements CacheableProcessingComponent
+public class FeedbackSent //extends AbstractDSpaceTransformer implements CacheableProcessingComponent
 {
-    /** language strings */
-    public static final Message T_title =
-        message("xmlui.ArtifactBrowser.FeedbackSent.title");
-    
-    public static final Message T_dspace_home =
-        message("xmlui.general.dspace_home");
-    
-    public static final Message T_trail = 
-        message("xmlui.ArtifactBrowser.FeedbackSent.trail");
-    
-    public static final Message T_head =
-        message("xmlui.ArtifactBrowser.FeedbackSent.head");
-    
-    public static final Message T_para1 = 
-        message("xmlui.ArtifactBrowser.FeedbackSent.para1");
-    
-    
-    /**
-     * Generate the unique caching key.
-     */
-    public Serializable getKey() {
-        return "1";
-    }
-
-    /**
-     * Generate the cache validity object.
-     */
-    public SourceValidity getValidity() 
-    {
-       return NOPValidity.SHARED_INSTANCE;
-    }
-    
-    
-    public void addPageMeta(PageMeta pageMeta) throws SAXException,
-            WingException, UIException, SQLException, IOException,
-            AuthorizeException
-    {
-        
-        pageMeta.addMetadata("title").addContent(T_title);
-       
-        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
-        pageMeta.addTrail().addContent(T_trail);
-    }
-
-  
-    public void addBody(Body body) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
-    {
-        Division feedback = body.addDivision("feedback-sent","primary");
-     
-        feedback.setHead(T_head);
-        
-        feedback.addPara(T_para1);
-        
-    }
+//    /** language strings */
+//    public static final Message T_title =
+//        message("xmlui.ArtifactBrowser.FeedbackSent.title");
+//    
+//    public static final Message T_dspace_home =
+//        message("xmlui.general.dspace_home");
+//    
+//    public static final Message T_trail = 
+//        message("xmlui.ArtifactBrowser.FeedbackSent.trail");
+//    
+//    public static final Message T_head =
+//        message("xmlui.ArtifactBrowser.FeedbackSent.head");
+//    
+//    public static final Message T_para1 = 
+//        message("xmlui.ArtifactBrowser.FeedbackSent.para1");
+//    
+//    
+//    /**
+//     * Generate the unique caching key.
+//     */
+//    public Serializable getKey() {
+//        return "1";
+//    }
+//
+//    /**
+//     * Generate the cache validity object.
+//     */
+//    public SourceValidity getValidity() 
+//    {
+//       return NOPValidity.SHARED_INSTANCE;
+//    }
+//    
+//    
+//    public void addPageMeta(PageMeta pageMeta) throws SAXException,
+//            WingException, UIException, SQLException, IOException,
+//            AuthorizeException
+//    {
+//        
+//        pageMeta.addMetadata("title").addContent(T_title);
+//       
+//        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
+//        pageMeta.addTrail().addContent(T_trail);
+//    }
+//
+//  
+//    public void addBody(Body body) throws SAXException, WingException,
+//            UIException, SQLException, IOException, AuthorizeException
+//    {
+//        Division feedback = body.addDivision("feedback-sent","primary");
+//     
+//        feedback.setHead(T_head);
+//        
+//        feedback.addPara(T_para1);
+//        
+//    }
 }

@@ -55,66 +55,66 @@ import org.apache.cocoon.environment.SourceResolver;
  * @author Scott Phillips
  */
 
-public class ControlPanelAction extends AbstractAction
+public class ControlPanelAction //extends AbstractAction
 {
-
-    /**
-     * Either activate or deactivate the alert system.
-     */
-    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
-            String source, Parameters parameters) throws Exception
-    {
-        Request request = ObjectModelHelper.getRequest(objectModel);
-        
-        // In any case update the system-wide alert system
-        String message = request.getParameter("message");
-        String countdownString = request.getParameter("countdown");
-        int countdown = -1;
-        if (countdownString != null)
-        {
-        	try {
-        		countdown = Integer.valueOf(countdownString);
-        	} 
-        	catch (NumberFormatException nfe)
-        	{
-        		// just ignore it.
-        	}
-        }
-        
-        
-        // Update the message
-        if (message != null)
-        	SystemwideAlerts.setMessage(message);
-        
-        if (countdown >= 0)
-        {
-        	// Convert from minutes to milliseconds;
-        	countdown = countdown * 60 * 1000;
-        	
-        	// Figure out when the count down is.
-        	long countDownTo = System.currentTimeMillis() + countdown;
-        	
-        	// set it.
-        	SystemwideAlerts.setCountDownToo(countDownTo);
-        }
-        
-        
-        
-        if (request.getParameter("submit_activate") != null)
-        {
-        	SystemwideAlerts.activateAlert();
-        	
-        	// Ensure the alert is active for this request, return 
-        	// a success so the sitemap can add the alert in.
-        	return new HashMap();
-        	
-        }
-        else if (request.getParameter("submit_deactivate") != null)
-        {
-        	SystemwideAlerts.deactivateAlert();
-        }
-        
-        return null;
-    }
+//
+//    /**
+//     * Either activate or deactivate the alert system.
+//     */
+//    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
+//            String source, Parameters parameters) throws Exception
+//    {
+//        Request request = ObjectModelHelper.getRequest(objectModel);
+//        
+//        // In any case update the system-wide alert system
+//        String message = request.getParameter("message");
+//        String countdownString = request.getParameter("countdown");
+//        int countdown = -1;
+//        if (countdownString != null)
+//        {
+//        	try {
+//        		countdown = Integer.valueOf(countdownString);
+//        	} 
+//        	catch (NumberFormatException nfe)
+//        	{
+//        		// just ignore it.
+//        	}
+//        }
+//        
+//        
+//        // Update the message
+//        if (message != null)
+//        	SystemwideAlerts.setMessage(message);
+//        
+//        if (countdown >= 0)
+//        {
+//        	// Convert from minutes to milliseconds;
+//        	countdown = countdown * 60 * 1000;
+//        	
+//        	// Figure out when the count down is.
+//        	long countDownTo = System.currentTimeMillis() + countdown;
+//        	
+//        	// set it.
+//        	SystemwideAlerts.setCountDownToo(countDownTo);
+//        }
+//        
+//        
+//        
+//        if (request.getParameter("submit_activate") != null)
+//        {
+//        	SystemwideAlerts.activateAlert();
+//        	
+//        	// Ensure the alert is active for this request, return 
+//        	// a success so the sitemap can add the alert in.
+//        	return new HashMap();
+//        	
+//        }
+//        else if (request.getParameter("submit_deactivate") != null)
+//        {
+//        	SystemwideAlerts.deactivateAlert();
+//        }
+//        
+//        return null;
+//    }
 
 }

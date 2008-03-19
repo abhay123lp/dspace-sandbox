@@ -59,75 +59,75 @@ import org.dspace.eperson.EPerson;
  * @author Scott Phillips
  */
 
-public class SendFeedbackAction extends AbstractAction
+public class SendFeedbackAction// extends AbstractAction
 {
 
     /**
-     * 
-     */
-    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
-            String source, Parameters parameters) throws Exception
-    {
-        Request request = ObjectModelHelper.getRequest(objectModel);
-            
-        String page = request.getParameter("page");
-        String address = request.getParameter("email");
-        String agent = request.getHeader("User-Agent");
-        String session = request.getSession().getId();
-        String comments = request.getParameter("comments");
-        
-        // User email from context
-        Context context = ContextUtil.obtainContext(objectModel);
-        EPerson loggedin = context.getCurrentUser();
-        String eperson = null;
-        if (loggedin != null)
-            eperson = loggedin.getEmail();
-        
-        if (page == null || page.equals(""))
-        {
-            page = request.getHeader("Referer");
-        }
-        
-        // Check all data is there
-        if ((address == null) || address.equals("")
-                || (comments == null) || comments.equals(""))
-        {
-            // Either the user did not fill out the form or this is the 
-            // first time they are visiting the page. 
-            Map<String,String> map = new HashMap<String,String>();
-            map.put("page",page);
-            
-            if (address == null || address.equals(""))
-                map.put("email",eperson);
-            else
-                map.put("email",address);
-            
-            map.put("comments",comments);
-            
-            return map;
-        }
-        
-        // All data is there, send the email
-        Email email = ConfigurationManager.getEmail("feedback");
-        email.addRecipient(ConfigurationManager
-                .getProperty("feedback.recipient"));
-
-        email.addArgument(new Date()); // Date
-        email.addArgument(address);    // Email
-        email.addArgument(eperson);    // Logged in as
-        email.addArgument(page);       // Referring page
-        email.addArgument(agent);      // User agent
-        email.addArgument(session);    // Session ID
-        email.addArgument(comments);   // The feedback itself
-
-        // Replying to feedback will reply to email on form
-        email.setReplyTo(address);
-
-        // May generate MessageExceptions.
-        email.send();
-
-        // Finished, allow to pass.
-        return null;
-    }
+//     * 
+//     */
+//    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
+//            String source, Parameters parameters) throws Exception
+//    {
+//        Request request = ObjectModelHelper.getRequest(objectModel);
+//            
+//        String page = request.getParameter("page");
+//        String address = request.getParameter("email");
+//        String agent = request.getHeader("User-Agent");
+//        String session = request.getSession().getId();
+//        String comments = request.getParameter("comments");
+//        
+//        // User email from context
+//        Context context = ContextUtil.obtainContext(objectModel);
+//        EPerson loggedin = context.getCurrentUser();
+//        String eperson = null;
+//        if (loggedin != null)
+//            eperson = loggedin.getEmail();
+//        
+//        if (page == null || page.equals(""))
+//        {
+//            page = request.getHeader("Referer");
+//        }
+//        
+//        // Check all data is there
+//        if ((address == null) || address.equals("")
+//                || (comments == null) || comments.equals(""))
+//        {
+//            // Either the user did not fill out the form or this is the 
+//            // first time they are visiting the page. 
+//            Map<String,String> map = new HashMap<String,String>();
+//            map.put("page",page);
+//            
+//            if (address == null || address.equals(""))
+//                map.put("email",eperson);
+//            else
+//                map.put("email",address);
+//            
+//            map.put("comments",comments);
+//            
+//            return map;
+//        }
+//        
+//        // All data is there, send the email
+//        Email email = ConfigurationManager.getEmail("feedback");
+//        email.addRecipient(ConfigurationManager
+//                .getProperty("feedback.recipient"));
+//
+//        email.addArgument(new Date()); // Date
+//        email.addArgument(address);    // Email
+//        email.addArgument(eperson);    // Logged in as
+//        email.addArgument(page);       // Referring page
+//        email.addArgument(agent);      // User agent
+//        email.addArgument(session);    // Session ID
+//        email.addArgument(comments);   // The feedback itself
+//
+//        // Replying to feedback will reply to email on form
+//        email.setReplyTo(address);
+//
+//        // May generate MessageExceptions.
+//        email.send();
+//
+//        // Finished, allow to pass.
+//        return null;
+//    }
 
 }

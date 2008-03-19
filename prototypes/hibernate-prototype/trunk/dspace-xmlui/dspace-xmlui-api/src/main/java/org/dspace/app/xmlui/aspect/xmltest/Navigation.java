@@ -53,22 +53,22 @@ import org.xml.sax.SAXException;
 /**
  * @author Scott Phillips
  */
-public class Navigation extends AbstractDSpaceTransformer
+public class Navigation //extends AbstractDSpaceTransformer
 {
     
-   
-    public void addOptions(Options options) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
-    {
-        List test = options.addList("XMLTest");
-        test.setHead("XML Test");
-        
-        test.addItemXref(contextPath + "/xmltest/structural","Structural");
-        test.addItemXref(contextPath + "/xmltest/HTML","HTML");
-        List form = test.addList("FormTest");
-        form.setHead("Forms");
-        form.addItemXref(contextPath + "/xmltest/form/basic","Basic");
-        form.addItemXref(contextPath + "/xmltest/form/inline","In line");
-        form.addItemXref(contextPath + "/xmltest/form/advanced","Advanced");
-    }
+//   
+//    public void addOptions(Options options) throws SAXException, WingException,
+//            UIException, SQLException, IOException, AuthorizeException
+//    {
+//        List test = options.addList("XMLTest");
+//        test.setHead("XML Test");
+//        
+//        test.addItemXref(contextPath + "/xmltest/structural","Structural");
+//        test.addItemXref(contextPath + "/xmltest/HTML","HTML");
+//        List form = test.addList("FormTest");
+//        form.setHead("Forms");
+//        form.addItemXref(contextPath + "/xmltest/form/basic","Basic");
+//        form.addItemXref(contextPath + "/xmltest/form/inline","In line");
+//        form.addItemXref(contextPath + "/xmltest/form/advanced","Advanced");
+//    }
 }

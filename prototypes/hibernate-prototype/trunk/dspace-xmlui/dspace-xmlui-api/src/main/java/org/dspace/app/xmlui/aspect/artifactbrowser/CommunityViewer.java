@@ -84,322 +84,322 @@ import java.sql.SQLException;
 
  * @author Scott Phillips
  */
-public class CommunityViewer extends AbstractDSpaceTransformer implements CacheableProcessingComponent
+public class CommunityViewer //extends AbstractDSpaceTransformer implements CacheableProcessingComponent
 {
-    private static final Logger log = Logger.getLogger(DSpaceFeedGenerator.class);
-	
-    /** Language Strings */
-    private static final Message T_dspace_home =
-        message("xmlui.general.dspace_home");
-    
-    private static final Message T_full_text_search =
-        message("xmlui.ArtifactBrowser.CommunityViewer.full_text_search");
-    
-    private static final Message T_go =
-        message("xmlui.general.go");
-
-    private static final Message T_head_browse =
-        message("xmlui.ArtifactBrowser.CommunityViewer.head_browse");
-    
-    private static final Message T_browse_titles = 
-        message("xmlui.ArtifactBrowser.CommunityViewer.browse_titles");
-    
-    private static final Message T_browse_authors =
-        message("xmlui.ArtifactBrowser.CommunityViewer.browse_authors");
-    
-    private static final Message T_browse_dates =
-        message("xmlui.ArtifactBrowser.CommunityViewer.browse_dates");
-    
-    private static final Message T_head_sub_communities = 
-        message("xmlui.ArtifactBrowser.CommunityViewer.head_sub_communities");
-    
-    private static final Message T_head_sub_collections =
-        message("xmlui.ArtifactBrowser.CommunityViewer.head_sub_collections");
-    
-    private static final Message T_head_recent_submissions =
-        message("xmlui.ArtifactBrowser.CommunityViewer.head_recent_submissions");
-    
-    /** How many recient submissions to list */
-    private static final int RECENT_SUBMISISONS = 5;
-
-    /** The cache of recently submitted items */
-    private java.util.List<Item> recentSubmittedItems;
-    
-    /** Cached validity object */
-    private SourceValidity validity;
-    
-    /**
-     * Generate the unique caching key.
-     * This key must be unique inside the space of this component.
-     */
-    public Serializable getKey() {
-        try {
-            DSpaceObject dso = URIUtil.resolve(objectModel);
-            
-            if (dso == null)
-                return "0"; // no item, something is wrong
-            
-            return HashUtil.hash(IdentifierService.getCanonicalForm(dso));
-        } 
-        catch (SQLException sqle)
-        {
-            // Ignore all errors and just return that the component is not cachable.
-            return "0";
-        }
-    }
-
-    /**
-     * Generate the cache validity object.
-     * 
-     * This validity object includes the community being viewed, all 
-     * sub-communites (one level deep), all sub-collections, and 
-     * recently submitted items.
-     */
-    public SourceValidity getValidity() 
-    {
-    	if (this.validity == null)
-    	{
-	        try {
-	            DSpaceObject dso = URIUtil.resolve(objectModel);
-	            
-	            if (dso == null)
-	                return null;
-	            
-	            if (!(dso instanceof Community))
-	                return null;
-	            
-	            Community community = (Community) dso;
-	            
-	            DSpaceValidity validity = new DSpaceValidity();
-	            validity.add(community);
-	            
-	            Community[] subCommunities = community.getSubcommunities();
-	            Collection[] collections = community.getCollections();
-	            // Sub communities
-	            for (Community subCommunity : subCommunities)
-	            {
-	                validity.add(subCommunity);
-	            }
-	            // Sub collections
-	            for (Collection collection : collections)
-	            {
-	                validity.add(collection);
-	            }
-	
-	            // Recently submitted items
-	            for (Item item : getRecientlySubmittedIems(community))
-	            {
-	                validity.add(item);
-	            }
-	            
-	            this.validity = validity.complete();
-	        } 
-	        catch (Exception e)
-	        {
-	            // Ignore all errors and invalidate the cache.
-	        }
-    	}
-        return this.validity;
-    }
-    
-    
-    /**
-     * Add the community's title and trail links to the page's metadata
-     */
-    public void addPageMeta(PageMeta pageMeta) throws SAXException,
-            WingException, UIException, SQLException, IOException,
-            AuthorizeException
-    {
-        DSpaceObject dso = URIUtil.resolve(objectModel);
-        if (!(dso instanceof Community))
-            return;
-
-        // Set up the major variables
-        Community community = (Community) dso;
-        // Set the page title
-        pageMeta.addMetadata("title").addContent(community.getMetadata("name"));
-
-        // Add the trail back to the repository root.
-        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
-        HandleUtil.buildHandleTrail(community, pageMeta,contextPath);
-        
-        // Add RSS links if available
-        String formats = ConfigurationManager.getProperty("webui.feed.formats");
-		if ( formats != null )
-		{
-			for (String format : formats.split(","))
-			{
-				// Remove the protocol number, i.e. just list 'rss' or' atom'
-				String[] parts = format.split("_");
-				if (parts.length < 1) 
-					continue;
-				
-				String feedFormat = parts[0].trim()+"+xml";
-					
-				String feedURL = IdentifierService.getURL(community).toString() +"/"+format.trim();
-				pageMeta.addMetadata("feed", feedFormat).addContent(feedURL);
-			}
-		}
-    }
-
-    /**
-     * Display a single community (and refrence any sub communites or
-     * collections)
-     */
-    public void addBody(Body body) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
-    {
-
-        DSpaceObject dso = URIUtil.resolve(objectModel);
-        if (!(dso instanceof Community))
-            return;
-
-        // Set up the major variables
-        Community community = (Community) dso;
-        Community[] subCommunities = community.getSubcommunities();
-        Collection[] collections = community.getCollections();
-
-        // Build the community viewer division.
-        Division home = body.addDivision("community-home", "primary repository community");
-        home.setHead(community.getMetadata("name"));
-
-        // The search / browse box.
-        {
-            Division search = home.addDivision("community-search-browse",
-                    "secondary search-browse");
-
-            // Search query
-            Division query = search.addInteractiveDivision("community-search",
-                    IdentifierService.getURL(community).toString() + "/search",
-                    Division.METHOD_POST, "secondary search");
-            
-            Para para = query.addPara("search-query", null);
-            para.addContent(T_full_text_search);
-            para.addContent(" ");
-            para.addText("query");
-            para.addContent(" ");
-            para.addButton("submit").setValue(T_go);
-
-            // Browse by list
-            Division browseDiv = search.addDivision("community-browse","secondary browse");
-            List browse = browseDiv.addList("community-browse", List.TYPE_SIMPLE,
-                    "community-browse");
-            browse.setHead(T_head_browse);
-            String url = IdentifierService.getURL(community).toString();
-            browse.addItemXref(url + "/browse-title",T_browse_titles);
-            browse.addItemXref(url + "/browse-author",T_browse_authors);
-            browse.addItemXref(url + "/browse-date",T_browse_dates);
-        }
-
-        // Add main reference:
-        {
-        	Division viewer = home.addDivision("community-view","secondary");
-        	
-            ReferenceSet referenceSet = viewer.addReferenceSet("community-view",
-                    ReferenceSet.TYPE_DETAIL_VIEW);
-            Reference communityInclude = referenceSet.addReference(community);
-
-            // If the community has any children communities also refrence them.
-            if (subCommunities != null && subCommunities.length > 0)
-            {
-                ReferenceSet communityReferenceSet = communityInclude
-                        .addReferenceSet(ReferenceSet.TYPE_SUMMARY_LIST,null,"hierarchy");
-
-                communityReferenceSet.setHead(T_head_sub_communities);
-
-                // Sub communities
-                for (Community subCommunity : subCommunities)
-                {
-                    communityReferenceSet.addReference(subCommunity);
-                }
-            }
-            if (collections != null && collections.length > 0)
-            {
-                ReferenceSet communityReferenceSet = communityInclude
-                        .addReferenceSet(ReferenceSet.TYPE_SUMMARY_LIST,null,"hierarchy");
-
-                communityReferenceSet.setHead(T_head_sub_collections);
-                       
-
-                // Sub collections
-                for (Collection collection : collections)
-                {
-                    communityReferenceSet.addReference(collection);
-                }
-
-            }
-        }// main refrence
-
-        // Reciently submitted items
-        {
-            java.util.List<Item> items = getRecientlySubmittedIems(community);
-
-            Division lastSubmittedDiv = home
-                    .addDivision("community-recent-submission","secondary recent-submission");
-            lastSubmittedDiv.setHead(T_head_recent_submissions);
-            ReferenceSet lastSubmitted = lastSubmittedDiv.addReferenceSet(
-                    "collection-last-submitted", ReferenceSet.TYPE_SUMMARY_LIST,
-                    null, "recent-submissions");
-            for (Item item : items)
-            {
-                lastSubmitted.addReference(item);
-            }
-        }
-    }
-    
-    /**
-     * Get the recently submitted items for the given community.
-     * 
-     * @param community The community.
-     */
-    @SuppressWarnings("unchecked") 
-    private java.util.List<Item> getRecientlySubmittedIems(Community community)
-            throws SQLException
-    {
-        if (recentSubmittedItems != null)
-            return recentSubmittedItems;
-
-        String source = ConfigurationManager.getProperty("recent.submissions.sort-option");
-        BrowserScope scope = new BrowserScope(context);
-        scope.setCommunity(community);
-        scope.setResultsPerPage(RECENT_SUBMISISONS);
-        
-        // FIXME Exception Handling
-        try
-        {
-        	scope.setBrowseIndex(BrowseIndex.getItemBrowseIndex());
-            for (SortOption so : SortOption.getSortOptions())
-            {
-                if (so.getName().equals(source))
-                    scope.setSortBy(so.getNumber());
-            }
-
-        	BrowseEngine be = new BrowseEngine(context);
-        	this.recentSubmittedItems = be.browse(scope).getResults();
-        }
-        catch (SortException se)
-        {
-            log.error("Caught SortException", se);
-        }
-        catch (BrowseException bex)
-        {
-        	log.error("Caught BrowseException", bex);
-        }
-        
-        return this.recentSubmittedItems;
-    }
-
-    /**
-     * Recycle
-     */
-    public void recycle()
-    {
-        // Clear out our item's cache.
-        this.recentSubmittedItems = null;
-        this.validity = null;
-        super.recycle();
-    }
-    
-    
+//    private static final Logger log = Logger.getLogger(DSpaceFeedGenerator.class);
+//	
+//    /** Language Strings */
+//    private static final Message T_dspace_home =
+//        message("xmlui.general.dspace_home");
+//    
+//    private static final Message T_full_text_search =
+//        message("xmlui.ArtifactBrowser.CommunityViewer.full_text_search");
+//    
+//    private static final Message T_go =
+//        message("xmlui.general.go");
+//
+//    private static final Message T_head_browse =
+//        message("xmlui.ArtifactBrowser.CommunityViewer.head_browse");
+//    
+//    private static final Message T_browse_titles = 
+//        message("xmlui.ArtifactBrowser.CommunityViewer.browse_titles");
+//    
+//    private static final Message T_browse_authors =
+//        message("xmlui.ArtifactBrowser.CommunityViewer.browse_authors");
+//    
+//    private static final Message T_browse_dates =
+//        message("xmlui.ArtifactBrowser.CommunityViewer.browse_dates");
+//    
+//    private static final Message T_head_sub_communities = 
+//        message("xmlui.ArtifactBrowser.CommunityViewer.head_sub_communities");
+//    
+//    private static final Message T_head_sub_collections =
+//        message("xmlui.ArtifactBrowser.CommunityViewer.head_sub_collections");
+//    
+//    private static final Message T_head_recent_submissions =
+//        message("xmlui.ArtifactBrowser.CommunityViewer.head_recent_submissions");
+//    
+//    /** How many recient submissions to list */
+//    private static final int RECENT_SUBMISISONS = 5;
+//
+//    /** The cache of recently submitted items */
+//    private java.util.List<Item> recentSubmittedItems;
+//    
+//    /** Cached validity object */
+//    private SourceValidity validity;
+//    
+//    /**
+//     * Generate the unique caching key.
+//     * This key must be unique inside the space of this component.
+//     */
+//    public Serializable getKey() {
+//        try {
+//            DSpaceObject dso = URIUtil.resolve(objectModel);
+//            
+//            if (dso == null)
+//                return "0"; // no item, something is wrong
+//            
+//            return HashUtil.hash(IdentifierService.getCanonicalForm(dso));
+//        } 
+//        catch (SQLException sqle)
+//        {
+//            // Ignore all errors and just return that the component is not cachable.
+//            return "0";
+//        }
+//    }
+//
+//    /**
+//     * Generate the cache validity object.
+//     * 
+//     * This validity object includes the community being viewed, all 
+//     * sub-communites (one level deep), all sub-collections, and 
+//     * recently submitted items.
+//     */
+//    public SourceValidity getValidity() 
+//    {
+//    	if (this.validity == null)
+//    	{
+//	        try {
+//	            DSpaceObject dso = URIUtil.resolve(objectModel);
+//	            
+//	            if (dso == null)
+//	                return null;
+//	            
+//	            if (!(dso instanceof Community))
+//	                return null;
+//	            
+//	            Community community = (Community) dso;
+//	            
+//	            DSpaceValidity validity = new DSpaceValidity();
+//	            validity.add(community);
+//	            
+//	            Community[] subCommunities = community.getSubcommunities();
+//	            Collection[] collections = community.getCollections();
+//	            // Sub communities
+//	            for (Community subCommunity : subCommunities)
+//	            {
+//	                validity.add(subCommunity);
+//	            }
+//	            // Sub collections
+//	            for (Collection collection : collections)
+//	            {
+//	                validity.add(collection);
+//	            }
+//	
+//	            // Recently submitted items
+//	            for (Item item : getRecientlySubmittedIems(community))
+//	            {
+//	                validity.add(item);
+//	            }
+//	            
+//	            this.validity = validity.complete();
+//	        } 
+//	        catch (Exception e)
+//	        {
+//	            // Ignore all errors and invalidate the cache.
+//	        }
+//    	}
+//        return this.validity;
+//    }
+//    
+//    
+//    /**
+//     * Add the community's title and trail links to the page's metadata
+//     */
+//    public void addPageMeta(PageMeta pageMeta) throws SAXException,
+//            WingException, UIException, SQLException, IOException,
+//            AuthorizeException
+//    {
+//        DSpaceObject dso = URIUtil.resolve(objectModel);
+//        if (!(dso instanceof Community))
+//            return;
+//
+//        // Set up the major variables
+//        Community community = (Community) dso;
+//        // Set the page title
+//        pageMeta.addMetadata("title").addContent(community.getMetadata("name"));
+//
+//        // Add the trail back to the repository root.
+//        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
+//        HandleUtil.buildHandleTrail(community, pageMeta,contextPath);
+//        
+//        // Add RSS links if available
+//        String formats = ConfigurationManager.getProperty("webui.feed.formats");
+//		if ( formats != null )
+//		{
+//			for (String format : formats.split(","))
+//			{
+//				// Remove the protocol number, i.e. just list 'rss' or' atom'
+//				String[] parts = format.split("_");
+//				if (parts.length < 1) 
+//					continue;
+//				
+//				String feedFormat = parts[0].trim()+"+xml";
+//					
+//				String feedURL = IdentifierService.getURL(community).toString() +"/"+format.trim();
+//				pageMeta.addMetadata("feed", feedFormat).addContent(feedURL);
+//			}
+//		}
+//    }
+//
+//    /**
+//     * Display a single community (and refrence any sub communites or
+//     * collections)
+//     */
+//    public void addBody(Body body) throws SAXException, WingException,
+//            UIException, SQLException, IOException, AuthorizeException
+//    {
+//
+//        DSpaceObject dso = URIUtil.resolve(objectModel);
+//        if (!(dso instanceof Community))
+//            return;
+//
+//        // Set up the major variables
+//        Community community = (Community) dso;
+//        Community[] subCommunities = community.getSubcommunities();
+//        Collection[] collections = community.getCollections();
+//
+//        // Build the community viewer division.
+//        Division home = body.addDivision("community-home", "primary repository community");
+//        home.setHead(community.getMetadata("name"));
+//
+//        // The search / browse box.
+//        {
+//            Division search = home.addDivision("community-search-browse",
+//                    "secondary search-browse");
+//
+//            // Search query
+//            Division query = search.addInteractiveDivision("community-search",
+//                    IdentifierService.getURL(community).toString() + "/search",
+//                    Division.METHOD_POST, "secondary search");
+//            
+//            Para para = query.addPara("search-query", null);
+//            para.addContent(T_full_text_search);
+//            para.addContent(" ");
+//            para.addText("query");
+//            para.addContent(" ");
+//            para.addButton("submit").setValue(T_go);
+//
+//            // Browse by list
+//            Division browseDiv = search.addDivision("community-browse","secondary browse");
+//            List browse = browseDiv.addList("community-browse", List.TYPE_SIMPLE,
+//                    "community-browse");
+//            browse.setHead(T_head_browse);
+//            String url = IdentifierService.getURL(community).toString();
+//            browse.addItemXref(url + "/browse-title",T_browse_titles);
+//            browse.addItemXref(url + "/browse-author",T_browse_authors);
+//            browse.addItemXref(url + "/browse-date",T_browse_dates);
+//        }
+//
+//        // Add main reference:
+//        {
+//        	Division viewer = home.addDivision("community-view","secondary");
+//        	
+//            ReferenceSet referenceSet = viewer.addReferenceSet("community-view",
+//                    ReferenceSet.TYPE_DETAIL_VIEW);
+//            Reference communityInclude = referenceSet.addReference(community);
+//
+//            // If the community has any children communities also refrence them.
+//            if (subCommunities != null && subCommunities.length > 0)
+//            {
+//                ReferenceSet communityReferenceSet = communityInclude
+//                        .addReferenceSet(ReferenceSet.TYPE_SUMMARY_LIST,null,"hierarchy");
+//
+//                communityReferenceSet.setHead(T_head_sub_communities);
+//
+//                // Sub communities
+//                for (Community subCommunity : subCommunities)
+//                {
+//                    communityReferenceSet.addReference(subCommunity);
+//                }
+//            }
+//            if (collections != null && collections.length > 0)
+//            {
+//                ReferenceSet communityReferenceSet = communityInclude
+//                        .addReferenceSet(ReferenceSet.TYPE_SUMMARY_LIST,null,"hierarchy");
+//
+//                communityReferenceSet.setHead(T_head_sub_collections);
+//                       
+//
+//                // Sub collections
+//                for (Collection collection : collections)
+//                {
+//                    communityReferenceSet.addReference(collection);
+//                }
+//
+//            }
+//        }// main refrence
+//
+//        // Reciently submitted items
+//        {
+//            java.util.List<Item> items = getRecientlySubmittedIems(community);
+//
+//            Division lastSubmittedDiv = home
+//                    .addDivision("community-recent-submission","secondary recent-submission");
+//            lastSubmittedDiv.setHead(T_head_recent_submissions);
+//            ReferenceSet lastSubmitted = lastSubmittedDiv.addReferenceSet(
+//                    "collection-last-submitted", ReferenceSet.TYPE_SUMMARY_LIST,
+//                    null, "recent-submissions");
+//            for (Item item : items)
+//            {
+//                lastSubmitted.addReference(item);
+//            }
+//        }
+//    }
+//    
+//    /**
+//     * Get the recently submitted items for the given community.
+//     * 
+//     * @param community The community.
+//     */
+//    @SuppressWarnings("unchecked") 
+//    private java.util.List<Item> getRecientlySubmittedIems(Community community)
+//            throws SQLException
+//    {
+//        if (recentSubmittedItems != null)
+//            return recentSubmittedItems;
+//
+//        String source = ConfigurationManager.getProperty("recent.submissions.sort-option");
+//        BrowserScope scope = new BrowserScope(context);
+//        scope.setCommunity(community);
+//        scope.setResultsPerPage(RECENT_SUBMISISONS);
+//        
+//        // FIXME Exception Handling
+//        try
+//        {
+//        	scope.setBrowseIndex(BrowseIndex.getItemBrowseIndex());
+//            for (SortOption so : SortOption.getSortOptions())
+//            {
+//                if (so.getName().equals(source))
+//                    scope.setSortBy(so.getNumber());
+//            }
+//
+//        	BrowseEngine be = new BrowseEngine(context);
+//        	this.recentSubmittedItems = be.browse(scope).getResults();
+//        }
+//        catch (SortException se)
+//        {
+//            log.error("Caught SortException", se);
+//        }
+//        catch (BrowseException bex)
+//        {
+//        	log.error("Caught BrowseException", bex);
+//        }
+//        
+//        return this.recentSubmittedItems;
+//    }
+//
+//    /**
+//     * Recycle
+//     */
+//    public void recycle()
+//    {
+//        // Clear out our item's cache.
+//        this.recentSubmittedItems = null;
+//        this.validity = null;
+//        super.recycle();
+//    }
+//    
+//    
     
 }

@@ -80,61 +80,61 @@ import org.dspace.eperson.EPerson;
  * @author Scott Phillips
  */
 
-public class AuthenticateAction extends AbstractAction
+public class AuthenticateAction //extends AbstractAction
 {
-
-    /**
-     * Attempt to authenticate the user. 
-     */
-    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
-            String source, Parameters parameters) throws Exception
-    {
-        // First check if we are preforming a new login
-        Request request = ObjectModelHelper.getRequest(objectModel);
-
-        String email = request.getParameter("login_email");
-        String password = request.getParameter("login_password");
-        String realm = request.getParameter("login_realm");
-
-            try
-            {
-                Context context = AuthenticationUtil.Authenticate(objectModel, email,password, realm);
-
-                EPerson eperson = context.getCurrentUser();
-
-                if (eperson != null)
-                {
-                	// The user has successfully logged in
-                	String redirectURL = request.getContextPath();
-                	
-                	if (AuthenticationUtil.isInterupptedRequest(objectModel))
-                	{
-                		// Resume the request and set the redirect target URL to
-                		// that of the originaly interrupted request.
-                		redirectURL += AuthenticationUtil.resumeInterruptedRequest(objectModel);
-                	}
-                	
-                    // Authentication successfull send a redirect.
-                    final HttpServletResponse httpResponse = (HttpServletResponse) objectModel.get(HttpEnvironment.HTTP_RESPONSE_OBJECT);
-                    
-                    httpResponse.sendRedirect(redirectURL);
-                    
-                    // log the user out for the rest of this current request, however they will be reauthenticated
-                    // fully when they come back from the redirect. This prevents caching problems where part of the
-                    // request is preformed fore the user was authenticated and the other half after it succedded. This
-                    // way the user is fully authenticated from the start of the request.
-                    context.setCurrentUser(null);
-                    
-                    return new HashMap();
-                }
-            }
-            catch (SQLException sqle)
-            {
-                throw new PatternException("Unable to preform authentication",
-                        sqle);
-            }
-        
-        return null;
-    }
+//
+//    /**
+//     * Attempt to authenticate the user. 
+//     */
+//    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
+//            String source, Parameters parameters) throws Exception
+//    {
+//        // First check if we are preforming a new login
+//        Request request = ObjectModelHelper.getRequest(objectModel);
+//
+//        String email = request.getParameter("login_email");
+//        String password = request.getParameter("login_password");
+//        String realm = request.getParameter("login_realm");
+//
+//            try
+//            {
+//                Context context = AuthenticationUtil.Authenticate(objectModel, email,password, realm);
+//
+//                EPerson eperson = context.getCurrentUser();
+//
+//                if (eperson != null)
+//                {
+//                	// The user has successfully logged in
+//                	String redirectURL = request.getContextPath();
+//                	
+//                	if (AuthenticationUtil.isInterupptedRequest(objectModel))
+//                	{
+//                		// Resume the request and set the redirect target URL to
+//                		// that of the originaly interrupted request.
+//                		redirectURL += AuthenticationUtil.resumeInterruptedRequest(objectModel);
+//                	}
+//                	
+//                    // Authentication successfull send a redirect.
+//                    final HttpServletResponse httpResponse = (HttpServletResponse) objectModel.get(HttpEnvironment.HTTP_RESPONSE_OBJECT);
+//                    
+//                    httpResponse.sendRedirect(redirectURL);
+//                    
+//                    // log the user out for the rest of this current request, however they will be reauthenticated
+//                    // fully when they come back from the redirect. This prevents caching problems where part of the
+//                    // request is preformed fore the user was authenticated and the other half after it succedded. This
+//                    // way the user is fully authenticated from the start of the request.
+//                    context.setCurrentUser(null);
+//                    
+//                    return new HashMap();
+//                }
+//            }
+//            catch (SQLException sqle)
+//            {
+//                throw new PatternException("Unable to preform authentication",
+//                        sqle);
+//            }
+//        
+//        return null;
+//    }
 
 }

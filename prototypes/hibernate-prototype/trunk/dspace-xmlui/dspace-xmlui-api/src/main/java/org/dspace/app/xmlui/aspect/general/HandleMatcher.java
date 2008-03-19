@@ -62,86 +62,86 @@ import java.util.Map;
  * @author Scott Phillips
  */
 
-public class HandleMatcher extends AbstractLogEnabled implements Matcher
+public class HandleMatcher //extends AbstractLogEnabled implements Matcher
 {
     
-    /**
-     * Match method to see if the sitemap parameter exists. If it does have a
-     * value the parameter added to the array list for later sitemap
-     * substitution.
-     * 
-     * @param pattern
-     *            name of sitemap parameter to find
-     * @param objectModel
-     *            environment passed through via cocoon
-     * @return null or map containing value of sitemap parameter 'pattern'
-     */
-    public Map match(String pattern, Map objectModel, Parameters parameters)
-            throws PatternException
-    {
-        try
-        {
-            DSpaceObject dso = URIUtil.resolve(objectModel);
-            if (dso == null)
-                return null;
-
-            DSpaceObject parent = dspaceObjectWalk(dso, pattern);
-
-            if (parent != null)
-            {
-                return new HashMap();
-            }
-            else
-            {
-                return null;
-            }
-
-        }
-        catch (SQLException sqle)
-        {
-            throw new PatternException("Unable to obtain DSpace Context", sqle);
-        }
-    }
-
-    /**
-     * Private method to determine if the parent hirearchy matches the given
-     * handle.
-     * 
-     * @param dso
-     *            The child DSO object.
-     * @param handle
-     *            The Handle to test against.
-     * @return The matched DSO object or null if none found.
-     */
-    private DSpaceObject dspaceObjectWalk(DSpaceObject dso, String handle)
-            throws SQLException
-    {
-
-        DSpaceObject current = dso;
-
-        while (current != null)
-        {
-            // Check if the current object has the handle we are looking for.
-            if (current.getExternalIdentifier().getCanonicalForm().equals(handle))
-                return current;
-
-            if (dso.getType() == Constants.ITEM)
-            {
-                current = ((Item) current).getOwningCollection();
-            }
-            else if (dso.getType() == Constants.COLLECTION)
-            {
-                current = ((Collection) current).getCommunities()[0];
-            }
-            else if (dso.getType() == Constants.COMMUNITY)
-            {
-                current = ((Community) current).getParentCommunity();
-            }
-        }
-
-        // If the loop finished then we searched the entire parant-child chain
-        // and did not find this handle, so the object was not found.
-
-        return null;
-    }
+//    /**
+//     * Match method to see if the sitemap parameter exists. If it does have a
+//     * value the parameter added to the array list for later sitemap
+//     * substitution.
+//     * 
+//     * @param pattern
+//     *            name of sitemap parameter to find
+//     * @param objectModel
+//     *            environment passed through via cocoon
+//     * @return null or map containing value of sitemap parameter 'pattern'
+//     */
+//    public Map match(String pattern, Map objectModel, Parameters parameters)
+//            throws PatternException
+//    {
+//        try
+//        {
+//            DSpaceObject dso = URIUtil.resolve(objectModel);
+//            if (dso == null)
+//                return null;
+//
+//            DSpaceObject parent = dspaceObjectWalk(dso, pattern);
+//
+//            if (parent != null)
+//            {
+//                return new HashMap();
+//            }
+//            else
+//            {
+//                return null;
+//            }
+//
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new PatternException("Unable to obtain DSpace Context", sqle);
+//        }
+//    }
+//
+//    /**
+//     * Private method to determine if the parent hirearchy matches the given
+//     * handle.
+//     * 
+//     * @param dso
+//     *            The child DSO object.
+//     * @param handle
+//     *            The Handle to test against.
+//     * @return The matched DSO object or null if none found.
+//     */
+//    private DSpaceObject dspaceObjectWalk(DSpaceObject dso, String handle)
+//            throws SQLException
+//    {
+//
+//        DSpaceObject current = dso;
+//
+//        while (current != null)
+//        {
+//            // Check if the current object has the handle we are looking for.
+//            if (current.getExternalIdentifier().getCanonicalForm().equals(handle))
+//                return current;
+//
+//            if (dso.getType() == Constants.ITEM)
+//            {
+//                current = ((Item) current).getOwningCollection();
+//            }
+//            else if (dso.getType() == Constants.COLLECTION)
+//            {
+//                current = ((Collection) current).getCommunities()[0];
+//            }
+//            else if (dso.getType() == Constants.COMMUNITY)
+//            {
+//                current = ((Community) current).getParentCommunity();
+//            }
+//        }
+//
+//        // If the loop finished then we searched the entire parant-child chain
+//        // and did not find this handle, so the object was not found.
+//
+//        return null;
+//    }
 }

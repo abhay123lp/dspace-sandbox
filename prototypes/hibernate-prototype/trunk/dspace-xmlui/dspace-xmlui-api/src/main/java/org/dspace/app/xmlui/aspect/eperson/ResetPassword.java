@@ -65,109 +65,109 @@ import org.xml.sax.SAXException;
  * @author Scott Phillips
  */
 
-public class ResetPassword extends AbstractDSpaceTransformer
+public class ResetPassword //extends AbstractDSpaceTransformer
 {
-    /** Language strings */
-    private final static Message T_title =
-        message("xmlui.EPerson.ResetPassword.title");
-
-    private final static Message T_dspace_home =
-        message("xmlui.general.dspace_home");
-
-    private final static Message T_trail_forgot_password =
-        message("xmlui.EPerson.trail_forgot_password");
-
-    private final static Message T_head =
-        message("xmlui.EPerson.ResetPassword.head");
-
-    private final static Message T_para1 =
-        message("xmlui.EPerson.ResetPassword.para1");
-
-    private final static Message T_email_address =
-        message("xmlui.EPerson.ResetPassword.email_address");
-
-    private final static Message T_new_password =
-        message("xmlui.EPerson.ResetPassword.new_password");
-
-    private final static Message T_error_invalid_password =
-        message("xmlui.EPerson.ResetPassword.error_invalid_password");
-
-    private final static Message T_confirm_password =
-        message("xmlui.EPerson.ResetPassword.confirm_password");
-
-    private final static Message T_error_unconfirmed_password =
-        message("xmlui.EPerson.ResetPassword.error_unconfirmed_password");
-
-    private final static Message T_submit =
-        message("xmlui.EPerson.ResetPassword.submit");
-
-
-	private String email;
-    private java.util.List<String> errors;
-
-    public void setup(SourceResolver resolver, Map objectModel, String src,
-            Parameters parameters) throws ProcessingException, SAXException,
-            IOException
-    {
-        super.setup(resolver,objectModel,src,parameters);
-
-        this.email = parameters.getParameter("email","unknown");
-
-        String errors = parameters.getParameter("errors","");
-        if (errors.length() > 0)
-            this.errors = Arrays.asList(errors.split(","));
-        else
-            this.errors = new ArrayList<String>();
-
-    }
-
-
-    public void addPageMeta(PageMeta pageMeta) throws WingException
-    {
-        // Set the page title
-        pageMeta.addMetadata("title").addContent(T_title);
-
-
-        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
-        pageMeta.addTrail().addContent(T_trail_forgot_password);
-    }
-
-   public void addBody(Body body) throws WingException {
-
-       Division register = body.addInteractiveDivision("reset-password",
-               contextPath+"/register",Division.METHOD_POST,"primary");
-
-       register.setHead(T_head);
-
-       EPersonUtils.forgottProgressList(register,2);
-
-       register.addPara(T_para1);
-
-       List form = register.addList("form",List.TYPE_FORM);
-
-       form.addLabel(T_email_address);
-       form.addItem(email);
-
-       Field password = form.addItem().addPassword("password");
-       password.setRequired();
-       password.setLabel(T_new_password);
-       if (errors.contains("password"))
-       {
-           password.addError(T_error_invalid_password);
-       }
-
-       Field passwordConfirm = form.addItem().addPassword("password_confirm");
-       passwordConfirm.setRequired();
-       passwordConfirm.setLabel(T_confirm_password);
-       if (errors.contains("password_confirm"))
-       {
-           passwordConfirm.addError(T_error_unconfirmed_password);
-       }
-
-       form.addItem().addButton("submit").setValue(T_submit);
-
-       register.addHidden("eperson-continue").setValue(knot.getId());
-   }
-
+//    /** Language strings */
+//    private final static Message T_title =
+//        message("xmlui.EPerson.ResetPassword.title");
+//
+//    private final static Message T_dspace_home =
+//        message("xmlui.general.dspace_home");
+//
+//    private final static Message T_trail_forgot_password =
+//        message("xmlui.EPerson.trail_forgot_password");
+//
+//    private final static Message T_head =
+//        message("xmlui.EPerson.ResetPassword.head");
+//
+//    private final static Message T_para1 =
+//        message("xmlui.EPerson.ResetPassword.para1");
+//
+//    private final static Message T_email_address =
+//        message("xmlui.EPerson.ResetPassword.email_address");
+//
+//    private final static Message T_new_password =
+//        message("xmlui.EPerson.ResetPassword.new_password");
+//
+//    private final static Message T_error_invalid_password =
+//        message("xmlui.EPerson.ResetPassword.error_invalid_password");
+//
+//    private final static Message T_confirm_password =
+//        message("xmlui.EPerson.ResetPassword.confirm_password");
+//
+//    private final static Message T_error_unconfirmed_password =
+//        message("xmlui.EPerson.ResetPassword.error_unconfirmed_password");
+//
+//    private final static Message T_submit =
+//        message("xmlui.EPerson.ResetPassword.submit");
+//
+//
+//	private String email;
+//    private java.util.List<String> errors;
+//
+//    public void setup(SourceResolver resolver, Map objectModel, String src,
+//            Parameters parameters) throws ProcessingException, SAXException,
+//            IOException
+//    {
+//        super.setup(resolver,objectModel,src,parameters);
+//
+//        this.email = parameters.getParameter("email","unknown");
+//
+//        String errors = parameters.getParameter("errors","");
+//        if (errors.length() > 0)
+//            this.errors = Arrays.asList(errors.split(","));
+//        else
+//            this.errors = new ArrayList<String>();
+//
+//    }
+//
+//
+//    public void addPageMeta(PageMeta pageMeta) throws WingException
+//    {
+//        // Set the page title
+//        pageMeta.addMetadata("title").addContent(T_title);
+//
+//
+//        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
+//        pageMeta.addTrail().addContent(T_trail_forgot_password);
+//    }
+//
+//   public void addBody(Body body) throws WingException {
+//
+//       Division register = body.addInteractiveDivision("reset-password",
+//               contextPath+"/register",Division.METHOD_POST,"primary");
+//
+//       register.setHead(T_head);
+//
+//       EPersonUtils.forgottProgressList(register,2);
+//
+//       register.addPara(T_para1);
+//
+//       List form = register.addList("form",List.TYPE_FORM);
+//
+//       form.addLabel(T_email_address);
+//       form.addItem(email);
+//
+//       Field password = form.addItem().addPassword("password");
+//       password.setRequired();
+//       password.setLabel(T_new_password);
+//       if (errors.contains("password"))
+//       {
+//           password.addError(T_error_invalid_password);
+//       }
+//
+//       Field passwordConfirm = form.addItem().addPassword("password_confirm");
+//       passwordConfirm.setRequired();
+//       passwordConfirm.setLabel(T_confirm_password);
+//       if (errors.contains("password_confirm"))
+//       {
+//           passwordConfirm.addError(T_error_unconfirmed_password);
+//       }
+//
+//       form.addItem().addButton("submit").setValue(T_submit);
+//
+//       register.addHidden("eperson-continue").setValue(knot.getId());
+//   }
+//
 
 }

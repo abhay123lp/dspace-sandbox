@@ -60,39 +60,39 @@ import org.dspace.core.Context;
  * 
  * @author Scott Phillips
  */
-public class RemoveSubmissionsAction extends AbstractAction
+public class RemoveSubmissionsAction //extends AbstractAction
 {
-
-    /**
-     * Remove all selected submissions
-     * 
-     * @param pattern
-     *            un-used.
-     * @param objectModel
-     *            Cocoon's object model
-     */
-    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
-            String source, Parameters parameters) throws Exception
-    {
-        
-        Context context = ContextUtil.obtainContext(objectModel);
-        Request request = ObjectModelHelper.getRequest(objectModel);
-        
-        
-    	String[] workspaceIDs = request.getParameterValues("workspaceID");
-    	
-    	if (workspaceIDs != null)
-    	{
-        	for (String workspaceID : workspaceIDs)
-        	{
-        		// If they selected to remove the item then delete everything.
-    			WorkspaceItem workspaceItem = WorkspaceItem.find(context, Integer.valueOf(workspaceID));
-    			workspaceItem.deleteAll();
-        	}
-        	context.commit();
-    	}
-    
-        return null;
-    }
+//
+//    /**
+//     * Remove all selected submissions
+//     * 
+//     * @param pattern
+//     *            un-used.
+//     * @param objectModel
+//     *            Cocoon's object model
+//     */
+//    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
+//            String source, Parameters parameters) throws Exception
+//    {
+//        
+//        Context context = ContextUtil.obtainContext(objectModel);
+//        Request request = ObjectModelHelper.getRequest(objectModel);
+//        
+//        
+//    	String[] workspaceIDs = request.getParameterValues("workspaceID");
+//    	
+//    	if (workspaceIDs != null)
+//    	{
+//        	for (String workspaceID : workspaceIDs)
+//        	{
+//        		// If they selected to remove the item then delete everything.
+//    			WorkspaceItem workspaceItem = WorkspaceItem.find(context, Integer.valueOf(workspaceID));
+//    			workspaceItem.deleteAll();
+//        	}
+//        	context.commit();
+//    	}
+//    
+//        return null;
+//    }
 
 }

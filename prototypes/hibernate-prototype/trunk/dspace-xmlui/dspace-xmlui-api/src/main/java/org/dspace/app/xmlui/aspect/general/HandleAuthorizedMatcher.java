@@ -63,73 +63,73 @@ import java.util.Map;
  * @author Scott Phillips
  */
 
-public class HandleAuthorizedMatcher extends AbstractLogEnabled implements Matcher
+public class HandleAuthorizedMatcher// extends AbstractLogEnabled implements Matcher
 {
     
-    /**
-     * Match method to see if the sitemap parameter exists. If it does have a
-     * value the parameter added to the array list for later sitemap
-     * substitution.
-     * 
-     * @param pattern
-     *            name of sitemap parameter to find
-     * @param objectModel
-     *            environment passed through via cocoon
-     * @return null or map containing value of sitemap parameter 'pattern'
-     */
-    public Map match(String pattern, Map objectModel, Parameters parameters)
-            throws PatternException
-    {
-    	// Are we checking for *NOT* the action or the action.
-    	boolean not = false;
-    	int action = -1; // the action to check
-    	
-    	if (pattern.startsWith("!"))
-    	{
-    		not = true;
-    		pattern = pattern.substring(1);
-    	}
-    	
-    	for (int i=0; i< Constants.actionText.length; i++)
-    	{
-    		if (Constants.actionText[i].equals(pattern))
-    		{
-    			action = i;
-    		}
-    	}
-    	
-    	// Is it a valid action?
-    	if (action > 0 || action >= Constants.actionText.length)
-    	{
-    		getLogger().warn("Invalid action: '"+pattern+"'");
-    		return null;
-    	}
-    	
-        try
-        {
-        	Context context = ContextUtil.obtainContext(objectModel);
-            DSpaceObject dso = URIUtil.resolve(objectModel);
-            
-            if (dso == null)
-            	return null;
-            
-            boolean authorized = 
-            	AuthorizeManager.authorizeActionBoolean(context, dso, action);
-
-            // XOR
-            if (not ^ authorized)
-            {
-            	return new HashMap();
-            }
-            else
-            {
-                return null;
-            }
-
-        }
-        catch (SQLException sqle)
-        {
-            throw new PatternException("Unable to obtain DSpace Context", sqle);
-        }
-    }
+//    /**
+//     * Match method to see if the sitemap parameter exists. If it does have a
+//     * value the parameter added to the array list for later sitemap
+//     * substitution.
+//     * 
+//     * @param pattern
+//     *            name of sitemap parameter to find
+//     * @param objectModel
+//     *            environment passed through via cocoon
+//     * @return null or map containing value of sitemap parameter 'pattern'
+//     */
+//    public Map match(String pattern, Map objectModel, Parameters parameters)
+//            throws PatternException
+//    {
+//    	// Are we checking for *NOT* the action or the action.
+//    	boolean not = false;
+//    	int action = -1; // the action to check
+//    	
+//    	if (pattern.startsWith("!"))
+//    	{
+//    		not = true;
+//    		pattern = pattern.substring(1);
+//    	}
+//    	
+//    	for (int i=0; i< Constants.actionText.length; i++)
+//    	{
+//    		if (Constants.actionText[i].equals(pattern))
+//    		{
+//    			action = i;
+//    		}
+//    	}
+//    	
+//    	// Is it a valid action?
+//    	if (action > 0 || action >= Constants.actionText.length)
+//    	{
+//    		getLogger().warn("Invalid action: '"+pattern+"'");
+//    		return null;
+//    	}
+//    	
+//        try
+//        {
+//        	Context context = ContextUtil.obtainContext(objectModel);
+//            DSpaceObject dso = URIUtil.resolve(objectModel);
+//            
+//            if (dso == null)
+//            	return null;
+//            
+//            boolean authorized = 
+//            	AuthorizeManager.authorizeActionBoolean(context, dso, action);
+//
+//            // XOR
+//            if (not ^ authorized)
+//            {
+//            	return new HashMap();
+//            }
+//            else
+//            {
+//                return null;
+//            }
+//
+//        }
+//        catch (SQLException sqle)
+//        {
+//            throw new PatternException("Unable to obtain DSpace Context", sqle);
+//        }
+//    }
 }

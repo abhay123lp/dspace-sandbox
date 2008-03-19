@@ -60,43 +60,43 @@ import org.dspace.workflow.WorkflowManager;
  * 
  * @author Scott Phillips
  */
-public class UnclaimTasksAction extends AbstractAction
+public class UnclaimTasksAction //extends AbstractAction
 {
-
-    /**
-     * @param pattern
-     *            un-used.
-     * @param objectModel
-     *            Cocoon's object model
-     */
-    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
-            String source, Parameters parameters) throws Exception
-    {
-        Request request = ObjectModelHelper.getRequest(objectModel);
-        Context context = ContextUtil.obtainContext(objectModel);
-        
-    	// Or the user selected a checkbox full of workflow IDs
-    	String[] workflowIDs = request.getParameterValues("workflowID");
-    	if (workflowIDs != null)
-    	{
-    		for (String workflowID : workflowIDs)
-    		{
-    			WorkflowItem workflowItem = WorkflowItem.find(context, Integer.valueOf(workflowID));
-    			//workflowItem.get
-    			
-    			int state = workflowItem.getState();
-    			// only claim tasks that are in the pool.
-    			if ( state == WorkflowManager.WFSTATE_STEP1 || 
-    				 state == WorkflowManager.WFSTATE_STEP2 || 
-    				 state == WorkflowManager.WFSTATE_STEP3 )
-    			{
-    				WorkflowManager.unclaim(context, workflowItem, context.getCurrentUser());
-    			}
-    		}
-    		context.commit();
-    	}
-    	
-    	return null;
-    }
+//
+//    /**
+//     * @param pattern
+//     *            un-used.
+//     * @param objectModel
+//     *            Cocoon's object model
+//     */
+//    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
+//            String source, Parameters parameters) throws Exception
+//    {
+//        Request request = ObjectModelHelper.getRequest(objectModel);
+//        Context context = ContextUtil.obtainContext(objectModel);
+//        
+//    	// Or the user selected a checkbox full of workflow IDs
+//    	String[] workflowIDs = request.getParameterValues("workflowID");
+//    	if (workflowIDs != null)
+//    	{
+//    		for (String workflowID : workflowIDs)
+//    		{
+//    			WorkflowItem workflowItem = WorkflowItem.find(context, Integer.valueOf(workflowID));
+//    			//workflowItem.get
+//    			
+//    			int state = workflowItem.getState();
+//    			// only claim tasks that are in the pool.
+//    			if ( state == WorkflowManager.WFSTATE_STEP1 || 
+//    				 state == WorkflowManager.WFSTATE_STEP2 || 
+//    				 state == WorkflowManager.WFSTATE_STEP3 )
+//    			{
+//    				WorkflowManager.unclaim(context, workflowItem, context.getCurrentUser());
+//    			}
+//    		}
+//    		context.commit();
+//    	}
+//    	
+//    	return null;
+//    }
 
 }

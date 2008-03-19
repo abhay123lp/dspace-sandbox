@@ -78,150 +78,150 @@ import java.util.Map;
  * @author Scott Phillips
  * @author Tim Donohue (updated for Configurable Submission)
  */
-public class EditFileStep extends AbstractStep
+public class EditFileStep //extends AbstractStep
 {
-	
-	/** Language Strings **/
-    protected static final Message T_head = 
-        message("xmlui.Submission.submit.EditFileStep.head");
-    protected static final Message T_file = 
-        message("xmlui.Submission.submit.EditFileStep.file");
-    protected static final Message T_description = 
-        message("xmlui.Submission.submit.EditFileStep.description");
-    protected static final Message T_description_help = 
-        message("xmlui.Submission.submit.EditFileStep.description_help");
-    protected static final Message T_info1 = 
-        message("xmlui.Submission.submit.EditFileStep.info1");
-    protected static final Message T_format_detected = 
-        message("xmlui.Submission.submit.EditFileStep.format_detected");
-    protected static final Message T_format_selected = 
-        message("xmlui.Submission.submit.EditFileStep.format_selected");
-    protected static final Message T_format_default = 
-        message("xmlui.Submission.submit.EditFileStep.format_default");
-    protected static final Message T_info2 = 
-        message("xmlui.Submission.submit.EditFileStep.info2");
-    protected static final Message T_format_user = 
-        message("xmlui.Submission.submit.EditFileStep.format_user");
-    protected static final Message T_format_user_help = 
-        message("xmlui.Submission.submit.EditFileStep.format_user_help");
-    protected static final Message T_submit_save = 
-        message("xmlui.Submission.submit.EditFileStep.submit_save");
-    protected static final Message T_submit_cancel = 
-        message("xmlui.Submission.submit.EditFileStep.submit_cancel");
-
-    /** The bitstream we are editing */
-	private Bitstream bitstream;
-
-	
-	/**
-	 * Establish our required parameters, abstractStep will enforce these.
-	 */
-	public EditFileStep()
-	{
-		this.requireSubmission = true;
-		this.requireStep = true;
-	}
-	
-	
-	/**
-	 * Get the bitstream we are editing
-	 */
-	public void setup(SourceResolver resolver, Map objectModel, String src, Parameters parameters) 
-	throws ProcessingException, SAXException, IOException
-	{ 
-		super.setup(resolver,objectModel,src,parameters);
-		
-		//the bitstream should be stored in our Submission Info object
-        this.bitstream = submissionInfo.getBitstream();
-	}
-
-  
-    public void addBody(Body body) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
-    {
-		Collection collection = submission.getCollection();
-		String actionURL = IdentifierService.getURL(collection).toString() + "/submit";
-		
-    	// Get the bitstream and all the various formats
-		BitstreamFormat currentFormat = bitstream.getFormat();
-        BitstreamFormat guessedFormat = FormatIdentifier.guessFormat(context, bitstream);
-    	BitstreamFormat[] bitstreamFormats = BitstreamFormat.findNonInternal(context);
-    	
-        int itemID = submissionInfo.getSubmissionItem().getItem().getID();
-    	String fileUrl = contextPath + "/bitstream/item/" + itemID + "/" + bitstream.getName();
-    	String fileName = bitstream.getName();
-    	
-    	// Build the form that describes an item.
-    	Division div = body.addInteractiveDivision("submit-edit-file", actionURL, Division.METHOD_POST, "primary submission");
-    	div.setHead(T_submission_head);
-    	addSubmissionProgressList(div);
-    	
-    	List edit = div.addList("submit-edit-file", List.TYPE_FORM);
-        edit.setHead(T_head);    
-        
-        edit.addLabel(T_file);
-        edit.addItem().addXref(fileUrl, fileName);
-        
-        Text description = edit.addItem().addText("description");
-        description.setLabel(T_description);
-        description.setHelp(T_description_help);
-        description.setValue(bitstream.getDescription());
-        
-        edit.addItem(T_info1);
-        if (guessedFormat != null)
-        {
-        	edit.addLabel(T_format_detected);
-        	edit.addItem(guessedFormat.getShortDescription());
-        }
-        
-        // System supported formats
-        Select format = edit.addItem().addSelect("format");
-        format.setLabel(T_format_selected);
-        
-        format.addOption(-1,T_format_default);
-        for (BitstreamFormat bitstreamFormat : bitstreamFormats)
-        {
-        	String supportLevel = "Unknown";
-        	if (bitstreamFormat.getSupportLevel() == BitstreamFormat.KNOWN)
-        		supportLevel = "known";
-        	else if (bitstreamFormat.getSupportLevel() == BitstreamFormat.SUPPORTED)
-        		supportLevel = "Supported";
-        	String name = bitstreamFormat.getShortDescription()+" ("+supportLevel+")";
-        	int id = bitstreamFormat.getId();
-       
-        	format.addOption(id,name);
-        }
-        if (currentFormat != null)
-        {
-        	format.setOptionSelected(currentFormat.getId());
-        }
-        else if (guessedFormat != null)
-        {
-        	format.setOptionSelected(guessedFormat.getId());
-        }
-        else
-        {
-        	format.setOptionSelected(-1);
-        }
-        
-        edit.addItem(T_info2);
-        
-        // User supplied format
-        Text userFormat = edit.addItem().addText("format_description");
-        userFormat.setLabel(T_format_user);
-        userFormat.setHelp(T_format_user_help);
-        userFormat.setValue(bitstream.getUserFormatDescription());
-        
-        // add ID of bitstream we're editing
-        div.addHidden("bitstream_id").setValue(bitstream.getID()); 
-        
-        // Note, not standard control actions, this page just goes back to the upload step.
-        org.dspace.app.xmlui.wing.element.Item actions = edit.addItem();
-        actions.addButton("submit_save").setValue(T_submit_save);
-		actions.addButton("submit_edit_cancel").setValue(T_submit_cancel);
-        
-        div.addHidden("submission-continue").setValue(knot.getId()); 
-        
-    }
+//	
+//	/** Language Strings **/
+//    protected static final Message T_head = 
+//        message("xmlui.Submission.submit.EditFileStep.head");
+//    protected static final Message T_file = 
+//        message("xmlui.Submission.submit.EditFileStep.file");
+//    protected static final Message T_description = 
+//        message("xmlui.Submission.submit.EditFileStep.description");
+//    protected static final Message T_description_help = 
+//        message("xmlui.Submission.submit.EditFileStep.description_help");
+//    protected static final Message T_info1 = 
+//        message("xmlui.Submission.submit.EditFileStep.info1");
+//    protected static final Message T_format_detected = 
+//        message("xmlui.Submission.submit.EditFileStep.format_detected");
+//    protected static final Message T_format_selected = 
+//        message("xmlui.Submission.submit.EditFileStep.format_selected");
+//    protected static final Message T_format_default = 
+//        message("xmlui.Submission.submit.EditFileStep.format_default");
+//    protected static final Message T_info2 = 
+//        message("xmlui.Submission.submit.EditFileStep.info2");
+//    protected static final Message T_format_user = 
+//        message("xmlui.Submission.submit.EditFileStep.format_user");
+//    protected static final Message T_format_user_help = 
+//        message("xmlui.Submission.submit.EditFileStep.format_user_help");
+//    protected static final Message T_submit_save = 
+//        message("xmlui.Submission.submit.EditFileStep.submit_save");
+//    protected static final Message T_submit_cancel = 
+//        message("xmlui.Submission.submit.EditFileStep.submit_cancel");
+//
+//    /** The bitstream we are editing */
+//	private Bitstream bitstream;
+//
+//	
+//	/**
+//	 * Establish our required parameters, abstractStep will enforce these.
+//	 */
+//	public EditFileStep()
+//	{
+//		this.requireSubmission = true;
+//		this.requireStep = true;
+//	}
+//	
+//	
+//	/**
+//	 * Get the bitstream we are editing
+//	 */
+//	public void setup(SourceResolver resolver, Map objectModel, String src, Parameters parameters) 
+//	throws ProcessingException, SAXException, IOException
+//	{ 
+//		super.setup(resolver,objectModel,src,parameters);
+//		
+//		//the bitstream should be stored in our Submission Info object
+//        this.bitstream = submissionInfo.getBitstream();
+//	}
+//
+//  
+//    public void addBody(Body body) throws SAXException, WingException,
+//            UIException, SQLException, IOException, AuthorizeException
+//    {
+//		Collection collection = submission.getCollection();
+//		String actionURL = IdentifierService.getURL(collection).toString() + "/submit";
+//		
+//    	// Get the bitstream and all the various formats
+//		BitstreamFormat currentFormat = bitstream.getFormat();
+//        BitstreamFormat guessedFormat = FormatIdentifier.guessFormat(context, bitstream);
+//    	BitstreamFormat[] bitstreamFormats = BitstreamFormat.findNonInternal(context);
+//    	
+//        int itemID = submissionInfo.getSubmissionItem().getItem().getID();
+//    	String fileUrl = contextPath + "/bitstream/item/" + itemID + "/" + bitstream.getName();
+//    	String fileName = bitstream.getName();
+//    	
+//    	// Build the form that describes an item.
+//    	Division div = body.addInteractiveDivision("submit-edit-file", actionURL, Division.METHOD_POST, "primary submission");
+//    	div.setHead(T_submission_head);
+//    	addSubmissionProgressList(div);
+//    	
+//    	List edit = div.addList("submit-edit-file", List.TYPE_FORM);
+//        edit.setHead(T_head);    
+//        
+//        edit.addLabel(T_file);
+//        edit.addItem().addXref(fileUrl, fileName);
+//        
+//        Text description = edit.addItem().addText("description");
+//        description.setLabel(T_description);
+//        description.setHelp(T_description_help);
+//        description.setValue(bitstream.getDescription());
+//        
+//        edit.addItem(T_info1);
+//        if (guessedFormat != null)
+//        {
+//        	edit.addLabel(T_format_detected);
+//        	edit.addItem(guessedFormat.getShortDescription());
+//        }
+//        
+//        // System supported formats
+//        Select format = edit.addItem().addSelect("format");
+//        format.setLabel(T_format_selected);
+//        
+//        format.addOption(-1,T_format_default);
+//        for (BitstreamFormat bitstreamFormat : bitstreamFormats)
+//        {
+//        	String supportLevel = "Unknown";
+//        	if (bitstreamFormat.getSupportLevel() == BitstreamFormat.KNOWN)
+//        		supportLevel = "known";
+//        	else if (bitstreamFormat.getSupportLevel() == BitstreamFormat.SUPPORTED)
+//        		supportLevel = "Supported";
+//        	String name = bitstreamFormat.getShortDescription()+" ("+supportLevel+")";
+//        	int id = bitstreamFormat.getId();
+//       
+//        	format.addOption(id,name);
+//        }
+//        if (currentFormat != null)
+//        {
+//        	format.setOptionSelected(currentFormat.getId());
+//        }
+//        else if (guessedFormat != null)
+//        {
+//        	format.setOptionSelected(guessedFormat.getId());
+//        }
+//        else
+//        {
+//        	format.setOptionSelected(-1);
+//        }
+//        
+//        edit.addItem(T_info2);
+//        
+//        // User supplied format
+//        Text userFormat = edit.addItem().addText("format_description");
+//        userFormat.setLabel(T_format_user);
+//        userFormat.setHelp(T_format_user_help);
+//        userFormat.setValue(bitstream.getUserFormatDescription());
+//        
+//        // add ID of bitstream we're editing
+//        div.addHidden("bitstream_id").setValue(bitstream.getID()); 
+//        
+//        // Note, not standard control actions, this page just goes back to the upload step.
+//        org.dspace.app.xmlui.wing.element.Item actions = edit.addItem();
+//        actions.addButton("submit_save").setValue(T_submit_save);
+//		actions.addButton("submit_edit_cancel").setValue(T_submit_cancel);
+//        
+//        div.addHidden("submission-continue").setValue(knot.getId()); 
+//        
+//    }
     
 }

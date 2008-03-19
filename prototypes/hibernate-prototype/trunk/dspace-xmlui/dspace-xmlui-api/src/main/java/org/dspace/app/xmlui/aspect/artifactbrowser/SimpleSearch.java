@@ -69,107 +69,107 @@ import java.util.Map;
  * 
  * @author Scott Phillips
  */
-public class SimpleSearch extends AbstractSearch implements CacheableProcessingComponent
+public class SimpleSearch //extends AbstractSearch implements CacheableProcessingComponent
 {
-    /** Language Strings */
-    private static final Message T_title =
-        message("xmlui.ArtifactBrowser.SimpleSearch.title");
-    
-    private static final Message T_dspace_home =
-        message("xmlui.general.dspace_home");
-    
-    private static final Message T_trail =
-        message("xmlui.ArtifactBrowser.SimpleSearch.trail");
-    
-    private static final Message T_head = 
-        message("xmlui.ArtifactBrowser.SimpleSearch.head");
-    
-    private static final Message T_search_scope =
-        message("xmlui.ArtifactBrowser.SimpleSearch.search_scope");
-    
-    private static final Message T_full_text_search =
-        message("xmlui.ArtifactBrowser.SimpleSearch.full_text_search");
-    
-    private static final Message T_go =
-        message("xmlui.general.go");
-    
-    /**
-     * Add Page metadata.
-     */
-    public void addPageMeta(PageMeta pageMeta) throws WingException, SQLException
-    {
-        pageMeta.addMetadata("title").addContent(T_title);
-        pageMeta.addTrailLink(contextPath + "/", T_dspace_home);
-		
-		DSpaceObject dso = URIUtil.resolve(objectModel);
-        if ((dso instanceof Collection) || (dso instanceof Community))
-        {
-	        HandleUtil.buildHandleTrail(dso,pageMeta,contextPath);
-		} 
-		
-        pageMeta.addTrail().addContent(T_trail);
-    }
-    
-    /**
-     * build the DRI page representing the body of the search query. This
-     * provides a widget to generate a new query and list of search results if
-     * present.
-     */
-    public void addBody(Body body) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
-    {
-        String queryString = getQuery();
-
-        // Build the DRI Body
-        Division search = body.addDivision("search","primary");
-        search.setHead(T_head);
-        Division query = search.addInteractiveDivision("general-query",
-                "",Division.METHOD_POST,"secondary search");
-
-        List queryList = query.addList("search-query",List.TYPE_FORM);
-        
-        if (variableScope())
-        {
-            Select scope = queryList.addItem().addSelect("scope");
-            scope.setLabel(T_search_scope);
-            buildScopeList(scope);
-        }
-        
-        Text text = queryList.addItem().addText("query");
-        text.setLabel(T_full_text_search);
-        text.setValue(queryString);
-        
-        buildSearchControls(query);
-        queryList.addItem().addButton("submit").setValue(T_go);
-
-        // Add the result division
-        buildSearchResultsDivision(search);
-
-    }
-
-    /**
-     * Get the search query from the URL parameter, if none is found the empty
-     * string is returned.
-     */
-    protected String getQuery()
-    {
-        Request request = ObjectModelHelper.getRequest(objectModel);
-        String query = request.getParameter("query");
-        if (query == null)
-            return "";
-        return query;
-    }
-
-    /**
-     * Generate a url to the simple search url.
-     */
-    protected String generateURL(Map<String, String> parameters)
-            throws UIException
-    {
-        String query = getQuery();
-        if (!"".equals(query))
-            parameters.put("query", URLEncode(query));
-
-        return super.generateURL("search", parameters);
-    }
+//    /** Language Strings */
+//    private static final Message T_title =
+//        message("xmlui.ArtifactBrowser.SimpleSearch.title");
+//    
+//    private static final Message T_dspace_home =
+//        message("xmlui.general.dspace_home");
+//    
+//    private static final Message T_trail =
+//        message("xmlui.ArtifactBrowser.SimpleSearch.trail");
+//    
+//    private static final Message T_head = 
+//        message("xmlui.ArtifactBrowser.SimpleSearch.head");
+//    
+//    private static final Message T_search_scope =
+//        message("xmlui.ArtifactBrowser.SimpleSearch.search_scope");
+//    
+//    private static final Message T_full_text_search =
+//        message("xmlui.ArtifactBrowser.SimpleSearch.full_text_search");
+//    
+//    private static final Message T_go =
+//        message("xmlui.general.go");
+//    
+//    /**
+//     * Add Page metadata.
+//     */
+//    public void addPageMeta(PageMeta pageMeta) throws WingException, SQLException
+//    {
+//        pageMeta.addMetadata("title").addContent(T_title);
+//        pageMeta.addTrailLink(contextPath + "/", T_dspace_home);
+//		
+//		DSpaceObject dso = URIUtil.resolve(objectModel);
+//        if ((dso instanceof Collection) || (dso instanceof Community))
+//        {
+//	        HandleUtil.buildHandleTrail(dso,pageMeta,contextPath);
+//		} 
+//		
+//        pageMeta.addTrail().addContent(T_trail);
+//    }
+//    
+//    /**
+//     * build the DRI page representing the body of the search query. This
+//     * provides a widget to generate a new query and list of search results if
+//     * present.
+//     */
+//    public void addBody(Body body) throws SAXException, WingException,
+//            UIException, SQLException, IOException, AuthorizeException
+//    {
+//        String queryString = getQuery();
+//
+//        // Build the DRI Body
+//        Division search = body.addDivision("search","primary");
+//        search.setHead(T_head);
+//        Division query = search.addInteractiveDivision("general-query",
+//                "",Division.METHOD_POST,"secondary search");
+//
+//        List queryList = query.addList("search-query",List.TYPE_FORM);
+//        
+//        if (variableScope())
+//        {
+//            Select scope = queryList.addItem().addSelect("scope");
+//            scope.setLabel(T_search_scope);
+//            buildScopeList(scope);
+//        }
+//        
+//        Text text = queryList.addItem().addText("query");
+//        text.setLabel(T_full_text_search);
+//        text.setValue(queryString);
+//        
+//        buildSearchControls(query);
+//        queryList.addItem().addButton("submit").setValue(T_go);
+//
+//        // Add the result division
+//        buildSearchResultsDivision(search);
+//
+//    }
+//
+//    /**
+//     * Get the search query from the URL parameter, if none is found the empty
+//     * string is returned.
+//     */
+//    protected String getQuery()
+//    {
+//        Request request = ObjectModelHelper.getRequest(objectModel);
+//        String query = request.getParameter("query");
+//        if (query == null)
+//            return "";
+//        return query;
+//    }
+//
+//    /**
+//     * Generate a url to the simple search url.
+//     */
+//    protected String generateURL(Map<String, String> parameters)
+//            throws UIException
+//    {
+//        String query = getQuery();
+//        if (!"".equals(query))
+//            parameters.put("query", URLEncode(query));
+//
+//        return super.generateURL("search", parameters);
+//    }
 }

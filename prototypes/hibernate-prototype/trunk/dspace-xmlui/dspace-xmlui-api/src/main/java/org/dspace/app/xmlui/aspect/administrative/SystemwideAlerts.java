@@ -58,126 +58,126 @@ import org.dspace.app.xmlui.wing.element.PageMeta;
  * 
  * @author Scott Phillips
  */
-public class SystemwideAlerts extends AbstractDSpaceTransformer implements CacheableProcessingComponent
+public class SystemwideAlerts //extends AbstractDSpaceTransformer implements CacheableProcessingComponent
 {
-	/** Language Strings */
-	private static final Message T_COUNTDOWN = message("xmlui.administrative.SystemwideAlerts.countdown");
-
-	// Is an alert activated?
-	private static boolean active;
-	
-	// The alert's message
-	private static String message;
-	
-	// If a count down time is present, what time are we counting down too?
-	private static long countDownToo;
-	
-	/**
-     * Generate the unique caching key.
-     */
-    public Serializable getKey()
-    {
-    	if (active)
-    		// Don't cache any alert messages
-    		return null;
-    	else
-    		return "1";
-    }
-
-    /**
-     * Generate the cache validity object.
-     */
-    public SourceValidity getValidity()
-    {
-    	if (active)
-    		return null;
-    	else
-    		return NOPValidity.SHARED_INSTANCE;
-    }
-	
-    /**
-     * If an alert is activated then add a count down message.
-     */
-	public void addPageMeta(PageMeta pageMeta) throws WingException
-    {
-        
-		if (active)
-		{
-	        Metadata alert = pageMeta.addMetadata("alert","message");
-	        
-	        long time = countDownToo - System.currentTimeMillis();
-	        if (time > 0)
-	        {
-	        	// from milliseconds to minutes
-	        	time = time / (60*1000); 
-	        	
-	        	alert.addContent(T_COUNTDOWN.parameterize(time));
-	        }
-
-	        alert.addContent(message);
-		}
-    }
-
-	/**
-	 * Check whether an alert is active.
-	 */
-	public static boolean isAlertActive()
-	{
-		return SystemwideAlerts.active;
-	}
-	
-	/**
-	 * Activate the current alert.
-	 */
-	public static void activateAlert()
-	{
-		SystemwideAlerts.active = true;
-	}
-	
-	/**
-	 * Deactivate the current alert.
-	 */
-	public static void deactivateAlert()
-	{
-		SystemwideAlerts.active = false;
-	}
-	
-	/**
-	 * Set the current alert's message.
-	 * @param message The new message
-	 */
-	public static void setMessage(String message)
-	{
-		SystemwideAlerts.message = message;
-	}
-	
-	/**
-	 * @return the current alert's message
-	 */
-	public static String getMessage()
-	{
-		return SystemwideAlerts.message;
-	}
-
-	/**
-	 * Get the time, in millieseconds, when the countdown timer is scheduled to end.
-	 */
-	public static long getCountDownToo()
-	{
-		return SystemwideAlerts.countDownToo;
-	}
-	
-	/**
-	 * Set the time, in millieseconds, to which the countdown timer should end.
-	 * 
-	 * Note, that once the countdown has expried, the alert is
-	 * still active. However the countdown will disappear.
-	 */
-	public static void setCountDownToo(long countDownTo)
-	{
-		SystemwideAlerts.countDownToo = countDownTo;
-	}
-	
-	
-	
+//	/** Language Strings */
+//	private static final Message T_COUNTDOWN = message("xmlui.administrative.SystemwideAlerts.countdown");
+//
+//	// Is an alert activated?
+//	private static boolean active;
+//	
+//	// The alert's message
+//	private static String message;
+//	
+//	// If a count down time is present, what time are we counting down too?
+//	private static long countDownToo;
+//	
+//	/**
+//     * Generate the unique caching key.
+//     */
+//    public Serializable getKey()
+//    {
+//    	if (active)
+//    		// Don't cache any alert messages
+//    		return null;
+//    	else
+//    		return "1";
+//    }
+//
+//    /**
+//     * Generate the cache validity object.
+//     */
+//    public SourceValidity getValidity()
+//    {
+//    	if (active)
+//    		return null;
+//    	else
+//    		return NOPValidity.SHARED_INSTANCE;
+//    }
+//	
+//    /**
+//     * If an alert is activated then add a count down message.
+//     */
+//	public void addPageMeta(PageMeta pageMeta) throws WingException
+//    {
+//        
+//		if (active)
+//		{
+//	        Metadata alert = pageMeta.addMetadata("alert","message");
+//	        
+//	        long time = countDownToo - System.currentTimeMillis();
+//	        if (time > 0)
+//	        {
+//	        	// from milliseconds to minutes
+//	        	time = time / (60*1000); 
+//	        	
+//	        	alert.addContent(T_COUNTDOWN.parameterize(time));
+//	        }
+//
+//	        alert.addContent(message);
+//		}
+//    }
+//
+//	/**
+//	 * Check whether an alert is active.
+//	 */
+//	public static boolean isAlertActive()
+//	{
+//		return SystemwideAlerts.active;
+//	}
+//	
+//	/**
+//	 * Activate the current alert.
+//	 */
+//	public static void activateAlert()
+//	{
+//		SystemwideAlerts.active = true;
+//	}
+//	
+//	/**
+//	 * Deactivate the current alert.
+//	 */
+//	public static void deactivateAlert()
+//	{
+//		SystemwideAlerts.active = false;
+//	}
+//	
+//	/**
+//	 * Set the current alert's message.
+//	 * @param message The new message
+//	 */
+//	public static void setMessage(String message)
+//	{
+//		SystemwideAlerts.message = message;
+//	}
+//	
+//	/**
+//	 * @return the current alert's message
+//	 */
+//	public static String getMessage()
+//	{
+//		return SystemwideAlerts.message;
+//	}
+//
+//	/**
+//	 * Get the time, in millieseconds, when the countdown timer is scheduled to end.
+//	 */
+//	public static long getCountDownToo()
+//	{
+//		return SystemwideAlerts.countDownToo;
+//	}
+//	
+//	/**
+//	 * Set the time, in millieseconds, to which the countdown timer should end.
+//	 * 
+//	 * Note, that once the countdown has expried, the alert is
+//	 * still active. However the countdown will disappear.
+//	 */
+//	public static void setCountDownToo(long countDownTo)
+//	{
+//		SystemwideAlerts.countDownToo = countDownTo;
+//	}
+//	
+//	
+//	
 }

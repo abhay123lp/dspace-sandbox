@@ -92,29 +92,29 @@ import org.dspace.app.xmlui.utils.AuthenticationUtil;
  * @author Scott Phillips
  */
 
-public class StartAuthenticationAction extends AbstractAction
+public class StartAuthenticationAction //extends AbstractAction
 {
-    /**
-     * Redirect the user to the login page.
-     */
-    public Map act(Redirector redirector, SourceResolver resolver,
-            Map objectModel, String source, Parameters parameters)
-            throws Exception
-    {
-    	
-    	String header = parameters.getParameter("header",null);
-    	String message = parameters.getParameter("message",null);
-    	String characters = parameters.getParameter("characters",null);
-    	
-    	// Interupt this request
-    	AuthenticationUtil.interruptRequest(objectModel,header,message,characters);
-
-    	final HttpServletRequest  httpRequest  = (HttpServletRequest)  objectModel.get(HttpEnvironment.HTTP_REQUEST_OBJECT); 
-    	final HttpServletResponse httpResponse = (HttpServletResponse) objectModel.get(HttpEnvironment.HTTP_RESPONSE_OBJECT); 
-    	
-    	httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
-
-        return new HashMap();
-    }
+//    /**
+//     * Redirect the user to the login page.
+//     */
+//    public Map act(Redirector redirector, SourceResolver resolver,
+//            Map objectModel, String source, Parameters parameters)
+//            throws Exception
+//    {
+//    	
+//    	String header = parameters.getParameter("header",null);
+//    	String message = parameters.getParameter("message",null);
+//    	String characters = parameters.getParameter("characters",null);
+//    	
+//    	// Interupt this request
+//    	AuthenticationUtil.interruptRequest(objectModel,header,message,characters);
+//
+//    	final HttpServletRequest  httpRequest  = (HttpServletRequest)  objectModel.get(HttpEnvironment.HTTP_REQUEST_OBJECT); 
+//    	final HttpServletResponse httpResponse = (HttpServletResponse) objectModel.get(HttpEnvironment.HTTP_RESPONSE_OBJECT); 
+//    	
+//    	httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
+//
+//        return new HashMap();
+//    }
 
 }

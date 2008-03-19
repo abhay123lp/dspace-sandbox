@@ -78,56 +78,55 @@ import org.dspace.eperson.EPerson;
  * @author Scott Phillips
  */
 
-public class AuthenticatedSelector extends AbstractLogEnabled implements
-        Selector
+public class AuthenticatedSelector //extends AbstractLogEnabled implements        Selector
 {
 
-    private static Logger log = Logger.getLogger(AuthenticatedSelector.class);
-
-    /** Test expressiots */
-    public static final String EPERSON = "eperson";
-
-    public static final String ADMINISTRATOR = "administrator";
-
-    /**
-     * Determine if the authenticated eperson matches the given expression.
-     */
-    public boolean select(String expression, Map objectModel,
-            Parameters parameters)
-    {
-        try
-        {
-            Context context = ContextUtil.obtainContext(objectModel);
-
-            EPerson eperson = context.getCurrentUser();
-
-            if (eperson == null)
-                // No one is authenticated.
-                return false;
-
-            if (EPERSON.equals(expression))
-            {
-                // At least someone is authenticated.
-                return true;
-            }
-            else if (ADMINISTRATOR.equals(expression))
-            {
-                // Is this eperson an administrator?
-                return AuthorizeManager.isAdmin(context);
-            }
-
-            // Otherwise return false;
-            return false;
-
-        }
-        catch (Exception e)
-        {
-            // Log it and returned no match.
-            log.error("Error selecting based on authentication status: "
-                    + e.getMessage());
-
-            return false;
-        }
-    }
+//    private static Logger log = Logger.getLogger(AuthenticatedSelector.class);
+//
+//    /** Test expressiots */
+//    public static final String EPERSON = "eperson";
+//
+//    public static final String ADMINISTRATOR = "administrator";
+//
+//    /**
+//     * Determine if the authenticated eperson matches the given expression.
+//     */
+//    public boolean select(String expression, Map objectModel,
+//            Parameters parameters)
+//    {
+//        try
+//        {
+//            Context context = ContextUtil.obtainContext(objectModel);
+//
+//            EPerson eperson = context.getCurrentUser();
+//
+//            if (eperson == null)
+//                // No one is authenticated.
+//                return false;
+//
+//            if (EPERSON.equals(expression))
+//            {
+//                // At least someone is authenticated.
+//                return true;
+//            }
+//            else if (ADMINISTRATOR.equals(expression))
+//            {
+//                // Is this eperson an administrator?
+//                return AuthorizeManager.isAdmin(context);
+//            }
+//
+//            // Otherwise return false;
+//            return false;
+//
+//        }
+//        catch (Exception e)
+//        {
+//            // Log it and returned no match.
+//            log.error("Error selecting based on authentication status: "
+//                    + e.getMessage());
+//
+//            return false;
+//        }
+//    }
 
 }

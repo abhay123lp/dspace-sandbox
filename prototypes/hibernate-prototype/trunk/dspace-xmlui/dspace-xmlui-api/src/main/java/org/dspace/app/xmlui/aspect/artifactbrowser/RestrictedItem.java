@@ -66,98 +66,98 @@ import java.sql.SQLException;
  * 
  * @author Scott Phillips
  */
-public class RestrictedItem extends AbstractDSpaceTransformer //implements CacheableProcessingComponent
+public class RestrictedItem //extends AbstractDSpaceTransformer //implements CacheableProcessingComponent
 {
-    /** language strings */
-    private static final Message T_title =
-        message("xmlui.ArtifactBrowser.RestrictedItem.title");
-    
-    private static final Message T_dspace_home =
-        message("xmlui.general.dspace_home");
-    
-    private static final Message T_trail = 
-        message("xmlui.ArtifactBrowser.RestrictedItem.trail");
-
-    private static final Message T_head = 
-        message("xmlui.ArtifactBrowser.RestrictedItem.head");
-    
-    private static final Message T_para = 
-        message("xmlui.ArtifactBrowser.RestrictedItem.para");
-    
-    public void addPageMeta(PageMeta pageMeta) throws SAXException,
-            WingException, UIException, SQLException, IOException,
-            AuthorizeException
-    {
-    	DSpaceObject dso = URIUtil.resolve(objectModel);
-    	
-    	pageMeta.addMetadata("title").addContent(T_title);
-               
-        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
-        if (dso != null)
-        	HandleUtil.buildHandleTrail(dso,pageMeta,contextPath);
-        pageMeta.addTrail().addContent(T_trail);
-        
-    }
-
-  
-    public void addBody(Body body) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
-    {   
-    	Request  request = ObjectModelHelper.getRequest(objectModel);
-        DSpaceObject dso = URIUtil.resolve(objectModel);
-        
-        String type = null;
-        String identifier = null;
-        if (dso == null)
-        {
-        	type = "resource";
-        	identifier = "unknown";
-        } 
-        else if (dso instanceof Community)
-        {
-        	Community community = (Community) dso;
-        	identifier = community.getMetadata("name");
-        	type = "community";
-        } 
-        else if (dso instanceof Collection)
-        {
-        	Collection collection = (Collection) dso;
-        	identifier = collection.getMetadata("name");
-        	type = "collection";
-        } 
-        else 
-        {
-        	String handle = IdentifierService.getCanonicalForm(dso);
-        	type = "item";
-        	if (handle == null || "".equals(handle))
-        	{
-        		identifier =  "internal ID: " + dso.getID();
-        	}
-        	else
-        	{
-        		identifier = handle;
-        	}
-        	
-        	if (request.getParameter("bitstreamId")!=null){
-        		type = "bitstream";
-        		try{
-        			Bitstream bit = Bitstream.find(context, new Integer(request.getParameter("bitstreamId")));
-	        		if(bit!=null){
-	        			identifier = bit.getName();
-	        		}
-	        		else{
-	        			identifier = "unknown";
-	        		}
-        		}
-        		catch(Exception e){
-        			
-        		}
-        	}
-        }
-        	
-        Division unauthorized = body.addDivision("unauthorized-item","primary");
-        unauthorized.setHead(T_head.parameterize(type));
-        
-        unauthorized.addPara(T_para.parameterize(new Object[]{type,identifier}));
-    }
+//    /** language strings */
+//    private static final Message T_title =
+//        message("xmlui.ArtifactBrowser.RestrictedItem.title");
+//    
+//    private static final Message T_dspace_home =
+//        message("xmlui.general.dspace_home");
+//    
+//    private static final Message T_trail = 
+//        message("xmlui.ArtifactBrowser.RestrictedItem.trail");
+//
+//    private static final Message T_head = 
+//        message("xmlui.ArtifactBrowser.RestrictedItem.head");
+//    
+//    private static final Message T_para = 
+//        message("xmlui.ArtifactBrowser.RestrictedItem.para");
+//    
+//    public void addPageMeta(PageMeta pageMeta) throws SAXException,
+//            WingException, UIException, SQLException, IOException,
+//            AuthorizeException
+//    {
+//    	DSpaceObject dso = URIUtil.resolve(objectModel);
+//    	
+//    	pageMeta.addMetadata("title").addContent(T_title);
+//               
+//        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
+//        if (dso != null)
+//        	HandleUtil.buildHandleTrail(dso,pageMeta,contextPath);
+//        pageMeta.addTrail().addContent(T_trail);
+//        
+//    }
+//
+//  
+//    public void addBody(Body body) throws SAXException, WingException,
+//            UIException, SQLException, IOException, AuthorizeException
+//    {   
+//    	Request  request = ObjectModelHelper.getRequest(objectModel);
+//        DSpaceObject dso = URIUtil.resolve(objectModel);
+//        
+//        String type = null;
+//        String identifier = null;
+//        if (dso == null)
+//        {
+//        	type = "resource";
+//        	identifier = "unknown";
+//        } 
+//        else if (dso instanceof Community)
+//        {
+//        	Community community = (Community) dso;
+//        	identifier = community.getMetadata("name");
+//        	type = "community";
+//        } 
+//        else if (dso instanceof Collection)
+//        {
+//        	Collection collection = (Collection) dso;
+//        	identifier = collection.getMetadata("name");
+//        	type = "collection";
+//        } 
+//        else 
+//        {
+//        	String handle = IdentifierService.getCanonicalForm(dso);
+//        	type = "item";
+//        	if (handle == null || "".equals(handle))
+//        	{
+//        		identifier =  "internal ID: " + dso.getID();
+//        	}
+//        	else
+//        	{
+//        		identifier = handle;
+//        	}
+//        	
+//        	if (request.getParameter("bitstreamId")!=null){
+//        		type = "bitstream";
+//        		try{
+//        			Bitstream bit = Bitstream.find(context, new Integer(request.getParameter("bitstreamId")));
+//	        		if(bit!=null){
+//	        			identifier = bit.getName();
+//	        		}
+//	        		else{
+//	        			identifier = "unknown";
+//	        		}
+//        		}
+//        		catch(Exception e){
+//        			
+//        		}
+//        	}
+//        }
+//        	
+//        Division unauthorized = body.addDivision("unauthorized-item","primary");
+//        unauthorized.setHead(T_head.parameterize(type));
+//        
+//        unauthorized.addPara(T_para.parameterize(new Object[]{type,identifier}));
+//    }
 }

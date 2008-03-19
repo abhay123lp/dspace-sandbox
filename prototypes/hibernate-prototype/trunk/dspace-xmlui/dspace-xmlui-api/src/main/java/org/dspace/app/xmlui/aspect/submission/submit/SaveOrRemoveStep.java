@@ -67,53 +67,53 @@ import java.sql.SQLException;
  * @author Scott Phillips
  * @author Tim Donohue (small updates for Configurable Submission)
  */
-public class SaveOrRemoveStep extends AbstractStep
+public class SaveOrRemoveStep //extends AbstractStep
 {
-
-	/** Language Strings **/
-    protected static final Message T_head = 
-        message("xmlui.Submission.submit.SaveOrRemoveStep.head");
-    protected static final Message T_info1 = 
-        message("xmlui.Submission.submit.SaveOrRemoveStep.info1");
-    protected static final Message T_submit_back = 
-        message("xmlui.Submission.submit.SaveOrRemoveStep.submit_back");
-    protected static final Message T_submit_save = 
-        message("xmlui.Submission.submit.SaveOrRemoveStep.submit_save");
-    protected static final Message T_submit_remove = 
-        message("xmlui.Submission.submit.SaveOrRemoveStep.submit_remove");
-	
-    
-    /**
-	 * Establish our required parameters, abstractStep will enforce these.
-	 */
-	public SaveOrRemoveStep()
-	{
-		this.requireSubmission = true;
-		this.requireStep = true;
-	}
-    
-	public void addBody(Body body) throws SAXException, WingException,
-	UIException, SQLException, IOException, AuthorizeException
-	{	
-		Collection collection = submission.getCollection();
-		String actionURL = IdentifierService.getURL(collection).toString() + "/submit";
-		
-		Division div = body.addInteractiveDivision("submit-save-or-cancel",actionURL, Division.METHOD_POST,"primary submission");
-		div.setHead(T_submission_head);
-		addSubmissionProgressList(div);
-		
-		List saveOrCancel = div.addList("submit-review", List.TYPE_FORM);
-	
-		saveOrCancel.setHead(T_head);
-		saveOrCancel.addItem(T_info1);
-		
-		saveOrCancel.addItem().addButton("submit_back").setValue(T_submit_back);
-		
-        org.dspace.app.xmlui.wing.element.Item actions = saveOrCancel.addItem();
-        actions.addButton("submit_save").setValue(T_submit_save);
-		actions.addButton("submit_remove").setValue(T_submit_remove);
-
-		div.addHidden("submission-continue").setValue(knot.getId()); 
-
-	}
+//
+//	/** Language Strings **/
+//    protected static final Message T_head = 
+//        message("xmlui.Submission.submit.SaveOrRemoveStep.head");
+//    protected static final Message T_info1 = 
+//        message("xmlui.Submission.submit.SaveOrRemoveStep.info1");
+//    protected static final Message T_submit_back = 
+//        message("xmlui.Submission.submit.SaveOrRemoveStep.submit_back");
+//    protected static final Message T_submit_save = 
+//        message("xmlui.Submission.submit.SaveOrRemoveStep.submit_save");
+//    protected static final Message T_submit_remove = 
+//        message("xmlui.Submission.submit.SaveOrRemoveStep.submit_remove");
+//	
+//    
+//    /**
+//	 * Establish our required parameters, abstractStep will enforce these.
+//	 */
+//	public SaveOrRemoveStep()
+//	{
+//		this.requireSubmission = true;
+//		this.requireStep = true;
+//	}
+//    
+//	public void addBody(Body body) throws SAXException, WingException,
+//	UIException, SQLException, IOException, AuthorizeException
+//	{	
+//		Collection collection = submission.getCollection();
+//		String actionURL = IdentifierService.getURL(collection).toString() + "/submit";
+//		
+//		Division div = body.addInteractiveDivision("submit-save-or-cancel",actionURL, Division.METHOD_POST,"primary submission");
+//		div.setHead(T_submission_head);
+//		addSubmissionProgressList(div);
+//		
+//		List saveOrCancel = div.addList("submit-review", List.TYPE_FORM);
+//	
+//		saveOrCancel.setHead(T_head);
+//		saveOrCancel.addItem(T_info1);
+//		
+//		saveOrCancel.addItem().addButton("submit_back").setValue(T_submit_back);
+//		
+//        org.dspace.app.xmlui.wing.element.Item actions = saveOrCancel.addItem();
+//        actions.addButton("submit_save").setValue(T_submit_save);
+//		actions.addButton("submit_remove").setValue(T_submit_remove);
+//
+//		div.addHidden("submission-continue").setValue(knot.getId()); 
+//
+//	}
 }

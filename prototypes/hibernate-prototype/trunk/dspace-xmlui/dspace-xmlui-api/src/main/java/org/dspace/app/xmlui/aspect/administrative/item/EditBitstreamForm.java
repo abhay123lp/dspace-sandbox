@@ -66,135 +66,135 @@ import org.xml.sax.SAXException;
  */
 public class EditBitstreamForm extends AbstractDSpaceTransformer
 {
-
-	/** Language strings */
-	private static final Message T_dspace_home = message("xmlui.general.dspace_home");
-	private static final Message T_submit_save = message("xmlui.general.save");
-	private static final Message T_submit_cancel = message("xmlui.general.cancel");
-	private static final Message T_item_trail = message("xmlui.administrative.item.general.item_trail");
-	
-	private static final Message T_title = message("xmlui.administrative.item.EditBitstreamForm.title");
-	private static final Message T_trail = message("xmlui.administrative.item.EditBitstreamForm.trail");
-	private static final Message T_head1 = message("xmlui.administrative.item.EditBitstreamForm.head1");
-	private static final Message T_file_label = message("xmlui.administrative.item.EditBitstreamForm.file_label");
-	private static final Message T_primary_label = message("xmlui.administrative.item.EditBitstreamForm.primary_label");
-	private static final Message T_primary_option_yes = message("xmlui.administrative.item.EditBitstreamForm.primary_option_yes");
-	private static final Message T_primary_option_no = message("xmlui.administrative.item.EditBitstreamForm.primary_option_no");
-	private static final Message T_description_label = message("xmlui.administrative.item.EditBitstreamForm.description_label");
-	private static final Message T_description_help = message("xmlui.administrative.item.EditBitstreamForm.description_help");
-	private static final Message T_para1 = message("xmlui.administrative.item.EditBitstreamForm.para1");
-	private static final Message T_format_label = message("xmlui.administrative.item.EditBitstreamForm.format_label");
-	private static final Message T_format_default = message("xmlui.administrative.item.EditBitstreamForm.format_default");
-	private static final Message T_para2 = message("xmlui.administrative.item.EditBitstreamForm.para2");
-	private static final Message T_user_label = message("xmlui.administrative.item.EditBitstreamForm.user_label");
-	private static final Message T_user_help = message("xmlui.administrative.item.EditBitstreamForm.user_help");
-
-
-
-	public void addPageMeta(PageMeta pageMeta) throws WingException
-	{
-		pageMeta.addMetadata("title").addContent(T_title);
-
-		pageMeta.addTrailLink(contextPath + "/", T_dspace_home);
-		pageMeta.addTrailLink(contextPath + "/admin/item",T_item_trail);
-		pageMeta.addTrail().addContent(T_trail);
-	}
-
-	public void addBody(Body body) throws SAXException, WingException,
-	UIException, SQLException, IOException, AuthorizeException
-	{    	
-		// Get our parameters
-		int bitstreamID = parameters.getParameterAsInteger("bitstreamID",-1);
-
-		// Get the bitstream and all the various formats
-		Bitstream bitstream = Bitstream.find(context, bitstreamID);
-		BitstreamFormat currentFormat = bitstream.getFormat();
-		BitstreamFormat[] bitstreamFormats = BitstreamFormat.findNonInternal(context);
-		
-		boolean primaryBitstream = false;
-		Bundle[] bundles = bitstream.getBundles();
-		if (bundles != null && bundles.length > 0)
-		{
-			if (bitstreamID == bundles[0].getPrimaryBitstreamID())
-			{
-				primaryBitstream = true;
-			}
-		}
-
-		// File name & url
-		String fileUrl = contextPath + "/bitstream/id/" +bitstream.getID() + "/" + bitstream.getName();
-		String fileName = bitstream.getName();
-
-
-
-
-		// DIVISION: main
-		Division div = body.addInteractiveDivision("edit-bitstream", contextPath+"/admin/item", Division.METHOD_MULTIPART, "primary administrative item");    	
-		div.setHead(T_head1);
-
-
-		// LIST: edit form
-		List edit = div.addList("edit-bitstream-list", List.TYPE_FORM);
-
-		edit.addLabel(T_file_label);
-		edit.addItem().addXref(fileUrl, fileName);
-
-		
-		Select primarySelect = edit.addItem().addSelect("primary");
-		primarySelect.setLabel(T_primary_label);
-		primarySelect.addOption(primaryBitstream,"yes",T_primary_option_yes);
-		primarySelect.addOption(!primaryBitstream,"no",T_primary_option_no);
-		
-		Text description = edit.addItem().addText("description");
-		description.setLabel(T_description_label);
-		description.setHelp(T_description_help);
-		description.setValue(bitstream.getDescription());
-
-		edit.addItem(T_para1);
-
-		// System supported formats
-		Select format = edit.addItem().addSelect("formatID");
-		format.setLabel(T_format_label);
-
-		format.addOption(-1,T_format_default);
-		for (BitstreamFormat bitstreamFormat : bitstreamFormats)
-		{
-			String supportLevel = "Unknown";
-			if (bitstreamFormat.getSupportLevel() == BitstreamFormat.KNOWN)
-				supportLevel = "known";
-			else if (bitstreamFormat.getSupportLevel() == BitstreamFormat.SUPPORTED)
-				supportLevel = "Supported";
-			String name = bitstreamFormat.getShortDescription()+" ("+supportLevel+")";
-			int id = bitstreamFormat.getId();
-
-			format.addOption(id,name);
-		}
-		if (currentFormat != null)
-		{
-			format.setOptionSelected(currentFormat.getId());
-		}
-		else
-		{
-			format.setOptionSelected(-1);
-		}
-
-		edit.addItem(T_para2);
-
-		// User supplied format
-		Text userFormat = edit.addItem().addText("user_format");
-		userFormat.setLabel(T_user_label);
-		userFormat.setHelp(T_user_help);
-		userFormat.setValue(bitstream.getUserFormatDescription());
-
-
-
-
-		// ITEM: form actions
-		org.dspace.app.xmlui.wing.element.Item actions = edit.addItem();
-		actions.addButton("submit_save").setValue(T_submit_save);
-		actions.addButton("submit_cancel").setValue(T_submit_cancel);
-
-		div.addHidden("administrative-continue").setValue(knot.getId()); 
-
-	}
+//
+//	/** Language strings */
+//	private static final Message T_dspace_home = message("xmlui.general.dspace_home");
+//	private static final Message T_submit_save = message("xmlui.general.save");
+//	private static final Message T_submit_cancel = message("xmlui.general.cancel");
+//	private static final Message T_item_trail = message("xmlui.administrative.item.general.item_trail");
+//	
+//	private static final Message T_title = message("xmlui.administrative.item.EditBitstreamForm.title");
+//	private static final Message T_trail = message("xmlui.administrative.item.EditBitstreamForm.trail");
+//	private static final Message T_head1 = message("xmlui.administrative.item.EditBitstreamForm.head1");
+//	private static final Message T_file_label = message("xmlui.administrative.item.EditBitstreamForm.file_label");
+//	private static final Message T_primary_label = message("xmlui.administrative.item.EditBitstreamForm.primary_label");
+//	private static final Message T_primary_option_yes = message("xmlui.administrative.item.EditBitstreamForm.primary_option_yes");
+//	private static final Message T_primary_option_no = message("xmlui.administrative.item.EditBitstreamForm.primary_option_no");
+//	private static final Message T_description_label = message("xmlui.administrative.item.EditBitstreamForm.description_label");
+//	private static final Message T_description_help = message("xmlui.administrative.item.EditBitstreamForm.description_help");
+//	private static final Message T_para1 = message("xmlui.administrative.item.EditBitstreamForm.para1");
+//	private static final Message T_format_label = message("xmlui.administrative.item.EditBitstreamForm.format_label");
+//	private static final Message T_format_default = message("xmlui.administrative.item.EditBitstreamForm.format_default");
+//	private static final Message T_para2 = message("xmlui.administrative.item.EditBitstreamForm.para2");
+//	private static final Message T_user_label = message("xmlui.administrative.item.EditBitstreamForm.user_label");
+//	private static final Message T_user_help = message("xmlui.administrative.item.EditBitstreamForm.user_help");
+//
+//
+//
+//	public void addPageMeta(PageMeta pageMeta) throws WingException
+//	{
+//		pageMeta.addMetadata("title").addContent(T_title);
+//
+//		pageMeta.addTrailLink(contextPath + "/", T_dspace_home);
+//		pageMeta.addTrailLink(contextPath + "/admin/item",T_item_trail);
+//		pageMeta.addTrail().addContent(T_trail);
+//	}
+//
+//	public void addBody(Body body) throws SAXException, WingException,
+//	UIException, SQLException, IOException, AuthorizeException
+//	{    	
+//		// Get our parameters
+//		int bitstreamID = parameters.getParameterAsInteger("bitstreamID",-1);
+//
+//		// Get the bitstream and all the various formats
+//		Bitstream bitstream = Bitstream.find(context, bitstreamID);
+//		BitstreamFormat currentFormat = bitstream.getFormat();
+//		BitstreamFormat[] bitstreamFormats = BitstreamFormat.findNonInternal(context);
+//		
+//		boolean primaryBitstream = false;
+//		Bundle[] bundles = bitstream.getBundles();
+//		if (bundles != null && bundles.length > 0)
+//		{
+//			if (bitstreamID == bundles[0].getPrimaryBitstreamID())
+//			{
+//				primaryBitstream = true;
+//			}
+//		}
+//
+//		// File name & url
+//		String fileUrl = contextPath + "/bitstream/id/" +bitstream.getID() + "/" + bitstream.getName();
+//		String fileName = bitstream.getName();
+//
+//
+//
+//
+//		// DIVISION: main
+//		Division div = body.addInteractiveDivision("edit-bitstream", contextPath+"/admin/item", Division.METHOD_MULTIPART, "primary administrative item");    	
+//		div.setHead(T_head1);
+//
+//
+//		// LIST: edit form
+//		List edit = div.addList("edit-bitstream-list", List.TYPE_FORM);
+//
+//		edit.addLabel(T_file_label);
+//		edit.addItem().addXref(fileUrl, fileName);
+//
+//		
+//		Select primarySelect = edit.addItem().addSelect("primary");
+//		primarySelect.setLabel(T_primary_label);
+//		primarySelect.addOption(primaryBitstream,"yes",T_primary_option_yes);
+//		primarySelect.addOption(!primaryBitstream,"no",T_primary_option_no);
+//		
+//		Text description = edit.addItem().addText("description");
+//		description.setLabel(T_description_label);
+//		description.setHelp(T_description_help);
+//		description.setValue(bitstream.getDescription());
+//
+//		edit.addItem(T_para1);
+//
+//		// System supported formats
+//		Select format = edit.addItem().addSelect("formatID");
+//		format.setLabel(T_format_label);
+//
+//		format.addOption(-1,T_format_default);
+//		for (BitstreamFormat bitstreamFormat : bitstreamFormats)
+//		{
+//			String supportLevel = "Unknown";
+//			if (bitstreamFormat.getSupportLevel() == BitstreamFormat.KNOWN)
+//				supportLevel = "known";
+//			else if (bitstreamFormat.getSupportLevel() == BitstreamFormat.SUPPORTED)
+//				supportLevel = "Supported";
+//			String name = bitstreamFormat.getShortDescription()+" ("+supportLevel+")";
+//			int id = bitstreamFormat.getId();
+//
+//			format.addOption(id,name);
+//		}
+//		if (currentFormat != null)
+//		{
+//			format.setOptionSelected(currentFormat.getId());
+//		}
+//		else
+//		{
+//			format.setOptionSelected(-1);
+//		}
+//
+//		edit.addItem(T_para2);
+//
+//		// User supplied format
+//		Text userFormat = edit.addItem().addText("user_format");
+//		userFormat.setLabel(T_user_label);
+//		userFormat.setHelp(T_user_help);
+//		userFormat.setValue(bitstream.getUserFormatDescription());
+//
+//
+//
+//
+//		// ITEM: form actions
+//		org.dspace.app.xmlui.wing.element.Item actions = edit.addItem();
+//		actions.addButton("submit_save").setValue(T_submit_save);
+//		actions.addButton("submit_cancel").setValue(T_submit_cancel);
+//
+//		div.addHidden("administrative-continue").setValue(knot.getId()); 
+//
+//	}
 }
