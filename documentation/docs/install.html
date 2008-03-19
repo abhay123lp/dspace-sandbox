@@ -6,29 +6,37 @@
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" >
 </HEAD>
   <BODY>
-    <H1>DSpace System Documentation: Installation</H1>
+    
+<H1>DSpace System Documentation v1.5: Installation</H1>
 
     <P><A HREF="index.html">Back to contents</A></P>
 
     <P>&nbsp;</P>
-	<P><strong>Installation Table of Contents</strong>
-        <UL>
-          <LI><A HREF="install.html#prerequisite">Prerequisite Software</A></LI>
-          <LI><A HREF="install.html#installoptions">Installation Options</A>
-          	<UL>
-          		<LI><A HREF="install.html#options">Overview of Install Options</A></LI>
-          		<LI><A HREF="install.html#directories">Overview of DSpace Directories</A></LI>
-          		<LI><A HREF="install.html#installsteps">Installation</A></LI>
-       		</UL>
-          </LI> 
-          <LI><A HREF="install.html#advancedinstall">Advanced Installation Options</A></LI>
-		  <li><a href="install.html#windows">Windows Installation</a></li>
-          <LI><A HREF="install.html#knownbugs">Known Bugs</A></LI>
-          <LI><A HREF="install.html#problems">Common Problems</A></LI>
-        </UL>
+	
+<P><strong><a name="installTOC"></a>Installation Table of Contents</strong> 
+<div align="left"><A HREF="install.html#prerequisite">I. Prerequisite Software</A><br>
+  <A HREF="install.html#installoptions">II. Installation Options</A> </div>
+<div align="left">
+<div align="left"><A HREF="install.html#options"> 
+    <li>Overview of Install Options</li>
+    </A><A HREF="install.html#directories"> </A></div>
+  <div align="left"><A HREF="install.html#directories">
+    <li>Overview of DSpace Directories</li>
+    <br>
+    </A><A HREF="install.html#installsteps">III. Unix-like Installation<br>
+    </A><A HREF="install.html#multilingual">IV. Advanced Installation Options<br>
+    </A><A HREF="install.html#cron"><li>'cron' Jobs</li><br>
+	</A><A HREF="install.html#multilingual"><li>Multilingual Installation</li><br>
+	</A><A HREF="install.html#https"><li>DSpace over HTTPS</li><br>
+</A><A HREF="install.html#handles"><li>The Handle Server</li><br>
+</A><A HREF="install.html#sitemaps"><li>Google and HTML Sitemaps</li><br>
+</A><a href="install.html#windows">V. Windows Installation<br>
+    </A><a href="install.html#checking">VI. Checking Your Installation (TBD) <br>
+</a><A HREF="install.html#knownbugs">VII. Known Bugs<br>
+    </A><A HREF="install.html#problems">VIII.Common Problems</A></div>
+</div>
 </P>
-     
-    <H2><A NAME="prerequisite">Prerequisite Software</A></H2>
+<H2><A NAME="prerequisite">I. Prerequisite Software</A></H2>
 
     <P>The list below describes the third-party components and tools you'll need to run a DSpace server.  These are just guidelines.  Since DSpace is built on open source, standards-based tools, there are numerous other possibilities and setups.</P>
 
@@ -103,8 +111,10 @@
       Jetty and Resin are configured for correct handling of UTF-8 by default.</li>
     </ul>
     
-  <p>&nbsp;</p>
-  <H2><A NAME="installoptions">Installation Options</A></H2>
+  
+<p><a href="#installTOC">back to Install Table of Contents</a></p>
+  
+<H2><A NAME="installoptions">II. Installation Options</A></H2> 
 	
 	<H3><A NAME="options">Overview of Install Options</A></H3>
 
@@ -177,7 +187,7 @@
       An interface "overlay" allows you to only manage your local custom code (in your local CVS or SVN),
       and automatically download the rest of the interface code from the maven central repository whenever
       you build DSpace.  This reduces the amount of out-of-the-box
-    DSpace interface code maintained in your local CVS/SVN.</p>
+    DSpace interface code maintained in your local CVS/SVN.</p> <p><a href="#installTOC">back to Install Table of Contents</a></p>
   
   <H3><A NAME="directories">Overview of DSpace Directories</A></H3>
 
@@ -206,12 +216,14 @@ of them in order to install DSpace, you do need to know they exist and also know
     you installed Tomcat--also known as <code>$CATALINA_HOME</code>).</li>
     </ol>
 
-    <p>For details on the contents of these separate directory trees, refer to
-    <a href="directories.html">directories.html</a>.
-    <em>Note that the <code>[dspace-source]</code> and <code>[dspace]</code> directories are always separate!</em></p>
+    
+<p>For details on the contents of these separate directory trees, refer to <a href="directories.html">directories.html</a>. 
+  <em>Note that the <code>[dspace-source]</code> and <code>[dspace]</code> directories 
+  are always separate!</em></p> <p><a href="#installTOC">back to Install Table of Contents</a></p>
 
 
-    <H3><A NAME="installsteps">Installation</A></H3>
+    
+<H3><A NAME="installsteps">III. Unix-like Installation</A></H3>
 
 	This method gets you up and running with DSpace quickly and easily.  It is identical in both the  <a href="#defaultRelease">Default Release</a> and <A href="#sourceRelease">Source Release</A> distributions.
 
@@ -336,7 +348,7 @@ mvn package</pre>
 	    <PRE>mvn -Ddb.name=oracle package
 </PRE>
       <li>
-        <P>As the <code>dspace</code> UNIX user, initialize the DSpace database and install DSpace to <code><i>[dspace]</i></code>:</P>
+<P>As the <code>dspace</code> UNIX user, initialize the DSpace database and install DSpace to <code><i>[dspace]</i></code>:</P>
 
         <pre>cd <i>[dspace-source]</i>/dspace/target/dspace-[version].dir/
 ant fresh_install</pre>
@@ -379,14 +391,16 @@ cp -r <i>[dspace]</i>/webapps/oai <i>[tomcat]</i>/webapps</PRE>
       </LI>
     </ol>
 
-  <p>In order to set up some communities and collections, you'll need to login as your DSpace Administrator (which you created with <code>create-administrator</code> above) and access the administration UI in either the JSP or XML user interface.</P>
+  <p>In order to set up some communities and collections, you'll need to login as your DSpace Administrator (which you created with <code>create-administrator</code> above) and access the administration UI in either the JSP or XML user interface.</P> <p><a href="#installTOC">back to Install Table of Contents</a></p>
 	
     
-    <H2><A NAME="advancedinstall">Advanced Installation</A></H2>
+    
+<H2><A NAME="advancedinstall">IV. Advanced Installation</A></H2>
 
     <P>The above installation steps are sufficient to set up a test server to play around with, but there are a few other steps and options you should probably consider before deploying a DSpace production site.</P>
 
-    <H3>'cron' Jobs</H3>
+    
+<H3><a name="cron"></a>'cron' Jobs</H3>
 
     <P>A couple of DSpace features require that a script is run regularly -- the e-mail subscription feature that alerts users of new items being deposited, and the new 'media filter' tool, that generates thumbnails of images and extracts the full-text of documents for indexing.</P>
 
@@ -425,10 +439,14 @@ cp -r <i>[dspace]</i>/webapps/oai <i>[tomcat]</i>/webapps</PRE>
 
 	<p>Note that <a href="http://www.perl.com/download.csp">Perl</a> needs to be installed in order to run the statistical reports.</p>
 
-    <P>For information on customising the output of this see <A HREF="configure.html#statistics">configuring system statistical reports</A>.</P>
+    
+<P>For information on customising the output of this see <A HREF="configure.html#statistics">configuring 
+  system statistical reports</A>. </P> <p><a href="#installTOC">back to Install Table of Contents</a></p>
 
-	<h3>Multilingual Installation</h3>
-	In order to deploy a multilingual version of DSpace you have to configure two parameters in <code><i>[dspace]</i>/config/dspace.cfg:</code><br />
+	
+<h3><a name="multilingual"></a>Multilingual Installation</h3>
+In order to deploy a multilingual version of DSpace you have to configure two 
+parameters in <code><i>[dspace]</i>/config/dspace.cfg:</code><br />
 	<code>default.locale</code>, e. g. default.locale = en<br />
 	<code>webui.supported locales</code>, e. g. webui.supported.locales = en, de<br />
 	The Locales might have the form country, country_language, country_language_variant.<br />
@@ -471,30 +489,29 @@ cp -r <i>[dspace]</i>/webapps/oai <i>[tomcat]</i>/webapps</PRE>
             This assumes the certificate was put in the file <code>server.pem</code>:</p>
         <pre> $JAVA_HOME/bin/keytool -import -noprompt -v -storepass changeit -keystore $CATALINA_BASE/conf/keystore -alias tomcat -file myserver.pem</pre></li>
 
-        <LI><p>Install the CA (Certifying Authority) certificate for the CA that
-        granted your server cert, if necessary.  This
-        assumes    the server CA certificate is in <code>ca.pem</code>:</p>
+        
+      <LI>Install the CA (Certifying Authority) certificate for the CA that granted 
+        your server cert, if necessary. This assumes the server CA certificate 
+        is in <code>ca.pem</code>: 
         <pre> $JAVA_HOME/bin/keytool -import -noprompt -storepass changeit -trustcacerts -keystore $CATALINA_BASE/conf/keystore -alias ServerCA -file ca.pem</pre>
       </LI>
 
-        <li><p>Optional -- ONLY if you need to accept client certificates
-            for the X.509 certificate stackable authentication module
-            See the
-          <A HREF="configure.html#authenticate">configuration section</A>
-          for instructions on enabling the X.509 authentication method.
-            Load the keystore with the CA (certifying authority)
-            certificates for
-            the authorities of any clients whose certificates you wish to accept.
-            For example, assuming the client CA certificate is in <code>client1.pem</code>:</p>
-            <pre> $JAVA_HOME/bin/keytool -import -noprompt -storepass changeit -trustcacerts -keystore $CATALINA_BASE/conf/keystore  -alias client1 -file client1.pem</pre>
+        
+      <li>Optional -- ONLY if you need to accept client certificates for the X.509 
+        certificate stackable authentication module See the <A HREF="configure.html#authenticate">configuration 
+        section</A> for instructions on enabling the X.509 authentication method. 
+        Load the keystore with the CA (certifying authority) certificates for 
+        the authorities of any clients whose certificates you wish to accept. 
+        For example, assuming the client CA certificate is in <code>client1.pem</code>: 
+        <pre> $JAVA_HOME/bin/keytool -import -noprompt -storepass changeit -trustcacerts -keystore $CATALINA_BASE/conf/keystore  -alias client1 -file client1.pem</pre>
       </LI>
 
-        <LI><p>Now add another Connector tag to your <code>server.xml</code>
-        Tomcat configuration file, like the example below.  The parts
-        affecting or specific to SSL are shown in bold.
-        (You may wish to change
-      some details such as the port, pathnames, and keystore password)</p>
-      <pre>
+        
+      <LI>Now add another Connector tag to your <code>server.xml</code> Tomcat 
+        configuration file, like the example below. The parts affecting or specific 
+        to SSL are shown in bold. (You may wish to change some details such as 
+        the port, pathnames, and keystore password) 
+        <pre>
     &lt;Connector port="8443"
                maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
                enableLookups="false" disableUploadTimeout="true"
@@ -542,24 +559,26 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
   -keystore $CATALINA_BASE/conf/keystore -storepass changeit -validity 365 \
   -dname 'CN=dspace.myuni.edu, OU=MIT Libraries, O=Massachusetts Institute of Technology, L=Cambridge, S=MA, C=US'
        </pre>
-          <li><p>Then, create a <em>CSR</em> (Certificate Signing Request)
-            and send it to your Certifying Authority.  They will send you
-            back a signed Server Certificate.  This example command creates a CSR
-            in the file <code>tomcat.csr</code>
+          <li>Then, create a <em>CSR</em> (Certificate Signing Request) and send 
+            it to your Certifying Authority. They will send you back a signed 
+            Server Certificate. This example command creates a CSR in the file 
+            <code>tomcat.csr</code> 
             <pre>
  $JAVA_HOME/bin/keytool -keystore $CATALINA_BASE/conf/keystore -storepass changeit \
    -certreq -alias tomcat -v -file tomcat.csr</pre>
 
-          <li><p>Before importing the signed certificate, you must have
-             the CA's certificate in your keystore as a <em>trusted certificate</em>.
-             Get their certificate, and import it with a command like
-             this (for the example <code>mitCA.pem</code>):<pre>
+          <li>Before importing the signed certificate, you must have the CA's 
+            certificate in your keystore as a <em>trusted certificate</em>. Get 
+            their certificate, and import it with a command like this (for the 
+            example <code>mitCA.pem</code>): 
+            <pre>
  $JAVA_HOME/bin/keytool -keystore $CATALINA_BASE/conf/keystore -storepass changeit \
      -import -alias mitCA -trustcacerts -file mitCA.pem</pre>
 
-          <li><p>Finally, when you get the signed certificate from your CA,
-          import it into the keystore with a command like the following
-          example: (cert is in the file <code>signed-cert.pem</code>)<pre>
+          <li>Finally, when you get the signed certificate from your CA, import 
+            it into the keystore with a command like the following example: (cert 
+            is in the file <code>signed-cert.pem</code>) 
+            <pre>
  $JAVA_HOME/bin/keytool -keystore $CATALINA_BASE/conf/keystore -storepass changeit \
      -import -alias tomcat -trustcacerts -file signed-cert.pem</pre>
 
@@ -568,10 +587,10 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
           server certificate and the server CA's certificate.
         </ul>
         </li>
-        <LI><p>Create a Java keystore for your server with the password
-            <code>changeit</code>, and install your server certificate
-            under the alias <code>"tomcat"</code>.
-            This assumes the certificate was put in the file <code>server.pem</code>:</p>
+        
+      <LI>Create a Java keystore for your server with the password <code>changeit</code>, 
+        and install your server certificate under the alias <code>"tomcat"</code>. 
+        This assumes the certificate was put in the file <code>server.pem</code>: 
         <pre> $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keystore $CATALINA_BASE/conf/keystore -storepass changeit</pre>
         <p>When answering the questions to identify the certificate, be
         sure to respond to "First and last name" with the fully-qualified
@@ -590,8 +609,9 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
             <pre> $JAVA_HOME/bin/keytool -import -noprompt -storepass changeit -trustcacerts -keystore $CATALINA_BASE/conf/keystore  -alias client1 -file client1.pem</pre>
         </LI>
 
-        <li><p>Follow the procedure in the section above to
-          add another Connector tag, for the HTTPS port, to your <code>server.xml</code> file.</p></li>
+        
+      <li>Follow the procedure in the section above to add another Connector tag, 
+        for the HTTPS port, to your <code>server.xml</code> file.</li>
         </ol>
     </ol>
 
@@ -630,7 +650,7 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
 
     <p><strong>To use SSL on Apache HTTPD with mod_webapp</strong> consult the DSpace 1.3.2 documentation. Apache have deprecated the <code>mod_webapp</code> connector and recommend using <code>mod_jk</code>.</p>
 
-    <p><strong>To use Jetty's HTTPS support</strong> consult the documentation for the relevant tool.</p>
+    <p><strong>To use Jetty's HTTPS support</strong> consult the documentation for the relevant tool.</p> <p><a href="#installTOC">back to Install Table of Contents</a></p>
 
 
     <H3><A NAME="handles">The Handle Server</A></H3>
@@ -677,7 +697,7 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
 
 	<p><code><i>[dspace]</i>/bin/update-handle-prefix 123456789 1303</code></p>
 
-	<p>will change any handles currently assigned prefix 123456789 to prefix 1303, so for example handle 123456789/23 will be updated to 1303/23 in the database.</p>
+	<p>will change any handles currently assigned prefix 123456789 to prefix 1303, so for example handle 123456789/23 will be updated to 1303/23 in the database.</p><p><a href="#installTOC">back to Install Table of Contents</a></p>
 
 	<h3><a NAME="sitemaps">Google and HTML sitemaps</a></h3>
 
@@ -703,17 +723,22 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
     </ul>
 
     </p>
-
-    <p>When running <code>[dspace]/bin/generate-sitemaps</code> the script informs Google that the sitemaps have been updated. For this update to register correctly, you must first register your Google sitemap index page (<code>/dspace/sitemap</code>) with Google at <a href="http://www.google.com/webmasters/sitemaps/">http://www.google.com/webmasters/sitemaps/</a>. If your DSpace server requires the use of a HTTP proxy to connect to the Internet, ensure that you have set <code>http.proxy.host</code> and <code>http.proxy.port</code> in <code>[dspace]/config/dspace.cfg</code></p>
-	
-	<p>The URL for pinging Google, and in future, other search engines, is configured in <code>[dspace]/config/dspace.cfg</code> using the <code>sitemap.engineurls</code> setting where you can provide a comma-separated list of URLs to 'ping'.
+When running <code>[dspace]/bin/generate-sitemaps</code> the script informs Google 
+that the sitemaps have been updated. For this update to register correctly, you 
+must first register your Google sitemap index page (<code>/dspace/sitemap</code>) 
+with Google at <a href="http://www.google.com/webmasters/sitemaps/">http://www.google.com/webmasters/sitemaps/</a>. 
+If your DSpace server requires the use of a HTTP proxy to connect to the Internet, 
+ensure that you have set <code>http.proxy.host</code> and <code>http.proxy.port</code> 
+in <code>[dspace]/config/dspace.cfg</code>
+<p>The URL for pinging Google, and in future, other search engines, is configured in <code>[dspace]/config/dspace.cfg</code> using the <code>sitemap.engineurls</code> setting where you can provide a comma-separated list of URLs to 'ping'.
 
     <p>You can generate the sitemaps automatically every day using an additional cron job:</p>
 
     <pre># Generate sitemaps<br />0 6 * * * [dspace]/bin/generate-sitemaps
 	</pre>
 
-	<h2><a name="windows">Windows Installation</a></h2>
+	
+<h2><a name="windows">V. Windows Installation</a></h2>
 
 	<h3>Pre-requisite Software</h3>
 
@@ -731,19 +756,31 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
 
 	<h3>Installation Steps</h3>
 
-	<p><ol>
-	<li><p>Download the DSpace source from <a href="http://sourceforge.net/projects/dspace">SourceForge</a> and untar it (<a href="http://www.winzip.com/">WinZip</a> will do this)</p></li>
-	<li><p>Ensure the PostgreSQL service is running, and then run pgAdmin III (Start -> PostgreSQL 8.0 -> pgAdmin III). Connect to the local database as the postgres user and:
-		<ul>
-		<li>Create a 'Login Role' (user) called <code>dspace</code> with the password <code>dspace</code></li>
-		<li>Create a database called <code>dspace</code> owned by the user <code>dspace</code>, with UTF-8 encoding        <br>
-		  <br>
-		</ul>
-		</p></li>
-	<li><p>Update paths in <code>[dspace-source]\dspace\config\dspace.cfg</code>. <strong>Note:</strong> Use forward slashes / for path separators, though you can still use drive letters, e.g.:
-		<p><code>dspace.dir = C:/DSpace</code><p>
-      Make sure you change all of the parameters with file paths to suit, specifically:
-		<p><pre>
+	<p>
+<ol>
+  <li>
+    <p>Download the DSpace source from <a href="http://sourceforge.net/projects/dspace">SourceForge</a> 
+      and untar it (<a href="http://www.winzip.com/">WinZip</a> will do this)</p>
+  </li>
+  <li>
+    <p>Ensure the PostgreSQL service is running, and then run pgAdmin III (Start 
+      -> PostgreSQL 8.0 -> pgAdmin III). Connect to the local database as the 
+      postgres user and: 
+    <ul>
+      <li>Create a 'Login Role' (user) called <code>dspace</code> with the password 
+        <code>dspace</code></li>
+      <li>Create a database called <code>dspace</code> owned by the user <code>dspace</code>, 
+        with UTF-8 encoding <br>
+        <br>
+    </ul></p>
+  </li>
+  <li>Update paths in <code>[dspace-source]\dspace\config\dspace.cfg</code>. <strong>Note:</strong> 
+    Use forward slashes / for path separators, though you can still use drive 
+    letters, e.g.: 
+    <p><code>dspace.dir = C:/DSpace</code>
+    <p> Make sure you change all of the parameters with file paths to suit, specifically: 
+    <p>
+    <pre>
 	dspace.dir
 	config.template.log4j.properties
 	config.template.log4j-handle-plugin.properties
@@ -753,55 +790,67 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
 	upload.temp.dir
 	report.dir
 	handle.dir</pre></p></p>
-	</li>
-	<li><p>Create the directory for the DSpace installation (e.g. <code>C:\DSpace</code>)</p></li>
-	<li>Generate the DSpace installation package by running the following from commandline (cmd)
-	from your <code><i>[dspace-source]</i>/dspace/</code> directory:
-	<pre>mvn package</pre>
-	  <P>Note #1: This will generate the DSpace installation package in your
-	  <code><i>[dspace-source]</i>/dspace/target/dspace-[version]-build.dir/</code> directory.
-      <P>Note #2: Without any extra arguments, the DSpace installation package is initialized for PostgreSQL. <br>
-          <br>
-        If you want to use Oracle instead,
-        you should build the DSpace installation package as follows:</P>
-	  <PRE>mvn -Ddb.name=oracle package
-</PRE>
-    <li>
-      <P>Initialize the DSpace database and install DSpace to <code><i>[dspace]</i></code> (e.g. <code>C:\DSpace</code>) by
-      running the following from commandline from your <code><i>[dspace-source]</i>/dspace/target/dspace-[version]-build.dir/</code> directory:</P>
-      <pre>ant fresh_install</pre>
-      <P><strong>Note:</strong> to see a complete list of build targets, run</P>
-      <pre>ant help</pre>
     </li>
-    <li><p>Create an administrator account, by running the following from your <code><i>[dspace]</i></code> (e.g. <code>C:\DSpace</code>)
-      directory</p>
-      <p><code><em>[dspace]</em>\bin\dsrun org.dspace.administer.CreateAdministrator</code></p>
-	<p>and enter the required information</p></p></li>
-	<li><p>Copy the Web application directories from <code>[dspace]\webapps\</code> to Tomcat's webapps dir, which should be somewhere like <code>C:\Program Files\Apache Software Foundation\Tomcat 5.5\webapps</code></p>
-		<ul>
-		<li><P>Alternatively, Tell your Tomcat installation where to find your DSpace web application(s).  
-        As an example, in the <code>&lt;Host&gt;</code> section of your <code><em>[tomcat]</em>/conf/server.xml</code> you could add lines similar to the following
-        (but replace <code><em>[dspace]</em></code> with your installation location):</P>
-        
+  <li>Create the directory for the DSpace installation (e.g. <code>C:\DSpace</code>)</li>
+  <li>Generate the DSpace installation package by running the following from commandline 
+    (cmd) from your <code><i>[dspace-source]</i>/dspace/</code> directory: 
+    <pre>mvn package</pre>
+    <P>Note #1: This will generate the DSpace installation package in your <code><i>[dspace-source]</i>/dspace/target/dspace-[version]-build.dir/</code> 
+      directory. 
+    <P>Note #2: Without any extra arguments, the DSpace installation package is 
+      initialized for PostgreSQL. <br>
+      <br>
+      If you want to use Oracle instead, you should build the DSpace installation 
+      package as follows:</P>
+    <PRE>mvn -Ddb.name=oracle package
+</PRE>
+  <li> Initialize the DSpace database and install DSpace to <code><i>[dspace]</i></code> 
+    (e.g. <code>C:\DSpace</code>) by running the following from commandline from 
+    your <code><i>[dspace-source]</i>/dspace/target/dspace-[version]-build.dir/</code> 
+    directory: 
+    <pre>ant fresh_install</pre>
+    <P><strong>Note:</strong> to see a complete list of build targets, run ant 
+      help</P>
+  </li>
+  <li>Create an administrator account, by running the following from your <code><i>[dspace]</i></code> 
+    (e.g. <code>C:\DSpace</code>) directory 
+    <p><code><em>[dspace]</em>\bin\dsrun org.dspace.administer.CreateAdministrator</code></p>
+    <p>and enter the required information</p></p>
+  </li>
+  <li>Copy the Web application directories from <code>[dspace]\webapps\</code> 
+    to Tomcat's webapps dir, which should be somewhere like <code>C:\Program Files\Apache 
+    Software Foundation\Tomcat 5.5\webapps</code> <br>
+    <ul>
+      <li>Alternatively, Tell your Tomcat installation where to find your DSpace 
+        web application(s). As an example, in the <code>&lt;Host&gt;</code> section 
+        of your <code><em>[tomcat]</em>/conf/server.xml</code> you could add lines 
+        similar to the following (but replace <code><em>[dspace]</em></code> with 
+        your installation location): 
         <PRE>&lt;!-- DEFINE A CONTEXT PATH FOR DSpace JSP User Interface  --&gt;
 &lt;Context path="/jspui" docBase="[dspace]\webapps\jspui" debug="0" reloadable="true" cachingAllowed="false" allowLinking="true"/&gt;
 	
 &lt;!-- DEFINE A CONTEXT PATH FOR DSpace OAI User Interface  --&gt;
 &lt;Context path="/oai" docBase="[dspace]\webapps\oai" debug="0" reloadable="true" cachingAllowed="false" allowLinking="true"/&gt;</PRE>
-		</li>
-		</ul>
-	</li>
-	<li><p>Start the Tomcat service</p></li>
-	<li><p>Browse to either <code>http://localhost:8080/jspui</code> or <code>http://localhost:8080/xmlui</code>. You should see the DSpace home page for
-	either the JSPUI or XMLUI, respectively.</p></li>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>Start the Tomcat service</p>
+  </li>
+  <li>
+    <p>Browse to either <code>http://localhost:8080/jspui</code> or <code>http://localhost:8080/xmlui</code>. 
+      You should see the DSpace home page for either the JSPUI or XMLUI, respectively.</p><p><a href="#installTOC">back to Install Table of Contents</a></p>
+  </li>
 </ol>
 </p>
 
 
-    <H2><A NAME="checking">Checking Your Installation</A></H2>
+    
+<H2><A NAME="checking">VI. Checking Your Installation</A></H2>
     <p>TODO</p>
 
-    <H2><A NAME="knownbugs">Known Bugs</A></H2>
+    
+<H2><A NAME="knownbugs">VII. Known Bugs</A></H2>
 
     <P>In any software project of the scale of DSpace, there will be bugs.  Sometimes, a stable version of DSpace includes known bugs.  We do not always wait until every known bug is fixed before a release.  If the software is sufficiently stable and an improvement on the previous release, and the bugs are minor and have known workarounds, we release it to enable the community to take advantage of those improvements.</P>
 
@@ -810,7 +859,8 @@ $JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA -keysize 1024 \
     <P>Please see the <A HREF="http://sourceforge.net/tracker/?atid=119984&amp;group_id=19984&amp;func=browse">DSpace bug tracker</A> for further information on current bugs, and to find out if the bug has subsequently been fixed.  This is also where you can report any further bugs you find.</P>
 
 
-    <H2><A NAME="problems">Common Problems</A></H2>
+    
+<H2><A NAME="problems">VIII. Common Problems</A></H2>
 
     <P>In an ideal world everyone would follow the above steps and have a fully functioning DSpace.  Of couse, in the real world it doesn't always seem to work out that way.  This section lists common problems that people encounter when installing DSpace, and likely causes and fixes.  This is likely to grow over time as we learn about users' experiences.</P>
 
@@ -868,14 +918,19 @@ Also, make sure that the <code>db.username</code> and <code>db.password</code> p
 
       <PRE>dspace 16325  1997  0  Feb 14  ?         0:00 postgres: dspace dspace 127.0.0.1 SELECT</PRE>
 
-      <P>This means the connection is in the middle of a <CODE>SELECT</CODE> operation, and if you're not using DSpace right that instant, it's probably a 'zombie' connection.  If this is the case, try <code>kill</code>ing the process, and stopping and restarting Tomcat.</P></DD>
+      
+    <P>This means the connection is in the middle of a <CODE>SELECT</CODE> operation, 
+      and if you're not using DSpace right that instant, it's probably a 'zombie' 
+      connection. If this is the case, try <code>kill</code>ing the process, and 
+      stopping and restarting Tomcat. </P><p><a href="#installTOC">back to Install Table of Contents</a></p>
+  </DD>
       
     </DL>
 
     <HR>
 
     <ADDRESS>
-      Copyright &copy; 2002-2005 MIT and Hewlett Packard
-    </ADDRESS>
+Copyright &copy; 2002-2008 MIT and Hewlett Packard 
+</ADDRESS>
   </BODY>
 </HTML>
