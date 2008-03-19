@@ -110,138 +110,138 @@ import org.xml.sax.SAXException;
  * 
  * @author scott phillips
  */
-public class DSpaceMETSGenerator extends AbstractGenerator
+public class DSpaceMETSGenerator //extends AbstractGenerator
 {
 	/**
 	 * Generate the METS Document.
 	 */
-	public void generate() throws IOException, SAXException,
-			ProcessingException {
-		try {
-			// Open a new context.
-			Context context = ContextUtil.obtainContext(objectModel);
-			
-			// Determine which adapter to use
-			AbstractAdapter adapter = resolveAdapter(context);
-            if (adapter == null)
-            	throw new ResourceNotFoundException("Unable to locate object.");
-            
-            // Configure the adapter for this request.
-            configureAdapter(adapter);
-            
-			// Generate the METS document
-			contentHandler.startDocument();
-			adapter.renderMETS(contentHandler,lexicalHandler);
-			contentHandler.endDocument();
-			
-		} catch (WingException we) {
-			throw new ProcessingException(we);
-		} catch (CrosswalkException ce) {
-			throw new ProcessingException(ce);
-		} catch (SQLException sqle) {
-			throw new ProcessingException(sqle);
-		}
-	}
-   
-	
-	
-	/**
-	 * Determine which type of adatper to use for this object, either a community, collection, item, or
-	 * repository adatpter. The decisios is based upon the two supplied identifiers: a handle or an
-	 * internal id. If the handle is supplied then this is resolved and the approprate adapter is
-	 * picked. Otherwise the internal identifier is used to resolve the correct type of adapter.
-	 * 
-	 * The internal identifier must be of the form "type:id" i.g. item:255 or collection:99. In the
-	 * case of a repository the handle prefix must be used.
-	 * 
-	 * @return Return the correct adaptor or null if none found.
-	 */
-	private AbstractAdapter resolveAdapter(Context context) throws SQLException 
-	{			
-		Request request = ObjectModelHelper.getRequest(objectModel);
-        String contextPath = request.getContextPath();
-
-        // Determine the correct adatper to use for this item
-        String uri = parameters.getParameter("handle",null);
-        String internal = parameters.getParameter("internal",null);
-		
-        AbstractAdapter adapter = null;
-		 if (uri != null)
-         {
-			// Specified using a regular handle. 
-//         	DSpaceObject dso = HandleManager.resolveToObject(context, handle);
-         	// FIXME: This could be totally broken, I have no idea
-             /*
-            ExternalIdentifierDAO identifierDAO =
-                ExternalIdentifierDAOFactory.getInstance(context);
-            ExternalIdentifier eid = identifierDAO.retrieve(uri);
-            DSpaceObject dso = eid.getObjectIdentifier().getObject(context);*/
-            ResolvableIdentifier ri = IdentifierService.resolve(context, uri);
-            DSpaceObject dso = ri.getObject(context);
-
-             // Handles can be either items or containers.
-         	if (dso instanceof Item)
-         		adapter = new ItemAdapter((Item) dso, contextPath);
-         	else if (dso instanceof Collection || dso instanceof Community)
-         		adapter = new ContainerAdapter(dso, contextPath);
-         }
-         else if (internal != null)
-         {
-        	// Internal identifier, format: "type:id".
-         	String[] parts = internal.split(":");
-         	
-         	if (parts.length == 2)
-         	{
-         		String type = parts[0];
-         		int id = Integer.valueOf(parts[1]);
-         		
-         		if ("item".equals(type))
-         		{
-         			Item item = Item.find(context,id);
-         			if (item != null)
-         				adapter = new ItemAdapter(item,contextPath);
-         		}
-         		else if ("collection".equals(type))
-         		{
-         			Collection collection = Collection.find(context,id);
-         			if (collection != null)
-         				adapter = new ContainerAdapter(collection,contextPath);
-         		}
-         		else if ("community".equals(type))
-         		{
-         			Community community = Community.find(context,id);
-         			if (community != null)
-         				adapter = new ContainerAdapter(community,contextPath);
-         		}
-         		else if ("repository".equals(type))
-     			{
-         			if (ConfigurationManager.getProperty("handle.prefix").equals(id))
-         			adapter = new RepositoryAdapter(context,contextPath);
-     			}
-         		
-         	}
-         }
-		 return adapter;
-	}
-	
-	/**
-	 * Configure the adapter according to the supplied parameters.
-	 */
-	public void configureAdapter(AbstractAdapter adapter)
-	{
-		 // Configure the adapter based upon the passed paramaters
-		Request request = ObjectModelHelper.getRequest(objectModel);
-        String sections = request.getParameter("sections");
-        String dmdTypes = request.getParameter("dmdTypes");
-        String amdTypes = request.getParameter("amdTypes");
-        String fileGrpTypes = request.getParameter("fileGrpTypes");
-        String structTypes = request.getParameter("structTypes");
-        
-        adapter.setSections(sections);
-        adapter.setDmdTypes(dmdTypes);
-        adapter.setAmdTypes(amdTypes);
-        adapter.setFileGrpTypes(fileGrpTypes);
-        adapter.setStructTypes(structTypes);
-	}
+//	public void generate() throws IOException, SAXException,
+//			ProcessingException {
+//		try {
+//			// Open a new context.
+//			Context context = ContextUtil.obtainContext(objectModel);
+//			
+//			// Determine which adapter to use
+//			AbstractAdapter adapter = resolveAdapter(context);
+//            if (adapter == null)
+//            	throw new ResourceNotFoundException("Unable to locate object.");
+//            
+//            // Configure the adapter for this request.
+//            configureAdapter(adapter);
+//            
+//			// Generate the METS document
+//			contentHandler.startDocument();
+//			adapter.renderMETS(contentHandler,lexicalHandler);
+//			contentHandler.endDocument();
+//			
+//		} catch (WingException we) {
+//			throw new ProcessingException(we);
+//		} catch (CrosswalkException ce) {
+//			throw new ProcessingException(ce);
+//		} catch (SQLException sqle) {
+//			throw new ProcessingException(sqle);
+//		}
+//	}
+//   
+//	
+//	
+//	/**
+//	 * Determine which type of adatper to use for this object, either a community, collection, item, or
+//	 * repository adatpter. The decisios is based upon the two supplied identifiers: a handle or an
+//	 * internal id. If the handle is supplied then this is resolved and the approprate adapter is
+//	 * picked. Otherwise the internal identifier is used to resolve the correct type of adapter.
+//	 * 
+//	 * The internal identifier must be of the form "type:id" i.g. item:255 or collection:99. In the
+//	 * case of a repository the handle prefix must be used.
+//	 * 
+//	 * @return Return the correct adaptor or null if none found.
+//	 */
+//	private AbstractAdapter resolveAdapter(Context context) throws SQLException 
+//	{			
+//		Request request = ObjectModelHelper.getRequest(objectModel);
+//        String contextPath = request.getContextPath();
+//
+//        // Determine the correct adatper to use for this item
+//        String uri = parameters.getParameter("handle",null);
+//        String internal = parameters.getParameter("internal",null);
+//		
+//        AbstractAdapter adapter = null;
+//		 if (uri != null)
+//         {
+//			// Specified using a regular handle. 
+////         	DSpaceObject dso = HandleManager.resolveToObject(context, handle);
+//         	// FIXME: This could be totally broken, I have no idea
+//             /*
+//            ExternalIdentifierDAO identifierDAO =
+//                ExternalIdentifierDAOFactory.getInstance(context);
+//            ExternalIdentifier eid = identifierDAO.retrieve(uri);
+//            DSpaceObject dso = eid.getObjectIdentifier().getObject(context);*/
+//            ResolvableIdentifier ri = IdentifierService.resolve(context, uri);
+//            DSpaceObject dso = ri.getObject(context);
+//
+//             // Handles can be either items or containers.
+//         	if (dso instanceof Item)
+//         		adapter = new ItemAdapter((Item) dso, contextPath);
+//         	else if (dso instanceof Collection || dso instanceof Community)
+//         		adapter = new ContainerAdapter(dso, contextPath);
+//         }
+//         else if (internal != null)
+//         {
+//        	// Internal identifier, format: "type:id".
+//         	String[] parts = internal.split(":");
+//         	
+//         	if (parts.length == 2)
+//         	{
+//         		String type = parts[0];
+//         		int id = Integer.valueOf(parts[1]);
+//         		
+//         		if ("item".equals(type))
+//         		{
+//         			Item item = Item.find(context,id);
+//         			if (item != null)
+//         				adapter = new ItemAdapter(item,contextPath);
+//         		}
+//         		else if ("collection".equals(type))
+//         		{
+//         			Collection collection = Collection.find(context,id);
+//         			if (collection != null)
+//         				adapter = new ContainerAdapter(collection,contextPath);
+//         		}
+//         		else if ("community".equals(type))
+//         		{
+//         			Community community = Community.find(context,id);
+//         			if (community != null)
+//         				adapter = new ContainerAdapter(community,contextPath);
+//         		}
+//         		else if ("repository".equals(type))
+//     			{
+//         			if (ConfigurationManager.getProperty("handle.prefix").equals(id))
+//         			adapter = new RepositoryAdapter(context,contextPath);
+//     			}
+//         		
+//         	}
+//         }
+//		 return adapter;
+//	}
+//	
+//	/**
+//	 * Configure the adapter according to the supplied parameters.
+//	 */
+//	public void configureAdapter(AbstractAdapter adapter)
+//	{
+//		 // Configure the adapter based upon the passed paramaters
+//		Request request = ObjectModelHelper.getRequest(objectModel);
+//        String sections = request.getParameter("sections");
+//        String dmdTypes = request.getParameter("dmdTypes");
+//        String amdTypes = request.getParameter("amdTypes");
+//        String fileGrpTypes = request.getParameter("fileGrpTypes");
+//        String structTypes = request.getParameter("structTypes");
+//        
+//        adapter.setSections(sections);
+//        adapter.setDmdTypes(dmdTypes);
+//        adapter.setAmdTypes(amdTypes);
+//        adapter.setFileGrpTypes(fileGrpTypes);
+//        adapter.setStructTypes(structTypes);
+//	}
 
 }

@@ -124,666 +124,666 @@ import java.util.StringTokenizer;
  * @author Scott Phillips, Ben Bosman, Richard Rodgers
  */
 
-public class DSpaceFeedGenerator extends AbstractGenerator 
-		implements Configurable, CacheableProcessingComponent, Recyclable
+public class DSpaceFeedGenerator //extends AbstractGenerator 
+//		implements Configurable, CacheableProcessingComponent, Recyclable
 {
-    private static final Logger log = Logger.getLogger(DSpaceFeedGenerator.class);
-
-	/** The feed's requested format */
-	private String format = null;
-	
-	/** The feed's scope, null if no scope */
-	private String uri = null;
-	
-    /** number of DSpace items per feed */
-    private static int itemCount = 0;
-    
-	/**	default fields to display in item description */
-    private static String defaultDescriptionFields = "dc.description.abstract, dc.description, dc.title.alternative, dc.title";
-
-    
-    /** The prefix used to differentate i18n keys */
-    private static final String I18N_PREFIX = "I18N:";
-    
-    /** Cocoon's i18n namespace */
-    private static final String I18N_NAMESPACE = "http://apache.org/cocoon/i18n/2.1";
-    
-    
-    /** Cache of this object's validitity */
-    private DSpaceValidity validity = null;
-    
-    /** The cache of recently submitted items */
-    private java.util.List<Item> recentSubmissionItems;
-    
-    /**
-     * Generate the unique caching key.
-     * This key must be unique inside the space of this component.
-     */
-    public Serializable getKey()
-    {
-    	String key = "key:" + this.uri + ":" + this.format;
-    	return HashUtil.hash(key);
-    }
-
-    /**
-     * Generate the cache validity object.
-     * 
-     * The validity object will include the collection being viewed and 
-     * all recently submitted items. This does not include the community / collection
-     * hierarch, when this changes they will not be reflected in the cache.
-     *
-     * FIXME: This depends on the "handle" string being of the form "hdl:12/34"
-     * rather than just "12/34".
-     */
-    public SourceValidity getValidity()
-    {
-    	if (this.validity == null)
-    	{
-    		try
-    		{
-    			DSpaceValidity validity = new FeedValidity();
-    			
-    			Context context = ContextUtil.obtainContext(objectModel);
-
-    			DSpaceObject dso = null;
-    			if (uri != null)
-                {
-                    ResolvableIdentifier ri = IdentifierService.resolve(context, uri);
-                    dso = ri.getObject(context);
-                }
-    			
-    			validity.add(dso);
-    			
-    			// add reciently submitted items
-    			for(Item item : getRecientlySubmittedItems(context,dso))
-    			{
-    				validity.add(item);
-    			}
-
-    			this.validity = validity.complete();
-    		}
-	        catch (Exception e)
-	        {
-	            // Just ignore all errors and return an invalid cache.
-	        }
-    	}
-    	return this.validity;
-    }
-    
-    
-    
-    /**
-     * Setup component wide configuration
-     */
-    public void configure(Configuration conf) throws ConfigurationException
-    {
-    	itemCount = ConfigurationManager.getIntProperty("webui.feed.items");
-    }
-    
-    
-    /**
-     * Setup configuration for this request
-     *
-     * FIXME: This should use a parameter called "uri", not "handle", but I
-     * have no idea how to do this with Manakin, so it will have to wait. --JR
-     */
-    public void setup(SourceResolver resolver, Map objectModel, String src,
-            Parameters par) throws ProcessingException, SAXException,
-            IOException
-    {
-        super.setup(resolver, objectModel, src, par);
-        
-        
-        this.format = par.getParameter("feedFormat", null);
-        this.uri = par.getParameter("handle",null);
-    }
-    
-    
-    /**
-     * Generate the syndication feed.
-     *
-     * FIXME: This depends on the "handle" string being of the form "hdl:12/34"
-     * rather than just "12/34".
-     */
-    public void generate() throws IOException, SAXException, ProcessingException
-    {
-		try {
-			Context context = ContextUtil.obtainContext(objectModel);
-			DSpaceObject dso = null;
-			
-			if (uri != null)
-			{
-                ResolvableIdentifier ri = IdentifierService.resolve(context, uri);
-                dso = ri.getObject(context);
-				
-                if (dso == null)
-				{
-					// If we were unable to find a uri then return page not found.
-					throw new ResourceNotFoundException("Unable to find DSpace object matching the given URI: "+uri);
-				}
-				
-				if (!(dso.getType() == Constants.COLLECTION || dso.getType() == Constants.COMMUNITY))
-				{
-					// The uri is valid but the object is not a container.
-					throw new ResourceNotFoundException("Unable to syndicate DSpace object: "+uri);
-				}
-				
-			}
-    	
-			Channel channel = generateFeed(context, dso);
-			
-			// set the feed to the requested type & return it
-			channel.setFeedType(this.format);
-			
-	        WireFeedOutput feedWriter = new WireFeedOutput();
-	        Document dom = feedWriter.outputW3CDom(channel);
-	        unmangleI18N(dom);
-	        DOMStreamer streamer = new DOMStreamer(contentHandler, lexicalHandler);
-	        streamer.stream(dom);
-
-		}
-		catch (IllegalArgumentException iae)
-		{
-			throw new ResourceNotFoundException("Syndication feed format, '"+this.format+"', is not supported.");
-		}
-		catch (IOException e) 
-        {
-            throw new SAXException(e);
-        }
-		catch (FeedException fe) 
-		{
-			throw new SAXException(fe);
-		}
-		catch (SQLException sqle) 
-		{
-			throw new SAXException(sqle);
-		}
-    	
-    }
-    
-    /**
-     * Mange the i18n key into a text value that is later 
-     * unmangled into a true i18n element for later localization.
-     * 
-     * @param key The i18n message key
-     * @return A mangled text string encoding the key.
-     */
-    private String mangleI18N(String key)
-    {
-    	return I18N_PREFIX + key;
-    }
-    
-    /**
-     * Scan the document and replace any text nodes that begin 
-     * with the i18n prefix with an actual i18n element that
-     * can be processesed by the i18n transformer.
-     * 
-     * @param dom
-     */
-    private void unmangleI18N(Document dom)
-    {
-    	
-    	NodeList elementNodes = dom.getElementsByTagName("*");
-        
-        for (int i = 0; i < elementNodes.getLength(); i++)
-        {
-        	NodeList textNodes = elementNodes.item(i).getChildNodes();
-        	
-        	for (int j = 0; j < textNodes.getLength(); j++)
-	        {
-        		
-        		Node oldNode = textNodes.item(j);
-        		// Check to see if the node is a text node, its value is not null, and it starts with the i18n prefix.
-        		if (oldNode.getNodeType() == Node.TEXT_NODE && oldNode.getNodeValue() != null && oldNode.getNodeValue().startsWith(I18N_PREFIX))
-	        	{
-        			Node parent = oldNode.getParentNode();
-        			String key = oldNode.getNodeValue().substring(I18N_PREFIX.length());
-        			
-        			Element newNode = dom.createElementNS(I18N_NAMESPACE, "text");
-        			newNode.setAttribute("key", key);
-        			newNode.setAttribute("catalogue", "default");
-
-        			parent.replaceChild(newNode,oldNode);
-	        	}
-
-	        }
-        }
-    	
-    }
-    
-    
-    /**
-     * Generate a syndication feed for a collection or community
-     * or community
-     * 
-     * @param context	the DSpace context object
-     * 
-     * @param dso		DSpace object - collection or community
-     * 
-     * @return		an object representing the feed
-     */
-    private Channel generateFeed(Context context, DSpaceObject dso)
-    		throws IOException, SQLException
-    {
-    	// container-level elements  	
-    	String description = null;
-    	String title = null;
-    	Bitstream logo = null;
-    	// the feed
-    	Channel channel = new Channel();
-    	
-    	//Special Case: if DSpace Object passed in is null, 
-    	//generate a feed for the entire DSpace site!
-    	if(dso == null)
-    	{
-    		channel.setTitle(ConfigurationManager.getProperty("dspace.name"));
-    		channel.setLink(resolveURL(null));
-    		channel.setDescription(mangleI18N("xmlui.feed.general_description"));
-    	}
-    	else //otherwise, this is a Collection or Community specific feed
-    	{
-    		if (dso.getType() == Constants.COLLECTION)
-	    	{
-	    		Collection col = (Collection)dso;
-	           	description = col.getMetadata("short_description");
-	           	title = col.getMetadata("name");
-	           	logo = col.getLogo();
-	        }
-	    	else if (dso.getType() == Constants.COMMUNITY)
-	    	{
-	    		Community comm = (Community)dso;
-	           	description = comm.getMetadata("short_description");
-	           	title = comm.getMetadata("name");
-	           	logo = comm.getLogo();
-	    	}
-	    	
-    		String objectUrl = resolveURL(dso);
-  
-			// put in container-level data
-	        channel.setDescription(description);
-	        channel.setLink(objectUrl);
-	        channel.setTitle(title);
-	        
-	        //if collection or community has a logo
-	        if (logo != null)
-	    	{
-	    		// we use the path to the logo for this, the logo itself cannot
-	    	    // be contained in the rdf. Not all RSS-viewers show this logo.
-	    		Image image = new Image();
-	    		image.setLink(objectUrl);
-	    		image.setTitle(mangleI18N("xmlui.feed.logo_title"));
-	    		image.setUrl(resolveURL(null) + "/retrieve/" + logo.getID());
-	    	    channel.setImage(image);
-	    	}
-    	}
-		   		    	
-    	// add reciently submitted items
-    	List<com.sun.syndication.feed.rss.Item> items = 
-    		new ArrayList<com.sun.syndication.feed.rss.Item>();
-		for(Item item : getRecientlySubmittedItems(context,dso))
-		{
-			items.add(itemFromDSpaceItem(context, item));
-		}
-		channel.setItems(items);
-		
-    	return channel;
-    }
-    
-    
-    /**
-     * The metadata fields of the given item will be added to the given feed.
-     * 
-     * @param context	DSpace context object
-     * 
-     * @param dspaceItem	DSpace Item
-     * 
-     * @return an object representing a feed entry
-     */
-    private com.sun.syndication.feed.rss.Item itemFromDSpaceItem(Context context,
-    		                                                     Item dspaceItem)
-    	throws SQLException
-    {
-        com.sun.syndication.feed.rss.Item rssItem = 
-        	new com.sun.syndication.feed.rss.Item();
-        
-        //get the title and date fields
-        String titleField = ConfigurationManager.getProperty("webui.feed.item.title");
-        if (titleField == null)
-        {
-            titleField = "dc.title";
-        }
-        
-        String dateField = ConfigurationManager.getProperty("webui.feed.item.date");
-        if (dateField == null)
-        {
-            dateField = "dc.date.issued";
-        }   
-        
-        //Set item link
-    	String itemLink = resolveURL(dspaceItem);
-
-        rssItem.setLink(itemLink);
-        
-        //get first title
-        String title = null;
-        try
-        {
-            // FIXME: replace with this line once dspace 1.4.1 is released:
-            //title = dspaceItem.getMetadata(titleField)[0].value;
-            title = getMetadata(dspaceItem,titleField)[0].value;
-           
-        }
-        catch (ArrayIndexOutOfBoundsException e)
-        { 
-            title = mangleI18N("xmlui.feed.untitled");
-        }
-        rssItem.setTitle(title);
-        
-        // Traverse the description fields untill we find one.
-        String descriptionFields = 
-        	ConfigurationManager.getProperty("webui.feed.item.description");
-
-        if (descriptionFields == null)
-        {     
-            descriptionFields = defaultDescriptionFields;
-        }
-        
-        //loop through all the metadata fields to put in the description
-        StringTokenizer st = new StringTokenizer(descriptionFields, ",");
-
-        while (st.hasMoreTokens())
-        {
-            String field = st.nextToken().trim();
-            boolean isDate = false;
-         
-            // Find out if the field should rendered as a date
-            if (field.indexOf("(date)") > 0)
-            {
-                field = field.replaceAll("\\(date\\)", "");
-                isDate = true;
-            }
-
-            
-            //print out this field, along with its value(s)
-            //FIXME: replace with this line once dspace 1.4.1 is released:
-            //DCValue[] values = dspaceItem.getMetadata(field);
-            DCValue[] values = getMetadata(dspaceItem,field);
-           
-            if(values != null && values.length>0)
-            {  
-            	// We've found one, only take the first one if there
-            	// are more than one.
-                String fieldValue = values[0].value;
-                if(isDate)
-                    fieldValue = (new DCDate(fieldValue)).toString();
-               
-                Description descrip = new Description();
-                descrip.setValue(fieldValue);
-                rssItem.setDescription(descrip);
-                
-                // Once we've found one we can stop looking for more.
-                break;
-            }
-            
-        }//end while   
-        // set date field
-        String dcDate = null;
-        try
-        {
-        	// FIXME: replace with this line once dspace 1.4.1 is released:
-        	//dcDate = dspaceItem.getMetadata(dateField)[0].value;
-        	dcDate = getMetadata(dspaceItem,dateField)[0].value;
-           
-        }
-        catch (ArrayIndexOutOfBoundsException e)
-        { 
-        	// Ignore
-        }
-        
-        if (dcDate != null)
-        {
-            rssItem.setPubDate((new DCDate(dcDate)).toDate());
-        }
-        
-        return rssItem;
-    }
-    
-    
-    @SuppressWarnings("unchecked")
-    private java.util.List<Item> getRecientlySubmittedItems(Context context, DSpaceObject dso) 
-            throws SQLException
-    {
-    	if (recentSubmissionItems != null)
-    		return recentSubmissionItems;
-
-        String source = ConfigurationManager.getProperty("recent.submissions.sort-option");
-    	BrowserScope scope = new BrowserScope(context);
-    	if (dso instanceof Collection)
-    		scope.setCollection((Collection) dso);
-    	else if (dso instanceof Community)
-    		scope.setCommunity((Community) dso);
-    	scope.setResultsPerPage(itemCount);
-
-    	// FIXME Exception handling
-    	try
-    	{
-            scope.setBrowseIndex(BrowseIndex.getItemBrowseIndex());
-            for (SortOption so : SortOption.getSortOptions())
-            {
-                if (so.getName().equals(source))
-                    scope.setSortBy(so.getNumber());
-            }
-
-            BrowseEngine be = new BrowseEngine(context);
-    		this.recentSubmissionItems = be.browse(scope).getResults();
-    	}
-    	catch (BrowseException bex)
-    	{
-    		log.error("Caught browse exception", bex);
-    	}
-        catch (SortException sex) // apparently it's contageous
-        {
-            log.error("Caught sort exception", sex);
-        }
-        return this.recentSubmissionItems;
-    }
-    
-    /**
-     * Return a url to the DSpace object, either use the official
-     * handle for the item or build a url based upon the current server.
-     * 
-     * If the dspaceobject is null then a local url to the repository is generated.
-     * 
-     * @param dso The object to refrence, null if to the repository.
-     * @return
-     */
-    private String resolveURL(DSpaceObject dso)
-    {
-    	if (dso == null)
-    	{
-    		// If no object given then just link to the whole repository, 
-    		// since no offical handle exists so we have to use local resolution.
-    		Request request = ObjectModelHelper.getRequest(objectModel);
-			
-			String url = (request.isSecure()) ? "https://" : "http://";
-			url += ConfigurationManager.getProperty("dspace.hostname");
-			url += ":" + request.getServerPort();
-			url += request.getContextPath();
-			return url;	
-    	}
-    	
-		if (ConfigurationManager.getBooleanProperty("webui.feed.localresolve"))
-		{
-            /*
-            Request request = ObjectModelHelper.getRequest(objectModel);
-
-			String url = (request.isSecure()) ? "https://" : "http://";
-			url += ConfigurationManager.getProperty("dspace.hostname");
-			url += ":" + request.getServerPort();
-			url += request.getContextPath();
-			url += "/handle/" + dso.getExternalIdentifier().getCanonicalForm();
-			return url;
-			*/
-            return IdentifierService.getLocalURL(dso).toString();
-        }
-		else
-		{
-            return IdentifierService.getURL(dso).toString();
-		}
-    }
-    
-    
-    /** 
-     * Recycle
-     */
-    
-    public void recycle()
-    {
-    	this.format = null;
-    	this.uri = null;
-    	this.validity = null;
-        this.recentSubmissionItems = null;
-    	super.recycle();
-    }
-    
-    /**
-     * Extend the standard DSpaceValidity object to support assumed 
-     * caching. Since feeds will constantly be requested we want to 
-     * assume that a feed is still valid instead of checking it 
-     * against the database anew everytime.
-     * 
-     * This validity object will assume that a cache is still valid, 
-     * without rechecking it, for 24 hours.
-     *
-     */
-    private class FeedValidity extends DSpaceValidity 
-    {
-		private static final long serialVersionUID = 1L;
-
-		/**
-    	 * How long should the cache assumed to be valid for, 
-    	 * milliseconds * seconds * minutes * hours
-    	 */
-    	private static final long CACHE_AGE = 1000 * 60 * 60 * 24;
-    	
-    	/** When the cache's validity expires */
-    	private long expires = 0;
-    	
-    	/**
-         * When the validity is completed record a timestamp to check later.
-         */
-        public DSpaceValidity complete() 
-        {    
-        	this.expires = System.currentTimeMillis() + CACHE_AGE;
-        	
-        	return super.complete();
-        }
-        
-        
-        /**
-         * Determine if the cache is still valid
-         */
-        public int isValid()
-        {
-            // Return true if we have a hash.
-            if (this.completed)
-            {
-            	if (System.currentTimeMillis() < this.expires)
-            	{
-            		// If the cache hasn't expired the just assume that it is still valid.
-            		return SourceValidity.VALID;
-            	}
-            	else
-            	{
-            		// The cache is past its age
-            		return SourceValidity.UNKNOWN;
-            	}
-            }
-            else
-            {
-            	// This is an error, state. We are being asked whether we are valid before
-            	// we have been initialized.
-                return SourceValidity.INVALID;
-            }
-        }
-
-        /**
-         * Determine if the cache is still valid based 
-         * upon the other validity object.
-         * 
-         * @param other 
-         *          The other validity object.
-         */
-        public int isValid(SourceValidity otherValidity)
-        {
-            if (this.completed)
-            {
-                if (otherValidity instanceof FeedValidity)
-                {
-                    FeedValidity other = (FeedValidity) otherValidity;
-                    if (hash == other.hash)
-                    {	
-                    	// Update both cache's expiration time.
-                    	this.expires = System.currentTimeMillis() + CACHE_AGE;
-                    	other.expires = System.currentTimeMillis() + CACHE_AGE;
-                    	
-                        return SourceValidity.VALID;
-                    }
-                }
-            }
-
-            return SourceValidity.INVALID;
-        }
-
-    }
-    
-    
-    
-    /**
-     * FIXME: This is a work around method, all uses of this private 
-     * method method should use just call the getMetadata(string) method 
-     * directly on an item. This method has been added to CVS head before
-     * for the DSpace 1.4.1 release.
-     * 
-     * Retrieve metadata field values from a given metadata string
-     * of the form <schema prefix>.<element>[.<qualifier>|.*]
-     *
-     * @param item
-     * 			  The item to get metedata from. 
-     * @param mdString
-     *            The metadata string of the form
-     *            <schema prefix>.<element>[.<qualifier>|.*]
-     */
-    private static DCValue[] getMetadata(Item item, String mdString)
-    {
-        StringTokenizer dcf = new StringTokenizer(mdString, ".");
-        
-        String[] tokens = { "", "", "" };
-        int i = 0;
-        while(dcf.hasMoreTokens())
-        {
-            tokens[i] = dcf.nextToken().toLowerCase().trim();
-            i++;
-        }
-        String schema = tokens[0];
-        String element = tokens[1];
-        String qualifier = tokens[2];
-        
-        DCValue[] values;
-        if ("*".equals(qualifier))
-        {
-            values = item.getMetadata(schema, element, Item.ANY, Item.ANY);
-        }
-        else if ("".equals(qualifier))
-        {
-            values = item.getMetadata(schema, element, null, Item.ANY);
-        }
-        else
-        {
-            values = item.getMetadata(schema, element, qualifier, Item.ANY);
-        }
-        
-        return values;
-    }
-    
+//    private static final Logger log = Logger.getLogger(DSpaceFeedGenerator.class);
+//
+//	/** The feed's requested format */
+//	private String format = null;
+//	
+//	/** The feed's scope, null if no scope */
+//	private String uri = null;
+//	
+//    /** number of DSpace items per feed */
+//    private static int itemCount = 0;
+//    
+//	/**	default fields to display in item description */
+//    private static String defaultDescriptionFields = "dc.description.abstract, dc.description, dc.title.alternative, dc.title";
+//
+//    
+//    /** The prefix used to differentate i18n keys */
+//    private static final String I18N_PREFIX = "I18N:";
+//    
+//    /** Cocoon's i18n namespace */
+//    private static final String I18N_NAMESPACE = "http://apache.org/cocoon/i18n/2.1";
+//    
+//    
+//    /** Cache of this object's validitity */
+//    private DSpaceValidity validity = null;
+//    
+//    /** The cache of recently submitted items */
+//    private java.util.List<Item> recentSubmissionItems;
+//    
+//    /**
+//     * Generate the unique caching key.
+//     * This key must be unique inside the space of this component.
+//     */
+//    public Serializable getKey()
+//    {
+//    	String key = "key:" + this.uri + ":" + this.format;
+//    	return HashUtil.hash(key);
+//    }
+//
+//    /**
+//     * Generate the cache validity object.
+//     * 
+//     * The validity object will include the collection being viewed and 
+//     * all recently submitted items. This does not include the community / collection
+//     * hierarch, when this changes they will not be reflected in the cache.
+//     *
+//     * FIXME: This depends on the "handle" string being of the form "hdl:12/34"
+//     * rather than just "12/34".
+//     */
+//    public SourceValidity getValidity()
+//    {
+//    	if (this.validity == null)
+//    	{
+//    		try
+//    		{
+//    			DSpaceValidity validity = new FeedValidity();
+//    			
+//    			Context context = ContextUtil.obtainContext(objectModel);
+//
+//    			DSpaceObject dso = null;
+//    			if (uri != null)
+//                {
+//                    ResolvableIdentifier ri = IdentifierService.resolve(context, uri);
+//                    dso = ri.getObject(context);
+//                }
+//    			
+//    			validity.add(dso);
+//    			
+//    			// add reciently submitted items
+//    			for(Item item : getRecientlySubmittedItems(context,dso))
+//    			{
+//    				validity.add(item);
+//    			}
+//
+//    			this.validity = validity.complete();
+//    		}
+//	        catch (Exception e)
+//	        {
+//	            // Just ignore all errors and return an invalid cache.
+//	        }
+//    	}
+//    	return this.validity;
+//    }
+//    
+//    
+//    
+//    /**
+//     * Setup component wide configuration
+//     */
+//    public void configure(Configuration conf) throws ConfigurationException
+//    {
+//    	itemCount = ConfigurationManager.getIntProperty("webui.feed.items");
+//    }
+//    
+//    
+//    /**
+//     * Setup configuration for this request
+//     *
+//     * FIXME: This should use a parameter called "uri", not "handle", but I
+//     * have no idea how to do this with Manakin, so it will have to wait. --JR
+//     */
+//    public void setup(SourceResolver resolver, Map objectModel, String src,
+//            Parameters par) throws ProcessingException, SAXException,
+//            IOException
+//    {
+//        super.setup(resolver, objectModel, src, par);
+//        
+//        
+//        this.format = par.getParameter("feedFormat", null);
+//        this.uri = par.getParameter("handle",null);
+//    }
+//    
+//    
+//    /**
+//     * Generate the syndication feed.
+//     *
+//     * FIXME: This depends on the "handle" string being of the form "hdl:12/34"
+//     * rather than just "12/34".
+//     */
+//    public void generate() throws IOException, SAXException, ProcessingException
+//    {
+//		try {
+//			Context context = ContextUtil.obtainContext(objectModel);
+//			DSpaceObject dso = null;
+//			
+//			if (uri != null)
+//			{
+//                ResolvableIdentifier ri = IdentifierService.resolve(context, uri);
+//                dso = ri.getObject(context);
+//				
+//                if (dso == null)
+//				{
+//					// If we were unable to find a uri then return page not found.
+//					throw new ResourceNotFoundException("Unable to find DSpace object matching the given URI: "+uri);
+//				}
+//				
+//				if (!(dso.getType() == Constants.COLLECTION || dso.getType() == Constants.COMMUNITY))
+//				{
+//					// The uri is valid but the object is not a container.
+//					throw new ResourceNotFoundException("Unable to syndicate DSpace object: "+uri);
+//				}
+//				
+//			}
+//    	
+//			Channel channel = generateFeed(context, dso);
+//			
+//			// set the feed to the requested type & return it
+//			channel.setFeedType(this.format);
+//			
+//	        WireFeedOutput feedWriter = new WireFeedOutput();
+//	        Document dom = feedWriter.outputW3CDom(channel);
+//	        unmangleI18N(dom);
+//	        DOMStreamer streamer = new DOMStreamer(contentHandler, lexicalHandler);
+//	        streamer.stream(dom);
+//
+//		}
+//		catch (IllegalArgumentException iae)
+//		{
+//			throw new ResourceNotFoundException("Syndication feed format, '"+this.format+"', is not supported.");
+//		}
+//		catch (IOException e) 
+//        {
+//            throw new SAXException(e);
+//        }
+//		catch (FeedException fe) 
+//		{
+//			throw new SAXException(fe);
+//		}
+//		catch (SQLException sqle) 
+//		{
+//			throw new SAXException(sqle);
+//		}
+//    	
+//    }
+//    
+//    /**
+//     * Mange the i18n key into a text value that is later 
+//     * unmangled into a true i18n element for later localization.
+//     * 
+//     * @param key The i18n message key
+//     * @return A mangled text string encoding the key.
+//     */
+//    private String mangleI18N(String key)
+//    {
+//    	return I18N_PREFIX + key;
+//    }
+//    
+//    /**
+//     * Scan the document and replace any text nodes that begin 
+//     * with the i18n prefix with an actual i18n element that
+//     * can be processesed by the i18n transformer.
+//     * 
+//     * @param dom
+//     */
+//    private void unmangleI18N(Document dom)
+//    {
+//    	
+//    	NodeList elementNodes = dom.getElementsByTagName("*");
+//        
+//        for (int i = 0; i < elementNodes.getLength(); i++)
+//        {
+//        	NodeList textNodes = elementNodes.item(i).getChildNodes();
+//        	
+//        	for (int j = 0; j < textNodes.getLength(); j++)
+//	        {
+//        		
+//        		Node oldNode = textNodes.item(j);
+//        		// Check to see if the node is a text node, its value is not null, and it starts with the i18n prefix.
+//        		if (oldNode.getNodeType() == Node.TEXT_NODE && oldNode.getNodeValue() != null && oldNode.getNodeValue().startsWith(I18N_PREFIX))
+//	        	{
+//        			Node parent = oldNode.getParentNode();
+//        			String key = oldNode.getNodeValue().substring(I18N_PREFIX.length());
+//        			
+//        			Element newNode = dom.createElementNS(I18N_NAMESPACE, "text");
+//        			newNode.setAttribute("key", key);
+//        			newNode.setAttribute("catalogue", "default");
+//
+//        			parent.replaceChild(newNode,oldNode);
+//	        	}
+//
+//	        }
+//        }
+//    	
+//    }
+//    
+//    
+//    /**
+//     * Generate a syndication feed for a collection or community
+//     * or community
+//     * 
+//     * @param context	the DSpace context object
+//     * 
+//     * @param dso		DSpace object - collection or community
+//     * 
+//     * @return		an object representing the feed
+//     */
+//    private Channel generateFeed(Context context, DSpaceObject dso)
+//    		throws IOException, SQLException
+//    {
+//    	// container-level elements  	
+//    	String description = null;
+//    	String title = null;
+//    	Bitstream logo = null;
+//    	// the feed
+//    	Channel channel = new Channel();
+//    	
+//    	//Special Case: if DSpace Object passed in is null, 
+//    	//generate a feed for the entire DSpace site!
+//    	if(dso == null)
+//    	{
+//    		channel.setTitle(ConfigurationManager.getProperty("dspace.name"));
+//    		channel.setLink(resolveURL(null));
+//    		channel.setDescription(mangleI18N("xmlui.feed.general_description"));
+//    	}
+//    	else //otherwise, this is a Collection or Community specific feed
+//    	{
+//    		if (dso.getType() == Constants.COLLECTION)
+//	    	{
+//	    		Collection col = (Collection)dso;
+//	           	description = col.getMetadata("short_description");
+//	           	title = col.getMetadata("name");
+//	           	logo = col.getLogo();
+//	        }
+//	    	else if (dso.getType() == Constants.COMMUNITY)
+//	    	{
+//	    		Community comm = (Community)dso;
+//	           	description = comm.getMetadata("short_description");
+//	           	title = comm.getMetadata("name");
+//	           	logo = comm.getLogo();
+//	    	}
+//	    	
+//    		String objectUrl = resolveURL(dso);
+//  
+//			// put in container-level data
+//	        channel.setDescription(description);
+//	        channel.setLink(objectUrl);
+//	        channel.setTitle(title);
+//	        
+//	        //if collection or community has a logo
+//	        if (logo != null)
+//	    	{
+//	    		// we use the path to the logo for this, the logo itself cannot
+//	    	    // be contained in the rdf. Not all RSS-viewers show this logo.
+//	    		Image image = new Image();
+//	    		image.setLink(objectUrl);
+//	    		image.setTitle(mangleI18N("xmlui.feed.logo_title"));
+//	    		image.setUrl(resolveURL(null) + "/retrieve/" + logo.getID());
+//	    	    channel.setImage(image);
+//	    	}
+//    	}
+//		   		    	
+//    	// add reciently submitted items
+//    	List<com.sun.syndication.feed.rss.Item> items = 
+//    		new ArrayList<com.sun.syndication.feed.rss.Item>();
+//		for(Item item : getRecientlySubmittedItems(context,dso))
+//		{
+//			items.add(itemFromDSpaceItem(context, item));
+//		}
+//		channel.setItems(items);
+//		
+//    	return channel;
+//    }
+//    
+//    
+//    /**
+//     * The metadata fields of the given item will be added to the given feed.
+//     * 
+//     * @param context	DSpace context object
+//     * 
+//     * @param dspaceItem	DSpace Item
+//     * 
+//     * @return an object representing a feed entry
+//     */
+//    private com.sun.syndication.feed.rss.Item itemFromDSpaceItem(Context context,
+//    		                                                     Item dspaceItem)
+//    	throws SQLException
+//    {
+//        com.sun.syndication.feed.rss.Item rssItem = 
+//        	new com.sun.syndication.feed.rss.Item();
+//        
+//        //get the title and date fields
+//        String titleField = ConfigurationManager.getProperty("webui.feed.item.title");
+//        if (titleField == null)
+//        {
+//            titleField = "dc.title";
+//        }
+//        
+//        String dateField = ConfigurationManager.getProperty("webui.feed.item.date");
+//        if (dateField == null)
+//        {
+//            dateField = "dc.date.issued";
+//        }   
+//        
+//        //Set item link
+//    	String itemLink = resolveURL(dspaceItem);
+//
+//        rssItem.setLink(itemLink);
+//        
+//        //get first title
+//        String title = null;
+//        try
+//        {
+//            // FIXME: replace with this line once dspace 1.4.1 is released:
+//            //title = dspaceItem.getMetadata(titleField)[0].value;
+//            title = getMetadata(dspaceItem,titleField)[0].value;
+//           
+//        }
+//        catch (ArrayIndexOutOfBoundsException e)
+//        { 
+//            title = mangleI18N("xmlui.feed.untitled");
+//        }
+//        rssItem.setTitle(title);
+//        
+//        // Traverse the description fields untill we find one.
+//        String descriptionFields = 
+//        	ConfigurationManager.getProperty("webui.feed.item.description");
+//
+//        if (descriptionFields == null)
+//        {     
+//            descriptionFields = defaultDescriptionFields;
+//        }
+//        
+//        //loop through all the metadata fields to put in the description
+//        StringTokenizer st = new StringTokenizer(descriptionFields, ",");
+//
+//        while (st.hasMoreTokens())
+//        {
+//            String field = st.nextToken().trim();
+//            boolean isDate = false;
+//         
+//            // Find out if the field should rendered as a date
+//            if (field.indexOf("(date)") > 0)
+//            {
+//                field = field.replaceAll("\\(date\\)", "");
+//                isDate = true;
+//            }
+//
+//            
+//            //print out this field, along with its value(s)
+//            //FIXME: replace with this line once dspace 1.4.1 is released:
+//            //DCValue[] values = dspaceItem.getMetadata(field);
+//            DCValue[] values = getMetadata(dspaceItem,field);
+//           
+//            if(values != null && values.length>0)
+//            {  
+//            	// We've found one, only take the first one if there
+//            	// are more than one.
+//                String fieldValue = values[0].value;
+//                if(isDate)
+//                    fieldValue = (new DCDate(fieldValue)).toString();
+//               
+//                Description descrip = new Description();
+//                descrip.setValue(fieldValue);
+//                rssItem.setDescription(descrip);
+//                
+//                // Once we've found one we can stop looking for more.
+//                break;
+//            }
+//            
+//        }//end while   
+//        // set date field
+//        String dcDate = null;
+//        try
+//        {
+//        	// FIXME: replace with this line once dspace 1.4.1 is released:
+//        	//dcDate = dspaceItem.getMetadata(dateField)[0].value;
+//        	dcDate = getMetadata(dspaceItem,dateField)[0].value;
+//           
+//        }
+//        catch (ArrayIndexOutOfBoundsException e)
+//        { 
+//        	// Ignore
+//        }
+//        
+//        if (dcDate != null)
+//        {
+//            rssItem.setPubDate((new DCDate(dcDate)).toDate());
+//        }
+//        
+//        return rssItem;
+//    }
+//    
+//    
+//    @SuppressWarnings("unchecked")
+//    private java.util.List<Item> getRecientlySubmittedItems(Context context, DSpaceObject dso) 
+//            throws SQLException
+//    {
+//    	if (recentSubmissionItems != null)
+//    		return recentSubmissionItems;
+//
+//        String source = ConfigurationManager.getProperty("recent.submissions.sort-option");
+//    	BrowserScope scope = new BrowserScope(context);
+//    	if (dso instanceof Collection)
+//    		scope.setCollection((Collection) dso);
+//    	else if (dso instanceof Community)
+//    		scope.setCommunity((Community) dso);
+//    	scope.setResultsPerPage(itemCount);
+//
+//    	// FIXME Exception handling
+//    	try
+//    	{
+//            scope.setBrowseIndex(BrowseIndex.getItemBrowseIndex());
+//            for (SortOption so : SortOption.getSortOptions())
+//            {
+//                if (so.getName().equals(source))
+//                    scope.setSortBy(so.getNumber());
+//            }
+//
+//            BrowseEngine be = new BrowseEngine(context);
+//    		this.recentSubmissionItems = be.browse(scope).getResults();
+//    	}
+//    	catch (BrowseException bex)
+//    	{
+//    		log.error("Caught browse exception", bex);
+//    	}
+//        catch (SortException sex) // apparently it's contageous
+//        {
+//            log.error("Caught sort exception", sex);
+//        }
+//        return this.recentSubmissionItems;
+//    }
+//    
+//    /**
+//     * Return a url to the DSpace object, either use the official
+//     * handle for the item or build a url based upon the current server.
+//     * 
+//     * If the dspaceobject is null then a local url to the repository is generated.
+//     * 
+//     * @param dso The object to refrence, null if to the repository.
+//     * @return
+//     */
+//    private String resolveURL(DSpaceObject dso)
+//    {
+//    	if (dso == null)
+//    	{
+//    		// If no object given then just link to the whole repository, 
+//    		// since no offical handle exists so we have to use local resolution.
+//    		Request request = ObjectModelHelper.getRequest(objectModel);
+//			
+//			String url = (request.isSecure()) ? "https://" : "http://";
+//			url += ConfigurationManager.getProperty("dspace.hostname");
+//			url += ":" + request.getServerPort();
+//			url += request.getContextPath();
+//			return url;	
+//    	}
+//    	
+//		if (ConfigurationManager.getBooleanProperty("webui.feed.localresolve"))
+//		{
+//            /*
+//            Request request = ObjectModelHelper.getRequest(objectModel);
+//
+//			String url = (request.isSecure()) ? "https://" : "http://";
+//			url += ConfigurationManager.getProperty("dspace.hostname");
+//			url += ":" + request.getServerPort();
+//			url += request.getContextPath();
+//			url += "/handle/" + dso.getExternalIdentifier().getCanonicalForm();
+//			return url;
+//			*/
+//            return IdentifierService.getLocalURL(dso).toString();
+//        }
+//		else
+//		{
+//            return IdentifierService.getURL(dso).toString();
+//		}
+//    }
+//    
+//    
+//    /** 
+//     * Recycle
+//     */
+//    
+//    public void recycle()
+//    {
+//    	this.format = null;
+//    	this.uri = null;
+//    	this.validity = null;
+//        this.recentSubmissionItems = null;
+//    	super.recycle();
+//    }
+//    
+//    /**
+//     * Extend the standard DSpaceValidity object to support assumed 
+//     * caching. Since feeds will constantly be requested we want to 
+//     * assume that a feed is still valid instead of checking it 
+//     * against the database anew everytime.
+//     * 
+//     * This validity object will assume that a cache is still valid, 
+//     * without rechecking it, for 24 hours.
+//     *
+//     */
+//    private class FeedValidity extends DSpaceValidity 
+//    {
+//		private static final long serialVersionUID = 1L;
+//
+//		/**
+//    	 * How long should the cache assumed to be valid for, 
+//    	 * milliseconds * seconds * minutes * hours
+//    	 */
+//    	private static final long CACHE_AGE = 1000 * 60 * 60 * 24;
+//    	
+//    	/** When the cache's validity expires */
+//    	private long expires = 0;
+//    	
+//    	/**
+//         * When the validity is completed record a timestamp to check later.
+//         */
+//        public DSpaceValidity complete() 
+//        {    
+//        	this.expires = System.currentTimeMillis() + CACHE_AGE;
+//        	
+//        	return super.complete();
+//        }
+//        
+//        
+//        /**
+//         * Determine if the cache is still valid
+//         */
+//        public int isValid()
+//        {
+//            // Return true if we have a hash.
+//            if (this.completed)
+//            {
+//            	if (System.currentTimeMillis() < this.expires)
+//            	{
+//            		// If the cache hasn't expired the just assume that it is still valid.
+//            		return SourceValidity.VALID;
+//            	}
+//            	else
+//            	{
+//            		// The cache is past its age
+//            		return SourceValidity.UNKNOWN;
+//            	}
+//            }
+//            else
+//            {
+//            	// This is an error, state. We are being asked whether we are valid before
+//            	// we have been initialized.
+//                return SourceValidity.INVALID;
+//            }
+//        }
+//
+//        /**
+//         * Determine if the cache is still valid based 
+//         * upon the other validity object.
+//         * 
+//         * @param other 
+//         *          The other validity object.
+//         */
+//        public int isValid(SourceValidity otherValidity)
+//        {
+//            if (this.completed)
+//            {
+//                if (otherValidity instanceof FeedValidity)
+//                {
+//                    FeedValidity other = (FeedValidity) otherValidity;
+//                    if (hash == other.hash)
+//                    {	
+//                    	// Update both cache's expiration time.
+//                    	this.expires = System.currentTimeMillis() + CACHE_AGE;
+//                    	other.expires = System.currentTimeMillis() + CACHE_AGE;
+//                    	
+//                        return SourceValidity.VALID;
+//                    }
+//                }
+//            }
+//
+//            return SourceValidity.INVALID;
+//        }
+//
+//    }
+//    
+//    
+//    
+//    /**
+//     * FIXME: This is a work around method, all uses of this private 
+//     * method method should use just call the getMetadata(string) method 
+//     * directly on an item. This method has been added to CVS head before
+//     * for the DSpace 1.4.1 release.
+//     * 
+//     * Retrieve metadata field values from a given metadata string
+//     * of the form <schema prefix>.<element>[.<qualifier>|.*]
+//     *
+//     * @param item
+//     * 			  The item to get metedata from. 
+//     * @param mdString
+//     *            The metadata string of the form
+//     *            <schema prefix>.<element>[.<qualifier>|.*]
+//     */
+//    private static DCValue[] getMetadata(Item item, String mdString)
+//    {
+//        StringTokenizer dcf = new StringTokenizer(mdString, ".");
+//        
+//        String[] tokens = { "", "", "" };
+//        int i = 0;
+//        while(dcf.hasMoreTokens())
+//        {
+//            tokens[i] = dcf.nextToken().toLowerCase().trim();
+//            i++;
+//        }
+//        String schema = tokens[0];
+//        String element = tokens[1];
+//        String qualifier = tokens[2];
+//        
+//        DCValue[] values;
+//        if ("*".equals(qualifier))
+//        {
+//            values = item.getMetadata(schema, element, Item.ANY, Item.ANY);
+//        }
+//        else if ("".equals(qualifier))
+//        {
+//            values = item.getMetadata(schema, element, null, Item.ANY);
+//        }
+//        else
+//        {
+//            values = item.getMetadata(schema, element, qualifier, Item.ANY);
+//        }
+//        
+//        return values;
+//    }
+//    
 }
