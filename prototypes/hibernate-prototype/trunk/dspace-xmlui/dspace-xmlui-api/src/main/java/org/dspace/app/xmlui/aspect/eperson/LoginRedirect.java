@@ -64,45 +64,46 @@ import org.dspace.core.ConfigurationManager;
  * @author Scott Phillips
  * 
  */
-public class LoginRedirect extends AbstractAction {
-
-	public Map act(Redirector redirector, SourceResolver resolver,
-			Map objectModel, String source, Parameters parameters)
-			throws Exception {
-
-		final HttpServletResponse httpResponse = (HttpServletResponse) objectModel
-				.get(HttpEnvironment.HTTP_RESPONSE_OBJECT);
-		final HttpServletRequest httpRequest = (HttpServletRequest) objectModel
-				.get(HttpEnvironment.HTTP_REQUEST_OBJECT);
-		final Iterator authMethods = AuthenticationManager
-				.authenticationMethodIterator();
-
-		final String url = ((AuthenticationMethod) authMethods.next())
-				.loginPageURL(ContextUtil.obtainContext(objectModel),
-						httpRequest, httpResponse);
-
-		if (authMethods.hasNext()) {
-			throw new IllegalStateException(
-					"Multiple authentication methods found when only one was expected.");
-		}
-
-		// now we want to check for the force ssl property
-		if (ConfigurationManager.getBooleanProperty("xmlui.force.ssl")) {
-
-			if (!httpRequest.isSecure()) {
-				StringBuffer location = new StringBuffer("https://");
-				location.append(ConfigurationManager.getProperty("dspace.hostname")).append(url).append(
-						httpRequest.getQueryString() == null ? ""
-								: ("?" + httpRequest.getQueryString()));
-				httpResponse.sendRedirect(location.toString());
-			} else {
-				httpResponse.sendRedirect(url);
-			}
-		} else {
-			httpResponse.sendRedirect(url);
-		}
-
-		return new HashMap();
-	}
+public class LoginRedirect //extends AbstractAction 
+{
+//
+//	public Map act(Redirector redirector, SourceResolver resolver,
+//			Map objectModel, String source, Parameters parameters)
+//			throws Exception {
+//
+//		final HttpServletResponse httpResponse = (HttpServletResponse) objectModel
+//				.get(HttpEnvironment.HTTP_RESPONSE_OBJECT);
+//		final HttpServletRequest httpRequest = (HttpServletRequest) objectModel
+//				.get(HttpEnvironment.HTTP_REQUEST_OBJECT);
+//		final Iterator authMethods = AuthenticationManager
+//				.authenticationMethodIterator();
+//
+//		final String url = ((AuthenticationMethod) authMethods.next())
+//				.loginPageURL(ContextUtil.obtainContext(objectModel),
+//						httpRequest, httpResponse);
+//
+//		if (authMethods.hasNext()) {
+//			throw new IllegalStateException(
+//					"Multiple authentication methods found when only one was expected.");
+//		}
+//
+//		// now we want to check for the force ssl property
+//		if (ConfigurationManager.getBooleanProperty("xmlui.force.ssl")) {
+//
+//			if (!httpRequest.isSecure()) {
+//				StringBuffer location = new StringBuffer("https://");
+//				location.append(ConfigurationManager.getProperty("dspace.hostname")).append(url).append(
+//						httpRequest.getQueryString() == null ? ""
+//								: ("?" + httpRequest.getQueryString()));
+//				httpResponse.sendRedirect(location.toString());
+//			} else {
+//				httpResponse.sendRedirect(url);
+//			}
+//		} else {
+//			httpResponse.sendRedirect(url);
+//		}
+//
+//		return new HashMap();
+//	}
 
 }

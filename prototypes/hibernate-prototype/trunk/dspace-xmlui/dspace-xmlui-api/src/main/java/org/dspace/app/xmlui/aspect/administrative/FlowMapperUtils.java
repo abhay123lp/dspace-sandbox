@@ -59,81 +59,81 @@ import org.dspace.core.Context;
  */
 public class FlowMapperUtils 
 {
-
-	/** Language Strings */
-	private static final Message T_map_items = new Message("default","xmlui.administrative.FlowMapperUtils.map_items");
-	private static final Message T_unmaped_items = new Message("default","xmlui.administrative.FlowMapperUtils.unmaped_items");	
-	
-
-	/**
-	 * Map the given items into this collection
-	 * 
-	 * @param context The current DSpace content
-	 * @param collectionID The collection to map items into.
-	 * @param itemIDs The items to map.
-	 * @return Flow result
-	 */
-	public static FlowResult processMapItems(Context context, int collectionID, String[] itemIDs) throws SQLException, AuthorizeException, UIException, IOException
-	{
-        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-
-        FlowResult result = new FlowResult();
-		result.setContinue(false);
-
-		Collection toCollection = collectionDAO.retrieve(collectionID);
-		
-		for (String itemID : itemIDs)
-        {
-            Item item = itemDAO.retrieve(Integer.valueOf(itemID));
-
-            // FIXME: Why did this check for READ permissions??
-            // if (AuthorizeManager.authorizeActionBoolean(context, item, Constants.READ))
-            ArchiveManager.move(context, item, null, toCollection);
-        }
-		
-		context.commit();
-		
-		result.setContinue(true);
-		result.setOutcome(true);
-		result.setMessage(T_map_items);
-		
-		return result;
-	}
-	
-	/**
-	 * Unmap the given items from this collection
-	 * 
-	 * @param context The DSpace context
-	 * @param collectionID The collection to unmap these items from.
-	 * @param itemIDs The items to be unmapped.
-	 * @return A flow result
-	 */
-	public static FlowResult processUnmapItems(Context context, int collectionID, String[] itemIDs) throws SQLException, AuthorizeException, UIException, IOException
-	{
-        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
-        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
-
-        FlowResult result = new FlowResult();
-		result.setContinue(false);
-
-		Collection fromCollection = collectionDAO.retrieve(collectionID);
-		
-		for (String itemID : itemIDs)
-        {
-            Item item = itemDAO.retrieve(Integer.valueOf(itemID));
-
-            // FIXME: Why did this check for READ permissions??
-            //if (AuthorizeManager.authorizeActionBoolean(context, item, Constants.READ))
-            ArchiveManager.move(context, item, fromCollection, null);
-        }
-		
-		context.commit();
-		
-		result.setContinue(true);
-		result.setOutcome(true);
-		result.setMessage(T_unmaped_items);
-		
-		return result;
-	}
+//
+//	/** Language Strings */
+//	private static final Message T_map_items = new Message("default","xmlui.administrative.FlowMapperUtils.map_items");
+//	private static final Message T_unmaped_items = new Message("default","xmlui.administrative.FlowMapperUtils.unmaped_items");	
+//	
+//
+//	/**
+//	 * Map the given items into this collection
+//	 * 
+//	 * @param context The current DSpace content
+//	 * @param collectionID The collection to map items into.
+//	 * @param itemIDs The items to map.
+//	 * @return Flow result
+//	 */
+//	public static FlowResult processMapItems(Context context, int collectionID, String[] itemIDs) throws SQLException, AuthorizeException, UIException, IOException
+//	{
+//        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
+//        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+//
+//        FlowResult result = new FlowResult();
+//		result.setContinue(false);
+//
+//		Collection toCollection = collectionDAO.retrieve(collectionID);
+//		
+//		for (String itemID : itemIDs)
+//        {
+//            Item item = itemDAO.retrieve(Integer.valueOf(itemID));
+//
+//            // FIXME: Why did this check for READ permissions??
+//            // if (AuthorizeManager.authorizeActionBoolean(context, item, Constants.READ))
+//            ArchiveManager.move(context, item, null, toCollection);
+//        }
+//		
+//		context.commit();
+//		
+//		result.setContinue(true);
+//		result.setOutcome(true);
+//		result.setMessage(T_map_items);
+//		
+//		return result;
+//	}
+//	
+//	/**
+//	 * Unmap the given items from this collection
+//	 * 
+//	 * @param context The DSpace context
+//	 * @param collectionID The collection to unmap these items from.
+//	 * @param itemIDs The items to be unmapped.
+//	 * @return A flow result
+//	 */
+//	public static FlowResult processUnmapItems(Context context, int collectionID, String[] itemIDs) throws SQLException, AuthorizeException, UIException, IOException
+//	{
+//        CollectionDAO collectionDAO = CollectionDAOFactory.getInstance(context);
+//        ItemDAO itemDAO = ItemDAOFactory.getInstance(context);
+//
+//        FlowResult result = new FlowResult();
+//		result.setContinue(false);
+//
+//		Collection fromCollection = collectionDAO.retrieve(collectionID);
+//		
+//		for (String itemID : itemIDs)
+//        {
+//            Item item = itemDAO.retrieve(Integer.valueOf(itemID));
+//
+//            // FIXME: Why did this check for READ permissions??
+//            //if (AuthorizeManager.authorizeActionBoolean(context, item, Constants.READ))
+//            ArchiveManager.move(context, item, fromCollection, null);
+//        }
+//		
+//		context.commit();
+//		
+//		result.setContinue(true);
+//		result.setOutcome(true);
+//		result.setMessage(T_unmaped_items);
+//		
+//		return result;
+//	}
 }

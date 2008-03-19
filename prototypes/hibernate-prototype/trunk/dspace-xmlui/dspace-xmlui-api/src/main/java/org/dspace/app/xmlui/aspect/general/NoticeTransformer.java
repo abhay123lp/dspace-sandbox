@@ -83,45 +83,45 @@ import org.dspace.authorize.AuthorizeException;
  * @author Scott Phillips
  * @author Alexey Maslov
  */
-public class NoticeTransformer extends AbstractDSpaceTransformer   
+public class NoticeTransformer //extends AbstractDSpaceTransformer   
 {
 	
-	/** Language Strings */
-	private static final Message T_head =
-		message("xmlui.general.notice.default_head");
-	
-	/**
-	 * Add the notice div to the body.
-	 */
-	public void addBody(Body body) throws WingException, SQLException, AuthorizeException 
-	{
-		String outcome = parameters.getParameter("outcome",null);
-		String header = parameters.getParameter("header",null);
-		String message = parameters.getParameter("message",null);
-		String characters = parameters.getParameter("characters",null);
-			    
-		if ((message    == null || message.length() <= 0) && 
-			(characters == null || characters.length() <= 0))
-			throw new WingException("No message found.");
-		
-		String rend = "notice";
-		if ("netural".equals(outcome))
-			rend += " netural";
-		else if ("success".equals(outcome))
-			rend += " success";
-		else if ("failure".equals(outcome))
-			rend += " failure";
-		
-		Division div = body.addDivision("general-message",rend);
-		if ((header != null) && (!"".equals(header)))
-			div.setHead(message(header));
-		else
-			div.setHead(T_head);
-
-		if (message != null && message.length() > 0)
-			div.addPara(message(message));
-		
-		if (characters != null && characters.length() > 0)
-			div.addPara(characters);
-	}
+//	/** Language Strings */
+//	private static final Message T_head =
+//		message("xmlui.general.notice.default_head");
+//	
+//	/**
+//	 * Add the notice div to the body.
+//	 */
+//	public void addBody(Body body) throws WingException, SQLException, AuthorizeException 
+//	{
+//		String outcome = parameters.getParameter("outcome",null);
+//		String header = parameters.getParameter("header",null);
+//		String message = parameters.getParameter("message",null);
+//		String characters = parameters.getParameter("characters",null);
+//			    
+//		if ((message    == null || message.length() <= 0) && 
+//			(characters == null || characters.length() <= 0))
+//			throw new WingException("No message found.");
+//		
+//		String rend = "notice";
+//		if ("netural".equals(outcome))
+//			rend += " netural";
+//		else if ("success".equals(outcome))
+//			rend += " success";
+//		else if ("failure".equals(outcome))
+//			rend += " failure";
+//		
+//		Division div = body.addDivision("general-message",rend);
+//		if ((header != null) && (!"".equals(header)))
+//			div.setHead(message(header));
+//		else
+//			div.setHead(T_head);
+//
+//		if (message != null && message.length() > 0)
+//			div.addPara(message(message));
+//		
+//		if (characters != null && characters.length() > 0)
+//			div.addPara(characters);
+//	}
 }

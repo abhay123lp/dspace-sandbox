@@ -67,114 +67,114 @@ import java.sql.SQLException;
  * 
  * @author Scott Phillips
  */
-public class CollectionViewer extends AbstractDSpaceTransformer implements CacheableProcessingComponent
+public class CollectionViewer //extends AbstractDSpaceTransformer implements CacheableProcessingComponent
 {
-	
-	/** Language Strings */
-    protected static final Message T_title = 
-        message("xmlui.Submission.SelectCollection.title");
-	
-    /** Cached validity object */
-    private SourceValidity validity;
-    
-    /**
-     * Generate the unique caching key.
-     * This key must be unique inside the space of this component.
-     */
-    public Serializable getKey()
-    {
-        try
-        {
-            DSpaceObject dso = URIUtil.resolve(objectModel);
-
-            if (dso == null)
-                return "0";
-                
-            return HashUtil.hash(IdentifierService.getCanonicalForm(dso));
-        }
-        catch (SQLException sqle)
-        {
-            // Ignore all errors and just return that the component is not
-            // cachable.
-            return "0";
-        }
-    }
-
-    /**
-     * Generate the cache validity object.
-     * 
-     * The validity object will include the collection being viewed and 
-     * all recently submitted items. This does not include the community / collection
-     * hierarch, when this changes they will not be reflected in the cache.
-     */
-    public SourceValidity getValidity()
-    {
-    	if (this.validity == null)
-    	{
-	        try
-	        {
-	            DSpaceObject dso = URIUtil.resolve(objectModel);
-	
-	            if (dso == null)
-	                return null;
-	
-	            if (!(dso instanceof Collection))
-	                return null;
-	
-	            Collection collection = (Collection) dso;
-	
-	            DSpaceValidity validity = new DSpaceValidity();
-	            
-	            // Add the actual collection;
-	            validity.add(collection);
-	            
-	            // Add the eperson viewing the collection
-	            validity.add(eperson);
-	            
-	            // Include any groups they are a member of
-	            Group[] groups = Group.allMemberGroups(context, eperson);
-	            for (Group group : groups)
-	            {
-	            	validity.add(group);
-	            }
-	            
-	            this.validity = validity.complete();
-	        }
-	        catch (Exception e)
-	        {
-	            // Just ignore all errors and return an invalid cache.
-	        }
-    	}
-    	return this.validity;
-    }
-
-    /**
-     * Add a single link to the view item page that allows the user 
-     * to submit to the collection.
-     */
-    public void addBody(Body body) throws SAXException, WingException,
-            UIException, SQLException, IOException, AuthorizeException
-    {
-        DSpaceObject dso = URIUtil.resolve(objectModel);
-        if (!(dso instanceof Collection))
-            return;
- 
-        // Set up the major variables
-        Collection collection = (Collection) dso;
-        
-        Division home = body.addDivision("collection-home","primary repository collection");
-        Division viewer = home.addDivision("collection-view","secondary");
-        String submitURL = IdentifierService.getURL(collection) + "/submit";
-        viewer.addPara().addXref(submitURL,"Submit a new item to this collection"); 
-        
-    }
-    
-    /**
-     * Recycle
-     */
-    public void recycle() 
-    {   
-        this.validity = null;
-        super.recycle();
-    }
+//	
+//	/** Language Strings */
+//    protected static final Message T_title = 
+//        message("xmlui.Submission.SelectCollection.title");
+//	
+//    /** Cached validity object */
+//    private SourceValidity validity;
+//    
+//    /**
+//     * Generate the unique caching key.
+//     * This key must be unique inside the space of this component.
+//     */
+//    public Serializable getKey()
+//    {
+//        try
+//        {
+//            DSpaceObject dso = URIUtil.resolve(objectModel);
+//
+//            if (dso == null)
+//                return "0";
+//                
+//            return HashUtil.hash(IdentifierService.getCanonicalForm(dso));
+//        }
+//        catch (SQLException sqle)
+//        {
+//            // Ignore all errors and just return that the component is not
+//            // cachable.
+//            return "0";
+//        }
+//    }
+//
+//    /**
+//     * Generate the cache validity object.
+//     * 
+//     * The validity object will include the collection being viewed and 
+//     * all recently submitted items. This does not include the community / collection
+//     * hierarch, when this changes they will not be reflected in the cache.
+//     */
+//    public SourceValidity getValidity()
+//    {
+//    	if (this.validity == null)
+//    	{
+//	        try
+//	        {
+//	            DSpaceObject dso = URIUtil.resolve(objectModel);
+//	
+//	            if (dso == null)
+//	                return null;
+//	
+//	            if (!(dso instanceof Collection))
+//	                return null;
+//	
+//	            Collection collection = (Collection) dso;
+//	
+//	            DSpaceValidity validity = new DSpaceValidity();
+//	            
+//	            // Add the actual collection;
+//	            validity.add(collection);
+//	            
+//	            // Add the eperson viewing the collection
+//	            validity.add(eperson);
+//	            
+//	            // Include any groups they are a member of
+//	            Group[] groups = Group.allMemberGroups(context, eperson);
+//	            for (Group group : groups)
+//	            {
+//	            	validity.add(group);
+//	            }
+//	            
+//	            this.validity = validity.complete();
+//	        }
+//	        catch (Exception e)
+//	        {
+//	            // Just ignore all errors and return an invalid cache.
+//	        }
+//    	}
+//    	return this.validity;
+//    }
+//
+//    /**
+//     * Add a single link to the view item page that allows the user 
+//     * to submit to the collection.
+//     */
+//    public void addBody(Body body) throws SAXException, WingException,
+//            UIException, SQLException, IOException, AuthorizeException
+//    {
+//        DSpaceObject dso = URIUtil.resolve(objectModel);
+//        if (!(dso instanceof Collection))
+//            return;
+// 
+//        // Set up the major variables
+//        Collection collection = (Collection) dso;
+//        
+//        Division home = body.addDivision("collection-home","primary repository collection");
+//        Division viewer = home.addDivision("collection-view","secondary");
+//        String submitURL = IdentifierService.getURL(collection) + "/submit";
+//        viewer.addPara().addXref(submitURL,"Submit a new item to this collection"); 
+//        
+//    }
+//    
+//    /**
+//     * Recycle
+//     */
+//    public void recycle() 
+//    {   
+//        this.validity = null;
+//        super.recycle();
+//    }
 }

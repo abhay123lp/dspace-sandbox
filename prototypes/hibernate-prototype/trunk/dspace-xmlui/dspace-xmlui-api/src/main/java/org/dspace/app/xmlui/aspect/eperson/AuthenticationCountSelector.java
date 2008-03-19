@@ -53,30 +53,31 @@ import org.dspace.authenticate.AuthenticationManager;
  * @author Scott Phillips
  *
  */
-public class AuthenticationCountSelector implements Selector{
+public class AuthenticationCountSelector //implements Selector
+{
     /**
      * Returns true if the expression (in this case a number) is equal to the number
      * of AuthenticationMethods defined in the dspace.cnf file
      * @return
      */
-	public boolean select(String expression, Map objectModel, Parameters parameters) {
-		// get an iterator of all the AuthenticationMethods defined
-		final Iterator authMethods = AuthenticationManager
-		.authenticationMethodIterator();
-		
-		int authMethodCount = 0;
-		
-		// iterate to count the methods
-		while(authMethods.hasNext()){
-			authMethods.next();
-			authMethodCount++;
-		}
-		
-		final Integer exp = new Integer(expression);
-		
-		return (authMethodCount == exp);
-	}
-
-	
+//	public boolean select(String expression, Map objectModel, Parameters parameters) {
+//		// get an iterator of all the AuthenticationMethods defined
+//		final Iterator authMethods = AuthenticationManager
+//		.authenticationMethodIterator();
+//		
+//		int authMethodCount = 0;
+//		
+//		// iterate to count the methods
+//		while(authMethods.hasNext()){
+//			authMethods.next();
+//			authMethodCount++;
+//		}
+//		
+//		final Integer exp = new Integer(expression);
+//		
+//		return (authMethodCount == exp);
+//	}
+//
+//	
 
 }

@@ -67,92 +67,92 @@ import org.xml.sax.SAXException;
  * @author Scott Phillips
  */
 
-public class VerifyEmail extends AbstractDSpaceTransformer
+public class VerifyEmail //extends AbstractDSpaceTransformer
 {
-    /** language strings */
-    private final static Message T_title =
-        message("xmlui.EPerson.VerifyEmail.title");
-    
-    private final static Message T_dspace_home =
-        message("xmlui.general.dspace_home");
-    
-    private final static Message T_trail_forgot_password =
-        message("xmlui.EPerson.trail_forgot_password");
-    
-    private final static Message T_trail_new_registration =
-        message("xmlui.EPerson.trail_new_registration");
-    
-    private final static Message T_head =
-        message("xmlui.EPerson.VerifyEmail.head");
-    
-    private final static Message T_para =
-        message("xmlui.EPerson.VerifyEmail.para");
-    
-
-    /** The email address being verrified */
-    private String email;
-
-    /** Determine if this is part of the forgot password workflow */
-    private boolean forgot;
-
-    public void setup(SourceResolver resolver, Map objectModel, String src,
-            Parameters parameters) throws ProcessingException, SAXException,
-            IOException
-    { 
-        super.setup(resolver,objectModel,src,parameters);
-        
-        try
-        {
-            this.email = parameters.getParameter("email");
-            this.forgot = parameters.getParameterAsBoolean("forgot");
-        }
-        catch (ParameterException pe)
-        {
-            throw new ProcessingException(pe);
-        }
-    }
-
-    public void addPageMeta(PageMeta pageMeta) throws WingException 
-    {
-        // Set the page title
-        pageMeta.addMetadata("title").addContent(T_title);
-
-        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
-        if (forgot)
-        {
-            pageMeta.addTrail().addContent(T_trail_forgot_password);
-        } 
-        else 
-        {
-            pageMeta.addTrail().addContent(T_trail_new_registration);
-        }
-        
-    }
-    
-    public void addBody(Body body) throws WingException
-    {
-        Division verify = body.addDivision("verify-email","primary");
-
-        verify.setHead(T_head);
-        
-        if (forgot)
-        {
-            EPersonUtils.forgottProgressList(verify, 1);
-        }
-        else
-        {
-            EPersonUtils.registrationProgressList(verify,1);
-        }
-        
-        verify.addPara(T_para.parameterize(email));
-    }
-
-    /**
-     * Recycle
-     */
-    public void recycle() 
-    {
-        this.email = null;
-        super.recycle();
-    }
+//    /** language strings */
+//    private final static Message T_title =
+//        message("xmlui.EPerson.VerifyEmail.title");
+//    
+//    private final static Message T_dspace_home =
+//        message("xmlui.general.dspace_home");
+//    
+//    private final static Message T_trail_forgot_password =
+//        message("xmlui.EPerson.trail_forgot_password");
+//    
+//    private final static Message T_trail_new_registration =
+//        message("xmlui.EPerson.trail_new_registration");
+//    
+//    private final static Message T_head =
+//        message("xmlui.EPerson.VerifyEmail.head");
+//    
+//    private final static Message T_para =
+//        message("xmlui.EPerson.VerifyEmail.para");
+//    
+//
+//    /** The email address being verrified */
+//    private String email;
+//
+//    /** Determine if this is part of the forgot password workflow */
+//    private boolean forgot;
+//
+//    public void setup(SourceResolver resolver, Map objectModel, String src,
+//            Parameters parameters) throws ProcessingException, SAXException,
+//            IOException
+//    { 
+//        super.setup(resolver,objectModel,src,parameters);
+//        
+//        try
+//        {
+//            this.email = parameters.getParameter("email");
+//            this.forgot = parameters.getParameterAsBoolean("forgot");
+//        }
+//        catch (ParameterException pe)
+//        {
+//            throw new ProcessingException(pe);
+//        }
+//    }
+//
+//    public void addPageMeta(PageMeta pageMeta) throws WingException 
+//    {
+//        // Set the page title
+//        pageMeta.addMetadata("title").addContent(T_title);
+//
+//        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
+//        if (forgot)
+//        {
+//            pageMeta.addTrail().addContent(T_trail_forgot_password);
+//        } 
+//        else 
+//        {
+//            pageMeta.addTrail().addContent(T_trail_new_registration);
+//        }
+//        
+//    }
+//    
+//    public void addBody(Body body) throws WingException
+//    {
+//        Division verify = body.addDivision("verify-email","primary");
+//
+//        verify.setHead(T_head);
+//        
+//        if (forgot)
+//        {
+//            EPersonUtils.forgottProgressList(verify, 1);
+//        }
+//        else
+//        {
+//            EPersonUtils.registrationProgressList(verify,1);
+//        }
+//        
+//        verify.addPara(T_para.parameterize(email));
+//    }
+//
+//    /**
+//     * Recycle
+//     */
+//    public void recycle() 
+//    {
+//        this.email = null;
+//        super.recycle();
+//    }
 }

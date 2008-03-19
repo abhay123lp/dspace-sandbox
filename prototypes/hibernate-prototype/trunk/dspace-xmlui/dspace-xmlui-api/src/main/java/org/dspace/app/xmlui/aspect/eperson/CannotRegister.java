@@ -53,42 +53,42 @@ import org.dspace.app.xmlui.wing.element.PageMeta;
  * 
  * @author Scott Phillips
  */
-public class CannotRegister extends AbstractDSpaceTransformer
+public class CannotRegister //extends AbstractDSpaceTransformer
 {
-    /** Language strings */
-    private static final Message T_title =
-        message("xmlui.EPerson.CannotRegister.title");
-    
-    private static final Message T_dspace_home =
-        message("xmlui.general.dspace-home");
-    
-    private static final Message T_trail_new_registration =
-        message("xmlui.EPerson.trail-new-registration");
-    
-    private static final Message T_head =
-        message("xmlui.EPerson.CannotRegister.head");
-    
-    private static final Message T_para1 =
-        message("xmlui.EPerson.CannotRegister.para1");
-  
-    public void addPageMeta(PageMeta pageMeta) throws WingException 
-    {
-        // Set the page title
-        pageMeta.addMetadata("title").addContent(T_title);
-
-        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
-        pageMeta.addTrail().addContent(T_trail_new_registration);
-    }
-    
-    public void addBody(Body body) throws WingException
-    {
-        Division cannot = body.addDivision("register-cannot","primary");
-
-        cannot.setHead(T_head);
-
-        EPersonUtils.registrationProgressList(cannot, 0);
-        
-        cannot.addPara(T_para1); 
-    }
+//    /** Language strings */
+//    private static final Message T_title =
+//        message("xmlui.EPerson.CannotRegister.title");
+//    
+//    private static final Message T_dspace_home =
+//        message("xmlui.general.dspace-home");
+//    
+//    private static final Message T_trail_new_registration =
+//        message("xmlui.EPerson.trail-new-registration");
+//    
+//    private static final Message T_head =
+//        message("xmlui.EPerson.CannotRegister.head");
+//    
+//    private static final Message T_para1 =
+//        message("xmlui.EPerson.CannotRegister.para1");
+//  
+//    public void addPageMeta(PageMeta pageMeta) throws WingException 
+//    {
+//        // Set the page title
+//        pageMeta.addMetadata("title").addContent(T_title);
+//
+//        pageMeta.addTrailLink(contextPath + "/",T_dspace_home);
+//        pageMeta.addTrail().addContent(T_trail_new_registration);
+//    }
+//    
+//    public void addBody(Body body) throws WingException
+//    {
+//        Division cannot = body.addDivision("register-cannot","primary");
+//
+//        cannot.setHead(T_head);
+//
+//        EPersonUtils.registrationProgressList(cannot, 0);
+//        
+//        cannot.addPara(T_para1); 
+//    }
 
 }

@@ -59,43 +59,43 @@ import org.dspace.workflow.WorkflowManager;
  * 
  * @author Scott Phillips
  */
-public class ClaimTasksAction extends AbstractAction
+public class ClaimTasksAction //extends AbstractAction
 {
-
-    /**
-     * @param pattern
-     *            un-used.
-     * @param objectModel
-     *            Cocoon's object model
-     */
-    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
-            String source, Parameters parameters) throws Exception
-    {
-        Request request = ObjectModelHelper.getRequest(objectModel);
-        Context context = ContextUtil.obtainContext(objectModel);
-        
-    	// Or the user selected a checkbox full of workflow IDs
-    	String[] workflowIDs = request.getParameterValues("workflowID");
-    	if (workflowIDs != null)
-    	{
-    		for (String workflowID : workflowIDs)
-    		{
-    			WorkflowItem workflowItem = WorkflowItem.find(context, Integer.valueOf(workflowID));
-    			
-    			int state = workflowItem.getState();
-    			// Only unclaim tasks that are allready claimed.
-    			if ( state == WorkflowManager.WFSTATE_STEP1POOL || 
-    				 state == WorkflowManager.WFSTATE_STEP2POOL || 
-    				 state == WorkflowManager.WFSTATE_STEP3POOL)
-    			{
-    				WorkflowManager.claim(context, workflowItem, context.getCurrentUser());
-    			}
-    		}
-
-    		context.commit();
-    	}
-    	
-    	return null;
-    }
+//
+//    /**
+//     * @param pattern
+//     *            un-used.
+//     * @param objectModel
+//     *            Cocoon's object model
+//     */
+//    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
+//            String source, Parameters parameters) throws Exception
+//    {
+//        Request request = ObjectModelHelper.getRequest(objectModel);
+//        Context context = ContextUtil.obtainContext(objectModel);
+//        
+//    	// Or the user selected a checkbox full of workflow IDs
+//    	String[] workflowIDs = request.getParameterValues("workflowID");
+//    	if (workflowIDs != null)
+//    	{
+//    		for (String workflowID : workflowIDs)
+//    		{
+//    			WorkflowItem workflowItem = WorkflowItem.find(context, Integer.valueOf(workflowID));
+//    			
+//    			int state = workflowItem.getState();
+//    			// Only unclaim tasks that are allready claimed.
+//    			if ( state == WorkflowManager.WFSTATE_STEP1POOL || 
+//    				 state == WorkflowManager.WFSTATE_STEP2POOL || 
+//    				 state == WorkflowManager.WFSTATE_STEP3POOL)
+//    			{
+//    				WorkflowManager.claim(context, workflowItem, context.getCurrentUser());
+//    			}
+//    		}
+//
+//    		context.commit();
+//    	}
+//    	
+//    	return null;
+//    }
 
 }

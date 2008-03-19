@@ -74,48 +74,48 @@ import org.dspace.eperson.EPerson;
  * @author Scott Phillips
  */
 
-public class UnAuthenticateAction extends AbstractAction
+public class UnAuthenticateAction //extends AbstractAction
 {
-
-    /**
-     * Logout the current user.
-     * 
-     * @param pattern
-     *            un-used.
-     * @param objectModel
-     *            Cocoon's object model
-     */
-    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
-            String source, Parameters parameters) throws Exception
-    {
-        
-        Context context = ContextUtil.obtainContext(objectModel);
-        final HttpServletRequest httpRequest = 
-            (HttpServletRequest) objectModel.get(HttpEnvironment.HTTP_REQUEST_OBJECT);
-        final HttpServletResponse httpResponse = 
-            (HttpServletResponse) objectModel.get(HttpEnvironment.HTTP_RESPONSE_OBJECT);
-
-        EPerson eperson = context.getCurrentUser();
-        
-        // Actualy log the user out.
-        AuthenticationUtil.loggedOut(context,httpRequest);
-        
-        // Set the user as logged in for the rest of this request so that the cache does not get spoiled.
-        context.setCurrentUser(eperson);
-        
-        // Forward the user to the home page.
-        if((ConfigurationManager.getBooleanProperty("xmlui.public.logout")) && (httpRequest.isSecure())) {
-				StringBuffer location = new StringBuffer("http://");
-				location.append(ConfigurationManager.getProperty("dspace.hostname")).append(
-						httpRequest.getContextPath());
-				httpResponse.sendRedirect(location.toString());
-			
-		}
-        else{
-        	httpResponse.sendRedirect(httpRequest.getContextPath());
-        }
-        
-        return new HashMap();
-    }
+//
+//    /**
+//     * Logout the current user.
+//     * 
+//     * @param pattern
+//     *            un-used.
+//     * @param objectModel
+//     *            Cocoon's object model
+//     */
+//    public Map act(Redirector redirector, SourceResolver resolver, Map objectModel,
+//            String source, Parameters parameters) throws Exception
+//    {
+//        
+//        Context context = ContextUtil.obtainContext(objectModel);
+//        final HttpServletRequest httpRequest = 
+//            (HttpServletRequest) objectModel.get(HttpEnvironment.HTTP_REQUEST_OBJECT);
+//        final HttpServletResponse httpResponse = 
+//            (HttpServletResponse) objectModel.get(HttpEnvironment.HTTP_RESPONSE_OBJECT);
+//
+//        EPerson eperson = context.getCurrentUser();
+//        
+//        // Actualy log the user out.
+//        AuthenticationUtil.loggedOut(context,httpRequest);
+//        
+//        // Set the user as logged in for the rest of this request so that the cache does not get spoiled.
+//        context.setCurrentUser(eperson);
+//        
+//        // Forward the user to the home page.
+//        if((ConfigurationManager.getBooleanProperty("xmlui.public.logout")) && (httpRequest.isSecure())) {
+//				StringBuffer location = new StringBuffer("http://");
+//				location.append(ConfigurationManager.getProperty("dspace.hostname")).append(
+//						httpRequest.getContextPath());
+//				httpResponse.sendRedirect(location.toString());
+//			
+//		}
+//        else{
+//        	httpResponse.sendRedirect(httpRequest.getContextPath());
+//        }
+//        
+//        return new HashMap();
+//    }
 
 }
