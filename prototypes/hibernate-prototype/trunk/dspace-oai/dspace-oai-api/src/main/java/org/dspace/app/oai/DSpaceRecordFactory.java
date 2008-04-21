@@ -60,73 +60,73 @@ import ORG.oclc.oai.server.verb.CannotDisseminateFormatException;
  * @author Robert Tansley
  * @version $Revision: 2548 $
  */
-public class DSpaceRecordFactory extends RecordFactory
+public class DSpaceRecordFactory //extends RecordFactory
 {
     /** log4j category */
-    private static Logger log = Logger.getLogger(DSpaceRecordFactory.class);
-
-    public DSpaceRecordFactory(Properties properties)
-    {
-        // We don't use the OAICat properties; pass on up
-        super(properties);
-    }
-
-    public String fromOAIIdentifier(String identifier)
-    {
-        // Our local identifier is actually the same as the OAI one (the URI)
-        return identifier;
-    }
-
-    public String quickCreate(Object nativeItem, String schemaURL,
-            String metadataPrefix) throws IllegalArgumentException,
-            CannotDisseminateFormatException
-    {
-        // Not supported
-        return null;
-    }
-
-    public String getOAIIdentifier(Object nativeItem)
-    {
-        String h = DSpaceOAICatalog.OAI_ID_PREFIX
-                + ((HarvestedItemInfo) nativeItem).identifier.getCanonicalForm();
-
-        return h;
-    }
-
-    public String getDatestamp(Object nativeItem)
-    {
-        Date d = ((HarvestedItemInfo) nativeItem).datestamp;
-
-        // Return as ISO8601
-        return new DCDate(d).toString();
-    }
-
-    public Iterator getSetSpecs(Object nativeItem)
-    {
-        HarvestedItemInfo hii = (HarvestedItemInfo) nativeItem;
-        List<String> setSpecs = new LinkedList<String>();
-
-        // Convert the canonical form xyz:123.456/789 to the OAI-friendly
-        // xyz_123.456/789
-        for (ObjectIdentifier identifier : hii.collectionIdentifiers)
-        {
-            String uri = identifier.getCanonicalForm();
-            setSpecs.add(uri.replaceFirst(":", "_").replace('/', '_'));
-        }
-
-        return setSpecs.iterator();
-    }
-
-    public boolean isDeleted(Object nativeItem)
-    {
-        HarvestedItemInfo hii = (HarvestedItemInfo) nativeItem;
-
-        return hii.withdrawn;
-    }
-
-    public Iterator getAbouts(Object nativeItem)
-    {
-        // Nothing in the about section for now
-        return new LinkedList().iterator();
-    }
+//    private static Logger log = Logger.getLogger(DSpaceRecordFactory.class);
+//
+//    public DSpaceRecordFactory(Properties properties)
+//    {
+//        // We don't use the OAICat properties; pass on up
+//        super(properties);
+//    }
+//
+//    public String fromOAIIdentifier(String identifier)
+//    {
+//        // Our local identifier is actually the same as the OAI one (the URI)
+//        return identifier;
+//    }
+//
+//    public String quickCreate(Object nativeItem, String schemaURL,
+//            String metadataPrefix) throws IllegalArgumentException,
+//            CannotDisseminateFormatException
+//    {
+//        // Not supported
+//        return null;
+//    }
+//
+//    public String getOAIIdentifier(Object nativeItem)
+//    {
+//        String h = DSpaceOAICatalog.OAI_ID_PREFIX
+//                + ((HarvestedItemInfo) nativeItem).identifier.getCanonicalForm();
+//
+//        return h;
+//    }
+//
+//    public String getDatestamp(Object nativeItem)
+//    {
+//        Date d = ((HarvestedItemInfo) nativeItem).datestamp;
+//
+//        // Return as ISO8601
+//        return new DCDate(d).toString();
+//    }
+//
+//    public Iterator getSetSpecs(Object nativeItem)
+//    {
+//        HarvestedItemInfo hii = (HarvestedItemInfo) nativeItem;
+//        List<String> setSpecs = new LinkedList<String>();
+//
+//        // Convert the canonical form xyz:123.456/789 to the OAI-friendly
+//        // xyz_123.456/789
+//        for (ObjectIdentifier identifier : hii.collectionIdentifiers)
+//        {
+//            String uri = identifier.getCanonicalForm();
+//            setSpecs.add(uri.replaceFirst(":", "_").replace('/', '_'));
+//        }
+//
+//        return setSpecs.iterator();
+//    }
+//
+//    public boolean isDeleted(Object nativeItem)
+//    {
+//        HarvestedItemInfo hii = (HarvestedItemInfo) nativeItem;
+//
+//        return hii.withdrawn;
+//    }
+//
+//    public Iterator getAbouts(Object nativeItem)
+//    {
+//        // Nothing in the about section for now
+//        return new LinkedList().iterator();
+//    }
 }
