@@ -17,13 +17,13 @@
 
 	<scm>
 		<connection>
-			scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/branches/dspace-addon-v2-prototype/dspace-srw
+			scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk
 		</connection>
 		<developerConnection>
-			scm:svn:https://dspace.svn.sourceforge.net/svnroot/dspace/branches/dspace-addon-v2-prototype/dspace-srw
+			scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk
 		</developerConnection>
 		<url>
-			http://dspace.svn.sourceforge.net/viewvc/dspace/branches/dspace-addon-v2-prototype/dspace-srw/
+			http://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk
 		</url>
 	</scm>
 
