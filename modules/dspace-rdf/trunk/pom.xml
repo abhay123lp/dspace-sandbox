@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <parent>
+      <artifactId>dspace-parent</artifactId>
+      <groupId>org.dspace</groupId>
+      <version>1.5.1-SNAPSHOT</version>
+   </parent>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.dspace</groupId>
+   <artifactId>dspace-rdf</artifactId>
+   <name>DSpace RDF generation support</name>
+   <version>1.5.1-SNAPSHOT</version>
+   <description>
+      A combination of OpenRDF model and SAX Content Handlers available
+      to support the generation of RDF for DSpace Objects.
+   </description>
+   
+   <repositories>
+      <repository>
+         <id>maven.dspace.org/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://maven.dspace.org/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
+   
+   <dependencies>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-api</artifactId>
+         <version>1.5.1-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+         <groupId>org.openrdf</groupId>
+         <artifactId>openrdf-rio-api</artifactId>
+         <version>2.0.1</version>
+      </dependency>
+      <dependency>
+         <groupId>org.openrdf</groupId>
+         <artifactId>openrdf-rio-rdfxml</artifactId>
+         <version>2.0.1</version>
+      </dependency>
+      <dependency>
+         <groupId>org.openrdf</groupId>
+         <artifactId>openrdf-sail-memory</artifactId>
+         <version>2.0.1</version>
+      </dependency>
+      <dependency>
+         <groupId>org.openrdf</groupId>
+         <artifactId>openrdf-repository-sail</artifactId>
+         <version>2.0.1</version>
+      </dependency>
+      <dependency>
+         <artifactId>jtidy</artifactId>
+         <groupId>org.hibernate</groupId>
+         <version>r8-20060801</version>
+      </dependency>
+      <dependency>
+         <groupId>org.slf4j</groupId>
+         <artifactId>slf4j-log4j12</artifactId>
+         <version>1.0.1</version>
+      </dependency>
+   </dependencies>
+</project>
