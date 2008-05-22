@@ -83,11 +83,11 @@ public class DSpaceSiteAdapter extends DSpaceObjectAdapter
         {
             RDFHandler rdfHandler = getRDFHander();
 
-            URI rem = valueFactory.createURI(getMetadataURL(object) + "#rem");
+            //URI rem = valueFactory.createURI(getMetadataURL(object) + "#rem");
 
             URI aggregation = valueFactory.createURI(getMetadataURL(object));
 
-            this.handleResourceMap(rem, object, aggregation);    
+            //this.handleResourceMap(rem, object, aggregation);    
               
             /* =================================================================
              * The following statements are typing for DCMI Collections
@@ -98,17 +98,13 @@ public class DSpaceSiteAdapter extends DSpaceObjectAdapter
                     RDF.TYPE, DS.Site));
             
             // describe type as collection (seems appropriate for RDF)
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    RDF.TYPE, DCMITYPE.Collection));
+            //rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
+            //        RDF.TYPE, DCMITYPE.Collection));
 
             // describe type as collection (specification says this is manditory)
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    DC.type_, DCMITYPE.Collection));
-            
-            // make statements about it
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    RDF.TYPE, ORE.Aggregation));
-            
+            //rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
+            //        DC.type_, DCMITYPE.Collection));
+
             /* =================================================================
              * The following is a dc.identifier, title, creator and abstract for DCMI Collections 
              * =================================================================
@@ -123,43 +119,27 @@ public class DSpaceSiteAdapter extends DSpaceObjectAdapter
 
             
             /* =================================================================
-             * List all the Communities or Collections within this community.
+             * List all the Communities.
              * =================================================================
              */
             for(Community community : Community.findAllTop(getContext()))
             {
                 rdfHandler.handleStatement(valueFactory.createStatement(
                         aggregation,
-                        DCTERMS.hasPart_, 
+                        DS.hasCommunity, 
                         valueFactory.createURI(getMetadataURL(community))));
             }
-            
-            /*
-            for(Community community : Community.findAllTop(getContext()))
-            {
-                rdfHandler.handleStatement(valueFactory.createStatement(
-                        aggregation,
-                        ORE.aggregates, 
-                        valueFactory.createURI(getMetadataURL(community) + "#aggregation")));
-                
-                getContext().removeCached(community, community.getID());
-            }
-            */
-            
+
         }
         catch (SQLException e)
         {
             throw new RDFHandlerException(e.getMessage(), e);
         }
-        catch (DatatypeConfigurationException e)
-        {
-            throw new RDFHandlerException(e.getMessage(), e);
-        }
-
     }
 
     public void handleChildren(DSpaceObject object) throws RDFHandlerException 
     {
+ 
         try
         {
             for (Community comm : Community.findAll(getContext()))
