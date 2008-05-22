@@ -183,6 +183,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                 rem, ORE.describes, aggregation));
     }
     
+    @SuppressWarnings("deprecation")
     public void handle(Item item) throws RDFHandlerException
     {
         RDFHandler rdfHandler = getRDFHander();

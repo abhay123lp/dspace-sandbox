@@ -151,7 +151,7 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
             {
                 rdfHandler.handleStatement(valueFactory.createStatement(
                         aggregation,
-                        DCTERMS.isPartOf_, 
+                        DS.isPartOfCommunity, 
                         valueFactory.createURI(getMetadataURL(object.getParentCommunity()))));
             }
             else
@@ -159,7 +159,7 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
                 Site site = (Site)Site.find(getContext(), 0);
                 rdfHandler.handleStatement(valueFactory.createStatement(
                         aggregation,
-                        DCTERMS.isPartOf_, 
+                        DS.isPartOfSite, 
                         valueFactory.createURI(getMetadataURL(site))));
             }
 
@@ -172,7 +172,7 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
             {
                 rdfHandler.handleStatement(valueFactory.createStatement(
                         aggregation,
-                        DCTERMS.hasPart_, 
+                        DS.hasCommunity, 
                         valueFactory.createURI(getMetadataURL(community))));
             }
 
@@ -180,7 +180,7 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
             {
                 rdfHandler.handleStatement(valueFactory.createStatement(
                         aggregation,
-                        DCTERMS.hasPart_, 
+                        DS.hasCollection, 
                         valueFactory.createURI(getMetadataURL(coll))));
             }
             
@@ -192,14 +192,13 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
             if (logo != null)
             {
                 rdfHandler.handleStatement(valueFactory.createStatement(
-                        aggregation, DS.logo, valueFactory
-                                .createLiteral(getBitstreamURL(logo))));
+                        aggregation, DS.logo, valueFactory.createLiteral(getBitstreamURL(logo),DCTERMS.URI)));
             }
 
-            rdfHandler.handleStatement(valueFactory.createStatement(
-                    aggregation,
-                    ORE.analogousTo, 
-                    valueFactory.createURI(HandleManager.getCanonicalForm(object.getHandle()))));
+            //rdfHandler.handleStatement(valueFactory.createStatement(
+            //        aggregation,
+            //        ORE.analogousTo, 
+            //        valueFactory.createURI(HandleManager.getCanonicalForm(object.getHandle()))));
             
             /* =================================================================
              * List all the Communities this collection is a part of.

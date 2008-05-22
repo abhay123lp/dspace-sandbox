@@ -1,7 +1,6 @@
 package org.dspace.adapters.rdf.vocabularies;
 
 import org.openrdf.model.URI;
-import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 
