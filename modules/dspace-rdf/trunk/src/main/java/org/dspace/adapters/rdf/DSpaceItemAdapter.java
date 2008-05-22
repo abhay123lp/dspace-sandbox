@@ -30,11 +30,13 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.handle.HandleManager;
+import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
+import org.openrdf.repository.RepositoryResult;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.rio.RDFHandler;
 import org.openrdf.rio.RDFHandlerException;
@@ -60,7 +62,6 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
         handle((Item) object);
     }
 
-    @SuppressWarnings("deprecation")
     private void handleResourceMap(URI rem, Item object, URI aggregation) throws RDFHandlerException, DatatypeConfigurationException, SQLException
     {
         RDFHandler rdfHandler = getRDFHander();
@@ -182,7 +183,6 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                 rem, ORE.describes, aggregation));
     }
     
-    @SuppressWarnings("deprecation")
     public void handle(Item item) throws RDFHandlerException
     {
         RDFHandler rdfHandler = getRDFHander();
@@ -235,8 +235,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                 else if (dc.schema.equals("dc")
                         && !dc.element.equals("creator"))
                 {
-                    String lookup = dc.element;
-
+                    
                     URI predicate = null;
 
                     /*
@@ -244,31 +243,23 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                      * dcterms namespace for qualified, otherwise, if its
                      * non-standard put it into DSpace Namespace for now.
                      */
-                    if (dc.qualifier == null)
+                    if (dc.qualifier != null)
                     {
-                        predicate = DC.DSPACE_DC_2_DC.get(lookup);
-                    }
-                    else
-                    {
-                        lookup += "." + dc.qualifier;
-
-                        predicate = DCTERMS.DSPACE_DC_2_DCTERMS.get(lookup);
-
+                        predicate = DCTERMS.DSPACE_DC_2_DCTERMS.get(dc.element+ "." + dc.qualifier);
+                        
                         if (predicate == null)
                         {
-                            predicate = DC.DSPACE_DC_2_DC.get(lookup);
+                            /*
+                             * This happens if people make up unqualified elements or
+                             * non-standard qualifiers.
+                             */
+                            predicate = valueFactory.createURI(DS.NAMESPACE, dc.qualifier);
                         }
-                    }
-
-                    /*
-                     * This happens if people make up unqualified elements or
-                     * non-standard qualifiers.
-                     */
-                    if (predicate == null)
+                    } else if (predicate == null)
                     {
-                        predicate = valueFactory.createURI(DS.NAMESPACE,
-                                dc.element);
+                        predicate = DC.DSPACE_DC_2_DC.get(dc.element);
                     }
+                    
 
                     /** Finally output the statement */
                     rdfHandler.handleStatement(valueFactory.createStatement(
@@ -361,6 +352,9 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                     connection.add(valueFactory.createStatement(uri,
                             ORE.isAggregatedBy, aggregation));
                     
+                    connection.add(valueFactory.createStatement(uri,
+                            RDF.TYPE, DS.Bitstream));
+                    
                     if(bitstream.getName() != null)
                     {
                         connection.add(valueFactory.createStatement(uri, DC.title_,
@@ -395,6 +389,9 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                             DCTERMS.format_, fu));
                     
                     connection.add(valueFactory.createStatement(fu,
+                            RDF.TYPE, DS.BitstreamFormat));
+                    
+                    connection.add(valueFactory.createStatement(fu,
                             RDF.TYPE, DCTERMS.FileFormat));
                     
                     connection.add(valueFactory.createStatement(fu,
@@ -412,13 +409,40 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                                     .createLiteral(StringEscapeUtils
                                             .escapeXml(format.getShortDescription()))));
                     
+                    String supportLevel = "Unknown";
+                    
+                    if (format.getSupportLevel() == BitstreamFormat.KNOWN)
+                        supportLevel = "Known";
+                    else if (format.getSupportLevel() == BitstreamFormat.SUPPORTED)
+                        supportLevel = "Supported";
+                    
+                    connection.add(valueFactory.createStatement(fu,
+                            DS.support, valueFactory
+                                    .createLiteral(supportLevel)));
+                    
+                    
+                    
+                    
                     getContext().removeCached(bitstream, bitstream.getID());
                 }
 
                 getContext().removeCached(bundle, bundle.getID());
             }
 
-              
+            /*
+             * serialize any complex graph structure created above
+             */
+            RepositoryResult<Statement> statements = connection.getStatements(null, null, null, true);
+
+            try {
+               while (statements.hasNext()) {
+                  Statement st = statements.next();
+                  rdfHandler.handleStatement(st);
+               }
+            }
+            finally {
+               statements.close(); // make sure the result object is closed properly
+            }
             
 
         }
