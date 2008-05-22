@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<map:sitemap xmlns:map="http://apache.org/cocoon/sitemap/1.0">
+   <map:components>
+      
+      <map:matchers default="wildcard">
+         <map:matcher name="HandleTypeMatcher" src="org.dspace.app.xmlui.aspect.general.HandleTypeMatcher"/>
+         <map:matcher name="HandleAuthorizedMatcher" src="org.dspace.app.xmlui.aspect.general.HandleAuthorizedMatcher"/>
+      </map:matchers>
+
+      <map:transformers>
+         <map:transformer name="RdfReference"
+            src="org.dspace.app.xmlui.rdf.RdfMetadataReferenceTransformer" />
+         <map:transformer name="SiteRdfReference"
+            src="org.dspace.app.xmlui.rdf.SiteRdfMetadataReferenceTransformer" />
+      </map:transformers>
+
+   </map:components>
+
+   <map:pipelines>
+      <map:pipeline>
+         <map:generate />
+            
+         <map:match pattern="">
+            <map:transform type="SiteRdfReference">
+                <map:parameter name="handle" value="{1}/{2}"/>
+            </map:transform>
+            <map:serialize type="xml" />
+         </map:match>
+         
+         <!-- Community, Collection, and Item (in browse/search pages) -->
+         <map:match pattern="handle/*/*/**">
+            <map:match type="HandleAuthorizedMatcher" pattern="READ">
+               <map:match type="HandleTypeMatcher"
+                  pattern="community,collection,item">
+                  <map:transform type="RdfReference">
+                     <map:parameter name="handle" value="{1}/{2}"/>
+                  </map:transform>
+                  <map:serialize type="xml" />
+               </map:match>
+            </map:match>
+         </map:match>
+         
+         <!-- Community, Collection, and Item Viewers -->
+         <map:match pattern="handle/*/*">
+            <map:match type="HandleAuthorizedMatcher" pattern="READ">
+               <map:match type="HandleTypeMatcher"
+                  pattern="community,collection,item">
+                  <map:transform type="RdfReference">
+                     <map:parameter name="handle" value="{1}/{2}"/>
+                  </map:transform>
+                  <map:serialize type="xml" />
+               </map:match>
+            </map:match>
+         </map:match>
+         
+         <map:serialize type="xml" />
+      </map:pipeline>
+
+   </map:pipelines>
+
+</map:sitemap>

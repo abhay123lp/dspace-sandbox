@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <parent>
+      <artifactId>dspace-parent</artifactId>
+      <groupId>org.dspace</groupId>
+      <version>1.5.1-SNAPSHOT</version>
+   </parent>
+   <modelVersion>4.0.0</modelVersion>
+   <groupId>org.dspace</groupId>
+   <artifactId>dspace-xmlui-rdf-aspect</artifactId>
+   <name>DSpace Semantic Web Aspect</name>
+   <version>1.5.1-SNAPSHOT</version>
+   <description>
+      Provides hooks into XMLUI to include html/head/links to RDF
+      renderings of DSpace Objects and Metadata.
+   </description>
+
+   <repositories>
+      <repository>
+         <id>maven.dspace.org/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://maven.dspace.org/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
+
+
+   <dependencies>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-xmlui-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.dspace</groupId>
+         <artifactId>dspace-rdf</artifactId>
+         <version>1.5.1-SNAPSHOT</version>
+      </dependency>
+   </dependencies>
+</project>
