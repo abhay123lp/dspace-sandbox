@@ -2,21 +2,21 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-   <parent>
-      <artifactId>dspace-parent</artifactId>
-      <groupId>org.dspace</groupId>
-      <version>1.5.1-SNAPSHOT</version>
-   </parent>
    <modelVersion>4.0.0</modelVersion>
    <groupId>org.dspace</groupId>
    <artifactId>dspace-xmlui-rdf-aspect</artifactId>
    <name>DSpace Semantic Web Aspect</name>
-   <version>1.5.1-SNAPSHOT</version>
    <description>
       Provides hooks into XMLUI to include html/head/links to RDF
       renderings of DSpace Objects and Metadata.
    </description>
 
+   <parent>
+      <artifactId>dspace-parent</artifactId>
+      <groupId>org.dspace</groupId>
+      <version>1.5.1-SNAPSHOT</version>
+   </parent>
+   
    <repositories>
       <repository>
          <id>maven.dspace.org/snapshot</id>
@@ -32,7 +32,6 @@
          </snapshots>
       </repository>
    </repositories>
-
 
    <dependencies>
       <dependency>
