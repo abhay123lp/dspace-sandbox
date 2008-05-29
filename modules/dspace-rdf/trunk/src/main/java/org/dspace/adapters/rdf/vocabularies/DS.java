@@ -9,7 +9,7 @@ public class DS
 
     private static final ValueFactory vf = ValueFactoryImpl.getInstance();
 
-    public static final String NAMESPACE = "http://www.dspace.org/objectModel#";
+    public static final String NAMESPACE = "http://purl.org/dspace/model#";
     
     public static final URI NS = vf.createURI(NAMESPACE);
         
