@@ -436,7 +436,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
             RepositoryResult<Statement> statements = connection.getStatements(null, null, null, true);
 
             try {
-               while (statements.hasNext()) {
+               while (statements.hasNext() && !statements.isClosed()) {
                   Statement st = statements.next();
                   rdfHandler.handleStatement(st);
                }
