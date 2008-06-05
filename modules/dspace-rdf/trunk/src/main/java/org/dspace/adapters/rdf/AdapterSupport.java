@@ -129,12 +129,15 @@ public class AdapterSupport
         
         try
         {
-            url += "/" + Util.encodeBitstreamName(bitstream.getName(),
+            if(bitstream.getName() != null)
+                url += "/" + Util.encodeBitstreamName(bitstream.getName(),
                     Constants.DEFAULT_ENCODING);
         }
         catch (UnsupportedEncodingException e)
         {
-            url += "/" + bitstream.getName();
+            if(bitstream.getName() != null)
+                url += "/" + bitstream.getName();
+            
             e.printStackTrace();
         }
         
