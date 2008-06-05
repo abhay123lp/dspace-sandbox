@@ -441,8 +441,14 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                   rdfHandler.handleStatement(st);
                }
             }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
             finally {
                statements.close(); // make sure the result object is closed properly
+               connection.close();
+               myRepository.shutDown();
             }
             
 
@@ -461,7 +467,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
         }
     }
 
-    private String getBitstream(Bitstream b) throws IOException, SQLException,
+    private static String getBitstream(Bitstream b) throws IOException, SQLException,
             AuthorizeException
     {
         String line;
