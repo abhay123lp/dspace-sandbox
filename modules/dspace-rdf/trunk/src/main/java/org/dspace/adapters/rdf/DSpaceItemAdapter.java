@@ -265,8 +265,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                     /** Finally output the statement */
                     rdfHandler.handleStatement(valueFactory.createStatement(
                             aggregation, predicate, valueFactory
-                                    .createLiteral(StringEscapeUtils
-                                            .escapeXml(dc.value))));
+                                    .createLiteral(dc.value)));
                 }
                 else if (!dc.schema.equals("dc"))
                 {
@@ -291,8 +290,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                                                 aggregation,
                                                 predicate,
                                                 valueFactory
-                                                        .createLiteral(StringEscapeUtils
-                                                                .escapeXml(dc.value))));
+                                                        .createLiteral(dc.value)));
                     }
                     catch (SQLException e)
                     {
