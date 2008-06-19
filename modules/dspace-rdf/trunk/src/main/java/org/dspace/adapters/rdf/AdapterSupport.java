@@ -122,10 +122,15 @@ public class AdapterSupport
     
 
 
-    private String getMetadataURL(String identifier)
+    public String getMetadataURL(String identifier)
     {
         // Same URIs as history uses
         return getBaseUri() + getMetadataServiceUri() + "/" + identifier;
+    }
+    
+    public Resource createResource(String handle)
+    {
+        return valueFactory.createURI(getMetadataURL(handle));
     }
     
     public Resource createResource(DSpaceObject object)
