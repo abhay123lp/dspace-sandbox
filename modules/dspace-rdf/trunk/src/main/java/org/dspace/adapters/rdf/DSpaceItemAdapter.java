@@ -3,13 +3,11 @@ package org.dspace.adapters.rdf;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.SQLException;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -30,6 +28,7 @@ import org.dspace.content.Item;
 import org.dspace.content.MetadataSchema;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.handle.HandleManager;
+import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDF;
@@ -62,84 +61,35 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
         handle((Item) object);
     }
 
-    private void handleResourceMap(URI rem, Item object, URI aggregation) throws RDFHandlerException, DatatypeConfigurationException, SQLException
+    private void handleResourceMap(Item item, Resource aggregation) throws RDFHandlerException, SQLException
     {
-        RDFHandler rdfHandler = getRDFHander();
-
+        
+        URI rem = valueFactory.createURI(aggregation.stringValue(), "#rem");
+        
         // describe type as resource map
-        rdfHandler.handleStatement(valueFactory.createStatement(
-                rem, RDF.TYPE, ORE.ResourceMap));
+        handleStatement(rem, RDF.TYPE, ORE.ResourceMap);
         
         XMLGregorianCalendar xmlCal = null;
 
-        DCValue[] values = object.getMetadata("dc", "date", "accessioned",
-                Item.ANY);
+        DCValue[] values = item.getMetadata("dc", "date", "accessioned", Item.ANY);
 
         if (values.length > 0)
         {
+            // We use DCDate because SimpleDateFormat fails miserably on ISO 8601 subsets.
             Date created = new DCDate(values[0].value).toDate();
-
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTime(created);
-
-            xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-                    cal);
-
-            /**
-             * kinda hacky, but gets around strange bug when Gregcal is
-             * year, month, day is set by hand.
-             */
-            xmlCal.setFractionalSecond(null);
-            xmlCal.setHour(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setMinute(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setSecond(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
-
-            rdfHandler.handleStatement(valueFactory.createStatement(
-                    rem, DCTERMS.created_, valueFactory
-                            .createLiteral(xmlCal)));
+            handleStatement(rem, DCTERMS.created_, created);
         }
 
-        {
-            Date lastModified = object.getLastModified();
-            System.out.println(lastModified.toString());
+        Date lastModified = item.getLastModified();
+        handleStatement(rem, DCTERMS.modified_, lastModified);
 
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTime(lastModified);
+        handleStatement(rem, DC.creator_, ConfigurationManager.getProperty("dspace.name"));
 
-            xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(
-                    cal);
-
-            /**
-             * kinda hacky, but gets around strange bug when Gregcal is
-             * year, month, day is set by hand.
-             */
-            xmlCal.setFractionalSecond(null);
-            xmlCal.setHour(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setMinute(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setSecond(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
-
-            rdfHandler.handleStatement(valueFactory.createStatement(
-                    rem, DCTERMS.modified_, valueFactory
-                            .createLiteral(xmlCal)));
-        }
-
-        rdfHandler.handleStatement(valueFactory.createStatement(
-                rem, DC.creator_, valueFactory
-                        .createLiteral(ConfigurationManager
-                                .getProperty("dspace.name"))));
-
-        for (Bundle licenses : object.getBundles("LICENSE"))
+        for (Bundle licenses : item.getBundles("LICENSE"))
         {
             for (Bitstream bitstream : licenses.getBitstreams())
             {
-                rdfHandler.handleStatement(valueFactory.createStatement(
-                        rem, DCTERMS.license_,
-                        valueFactory.createURI(getBitstreamURL(object,
-                                bitstream))));
+                handleStatement(rem, DCTERMS.license_, createResource(item,bitstream));
 
                 getContext().removeCached(bitstream, bitstream.getID());
             }
@@ -147,7 +97,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
             getContext().removeCached(licenses, licenses.getID());
         }
 
-        for (Bundle licenses : object.getBundles("CC-LICENSE"))
+        for (Bundle licenses : item.getBundles("CC-LICENSE"))
         {
             for (Bitstream bitstream : licenses.getBitstreams())
             {
@@ -155,13 +105,10 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                 {
                     try
                     {
-                        rdfHandler
-                                .handleStatement(valueFactory
-                                        .createStatement(
-                                                rem,
-                                                DCTERMS.license_,
-                                                valueFactory
-                                                        .createURI(getBitstream(bitstream))));
+                        handleStatement(
+                                rem, 
+                                DCTERMS.license_,
+                                valueFactory.createURI(getBitstream(bitstream)));
                     }
                     catch (Exception e)
                     {
@@ -179,24 +126,18 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
         getContext().clearCache();
 
         // identify aggregation
-        rdfHandler.handleStatement(valueFactory.createStatement(
-                rem, ORE.describes, aggregation));
+        handleStatement(rem, ORE.describes, aggregation);
     }
     
     @SuppressWarnings("deprecation")
     public void handle(Item item) throws RDFHandlerException
     {
-        RDFHandler rdfHandler = getRDFHander();
 
-        URI rem = valueFactory.createURI(getMetadataURL(item) + "#rem");
-
-        //URI rdfxml = valueFactory.createURI(getMetadataURL(item) + "/rdf.xml");
-
-        URI aggregation = valueFactory.createURI(getMetadataURL(item));
+        Resource aggregation = this.createResource(item);
         
         try
         {
-            this.handleResourceMap(rem, item, aggregation);
+            this.handleResourceMap(item, aggregation);
             
             //this.handleResourceMap(rdfxml, item, aggregation);
 
@@ -205,16 +146,13 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
             /**
              * generate aggregation of bitstreams.
              */
-            rdfHandler.handleStatement(valueFactory.createStatement(
-                    aggregation, RDF.TYPE, ORE.Aggregation));
+            handleStatement(aggregation, RDF.TYPE, ORE.Aggregation);
 
-            rdfHandler.handleStatement(valueFactory.createStatement(
-                    aggregation, ORE.analogousTo, valueFactory
+            handleStatement(aggregation, ORE.analogousTo, valueFactory
                             .createURI(HandleManager.getCanonicalForm(item
-                                    .getHandle()))));
+                                    .getHandle())));
 
-            rdfHandler.handleStatement(valueFactory.createStatement(
-                    aggregation, RDF.TYPE, DS.Item));
+            handleStatement(aggregation, RDF.TYPE, DS.Item);
 
             /**
              * Output metadata for Item
@@ -239,6 +177,16 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                     
                     URI predicate = null;
 
+                    boolean isUrl = false;
+                    
+                    try
+                    {
+                        URL url = new URL(dc.value);
+                        isUrl = true;
+                    }
+                    catch (MalformedURLException e)
+                    {
+                    }
                     /*
                      * Ok, we want dc elements namespace for unqualified dc and
                      * dcterms namespace for qualified, otherwise, if its
@@ -263,9 +211,14 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                     
 
                     /** Finally output the statement */
-                    rdfHandler.handleStatement(valueFactory.createStatement(
-                            aggregation, predicate, valueFactory
-                                    .createLiteral(dc.value)));
+                    if(isUrl)
+                    {
+                        handleStatement(aggregation, predicate, valueFactory.createLiteral(dc.value,DCTERMS.URI));
+                    }
+                    else
+                    {
+                        handleStatement(aggregation, predicate, dc.value);
+                    }
                 }
                 else if (!dc.schema.equals("dc"))
                 {
@@ -284,13 +237,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                                 .getNamespace(), lookup);
 
                         /** Finally output the statement */
-                        rdfHandler
-                                .handleStatement(valueFactory
-                                        .createStatement(
-                                                aggregation,
-                                                predicate,
-                                                valueFactory
-                                                        .createLiteral(dc.value)));
+                        handleStatement(aggregation, predicate, dc.value);
                     }
                     catch (SQLException e)
                     {
@@ -311,9 +258,8 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
             {
                 for (Collection collection : item.getCollections())
                 {
-                    rdfHandler.handleStatement(valueFactory.createStatement(
-                            aggregation, DCTERMS.isPartOf_, valueFactory
-                                    .createURI(getMetadataURL(collection))));
+                    handleStatement(
+                            aggregation, DCTERMS.isPartOf_, createResource(collection));
 
                     getContext().removeCached(collection, collection.getID());
                 }
@@ -337,12 +283,10 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
             {
                 for (Bitstream bitstream : bundle.getBitstreams())
                 {
-                    URI uri = valueFactory.createURI(getBitstreamURL(item,
-                            bitstream));
-
+                    Resource uri = createResource(item, bitstream);
+                 
                     /* write out the aggregates */
-                    rdfHandler.handleStatement(valueFactory.createStatement(
-                            aggregation, ORE.aggregates, uri));
+                    handleStatement(aggregation, ORE.aggregates, uri);
 
                     /*
                      * cache the resources and write afterward so the rdfxml is
@@ -382,7 +326,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
 
                     BitstreamFormat format = bitstream.getFormat();
 
-                    URI fu = valueFactory.createURI("info:mimetype:" + format.getMIMEType());
+                    Resource fu = createResource(format);
                     
                     connection.add(valueFactory.createStatement(uri,
                             DCTERMS.format_, fu));
@@ -436,7 +380,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
             try {
                while (statements.hasNext() && !statements.isClosed()) {
                   Statement st = statements.next();
-                  rdfHandler.handleStatement(st);
+                  handleStatement(st);
                }
             }
             catch (Exception e)
@@ -452,10 +396,6 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
 
         }
         catch (SQLException e)
-        {
-            throw new RDFHandlerException(e.getMessage(), e);
-        }
-        catch (DatatypeConfigurationException e)
         {
             throw new RDFHandlerException(e.getMessage(), e);
         }
