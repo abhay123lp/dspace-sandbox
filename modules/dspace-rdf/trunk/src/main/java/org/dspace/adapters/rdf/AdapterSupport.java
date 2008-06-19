@@ -6,9 +6,21 @@ import java.io.UnsupportedEncodingException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.GregorianCalendar;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeConstants;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+
+import org.apache.commons.codec.digest.DigestUtils;
+import org.dspace.adapters.rdf.vocabularies.DCTERMS;
 import org.dspace.app.util.Util;
 import org.dspace.content.Bitstream;
+import org.dspace.content.BitstreamFormat;
+import org.dspace.content.Community;
+import org.dspace.content.DCDate;
 import org.dspace.content.DSpaceObject;
 import org.dspace.content.Item;
 import org.dspace.content.Site;
@@ -16,9 +28,14 @@ import org.dspace.core.ConfigurationManager;
 import org.dspace.core.Constants;
 import org.dspace.core.Context;
 import org.dspace.core.Utils;
+import org.openrdf.model.Resource;
+import org.openrdf.model.Statement;
+import org.openrdf.model.URI;
+import org.openrdf.model.Value;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.rio.RDFHandler;
+import org.openrdf.rio.RDFHandlerException;
 
 public class AdapterSupport
 {
@@ -91,28 +108,42 @@ public class AdapterSupport
         this.metadataServiceUri = metadataServiceUri;
     }
 
-    /**
-     * Ret
-     * 
-     * @param handle
-     * @return
-     */
-    protected String getMetadataURL(DSpaceObject object)
+    /*
+    protected String getMetadataURL(Object object)
     {
-        // Same URIs as history uses
-        return getMetadataURL(object.getHandle());
+        if(object instanceof DSpaceObject)
+        {
+            return getMetadataURL(((DSpaceObject)object).getHandle());
+        }
+        
+        return this.generateDefaultURI(String.valueOf(object.hashCode()));
     }
+    */ 
+    
 
-    protected String getMetadataURL(Site site)
-    {
-        return getBaseUri();
-    }
 
-    public String getMetadataURL(String identifier)
+    private String getMetadataURL(String identifier)
     {
         // Same URIs as history uses
         return getBaseUri() + getMetadataServiceUri() + "/" + identifier;
     }
+    
+    public Resource createResource(DSpaceObject object)
+    {
+        return valueFactory.createURI(getMetadataURL(object.getHandle()));
+    }
+    
+    public Resource createResource(Community community)
+    {
+        return valueFactory.createURI(getMetadataURL(community.getHandle()));
+    }
+    
+    public Resource createResource(Site site)
+    {
+        return valueFactory.createURI(getBaseUri());
+    }
+
+
 
     /**
      * Return the bitstream location of the the Collections Logo
@@ -121,7 +152,7 @@ public class AdapterSupport
      * @return
      * @throws UnsupportedEncodingException 
      */
-    protected String getBitstreamURL(Bitstream bitstream)
+    public Resource createResource(Bitstream bitstream)
     {
         String url = getBaseUri()
         + "/retrieve/"
@@ -141,16 +172,21 @@ public class AdapterSupport
             e.printStackTrace();
         }
         
-        return url;
+        return valueFactory.createURI(url);
     }
 
     /**
-     * Ret
+     * Generate a default URI for a String value.
      * 
-     * @param handle
+     * @param string
      * @return
      */
-    protected String getBitstreamURL(Item item, Bitstream bitstream)
+    public String generateDefaultURI(String string)
+    {
+        return "sha:" + Utils.toHex(DigestUtils.sha(string));
+    }
+
+    public Resource createResource(Item item, Bitstream bitstream)
     {
         String url = getBaseUri() + "/bitstream/handle/" + item.getHandle() + "/"
         + bitstream.getSequenceID();
@@ -166,42 +202,59 @@ public class AdapterSupport
             e.printStackTrace();
         }
         
-        return url;
+        // TODO Auto-generated method stub
+        return  valueFactory.createURI(url);
     }
 
-    /**
-     * Generate a default URI for a String value.
-     * 
-     * @param string
-     * @return
-     */
-    public String generateDefaultURI(String string)
+    public Resource createResource(BitstreamFormat format)
+    {
+        return valueFactory.createURI( getBaseUri() + "/format/" + format.getID());
+    }
+
+    
+    public void handleStatement(Resource subject, URI predicate, Date date)
+            throws RDFHandlerException
     {
         try
         {
-            DigestInputStream dis = new DigestInputStream(
-                    new ByteArrayInputStream(string.getBytes()), MessageDigest
-                            .getInstance("SHA"));
-            byte[] buf = new byte[1028];
-    
-            while (dis.read(buf) >= 0)
-            {
-            }
-    
-            String digest = Utils.toHex(dis.getMessageDigest().digest());
-    
-            return "sha:" + digest;
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTime(date);
+            
+            XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
+            /**
+             * kinda hacky, but gets around strange bug when Gregcal is
+             * year, month, day is set by hand.
+             */
+            xmlCal.setFractionalSecond(null);
+            xmlCal.setHour(DatatypeConstants.FIELD_UNDEFINED);
+            xmlCal.setMinute(DatatypeConstants.FIELD_UNDEFINED);
+            xmlCal.setSecond(DatatypeConstants.FIELD_UNDEFINED);
+            xmlCal.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
+            xmlCal.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
+            handleStatement(subject, predicate, valueFactory.createLiteral(xmlCal)); 
         }
-        catch (NoSuchAlgorithmException e)
+        catch (DatatypeConfigurationException e)
         {
-            e.printStackTrace();
+            throw new RDFHandlerException(e.getMessage(), e);
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+    }
     
-        return null;
+    public void handleStatement(Resource subject, URI predicate, String literal)
+            throws RDFHandlerException
+    {
+        handleStatement(subject, predicate, valueFactory.createLiteral(literal));
     }
 
+    public void handleStatement(Resource subject, URI predicate, Value object)
+            throws RDFHandlerException
+    {
+        getRDFHander().handleStatement(
+                valueFactory.createStatement(subject, predicate, object));
+    }
+
+    public void handleStatement(Statement statement)
+    throws RDFHandlerException
+    {
+        getRDFHander().handleStatement(statement);
+    }
 }

@@ -1,12 +1,7 @@
 package org.dspace.adapters.rdf;
 
 import java.sql.SQLException;
-import java.util.GregorianCalendar;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeConstants;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Date;
 
 import org.dspace.adapters.rdf.vocabularies.DC;
 import org.dspace.adapters.rdf.vocabularies.DCMITYPE;
@@ -26,6 +21,7 @@ import org.dspace.content.ItemIterator;
 import org.dspace.core.ConfigurationManager;
 import org.dspace.sort.SortException;
 import org.dspace.sort.SortOption;
+import org.openrdf.model.Resource;
 import org.openrdf.model.URI;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.rio.RDFHandler;
@@ -50,39 +46,21 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
         handle((Collection) collection);
     }
 
-    private void handleResourceMap(URI uri, DSpaceObject object, URI aggregation) throws RDFHandlerException, DatatypeConfigurationException, SQLException
+    private void handleResourceMap(DSpaceObject object, Resource aggregation) throws RDFHandlerException, SQLException
     {
-        RDFHandler rdfHandler = getRDFHander();
+        
+        URI uri = valueFactory.createURI(aggregation.toString(), "#rem");
 
         // describe type as resource map
-        rdfHandler.handleStatement(valueFactory.createStatement(
-                uri, RDF.TYPE, ORE.ResourceMap));
+        handleStatement(uri, RDF.TYPE, ORE.ResourceMap);
            
-        GregorianCalendar cal = new GregorianCalendar();
-
-        XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-        
-        /** 
-         * kinda hacky, but gets around strange bug when Gregcal is
-         * year, month, day is set by hand.
-         */
-        xmlCal.setFractionalSecond(null);
-        xmlCal.setHour(DatatypeConstants.FIELD_UNDEFINED);
-        xmlCal.setMinute(DatatypeConstants.FIELD_UNDEFINED);
-        xmlCal.setSecond(DatatypeConstants.FIELD_UNDEFINED);
-        xmlCal.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-        xmlCal.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
-
-        rdfHandler.handleStatement(valueFactory.createStatement(uri,
-                DCTERMS.modified_, valueFactory.createLiteral(xmlCal)));
+        handleStatement(uri, DCTERMS.modified_, new Date());
         
         // describe type as resource map
-        rdfHandler.handleStatement(valueFactory.createStatement(uri,
-                DC.creator_, valueFactory.createLiteral(ConfigurationManager.getProperty("dspace.name"))));
+        handleStatement(uri, DC.creator_, ConfigurationManager.getProperty("dspace.name"));
         
         // identify aggregation
-        rdfHandler.handleStatement(valueFactory.createStatement(
-                uri, ORE.describes, aggregation));
+        handleStatement(uri, ORE.describes, aggregation);
     }
     
     public void handle(Collection object) throws RDFHandlerException 
@@ -90,64 +68,52 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
 
         try
         {
-            RDFHandler rdfHandler = getRDFHander();
+            
+            Resource aggregation = createResource(object);
 
-            URI rem = valueFactory.createURI(getMetadataURL(object) + "#rem");
-
-            URI aggregation = valueFactory.createURI(getMetadataURL(object));
-
-            this.handleResourceMap(rem, object, aggregation); 
+            this.handleResourceMap(object, aggregation); 
 
             /* =================================================================
              * The following statements are typing for DCMI Collections
              * =================================================================
              */
             
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    RDF.TYPE, DS.Collection));
+            handleStatement(aggregation, RDF.TYPE, DS.Collection);
             
             // describe type as collection (seems appropriate for RDF)
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    RDF.TYPE, DCMITYPE.Collection));
+            handleStatement(aggregation, RDF.TYPE, DCMITYPE.Collection);
 
             // describe type as collection (specification says this is manditory)
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    DC.type_, DCMITYPE.Collection));
+            handleStatement(aggregation, DC.type_, DCMITYPE.Collection);
             
             // make statements about it
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    RDF.TYPE, ORE.Aggregation));
+            handleStatement(aggregation, RDF.TYPE, ORE.Aggregation);
             
             /* =================================================================
              * The following is a dc.identifier, title, creator and abstract for DCMI Collections 
              * =================================================================
              */
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    DC.identifier_, valueFactory.createLiteral("hdl:" + object.getHandle(), DCTERMS.URI)));
+            handleStatement(aggregation, DC.identifier_, 
+                    valueFactory.createLiteral("hdl:" + object.getHandle(), DCTERMS.URI));
 
             // give it a title
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    DC.title_, valueFactory.createLiteral(object.getName())));
+            handleStatement(aggregation, DC.title_, object.getName());
 
             // describe type as resource map
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    DC.creator_, valueFactory.createLiteral(ConfigurationManager.getProperty("dspace.name"))));
+            handleStatement(aggregation, DC.creator_,
+                    ConfigurationManager.getProperty("dspace.name"));
             
             String shortDesc = object.getMetadata("short_description");
             if (shortDesc != null && !shortDesc.trim().equals(""))
             {
                 shortDesc = cleanHTML(shortDesc);
-                rdfHandler.handleStatement(valueFactory.createStatement(
-                        aggregation, DCTERMS.abstract_, valueFactory
-                                .createLiteral(shortDesc)));
+                handleStatement(aggregation, DCTERMS.abstract_, shortDesc);
             }
 
             String intro = object.getMetadata("introductory_text");
             if (intro != null && !intro.trim().equals("")){
                 intro = cleanHTML(intro);
-                rdfHandler.handleStatement(valueFactory.createStatement(
-                        aggregation, DCTERMS.abstract_, valueFactory
-                                .createLiteral(intro)));
+                handleStatement(aggregation, DCTERMS.abstract_, intro);
             }
             
             /* =================================================================
@@ -157,32 +123,14 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
             Bitstream logo = object.getLogo();
             if (logo != null)
             {
-                rdfHandler.handleStatement(valueFactory.createStatement(
-                        aggregation, DS.logo, valueFactory
-                                .createLiteral(getBitstreamURL(logo))));
+                handleStatement(aggregation, DS.logo, createResource(logo));
             }
             
             /* =================================================================
              * Time lastModified TODO: We need real timestamps for changes in db...
              * =================================================================
              */
-            GregorianCalendar cal = new GregorianCalendar();
-
-            XMLGregorianCalendar xmlCal = DatatypeFactory.newInstance().newXMLGregorianCalendar(cal);
-            
-            /** 
-             * kinda hacky, but gets around strange bug when Gregcal is
-             * year, month, day is set by hand.
-             */
-            xmlCal.setFractionalSecond(null);
-            xmlCal.setHour(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setMinute(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setSecond(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setMillisecond(DatatypeConstants.FIELD_UNDEFINED);
-            xmlCal.setTimezone(DatatypeConstants.FIELD_UNDEFINED);
-
-            rdfHandler.handleStatement(valueFactory.createStatement(aggregation,
-                    DCTERMS.modified_, valueFactory.createLiteral(xmlCal)));
+            handleStatement(aggregation, DCTERMS.modified_, new Date());
             
             /* =================================================================
              * List all the Communities this collection is a part of.
@@ -190,10 +138,8 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
              */
             for(Community community : object.getCommunities())
             {
-                rdfHandler.handleStatement(valueFactory.createStatement(
-                        aggregation,
-                        DCTERMS.isPartOf_, 
-                        valueFactory.createURI(getMetadataURL(community))));
+                handleStatement(aggregation, DCTERMS.isPartOf_, 
+                        createResource(community));
                 
             }
             
@@ -203,10 +149,8 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
              */
             for(Community community : object.getCommunities())
             {
-                rdfHandler.handleStatement(valueFactory.createStatement(
-                        aggregation,
-                        ORE.isAggregatedBy, 
-                        valueFactory.createURI(getMetadataURL(community))));
+                handleStatement(aggregation, ORE.isAggregatedBy, 
+                        createResource(community));
                 
                 getContext().removeCached(community, community.getID());
             }
@@ -218,10 +162,8 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
             for(ItemIterator iter = object.getAllItems(); iter.hasNext();)
             {
                 Item item = iter.next();
-                rdfHandler.handleStatement(valueFactory.createStatement(
-                        aggregation,
-                        ORE.aggregates, 
-                        valueFactory.createURI(getMetadataURL(item))));
+                handleStatement(aggregation, ORE.aggregates, 
+                        createResource(item));
 
                 item.decache();
             }   
@@ -230,11 +172,6 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
         {
             throw new RDFHandlerException(e.getMessage(), e);
         }
-        catch (DatatypeConfigurationException e)
-        {
-            throw new RDFHandlerException(e.getMessage(), e);
-        }
-
     }
     
     
