@@ -1,5 +1,7 @@
 package org.dspace.adapters.rdf.vocabularies;
 
+import java.util.Hashtable;
+
 import org.openrdf.model.URI;
 import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.ValueFactoryImpl;
@@ -13,6 +15,8 @@ public class DS
     
     public static final URI NS = vf.createURI(NAMESPACE);
         
+    /** DSpace Resource Types */
+    
     public static final URI Bitstream = vf.createURI(NAMESPACE, "Bitstream");
     
     public static final URI Bundle = vf.createURI(NAMESPACE, "Bundle");
@@ -35,6 +39,9 @@ public class DS
 
     public static final URI BitstreamFormat = vf.createURI(NAMESPACE, "BitstreamFormat");
 
+    
+    /** Structural Properties */
+    
     public static final URI hasCommunity = vf.createURI(NAMESPACE, "hasCommunity");
     
     public static final URI isPartOfSite = vf.createURI(NAMESPACE, "isPartOfSite");
@@ -57,7 +64,85 @@ public class DS
     
     public static final URI hasBitstreamFormat = vf.createURI(NAMESPACE, "hasBitstreamFormat");
 
-    public static URI support = vf.createURI(NAMESPACE, "support");
+    public static final URI support = vf.createURI(NAMESPACE, "support");
     
+    public static final URI messageDigest = vf.createURI(NAMESPACE, "messageDigest");
+    
+    public static final URI messageDigestAlgorithm = vf.createURI(NAMESPACE, "messageDigestAlgorithm");
+    
+    public static final URI messageDigestOriginator = vf.createURI(NAMESPACE, "messageDigestOriginator");
+    
+    public static final URI size = vf.createURI(NAMESPACE, "size");
+    
+    public static final URI fileExtension = vf.createURI(NAMESPACE, "fileExtension");
+
+    public static final URI mimeType = vf.createURI(NAMESPACE, "mimeType");
+    
+    public static final URI language = vf.createURI(NAMESPACE, "language");
+    
+    
+    /** Metadata Remappings */
+    
+    public static URI advisor = vf.createURI(NAMESPACE, "advisor");
+    
+    public static URI author = vf.createURI(NAMESPACE, "author");
+
+    public static URI editor = vf.createURI(NAMESPACE, "editor");
+
+    public static URI illustrator = vf.createURI(NAMESPACE, "illustrator");
+    
+    public static URI sponsorship = vf.createURI(NAMESPACE, "illustrator");
+    
+    public static URI citation = vf.createURI(NAMESPACE, "citation");
+    
+    public static URI govdoc = vf.createURI(NAMESPACE, "govdoc");
+    
+    public static URI isbn = vf.createURI(NAMESPACE, "isbn");
+    
+    public static URI issn = vf.createURI(NAMESPACE, "issn");
+    
+    public static URI sici = vf.createURI(NAMESPACE, "sici");
+    
+    public static URI ismn = vf.createURI(NAMESPACE, "ismn");
+    		
+    
+    /** Mapping for DSpace metadata element/qualifiers to DS namespace */
+    
+    public static final Hashtable<String, URI> DSPACE_MAPPING = new Hashtable<String, URI>();
+    
+    static
+    {
+        DSPACE_MAPPING.put("contributor.advisor", advisor);
+        DSPACE_MAPPING.put("contributor.author", author);
+        DSPACE_MAPPING.put("contributor.editor", editor);
+        DSPACE_MAPPING.put("contributor.illustrator", illustrator);
+        DSPACE_MAPPING.put("contributor.other", DCTERMS.contributor_);
+        
+        DSPACE_MAPPING.put("identifier.citation", citation);
+        DSPACE_MAPPING.put("identifier.govdoc", govdoc);
+        DSPACE_MAPPING.put("identifier.isbn", isbn);
+        DSPACE_MAPPING.put("identifier.issn", issn);
+        DSPACE_MAPPING.put("identifier.sici", sici);
+        DSPACE_MAPPING.put("identifier.ismn", ismn);
+        DSPACE_MAPPING.put("identifier.other", DCTERMS.identifier_);
+        DSPACE_MAPPING.put("identifier.uri", DCTERMS.identifier_);
+
+        DSPACE_MAPPING.put("description.sponsorship", sponsorship);
+        DSPACE_MAPPING.put("description.uri", DCTERMS.description_);
+        DSPACE_MAPPING.put("format.mimetype", mimeType);
+        
+        DSPACE_MAPPING.put("language.iso", DCTERMS.language_);
+        DSPACE_MAPPING.put("relation.uri", DCTERMS.relation_);
+        DSPACE_MAPPING.put("rights.uri", DCTERMS.rights_);
+        DSPACE_MAPPING.put("source.uri", DCTERMS.source_);
+        DSPACE_MAPPING.put("subject.classification", DCTERMS.subject_);
+        DSPACE_MAPPING.put("subject.ddc", DCTERMS.subject_);
+        DSPACE_MAPPING.put("subject.lcc", DCTERMS.subject_);
+        DSPACE_MAPPING.put("subject.lcsh", DCTERMS.subject_);
+        DSPACE_MAPPING.put("subject.mesh", DCTERMS.subject_);
+        DSPACE_MAPPING.put("subject.other", DCTERMS.subject_);
+        DSPACE_MAPPING.put("subject.cip", DCTERMS.subject_);
+    }
+
 }
 
