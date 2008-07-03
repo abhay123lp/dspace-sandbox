@@ -41,30 +41,42 @@ public class DS
 
     
     /** Structural Properties */
-    
-    public static final URI hasCommunity = vf.createURI(NAMESPACE, "hasCommunity");
-    
+
     public static final URI isPartOfSite = vf.createURI(NAMESPACE, "isPartOfSite");
 
     public static final URI isPartOfCommunity = vf.createURI(NAMESPACE, "isPartOfCommunity");
 
-    public static final URI hasSubCommunity = vf.createURI(NAMESPACE, "hasSubCommunity");
-
     public static final URI isPartOfCollection = vf.createURI(NAMESPACE, "isPartOfCollection");
-    
-    public static final URI hasCollection = vf.createURI(NAMESPACE, "hasCollection");
-    
-    public static final URI logo = vf.createURI(NAMESPACE, "logo");
-    
-    public static final URI hasItem = vf.createURI(NAMESPACE, "hasItem");
 
     public static final URI isPartOfItem = vf.createURI(NAMESPACE, "isPartOfItem");
     
+    public static final URI isPartOfBundle = vf.createURI(NAMESPACE, "isPartOfBundle");
+    
+    public static final URI hasCommunity = vf.createURI(NAMESPACE, "hasCommunity");
+
+    public static final URI hasCollection = vf.createURI(NAMESPACE, "hasCollection");
+    
+    public static final URI hasItem = vf.createURI(NAMESPACE, "hasItem");
+    
+    public static final URI hasBundle = vf.createURI(NAMESPACE, "hasBundle");
+
     public static final URI hasBitstream = vf.createURI(NAMESPACE, "hasBitstream");
     
     public static final URI hasBitstreamFormat = vf.createURI(NAMESPACE, "hasBitstreamFormat");
-
+    
+    /** preoperties on Communities and Collections */
+    
+    public static final URI logo = vf.createURI(NAMESPACE, "logo");
+    
+    /** Bitstream format properties */
+    
     public static final URI support = vf.createURI(NAMESPACE, "support");
+    
+    public static final URI fileExtension = vf.createURI(NAMESPACE, "fileExtension");
+
+    public static final URI mimeType = vf.createURI(NAMESPACE, "mimeType");
+    
+    /** Bitstream properties */
     
     public static final URI messageDigest = vf.createURI(NAMESPACE, "messageDigest");
     
@@ -74,9 +86,7 @@ public class DS
     
     public static final URI size = vf.createURI(NAMESPACE, "size");
     
-    public static final URI fileExtension = vf.createURI(NAMESPACE, "fileExtension");
-
-    public static final URI mimeType = vf.createURI(NAMESPACE, "mimeType");
+    /** EPerson properties */
     
     public static final URI language = vf.createURI(NAMESPACE, "language");
     
