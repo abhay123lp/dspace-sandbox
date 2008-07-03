@@ -15,7 +15,6 @@ import org.dspace.adapters.rdf.vocabularies.DC;
 import org.dspace.adapters.rdf.vocabularies.DCTERMS;
 import org.dspace.adapters.rdf.vocabularies.DS;
 import org.dspace.adapters.rdf.vocabularies.ORE;
-import org.dspace.adapters.rdf.vocabularies.PREMIS;
 import org.dspace.authorize.AuthorizeException;
 import org.dspace.content.Bitstream;
 import org.dspace.content.BitstreamFormat;
@@ -53,7 +52,6 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
         rdfHandler.handleNamespace("dcterms", DCTERMS.NAMESPACE);
         rdfHandler.handleNamespace("ds", DS.NAMESPACE);
         rdfHandler.handleNamespace("ore", ORE.NAMESPACE);
-        rdfHandler.handleNamespace("premis", PREMIS.NAMESPACE);
     }
 
     public void handle(DSpaceObject object) throws RDFHandlerException
@@ -312,14 +310,14 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                                     .escapeXml(bitstream.getDescription()))));
                     }
                     
-                    connection.add(valueFactory.createStatement(uri, PREMIS.size,
+                    connection.add(valueFactory.createStatement(uri, DS.size,
                             valueFactory.createLiteral(bitstream.getSize())));
                     
-                    connection.add(valueFactory.createStatement(uri, PREMIS.messageDigest,
+                    connection.add(valueFactory.createStatement(uri, DS.messageDigest,
                             valueFactory.createLiteral(StringEscapeUtils
                                     .escapeXml(bitstream.getChecksum()))));
                     
-                    connection.add(valueFactory.createStatement(uri, PREMIS.messageDigestAlgorithm,
+                    connection.add(valueFactory.createStatement(uri, DS.messageDigestAlgorithm,
                             valueFactory.createLiteral(StringEscapeUtils
                                     .escapeXml(bitstream.getChecksumAlgorithm()))));
                     
