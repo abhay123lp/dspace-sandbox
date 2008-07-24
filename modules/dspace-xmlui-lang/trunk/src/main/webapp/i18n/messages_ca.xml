@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!--Translated to catalan by Francisco Javier Herrero Vicente (fherrero@uji.es) at Universitat Jaume I de Castell�n -->
+<!--Translated to catalan by Francisco Javier Herrero Vicente (fherrero@uji.es) at Universitat Jaume I de Castellon -->
 <catalogue xml:lang="ca" xmlns:i18n="http://apache.org/cocoon/i18n/2.1">  
   <message key="xmlui.general.dspace_home">Inici de DSpace </message>
   <message key="xmlui.general.search">Cerca</message>
@@ -244,6 +244,7 @@
   <message key="au.edu.mq.melcoe.mams.dspace.eperson.ShibAuthentication.title">Autenticació amb shibboleth</message>
   <message key="org.dspace.eperson.PasswordAuthentication.title">Autenticació amb contrasenya </message>
   <message key="org.dspace.eperson.X509Authentication.title">Autenticació amb certificat web</message>
+  <message key="org.dspace.eperson.LDAPAuthentication.title">Autenticació amb LDAP</message>
   <message key="xmlui.EPerson.FailedAuthentication.BadCreds">Les credencials facilitades no són vàlides.</message>
   <message key="xmlui.EPerson.FailedAuthentication.BadArgs">L'autenticació no ha sigut possible pequè els arguments rebuts són invàlids.</message>
   <message key="xmlui.EPerson.FailedAuthentication.NoSuchUser">No s'ha trobat cap usuari amb les credencials facilitades. </message>
@@ -1182,5 +1183,5 @@
   <message key="xmlui.dri2xhtml.pioneer.date">Data</message>
   <message key="xmlui.dri2xhtml.pioneer.title">Títol</message>
   <message key="xmlui.dri2xhtml.pioneer.author">Autor</message>
-  <message key="xmlui.dri2xhtml.default.textarea.value"></message>
+  <message key="xmlui.dri2xhtml.default.textarea.value"> </message>
 </catalogue>
