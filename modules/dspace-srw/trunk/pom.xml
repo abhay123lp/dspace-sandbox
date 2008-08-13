@@ -88,6 +88,11 @@
       <version>1.3</version>
     </dependency>
     <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+    <dependency>
       <groupId>org.dspace</groupId>
       <artifactId>cql-java</artifactId>
       <version>1.0</version>
@@ -100,6 +105,11 @@
     <dependency>
       <groupId>org.dspace.oclc</groupId>
       <artifactId>oclc-srw-parallel-searching</artifactId>
+      <version>1.0.20080317</version>
+    </dependency>
+    <dependency>
+      <groupId>org.dspace.oclc</groupId>
+      <artifactId>oclc-dbutils</artifactId>
       <version>1.0.20080317</version>
     </dependency>
   </dependencies>
