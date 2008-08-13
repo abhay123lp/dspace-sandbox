@@ -97,6 +97,11 @@
       <artifactId>oclc-srw</artifactId>
       <version>1.0.20080328</version>
     </dependency>
+    <dependency>
+      <groupId>org.dspace.oclc</groupId>
+      <artifactId>oclc-srw-parallel-searching</artifactId>
+      <version>1.0.20080317</version>
+    </dependency>
   </dependencies>
   
 </project>
