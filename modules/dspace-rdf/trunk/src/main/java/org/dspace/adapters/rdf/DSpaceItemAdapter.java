@@ -41,7 +41,7 @@ import org.openrdf.rio.RDFHandlerException;
 import org.openrdf.sail.memory.MemoryStore;
 
 
-public class DSpaceItemAdapter extends DSpaceObjectAdapter
+public class DSpaceItemAdapter extends DSpaceObjectAdapter 
 {
 
     public void handleNamespaces() throws RDFHandlerException
