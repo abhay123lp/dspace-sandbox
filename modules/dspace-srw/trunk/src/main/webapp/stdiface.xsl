@@ -5,15 +5,14 @@
   xmlns:srw="http://www.loc.gov/zing/srw/"
   xmlns:diag="http://www.loc.gov/zing/srw/diagnostic/">
 
-<xsl:output method="html" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" doctype-system="http://www.w3.org/TR/html4/loose.dtd"/>
+<xsl:output method="html" doctype-public="-//W3C//DTD XHTML 1.0 Transitional//EN" doctype-system="http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"/>
 
 <xsl:template name="stdiface">
-<html>
 <head>
 <title><xsl:value-of select="$title"/></title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-<link href="http://www.oclc.org/common/css/basic_oclc.css" rel="stylesheet" type="text/css"/>
-<link href="http://www.oclc.org/common/css/researchproject_oclc.css" rel="stylesheet" type="text/css"/>
+<!--link type="text/css" rel="stylesheet" href="http://shipengrover-j.oa.oclc.org/terminologies/temp/scifi-ff-footer_files/researchproject_oclc.css"/-->
+<link type="text/css" rel="stylesheet" href="http://www.oclc.org/research/common/css/researchproject_oclc.css"/>
 <style type="text/css">
 &lt;!--
 table.layout { border: none; margin: 0; padding: 0; width: 100%; }
@@ -25,33 +24,39 @@ input.button { margin: 0; }
 </style>
 </head>
 <body>
-<div align="center">
-<table cellspacing="0" id="bnrResearch">
-<tr>
-<td id="tdResearch"><a href="http://www.oclc.org/research/">A Project of OCLC Research</a></td>
-<td id="tdOclc"><a href="http://www.oclc.org/">OCLC Online Computer Library Center</a></td>
-</tr>
-<tr>
-<td id="tdProject">
-<h2><xsl:value-of select="$title"/></h2>
-</td>
-<td id="tdLogo"><a href="http://www.oclc.org/"><img src="http://www.oclc.org/common/images/logos/oclclogo_gray.gif" alt="OCLC" width="60" height="31"/></a></td>
-</tr>
-</table>
+<div id="masthead">
+
+	<div id="or"><a href="http://www.oclc.org/research">A Project of OCLC Research</a></div>
+	<div id="project"><xsl:value-of select="$dbname"/></div>
+	<div id="logo"><a href="http://www.oclc.org/default.htm"><img src="http://www.oclc.org/research/common/images/logo_wh_h_gray.gif" alt="OCLC" /></a></div>
+
 </div>
-<table cellspacing="0" class="layout">
-<xsl:apply-templates/>
-</table>
-<p>
-<a href="?">Home</a>
-</p>
-<p>
-<a href="http://www.oclc.org/research/software/srw">
-<img src="http://www.oclc.org/research/images/badges/oclc_srwu.gif" alt="Powered by OCLC SRW/U" width="80" height="15"/>
-</a>
-</p>
+<!-- close masthead -->
+  <xsl:apply-templates/>
+<div id="footer">
+	<div id="legal">
+		<div id="copyright">&#169; 2008 OCLC</div>
+		<div id="TandC">This project is covered by the <a href="http://www.oclc.org/research/researchworks/terms.htm">OCLC ResearchWorks Terms and Conditions</a></div>
+		<!-- add or hide badges as required -->
+		<div id="badges">
+		<!-- sru/w -->
+		<a href="http://www.oclc.org/research/software/srw"><img src="http://www.oclc.org/research/images/badges/oclc_srwu.gif"/></a>
+		<!-- errol -->
+		<!--img src="http://www.oclc.org/research/images/badges/oclc_errol.gif"-->
+		<!-- Gwen -->
+		<img src="http://www.oclc.org/research/images/badges/oclc_gwen.gif"/>
+		<!-- oaicat -->
+		<!--img src="http://www.oclc.org/research/images/badges/oclc_oaicat.gif"-->
+		<!-- pears -->
+		<img src="http://www.oclc.org/research/images/badges/oclc_pears.gif"/>
+		<!-- xsltproc -->
+		<!--img src="http://www.oclc.org/research/images/badges/oclc_xsltproc.gif"-->
+		
+		
+		</div>
+	</div>
+</div>
 </body>
-</html>
 
 </xsl:template>
 
@@ -80,6 +85,9 @@ input.button { margin: 0; }
   <xsl:when test="$diag='info:srw/diagnostic/1/1'">
     <xsl:text>General System Error</xsl:text>
     </xsl:when>
+  <xsl:when test="$diag='info:srw/diagnostic/1/4'">
+    <xsl:text>Unsupported Operation</xsl:text>
+    </xsl:when>
   <xsl:when test="$diag='info:srw/diagnostic/1/6'">
     <xsl:text>Unsupported Parameter Value</xsl:text>
     </xsl:when>
@@ -94,6 +102,9 @@ input.button { margin: 0; }
     </xsl:when>
   <xsl:when test="$diag='info:srw/diagnostic/1/22'">
     <xsl:text>Unsupported Combination of Relation and Index</xsl:text>
+    </xsl:when>
+  <xsl:when test="$diag='info:srw/diagnostic/1/39'">
+    <xsl:text>Proximity Not Supported</xsl:text>
     </xsl:when>
   <xsl:when test="$diag='info:srw/diagnostic/1/51'">
     <xsl:text>Result Set Does Not Exist</xsl:text>

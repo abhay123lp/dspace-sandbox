@@ -3,54 +3,76 @@
 	<xsl:output method="html"/>
 
 	<xsl:template match="marc:record">
-		<table>
-			<tr>
-				<th NOWRAP="TRUE" ALIGN="RIGHT" VALIGN="TOP">
-					000
-				</th>
-				<td>
+    <div class ="recordWrapper">
+			<div class="entry">
+				<span class="field">LDR</span>
+				<span class="data">
 					<xsl:value-of select="marc:leader"/>
-				</td>
-			</tr>
+          </span>
+				</div>
 			<xsl:apply-templates select="marc:datafield|marc:controlfield"/>
-		</table>
-	</xsl:template>
+		  </div>
+	  </xsl:template>
 	
 	<xsl:template match="marc:controlfield">
-		<tr>
-			<th NOWRAP="TRUE" ALIGN="RIGHT" VALIGN="TOP">
+		<div class="entry">
+			<span class="field">
 				<xsl:value-of select="@tag"/>
-			</th>
-			<td>
+			  </span>
+			<span class="data">
 				<xsl:value-of select="."/>
-			</td>
-		</tr>
-	</xsl:template>
+			  </span>
+		  </div>
+	  </xsl:template>
 	
 	<xsl:template match="marc:datafield">
-		<tr>
-			<th NOWRAP="TRUE" ALIGN="RIGHT" VALIGN="TOP">
-				<xsl:value-of select="@tag"/>
-			</th>
-			<td>
-				<xsl:value-of select="@ind1"/>
-				<xsl:value-of select="@ind2"/>
+    <div class="entry">
+	    <div class="fixed">
+	      <span class="field">	
+				  <xsl:value-of select="@tag"/>
+			    </span>
+			  <span class="indicator">
+          <xsl:choose>
+            <xsl:when test="@ind1=' '">
+              <xsl:text>_</xsl:text>
+              </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="@ind1"/>
+              </xsl:otherwise>
+            </xsl:choose>
+			    </span>
+			  <span class="indicator">
+          <xsl:choose>
+            <xsl:when test="@ind2=' '">
+              <xsl:text>_</xsl:text>
+              </xsl:when>
+            <xsl:otherwise>
+              <xsl:value-of select="@ind1"/>
+              </xsl:otherwise>
+            </xsl:choose>
+			    </span>
+        </div>
+      <div class="subfieldset">
 				<xsl:apply-templates select="marc:subfield"/>
-			</td>
-		</tr>
-	</xsl:template>
+			  </div>
+		  </div>
+	  </xsl:template>
 	
 	<xsl:template match="marc:subfield">
-		<strong>|<xsl:value-of select="@code"/></strong>
-<xsl:if test="@code='u'">
-<a><xsl:attribute name="href"><xsl:value-of select="."/></xsl:attribute>
-<xsl:value-of select="."/>
-</a>
-</xsl:if>
-<xsl:if test="@code!='u'">
-<xsl:value-of select="."/>
-</xsl:if>
-	</xsl:template>
+		<span class="subfield">$<xsl:value-of select="@code"/></span>
+    <xsl:choose>
+      <xsl:when test="@code='u'">
+        <span class="data">
+          <a href="{.}"><xsl:value-of select="."/></a>
+          </span>
+        </xsl:when>
+      <xsl:otherwise>
+        <span class="data">
+          <xsl:value-of select="."/>
+          </span>
+        </xsl:otherwise>
+      </xsl:choose>
+    </xsl:template>
 
 </xsl:stylesheet>
 
