@@ -9,16 +9,18 @@
 
 <xsl:output method="html" doctype-public="-//W3C//DTD HTML 4.01 Transitional//EN" doctype-system="http://www.w3.org/TR/html4/loose.dtd"/>
 
-<xsl:variable name="title"><xsl:value-of select="/srw:explainResponse/srw:record/srw:recordData/zr:explain/zr:databaseInfo/zr:title"/>
-</xsl:variable>
+<xsl:variable name="title"><xsl:value-of select="/srw:explainResponse/srw:record/srw:recordData/zr:explain/zr:databaseInfo/zr:title"/></xsl:variable>
+<xsl:variable name="dbname"><xsl:value-of select="/srw:explainResponse/srw:record/srw:recordData/zr:explain/zr:databaseInfo/zr:title"/></xsl:variable>
 
 <xsl:template match="/">
 <xsl:call-template name="stdiface">
 <xsl:with-param name="title" select="$title"/>
+<xsl:with-param name="dbname" select="$dbname"/>
 </xsl:call-template>
 </xsl:template>
 
 <xsl:template match="srw:explainResponse">
+  <div id="content">
 <script>
   <xsl:text>
     function mungeForm() {
@@ -80,15 +82,16 @@
 <td><h1>Browse</h1></td>
 </tr>
 <tr> 
-<td width="50%" style="padding-right: 10px;"> 
+<td width="60%" style="padding-right: 10px;"> 
   <xsl:call-template name="SearchForm"/>
 </td>
 
-<td width="50%">
+<td width="40%">
   <xsl:call-template name="BrowseForm"/>
 </td>
 </tr>
-</table>            
+</table>
+</div> <!--content-->
 </xsl:template>
 
 
@@ -107,12 +110,7 @@
 <xsl:template name="SearchFormPart1">
 <form name="CQLForm" onSubmit="return mungeForm();">
 <input type="submit" value="Search" onClick="return mungeForm();"/>
-<input type="hidden" name="maxIndex">
-  <xsl:attribute name="value">
-  <xsl:value-of
-select="count(srw:record/srw:recordData/zr:explain/zr:indexInfo/zr:index)"/>
-  </xsl:attribute>
-  </input>
+<input type="hidden" name="maxIndex" value="{count(srw:record/srw:recordData/zr:explain/zr:indexInfo/zr:index)}"/>
 <table cellspacing="0" class="formtable">
 <tr>
 <th>Index</th>
@@ -122,45 +120,53 @@ select="count(srw:record/srw:recordData/zr:explain/zr:indexInfo/zr:index)"/>
 </tr>
 
 <xsl:for-each select="srw:record/srw:recordData/zr:explain/zr:indexInfo/zr:index">
-<xsl:sort select="."/>
-<tr>
-<td><xsl:value-of select="zr:title"/>
-<input type="hidden">
-  <xsl:attribute name="name">index<xsl:value-of select="position()"/></xsl:attribute>
-  <xsl:attribute name="value"><xsl:value-of select="zr:map[1]/zr:name/@set"/>.<xsl:value-of select="zr:map[1]/zr:name"/></xsl:attribute>
-  </input>
-</td>
-
-<td>
-<select>
-  <xsl:attribute name="name">relat<xsl:value-of select="position()"/></xsl:attribute>
-<option value="=">=</option>
-<option value="exact">exact</option>
-<option value="any">any</option>
-<option value="all">all</option>
-<option value="&lt;">&lt;</option>
-<option value="&gt;">&gt;</option>
-<option value="&lt;=">&lt;=</option>
-<option value="&gt;=">&gt;=</option>
-<option value="&lt;&gt;">not</option>
-</select>
-</td>
-<td>
-<input type="text" value="">
-  <xsl:attribute name="name">term<xsl:value-of select="position()"/></xsl:attribute>
-  </input>
-</td>
-
-<td>
-<select>
-  <xsl:attribute name="name">bool<xsl:value-of select="position()"/></xsl:attribute>
-<option value="and">and</option>
-<option value="or">or</option>
-<option value="not">not</option>
-</select>
-</td>
-</tr>
-</xsl:for-each>
+  <xsl:sort select="."/>
+  <xsl:choose>
+    <xsl:when test="not(zr:configInfo) or zr:configInfo/zr:supports">
+      <tr>
+        <td>
+          <xsl:value-of select="zr:title"/>
+          <input type="hidden" name="index{position()}" value="{zr:map[1]/zr:name/@set}.{zr:map[1]/zr:name}"/>
+          </td>
+        <td>
+          <select name="relat{position()}">
+            <xsl:choose>
+              <xsl:when test="zr:configInfo">
+                <xsl:for-each select="zr:configInfo/zr:supports">
+                  <option value="{.}"><xsl:value-of select="."/></option>
+                  </xsl:for-each>
+                </xsl:when>
+              <xsl:otherwise>
+                <option value="=">=</option>
+                <option value="exact">exact</option>
+                <option value="any">any</option>
+                <option value="all">all</option>
+                <option value="&lt;">&lt;</option>
+                <option value="&gt;">&gt;</option>
+                <option value="&lt;=">&lt;=</option>
+                <option value="&gt;=">&gt;=</option>
+                <option value="&lt;&gt;">not</option>
+                </xsl:otherwise>
+              </xsl:choose>
+            </select>
+          </td>
+        <td>
+          <input type="text" value="" name="term{position()}"/>
+          </td>
+        <td>
+          <select name="bool{position()}">
+            <option value="and">and</option>
+            <option value="or">or</option>
+            <option value="not">not</option>
+            </select>
+          </td>
+        </tr>
+      </xsl:when>
+    <xsl:otherwise>
+      <input type="hidden" value="" name="term{position()}"/>
+      </xsl:otherwise>
+    </xsl:choose>
+  </xsl:for-each>
 </table>
 </form>
 </xsl:template>
@@ -177,10 +183,7 @@ select="count(srw:record/srw:recordData/zr:explain/zr:indexInfo/zr:index)"/>
       <td>
         <select name="recordSchema">
           <xsl:for-each select="srw:record/srw:recordData/zr:explain/zr:schemaInfo/zr:schema">
-            <option>
-              <xsl:attribute name="value">
-                <xsl:value-of select="@identifier"/>
-                </xsl:attribute>
+            <option value="{@identifier}">
               <xsl:value-of select="zr:title"/>
               </option>
             </xsl:for-each>
@@ -240,65 +243,67 @@ select="count(srw:record/srw:recordData/zr:explain/zr:indexInfo/zr:index)"/>
 </xsl:template>
 
 <xsl:template name="BrowseFormPart1">
-     <form name="ScanIndexes" onSubmit="return mungeScanForm();">
-         <input type="submit" value="Browse" onClick="return mungeScanForm();"/>
-<table cellspacing="0" class="formtable">
-<tr>
-<th>Index</th>
-<th>Relation</th>
-<th>Term</th>
-</tr>
-<tr>
-       <td><select name="scanIndex">
-         <xsl:for-each select="srw:record/srw:recordData/zr:explain/zr:indexInfo/zr:index">
-           <xsl:sort select="."/>
-           <option>
-             <xsl:attribute name="value"><xsl:value-of select="zr:map[1]/zr:name/@set"/>.<xsl:value-of select="zr:map[1]/zr:name"/></xsl:attribute>
+  <form name="ScanIndexes" onSubmit="return mungeScanForm();">
+    <input type="submit" value="Browse" onClick="return mungeScanForm();"/>
+    <table cellspacing="0" class="formtable">
+      <tr>
+        <th>Index</th>
+        <th>Relation</th>
+        <th>Term</th>
+        </tr>
+      <tr>
+        <td>
+          <select name="scanIndex">
+            <xsl:for-each select="srw:record/srw:recordData/zr:explain/zr:indexInfo/zr:index">
+              <xsl:sort select="."/>
+              <option value="{zr:map[1]/zr:name/@set}.{zr:map[1]/zr:name}">
                 <xsl:value-of select="zr:title"/>
-            </option>
-         </xsl:for-each>
-         </select>
-      </td>
-      <td><select name="relat">
-          <option value="=">=</option>
-          <option value="exact">exact</option>
-          <option value="any">any</option>
-          <option value="all">all</option>
-          <option value="&lt;">&lt;</option>
-          <option value="&gt;">&gt;</option>
-          <option value="&lt;=">&lt;=</option>
-          <option value="&gt;=">&gt;=</option>
-          <option value="&lt;&gt;">not</option>
-        </select>
-      </td>
-      <td><input name="term" type="text" value = ""/>
-      </td>
-</tr>
-</table>
+                </option>
+              </xsl:for-each>
+            </select>
+          </td>
+        <td>
+          <select name="relat">
+            <option value="=">=</option>
+            <option value="exact">exact</option>
+            <option value="any">any</option>
+            <option value="all">all</option>
+            <option value="&lt;">&lt;</option>
+            <option value="&gt;">&gt;</option>
+            <option value="&lt;=">&lt;=</option>
+            <option value="&gt;=">&gt;=</option>
+            <option value="&lt;&gt;">not</option>
+            </select>
+          </td>
+        <td>
+          <input name="term" type="text" value = ""/>
+          </td>
+        </tr>
+      </table>
     </form>
-</xsl:template>
+  </xsl:template>
 
 <xsl:template name="BrowseFormPart2">
-    <form name="ScanSubmit" method="GET"  onSubmit="mungeScanForm()">
+  <form name="ScanSubmit" method="GET"  onSubmit="mungeScanForm()">
     <input type="hidden" name="operation" value="scan"/>
     <input type="hidden" name="scanClause" value=""/>
     <input type="hidden" name="version" value="1.1"/>
-<table cellspacing="0" class="formtable">
-    <tr>
-      <td>Response Position:</td>
-      <td>
-        <input type="text" name="responsePosition" value="10" size="25"/>
-      </td>
-    </tr>
-    <tr>
-      <td>Maximum Terms:</td>
-      <td>
-        <input type="text" name="maximumTerms" value="20" size="5"/>
-      </td>
-    </tr>
-</table>
-         <input type="submit" value="Browse" onClick="return mungeScanForm();"/>
+    <table cellspacing="0" class="formtable">
+      <tr>
+        <td>Response Position:</td>
+        <td>
+          <input type="text" name="responsePosition" value="10" size="3"/>
+          </td>
+        </tr>
+      <tr>
+        <td>Maximum Terms:</td>
+        <td>
+          <input type="text" name="maximumTerms" value="20" size="3"/>
+          </td>
+        </tr>
+      </table>
+    <input type="submit" value="Browse" onClick="return mungeScanForm();"/>
     </form>
-</xsl:template>
+  </xsl:template>
 
 </xsl:stylesheet>
