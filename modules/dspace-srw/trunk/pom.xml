@@ -64,6 +64,9 @@
             </configuration>
             <executions>
                <execution>
+                  <goals>
+                     <goal>war</goal>
+                  </goals>
                   <phase>prepare-package</phase>
                </execution>
             </executions>
