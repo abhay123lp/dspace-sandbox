@@ -24,6 +24,7 @@ package ORG.oclc.os.SRW.DSpaceLucene;
 import ORG.oclc.os.SRW.Record;
 import ORG.oclc.os.SRW.RecordIterator;
 import ORG.oclc.os.SRW.Utilities;
+import gov.loc.www.zing.srw.ExtraDataType;
 import java.util.NoSuchElementException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,17 +42,19 @@ public class LuceneRecordIterator implements RecordIterator {
     static final Log log=LogFactory.getLog(LuceneRecordIterator.class);
     static String DCSchemaID="info:srw/schema/1/dc-v1.1";
 
+    ExtraDataType edt;
     int numRecs, whichRecord=0;
     long startPoint;
     LuceneQueryResult lqr;
 
     /** Creates a new instance of PearsRecordIterator */
-    public LuceneRecordIterator(LuceneQueryResult lqr, long startPoint, int numRecs)
+    public LuceneRecordIterator(LuceneQueryResult lqr, long startPoint, int numRecs, ExtraDataType edt)
       throws InstantiationException {
         log.info("lqr="+lqr+", startPoint="+startPoint+", numRecs="+numRecs);
         this.lqr=lqr;
         this.startPoint=startPoint;
         this.numRecs=numRecs;
+        this.edt=edt;
     }
 
     public void close() {
