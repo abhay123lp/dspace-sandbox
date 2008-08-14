@@ -22,41 +22,36 @@
 package ORG.oclc.os.SRW.DSpaceLucene;
 
 import ORG.oclc.os.SRW.QueryResult;
-import ORG.oclc.os.SRW.SRWDatabaseImpl;
+import ORG.oclc.os.SRW.SRWDatabase;
 import ORG.oclc.os.SRW.SRWDiagnostic;
+import ORG.oclc.os.SRW.TermList;
 import gov.loc.www.zing.srw.TermTypeWhereInList;
 import gov.loc.www.zing.srw.ScanRequestType;
 import gov.loc.www.zing.srw.ScanResponseType;
 import gov.loc.www.zing.srw.SearchRetrieveRequestType;
 import gov.loc.www.zing.srw.TermType;
 import gov.loc.www.zing.srw.TermsType;
-import java.io.IOException;
-import java.rmi.RemoteException;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Properties;
 import java.util.StringTokenizer;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.ServletException;
 import org.apache.axis.MessageContext;
 import org.apache.axis.types.NonNegativeInteger;
 import org.apache.axis.types.PositiveInteger;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dspace.browse.Browse;
+import org.dspace.browse.BrowseEngine;
+import org.dspace.browse.BrowseException;
+import org.dspace.browse.BrowseIndex;
 import org.dspace.browse.BrowseInfo;
-import org.dspace.browse.BrowseScope;
+import org.dspace.browse.BrowserScope;
 import org.dspace.content.Collection;
 import org.dspace.content.Community;
-import org.dspace.content.Item;
 import org.dspace.core.ConfigurationManager;
-import org.dspace.core.Constants;
 import org.dspace.core.Context;
-import org.dspace.handle.HandleManager;
-import org.dspace.search.DSQuery;
 import org.dspace.search.QueryArgs;
 import org.dspace.search.QueryResults;
 import org.z3950.zing.cql.CQLAndNode;
@@ -65,13 +60,12 @@ import org.z3950.zing.cql.CQLNode;
 import org.z3950.zing.cql.CQLNotNode;
 import org.z3950.zing.cql.CQLOrNode;
 import org.z3950.zing.cql.CQLTermNode;
-import org.z3950.zing.cql.CQLParseException;
 
 /**
  *
  * @author  levan
  */
-public class SRWLuceneDatabase extends SRWDatabaseImpl {
+public class SRWLuceneDatabase extends SRWDatabase {
     static Log log=LogFactory.getLog(SRWLuceneDatabase.class);
 
     Hashtable    indexSynonyms=new Hashtable();
@@ -137,22 +131,31 @@ public class SRWLuceneDatabase extends SRWDatabaseImpl {
 
 
     private void getIndexSynonyms(Properties properties) {
-        Enumeration keys=properties.keys();
-        String      index, key, value;
-        if(keys==null) {
-            if(log.isDebugEnabled())log.debug("no lucene index synonyms specified in properties file");
+        indexSynonyms.put("cql.serverChoice", "");
+        if(log.isDebugEnabled())log.debug("new indexSynonym: cql.serverChoice=\"\"");
+
+        if(properties==null) {
+            if(log.isDebugEnabled())log.debug("no properties file provided!");
             return;
         }
+
+        Enumeration keys=properties.keys();
+        String      index, key, value;
+
+        if(keys==null) {
+            if(log.isDebugEnabled())log.debug("no properties specified in properties file");
+            return;
+        }
+
         while(keys.hasMoreElements()) {
             key=(String)keys.nextElement();
             if(key.startsWith("indexSynonym.")) {
                 value=properties.getProperty(key);
                 index=key.substring(13);
-                if(log.isDebugEnabled())log.debug("new indexSynonym: "+index+"="+value);
+                if(log.isDebugEnabled())log.debug("new indexSynonym: "+index+"=\""+value+"\"");
                 indexSynonyms.put(index, value);
             }
         }
-        indexSynonyms.put("srw.serverChoice", "");
     }
     
 
@@ -201,9 +204,9 @@ public class SRWLuceneDatabase extends SRWDatabaseImpl {
             qArgs.setStart(startPoint-1); // lucene is zero ordinal?
 
             int numRecs=defaultNumRecs;
-            NonNegativeInteger maximumRecords=request.getMaximumRecords();
-            if(maximumRecords!=null)
-                numRecs=maximumRecords.intValue();
+            NonNegativeInteger maxRecords=request.getMaximumRecords();
+            if(maxRecords!=null)
+                numRecs=maxRecords.intValue();
             qArgs.setPageSize(numRecs);
 
             return new LuceneQueryResult(qArgs);
@@ -214,7 +217,100 @@ public class SRWLuceneDatabase extends SRWDatabaseImpl {
             return lqr;
         }
     }
-    
+
+
+    public TermList getTermList(CQLTermNode ctn, int position, int maxTerms,
+      ScanRequestType scanRequestType) {
+        TermList tl=new TermList();
+        if(log.isDebugEnabled()) {
+            log.debug("entering SRWLuceneDatabase.doScanRequest");
+            try {
+                BrowseIndex[] indices = BrowseIndex.getBrowseIndices();
+                log.debug(indices.length+" indices available");
+                for(int i=0; i<indices.length; i++)
+                    log.debug(indices[i]);
+            } catch (BrowseException ex) {
+                log.error(ex, ex);
+            }
+        }
+        Context dspaceContext=null;
+        int collectionID=0, communityID=0;
+        MessageContext msgContext=MessageContext.getCurrentContext();
+        ScanResponseType response=new ScanResponseType();
+        String         myHandle;
+
+        try {
+            dspaceContext=new Context();
+            if(log.isDebugEnabled())log.debug("dspaceContext.isValid()="+dspaceContext.isValid());
+            BrowserScope scope = new BrowserScope(dspaceContext);
+            String pathInfo=((HttpServletRequest)msgContext.getProperty(org.apache.axis.transport.http.HTTPConstants.MC_HTTP_SERVLETREQUEST)).getPathInfo();
+            if(log.isDebugEnabled())log.debug("pathInfo="+pathInfo);
+            int i;
+            if((i=pathInfo.indexOf("collection"))>=0)
+                collectionID=Integer.parseInt(pathInfo.substring(i+10));
+            else if((i=pathInfo.indexOf("community"))>=0)
+                communityID=Integer.parseInt(pathInfo.substring(i+9));
+            if(collectionID!=0) {
+                if(log.isDebugEnabled())log.debug("Got a request for collection "+collectionID);
+                scope.setCollection(Collection.find(dspaceContext, collectionID));
+            }
+            else
+                if(communityID!=0) {
+                    if(log.isDebugEnabled())log.debug("Got a request for community "+communityID);
+                    scope.setCommunity(Community.find(dspaceContext, communityID));
+                }
+
+            scope.setResultsPerPage(maxTerms);
+            scope.setOffset(position-1);
+            String index=ctn.getQualifier(),
+                   newIndex=(String)indexSynonyms.get(index);
+            if(newIndex!=null)
+                index=newIndex;
+            BrowseIndex bIndex=BrowseIndex.getBrowseIndex(index);
+            scope.setBrowseIndex(bIndex);
+            scope.setStartsWith(ctn.getTerm());
+
+            BrowseInfo bi;
+            BrowseEngine browse=new BrowseEngine(dspaceContext);
+            String[] result;
+            bi=browse.browse(scope);
+            result=bi.getStringResults();
+            if(log.isDebugEnabled())log.debug(bi.getTotal()+" items found");
+            List l=bi.getResults();
+            if(log.isDebugEnabled())log.debug("results="+l);
+            TermsType terms=new TermsType();
+            TermType  term[]=new TermType[result.length];
+            if(log.isDebugEnabled())log.debug(result.length+" terms found");
+            for(i=0; i<result.length; i++) {
+                term[i]=new TermType();
+                if(i==0 && bi.isFirst())
+                    term[i].setWhereInList(TermTypeWhereInList.first);
+                if(i==result.length-1 && bi.isLast())
+                    if(i==0)
+                        term[i].setWhereInList(TermTypeWhereInList.only);
+                    else
+                        term[i].setWhereInList(TermTypeWhereInList.last);
+                term[i].setValue(result[i]);
+                if(log.isDebugEnabled())log.debug(result[i]);
+                //term[i].setNumberOfRecords(new NonNegativeInteger("0"));
+            }
+            tl.setTerms(term);
+            dspaceContext.complete();
+        }
+        catch(BrowseException e) {
+            dspaceContext.abort();
+            log.error(e, e);
+            tl.addDiagnostic(SRWDiagnostic.GeneralSystemError, e.toString());
+        }
+        catch(SQLException e) {
+            dspaceContext.abort();
+            log.error(e, e);
+            tl.addDiagnostic(SRWDiagnostic.GeneralSystemError, e.toString());
+        }
+        return tl;
+    }
+
+
     public void init(String dbname, String srwHome, String dbHome,
       String dbPropertiesFileName, Properties dbProperties) {
         if(log.isDebugEnabled())log.debug("entering SRWLuceneDatabase.init, dbname="+dbname);
@@ -319,116 +415,6 @@ public class SRWLuceneDatabase extends SRWDatabaseImpl {
         else if(log.isDebugEnabled())log.debug("UnknownCQLNode("+node+")");
     }
     
-    public ScanResponseType doRequest(ScanRequestType request) throws ServletException {
-        if(log.isDebugEnabled())log.debug("entering SRWLuceneDatabase.doScanRequest");
-        Context dspaceContext=null;
-        int collectionID=0, communityID=0;
-        MessageContext msgContext=MessageContext.getCurrentContext();
-        ScanResponseType response=new ScanResponseType();
-        String         myHandle;
-
-        try {
-            dspaceContext=new Context();
-            if(log.isDebugEnabled())log.debug("dspaceContext.isValid()="+dspaceContext.isValid());
-            BrowseScope scope = new BrowseScope(dspaceContext);
-            String pathInfo=((HttpServletRequest)msgContext.getProperty(org.apache.axis.transport.http.HTTPConstants.MC_HTTP_SERVLETREQUEST)).getPathInfo();
-            if(log.isDebugEnabled())log.debug("pathInfo="+pathInfo);
-            int i;
-            if((i=pathInfo.indexOf("collection"))>=0)
-                collectionID=Integer.parseInt(pathInfo.substring(i+10));
-            else if((i=pathInfo.indexOf("community"))>=0)
-                communityID=Integer.parseInt(pathInfo.substring(i+9));
-            if(collectionID!=0) {
-                if(log.isDebugEnabled())log.debug("Got a request for collection "+collectionID);
-                scope.setScope(Collection.find(dspaceContext, collectionID));
-            }
-            else
-                if(communityID!=0) {
-                    if(log.isDebugEnabled())log.debug("Got a request for community "+communityID);
-                    scope.setScope(Community.find(dspaceContext, communityID));
-                }
-                else {
-                    if(log.isDebugEnabled())log.debug("Got a request for all collections");
-                    scope.setScopeAll();
-                }
-
-            int maxTerms=9, position=5;
-            PositiveInteger pi=request.getMaximumTerms();
-            if(pi!=null) {
-                maxTerms=pi.intValue();
-                position=maxTerms/2+1;
-            }
-            NonNegativeInteger nni=request.getResponsePosition();
-            if(nni!=null)
-                position=nni.intValue();
-            scope.setTotal(maxTerms);
-            scope.setNumberBefore(position-1);
-            String scanTerm=request.getScanClause();
-            if(log.isDebugEnabled())log.debug("scanTerm="+scanTerm+", maxTerms="+maxTerms+", position="+position);
-            CQLNode root = parser.parse(scanTerm);
-            CQLTermNode ctn=(CQLTermNode)root;
-            String index=ctn.getQualifier(),
-                   newIndex=(String)indexSynonyms.get(index);
-            if(newIndex!=null)
-                index=newIndex;
-            scope.setFocus(ctn.getTerm());
-
-            BrowseInfo bi;
-            String[] result;
-            if(index.equals("author")) {
-                bi=Browse.getAuthors(scope);
-                result=bi.getStringResults();
-            }
-            else {
-                bi=Browse.getItemsByTitle(scope);
-                result=new String[bi.getTotal()];
-                Item[] item=bi.getItemResults();
-                for(i=0; i<bi.getTotal(); i++)
-                    result[i]=item[i].getDC("title", Item.ANY, Item.ANY)[0].value;
-            }
-            if(log.isDebugEnabled())log.debug(bi.getTotal()+" items found");
-            List l=bi.getResults();
-            if(log.isDebugEnabled())log.debug("results="+l);
-            TermsType terms=new TermsType();
-            TermType  term[]=new TermType[result.length];
-            if(log.isDebugEnabled())log.debug(result.length+" terms found");
-            for(i=0; i<result.length; i++) {
-                term[i]=new TermType();
-                if(i==0 && bi.isFirst())
-                    term[i].setWhereInList(TermTypeWhereInList.first);
-                if(i==result.length-1 && bi.isLast())
-                    if(i==0)
-                        term[i].setWhereInList(TermTypeWhereInList.only);
-                    else
-                        term[i].setWhereInList(TermTypeWhereInList.last);
-                term[i].setValue(result[i]);
-                if(log.isDebugEnabled())log.debug(result[i]);
-                //term[i].setNumberOfRecords(new NonNegativeInteger("0"));
-            }
-            terms.setTerm(term);
-            response.setTerms(terms);
-            dspaceContext.complete();
-            return response;
-        }
-        catch(CQLParseException e) {
-            dspaceContext.abort();
-            log.error(e, e);
-            return diagnostic(SRWDiagnostic.QuerySyntaxError,
-                        e.getMessage(), response);
-       }
-        catch(IOException e) {
-            dspaceContext.abort();
-            log.error(e, e);
-            return diagnostic(SRWDiagnostic.QuerySyntaxError,
-                        e.getMessage(), response);
-        }
-        catch(SQLException e) {
-            dspaceContext.abort();
-            log.error(e, e);
-            return diagnostic(SRWDiagnostic.QuerySyntaxError,
-                        e.getMessage(), response);
-        }
-    }
     
     public boolean supportsSort() {
         return false;

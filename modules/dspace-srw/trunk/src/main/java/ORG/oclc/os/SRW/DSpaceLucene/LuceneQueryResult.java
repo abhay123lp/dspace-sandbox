@@ -21,6 +21,7 @@ package ORG.oclc.os.SRW.DSpaceLucene;
 
 import ORG.oclc.os.SRW.QueryResult;
 import ORG.oclc.os.SRW.RecordIterator;
+import gov.loc.www.zing.srw.ExtraDataType;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,14 +120,14 @@ public class LuceneQueryResult extends QueryResult {
         return result.getHitCount();
     }
 
-    public RecordIterator newRecordIterator(long startPoint, int numRecs, String schemaID)
+    public RecordIterator newRecordIterator(long startPoint, int numRecs, String schemaID, ExtraDataType edt)
       throws InstantiationException {
         if(result==null)
             throw new InstantiationException("No results created");
         if(startPoint==qArgs.getStart())
-            return new LuceneRecordIterator(this, startPoint, numRecs);
+            return new LuceneRecordIterator(this, startPoint, numRecs, edt);
         qArgs.setStart((int)startPoint-1);
         qArgs.setPageSize(numRecs);
-        return new LuceneRecordIterator(new LuceneQueryResult(qArgs), startPoint, numRecs);
+        return new LuceneRecordIterator(new LuceneQueryResult(qArgs), startPoint, numRecs, edt);
     }
 }
