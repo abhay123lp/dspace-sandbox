@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.dspace</groupId>
   <artifactId>dspace-srw</artifactId>
-  <packaging>war</packaging>
+  <packaging>jar</packaging>
   <name>DSpace SRW</name>
   <description>DSpace Search/Retrieve Web Service</description>
   <url>http://www.dspace.org</url>
@@ -26,6 +26,51 @@
 		</url>
 	</scm>
 
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-jar-plugin</artifactId>
+            <executions>
+               <execution>
+                  <configuration>         
+                      <includes>
+                        <include>**</include>
+                      </includes>
+                  </configuration>
+                  <goals>
+                     <goal>jar</goal>
+                  </goals>
+                  <phase>package</phase>
+               </execution>
+            </executions>
+         </plugin>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <configuration>
+               <classifier>webapp</classifier>
+               <archiveClasses>true</archiveClasses>
+               <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
+               <webResources>
+                  <resource>
+                     <filtering>true</filtering>
+                     <directory>${basedir}/src/main/webapp</directory>
+                     <includes>
+                        <include>WEB-INF/web.xml</include>
+                     </includes>
+                  </resource>
+               </webResources>
+            </configuration>
+            <executions>
+               <execution>
+                  <phase>prepare-package</phase>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
+   
 	<distributionManagement>
 		<site>
 			<id>website</id>
