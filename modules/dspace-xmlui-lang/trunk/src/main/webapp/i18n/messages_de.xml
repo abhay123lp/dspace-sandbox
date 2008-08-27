@@ -288,8 +288,24 @@
 	<!-- org.dspace.app.xmlui.artifactbrowser.RestrictedItem.java -->
 	<message key="xmlui.ArtifactBrowser.RestrictedItem.title">Dieses Dokument ist nur eingeschränkt zugänglich.</message>
 	<message key="xmlui.ArtifactBrowser.RestrictedItem.trail">Zugangsbeschränkung</message>
-	<message key="xmlui.ArtifactBrowser.RestrictedItem.head">Dieses Dokument ist nur eingeschränkt zugänglich</message>
-	<message key="xmlui.ArtifactBrowser.RestrictedItem.para">Das Dokument <b>{0}</b>, auf welches Sie zugreifen wollten, ist nur einem beschränkten Benutzerkreis zugänglich. Sie verfügen nicht über die entsprechenden Zugriffsrechte.</message>
+		<message key="xmlui.ArtifactBrowser.RestrictedItem.head_resource">Diese Ressource ist nur eingeschränkt zugänglich.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.head_community">Dieser Bereich ist nur eingeschränkt zugänglich.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.head_collection">Diese Sammlung ist nur eingeschränkt zugänglich.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.head_item">Dieses Dokument ist nur eingeschränkt zugänglich.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.head_bitstream">Diese Datei ist nur eingeschränkt zugänglich.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.para_resource">Sie verfügen nicht über das Recht, auf diese eingeschränkt zugängliche Ressource zuzugreifen.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.para_community">Sie verfügen nicht über das Recht, auf diesen eingeschränkt zugänglichen Bereich  <b>{0}</b> zuzugreifen.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.para_collection">Sie verfügen nicht über das Recht, auf diese eingeschränkt zugängliche Sammlung  <b>{0}</b> zuzugreifen.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.para_item">Sie verfügen nicht über das Recht, auf dieses eingeschränkt zugängliche Dokument <b>{0}</b> zuzugreifen.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.para_bitstream">Sie verfügen nicht über das Recht, auf diese eingeschränkt zugängliche Datei  <b>{0}</b> zuzugreifen.</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.type_collection">Sammlung</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.type_community">Bereich</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.type_bitstream">Datei</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.type_item">Dokument</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.type_resource">Ressource</message>
+	<message key="xmlui.ArtifactBrowser.RestrictedItem.unknown">unbekannt</message>
+
+	
 	
 	<!-- org.dspace.app.xmlui.artifactbrowser.RestrictedItem.java -->
 	<message key="xmlui.ArtifactBrowser.RestrictedItem.title">Diese Ressource ist nur eingeschränkt zugänglich.</message>
@@ -600,14 +616,12 @@
 	
 	<!-- org.dspace.app.xmlui.Submission.submit.ResumeStep -->
 	<message key="xmlui.Submission.submit.ResumeStep.submit_resume">Wiederaufnehmen</message>
-	<message key="xmlui.Submission.submit.ResumeStep.submit_cancel">Abbrechen</message>
 
 	<!-- org.dspace.app.xmlui.Submission.submit.SelectCollection -->
 	<message key="xmlui.Submission.submit.SelectCollection.head">Sammlung auswählen</message>
 	<message key="xmlui.Submission.submit.SelectCollection.collection">Sammlung</message>
 	<message key="xmlui.Submission.submit.SelectCollection.collection_help">Wählen Sie die Sammlung, in der Sie veröffentlichen möchten.</message>
 	<message key="xmlui.Submission.submit.SelectCollection.collection_default">Sammlung auswählen</message>
-	<message key="xmlui.Submission.submit.SelectCollection.submit">Weiter</message>
 
 	<!-- org.dspace.app.xmlui.Submission.submit.SaveOrRemoveStep -->
 	<message key="xmlui.Submission.submit.SaveOrRemoveStep.head">Veröffentlichung speichern oder abbrechen?</message>
@@ -655,6 +669,7 @@
 	<message key="xmlui.Submission.submit.UploadStep.description_help">Zusätzlich können Sie ein kurze Beschreibung der Datei eingeben, z. B. "<i>Hauptband</i>", oder "<i>Anhang</i>".</message>
 	<message key="xmlui.Submission.submit.UploadStep.submit_upload">Datei hochladen und/oder noch eine hinzufügen</message>
 	<message key="xmlui.Submission.submit.UploadStep.head2">Hochgeladene Dateien</message>
+	<message key="xmlui.Submission.submit.UploadStep.column0">Primäre Datei</message>
 	<message key="xmlui.Submission.submit.UploadStep.column1"></message>
 	<message key="xmlui.Submission.submit.UploadStep.column2">Datei</message>
 	<message key="xmlui.Submission.submit.UploadStep.column3">Größe</message>
@@ -682,8 +697,7 @@
 	<message key="xmlui.Submission.submit.EditFileStep.info2">Wenn Ihr Format nicht in der Liste vorhanden ist, <strong>wählen Sie "Format nicht in Auswahlliste" </strong> und geben Sie eine kurze Beschreibung des Formats in das Feld unten ein.</message>
 	<message key="xmlui.Submission.submit.EditFileStep.format_user">Sonstiges Format</message>
 	<message key="xmlui.Submission.submit.EditFileStep.format_user_help">Die Anwendung inkl. Versionsnummer mit der die Datei erstellt wurde z. B. "<i>ACMESoft SuperApp version 1.5</i>".</message>
-	<message key="xmlui.Submission.submit.EditFileStep.submit_save">Speichern</message>
-	<message key="xmlui.Submission.submit.EditFileStep.submit_cancel">Abbrechen</message>
+
 
 	<!-- org.dspace.app.xmlui.Submission.submit.ReviewStep -->
 	<message key="xmlui.Submission.submit.ReviewStep.head">Veröffentlichung überprüfen</message>
@@ -745,14 +759,12 @@
 	<message key="xmlui.Submission.workflow.PerformTaskStep.edit_submit">Metadaten bearbeiten</message>
 	<message key="xmlui.Submission.workflow.PerformTaskStep.return_help">Die Aufgabe zurück in den Pool geben, damit ein anderer Bearbeiter sie übernehmen kann.</message>
 	<message key="xmlui.Submission.workflow.PerformTaskStep.return_submit">Zurück in den Bearbeitungspool</message>
-	<message key="xmlui.Submission.workflow.PerformTaskStep.cancel_submit">Abbrechen</message>
 
 	<!-- org.dspace.app.xmlui.Submission.workflow.RejectTaskStep -->
 	<message key="xmlui.Submission.workflow.RejectTaskStep.info1">Bitte geben Sie die Gründe an, warum die Ressource abgelehnt wurde und ob der Veröffentlichende nach entsprechenden Änderungen die Möglichkeit hat, die Ressource erneut zu veröffentlichen.</message>
 	<message key="xmlui.Submission.workflow.RejectTaskStep.reason">Ablehnungsgrund</message>
 	<message key="xmlui.Submission.workflow.RejectTaskStep.reason_required">Sie müssen den Ablehnungsgrund angeben</message>
 	<message key="xmlui.Submission.workflow.RejectTaskStep.submit_reject">Ressource ablehnen</message>
-	<message key="xmlui.Submission.workflow.RejectTaskStep.submit_cancel">Abbrechen</message>
 
 	
 	
@@ -768,6 +780,7 @@
 	<message key="xmlui.administrative.FlowEPersonUtils.edit_eperson_success_notice">Der Benutzeraccount wurde aktualisiert.</message>
 	<message key="xmlui.administrative.FlowEPersonUtils.reset_password_success_notice">Dem Benutzer wurde eine E-Mail mit entsprechender Kennung gesandt, unter der er sein Passwort neu vergeben kann.</message>
 	<message key="xmlui.administrative.FlowEPersonUtils.delete_eperson_success_notice">Der/Die Benutzer wurden gelöscht.</message>
+	<message key="xmlui.administrative.FlowEPersonUtils.delete_eperson_failed_notice">Folgende(r) Benutzer konnten aufgrund von bestimmten Abhängigkeiten nicht gelöscht werden. Ausführliche Informationen finden Sie auf der Benutzerinformationsseite.</message>
 	<message key="xmlui.administrative.FlowGroupUtils.edit_group_success_notice">Die Gruppe wurde aktualisiert.</message>
 	<message key="xmlui.administrative.FlowGroupUtils.delete_group_success_notice">Die ausgewählten Gruppen wurden gelöscht..</message>
 	<message key="xmlui.administrative.FlowRegistryUtils.add_metadata_schema_success_notice">Ein neuen Metadatenschema wurde angelegt.</message>
@@ -815,7 +828,25 @@
 	<message key="xmlui.administrative.Navigation.administrative_items">Dokumente</message>
     <message key="xmlui.administrative.Navigation.administrative_withdrawn">Verworfene Dokumente</message>
 	<message key="xmlui.administrative.Navigation.administrative_control_panel">Systemdaten</message>
+	<message key="xmlui.administrative.Navigation.statistics">Statistiken</message>
 		
+    <!-- my account items -->
+	<message key="xmlui.administrative.Navigation.account_export">Meine Exporte</message>
+	
+	
+	<!-- export item -->
+	<message key="xmlui.administrative.ItemExport.head">Exportierte Archive</message>
+	<message key="xmlui.administrative.ItemExport.item.id.error">Die ID des Dokumentes ist ungültig.</message>
+	<message key="xmlui.administrative.ItemExport.collection.id.error">Die ID der Sammlung ist ungültig.</message>
+	<message key="xmlui.administrative.ItemExport.community.id.error">Die ID des Bereichs ist ungültig.</message>
+	<message key="xmlui.administrative.ItemExport.item.not.found">Das angeforderte Dokument wurde nicht gefunden.</message>
+	<message key="xmlui.administrative.ItemExport.collection.not.found">Die angeforderte Sammlung wurde nicht gefunden.</message>
+	<message key="xmlui.administrative.ItemExport.community.not.found">Der angeforderte Bereich wurde nicht gefunden.</message>
+	<message key="xmlui.administrative.ItemExport.export.success">Das Dokument wurde exportiert.  Sie werden per E-Mail benachrichtigt, sobald das Archiv zum Herunterladen bereitsteht. Sie können auch den Link "Meine Exporte" verwenden, um zu einer Auflistung aller Ihrer Exporte zu gelangen.</message>
+	<message key="xmlui.administrative.ItemExport.collection.success">Die Sammlung wurde exportiert.  Sie werden per E-Mail benachrichtigt, sobald das Archiv zum Herunterladen bereitsteht. Sie können auch den Link "Meine Exporte" verwenden, um zu einer Auflistung aller Ihrer Exporte zu gelangen.</message>
+	<message key="xmlui.administrative.ItemExport.community.success">Der Bereich wurde exportiert.  Sie werden per E-Mail benachrichtigt, sobald das Archiv zum Herunterladen bereitsteht. Sie können auch den Link "Meine Exporte" verwenden, um zu einer Auflistung aller Ihrer Exporte zu gelangen.</message>
+	<message key="xmlui.administrative.ItemExport.available.head">Archive, die zum Herunterladen bereitstehen:</message>
+	
 		
 	<!-- org.dspace.app.xmlui.administrative.eperson.ManageEPeopleMain -->
 	<message key="xmlui.administrative.eperson.ManageEPeopleMain.title">Benutzeraccounts verwalten</message>
@@ -871,7 +902,13 @@
 	<message key="xmlui.administrative.eperson.EditEPersonForm.indirect_member">(indirekt über die Gruppe: {0})</message>
 	<message key="xmlui.administrative.eperson.EditEPersonForm.member_none">Keine</message>
 	
-	
+	<message key="xmlui.administrative.eperson.EditEPersonForm.delete_constraint">Der Benutzeraccount konnte aufgrund folgender Abhängigkeiten nicht gelöscht werden:</message>
+	<message key="xmlui.administrative.eperson.EditEPersonForm.delete_constraint.last_conjunction">und</message>
+	<message key="xmlui.administrative.eperson.EditEPersonForm.delete_constraint.item">unter dem Benutzeraccount wurden ein oder mehrere Dokumente veröffentlicht</message>
+	<message key="xmlui.administrative.eperson.EditEPersonForm.delete_constraint.workflowitem">der Benutzer hat eine noch im Geschäftsgang befindliche Veröffentlichung</message>
+	<message key="xmlui.administrative.eperson.EditEPersonForm.delete_constraint.tasklistitem">der Benutzer muss noch Aufgaben im Rahmen des Geschäftsganges erledigen</message>
+	<message key="xmlui.administrative.eperson.EditEPersonForm.delete_constraint.unknown">zu dem Benutzer gibt es eine sonstige Abhängigkeit im System</message>
+		
 	<!-- org.dspace.app.xmlui.administrative.eperson.DeleteEPeopleConfirm -->
 	<message key="xmlui.administrative.eperson.DeleteEPeopleConfirm.title">Benutzeraccount löschen bestätigen</message>
 	<message key="xmlui.administrative.eperson.DeleteEPeopleConfirm.trail">Löschung bestätigen</message>
@@ -1022,7 +1059,6 @@
 	<message key="xmlui.administrative.registries.EditMetadataSchema.column3">Feld</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.column4">Gültigkeitsbereich</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.empty">Keine Metadatenfelder vorhanden</message>
-	<message key="xmlui.administrative.registries.EditMetadataSchema.submit_return">Zurück</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.submit_delete">Felder löschen</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.submit_move">Felder in ein anderes Schema verschieben</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.head3">Neues Feld hinzufügen</message>
@@ -1032,7 +1068,6 @@
 	<message key="xmlui.administrative.registries.EditMetadataSchema.submit_add">Ein neues Feld hinzufügen</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.head4">Aktualisieren von Feld: {0}</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.submit_update">Feld aktualisieren</message>
-	<message key="xmlui.administrative.registries.EditMetadataSchema.submit_cancel">Abbrechen</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.error">Fehler</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.error_duplicate_field">Dieses Feld gibt es schon, alle Element-Qualifier-Kombinationen müssen eindeutig sein.</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.error_element_empty">Sie müssen das Element angeben.</message>
@@ -1085,9 +1120,7 @@
 	<message key="xmlui.administrative.registries.MoveMetadataField.column3">Gültigkeitsbereich</message>
 	<message key="xmlui.administrative.registries.MoveMetadataField.para2">Verschiebe in das Schema: </message>
 	<message key="xmlui.administrative.registries.MoveMetadataField.submit_move">Felder verschieben</message>
-	<message key="xmlui.administrative.registries.MoveMetadataField.submit_cancel">Abbrechen</message>
-
-	
+		
 	
 	
 	<!-- general authorization keywords -->
@@ -1199,6 +1232,11 @@
 	<message key="xmlui.administrative.item.AddBitstreamForm.trail">Datei hochladen</message>
 	<message key="xmlui.administrative.item.AddBitstreamForm.head1">Eine neue Datei hochladen</message>
 	<message key="xmlui.administrative.item.AddBitstreamForm.bundle_label">Bündel</message>
+	<message key="xmlui.administrative.item.AddBitstreamForm.bundle.ORIGINAL">Originaldateien (standard)</message>
+	<message key="xmlui.administrative.item.AddBitstreamForm.bundle.METADATA">Dateien mit Metainformationen</message>
+	<message key="xmlui.administrative.item.AddBitstreamForm.bundle.THUMBNAIL">Vorschaubilder</message>
+	<message key="xmlui.administrative.item.AddBitstreamForm.bundle.LICENSE">Lizenzen</message>
+	<message key="xmlui.administrative.item.AddBitstreamForm.bundle.CC_LICENSE">Creative Commons Lizenz</message>
 	<message key="xmlui.administrative.item.AddBitstreamForm.file_label">Datei</message>
 	<message key="xmlui.administrative.item.AddBitstreamForm.file_help">Bitte geben Sie den Dateinamen mit voll qualifizierten Pfad auf Ihrem Rechner ein. Wenn Sie auf "Stöbern" klicken, öffnet sich ein neues Fenster, in dem Sie die Datei auf Ihrem Rechner heraussuchen können. Nachdem Sie die entsprechende Datei gewählt haben, wird das Fenster automatisch geschlossen.</message>
 	<message key="xmlui.administrative.item.AddBitstreamForm.description_label">Beschreibung</message>
@@ -1356,7 +1394,6 @@
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.main_head">Sammlung in Bearbeitung: {0}</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.no_role">keine</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.create">Anlegen</message>
-	<message key="xmlui.administrative.collection.AssignCollectionRoles.delete">Löschen</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.restrict">Einschränken</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.help_admins">Sammlungsadministratoren können entscheiden, wer in der Sammlung veröffenltichen darf, sie können Dokumente verwerfen, Metadaten bearbeiten und Dokumente aus anderen Sammlungen spiegeln, wenn sie an den zu spiegelnden Dokumenten die entsprechenden Rechte haben.</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.help_wf_step1">Die Bearbeiter dieses Geschäftsgangsschrittes können eingehende Dokumente akzeptieren oder ablehnen. Sie können diese jedoch nicht bearbeiten.</message>
@@ -1410,7 +1447,6 @@
 	<message key="xmlui.administrative.collection.EditCollectionMetadataForm.label_item_template">Dokumentschablone</message>
 	<message key="xmlui.administrative.collection.EditCollectionMetadataForm.submit_create_template">Anlegen</message>
 	<message key="xmlui.administrative.collection.EditCollectionMetadataForm.submit_edit_template">Bearbeiten</message>
-	<message key="xmlui.administrative.collection.EditCollectionMetadataForm.submit_delete_template">Löschen</message>
 	<message key="xmlui.administrative.collection.EditCollectionMetadataForm.submit_delete_logo">Logo entfernen</message>
 	<message key="xmlui.administrative.collection.EditCollectionMetadataForm.submit_delete">Sammlung löschen</message>
 	<message key="xmlui.administrative.collection.EditCollectionMetadataForm.submit_save">Änderungen speichern</message>
@@ -1421,8 +1457,7 @@
 	<message key="xmlui.administrative.collection.CreateCollectionForm.trail">Sammlung anlegen</message>
 	<message key="xmlui.administrative.collection.CreateCollectionForm.main_head">Geben Sie die Informationen zur Sammlung: {0} ein</message>
 	<message key="xmlui.administrative.collection.CreateCollectionForm.submit_save">Anlegen</message>
-	<message key="xmlui.administrative.collection.CreateCollectionForm.submit_cancel">Abbrechen</message>
-
+	
 	<!-- org.dspace.app.xmlui.administrative.community.DeleteCommunityConfirm.java -->
 	<message key="xmlui.administrative.community.DeleteCommunityConfirm.title">Löschung bestätigen</message>
 	<message key="xmlui.administrative.community.DeleteCommunityConfirm.trail">Bestätigen</message>
@@ -1447,16 +1482,14 @@
 	<message key="xmlui.administrative.community.EditCommunityMetadataForm.label_existing_logo">Aktuelles Logo</message>
 	<message key="xmlui.administrative.community.EditCommunityMetadataForm.submit_delete_logo">Logo entfernen</message>
 	<message key="xmlui.administrative.community.EditCommunityMetadataForm.submit_delete">Bereich löschen</message>
-	<message key="xmlui.administrative.community.EditCommunityMetadataForm.submit_save">Aktualisieren</message>
-	
+		
 	<!-- org.dspace.app.xmlui.administrative.community.CreateCommunityForm.java -->
 	<message key="xmlui.administrative.community.CreateCommunityForm.title">Bereich anlegen</message>
 	<message key="xmlui.administrative.community.CreateCommunityForm.trail">Bereich anlegen</message>
 	<message key="xmlui.administrative.community.CreateCommunityForm.main_head_sub">Metadaten des neuen Teilbereiches von {0} ein.</message>
 	<message key="xmlui.administrative.community.CreateCommunityForm.main_head_top">Metadaten des Hauptbereiches</message>
 	<message key="xmlui.administrative.community.CreateCommunityForm.submit_save">Anlegen</message>
-	<message key="xmlui.administrative.community.CreateCommunityForm.submit_cancel">Abbrechen</message>
-
+	
 
 	<!-- org.dspace.app.xmlui.administrative.ControlPanel.java -->
 	<message key="xmlui.administrative.ControlPanel.title">Systeminformationen</message>
@@ -1466,6 +1499,9 @@
 	<message key="xmlui.administrative.ControlPanel.option_dspace">DSpace Konfiguration</message>
 	<message key="xmlui.administrative.ControlPanel.option_knots">Web Continuations</message>
 	<message key="xmlui.administrative.ControlPanel.option_alerts">Systemweite Benachrichtigungen</message>
+	<message key="xmlui.administrative.ControlPanel.hours">{0} Stunde(n)</message>
+	<message key="xmlui.administrative.ControlPanel.minutes">{0} Minute(n)</message>
+	<message key="xmlui.administrative.ControlPanel.seconds">{0} Sekunde(n)</message>
 	<message key="xmlui.administrative.ControlPanel.java_head">Java und Betriebssystem</message>
 	<message key="xmlui.administrative.ControlPanel.java_version">Java Laufzeitumgebung Version</message>
 	<message key="xmlui.administrative.ControlPanel.java_vendor">Java Laufzeitumgebung Distribution</message>
@@ -1497,8 +1533,6 @@
 	<message key="xmlui.administrative.ControlPanel.knots_column1">Interpreter</message>
 	<message key="xmlui.administrative.ControlPanel.knots_column2">Letzter Zugriff</message>
 	<message key="xmlui.administrative.ControlPanel.knots_column3">Status</message>
-	<message key="xmlui.administrative.ControlPanel.knots_hours">{0} Stunden</message>
-	<message key="xmlui.administrative.ControlPanel.knots_minutes">{0} Minuten</message>
 	<message key="xmlui.administrative.ControlPanel.knots_expired">Abgelaufen</message>
 	<message key="xmlui.administrative.ControlPanel.knots_active">Aktiv</message>
 	<message key="xmlui.administrative.ControlPanel.knots_none">Es gibt keine aktiven continuations.</message>
@@ -1513,8 +1547,24 @@
 	<message key="xmlui.administrative.ControlPanel.alerts_countdown_30">30 Minuten</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_countdown_60">1 Stunde</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_countdown_keep">Aktuellen Countdown behalten</message>
+	<message key="xmlui.administrative.ControlPanel.alerts_session_label">Sitzungen verwalten</message>	
+	<message key="xmlui.administrative.ControlPanel.alerts_session_all_sessions">Authentifizierte Sitzungen weiterhin zulassen</message>	
+	<message key="xmlui.administrative.ControlPanel.alerts_session_current_sessions">Authentifizierungen einschränken, aber laufende Sitzungen beibehalten.</message>	
+	<message key="xmlui.administrative.ControlPanel.alerts_session_only_administrative_sessions">Authentifizierungen einschränken und laufende Sitzungen beenden.</message>	
+	<message key="xmlui.administrative.ControlPanel.alerts_session_note"><strong>Bitte beachten Sie:</strong> Administratoren der Seite werden vom Sizungsmanagement nicht tangiert.</message>	
 	<message key="xmlui.administrative.ControlPanel.alerts_submit_activate">Aktivieren</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_submit_deactivate">Deaktivieren</message>
+	<message key="xmlui.administrative.ControlPanel.activity_head">Laufende Aktivität ({0} maximale Seiten)</message>
+	<message key="xmlui.administrative.ControlPanel.activity_sort_time">Zeitstempel</message>
+	<message key="xmlui.administrative.ControlPanel.activity_sort_user">Benutzer</message>
+	<message key="xmlui.administrative.ControlPanel.activity_sort_ip">IP-Adressen</message>
+	<message key="xmlui.administrative.ControlPanel.activity_sort_url">URL</message>
+	<message key="xmlui.administrative.ControlPanel.activity_sort_Agent">User-Agent</message>
+	<message key="xmlui.administrative.ControlPanel.activity_anonymous">Anonym {0}</message>	
+	<message key="xmlui.administrative.ControlPanel.activity_hideself">Verstecke meine Seitenzugriffe</message>
+	<message key="xmlui.administrative.ControlPanel.activity_showself">Zeige meine Seitenzugriffe</message>
+	<message key="xmlui.administrative.ControlPanel.activity_none">Abgesehen von Ihren eigen gab es keine Seitenzugriffe in den letzen {0} Tagen.</message>
+		
 	<message key="xmlui.administrative.ControlPanel.select_panel">Benutzen Sie die Reiter, um zur entsprechenden Information zu gelangen</message>
 	
 	<!-- org.dspace.app.xmlui.administrative.SystemwideAlerts -->
@@ -1570,6 +1620,7 @@
 	<message key="xmlui.dri2xhtml.structural.search">DSpace Suche</message>
 	<message key="xmlui.dri2xhtml.structural.search-advanced">Erweiterte Suche</message>
 	<message key="xmlui.dri2xhtml.structural.search-in-community">In diesem Bereich</message>
+	<message key="xmlui.dri2xhtml.structural.search-in-collection">In dieser Sammlung</message>
 	
 	<message key="xmlui.dri2xhtml.structural.pagination-previous">Vorherige Seite</message>
 	<message key="xmlui.dri2xhtml.structural.pagination-info">Anzeige der Dokumente {0}-{1} von {2}</message>
@@ -1604,6 +1655,7 @@
 	<message key="xmlui.dri2xhtml.METS-1.0.item-files-format">Format</message>
 	<message key="xmlui.dri2xhtml.METS-1.0.item-files-view">Anzeige</message>
 	<message key="xmlui.dri2xhtml.METS-1.0.item-files-viewOpen">Öffnen</message>
+	<message key="xmlui.dri2xhtml.METS-1.0.item-no-files">Zu diesem Dokument gibt es keine Dateien.</message>
 
 	<message key="xmlui.dri2xhtml.METS-1.0.size-bytes">Bytes</message>
 	<message key="xmlui.dri2xhtml.METS-1.0.size-kilobytes">Kb</message>
@@ -1623,7 +1675,9 @@
 	
 	<message key="xmlui.dri2xhtml.METS-1.0.collection-logo-alt">Das Logo der Sammlung</message>
 	<message key="xmlui.dri2xhtml.METS-1.0.community-logo-alt">Das Logo des Bereiches</message>
-	<message key="xmlui.dri2xhtml.METS-1.0.no-logo-alt">Kein Logo</message>		
+	<message key="xmlui.dri2xhtml.METS-1.0.no-logo-alt">Kein Logo</message>
+	<message key="xmlui.dri2xhtml.METS-1.0.news">Aktuelles</message>	
+	<message key="xmlui.dri2xhtml.METS-1.0.copyright">Copyright und Lizenzbestimmungen</message>		
 		
 		
 	<!-- Internationalization elements specific to the Qualified Dublin Core metadata handler.
