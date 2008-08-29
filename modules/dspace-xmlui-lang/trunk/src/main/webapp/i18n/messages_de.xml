@@ -1399,7 +1399,7 @@
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.help_wf_step1">Die Bearbeiter dieses Geschäftsgangsschrittes können eingehende Dokumente akzeptieren oder ablehnen. Sie können diese jedoch nicht bearbeiten.</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.help_wf_step2">Die Bearbeiter dieses Geschäftsgangsschrittes können eingehende Dokumente ablehnen oder die Metadaten bearbeiten und das Dokument akzeptieren.</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.help_wf_step3">Die Bearbeiter dieses Geschäftsgangsschrittes können die Metadaten des Dokumentes bearbeiten und es abschließend ins Archiv überführen.</message>
-	<message key="xmlui.administrative.collection.AssignCollectionRoles.help_submitters">Die Benutzer und Gruppen  haben das Recht, neue Dokument in dieser Sammlung zu veröffentlichen.</message>
+	<message key="xmlui.administrative.collection.AssignCollectionRoles.help_submitters">Die Benutzer und Gruppen  haben das Recht, neue Dokumente in dieser Sammlung zu veröffentlichen.</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.help_default_read">Benutzer und Gruppen, die neue Dokumente in der Sammlung ansehen dürfen. Bitte beachten Sie, dass Änderungen an diesen Rechten nicht retrospektiv wirken. Bereits existierende Dokumente behalten ihre Rechte.</message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.default_read_custom">Diese Sammlung hat die Standardzugriffsrechte. </message>
 	<message key="xmlui.administrative.collection.AssignCollectionRoles.default_read_anonymous">Die Standardzugriffsrechte für neue Dokumente und Dateien sind zur Zeit: anonymer lesender Zugriff.</message>
