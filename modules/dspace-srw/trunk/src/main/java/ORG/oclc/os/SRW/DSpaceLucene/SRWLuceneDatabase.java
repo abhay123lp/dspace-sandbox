@@ -315,14 +315,12 @@ public class SRWLuceneDatabase extends SRWDatabase {
       String dbPropertiesFileName, Properties dbProperties) {
         if(log.isDebugEnabled())log.debug("entering SRWLuceneDatabase.init, dbname="+dbname);
         super.initDB(dbname, srwHome, dbHome, dbPropertiesFileName, dbProperties);
-        System.setProperty("dspace.configuration", dbHome+"config/dspace.cfg");
-        String configProperty = System.getProperty("dspace.configuration");
-        if(configProperty!=null) {
-            luceneDirectory=ConfigurationManager.getProperty("search.dir");
-            if(log.isDebugEnabled())log.debug("lucene directory="+luceneDirectory);
-        }
-        else
-            log.error("no dspace.configuration available");
+        
+        luceneDirectory=ConfigurationManager.getProperty("search.dir");
+        
+        if(log.isDebugEnabled())
+            log.debug("lucene directory="+luceneDirectory);
+        
         getIndexSynonyms(dbProperties);
         
         if(log.isDebugEnabled())log.debug("leaving SRWLuceneDatabase.init");
