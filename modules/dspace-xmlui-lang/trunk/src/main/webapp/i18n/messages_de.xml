@@ -507,7 +507,7 @@
 	<!-- org.dspace.app.xmlui.eperson.VerifyEmail.java -->
 	<message key="xmlui.EPerson.VerifyEmail.title">E-Mail zur Verifizierung gesendet.</message>
 	<message key="xmlui.EPerson.VerifyEmail.head">E-Mail zur Verifizierung gesendet.</message>
-	<message key="xmlui.EPerson.VerifyEmail.para">Eine E-Mail wurde an gesendet. Diese enthält ein spezielle URL, unter der Sie Ihre Registrierung abschließen können.</message>
+	<message key="xmlui.EPerson.VerifyEmail.para">Eine E-Mail wurde an gesendet. Diese enthält eine spezielle URL, unter der Sie Ihre Registrierung abschließen können.</message>
 
 
 
