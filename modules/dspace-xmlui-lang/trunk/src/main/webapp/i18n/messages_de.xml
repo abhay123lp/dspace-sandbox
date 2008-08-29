@@ -625,7 +625,7 @@
 
 	<!-- org.dspace.app.xmlui.Submission.submit.SaveOrRemoveStep -->
 	<message key="xmlui.Submission.submit.SaveOrRemoveStep.head">Veröffentlichung speichern oder abbrechen?</message>
-	<message key="xmlui.Submission.submit.SaveOrRemoveStep.info1">Möchten Sie, dass die Veröffentlichung gelöscht wird, oder möchten Sie später daran weiterarbeiten? Wenn Sie aus Versehen hier gelandet sind, klicken Sie auf abbrechen, um die Veröffentlichung fortzusetzen.</message>
+	<message key="xmlui.Submission.submit.SaveOrRemoveStep.info1">Möchten Sie, dass die Veröffentlichung gelöscht wird, oder möchten Sie später daran weiterarbeiten? Wenn Sie aus Versehen hier gelandet sind, klicken Sie auf "Veröffentlichung fortsetzen", um die Veröffentlichung fortzusetzen.</message>
 	<message key="xmlui.Submission.submit.SaveOrRemoveStep.submit_back">Veröffentlichung fortsetzen</message>
 	<message key="xmlui.Submission.submit.SaveOrRemoveStep.submit_save">Speichern, um später daran weiterzuarbeiten</message>
 	<message key="xmlui.Submission.submit.SaveOrRemoveStep.submit_remove">Löschen</message>
@@ -663,10 +663,10 @@
 	<!-- org.dspace.app.xmlui.Submission.submit.UploadStep -->
 	<message key="xmlui.Submission.submit.UploadStep.head">Datei(en) hochladen</message>
 	<message key="xmlui.Submission.submit.UploadStep.file">Datei</message>
-	<message key="xmlui.Submission.submit.UploadStep.file_help">Bitte geben Sie den voll qualifizierten Pfad zu der Datei auf Ihrem Rechner an. Wenn Sie auf "Stöbern" klicken, öffnet sich ein neues Fenster, in welchem Sie die Datei auf Ihrem Rechner suchen und auswählen können.</message>
+	<message key="xmlui.Submission.submit.UploadStep.file_help">Bitte geben Sie den voll qualifizierten Pfad zu der Datei auf Ihrem Rechner an. Wenn Sie auf "Durchsuchen" klicken, öffnet sich ein neues Fenster, in welchem Sie die Datei auf Ihrem Rechner suchen und auswählen können.</message>
 	<message key="xmlui.Submission.submit.UploadStep.file_error">Das Dokument muss mindestens eine Datei enthalten.</message>
 	<message key="xmlui.Submission.submit.UploadStep.description">Beschreibung</message>
-	<message key="xmlui.Submission.submit.UploadStep.description_help">Zusätzlich können Sie ein kurze Beschreibung der Datei eingeben, z. B. "<i>Hauptband</i>", oder "<i>Anhang</i>".</message>
+	<message key="xmlui.Submission.submit.UploadStep.description_help">Zusätzlich können Sie eine kurze Beschreibung der Datei eingeben, z. B. "<i>Hauptband</i>", oder "<i>Anhang</i>".</message>
 	<message key="xmlui.Submission.submit.UploadStep.submit_upload">Datei hochladen und/oder noch eine hinzufügen</message>
 	<message key="xmlui.Submission.submit.UploadStep.head2">Hochgeladene Dateien</message>
 	<message key="xmlui.Submission.submit.UploadStep.column0">Primäre Datei</message>
