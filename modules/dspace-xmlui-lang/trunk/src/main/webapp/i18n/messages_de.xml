@@ -953,6 +953,7 @@
 	<message key="xmlui.administrative.group.EditGroupForm.member">Mitglied</message>
 	<message key="xmlui.administrative.group.EditGroupForm.cycle">Zyklus</message>
 	<message key="xmlui.administrative.group.EditGroupForm.pending">anhängig</message>
+	<message key="xmlui.administrative.group.EditGroupForm.pending_warn">Bitte beachten Sie: anhängige Änderungen werden erst wirksam, wenn Sie auf "Speichern" klicken.</message>
 	<message key="xmlui.administrative.group.EditGroupForm.submit_add">Hinzufügen</message>
 	<message key="xmlui.administrative.group.EditGroupForm.submit_remove">Entfernen</message>
 	<message key="xmlui.administrative.group.EditGroupForm.collection_para">Diese Gruppe hat Bezug zur Sammlung: </message>
