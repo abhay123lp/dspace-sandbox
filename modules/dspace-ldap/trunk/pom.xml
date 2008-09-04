@@ -24,6 +24,60 @@
   </build>
   
   
+   <repositories>
+      <repository>
+         <id>maven.dspace.org/snapshot</id>
+         <name>DSpace Maven Snapshot Repository</name>
+         <url>http://maven.dspace.org/snapshot</url>
+         <releases>
+            <enabled>false</enabled>
+            <checksumPolicy>fail</checksumPolicy>
+         </releases>
+         <snapshots>
+            <enabled>true</enabled>
+            <updatePolicy>never</updatePolicy>
+            <checksumPolicy>fail</checksumPolicy>
+         </snapshots>
+      </repository>
+   </repositories>
+   
+     <!-- 
+      The Subversion repository location is used by Continuum to update against
+      when changes have occured, this spawns a new build cycle and releases snapshots
+      into the snapshot repository below.
+   -->
+   <scm>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-ldap/trunk</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-ldap/trunk</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/modules/dspace-ldap/trunk</url>
+   </scm>
+  
+     <!-- 
+      Distribution Management is currently used by the Continuum server
+      to update snapshots it generates. This will also be used on 
+      release to deploy release versions to the repository by the
+      release manager.
+   -->
+   <distributionManagement>
+      <repository>
+         <id>maven.dspace.org/release</id>
+         <name>DSpace Maven Repository</name>
+         <url>scp://maven.dspace.org/var/maven/release</url>
+      </repository>
+      <snapshotRepository>
+         <id>maven.dspace.org/snapshot</id>
+         <name>DSpace Maven Repository</name>
+         <url>scp://maven.dspace.org/var/maven/snapshot</url>
+         <uniqueVersion>false</uniqueVersion>
+      </snapshotRepository>
+      <site>
+         <id>website</id>
+         <url>
+            scp://projects.dspace.org/var/www/projects.dspace.org/htdocs
+         </url>
+      </site>
+   </distributionManagement>
+   
   <dependencies>
     <dependency>
       <groupId>org.dspace</groupId>
