@@ -384,6 +384,8 @@
 	<message key="xmlui.EPerson.EditProfile.error_invalid_password">Wählen Sie ein Passwort, welches mindestens 6 Zeichen lang ist.</message>
 	<message key="xmlui.EPerson.EditProfile.error_unconfirmed_password">Bitte geben Sie Ihr Passwort noch einmal ein, um es zu bestätigen.</message>
 	<message key="xmlui.EPerson.EditProfile.head_auth">Benutzergruppen, denen Sie angehören</message>
+	<message key="xmlui.EPerson.EditProfile.head_identify">Identifikation</message>
+	<message key="xmlui.EPerson.EditProfile.head_security">Sicherheit</message>
 	
 	<!-- org.dspace.app.xmlui.eperson.EPersonUtils.java -->
 	<message key="xmlui.EPerson.EPersonUtils.register_verify_email">E-Mail-Adresse verifizieren</message>
