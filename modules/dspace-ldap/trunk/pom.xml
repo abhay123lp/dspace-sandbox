@@ -23,7 +23,6 @@
     </testResources>
   </build>
   
-  
    <repositories>
       <repository>
          <id>maven.dspace.org/snapshot</id>
@@ -35,7 +34,7 @@
          </releases>
          <snapshots>
             <enabled>true</enabled>
-            <updatePolicy>never</updatePolicy>
+            <updatePolicy>daily</updatePolicy>
             <checksumPolicy>fail</checksumPolicy>
          </snapshots>
       </repository>
