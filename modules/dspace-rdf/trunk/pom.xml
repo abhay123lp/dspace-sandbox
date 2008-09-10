@@ -16,6 +16,17 @@
       to support the generation of RDF for DSpace Objects.
    </description>
    
+      <!-- 
+      The Subversion repository location is used by Continuum to update against
+      when changes have occured, this spawns a new build cycle and releases snapshots
+      into the snapshot repository below.
+   -->
+   <scm>
+      <connection>scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-rdf/trunk</connection>
+      <developerConnection>scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-rdf/trunk</developerConnection>
+      <url>http://dspace-sandbox.googlecode.com/svn/modules/dspace-rdf/trunk</url>
+   </scm>
+   
    <repositories>
       <repository>
          <id>maven.dspace.org/snapshot</id>
