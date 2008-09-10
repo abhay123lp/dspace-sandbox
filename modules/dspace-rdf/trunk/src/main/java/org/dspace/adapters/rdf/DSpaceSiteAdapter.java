@@ -40,20 +40,20 @@ public class DSpaceSiteAdapter extends DSpaceObjectAdapter
     private void handleResourceMap(DSpaceObject object, Resource aggregation) throws RDFHandlerException, SQLException
         { 
 
-            URI uri = valueFactory.createURI(aggregation.toString(),"#rem");
+            //URI uri = valueFactory.createURI(aggregation.toString(),"#rem");
             
             // describe type as resource map
-            handleStatement(uri, RDF.TYPE, ORE.ResourceMap);
+            //handleStatement(uri, RDF.TYPE, ORE.ResourceMap);
 
-            handleStatement(uri, DCTERMS.modified_, new Date());
+            //handleStatement(uri, DCTERMS.modified_, new Date());
             
             // describe type as resource map
-            handleStatement(uri,
-                    DC.creator_, ConfigurationManager.getProperty("dspace.name"));
+            //handleStatement(uri,
+            //        DC.creator_, ConfigurationManager.getProperty("dspace.name"));
             
             // identify aggregation
-            handleStatement(
-                    uri, ORE.describes, aggregation);
+            //handleStatement(
+            //        uri, ORE.describes, aggregation);
     }
     
     public void handle(Site object) throws RDFHandlerException
