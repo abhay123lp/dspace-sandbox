@@ -15,6 +15,7 @@
       A combination of OpenRDF model and SAX Content Handlers available
       to support the generation of RDF for DSpace Objects.
    </description>
+   <url>http://projects.dspace.org/dspace-rdf</url>
    
       <!-- 
       The Subversion repository location is used by Continuum to update against
