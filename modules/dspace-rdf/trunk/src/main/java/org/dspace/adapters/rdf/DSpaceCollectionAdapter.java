@@ -49,18 +49,18 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
     private void handleResourceMap(DSpaceObject object, Resource aggregation) throws RDFHandlerException, SQLException
     {
         
-        URI uri = valueFactory.createURI(aggregation.toString(), "#rem");
+        //URI uri = valueFactory.createURI(aggregation.toString(), "#rem");
 
         // describe type as resource map
-        handleStatement(uri, RDF.TYPE, ORE.ResourceMap);
+        //handleStatement(uri, RDF.TYPE, ORE.ResourceMap);
            
-        handleStatement(uri, DCTERMS.modified_, new Date());
+        //handleStatement(uri, DCTERMS.modified_, new Date());
         
         // describe type as resource map
-        handleStatement(uri, DC.creator_, ConfigurationManager.getProperty("dspace.name"));
+        //handleStatement(uri, DC.creator_, ConfigurationManager.getProperty("dspace.name"));
         
         // identify aggregation
-        handleStatement(uri, ORE.describes, aggregation);
+        //handleStatement(uri, ORE.describes, aggregation);
     }
     
     public void handle(Collection object) throws RDFHandlerException 
@@ -71,7 +71,7 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
             
             Resource aggregation = createResource(object);
 
-            this.handleResourceMap(object, aggregation); 
+            //this.handleResourceMap(object, aggregation); 
 
             /* =================================================================
              * The following statements are typing for DCMI Collections
@@ -81,13 +81,13 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
             handleStatement(aggregation, RDF.TYPE, DS.Collection);
             
             // describe type as collection (seems appropriate for RDF)
-            handleStatement(aggregation, RDF.TYPE, DCMITYPE.Collection);
+            //handleStatement(aggregation, RDF.TYPE, DCMITYPE.Collection);
 
             // describe type as collection (specification says this is manditory)
-            handleStatement(aggregation, DC.type_, DCMITYPE.Collection);
+            //handleStatement(aggregation, DC.type_, DCMITYPE.Collection);
             
             // make statements about it
-            handleStatement(aggregation, RDF.TYPE, ORE.Aggregation);
+            //handleStatement(aggregation, RDF.TYPE, ORE.Aggregation);
             
             /* =================================================================
              * The following is a dc.identifier, title, creator and abstract for DCMI Collections 
@@ -131,34 +131,22 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
              * =================================================================
              */
             handleStatement(aggregation, DCTERMS.modified_, new Date());
-            
+
             /* =================================================================
              * List all the Communities this collection is a part of.
              * =================================================================
              */
             for(Community community : object.getCommunities())
             {
-                handleStatement(aggregation, DCTERMS.isPartOf_, 
-                        createResource(community));
-                
-            }
-            
-            /* =================================================================
-             * List all the Communities this collection is a part of.
-             * =================================================================
-             */
-            for(Community community : object.getCommunities())
-            {
-                handleStatement(aggregation, ORE.isAggregatedBy, 
+                handleStatement(aggregation, DS.isPartOfCommunity, 
                         createResource(community));
                 
                 getContext().removeCached(community, community.getID());
             }
-            
-            
-            /*
-             * show all the communities this collection is a member of
-             */
+ 
+            /**
+             * Too heavy handed to list them all here... need some paging
+             * mechanism or SPARQL support here...
             for(ItemIterator iter = object.getAllItems(); iter.hasNext();)
             {
                 Item item = iter.next();
@@ -166,7 +154,8 @@ public class DSpaceCollectionAdapter extends DSpaceObjectAdapter
                         createResource(item));
 
                 item.decache();
-            }   
+            }  
+            */ 
         }
         catch (SQLException e)
         {

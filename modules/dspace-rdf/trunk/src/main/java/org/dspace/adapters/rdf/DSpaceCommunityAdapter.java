@@ -43,18 +43,18 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
     private void handleResourceMap(DSpaceObject object, Resource aggregation) throws RDFHandlerException, SQLException
     {
         
-        URI uri = valueFactory.createURI(aggregation.toString(), "#rem");
+        //URI uri = valueFactory.createURI(aggregation.toString(), "#rem");
 
         // describe type as resource map
-        handleStatement(uri, RDF.TYPE, ORE.ResourceMap);
+        //handleStatement(uri, RDF.TYPE, ORE.ResourceMap);
            
-        handleStatement(uri, DCTERMS.modified_, new Date());
+        //handleStatement(uri, DCTERMS.modified_, new Date());
         
         // describe type as resource map
-        handleStatement(uri, DC.creator_, ConfigurationManager.getProperty("dspace.name"));
+        //handleStatement(uri, DC.creator_, ConfigurationManager.getProperty("dspace.name"));
         
         // identify aggregation
-        handleStatement(uri, ORE.describes, aggregation);
+        //handleStatement(uri, ORE.describes, aggregation);
     }
     
     public void handle(Community object) throws RDFHandlerException
@@ -63,7 +63,7 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
         {
             Resource aggregation = createResource(object);
 
-            this.handleResourceMap(object, aggregation); 
+            //this.handleResourceMap(object, aggregation); 
             
             /* =================================================================
              * The following statements are typing for DCMI Collections
@@ -72,18 +72,6 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
             
             handleStatement(aggregation,
                     RDF.TYPE, DS.Community);
-            
-            // describe type as collection (seems appropriate for RDF)
-            handleStatement(aggregation,
-                    RDF.TYPE, DCMITYPE.Collection);
-
-            // describe type as collection (specification says this is manditory)
-            handleStatement(aggregation,
-                    DC.type_, DCMITYPE.Collection);
-            
-            // make statements about it
-            handleStatement(aggregation,
-                    RDF.TYPE, ORE.Aggregation);
             
             /* =================================================================
              * The following is a dc.identifier, title, creator and abstract for DCMI Collections 
@@ -165,65 +153,6 @@ public class DSpaceCommunityAdapter extends DSpaceObjectAdapter
                 handleStatement(
                         aggregation, DS.logo, createResource(logo));
             }
-
-            //handleStatement(
-            //        aggregation,
-            //        ORE.analogousTo, 
-            //        valueFactory.createURI(HandleManager.getCanonicalForm(object.getHandle()))));
-            
-            /* =================================================================
-             * List all the Communities this collection is a part of.
-             * =================================================================
-             
-            try
-            {
-                Community parent = object.getParentCommunity();
-                
-                if(parent != null)
-                {
-                    handleStatement(
-                            aggregation,
-                            ORE.isAggregatedBy, 
-                            valueFactory.createURI(getMetadataURL(parent) + "#aggregation")));
-                    
-                }
-                else
-                {
-                    Site site = (Site)Site.find(getContext(), 0);
-                    handleStatement(
-                            aggregation,
-                            ORE.isAggregatedBy, 
-                            valueFactory.createURI(getMetadataURL(site) + "#aggregation")));
-                }
-            }
-            catch (SQLException e)
-            {
-                e.printStackTrace();
-            }
-            
-            
-            for(Community community : object.getSubcommunities())
-            {
-                handleStatement(
-                        aggregation,
-                        ORE.aggregates, 
-                        valueFactory.createURI(getMetadataURL(community) + "#aggregation")));
-                
-                getContext().removeCached(community, community.getID());
-            }
-
-            getContext().clearCache();
-
-            for (Collection coll : object.getCollections())
-            {
-                handleStatement(
-                        aggregation,
-                        ORE.aggregates, 
-                        valueFactory.createURI(getMetadataURL(coll) + "#aggregation")));
-                
-                getContext().removeCached(coll, coll.getID());
-            }
-            */
             
         }
         catch (SQLException e)

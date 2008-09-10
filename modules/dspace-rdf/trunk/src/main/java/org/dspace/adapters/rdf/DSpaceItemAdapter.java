@@ -135,7 +135,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
         
         try
         {
-            this.handleResourceMap(item, aggregation);
+            //this.handleResourceMap(item, aggregation);
             
             //this.handleResourceMap(rdfxml, item, aggregation);
 
@@ -144,11 +144,11 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
             /**
              * generate aggregation of bitstreams.
              */
-            handleStatement(aggregation, RDF.TYPE, ORE.Aggregation);
+            //handleStatement(aggregation, RDF.TYPE, ORE.Aggregation);
 
-            handleStatement(aggregation, ORE.analogousTo, valueFactory
-                            .createURI(HandleManager.getCanonicalForm(item
-                                    .getHandle())));
+            //handleStatement(aggregation, ORE.analogousTo, valueFactory
+            //                .createURI(HandleManager.getCanonicalForm(item
+            //                        .getHandle())));
 
             handleStatement(aggregation, RDF.TYPE, DS.Item);
 
@@ -257,7 +257,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                 for (Collection collection : item.getCollections())
                 {
                     handleStatement(
-                            aggregation, DCTERMS.isPartOf_, createResource(collection));
+                            aggregation, DS.isPartOfCollection, createResource(collection));
 
                     getContext().removeCached(collection, collection.getID());
                 }
@@ -284,14 +284,14 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
                     Resource uri = createResource(item, bitstream);
                  
                     /* write out the aggregates */
-                    handleStatement(aggregation, ORE.aggregates, uri);
+                    handleStatement(aggregation, DS.hasBitstream, uri);
 
                     /*
                      * cache the resources and write afterward so the rdfxml is
                      * prettier
                      */
                     connection.add(valueFactory.createStatement(uri,
-                            ORE.isAggregatedBy, aggregation));
+                            DS.isPartOfItem, aggregation));
                     
                     connection.add(valueFactory.createStatement(uri,
                             RDF.TYPE, DS.Bitstream));
