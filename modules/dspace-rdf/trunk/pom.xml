@@ -11,7 +11,6 @@
    <groupId>org.dspace</groupId>
    <artifactId>dspace-rdf</artifactId>
    <name>DSpace RDF generation support</name>
-   <version>1.5.1-SNAPSHOT</version>
    <description>
       A combination of OpenRDF model and SAX Content Handlers available
       to support the generation of RDF for DSpace Objects.
@@ -53,7 +52,7 @@
       <dependency>
          <groupId>org.dspace</groupId>
          <artifactId>dspace-api</artifactId>
-         <version>1.5.1-SNAPSHOT</version>
+         <version>${version}</version>
       </dependency>
       <dependency>
          <groupId>org.openrdf</groupId>

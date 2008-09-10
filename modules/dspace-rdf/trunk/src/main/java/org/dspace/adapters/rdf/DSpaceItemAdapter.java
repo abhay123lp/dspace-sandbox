@@ -51,7 +51,7 @@ public class DSpaceItemAdapter extends DSpaceObjectAdapter
         rdfHandler.handleNamespace("dc", DC.NAMESPACE);
         rdfHandler.handleNamespace("dcterms", DCTERMS.NAMESPACE);
         rdfHandler.handleNamespace("ds", DS.NAMESPACE);
-        rdfHandler.handleNamespace("ore", ORE.NAMESPACE);
+        //rdfHandler.handleNamespace("ore", ORE.NAMESPACE);
     }
 
     public void handle(DSpaceObject object) throws RDFHandlerException
