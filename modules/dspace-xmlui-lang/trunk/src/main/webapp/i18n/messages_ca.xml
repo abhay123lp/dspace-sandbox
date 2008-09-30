@@ -1103,8 +1103,6 @@
   <message key="xmlui.administrative.ControlPanel.knots_column1">Intèrpret</message>
   <message key="xmlui.administrative.ControlPanel.knots_column2">Últim accés</message>
   <message key="xmlui.administrative.ControlPanel.knots_column3">Estat</message>
-  <message key="xmlui.administrative.ControlPanel.knots_hours">{0} hores</message>
-  <message key="xmlui.administrative.ControlPanel.knots_minutes">{0} minuts</message>
   <message key="xmlui.administrative.ControlPanel.knots_expired">Superat</message>
   <message key="xmlui.administrative.ControlPanel.knots_active">Actiu</message>
   <message key="xmlui.administrative.ControlPanel.knots_none">No hi ha continuacions actives</message>
