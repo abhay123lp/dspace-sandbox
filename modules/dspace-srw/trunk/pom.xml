@@ -1,167 +1,161 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>org.dspace</groupId>
-  <artifactId>dspace-srw</artifactId>
-  <packaging>jar</packaging>
-  <name>DSpace SRW</name>
-  <description>DSpace Search/Retrieve Web Service</description>
-  <url>http://www.dspace.org</url>
- 
- 	<parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.dspace</groupId>
+	<artifactId>dspace-srw</artifactId>
+	<packaging>jar</packaging>
+	<name>DSpace SRW</name>
+	<description>DSpace Search/Retrieve Web Service</description>
+	<url>http://www.dspace.org</url>
+	<parent>
 		<groupId>org.dspace</groupId>
 		<artifactId>dspace-parent</artifactId>
 		<version>1.5.2-SNAPSHOT</version>
 	</parent>
-
 	<scm>
 		<connection>
-			scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk
+			scm:svn:http://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk 
 		</connection>
 		<developerConnection>
-			scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk
+			scm:svn:https://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk 
 		</developerConnection>
 		<url>
-			http://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk
+			http://dspace-sandbox.googlecode.com/svn/modules/dspace-srw/trunk 
 		</url>
 	</scm>
-
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-jar-plugin</artifactId>
-            <executions>
-               <execution>
-                  <configuration>         
-                      <includes>
-                        <include>**</include>
-                      </includes>
-                  </configuration>
-                  <goals>
-                     <goal>jar</goal>
-                  </goals>
-                  <phase>package</phase>
-               </execution>
-            </executions>
-         </plugin>
-         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-war-plugin</artifactId>
-            <configuration>
-               <primaryArtifact>true</primaryArtifact>
-               <classifier>webapp</classifier>
-               <archiveClasses>true</archiveClasses>
-               <warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
-               <webResources>
-                  <resource>
-                     <filtering>true</filtering>
-                     <directory>${basedir}/src/main/webapp</directory>
-                     <includes>
-                        <include>WEB-INF/web.xml</include>
-                     </includes>
-                  </resource>
-               </webResources>
-            </configuration>
-            <executions>
-               <execution>
-                  <goals>
-                     <goal>war</goal>
-                  </goals>
-                  <phase>prepare-package</phase>
-               </execution>
-            </executions>
-         </plugin>
-      </plugins>
-   </build>
-   
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<configuration>
+							<includes>
+								<include>**</include>
+							</includes>
+						</configuration>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<executions>
+					<execution>
+						<configuration>
+							<primaryArtifact>false</primaryArtifact>
+							<classifier>webapp</classifier>
+							<archiveClasses>true</archiveClasses>
+							<warSourceExcludes>WEB-INF/lib/*.jar</warSourceExcludes>
+							<webResources>
+								<resource>
+									<filtering>true</filtering>
+									<directory>${basedir}/src/main/webapp</directory>
+									<includes>
+										<include>WEB-INF/web.xml</include>
+									</includes>
+								</resource>
+							</webResources>
+						</configuration>
+						<goals>
+							<goal>war</goal>
+						</goals>
+						<phase>prepare-package</phase>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
 	<distributionManagement>
 		<site>
 			<id>website</id>
 			<url>
-				scp://projects.dspace.org/var/www/projects.dspace.org/htdocs/dspace-srw
+				scp://projects.dspace.org/var/www/projects.dspace.org/htdocs/dspace-srw 
 			</url>
 		</site>
 	</distributionManagement>
-	
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>3.8.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>servlet-api</artifactId>
-      <version>2.3</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.dspace</groupId>
-      <artifactId>dspace-api</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>wsdl4j</groupId>
-      <artifactId>wsdl4j</artifactId>
-      <version>1.5.1</version>
-    </dependency>
-    <dependency>
-      <groupId>commons-discovery</groupId>
-      <artifactId>commons-discovery</artifactId>
-      <version>0.2</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.xml</groupId>
-      <artifactId>jaxrpc-api</artifactId>
-      <version>1.1</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis</artifactId>
-      <version>1.2.1</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-ant</artifactId>
-      <version>1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis</artifactId>
-      <version>1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>axis</groupId>
-      <artifactId>axis-saaj</artifactId>
-      <version>1.3</version>
-    </dependency>
-    <dependency>
-      <groupId>oro</groupId>
-      <artifactId>oro</artifactId>
-      <version>2.0.8</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dspace</groupId>
-      <artifactId>cql-java</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dspace.oclc</groupId>
-      <artifactId>oclc-srw</artifactId>
-      <version>1.0.20080328</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dspace.oclc</groupId>
-      <artifactId>oclc-srw-parallel-searching</artifactId>
-      <version>1.0.20080317</version>
-    </dependency>
-    <dependency>
-      <groupId>org.dspace.oclc</groupId>
-      <artifactId>oclc-dbutils</artifactId>
-      <version>1.0.20080317</version>
-    </dependency>
-  </dependencies>
-  
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.3</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.dspace</groupId>
+			<artifactId>dspace-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>wsdl4j</groupId>
+			<artifactId>wsdl4j</artifactId>
+			<version>1.5.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-discovery</groupId>
+			<artifactId>commons-discovery</artifactId>
+			<version>0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.xml</groupId>
+			<artifactId>jaxrpc-api</artifactId>
+			<version>1.1</version>
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis</artifactId>
+			<version>1.2.1</version>
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis-ant</artifactId>
+			<version>1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis</artifactId>
+			<version>1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>axis</groupId>
+			<artifactId>axis-saaj</artifactId>
+			<version>1.3</version>
+		</dependency>
+		<dependency>
+			<groupId>oro</groupId>
+			<artifactId>oro</artifactId>
+			<version>2.0.8</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dspace</groupId>
+			<artifactId>cql-java</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dspace.oclc</groupId>
+			<artifactId>oclc-srw</artifactId>
+			<version>1.0.20080328</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dspace.oclc</groupId>
+			<artifactId>oclc-srw-parallel-searching</artifactId>
+			<version>1.0.20080317</version>
+		</dependency>
+		<dependency>
+			<groupId>org.dspace.oclc</groupId>
+			<artifactId>oclc-dbutils</artifactId>
+			<version>1.0.20080317</version>
+		</dependency>
+	</dependencies>
 </project>
-
