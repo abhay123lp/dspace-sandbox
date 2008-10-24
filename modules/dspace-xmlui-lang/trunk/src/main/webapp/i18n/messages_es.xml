@@ -1197,7 +1197,7 @@
   <message key="xmlui.dri2xhtml.METS-1.0.size-gigabytes">Gb</message>
   <message key="xmlui.dri2xhtml.METS-1.0.size-kilobytes">Kb</message>
   <message key="xmlui.dri2xhtml.METS-1.0.size-megabytes">Mb</message>
-  <message key="xmlui.dri2xhtml.default.textarea.value"></message>
+  <message key="xmlui.dri2xhtml.default.textarea.value"> </message>
   <message key="xmlui.dri2xhtml.pioneer.author">Autor</message>
   <message key="xmlui.dri2xhtml.pioneer.date">Fecha</message>
   <message key="xmlui.dri2xhtml.pioneer.preview">Vista previa</message>
