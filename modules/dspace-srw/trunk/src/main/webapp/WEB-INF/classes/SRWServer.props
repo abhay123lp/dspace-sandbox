@@ -53,3 +53,6 @@ db.test.class=ORG.oclc.os.SRW.SRWTestDatabase
 
 db.DSpace.class=ORG.oclc.os.SRW.DSpaceLucene.SRWLuceneDatabase
 db.DSpace.configuration=config/DSpace.SRWDatabase.props
+
+#this param violates local dspace policy for deployment locations, but ...
+db.DSpace.home=/home/dspace/dome.mit.edu
