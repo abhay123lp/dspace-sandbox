@@ -133,7 +133,7 @@ public class UsageEventTabFileLogger extends AbstractUsageEvent
         String epersonName = (null == eperson ? "anonymous" : eperson.getEmail());
         string += "\t" + epersonName;
 
-        log.print(string);
+        log.println(string);
         log.flush();
     }
 }
