@@ -1561,8 +1561,6 @@
 	<message key="xmlui.administrative.ControlPanel.activity_sort_url">URL</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_Agent">User-Agent</message>
 	<message key="xmlui.administrative.ControlPanel.activity_anonymous">Anonym {0}</message>	
-	<message key="xmlui.administrative.ControlPanel.activity_hideself">Verstecke meine Seitenzugriffe</message>
-	<message key="xmlui.administrative.ControlPanel.activity_showself">Zeige meine Seitenzugriffe</message>
 	<message key="xmlui.administrative.ControlPanel.activity_none">Abgesehen von Ihren eigen gab es keine Seitenzugriffe in den letzen {0} Tagen.</message>
 		
 	<message key="xmlui.administrative.ControlPanel.select_panel">Benutzen Sie die Reiter, um zur entsprechenden Information zu gelangen</message>
