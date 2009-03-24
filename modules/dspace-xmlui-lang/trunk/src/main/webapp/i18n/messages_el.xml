@@ -1,40 +1,40 @@
-<?xml version="1.0"?>
-  <!--
-  messages_el.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    messages_el.xml
 
-  Version: $Revision: $
- 
-  Date: $Date: $
- 
-  Copyright (C) 2009, The DSpace Foundation.  All rights reserved.
+    Version: $Revision: 1.16$
 
-  Redistribution and use in source and binary forms, with or without
-  modification, are permitted provided that the following conditions are
-  met:
+    Date: $Date: 2009/24/03$
 
-     - Redistributions of source code must retain the above copyright
-       notice, this list of conditions and the following disclaimer.
+    Copyright (C) 2009, The DSpace Foundation.  All rights reserved.
 
-     - Redistributions in binary form must reproduce the above copyright
-       notice, this list of conditions and the following disclaimer in the
-       documentation and/or other materials provided with the distribution.
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are
+    met:
 
-     - Neither the name of the DSpace Foundation nor the names of their
-       contributors may be used to endorse or promote products derived from
-       this software without specific prior written permission.
+    - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
 
-  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-  ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-  HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
-  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
-  OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-  ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
-  TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
-  USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
-  DAMAGE.
+    - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+    - Neither the name of the DSpace Foundation nor the names of their
+    contributors may be used to endorse or promote products derived from
+    this software without specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+    ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+    LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+    A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+    HOLDERS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS
+    OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR
+    TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+    USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+    DAMAGE.
 -->
 <catalogue xml:lang="el" xmlns:i18n="http://apache.org/cocoon/i18n/2.1">
 	
@@ -660,7 +660,7 @@
 	<message key="xmlui.Submission.submit.UploadStep.column3">Μέγεθος</message>
 	<message key="xmlui.Submission.submit.UploadStep.column4">Περιγραφή</message>
 	<message key="xmlui.Submission.submit.UploadStep.column5">Τύπος</message>
-	<message key="xmlui.Submission.submit.UploadStep.column6"></message>
+	<message key="xmlui.Submission.submit.UploadStep.column6"/>
 	<message key="xmlui.Submission.submit.UploadStep.unknown_name">Άγνωστο</message>
 	<message key="xmlui.Submission.submit.UploadStep.unknown_format">άγνωστος τύπος</message>
 	<message key="xmlui.Submission.submit.UploadStep.supported">(Υποστηρίζεται)</message>
@@ -830,7 +830,7 @@
 	<message key="xmlui.administrative.ItemExport.item.not.found">Το τεκμήριο που ζητήσατε δεν βρέθηκε.</message>
 	<message key="xmlui.administrative.ItemExport.collection.not.found">Η συλλογή που ζητήσατε δεν βρέθηκε.</message>
 	<message key="xmlui.administrative.ItemExport.community.not.found">Η κοινότητα που ζητήσατε δεν βρέθηκε.</message>
-	<message key="xmlui.administrative.ItemExport.export.success">Το τεκμήριο εξήχθει με επιτυχία. Θα λάβετε ένα e-mail όταν το αρχείο είναι έτοιμο για λήψη. Μπορείτε επίσης να χρησιμοποιήσετε το σύνδεσμο 'Οι εξαγωγές μου' για να δείτε μια λίστα με τις διαθέσιμες λήψεις σας.</message>
+	<message key="xmlui.administrative.ItemExport.item.success">Το τεκμήριο εξήχθει με επιτυχία. Θα λάβετε ένα e-mail όταν το αρχείο είναι έτοιμο για λήψη. Μπορείτε επίσης να χρησιμοποιήσετε το σύνδεσμο 'Οι εξαγωγές μου' για να δείτε μια λίστα με τις διαθέσιμες λήψεις σας.</message>
 	<message key="xmlui.administrative.ItemExport.collection.success">Η συλλογή εξήχθει με επιτυχία. Θα λάβετε ένα e-mail όταν το αρχείο είναι έτοιμο για λήψη. Μπορείτε επίσης να χρησιμοποιήσετε το σύνδεσμο 'Οι εξαγωγές μου' για να δείτε μια λίστα με τις διαθέσιμες λήψεις σας.</message>
 	<message key="xmlui.administrative.ItemExport.community.success">Η κοινότητα εξήχθει με επιτυχία. Θα λάβετε ένα e-mail όταν το αρχείο είναι έτοιμο για λήψη. Μπορείτε επίσης να χρησιμοποιήσετε το σύνδεσμο 'Οι εξαγωγές μου' για να δείτε μια λίστα με τις διαθέσιμες λήψεις σας.</message>
 	<message key="xmlui.administrative.ItemExport.available.head">Διαθέσιμες εξαγωγές για λήψη:</message>	
@@ -955,12 +955,12 @@
 	<message key="xmlui.administrative.group.EditGroupForm.epeople_column1">ID</message>
 	<message key="xmlui.administrative.group.EditGroupForm.epeople_column2">Όνομα</message>
 	<message key="xmlui.administrative.group.EditGroupForm.epeople_column3">Email</message>
-	<message key="xmlui.administrative.group.EditGroupForm.epeople_column4"></message>
+	<message key="xmlui.administrative.group.EditGroupForm.epeople_column4"/>
 	<message key="xmlui.administrative.group.EditGroupForm.groups_column1">ID</message>
 	<message key="xmlui.administrative.group.EditGroupForm.groups_column2">Όνομα</message>
 	<message key="xmlui.administrative.group.EditGroupForm.groups_column3">Μέλη</message>
 	<message key="xmlui.administrative.group.EditGroupForm.groups_column4">Συλλογή</message>
-	<message key="xmlui.administrative.group.EditGroupForm.groups_column5"></message>
+	<message key="xmlui.administrative.group.EditGroupForm.groups_column5"/>
 	<message key="xmlui.administrative.group.ManageGroupsMain.groups_collection_link">προβολή</message>
 	<message key="xmlui.administrative.group.EditGroupForm.members_head">Μέλη</message>
 	<message key="xmlui.administrative.group.EditGroupForm.members_column1">ID</message>
@@ -1028,7 +1028,7 @@
 	<message key="xmlui.administrative.registries.EditBitstreamFormat.name_help">Ένα μοναδικό όνομα για αυτόν τον τύπο, (π.χ. Microsoft Word XP or Microsoft Word 2000)</message>
 	<message key="xmlui.administrative.registries.EditBitstreamFormat.name_error">Το πεδίο ονόματος απαιτείται.</message>
 	<message key="xmlui.administrative.registries.EditBitstreamFormat.mimetype">Τύπος MIME</message>
-	<message key="xmlui.administrative.registries.EditBitstreamFormat.mimetype.help">Ο τύπος MIME που σχετίζεται με αυτόν τον τύπο δε χρειάζεται να είναι μοναδικός.</message>
+	<message key="xmlui.administrative.registries.EditBitstreamFormat.mimetype_help">Ο τύπος MIME που σχετίζεται με αυτόν τον τύπο δε χρειάζεται να είναι μοναδικός.</message>
 	<message key="xmlui.administrative.registries.EditBitstreamFormat.description">Περιγραφή</message>
 	<message key="xmlui.administrative.registries.EditBitstreamFormat.support">Επίπεδο υποστήριξης</message>
 	<message key="xmlui.administrative.registries.EditBitstreamFormat.support_help">Το επίπεδο υποστήριξης που εγγυάται το ίδρυμά σας για αυτόν τον τύπο.</message>
@@ -1046,7 +1046,7 @@
 	<message key="xmlui.administrative.registries.EditMetadataSchema.head1">Σχήμα μεταδεδομένων: "{0}"</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.para1">Αυτό είναι το σχήμα μεταδεδομένων για "{0}". Μπορείτε να προσθέσετε ή να ενημερώσετε πεδία μεταδεδομένων για αυτό το σχήμα. Επίσης πεδιά μπορούν να επιλεγούν για διαγραφή ή μετακίνηση σε άλλο σχήμα. </message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.head2">Πεδία σχήματος μεταδεδομένων</message>
-	<message key="xmlui.administrative.registries.EditMetadataSchema.column1"></message>
+	<message key="xmlui.administrative.registries.EditMetadataSchema.column1"/>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.column2">ID</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.column3">Πεδίο</message>
 	<message key="xmlui.administrative.registries.EditMetadataSchema.column4">Σημείωση Χρήσης</message>
@@ -1073,7 +1073,7 @@
 	<message key="xmlui.administrative.registries.FormatRegistryMain.head">Μητρώο τύπων Bitstream</message>
 	<message key="xmlui.administrative.registries.FormatRegistryMain.para1">Αυτή η λίστα τύπων bitstream παρέχει πληροφορίες σχετικά με γνωστούς τύπους και του βαθμού υποστήριξής τους. Μπορείτε να επεξεργαστείτε ή να προσθέσετε νέους τύπους bitstream με αυτό το εργαλείο. Τύποι που ορίζονται σαν 'εσωτερικός' είναι κρυφοί από το χρήστη και χρησιμοποιούνται για διαχειριστικούς λόγους.</message>
 	<message key="xmlui.administrative.registries.FormatRegistryMain.new_link">Προσθήκη νέου τύπου bitstream</message>
-	<message key="xmlui.administrative.registries.FormatRegistryMain.column1"></message>
+	<message key="xmlui.administrative.registries.FormatRegistryMain.column1"/>
 	<message key="xmlui.administrative.registries.FormatRegistryMain.column2">ID</message>
 	<message key="xmlui.administrative.registries.FormatRegistryMain.column3">Όνομα</message>
 	<message key="xmlui.administrative.registries.FormatRegistryMain.column4">Τύπος MIME</message>
@@ -1088,7 +1088,7 @@
 	<message key="xmlui.administrative.registries.MetadataRegistryMain.title">Μητρώο μεταδεδομένων</message>
 	<message key="xmlui.administrative.registries.MetadataRegistryMain.head1">Μητρώο μεταδεδομένων</message>
 	<message key="xmlui.administrative.registries.MetadataRegistryMain.para1">Το μητρώο μεταδεδομένων περιέχει μια λίστα με όλα τα πεδία μεταδεδομένων που είναι διαθέσιμα στο καταθετήριο. Αυτά τα πεδία μπορεί να μοιράζονται σε πολλαπλά σχήματα. Παρόλα αυτά το, DSpace απαιτεί qualified Dublin Core σχήματα. Μπορείτε να επεκτείνετε το σχήμα Dublin Core με επιπλέον πεδία ή να προσθέσετε νέα σχήματα στο μητρώο.</message>
-	<message key="xmlui.administrative.registries.MetadataRegistryMain.column1"></message>
+	<message key="xmlui.administrative.registries.MetadataRegistryMain.column1"/>
 	<message key="xmlui.administrative.registries.MetadataRegistryMain.column2">ID</message>
 	<message key="xmlui.administrative.registries.MetadataRegistryMain.column3">Namespace</message>
 	<message key="xmlui.administrative.registries.MetadataRegistryMain.column4">Όνομα</message>
@@ -1173,7 +1173,7 @@
 	<message key="xmlui.administrative.authorization.EditPolicyForm.main_head_edit">Επεξεργασία πολιτικής {0} για {1} {2}</message>
 	<message key="xmlui.administrative.authorization.EditPolicyForm.error_no_group">Δεν επιλέχθηκε ομάδα</message>
 	<message key="xmlui.administrative.authorization.EditPolicyForm.error_no_action">Δεν επιλέχθηκε ενέργεια</message>
-	<message key="xmlui.administrative.authorization.EditPolicyForm.groups_column4"></message>
+	<message key="xmlui.administrative.authorization.EditPolicyForm.groups_column4"/>
 	<message key="xmlui.administrative.authorization.EditPolicyForm.groups_column1">ID</message>
 	<message key="xmlui.administrative.authorization.EditPolicyForm.groups_column2">Όνομα</message>
 	<message key="xmlui.administrative.authorization.EditPolicyForm.groups_column3">Ενέργειες για αυτόν τον πόρο</message>
@@ -1359,7 +1359,7 @@
 	<message key="xmlui.administrative.mapper.SearchItemForm.trail">Αναζήτηση τεκμηρίων</message>
 	<message key="xmlui.administrative.mapper.SearchItemForm.head1">Αναζήτηση σε τεκμήρια που ταιριάζουν: "{0}"</message>
 	<message key="xmlui.administrative.mapper.SearchItemForm.submit_map">Αντέγραψε επιλεγμάνα τεκμήρια</message>
-	<message key="xmlui.administrative.mapper.SearchItemForm.column1"></message>
+	<message key="xmlui.administrative.mapper.SearchItemForm.column1"/>
 	<message key="xmlui.administrative.mapper.SearchItemForm.column2">Συλλογή</message>
 	<message key="xmlui.administrative.mapper.SearchItemForm.column3">Συγγραφέας</message>
 	<message key="xmlui.administrative.mapper.SearchItemForm.column4">Τίτλος</message>
@@ -1369,7 +1369,7 @@
 	<message key="xmlui.administrative.mapper.BrowseItemForm.trail">Πλοήγηση σε αντεγραμμένα τεκμήρια</message>
 	<message key="xmlui.administrative.mapper.BrowseItemForm.head1">Πλοήγηση σε αντεγραμμένα τεκμήρια</message>
 	<message key="xmlui.administrative.mapper.BrowseItemForm.submit_unmap">Αφαίρεση επιλεγμένων τεκμηρίων</message>
-	<message key="xmlui.administrative.mapper.BrowseItemForm.column1"></message>
+	<message key="xmlui.administrative.mapper.BrowseItemForm.column1"/>
 	<message key="xmlui.administrative.mapper.BrowseItemForm.column2">Συλλογή</message>
 	<message key="xmlui.administrative.mapper.BrowseItemForm.column3">Συγγραφέας</message>
 	<message key="xmlui.administrative.mapper.BrowseItemForm.column4">Τίτλος</message>
@@ -1490,7 +1490,6 @@
 	<message key="xmlui.administrative.ControlPanel.head">Πίνακας Ελέγχου</message>
 	<message key="xmlui.administrative.ControlPanel.option_java">Πληροφορίες Java</message>
 	<message key="xmlui.administrative.ControlPanel.option_dspace">DSpace Configuration</message>
-	<message key="xmlui.administrative.ControlPanel.option_knots">Web Continuations</message>
 	<message key="xmlui.administrative.ControlPanel.option_alerts">Προειδοποιήσεις συστήματος</message>
 	<message key="xmlui.administrative.ControlPanel.hours">{0} Ωρες</message>
 	<message key="xmlui.administrative.ControlPanel.minutes">{0} Λεπτά</message>
@@ -1522,13 +1521,6 @@
 	<message key="xmlui.administrative.ControlPanel.mail_from_address">Διεύθυνση αποστολής E-mail</message>
 	<message key="xmlui.administrative.ControlPanel.mail_feedback_recipient">Παραλήπτης σχολίων</message>
 	<message key="xmlui.administrative.ControlPanel.mail_admin">E-mail Γενικού διαχειριστή συστήματος</message>
-	<message key="xmlui.administrative.ControlPanel.knots_head">Web Continuations</message>
-	<message key="xmlui.administrative.ControlPanel.knots_column1">Interpreter</message>
-	<message key="xmlui.administrative.ControlPanel.knots_column2">Τελευταία πρόσπέλαση</message>
-	<message key="xmlui.administrative.ControlPanel.knots_column3">Κατάσταση</message>
-	<message key="xmlui.administrative.ControlPanel.knots_expired">Έληξε</message>
-	<message key="xmlui.administrative.ControlPanel.knots_active">Ενεργό</message>
-	<message key="xmlui.administrative.ControlPanel.knots_none">There are no active continuations.</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_head">Προειδοποιήσεις συστήματος</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_warning"><strong>Προειδοποίηση για συστήματα διαχείρησης φόρτου</strong>: Οι προειδοποιήσεις συστήματος είναι αποτελεσματικές για τον κόμβο στον οποίο ενεργοποιούνται. Πρέπει να είστε σίγουροι οτι κάθε κόμβος είναι σε θέση να λάβει την εντολή ενεργοποίησης προειδοποίησης.</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_message_label">Προειδοποιητικό μήνυμα</message>
@@ -1548,14 +1540,16 @@
 	<message key="xmlui.administrative.ControlPanel.alerts_submit_activate">Ενεργοποίησε</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_submit_deactivate">Απενεργοποίησε</message>
 	<message key="xmlui.administrative.ControlPanel.activity_head">Τρέχουσες Δραστηριότητες ({0} μέγιστες σελίδες)</message>
+	<message key="xmlui.administrative.ControlPanel.stop_anonymous">ΣΤΑΜΑΤΗΜΑ καταγραφής δραστηριότητας ανώνυμων χρηστών.</message>
+	<message key="xmlui.administrative.ControlPanel.start_anonymous">ΕΝΑΡΞΗ καταγραφή δραστηριότητας ανώνυμων χρηστών.</message>
+	<message key="xmlui.administrative.ControlPanel.stop_bot">ΣΤΑΜΑΤΗΜΑ καταγραφής δραστηριότητας bot.</message>
+	<message key="xmlui.administrative.ControlPanel.start_bot">ΕΝΑΡΞΗ καταγραφής δραστηριότητας bot.</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_time">Time Stamp</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_user">Χρήστης</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_ip">Διεύθυνση IP</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_url">URL</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_Agent">User-Agent</message>
 	<message key="xmlui.administrative.ControlPanel.activity_anonymous">Ανώνυμος {0}</message>	
-	<message key="xmlui.administrative.ControlPanel.activity_hideself">Απόκρυψη των σελίδων μου</message>
-	<message key="xmlui.administrative.ControlPanel.activity_showself">Εμφάνιση των σελίδων μου</message>
 	<message key="xmlui.administrative.ControlPanel.activity_none">Εκτός από εσάς, δεν προβλήθηκαν άλλες σελίδες στις προηγούμενες {0} σελίδες.</message>
 	
 	<message key="xmlui.administrative.ControlPanel.select_panel">Χρησιμοποιήστε τις καρτέλες επάνω για να επιλέξετε τις πληροφορίες που θα εμφανίζονται</message>
@@ -1601,7 +1595,7 @@
 			<a href="http://dspace.org">http://dspace.org</a>                            
 		</p>
 	</message>
-	<message key="xmlui.dri2xhtml.structural.contact-link">επικοινωνήστε μαζί μας</message>
+	<message key="xmlui.dri2xhtml.structural.contact-link">Επικοινωνήστε μαζί μας</message>
 	<message key="xmlui.dri2xhtml.structural.feedback-link">Send Feedback</message>
 	
 	<message key="xmlui.dri2xhtml.structural.head-subtitle">Ιδρυματικό Καταθετήριο DSpace</message>
@@ -1695,7 +1689,83 @@
 	<message key="xmlui.dri2xhtml.pioneer.author">Συγγραφέας</message>
 	
 	<!-- tag used to handle the empty textarea tag added 09/28/2006 -->
+	<message key="xmlui.dri2xhtml.default.textarea.value"> </message>
 	
+	<!--###### File Format MIME Type Mappings ######-->
+	
+	<!-- Application-based formats -->
+	<message key="xmlui.dri2xhtml.mimetype.application/marc">Εγγραφή MARC</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/mathematica">Mathematica</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/msword">Microsoft Word</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/octet-stream">άγνωστο</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/pdf">PDF</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/postscript">Postscript</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/sgml">SGML</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.ms-excel">Microsoft Excel</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.ms-powerpoint">Microsoft PowerPoint</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.ms-project">Microsoft Project</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.oasis.opendocument.database">OpenOffice Base</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.oasis.opendocument.formula">OpenOffice Math</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.oasis.opendocument.graphics">OpenOffice Draw</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.oasis.opendocument.presentation">OpenOffice Impress</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.oasis.opendocument.spreadsheet">OpenOffice Calc</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.oasis.opendocument.text">OpenOffice Writer</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.openxmlformats-officedocument.presentationml.presentation">Microsoft PowerPoint 2007</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">Microsoft Excel 2007</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.openxmlformats-officedocument.wordprocessingml.document">Microsoft Word 2007</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.sun.xml.calc">OpenOffice Calc (1.x)</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.sun.xml.draw">OpenOffice Draw (1.x)</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.sun.xml.impress">OpenOffice Impress (1.x)</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.sun.xml.writer.global">OpenOffice Writer (1.x)</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/vnd.visio">Microsoft Visio</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/wordperfect5.1">WordPerfect</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/x-dvi">TeX DVI</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/x-filemaker">FileMaker Pro</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/x-java-applet">Java applet</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/x-latex">LaTeX</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/x-photoshop">Photoshop</message>
+	<message key="xmlui.dri2xhtml.mimetype.application/x-tex">TeX</message>
+	
+	<!-- Audio-based formats -->
+	<message key="xmlui.dri2xhtml.mimetype.audio/basic">Basic Audio</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/flac">Ήχος FLAC</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/m4a">Ήχος AAC</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/m4a-latm">Ήχος AAC</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/mpeg">Ήχος mp3</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/x-aiff">Ήχος AIFF</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/x-mpeg">Ήχος MPEG</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/x-ms-wma">Ήχος WMA</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/x-ms-wmv">Ήχος WMV</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/x-ogg">Ogg Vorbis</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/x-pn-realaudio">RealAudio</message>
+	<message key="xmlui.dri2xhtml.mimetype.audio/x-wav">Ήχος WAV</message>
+	
+	<!-- Image-based formats -->
+	<message key="xmlui.dri2xhtml.mimetype.image/gif">Εικόνα GIF</message>
+	<message key="xmlui.dri2xhtml.mimetype.image/jp2">Εικόνα JPEG 2000</message>
+	<message key="xmlui.dri2xhtml.mimetype.image/jpeg">Εικόνα JPEG</message>
+	<message key="xmlui.dri2xhtml.mimetype.image/png">Εικόνα PNG</message>
+	<message key="xmlui.dri2xhtml.mimetype.image/tiff">Εικόνα TIFF</message>
+	<message key="xmlui.dri2xhtml.mimetype.image/x-ms-bmp">Εικόνα BMP</message>
+	<message key="xmlui.dri2xhtml.mimetype.image/x-photo-cd">Photo CD</message>
+	
+	<!-- Text-based formats -->
+	<message key="xmlui.dri2xhtml.mimetype.text/css">Αρχείο CSS</message>
+	<message key="xmlui.dri2xhtml.mimetype.text/csv">Αρχείο CSV</message>
+	<message key="xmlui.dri2xhtml.mimetype.text/html">HTML</message>
+	<message key="xmlui.dri2xhtml.mimetype.text/javascript">Javascript</message>
+	<message key="xmlui.dri2xhtml.mimetype.text/plain">Αρχείο Κειμένου</message>
+	<message key="xmlui.dri2xhtml.mimetype.text/richtext">Αρχείο RTF</message>
+	<message key="xmlui.dri2xhtml.mimetype.text/xml">XML</message>
+	
+	<!-- Video-based formats -->
+	<message key="xmlui.dri2xhtml.mimetype.video/avi">Βίντεο AVI</message>
+	<message key="xmlui.dri2xhtml.mimetype.video/mjp2">Motion JPEG 2000</message>
+	<message key="xmlui.dri2xhtml.mimetype.video/mpeg">Βίντεο MPEG</message>
+	<message key="xmlui.dri2xhtml.mimetype.video/mpeg2">Βίντεο MPEG-2</message>
+	<message key="xmlui.dri2xhtml.mimetype.video/mp4">Βίντεο MPEG-4</message>
+	<message key="xmlui.dri2xhtml.mimetype.video/quicktime">Βίντεο QuickTime</message>
+
 </catalogue>
 
  	  	 
