@@ -440,8 +440,8 @@
 	<message key="xmlui.EPerson.LoginChooser.title">Einlogart wählen</message>
 	<message key="xmlui.EPerson.LoginChooser.trail">Einlogart wählen</message>
 	<message key="xmlui.EPerson.LoginChooser.head1">Einlogart wählen</message>
-	<message key="xmlui.EPerson.LoginChooser.para1">Einloggen mit:</message>
-	<message key="au.edu.mq.melcoe.mams.dspace.eperson.ShibAuthentication.title">Shibboleth</message>
+	<message key="xmlui.EPerson.LoginChooser.para1">Einloggen via:</message>
+	<message key="org.dspace.authenticate.ShibAuthentication.title">Shibboleth Authentifizierung</message>
 	<message key="org.dspace.eperson.LDAPAuthentication.title">LDAP Authentifizierung</message>
 	<message key="org.dspace.eperson.PasswordAuthentication.title">Passwort</message>
 	<message key="org.dspace.eperson.X509Authentication.title">Web Zertifikat</message>
@@ -664,6 +664,7 @@
 	<message key="xmlui.Submission.submit.UploadStep.head">Datei(en) hochladen</message>
 	<message key="xmlui.Submission.submit.UploadStep.file">Datei</message>
 	<message key="xmlui.Submission.submit.UploadStep.file_help">Bitte geben Sie den voll qualifizierten Pfad zu der Datei auf Ihrem Rechner an. Wenn Sie auf "Durchsuchen" klicken, öffnet sich ein neues Fenster, in welchem Sie die Datei auf Ihrem Rechner suchen und auswählen können.</message>
+	<message key="xmlui.Submission.submit.UploadStep.upload_error">Ein Problem ist während des Hochladens Ihrer Datei aufgetreten. Dies kann verschiedene Gründe haben: der Dateiname war fehlerhaft, aufgrund eines Netzwerkproblems wurde die Datei nicht korrekt übertragen oder Sie haben versucht, eine Dateiformat hochzuladen, welches auf dem Repositorium nicht zugelassen ist. Bitte überprüfen Sie Ihre Eingaben und versuchen es noch einmal.</message>
 	<message key="xmlui.Submission.submit.UploadStep.file_error">Das Dokument muss mindestens eine Datei enthalten.</message>
 	<message key="xmlui.Submission.submit.UploadStep.description">Beschreibung</message>
 	<message key="xmlui.Submission.submit.UploadStep.description_help">Zusätzlich können Sie eine kurze Beschreibung der Datei eingeben, z. B. "<i>Hauptband</i>", oder "<i>Anhang</i>".</message>
