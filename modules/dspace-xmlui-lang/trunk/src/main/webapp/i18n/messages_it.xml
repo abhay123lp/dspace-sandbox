@@ -429,7 +429,7 @@
 	<message key="xmlui.EPerson.LoginChooser.trail">Scegli il login</message>
 	<message key="xmlui.EPerson.LoginChooser.head1">Scegli la modalita' di registrazione</message>
 	<message key="xmlui.EPerson.LoginChooser.para1">Via al Login:</message>
-	<message key="au.edu.mq.melcoe.mams.dspace.eperson.ShibAuthentication.title">Autenticazione Shibboleth</message>
+	<message key="org.dspace.authenticate.ShibAuthentication.title">Autenticazione Shibboleth</message>
 	<message key="org.dspace.eperson.LDAPAuthentication.title">Autenticazione LDAP</message>
 	<message key="org.dspace.eperson.PasswordAuthentication.title">Autenticazione Password</message>
 	<message key="org.dspace.eperson.X509Authentication.title">Autenticazione Certificato Web </message>
@@ -655,6 +655,7 @@
 	<message key="xmlui.Submission.submit.UploadStep.file">File</message>
 	<message key="xmlui.Submission.submit.UploadStep.file_help">Inserire l'intero percorso del file dal tuo computer corrispondente all'item. Cliccando "Sfoglia...", una nuova finestra ti permettera' di selezionare il file dal tuo computer.</message>
 	<message key="xmlui.Submission.submit.UploadStep.file_error">L'item puo' contenere piu' di un file.</message>
+	<message key="xmlui.Submission.submit.UploadStep.upload_error">Si e' verificato un problema durante il trasferimento (upload) del file: nome del file non e' corretto, si e' verificato un problema di rete che ha impedito il corretto trasferimento del file o hai selezionato un file il cui formato e' stato dichiarato interno dagli amministratori. Riprova.</message>
 	<message key="xmlui.Submission.submit.UploadStep.description">Descrizione</message>
 	<message key="xmlui.Submission.submit.UploadStep.description_help">E' possibile fornire una breve descrizione del file, per esempio "<i>Articolo principale</i>", or "<i>Report istituzionale</i>".</message>
 	<message key="xmlui.Submission.submit.UploadStep.submit_upload">Carica file &amp; aggiungi</message>
@@ -1508,7 +1509,6 @@
 	<message key="xmlui.administrative.ControlPanel.head">Pannello di controllo</message>
 	<message key="xmlui.administrative.ControlPanel.option_java">Informazioni Java</message>
 	<message key="xmlui.administrative.ControlPanel.option_dspace">Configurazione DSpace</message>
-	<message key="xmlui.administrative.ControlPanel.option_knots">Configurazione Web</message>
 	<message key="xmlui.administrative.ControlPanel.option_alerts">System-wide Alerts</message>
 	<message key="xmlui.administrative.ControlPanel.hours">{0} h</message>
 	<message key="xmlui.administrative.ControlPanel.minutes">{0} m</message>
@@ -1540,13 +1540,6 @@
 	<message key="xmlui.administrative.ControlPanel.mail_from_address">Da indirizzo mail</message>
 	<message key="xmlui.administrative.ControlPanel.mail_feedback_recipient">Feedback Riceventi</message>
 	<message key="xmlui.administrative.ControlPanel.mail_admin">General Site Administration E-mail</message>
-	<message key="xmlui.administrative.ControlPanel.knots_head">Web Continuations</message>
-	<message key="xmlui.administrative.ControlPanel.knots_column1">Interpreter</message>
-	<message key="xmlui.administrative.ControlPanel.knots_column2">Ultimo accesso</message>
-	<message key="xmlui.administrative.ControlPanel.knots_column3">State</message>
-	<message key="xmlui.administrative.ControlPanel.knots_expired">Expired</message>
-	<message key="xmlui.administrative.ControlPanel.knots_active">Attivo</message>
-	<message key="xmlui.administrative.ControlPanel.knots_none">Non ci sono continuazioni attive.</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_head">System-wide Alerts</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_warning"><strong>Warning for load balanced systems</strong>: System-wide alerts sara' effettivo solo per il nodo per cui e' stato creato. E' necessario asicurarsi che ogni nodo riceve il comando di alert attivata.</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_message_label">Alert message</message>
@@ -1566,15 +1559,17 @@
 	<message key="xmlui.administrative.ControlPanel.alerts_submit_activate">Attivato</message>
 	<message key="xmlui.administrative.ControlPanel.alerts_submit_deactivate">Disattivato</message>
 	<message key="xmlui.administrative.ControlPanel.activity_head">Attività corrente (massimo {0} pagine)</message>
+	<message key="xmlui.administrative.ControlPanel.stop_anonymous">FERMA la registrazione delle attivita' anonime.</message>
+	<message key="xmlui.administrative.ControlPanel.start_anonymous">RIPRENDI la registrazione delle attivita' anonime.</message>
+	<message key="xmlui.administrative.ControlPanel.stop_bot">FERMA la registrazione delle attività dei motori di ricerca.</message>
+	<message key="xmlui.administrative.ControlPanel.start_bot">RIPRENDI FERMA la registrazione delle attività dei motori di ricerca.</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_time">Orario</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_user">Utente</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_ip">IP Address</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_url">URL Page</message>
 	<message key="xmlui.administrative.ControlPanel.activity_sort_Agent">User-Agent</message>
 	<message key="xmlui.administrative.ControlPanel.activity_anonymous">Anonymous {0}</message>	
-	<message key="xmlui.administrative.ControlPanel.activity_hideself">Nascondi le mie visite</message>
-	<message key="xmlui.administrative.ControlPanel.activity_showself">Mostra le mie visite</message>
-	<message key="xmlui.administrative.ControlPanel.activity_none">Oltre te, non ci sono state visite nelle precedenti {0} pagine.</message>
+	<message key="xmlui.administrative.ControlPanel.activity_none">Non sono state registrate visite.</message>
 	
 	<message key="xmlui.administrative.ControlPanel.select_panel">Utilizza le seguenti tabelle per selezionare le informazioni da mostrare</message>
 	
